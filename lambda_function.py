@@ -23,20 +23,20 @@ from pathlib import Path
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
-SMTP_USER = "ctlsmith@me.com"  # Apple ID for SMTP auth — must match the JEEVES_ICLOUD_APP_PASSWORD owner
+SMTP_USER = "ctlsmith@me.com"  # Apple ID for SMTP auth — must match the APTERREON_ICLOUD_APP_PASSWORD owner
 SENDER_EMAIL = "Daily_Intel_Briefs@icloud.com"  # iCloud alias used as From: header
 SENDER_NAME = "Daily Intelligence Brief"
 RECIPIENT_EMAIL = os.environ.get("RECIPIENTS", SMTP_USER)
 SMTP_SERVER = "smtp.mail.me.com"
 SMTP_PORT = 587
 
-ANTHROPIC_MODEL = os.environ.get("JEEVES_MODEL", "claude-sonnet-4-6")
+ANTHROPIC_MODEL = os.environ.get("APTERREON_MODEL", "claude-sonnet-4-6")
 ET_OFFSET = timedelta(hours=-4)  # EDT
 
-# ── Brand: Dark Matter · Event Horizon ──────────────────────────────────────
-EH_RED        = "#CC0000"  # bright red — leads, accent
-EH_DARK_RED   = "#7A1010"  # dark red — grounds
-EH_GREY       = "#888888"  # grey — recedes
+# ── Brand: Apterreon ─────────────────────────────────────────────────────────
+APT_RED        = "#CC0000"  # bright red — leads, accent
+APT_DARK_RED   = "#7A1010"  # dark red — grounds
+APT_GREY       = "#888888"  # grey — recedes
 BG_BASE       = "#050810"  # deepest background (page)
 BG_SURFACE    = "#0D0F18"  # primary surface (cards, body)
 BG_ELEVATED   = "#111420"  # elevated surface (nested cards)
@@ -49,11 +49,8 @@ TEXT_DIM      = "#5A6878"
 TEXT_MUTED    = "#3A4A5A"
 TEXT_FAINT    = "#252E3A"
 
-# Legacy alias kept for backwards-compat with leftover references
-CLAUDE_ORANGE = EH_RED
-
-# Inline 3-triangle Event Horizon mark, scaled by the embedding context.
-def eh_logo_svg(width: int = 24, height: int = 32, glow: float = 0.45) -> str:
+# Inline 3-triangle Apterreon mark, scaled by the embedding context.
+def apt_logo_svg(width: int = 24, height: int = 32, glow: float = 0.45) -> str:
     return (
         f'<svg width="{width}" height="{height}" viewBox="0 0 90 120" '
         f'style="filter:drop-shadow(0 0 {int(width/4)}px rgba(204,0,0,{glow}));flex-shrink:0">'
@@ -119,18 +116,18 @@ SECTIONS = [
     ("Boston", ["Boston"]),
 ]
 
-# Section accent colors mapped to the Event Horizon palette. Tiered hierarchy:
+# Section accent colors mapped to the Apterreon palette. Tiered hierarchy:
 #   tier 1 — bright red (#CC0000): primary attention
 #   tier 2 — dark red  (#7A1010): important context
 #   tier 3 — grey      (#888888): supporting context
 SECTION_COLORS = {
-    "Breaking News":     EH_RED,
-    "Finance & Markets": EH_RED,
-    "Politics & Policy": EH_DARK_RED,
-    "AI & Technology":   EH_DARK_RED,
-    "International":     EH_GREY,
-    "Culture & Sports":  EH_GREY,
-    "Boston":            EH_GREY,
+    "Breaking News":     APT_RED,
+    "Finance & Markets": APT_RED,
+    "Politics & Policy": APT_DARK_RED,
+    "AI & Technology":   APT_DARK_RED,
+    "International":     APT_GREY,
+    "Culture & Sports":  APT_GREY,
+    "Boston":            APT_GREY,
 }
 
 # Emoji icons retired — brand is minimalist typography. Section labels use
@@ -442,7 +439,7 @@ def call_claude(system_prompt, user_content):
 
 # ── Brief Config ────────────────────────────────────────────────────────────
 
-READER_CONTEXT = os.environ.get("JEEVES_READER_CONTEXT", "A curious, analytically rigorous reader.")
+READER_CONTEXT = os.environ.get("APTERREON_READER_CONTEXT", "A curious, analytically rigorous reader.")
 
 SECTION_NAMES = [s[0] for s in SECTIONS]
 
@@ -480,7 +477,7 @@ RULES:
 
 def get_brief_config(brief_type):
     """Build brief config with current env vars (not import-time)."""
-    reader = os.environ.get("JEEVES_READER_CONTEXT", "A curious, analytically rigorous reader.")
+    reader = os.environ.get("APTERREON_READER_CONTEXT", "A curious, analytically rigorous reader.")
     section_list = ", ".join(SECTION_NAMES)
     base_prompt = ANALYSIS_PROMPT.format(reader_context=reader, section_list=section_list)
 
@@ -507,7 +504,7 @@ def get_brief_config(brief_type):
 # ── Market Data Bar HTML ───────────────────────────────────────────────────
 
 def market_bar_email(quotes):
-    """Market data row for the email preview (Dark Matter · Event Horizon)."""
+    """Market data row for the email preview (Apterreon)."""
     if not quotes:
         return ""
     cells = ""
@@ -545,7 +542,7 @@ def market_bar_interactive(quotes):
 # ── Email Preview ──────────────────────────────────────────────────────────
 
 def usage_banner_email(usage_info):
-    """API usage banner for the email (Dark Matter · Event Horizon)."""
+    """API usage banner for the email (Apterreon)."""
     if not usage_info:
         return ""
     cost = usage_info.get("cost_this_call", 0)
@@ -583,7 +580,7 @@ ${cost:.4f} this brief &middot; {tokens:,} tokens &middot; ${monthly:.2f}/mo pro
 
 
 def build_email_preview(title, data, quotes, timestamp, usage_info=None):
-    """Email preview — Dark Matter · Event Horizon. Email-safe (inline styles, tables,
+    """Email preview — Apterreon. Email-safe (inline styles, tables,
     system fonts only — no web fonts since most clients strip @import)."""
     sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
     mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
@@ -594,7 +591,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 
     section_idx = 0
     for sec_name, _ in SECTIONS:
-        color = SECTION_COLORS.get(sec_name, EH_GREY)
+        color = SECTION_COLORS.get(sec_name, APT_GREY)
         sec_data = next((s for s in data.get("sections", []) if s["name"] == sec_name), None)
         if not sec_data or not sec_data.get("stories"):
             continue
@@ -634,8 +631,8 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
     edge_html = ""
     if edge_text:
         edge_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:36px 0 0;border-collapse:collapse">
-<tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #3A0A0A;border-left:3px solid {EH_RED}">
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_RED};text-transform:uppercase;margin-bottom:10px">The Edge</div>
+<tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #3A0A0A;border-left:3px solid {APT_RED}">
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{APT_RED};text-transform:uppercase;margin-bottom:10px">The Edge</div>
 <div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.6">{edge_text}</div>
 </td></tr></table>"""
 
@@ -644,7 +641,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
     if tomorrow_text:
         tomorrow_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0 0;border-collapse:collapse">
 <tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #1A2030">
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_GREY};text-transform:uppercase;margin-bottom:10px">Tomorrow Watch</div>
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{APT_GREY};text-transform:uppercase;margin-bottom:10px">Tomorrow Watch</div>
 <div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.6">{tomorrow_text}</div>
 </td></tr></table>"""
 
@@ -653,17 +650,18 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head>
 <body style="margin:0;padding:0;background:#050810">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#050810"><tr><td align="center" style="padding:32px 16px">
-<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid {EH_RED}">
+<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid {APT_RED}">
 <tr><td style="padding:32px 28px 8px">
 
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td><span style="font-family:{sans};font-size:11px;font-weight:800;letter-spacing:5px;color:#E0E8F0;text-transform:uppercase">Dark Matter</span></td>
-<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A;text-transform:uppercase">Investment Intelligence Suite</span></td>
+<td style="width:1px;vertical-align:middle;padding-right:16px">{apt_logo_svg(40, 53, 0.55)}</td>
+<td style="vertical-align:middle">
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{APT_RED};text-transform:uppercase">Daily Intelligence Brief</div>
+</td>
 </tr></table>
-<div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
+<div style="height:1px;background:#1A2030;margin:14px 0 18px"></div>
 
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_RED};text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
-<h1 style="font-family:{sans};font-size:24px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 6px;line-height:1.25">{title}</h1>
+<h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 4px;line-height:1.25">{title}</h1>
 <div style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#5A6878;text-transform:uppercase">{timestamp}</div>
 
 {usage_html}
@@ -674,8 +672,8 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 
 <div style="margin-top:48px;padding-top:18px;border-top:1px solid #1A2030">
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td><span style="font-family:{sans};font-size:9px;font-weight:800;letter-spacing:4px;color:#3A4A5A;text-transform:uppercase">Dark Matter &middot; Event Horizon</span></td>
-<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp}</span></td>
+<td style="vertical-align:middle">{apt_logo_svg(14, 19, 0.3)} <span style="font-family:{sans};font-size:10px;font-weight:700;color:#3A4A5A;letter-spacing:1px;vertical-align:middle">Apterreon</span> <span style="font-family:{sans};font-size:10px;color:#252E3A;vertical-align:middle">&nbsp;&middot;&nbsp;Explore what&#8217;s out there.</span></td>
+<td style="text-align:right;vertical-align:middle"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp}</span></td>
 </tr></table>
 </div>
 
@@ -688,7 +686,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 # ── Interactive HTML Attachment ─────────────────────────────────────────────
 
 def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
-    """Self-contained interactive HTML brief — Dark Matter · Event Horizon."""
+    """Self-contained interactive HTML brief — Apterreon."""
 
     sections_json = json.dumps(data.get("sections", []))
     edge_text = json.dumps(data.get("the_edge", ""))
@@ -713,7 +711,7 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
   :root {{
     --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
     --border-dim:#1A2030; --border-red:#3A0A0A;
-    --eh-red:#CC0000; --eh-dark-red:#7A1010; --eh-grey:#888888;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
     --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878; --text-muted:#3A4A5A; --text-faint:#252E3A;
   }}
   html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }}
@@ -736,14 +734,14 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
   .topnav .back:hover {{ color:var(--text-primary); }}
   .topnav .lockup {{ display:flex; align-items:center; gap:10px; margin-left:auto; }}
   .topnav .lockup .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }}
-  .topnav .lockup .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; }}
+  .topnav .lockup .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }}
   .topnav .suite {{ display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }}
   @media (min-width:720px) {{ .topnav .suite {{ display:inline; }} }}
 
   .container {{ max-width:760px; margin:0 auto; padding:32px 24px 96px; }}
 
   .header {{ margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }}
-  .header .tag {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; margin-bottom:10px; }}
+  .header .tag {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }}
   .header h1 {{ font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }}
   .header .meta {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }}
 
@@ -759,7 +757,7 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
   .market-card .price {{ font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }}
   .market-card .change {{ font-family:'DM Mono',monospace; font-size:11px; }}
   .market-card .change.up {{ color:#5599CC; }}
-  .market-card .change.down {{ color:var(--eh-red); }}
+  .market-card .change.down {{ color:var(--apt-red); }}
 
   .usage-banner {{
     background:var(--bg-deep); border:1px solid var(--border-dim);
@@ -779,9 +777,9 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
     transition:border-color .2s;
   }}
   .widget.active {{ border-color:var(--text-muted); }}
-  .widget[data-tier="1"] {{ border-bottom:2px solid var(--eh-red); }}
-  .widget[data-tier="2"] {{ border-bottom:2px solid var(--eh-dark-red); }}
-  .widget[data-tier="3"] {{ border-bottom:2px solid var(--eh-grey); }}
+  .widget[data-tier="1"] {{ border-bottom:2px solid var(--apt-red); }}
+  .widget[data-tier="2"] {{ border-bottom:2px solid var(--apt-dark-red); }}
+  .widget[data-tier="3"] {{ border-bottom:2px solid var(--apt-grey); }}
 
   .widget-header {{ display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }}
   .widget-header:hover {{ background:rgba(255,255,255,0.02); }}
@@ -793,7 +791,7 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
   .widget-headlines li::before {{ content:'·'; position:absolute; left:2px; color:var(--text-muted); }}
   .widget-count {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }}
   .widget-chevron {{ color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }}
-  .widget.active .widget-chevron {{ transform:rotate(90deg); color:var(--eh-red); }}
+  .widget.active .widget-chevron {{ transform:rotate(90deg); color:var(--apt-red); }}
 
   .widget-body {{ max-height:0; overflow:hidden; transition:max-height .35s ease; }}
   .widget.active .widget-body {{ max-height:4000px; }}
@@ -804,23 +802,23 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
   .story:first-child {{ border-top:none; }}
   .story-headline {{ font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }}
   .story-headline .arrow {{ font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }}
-  .story.open .story-headline .arrow {{ transform:rotate(90deg); color:var(--eh-red); }}
+  .story.open .story-headline .arrow {{ transform:rotate(90deg); color:var(--apt-red); }}
   .story-source {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }}
 
   .story-details {{ max-height:0; overflow:hidden; transition:max-height .3s ease; }}
   .story.open .story-details {{ max-height:600px; }}
 
   .story-summary {{ font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }}
-  .story-insight {{ font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--eh-red); }}
-  .insight-label {{ font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--eh-red); margin-bottom:8px; }}
-  .story-link {{ display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--eh-red); text-transform:uppercase; }}
+  .story-insight {{ font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }}
+  .insight-label {{ font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }}
+  .story-link {{ display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }}
   .story-link:hover {{ color:#FFFFFF; }}
 
   .panel {{ margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }}
-  .panel.edge {{ border-left:3px solid var(--eh-red); }}
+  .panel.edge {{ border-left:3px solid var(--apt-red); }}
   .panel-title {{ font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }}
-  .panel.edge .panel-title {{ color:var(--eh-red); }}
-  .panel:not(.edge) .panel-title {{ color:var(--eh-grey); }}
+  .panel.edge .panel-title {{ color:var(--apt-red); }}
+  .panel:not(.edge) .panel-title {{ color:var(--apt-grey); }}
   .panel p {{ font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }}
 
   .footer {{ margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }}
@@ -840,12 +838,11 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
 <nav class="topnav">
   <a class="back" href="./index.html"><span>&#9664;</span> Briefs</a>
   <div class="lockup">
-    {eh_logo_svg(20, 27, 0.45)}
+    {apt_logo_svg(20, 27, 0.45)}
     <div>
-      <div class="dm">Dark Matter</div>
+      <div class="dm">Apterreon</div>
       <div class="prod">Daily Intelligence Brief</div>
     </div>
-    <span class="suite">&middot; Investment Intelligence Suite</span>
   </div>
 </nav>
 
@@ -863,7 +860,8 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
   <div id="tomorrow"></div>
 
   <div class="footer">
-    <span class="brand">Dark Matter &middot; Event Horizon</span>
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
     <span class="ts">{timestamp}</span>
   </div>
 </div>
@@ -1096,7 +1094,7 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
         for story in stories:
             link_html = ""
             if story.get("link"):
-                link_html = f'<a href="{story["link"]}" style="display:inline-block;margin-top:8px;font-size:12px;color:{CLAUDE_ORANGE};text-decoration:none">Read source &#8594;</a>'
+                link_html = f'<a href="{story["link"]}" style="display:inline-block;margin-top:8px;font-size:12px;color:{APT_RED};text-decoration:none">Read source &#8594;</a>'
             if is_no_insight:
                 stories_html += f"""<div style="padding:14px 0;border-top:1px solid #1e1e1e">
   <div style="font-size:15px;font-weight:600;color:#e0e0e0">{story['headline']}</div>
@@ -1108,8 +1106,8 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
   <div style="font-size:15px;font-weight:600;color:#e0e0e0">{story['headline']}</div>
   <div style="font-size:11px;color:#555;margin-top:2px">{story.get('source', '')}</div>
   <div style="font-size:14px;color:#aaa;margin:12px 0 10px;line-height:1.55">{story['summary']}</div>
-  <div style="font-size:13px;color:{CLAUDE_ORANGE};line-height:1.55;padding:12px 14px;background:rgba(224,122,47,0.06);border-radius:8px;border-left:3px solid {CLAUDE_ORANGE}">
-    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:{CLAUDE_ORANGE};opacity:0.6;margin-bottom:4px">Claude Insight</div>
+  <div style="font-size:13px;color:{APT_RED};line-height:1.55;padding:12px 14px;background:rgba(224,122,47,0.06);border-radius:8px;border-left:3px solid {APT_RED}">
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:{APT_RED};opacity:0.6;margin-bottom:4px">Claude Insight</div>
     {story['insight']}
   </div>
   {link_html}
@@ -1136,7 +1134,7 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
     edge_text = data.get("the_edge", "")
     if edge_text:
         edge_html = f"""<div style="margin-top:24px;padding:20px;background:#141414;border-radius:12px;border:1px solid rgba(224,122,47,0.2)">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:{CLAUDE_ORANGE};margin-bottom:10px">&#9889; The Edge</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:{APT_RED};margin-bottom:10px">&#9889; The Edge</div>
   <p style="font-size:14px;color:#ccc;line-height:1.7;margin:0">{edge_text}</p>
 </div>"""
 
@@ -1177,9 +1175,9 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
 
 def send_email(subject, html_body, attachment_html=None, attachment_name="brief.html"):
     """Send HTML email via iCloud SMTP with optional HTML attachment."""
-    app_password = os.environ.get("JEEVES_ICLOUD_APP_PASSWORD")
+    app_password = os.environ.get("APTERREON_ICLOUD_APP_PASSWORD")
     if not app_password:
-        raise ValueError("JEEVES_ICLOUD_APP_PASSWORD not set")
+        raise ValueError("APTERREON_ICLOUD_APP_PASSWORD not set")
 
     recipients = [r.strip() for r in RECIPIENT_EMAIL.split(",") if r.strip()]
     if not recipients:
@@ -1211,42 +1209,6 @@ def send_email(subject, html_body, attachment_html=None, attachment_name="brief.
 
 
 # ── Filesystem Storage (replaces S3) ───────────────────────────────────────
-
-def s3_load_last_headlines():
-    """Load the last brief's headline + URL sets from disk."""
-    f = STATE_DIR / "last_headlines.json"
-    if not f.exists():
-        return set(), set()
-    try:
-        data = json.loads(f.read_text(encoding="utf-8"))
-        return set(data.get("headlines", [])), set(data.get("urls", []))
-    except Exception:
-        return set(), set()
-
-
-def s3_save_headlines(headlines, urls):
-    """Save current headline + URL sets to disk for next run comparison."""
-    f = STATE_DIR / "last_headlines.json"
-    f.write_text(
-        json.dumps({"headlines": sorted(headlines), "urls": sorted(urls)}, indent=2),
-        encoding="utf-8",
-    )
-
-
-def check_headline_overlap(current_headlines, current_urls, threshold=0.80):
-    """Compare current headlines + URLs against last run. Returns (should_skip, overlap_pct).
-    Uses the HIGHER overlap of headlines or URLs — catches reworded headlines for same articles."""
-    last_headlines, last_urls = s3_load_last_headlines()
-    if not last_headlines and not last_urls:
-        return False, 0.0
-    if not current_headlines:
-        return True, 1.0
-
-    headline_overlap = len(current_headlines & last_headlines) / len(current_headlines) if current_headlines else 0
-    url_overlap = len(current_urls & last_urls) / len(current_urls) if current_urls else 0
-    pct = max(headline_overlap, url_overlap)
-    print(f"Dedup: headline overlap {headline_overlap:.0%}, URL overlap {url_overlap:.0%} → using {pct:.0%}")
-    return pct >= threshold, round(pct, 2)
 
 
 def s3_write_brief(brief_type, date_str_iso, interactive_html):
@@ -1339,8 +1301,8 @@ def s3_generate_index(briefs):
 
     briefs_json = json.dumps(briefs)
 
-    logo_hero = eh_logo_svg(56, 75, 0.55)
-    logo_nav = eh_logo_svg(20, 27, 0.45)
+    logo_hero = apt_logo_svg(56, 75, 0.55)
+    logo_nav = apt_logo_svg(20, 27, 0.45)
 
     index_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1352,13 +1314,13 @@ def s3_generate_index(briefs):
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#050810">
 <link rel="manifest" href="manifest.json">
-<title>Daily Intelligence Brief &middot; Dark Matter</title>
+<title>Daily Intelligence Brief &middot; Apterreon</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
   :root {{
     --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
-    --border-dim:#1A2030; --eh-red:#CC0000; --eh-dark-red:#7A1010; --eh-grey:#888888;
+    --border-dim:#1A2030; --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
     --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878;
     --text-muted:#3A4A5A; --text-faint:#252E3A;
   }}
@@ -1375,7 +1337,7 @@ def s3_generate_index(briefs):
   }}
   .topnav .lockup {{ display:flex; align-items:center; gap:12px; }}
   .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }}
-  .topnav .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; }}
+  .topnav .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }}
   .topnav .suite {{ display:none; margin-left:auto; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }}
   @media (min-width:720px) {{ .topnav .suite {{ display:inline; }} }}
 
@@ -1387,7 +1349,7 @@ def s3_generate_index(briefs):
   }}
   .cover .mark {{ display:flex; justify-content:center; margin-bottom:24px; }}
   .cover h1 {{ font-family:'Syne',sans-serif; font-weight:800; font-size:36px; letter-spacing:9px; color:#FFFFFF; text-transform:uppercase; margin-bottom:10px; }}
-  .cover .sub {{ font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--eh-red); text-transform:uppercase; margin-bottom:8px; }}
+  .cover .sub {{ font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--apt-red); text-transform:uppercase; margin-bottom:8px; }}
   .cover .desc {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-faint); text-transform:uppercase; }}
 
   .tabs {{
@@ -1402,7 +1364,7 @@ def s3_generate_index(briefs):
   }}
   .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); }}
   .tab .count {{ display:inline-block; margin-left:6px; color:var(--text-muted); }}
-  .tab.active .count {{ color:var(--eh-red); }}
+  .tab.active .count {{ color:var(--apt-red); }}
 
   .view {{ display:none; }}
   .view.active {{ display:block; }}
@@ -1421,9 +1383,9 @@ def s3_generate_index(briefs):
     cursor:pointer; transition:border-color .2s, background .2s;
   }}
   .brief-card:hover {{ border-color:var(--text-muted); background:var(--bg-elevated); }}
-  .brief-card[data-type="morning"]  {{ border-left:2px solid var(--eh-red); }}
-  .brief-card[data-type="midday"]   {{ border-left:2px solid var(--eh-dark-red); }}
-  .brief-card[data-type="evening"]  {{ border-left:2px solid var(--eh-grey); }}
+  .brief-card[data-type="morning"]  {{ border-left:2px solid var(--apt-red); }}
+  .brief-card[data-type="midday"]   {{ border-left:2px solid var(--apt-dark-red); }}
+  .brief-card[data-type="evening"]  {{ border-left:2px solid var(--apt-grey); }}
 
   .brief-num {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); width:48px; flex-shrink:0; }}
   .brief-info {{ flex:1; min-width:0; }}
@@ -1435,8 +1397,8 @@ def s3_generate_index(briefs):
     color:var(--text-muted); padding:6px 10px; transition:color .2s;
     text-transform:uppercase;
   }}
-  .brief-pin:hover {{ color:var(--eh-red); }}
-  .brief-pin.pinned {{ color:var(--eh-red); }}
+  .brief-pin:hover {{ color:var(--apt-red); }}
+  .brief-pin.pinned {{ color:var(--apt-red); }}
   .brief-arrow {{ color:var(--text-muted); font-size:14px; margin-left:8px; flex-shrink:0; }}
 
   .empty {{
@@ -1465,11 +1427,10 @@ def s3_generate_index(briefs):
   <div class="lockup">
     {logo_nav}
     <div>
-      <div class="dm">Dark Matter</div>
+      <div class="dm">Apterreon</div>
       <div class="prod">Daily Intelligence Brief</div>
     </div>
   </div>
-  <span class="suite">Investment Intelligence Suite</span>
 </nav>
 
 <div class="container">
@@ -1477,7 +1438,7 @@ def s3_generate_index(briefs):
   <div class="cover">
     <div class="mark">{logo_hero}</div>
     <h1>Daily Intelligence Brief</h1>
-    <div class="sub">Event Horizon</div>
+    <div class="sub">Apterreon</div>
     <div class="desc">Three editions per day &middot; Markets, Politics, AI, World</div>
   </div>
 
@@ -1492,7 +1453,8 @@ def s3_generate_index(briefs):
   <div id="pinned" class="view"></div>
 
   <div class="footer">
-    <span class="brand">Dark Matter &middot; Event Horizon</span>
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
     <span class="ts" id="footer-ts"></span>
   </div>
 </div>
@@ -1640,9 +1602,9 @@ renderAll();
 
     # Also write PWA manifest
     manifest = {
-        "name": "Daily Intelligence Brief — Dark Matter",
+        "name": "Daily Intelligence Brief — Apterreon",
         "short_name": "DIB",
-        "description": "Daily Intelligence Brief · Dark Matter Event Horizon",
+        "description": "Apterreon Daily Intelligence Brief — explore what's out there.",
         "start_url": "./index.html",
         "display": "standalone",
         "background_color": BG_BASE,
@@ -1706,41 +1668,6 @@ def lambda_handler(event, context):
         subject = f"{config['subject_prefix']} \u2014 {date_str}"
         send_email(subject, "<p>No headlines could be retrieved. RSS feeds may be temporarily unavailable.</p>")
         return {"status": "sent_fallback"}
-
-    # 2b. Dedup check — skip Claude if headlines haven't changed
-    current_headline_set = {h["title"] for h in headlines}
-    current_url_set = {h["link"] for h in headlines if h.get("link")}
-    should_skip, overlap_pct = check_headline_overlap(current_headline_set, current_url_set)
-    if should_skip:
-        print(f"Headline overlap {overlap_pct:.0%} — no material updates since last brief. Skipping.")
-        subject = f"{config['subject_prefix']} — {date_str} — No Major Updates"
-        sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
-        mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
-        skip_html = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"></head>
-<body style="margin:0;padding:0;background:#050810">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#050810"><tr><td align="center" style="padding:32px 16px">
-<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid #888888">
-<tr><td style="padding:32px 28px">
-<table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td><span style="font-family:{sans};font-size:11px;font-weight:800;letter-spacing:5px;color:#E0E8F0;text-transform:uppercase">Dark Matter</span></td>
-<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A;text-transform:uppercase">Investment Intelligence Suite</span></td>
-</tr></table>
-<div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:#888888;text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
-<h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 14px">{config['subject_prefix']} — {date_str}</h1>
-<p style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.65;margin:0">No material developments since the last brief. Headlines overlap at {int(overlap_pct * 100)}%. The next scheduled brief will run as normal.</p>
-<div style="margin-top:36px;padding-top:18px;border-top:1px solid #1A2030">
-<span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp} &middot; No material updates</span>
-</div>
-</td></tr></table>
-</td></tr></table>
-</body></html>"""
-        send_email(subject, skip_html)
-        return {"status": "skipped_no_new_content", "overlap": overlap_pct}
-
-    # Save current headlines + URLs for next run's comparison
-    s3_save_headlines(current_headline_set, current_url_set)
 
     # 3. Group headlines by section
     headlines_text = f"Today is {date_str}. Brief type: {brief_type}.\n\n"

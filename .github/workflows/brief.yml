@@ -1,4 +1,4 @@
-name: jeeves-brief
+name: apterreon-brief
 
 on:
   schedule:
@@ -17,7 +17,7 @@ permissions:
   contents: write   # required to commit the archive back
 
 concurrency:
-  group: jeeves-brief
+  group: apterreon-brief
   cancel-in-progress: false
 
 jobs:
@@ -49,15 +49,15 @@ jobs:
         env:
           ANTHROPIC_API_KEY:          ${{ secrets.ANTHROPIC_API_KEY }}
           ALPHAVANTAGE_API_KEY:       ${{ secrets.ALPHAVANTAGE_API_KEY }}
-          JEEVES_ICLOUD_APP_PASSWORD: ${{ secrets.JEEVES_ICLOUD_APP_PASSWORD }}
-          JEEVES_MODEL:               ${{ vars.JEEVES_MODEL || 'claude-haiku-4-5-20251001' }}
-          JEEVES_READER_CONTEXT:      ${{ vars.JEEVES_READER_CONTEXT }}
+          APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
+          APTERREON_MODEL:               ${{ vars.APTERREON_MODEL || 'claude-haiku-4-5-20251001' }}
+          APTERREON_READER_CONTEXT:      ${{ vars.APTERREON_READER_CONTEXT }}
           RECIPIENTS:                 ${{ vars.RECIPIENTS }}
         run: python lambda_function.py "${{ steps.pick.outputs.edition }}"
 
       - name: Commit archive
         run: |
-          git config user.name "jeeves-bot"
+          git config user.name "apterreon-bot"
           git config user.email "actions@users.noreply.github.com"
           git add docs/ state/
           if git diff --cached --quiet; then
