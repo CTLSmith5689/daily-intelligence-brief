@@ -1,9 +1,9 @@
 {
-  "name": "Daily Intelligence Brief \u2014 Apterreon",
-  "short_name": "DIB",
-  "description": "Apterreon Daily Intelligence Brief \u2014 explore what's out there.",
+  "name": "Apterreon, Daily Intelligence Brief",
+  "short_name": "Apterreon",
+  "description": "Apterreon Daily Intelligence Brief. Explore what's out there.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#050810",
-  "theme_color": "#050810"
+  "background_color": "#0A0A0F",
+  "theme_color": "#0A0A0F"
 }
