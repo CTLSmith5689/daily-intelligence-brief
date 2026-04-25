@@ -13,14 +13,37 @@
 <style>
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
   :root {
-    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#141826; --bg-deep:#070A0F;
+    /* DARK (default) */
+    --bg-base:#050810; --bg-surface:rgba(13,15,24,0.78); --bg-surface-solid:#0D0F18;
+    --bg-elevated:rgba(20,24,38,0.82); --bg-deep:rgba(7,10,15,0.82);
     --border-dim:#1F2738; --border-bright:#3A4A5C;
     --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
-    --text-primary:#F0F4F8; --text-body:#CCD4DC; --text-dim:#9AA8B8;
+    --text-primary:#F0F4F8; --text-body:#D8DFE7; --text-dim:#9AA8B8;
     --text-muted:#6A7888; --text-faint:#4A5A6A;
+    --plexus-on:1;
   }
-  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+  :root[data-theme="light"] {
+    --bg-base:#FAFBFC; --bg-surface:rgba(255,255,255,0.88); --bg-surface-solid:#FFFFFF;
+    --bg-elevated:rgba(244,246,250,0.92); --bg-deep:rgba(240,242,247,0.92);
+    --border-dim:#E2E6EE; --border-bright:#B8C2D0;
+    --apt-red:#B30000; --apt-dark-red:#5A0808; --apt-grey:#6A7888;
+    --text-primary:#0A0F1A; --text-body:#1F2937; --text-dim:#4A5560;
+    --text-muted:#6A7888; --text-faint:#9AA8B8;
+    --plexus-on:0;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
   body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+
+  /* Plexus canvas (dark mode only — fades out in light mode) */
+  #plexus {
+    position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0;
+    pointer-events:auto; opacity:calc(var(--plexus-on)); transition:opacity .3s;
+  }
+  /* All content stacks above the canvas */
+  .topnav, .rail, .main, .footer, .modal-backdrop { position:relative; z-index:1; }
+  .topnav { z-index:120; }
+  .rail { z-index:90; }
+  .modal-backdrop { z-index:200; }
   ::-webkit-scrollbar { width:6px; height:6px; }
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:3px; }
@@ -30,8 +53,8 @@
 
   /* Topnav — brand left, nav right. Hero is gone; this is the only header. */
   .topnav {
-    position:sticky; top:0; z-index:120; height:64px; background:rgba(13,15,24,0.92);
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    position:sticky; top:0; z-index:120; height:64px; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
     border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
     padding:0 28px; gap:18px;
   }
@@ -53,17 +76,27 @@
   .topnav .nav a .count { display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; letter-spacing:1px; }
   .topnav .nav a.active .count { color:var(--apt-red); }
 
+  /* Theme toggle button */
+  .theme-toggle {
+    margin-left:6px; padding:9px 12px; background:transparent;
+    border:1px solid var(--border-dim); cursor:pointer;
+    color:var(--text-dim); font-size:14px; line-height:1;
+    transition:all .15s;
+  }
+  .theme-toggle:hover { color:var(--apt-red); border-color:var(--apt-red); }
+
   @media (max-width:680px) {
     .topnav { padding:0 16px; height:auto; flex-direction:column; align-items:stretch; gap:0; }
-    .topnav .lockup { padding:14px 0 10px; }
+    .topnav .lockup { padding:14px 0 10px; position:relative; }
+    .topnav .lockup .theme-toggle { position:absolute; right:0; top:14px; margin-left:0; }
     .topnav .nav { margin-left:0; border-top:1px solid var(--border-dim); }
     .topnav .nav a { flex:1; text-align:center; padding:12px 8px; }
   }
 
   /* Sticky filter rail — sits right under topnav, fixed-height shell. */
   .rail {
-    position:sticky; top:64px; z-index:90; background:rgba(5,8,16,0.92);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    position:sticky; top:64px; z-index:90; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
     border-bottom:1px solid var(--border-dim);
   }
   .rail-inner { max-width:1200px; margin:0 auto; }
@@ -74,7 +107,7 @@
   }
   .search {
     flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
-    background:var(--bg-surface); border:1px solid var(--border-dim);
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
     padding:11px 14px; transition:border-color .15s;
   }
   .search:focus-within { border-color:var(--apt-red); }
@@ -150,10 +183,11 @@
     gap:14px;
   }
   .brief-card {
-    background:var(--bg-surface); border:1px solid var(--border-dim);
-    padding:0; display:flex; flex-direction:column; transition:border-color .2s, background .2s;
-    overflow:hidden;
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
+    padding:0; display:flex; flex-direction:column; transition:border-color .2s, background .2s, box-shadow .2s;
+    overflow:hidden; box-shadow:0 1px 0 rgba(0,0,0,0.2);
   }
+  :root[data-theme="light"] .brief-card { box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04); }
   .brief-card:hover { border-color:var(--text-muted); background:var(--bg-elevated); }
   .brief-card[data-type="morning"]  { border-top:2px solid var(--apt-red); }
   .brief-card[data-type="midday"]   { border-top:2px solid var(--apt-dark-red); }
@@ -217,9 +251,10 @@
   .story-row {
     display:grid; grid-template-columns:140px 1fr 100px 80px;
     gap:18px; align-items:center;
-    padding:14px 18px; background:var(--bg-surface);
+    padding:14px 18px; background:var(--bg-surface-solid);
     border:1px solid var(--border-dim); border-bottom:none;
     transition:border-color .15s, background .15s;
+    cursor:pointer;
   }
   .story-row:hover { background:var(--bg-elevated); border-color:var(--text-muted); }
   .story-row:last-child { border-bottom:1px solid var(--border-dim); }
@@ -254,10 +289,10 @@
   }
   .modal-backdrop.open { display:flex; }
   .modal {
-    background:var(--bg-surface); border:1px solid var(--border-bright);
+    background:var(--bg-surface-solid); border:1px solid var(--border-bright);
     border-top:2px solid var(--apt-red);
     max-width:720px; width:100%; padding:0;
-    box-shadow:0 24px 64px rgba(0,0,0,0.6);
+    box-shadow:0 24px 80px rgba(0,0,0,0.6);
   }
   .modal-head {
     display:flex; align-items:flex-start; justify-content:space-between;
@@ -344,6 +379,8 @@
 </head>
 <body>
 
+<canvas id="plexus" aria-hidden="true"></canvas>
+
 <nav class="topnav">
   <div class="lockup">
     <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
@@ -351,6 +388,7 @@
       <span class="dm">Apterreon</span>
       <span class="tagline">Explore what's out there.</span>
     </div>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light/dark mode" title="Toggle theme">&#9789;</button>
   </div>
   <div class="nav">
     <a href="#briefs"  data-tab="briefs"  class="active">Briefs <span class="count">··</span></a>
@@ -428,7 +466,7 @@
 </div>
 
 <script>
-const briefs = [{"key": "briefs/2026-04-25-morning.html", "date": "2026-04-25", "type": "morning", "modified": "2026-04-25T19:09:15.435843+00:00", "pinned": false, "sections": [{"name": "Breaking News", "stories": [{"headline": "2 cops hurt in Chicago hospital shooting", "summary": "", "insight": "", "source": "ABC7 Chicago", "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQM2JmUjN0c1Z2X1ZkSFJ2ZE4wcWtSMnJkZWNndnlRSTBLOGRxcG5OWVBRVjdoLURnek9wS2tiWk1jVlZXS1YwVVNCOV9mcF9sS0prbFJOSnE2cVVFTG5QdVdvWXFVLXoyN3pUOFVrVHhFZEpESTR2eWR0N1F2aUplRTlwRWRXVW95RFR4dmNhOUdET0RWdGFUSXBaU1JiMXZBQTNTbmcweDZ2VUJhbE5wVFlmR0s3OUxpTDhUeEZ4TWtPYzZYdGxmVHJmWk5PNGV3TzFwd3JoTUEwUdIB3wFBVV95cUxQSjIyQ0FMWVZINC0zaGI1SG0tV2gwMmRPLW52QmpxTld5WmhiZzBkTjhRTXFxb1doMHNXX0JEZkpFbTFOUTZacUJlQ3pNQWxiNF9KRnRBdFYtelJsZXVLSlhVNHhlNjMtaUNXY3pOcU5ZREx2aUZaZ29Md0Rrb1R3Tm02VlVJUk5RX2ZGUG94Nl9rdWlNV21UUE44b1BfeHNmZnFsai1CMEllb1VPWkFrWlBGYUJ0ZWNUaWNnRzI2aWhPOENRWUFBQTJfa3VmZzZwelZKMWY2NWJDbjJCWTF3?oc=5"}, {"headline": "Evacuation orders in place as structures lost in Espa\u00f1ola fire", "summary": "", "insight": "", "source": "KOAT", "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOWFRhVzZmVnQ3WjdrejE3cks3ZC1KeGFsWEdfY1JFUC1MbnRaWEN3V2o3aW5iclNBdkRPa0l0eExLcDk1ZXFERk1CdmNHNVdPZEliLXVHcWpiUWx3cnpvb1puVUxOcThHSVZqeTVSRFUtS0c2c29Kbk56VEhsTVltLS1KQ2ZXMURJelE?oc=5"}, {"headline": "Suspect surrenders after 12-hour standoff at Winter Park condo", "summary": "", "insight": "", "source": "WESH", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQMlgwVU53WGY2dV9xakRjRTMxYkpNVTVjakdrcHZvRDlpYU5Gb2dfVEVaTVdFQVd6THMzWHN2aHFYMHVUVzJMakhSdDZhVU9kb0Z5WWZkSEhJVThDTHdRcXRlczBab1EtbUxlVm5hX25kSnNDNnhHZVp0clE1SG5NdUh1SUgzVVF4WG9Ka3FA?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "Fed's Interest Rate Dilemma: Stock Market May Pay the Price", "summary": "Federal Reserve faces mounting pressure to cut rates amid competing inflation and growth concerns, with markets pricing in unlikely rate cuts while yields remain elevated.", "insight": "The market is front-running Fed cuts that may not materialize\u2014equity valuations priced for 3-4 cuts by year-end face headwind risk if inflation remains sticky and force the Fed to hold longer, compressing P/E multiples faster than earnings can grow.", "source": "The Globe and Mail", "link": "https://news.google.com/rss/articles/CBMiswJBVV95cUxPQ3dVak1UZGhna0QyUy1NUVBwUGxDdmxkbl92Rk9razNOSTRmdVdDWjlJSmxQbzhZUW9oR0o1N01ZMHgzc2lMMG9lYlRfLVo0Zk93V0pFTF9mc09mdmxTWllzbzIyaUYteW1HdW5TWEJkUXIyUGlPTmVXVzlfcE9MampETnp1Rm9yMmFtN0JnaGQxRlZsTXNteGwzR3I0NlpuR1luQUd2SkJMNjRwWFdSU3BUY2JpUGo1dmVDeEQzWkpXdkdDVEJvbzhONjJ4Nk42aDhJSTRJd1ZiaUczTFVWWTlILWF2QlF0R1dhd3FhV3d5SFdkMmhkYk02OW5EOGRmTWVpUnNzVk9nVXlLdXJIMzg5SENhRjRsaEZXQlEwSEJyel9NbF9ZaExBXzNVLU03UURz?oc=5"}, {"headline": "Insider Trading Cases Threaten Prediction Markets Legitimacy", "summary": "Regulators are scrutinizing prediction market platforms over insider trading concerns, with multiple cases revealing traders using material non-public information to place bets.", "insight": "Prediction markets lose their information-aggregation edge if regulatory friction increases capital requirements and compliance costs\u2014this creates an inverted selection effect where sophisticated actors exit, leaving platforms dominated by retail noise traders and reducing signal value for allocators.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump to Attend First White House Press Dinner Amid Political Setbacks", "summary": "Trump will attend the White House Correspondents' Dinner for the first time, breaking years of avoidance amid a week of political losses including court setbacks and campaign friction.", "insight": "The dinner appearance signals confidence or necessity-driven optics management; if it's the former, expect sharp media performance to reframe narratives, but if forced by deteriorating polling, the visibility becomes a liability stage for opponents to amplify setbacks.", "source": "The New York Times, Al Jazeera", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNYkJnTHREYTlTc1NkWEFWNjVXd2NlVnJNaUp0MWxWV1h0a0x6SGRnYnRLTDE1TUVqTWhhU2l2RGNOZS1rdzg5Yjh3d01pM183emZ0VkRueEM0VURnSGQ0WEhpb19wQnN2aWxBNU5zbk5vZEhDdGNadUNRa084LVBZd3hLNThVcFlmbnkzVnJJSlBibE5LcVE?oc=5"}, {"headline": "Trump's Political Headwinds Mount After Week of Court and Campaign Setbacks", "summary": "Trump faces compounding legal, campaign, and messaging setbacks including court rulings, internal campaign friction, and weakening media narrative control.", "insight": "Multiple simultaneous setbacks erode the 'inevitable comeback' narrative that has been his core equity with core supporters; if legal losses accelerate or polling shows independent slippage below 2024 levels, institutional GOP donors/bundlers begin hedging into alternative candidates, fragmenting the primary apparatus.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Elon Musk Enters Courtroom Showdown With OpenAI Over Control and Governance", "summary": "Musk sued OpenAI, alleging breach of founding principles and conversion away from non-profit mission; discovery phase now reveals internal conflicts over profit/non-profit structure and AI safety prioritization.", "insight": "If Musk prevails on fiduciary breach claims, he establishes precedent that AI founders can sue for deviation from stated mission\u2014this chills acquisition-as-restructuring models (where acquirers pivot startups) and forces explicit governance commitments upfront, reducing M&A velocity in the AI space.", "source": "BNN Bloomberg", "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5"}, {"headline": "Tech Layoffs Accelerate: Meta, Microsoft, Oracle Cut 40K+ Jobs in 2026", "summary": "Major tech firms including Meta, Microsoft, and Oracle collectively laid off over 40,000 employees, citing AI automation, margin pressure, and headcount rationalization.", "insight": "These layoffs are efficiency recalibrations, not existential crises\u2014firms are shedding redundant roles as AI handles routine work (customer service, junior coding, QA), which compresses junior talent pipelines but creates acute shortage for senior IC roles; startups with deep domain expertise can poach disproportionately.", "source": "News18", "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNdUxraE43N0EzQl9RZzY4aEtyU3U2ZkJzUlNSaFRyTjd3REYybFJXeGxPb1E2bjR1aUhwRGUyeDVDbW1aejhweVRZeTk3YjY2SlVpb25pRDE5b2lOXzFYMFBrR1d5WkQwMVVLaXh5b21FUDBoUk9yem83WTFDeDhwMGMyekxzR0hHOHRHb0RXVnRrNGVmM05NM3ZIRVp5eXBjSlBINVNjUkxxTUphVWdiQkwtdHFUTEHSAbwBQVVfeXFMTTk2Y0MxdHQwYVE1MVBsQ0M4aFo4V3poeUVJRUdhMXh3dlFLSGJCVTFBRTZzTTZWWEx3VGw3czlQUTZuODFsVFpOWU5Ka2kzVzJQVEJtVXd3Y1lJRHhqbDA4dDNIMDJYNXNLMzkwc3pKT2hBcWRFZHN0bXlUXzJSTTZWaGZxd215Mm8xeUNCdk5ZMlZlRVBYd3hYd0FJM3hGNmxpVEVlMGhISGlhNVJabmtyOC1CM2JybkNEbE4?oc=5"}]}, {"name": "International", "stories": [{"headline": "California Jet Fuel Supply Drops to 3-Year Low as Middle East Turmoil Disrupts Oil Market", "summary": "Refinery throughput constraints and Middle East instability have squeezed jet fuel inventories on the West Coast to three-year lows, raising near-term supply risk.", "insight": "Low jet fuel inventory combined with high summer demand creates a supply-demand mismatch that will force airline margin compression or route rationalization; carriers with hedged fuel positions or West Coast capacity optionality see relative advantage, while those with long-term fixed fuel surcharges face margin erosion.", "source": "The Guardian", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5"}, {"headline": "U.S. State Department Issues Global Warning on Chinese AI Theft by DeepSeek and Others", "summary": "State Department formally warned diplomatic posts about alleged theft of U.S. AI models by Chinese firms including DeepSeek, escalating technology decoupling measures.", "insight": "Official attribution of IP theft creates justification for export controls and sanctions that were previously informal; Chinese AI firms lose access to legal U.S. compute resources and cloud partnerships, forcing reliance on domestic chips\u2014this accelerates China's indigenous semiconductor buildout but at 2-3 year cost disadvantage, creating a window for non-Chinese AI vendors to entrench.", "source": "CNBC", "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQUjJhb2VhdlFXWTBCVUZQa3ZLQ2ZfTjJFUE9lbzRQNmJGYzhFZXJFLTJ3RWdDb0NPT1hQZkdwcW5wMjFfalUzSHNzdWM2dkpLa25vbG1XMXd2Tmo0SmpFZWUxMkU5U2hCcy1xY1RpNmpSMUxPLURFaTZYVVFSUWlSU1dvUdIBiAFBVV95cUxOQ0kwYjI1eHhaVjRuaGtiNGRldGRNLVFLRXpaQnc1MVhlMkZodm1iRlQ2U2pyWndzUnJwRW5pS0hHTVpWR1puM0Z2dnN2clg1V19IeWFVbkZTWnR0eTRuV3g3Nm9iVXVQMnRrUUlMVDNzc0VpX1d2QXZoZEJCZGFnNjF0djVaTTZk?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "NBA Playoffs Underway: Pistons-Magic Leads Saturday Slate on Peacock", "summary": "NBA playoffs continue with multiple games Saturday including Pistons-Magic matchup streaming exclusively on Peacock, driving subscription engagement.", "insight": "Exclusive playoff streaming on Peacock creates urgency for cord-cutters and non-subscribers; NBC/Comcast captures incremental subscription revenue and viewing data on millennial/Gen-Z audiences who otherwise avoid linear TV, but fragmentation across ESPN, ABC, and Peacock reduces total audience concentration and advertising yield per viewer.", "source": "NBA", "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPeWdySklWR1hOOE5mYVNQUFc0X25UMERrdmZmQ3A1LVBwVW1FNExFWmphVWtISnhEVHVmUFZudG5pLW9JSmhsTUhRemhKWlMxSDJNTnMzdmtEeEFZSEMzSUFvSHBHaHA3em1Ta01ZaVpqMm9NVG1lM3RWUFlnNmJlR3VzMHdrbzZCeHktUmVLX1JaT0NDNHFCTVdKeUFpejQ?oc=5"}, {"headline": "'Gregg Allman: The Music Of My Soul' Theatrical Documentary Set for June Release", "summary": "Documentary on Gregg Allman will receive theatrical release in June, targeting legacy rock fan base and streaming platform licensing deals.", "insight": "Theatrical music documentaries face declining theatrical footfall but generate licensing revenue and cultural legitimacy that drives premium SVOD placement (Netflix/Max); this is a back-to-back play where the theatrical window creates PR momentum for downstream premium streaming deals.", "source": "Relix", "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE1VRGo3ZFlEYUg3cmZlSXhCVEJCdVpTc1M1dC1Cbjk1aktUNUZ6SDdfN2VQdm1IdnJ6Rl8yc0w2MDZLam5UX1o0dFZHWEpSUQ?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Two Children Found Dead in Wellesley Home During Wellness Check", "summary": "Two children discovered deceased in a Wellesley residence during a welfare investigation; police investigation ongoing.", "insight": "Wellness checks that discover fatalities shift focus to whether prior reports of concern existed in social services or law enforcement databases\u2014failure to act on prior complaints creates institutional liability and may trigger policy changes around mandatory reporting thresholds.", "source": "CBS News, Boston 25 News", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQM2psaDlVM21pUHhXVTdtem4zYVNNX2JCLWNqalVjZHlPa0VCTy11ZEt0RU95U2hjU2YxazhUdWpLMmhCTTdSZG9nME1uNzZ3bXN4VGJQSVlGczRvMVFIYnBkT3hDOG1seGx2Z3hNY0hDM2otNTZYYmNQbGJ1Z0xUNnBibTczRGNK?oc=5"}, {"headline": "Domestic Violence Suspect Killed in Crash While Fleeing Plymouth Police", "summary": "A domestic violence suspect died in a vehicle crash while evading Plymouth police; DA confirms suspect involvement in prior incidents.", "insight": "High-speed pursuit fatalities create liability exposure for departments and often trigger policy reviews on pursuit authorization; courts and municipalities increasingly restrict pursuits for non-violent offenders due to public safety risk, which may reduce apprehension rates but protects institutional balance sheets from civil judgments.", "source": "CBS News", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE15NElCZWluOGgxZTF6SUxscWFhbzdsQmVFVGI4bW1majZCOWdxOW1rNTlyb3NvYzZ1S2VKaHVqa0hMOUNkcU9FeFZLaUFfRWtmVk4xQzZBV1QxcWF3TEJTdlYySWthZHF3Mk5QOVZVVHVnWm9YN2dpMkg4LXdCUQ?oc=5"}]}], "the_edge": "Three structural shifts converge: Fed rate uncertainty is reshaping equity duration risk while insider trading in prediction markets erodes their signal quality as allocator tools; meanwhile, Chinese AI export controls and tech layoffs are fragmenting the global talent pipeline, creating arbitrage for specialized IC hiring in non-China jurisdictions. Allocators should monitor which tech firms have non-overlapping layoff footprints (early mover advantage in rehiring) and whether prediction market regulations reduce their information edge\u2014a confluence that could reshape how markets price uncertainty.", "tomorrow_watch": "", "timestamp": "03:07 PM ET"}];
+const briefs = [{"key": "briefs/2026-04-25-morning.html", "date": "2026-04-25", "type": "morning", "modified": "2026-04-25T19:17:05.988823+00:00", "pinned": false, "sections": [{"name": "Breaking News", "stories": [{"headline": "Swedish Hospital shooting today: 2 cops hurt in Roseland, Chicago hospital shooting", "summary": "", "insight": "", "source": "ABC7 Chicago", "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQM2JmUjN0c1Z2X1ZkSFJ2ZE4wcWtSMnJkZWNndnlRSTBLOGRxcG5OWVBRVjdoLURnek9wS2tiWk1jVlZXS1YwVVNCOV9mcF9sS0prbFJOSnE2cVVFTG5QdVdvWXFVLXoyN3pUOFVrVHhFZEpESTR2eWR0N1F2aUplRTlwRWRXVW95RFR4dmNhOUdET0RWdGFUSXBaU1JiMXZBQTNTbmcweDZ2VUJhbE5wVFlmR0s3OUxpTDhUeEZ4TWtPYzZYdGxmVHJmWk5PNGV3TzFwd3JoTUEwUdIB3wFBVV95cUxQSjIyQ0FMWVZINC0zaGI1SG0tV2gwMmRPLW52QmpxTld5WmhiZzBkTjhRTXFxb1doMHNXX0JEZkpFbTFOUTZacUJlQ3pNQWxiNF9KRnRBdFYtelJsZXVLSlhVNHhlNjMtaUNXY3pOcU5ZREx2aUZaZ29Md0Rrb1R3Tm02VlVJUk5RX2ZGUG94Nl9rdWlNV21UUE44b1BfeHNmZnFsai1CMEllb1VPWkFrWlBGYUJ0ZWNUaWNnRzI2aWhPOENRWUFBQTJfa3VmZzZwelZKMWY2NWJDbjJCWTF3?oc=5"}, {"headline": "Suspect surrenders after 12-hour standoff at Winter Park condo complex", "summary": "", "insight": "", "source": "WESH", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQMlgwVU53WGY2dV9xakRjRTMxYkpNVTVjakdrcHZvRDlpYU5Gb2dfVEVaTVdFQVd6THMzWHN2aHFYMHVUVzJMakhSdDZhVU9kb0Z5WWZkSEhJVThDTHdRcXRlczBab1EtbUxlVm5hX25kSnNDNnhHZVp0clE1SG5NdUh1SUgzVVF4WG9Ka3FA?oc=5"}, {"headline": "Record-breaking heat in Houston? We'll hit the 80s today, 90s tomorrow", "summary": "", "insight": "", "source": "Click2Houston", "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPQnViZmx2cE42QmF2cWRiYXRKZkRBTFYtekliZXhaSk8yd2xRb2s3b3VOTDg1aDRfcElJRTZIRHE0NFBWT19ONEZ5dTdRQ2dOdF9ybXRwcXlhaW1reE1lb3VUNHNwbS1lLWNZSXg4dFh0ZlE4UFpMcDU5dXo0TGJtVE5IZ0Q3V09jck5VNEZPUWZMM3ZKVFNCVUFtUmNRdkp6Y0c0RjV0LUp3Ykhqa2RQM2FnN1A4b2tm?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "The Federal Reserve's Interest Rate Dilemma: Inflation Persistence vs. Growth Risk", "summary": "Fed faces conflicting mandates as sticky inflation resists rate cuts despite recession signals, threatening equity valuations built on cutting assumptions.", "insight": "Markets are repricing the 'Fed puts' lower: if inflation remains elevated through mid-2026, the Fed cannot cut aggressively, which collapses the earnings leverage thesis that equities require to justify 2024-2025 valuations; this reversal cascades into multiple compression across duration-sensitive tech and growth equities.", "source": "The Globe and Mail, The Economic Times", "link": "https://news.google.com/rss/articles/CBMiswJBVV95cUxPQ3dVak1UZGhna0QyUy1NUVBwUGxDdmxkbl92Rk9razNOSTRmdVdDWjlJSmxQbzhZUW9oR0o1N01ZMHgzc2lMMG9lYlRfLVo0Zk93V0pFTF9mc09mdmxTWllzbzIyaUYteW1HdW5TWEJkUXIyUGlPTmVXVzlfcE9MampETnp1Rm9yMmFtN0JnaGQxRlZsTXNteGwzR3I0NlpuR1luQUd2SkJMNjRwWFdSU3BUY2JpUGo1dmVDeEQzWkpXdkdDVEJvbzhONjJ4Nk42aDhJSTRJd1ZiaUczTFVWWTlILWF2QlF0R1dhd3FhV3d5SFdkMmhkYk02OW5EOGRmTWVpUnNzVk9nVXlLdXJIMzg5SENhRjRsaEZXQlEwSEJyel9NbF9ZaExBXzNVLU03UURz?oc=5"}, {"headline": "Trump Accumulates $51M in Bond Holdings, Signaling Political-Financial Hedging", "summary": "Trump's March bond purchases reveal asset reallocation toward fixed income as political headwinds mount and equity volatility increases.", "insight": "Bond accumulation by a politically exposed high-net-worth individual suggests reduced confidence in equity upside and hedging against policy uncertainty; this is a signal that insider conviction on continued equity appreciation is eroding, particularly among those with explicit political leverage embedded in positions.", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOX0xRdkVkVzZzc0JxU0pRN0d5V1R0dU5xWlJZdGhsQWFoLVBHZmctczgwNndnRWNRRkd6VjFfenEza1RmRDZSbDlMS2p4SjBTUUUtendkRTA2V2VORFZYOGt1T3N0TFdNanF5MzBFSjJ3M1JqLXFyU3hUS0xvYThmWWROd2JnS0RuSlcyTTJ5dDZ6R09FR1NQaU5TZ3o1cnlrN0g0X1lfTGpQMHl1TTExcw?oc=5"}, {"headline": "Insider Trading Scrutiny Threatens Prediction Market Credibility and Arbitrage Windows", "summary": "Insider trading cases expose unpatrolled information asymmetries in emerging prediction markets, raising regulatory risk and market integrity concerns.", "insight": "Prediction markets have operated in regulatory gray zones because they're perceived as entertainment; formal insider trading enforcement destroys the structural arbitrage advantage that attracted sophisticated capital, forcing a repricing of market efficiency assumptions and potentially shrinking liquidity in politically sensitive contracts.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump Attends First White House Press Dinner After Years of Avoidance", "summary": "Trump commits to attending the White House Correspondents' Association dinner despite a decade-long boycott, signaling tactical shift in media relations.", "insight": "This reversal indicates Trump's political momentum has weakened enough to require legitimacy restoration through institutional engagement; the media dinner is a ceremony that exchanges civility for soft power, and Trump's presence suggests he's no longer confident that populist anti-press messaging alone sustains his political brand.", "source": "The New York Times, Al Jazeera, After years of avoidance, Trump to attend first White House press dinner", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNYkJnTHREYTlTc1NkWEFWNjVXd2NlVnJNaUp0MWxWV1h0a0x6SGRnYnRLTDE1TUVqTWhhU2l2RGNOZS1rdzg5Yjh3d01pM283emZ0VkRueEM0VURnSGQ0WEhpb19wQnN2aWxBNU5zbk5vZEhDdGNadUNRa084LVBZd3hLNThVcFlmbnkzVnJJSlBibE5LcVE?oc=5"}, {"headline": "Trump's Political Momentum Slips: Week of Strategic Setbacks Accumulate", "summary": "Trump faces compounding political losses including judicial setbacks, legislative blockage, and internal coalition fractures, weakening executive positioning.", "insight": "Accumulated reversals reduce Trump's veto power over his own coalition and weaken his ability to extract rent-seeking concessions from institutional actors; this creates an opening for challengers within the Republican infrastructure and suggests policy leverage will shift toward negotiated compromise rather than executive fiat.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Musk vs. OpenAI: Courtroom Showdown Over Nonprofit-to-For-Profit Conversion", "summary": "Elon Musk's legal challenge to OpenAI's 2023 for-profit restructuring escalates to court, alleging breach of original nonprofit charter and misuse of founding capital.", "insight": "If Musk prevails, this creates precedent-setting liability for cap-table restructuring that erases early stakeholder claims, threatening the entire startup-to-scale playbook; even if Musk loses, the discovery process will expose OpenAI's board decision-making and cap allocation, potentially informing regulatory frameworks for AI governance and fiduciary duty.", "source": "BNN Bloomberg", "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5"}, {"headline": "Tech Giants Cut 40K+ Jobs in 2026; Meta and Microsoft Deepen Restructuring", "summary": "Oracle, Meta, Microsoft, and other giants announce combined 40,000+ layoffs, citing AI automation and operational efficiency as drivers.", "insight": "Tech layoffs are rebalancing cost-to-revenue ratios in advance of AI adoption; this wave differs from 2022-2023 because it targets back-office and mid-tier roles that AI tooling can actually replace, not hiring excesses, meaning the headcount compression is structural and permanent, creating a competitive moat for companies that have already automated those functions.", "source": "News18, TechCrunch", "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNdUxraE43N0EzQl9RZzY4aEtyU3U2ZkJzUlNSaFRyTjd3REYybFJXeGxPb1E2bjR1aUhwRGUyeDVDbW1aejhweVRZeTk3YjY2SlVpb25pRDE5b2lOXzFYMFBrR1d5WkQwMVVLaXh5b21FUDBoUk9yem83WTFDeDhwMGMyekxzR0hHOHRHb0RXVnRrNGVmM05NM3ZIRVp5eXBjSlBINVNjUkxxTUphVWdiQkwtdHFUTEHSAbwBQVVfeXFMTTk2Y0MxdHQwYVE1MVBsQ0M4aFo4V3poeUVJRUdhMXh3dlFLSGJCVTFBRTZzTTZWWEx3VGw3czlQUTZuODFsVFpOWU5Ka2kzVzJQVEJtVXd3Y1lJRHhqbDA4dDNIMDJYNXNLMzkwc3pKT2hBcWRFZHN0bXlUXzJSTTZWaGZxd215Mm8xeUNCdk5ZMlZlRVBYd3hYd0FJM3hGNmxpVEVlMGhISGlhNVJabmtyOC1CM2JybkNEbE4?oc=5"}, {"headline": "Microsoft Claims Third-Party Antivirus No Longer Necessary, Asserting OS-Level Security Dominance", "summary": "Microsoft publicly positions Windows Defender as sufficient, effectively declaring end-of-life for independent antivirus market and consolidating security stack control.", "insight": "This is a strategic lock-in move: by making OS-level security competitive with third-party solutions, Microsoft eliminates a category of tools that customers previously required to justify OS independence; this reduces switching costs for alternative operating systems and establishes Microsoft's control over the entire security layer, creating rent extraction upside and preventing zero-day exposure from vendor fragmentation.", "source": "Forbes", "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxPVGdJSVJlY1lmZlNqS0s2a2hyakRtM2NKMGVuaWF1amhUTU5qenV6X0g3bFVkbjNjSmdkejdTS3VZQjlTR0dFcXVhLXI1X1VjcWV3ZWNsb0dHSGJERDJ2MnhJS3U2eUFxNDlKZGI4NGNDZVliVmNFY1FUTmw1VWdCM3gzYnNpckcwTHg3NEdGaHhwV3J0aVNLSEJlWGZacHgybTBMU0NqYThGanU3Z0h6WllNdEFELXFUSGVROU5KVnNBWmZuT1lVVXVjR0tZMTVmT0lSSDlRbHFfTVQ1N0VpV3ZHbXpyNW8?oc=5"}]}, {"name": "International", "stories": [{"headline": "California Jet Fuel Supply Hits Three-Year Low; Middle East Conflict Constrains Global Oil", "summary": "California's jet fuel inventory drops to three-year lows as Middle East instability disrupts refinery operations and shipping logistics, tightening domestic aviation fuel supply.", "insight": "This creates a structural arbitrage: regional scarcity of jet fuel drives higher aviation costs and narrows operating margins for airlines with West Coast concentration; simultaneously, it signals to refineries that capacity expansion will earn supranormal returns, making refinery equities and energy infrastructure investment attractive despite broader commodity price uncertainty.", "source": "The Guardian", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5"}, {"headline": "U.S. State Department Warns of Chinese AI Theft; DeepSeek and Others Targeted", "summary": "State Department issues global warning alleging Chinese entities including DeepSeek have stolen U.S. AI models and intellectual property through coordinated espionage operations.", "insight": "This escalates AI into explicit great-power competition terrain: if substantiated, it legitimizes export controls and threatens U.S. dominance in foundation models; for capital allocators, it justifies premium valuations for closed-loop AI infrastructure (domestic cloud, proprietary training data) and increases risk premium for open-source model plays with supply-chain exposure to Chinese actors.", "source": "CNBC", "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQUjJhb2VhdlFXWTBCVUZQa3ZLQ2ZfTjJFUE9lbzRQNmJGYzhFZXJFLTJ3RWdDb0NPT1hQZkdwcW5wMjFfalUzSHNzdWM2dkpLa25vbG1XMXd2Tmo0SmpFZWUxMkU5U2hCcy1xY1RpNmpSMUxPLURFaTZYVVFSUWlSU1dvUdIBiAFBVV95cUxOQ0kwYjI1eHhaVjRuaGtiNGRldGRNLVFLRXpaQnc1MVhlMkZodm1iRlQ2U2pyWndzUnJwRW5pS0hHTVpWR1puM0Z2dnN2clg1V19IeWFVbkZTWnR0eTRuV3g3Nm9iVXVQMnRrUUlMVDNzc0VpX1d2QXZoZEJCZGFnNjF0djVaTTZk?oc=5"}, {"headline": "China Tightens Crypto Regulations Amid U.S.-China AI and Energy Competition Escalation", "summary": "China implements stricter crypto rules targeting offshore capital flows and decentralized finance, coinciding with economic war intensification over AI and oil.", "insight": "Capital controls via crypto restriction signal that China is concerned about capital flight during economic pressure; this is a leading indicator that Chinese leadership perceives structural disadvantage in AI competition and expects capital outflow acceleration\u2014making yuan weakness and offshore RMB volatility profitable bets for allocators with CNY exposure.", "source": "Cointribune", "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxOR1RFR3ZrcXFjeENaTkU4VkU1SXl1THV2V2dUTWlmV3dmMVRDbmFzZ1diN2k1WmZQVUdVcXFQdEZjSjJKd1p0TlMxUEJSV0FSMm9GQUd3ZWVPcGhuaXNITjJBNDBHd1ZjaUk4RjUxWFBoMU8wUkN2b2JRazQydE1mWUx2bGFlUUNKY0NzOHp3UnlPNnRxV1dCTjhKb0NZbEYtaUZVLVg5Sml3Y2hsUFRwczVObDdpd3J3VGQxTFM5TQ?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "NBA Playoffs Begin; High-Stakes Competition Tests Team Depth and Star Power", "summary": "NBA playoff season opens with multiple matchups featuring championship contenders and emerging challengers, setting stage for postseason narrative development.", "insight": "Playoff performance data becomes real-time feedback on roster construction efficiency and coaching acumen; teams with high salary concentration in star players face elimination risk if those stars underperform, while balanced rosters show more stable performance, informing front-office capital allocation strategy for future drafts and trades.", "source": "NBA, Milwaukee Journal Sentinel", "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNYmZoMXZSZnhONWtzOTU3N0swN1BhNW5mNmh5TkNHVXk4czZ4X21WdGl2VmxyQ3MybE9pNzZLZU5RQ3hGZGxXRl9uNHpWd2R1Skg4SzlCV05WdGJhR3FZUWRqNGFCVnZCRFJBVTlfLWhXejNBWUZ4dWV6U3B1SE1TaW1RYk1OZnNGZjAweU9JaC1qYlVlRUhKTzdZdWdLVVl1enB2Tl9hWDZwUTU0aEdoVndzYnlfWHk0WlZrRXZhWDJ3djlpYmE5d2VoLV9leE0?oc=5"}, {"headline": "NFL Draft Continues; Collegiate Talent Enters Professional Market", "summary": "NFL Draft day 3 finalizes team selections, completing player allocation process across 32 franchises and establishing roster compositions for upcoming season.", "insight": "Draft results reveal front-office confidence in valuation models; teams that trade down aggressively signal disagreement with consensus player rankings, while reach picks indicate conviction in private evaluation that diverges from market price, creating asymmetric information alpha opportunities for cap-conscious allocators analyzing post-draft contract efficiency.", "source": "IndyStar", "link": "https://news.google.com/rss/articles/CBMi-gFBVV95cUxQWDlQUXBEa2xhR21nNk9yczN4cnlnNzNlVWgxaUJmMUpGa2M0czJLTXFzTDNoay03cGJ2b0lEX0ZjQ0xOMzE5ZUdZWEVlRnlMLUVVOUJacXF1eVFleEwzQ0NUYnljazZQMkZZblhxSHRETDRaVEhWd21ib3M4dG45dGhyVHZ0MV9IU3RyTy1CdTNqSHA0SkxoaUpYalBfYk42UmZMSHVvRkZLQ3YtOU1IcGpUX09jdEtQS1lWYW9XdFltdmVHMDEyaWZSbU5SZzlNWDZJSE5NQXlsWGRzMW9fZmRfZW5ySzBXT3RFalZDSXNPWV8wQnNRMEVB?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Two Children Found Dead in Wellesley Home During Wellness Check", "summary": "Massachusetts authorities discovered two children deceased in a Wellesley residence during a welfare investigation, triggering criminal investigation.", "insight": "Wellness check fatalities expose gaps in early intervention systems and parental monitoring\u2014data point for public health allocators tracking child protection infrastructure effectiveness and potential demand for expanded surveillance or intervention services.", "source": "CBS News, Boston 25 News", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQM2psaDlVM21pUHhXVTdtem4zYVNNX2JCLWNqalVjZHlPa0VCTy11ZEt0RU95U2hjU2YxazhUdWpLMmhCTTdSZG9nME1uNzZ3bXN4VGJQSVlGczRvMVFIYnBkT3hDOG1seGx2Z3hNY0hDM2otNTZYYmNQbGJ1Z0xUNnBibTczRGNK?oc=5"}, {"headline": "Domestic Violence Suspect Killed in Crash While Fleeing Plymouth Police", "summary": "A suspect evading Plymouth police in a domestic violence case died in a vehicle crash during pursuit, concluding high-speed chase.", "insight": "Police pursuit fatality raises liability exposure for municipalities and informs policy around chase protocols; this creates demand for fleet monitoring technology and autonomous braking systems that reduce pursuit-related deaths and associated municipal legal costs.", "source": "CBS News", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE15NElCZWluOGgxZTF6SUxscWFhbzdsQmVFVGI4bW1majZCOWdxOW1rNTlyb3NvYzZ1S2VKaHVqa0hMOUNkcU9FeFZLaUFfRWtmVk4xQzZBV1QxcWF3TEJTdlYySWthZHF3Mk5QOVZVVHVnWm9YN2dpMkg4LXdCUQ?oc=5"}]}], "the_edge": "AI layoffs are structural cost arbitrage (not cyclical), while China's crypto crackdowns signal capital flight fears during AI competition losses\u2014these converge to suggest U.S. tech maintains competitive moat through domestic automation efficiency, but China's policy tightening creates yuan weakness opportunity and redirects offshore capital toward hard assets, making commodity-linked infrastructure plays the cross-border arbitrage. Meanwhile, prediction market insider trading enforcement destroys regulatory gray-zone alpha, forcing allocators to migrate political-risk hedging from Polymarket-style contracts back to traditional derivatives where surveillance and pricing are mature.", "tomorrow_watch": "", "timestamp": "03:14 PM ET"}];
 const today = "2026-04-25";
 const SECTION_NAMES = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
 const SECTION_COLORS = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
@@ -822,6 +860,235 @@ searchClear.addEventListener('click', () => {
 
 // First render
 render();
+
+// ── Theme toggle ──
+const THEME_STORE = 'dib.theme';
+const themeToggle = document.getElementById('theme-toggle');
+function applyTheme(theme) {
+  if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  themeToggle.innerHTML = theme === 'light' ? '&#9728;' : '&#9789;'; // sun / crescent
+  themeToggle.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+}
+applyTheme(localStorage.getItem(THEME_STORE) || 'dark');
+themeToggle.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  localStorage.setItem(THEME_STORE, next);
+  applyTheme(next);
+});
+
+// ── Plexus background canvas (Apterreon red palette) ──
+(function() {
+  const c = document.getElementById('plexus');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let W, H, dpr;
+  let stars = [], nodes = [], flowParticles = [], popParticles = [];
+  const CONNECT_DIST = 200;
+  let mouseX = -999, mouseY = -999;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') === 'light'; }
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    c.width = W * dpr; c.height = H * dpr;
+    c.style.width = W + 'px'; c.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildScene();
+  }
+
+  function buildScene() {
+    stars = [];
+    for (let i = 0; i < 320; i++) {
+      stars.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*0.7+0.2, b:Math.random()*0.22+0.03, p:Math.random()*6.28 });
+    }
+    nodes = [];
+    const count = Math.max(50, Math.floor((W*H)/22000));
+    for (let i = 0; i < count; i++) {
+      nodes.push({ x:Math.random()*W, y:Math.random()*H, size:0.5+Math.random()*1.6, brightness:0.10+Math.random()*0.32, phase:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 });
+    }
+    flowParticles = [];
+    for (let i = 0; i < 60; i++) {
+      flowParticles.push({ nodeA:-1, nodeB:-1, t:Math.random(), speed:0.002+Math.random()*0.003, size:0.3+Math.random()*0.6, bright:0.15+Math.random()*0.3 });
+    }
+  }
+
+  function assignEdge(fp) {
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length);
+    let bestJ = -1, bestD = CONNECT_DIST;
+    for (let j = 0; j < nodes.length; j++) {
+      if (j === a) continue;
+      const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      if (d < bestD) { bestD = d; bestJ = j; }
+    }
+    fp.nodeA = a; fp.nodeB = bestJ; fp.t = 0;
+  }
+
+  c.addEventListener('click', e => {
+    if (isLight()) return;
+    const rect = c.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    let bestIdx = -1, bestDist = 30;
+    for (let i = 0; i < nodes.length; i++) {
+      const dx = nodes[i].x - cx, dy = nodes[i].y - cy;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < bestDist) { bestDist = d; bestIdx = i; }
+    }
+    if (bestIdx >= 0) {
+      const n = nodes[bestIdx];
+      const count = 12 + Math.floor(Math.random()*8);
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI*2/count)*i + (Math.random()-0.5)*0.4;
+        const speed = 1.5 + Math.random()*3;
+        popParticles.push({ x:n.x, y:n.y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:1.0, decay:0.015+Math.random()*0.01, size:n.size*0.8+Math.random()*1.5, bright:0.6+Math.random()*0.4 });
+      }
+      popParticles.push({ x:n.x, y:n.y, vx:0, vy:0, life:1.0, decay:0.025, size:n.size, bright:0.8, isRing:true });
+      nodes.splice(bestIdx, 1);
+      for (const fp of flowParticles) {
+        if (fp.nodeA === bestIdx || fp.nodeB === bestIdx) { fp.nodeA = -1; fp.nodeB = -1; }
+        else { if (fp.nodeA > bestIdx) fp.nodeA--; if (fp.nodeB > bestIdx) fp.nodeB--; }
+      }
+    }
+  });
+
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+  document.addEventListener('mouseleave', () => { mouseX = -999; mouseY = -999; });
+
+  let t = 0;
+  function draw() {
+    t += 0.004;
+
+    // Skip painting when in light mode (CSS fades canvas opacity to 0)
+    if (isLight()) { ctx.clearRect(0,0,W,H); requestAnimationFrame(draw); return; }
+
+    ctx.fillStyle = '#050810';
+    ctx.fillRect(0,0,W,H);
+
+    // Stars
+    for (const s of stars) {
+      const tw = 0.5 + 0.5*Math.sin(t*5+s.p);
+      ctx.fillStyle = 'rgba(220,210,210,' + (s.b*tw) + ')';
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    }
+
+    // Node motion + mouse repel
+    for (const n of nodes) {
+      n.x += n.vx + Math.sin(t*1.5+n.phase)*0.06;
+      n.y += n.vy + Math.cos(t*1.2+n.phase*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40;
+      if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mouseX, dy = n.y-mouseY;
+      const md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) { const f = (1-md/180)*0.6; n.x += (dx/md)*f; n.y += (dy/md)*f; }
+    }
+
+    // Edges between close nodes — Apterreon red palette
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i+1; j < nodes.length; j++) {
+        const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < CONNECT_DIST) {
+          const alpha = (1 - dist/CONNECT_DIST);
+          ctx.strokeStyle = 'rgba(122,16,16,' + (alpha*0.07) + ')'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+          ctx.strokeStyle = 'rgba(204,0,0,' + (alpha*0.20) + ')'; ctx.lineWidth = 0.6;
+          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        }
+      }
+    }
+
+    // Cursor → nodes
+    if (mouseX > -100) {
+      for (const n of nodes) {
+        const dx = n.x-mouseX, dy = n.y-mouseY;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < 180) {
+          const alpha = (1 - dist/180)*0.4;
+          ctx.strokeStyle = 'rgba(255,80,80,' + alpha + ')'; ctx.lineWidth = 0.7;
+          ctx.beginPath(); ctx.moveTo(mouseX,mouseY); ctx.lineTo(n.x,n.y); ctx.stroke();
+        }
+      }
+    }
+
+    // Flow particles along edges
+    for (const fp of flowParticles) {
+      if (fp.nodeA < 0 || fp.nodeB < 0 || fp.nodeA >= nodes.length || fp.nodeB >= nodes.length) { assignEdge(fp); continue; }
+      const na = nodes[fp.nodeA], nb = nodes[fp.nodeB];
+      if (!na || !nb) { assignEdge(fp); continue; }
+      const edx = na.x-nb.x, edy = na.y-nb.y;
+      if (Math.sqrt(edx*edx+edy*edy) > CONNECT_DIST*1.2) { assignEdge(fp); continue; }
+      fp.t += fp.speed;
+      if (fp.t > 1) {
+        fp.nodeA = fp.nodeB;
+        let bestJ = -1, bestD = CONNECT_DIST;
+        for (let j = 0; j < nodes.length; j++) {
+          if (j === fp.nodeA) continue;
+          const dx = nodes[fp.nodeA].x-nodes[j].x, dy = nodes[fp.nodeA].y-nodes[j].y;
+          const d = Math.sqrt(dx*dx+dy*dy);
+          if (d < bestD && Math.random() < 0.5) { bestD = d; bestJ = j; }
+        }
+        fp.nodeB = bestJ >= 0 ? bestJ : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = 'rgba(204,40,40,' + (fp.bright*0.07) + ')';
+      ctx.beginPath(); ctx.arc(x,y,fp.size*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,160,160,' + (fp.bright*0.55) + ')';
+      ctx.beginPath(); ctx.arc(x,y,fp.size,0,Math.PI*2); ctx.fill();
+    }
+
+    // Nodes
+    for (const n of nodes) {
+      ctx.fillStyle = 'rgba(204,0,0,' + (n.brightness*0.10) + ')';
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,150,150,' + n.brightness + ')';
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }
+
+    // Pop particles
+    for (let i = popParticles.length-1; i >= 0; i--) {
+      const p = popParticles[i];
+      p.life -= p.decay;
+      if (p.life <= 0) { popParticles.splice(i,1); continue; }
+      if (p.isRing) {
+        const radius = (1-p.life)*60;
+        ctx.strokeStyle = 'rgba(255,160,160,' + (p.life*p.bright*0.6) + ')';
+        ctx.lineWidth = p.life*2;
+        ctx.beginPath(); ctx.arc(p.x,p.y,radius,0,Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(204,0,0,' + (p.life*0.2) + ')';
+        ctx.lineWidth = p.life*6;
+        ctx.beginPath(); ctx.arc(p.x,p.y,radius,0,Math.PI*2); ctx.stroke();
+      } else {
+        p.x += p.vx; p.y += p.vy; p.vx *= 0.97; p.vy *= 0.97;
+        ctx.fillStyle = 'rgba(204,40,40,' + (p.life*p.bright*0.15) + ')';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size*3,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,200,200,' + (p.life*p.bright) + ')';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); ctx.fill();
+      }
+    }
+
+    // Regenerate
+    const target = Math.max(50, Math.floor((W*H)/22000));
+    if (nodes.length < target && Math.random() < 0.02) {
+      const edge = Math.floor(Math.random()*4);
+      let nx, ny;
+      if (edge === 0) { nx = -20; ny = Math.random()*H; }
+      else if (edge === 1) { nx = W+20; ny = Math.random()*H; }
+      else if (edge === 2) { nx = Math.random()*W; ny = -20; }
+      else { nx = Math.random()*W; ny = H+20; }
+      nodes.push({ x:nx, y:ny, size:0.5+Math.random()*1.6, brightness:0.10+Math.random()*0.32, phase:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 });
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
 </script>
 </body>
 </html>
