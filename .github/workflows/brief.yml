@@ -61,8 +61,14 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add docs/ state/
           if git diff --cached --quiet; then
-            echo "No changes to commit (likely a no-new-content skip)."
-          else
-            git commit -m "brief: $(date -u +%F) ${{ steps.pick.outputs.edition }}"
-            git push
+            echo "No changes to commit."
+            exit 0
           fi
+          git commit -m "brief: $(date -u +%F) ${{ steps.pick.outputs.edition }}"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push attempt $i failed (concurrent push?). Retrying in 3s..."
+            sleep 3
+          done
+          echo "Failed to push after 5 attempts."
+          exit 1

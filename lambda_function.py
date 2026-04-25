@@ -1410,21 +1410,22 @@ def s3_generate_index(briefs):
     .hero h1 {{ font-size:30px; letter-spacing:7px; }}
   }}
 
-  /* Sticky filter rail */
+  /* Sticky filter rail — clean 2-row layout */
   .rail {{
     position:sticky; top:56px; z-index:90; background:rgba(5,8,16,0.92);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border-bottom:1px solid var(--border-dim);
-    padding:14px 24px;
   }}
-  .rail-inner {{ max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }}
-  .rail-row {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }}
+  .rail-inner {{ max-width:1200px; margin:0 auto; }}
 
-  /* Search input */
+  /* Row 1: search + tabs */
+  .rail-primary {{
+    display:flex; align-items:center; gap:14px; padding:14px 24px 10px;
+  }}
   .search {{
     flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
     background:var(--bg-surface); border:1px solid var(--border-dim);
-    padding:10px 14px; transition:border-color .2s;
+    padding:11px 14px; transition:border-color .15s;
   }}
   .search:focus-within {{ border-color:var(--apt-red); }}
   .search .icon {{ color:var(--text-dim); font-size:13px; flex-shrink:0; }}
@@ -1432,7 +1433,7 @@ def s3_generate_index(briefs):
     flex:1; background:transparent; border:none; outline:none;
     font-family:'DM Mono',monospace; font-size:13px; color:var(--text-primary);
   }}
-  .search input::placeholder {{ color:var(--text-muted); letter-spacing:1px; }}
+  .search input::placeholder {{ color:var(--text-muted); letter-spacing:0.5px; }}
   .search .clear {{
     background:transparent; border:none; cursor:pointer; padding:0 4px;
     font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px;
@@ -1441,39 +1442,56 @@ def s3_generate_index(briefs):
   .search .clear:hover {{ color:var(--text-primary); }}
   .search .clear[hidden] {{ display:none; }}
 
-  /* Tabs (BRIEFS / STORIES / PINNED) */
-  .tabs {{ display:flex; gap:4px; }}
+  .tabs {{ display:flex; gap:0; flex-shrink:0; }}
   .tab {{
-    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:3px; font-weight:500; color:var(--text-dim);
+    padding:11px 18px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:2.5px; font-weight:500; color:var(--text-dim);
     cursor:pointer; transition:all .15s; text-transform:uppercase;
     user-select:none; background:var(--bg-surface);
-    border:1px solid var(--border-dim);
+    border:1px solid var(--border-dim); border-right:none;
   }}
-  .tab:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
-  .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); border-color:var(--text-muted); }}
-  .tab .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); }}
+  .tab:last-child {{ border-right:1px solid var(--border-dim); }}
+  .tab:hover {{ color:var(--text-primary); }}
+  .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); border-color:var(--text-muted); position:relative; z-index:1; }}
+  .tab .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; }}
   .tab.active .count {{ color:var(--apt-red); }}
 
-  /* Chips (section + edition filters) */
-  .chip-group {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }}
-  .chip-group .chip-label {{
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
-    color:var(--text-muted); text-transform:uppercase; margin-right:4px;
+  /* Row 2: filter strip — single horizontal scrollable line */
+  .rail-filters {{
+    display:flex; align-items:center; gap:14px;
+    padding:6px 24px 14px;
+    overflow-x:auto; scrollbar-width:none;
+    white-space:nowrap;
   }}
+  .rail-filters::-webkit-scrollbar {{ display:none; }}
+  .rail-filters .sep {{
+    flex-shrink:0; width:1px; height:18px; background:var(--border-dim); margin:0 4px;
+  }}
+  .filter-group {{ display:inline-flex; align-items:center; gap:6px; flex-shrink:0; }}
+  .filter-group .filter-label {{
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:var(--text-muted); text-transform:uppercase; margin-right:2px;
+  }}
+
   .chip {{
     padding:5px 10px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:2px; color:var(--text-dim); cursor:pointer;
+    letter-spacing:1.5px; color:var(--text-dim); cursor:pointer;
     background:transparent; border:1px solid var(--border-dim);
     text-transform:uppercase; user-select:none; transition:all .15s;
+    flex-shrink:0;
   }}
   .chip:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
   .chip.active {{ color:#fff; background:rgba(204,0,0,0.18); border-color:var(--apt-red); }}
   .chip.dim.active {{ background:rgba(122,16,16,0.25); border-color:var(--apt-dark-red); }}
   .chip.grey.active {{ background:rgba(136,136,136,0.18); border-color:var(--apt-grey); }}
 
-  /* Sort */
-  .sort-group {{ display:flex; gap:6px; margin-left:auto; }}
+  @media (max-width:680px) {{
+    .rail-primary {{ flex-wrap:wrap; padding:12px 18px 8px; }}
+    .search {{ width:100%; flex:0 0 100%; }}
+    .tabs {{ width:100%; }}
+    .tab {{ flex:1; text-align:center; padding:10px 8px; }}
+    .rail-filters {{ padding:6px 18px 12px; }}
+  }}
 
   /* Main content area */
   .main {{ max-width:1200px; margin:0 auto; padding:32px 24px 96px; }}
@@ -1716,10 +1734,10 @@ def s3_generate_index(briefs):
 
 <div class="rail">
   <div class="rail-inner">
-    <div class="rail-row">
+    <div class="rail-primary">
       <label class="search">
         <span class="icon">&#8981;</span>
-        <input type="search" id="search" placeholder="Search across briefs, stories, sources..." autocomplete="off" spellcheck="false">
+        <input type="search" id="search" placeholder="Search briefs, stories, sources..." autocomplete="off" spellcheck="false">
         <button type="button" class="clear" id="search-clear" hidden>Clear</button>
       </label>
       <div class="tabs">
@@ -1728,19 +1746,22 @@ def s3_generate_index(briefs):
         <div class="tab" data-tab="pinned">Pinned <span class="count">··</span></div>
       </div>
     </div>
-    <div class="rail-row">
-      <div class="chip-group">
-        <span class="chip-label">Edition</span>
+    <div class="rail-filters" id="rail-filters">
+      <div class="filter-group">
+        <span class="filter-label">Sort</span>
+        <span class="chip" data-sort="newest" id="sort-newest">Newest</span>
+        <span class="chip" data-sort="oldest" id="sort-oldest">Oldest</span>
+      </div>
+      <div class="sep"></div>
+      <div class="filter-group">
+        <span class="filter-label">Edition</span>
         <span class="chip" data-edition="morning">Morning</span>
         <span class="chip dim" data-edition="midday">Midday</span>
         <span class="chip grey" data-edition="evening">Evening</span>
       </div>
-      <div class="chip-group" id="section-chips">
-        <span class="chip-label">Sections</span>
-      </div>
-      <div class="sort-group">
-        <span class="chip" data-sort="newest" id="sort-newest">Newest</span>
-        <span class="chip" data-sort="oldest" id="sort-oldest">Oldest</span>
+      <div class="sep"></div>
+      <div class="filter-group" id="section-chips">
+        <span class="filter-label">Sections</span>
       </div>
     </div>
   </div>
