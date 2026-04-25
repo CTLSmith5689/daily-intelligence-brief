@@ -843,14 +843,14 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
 <body>
 
 <nav class="topnav">
-  <a class="back" href="./index.html"><span>&#9664;</span> Briefs</a>
-  <div class="lockup">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
     {apt_logo_svg(20, 27, 0.45)}
     <div>
       <div class="dm">Apterreon</div>
       <div class="prod">Daily Intelligence Brief</div>
     </div>
-  </div>
+  </a>
 </nav>
 
 <div class="container">
@@ -1694,14 +1694,14 @@ def s3_generate_index(briefs):
 <canvas id="plexus" aria-hidden="true"></canvas>
 
 <nav class="topnav">
-  <div class="lockup">
+  <a class="lockup" href="./index.html" title="Apterreon home">
     {logo_nav}
     <div class="lockup-text">
       <span class="brand">Apterreon</span>
       <span class="lockup-tagline">Explore what's out there.</span>
     </div>
     <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
-  </div>
+  </a>
   <div class="nav">
     <a href="#briefs">Briefs</a>
     <a href="#stories">Stories</a>
