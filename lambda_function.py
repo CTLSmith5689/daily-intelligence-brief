@@ -23,8 +23,10 @@ from pathlib import Path
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
-SENDER_EMAIL = "ctlsmith@me.com"
-RECIPIENT_EMAIL = os.environ.get("RECIPIENTS", "ctlsmith@me.com")
+SMTP_USER = "ctlsmith@me.com"  # Apple ID for SMTP auth — must match the JEEVES_ICLOUD_APP_PASSWORD owner
+SENDER_EMAIL = "Daily_Intel_Briefs@icloud.com"  # iCloud alias used as From: header
+SENDER_NAME = "Daily Intelligence Brief"
+RECIPIENT_EMAIL = os.environ.get("RECIPIENTS", SMTP_USER)
 SMTP_SERVER = "smtp.mail.me.com"
 SMTP_PORT = 587
 
@@ -1127,7 +1129,7 @@ def send_email(subject, html_body, attachment_html=None, attachment_name="brief.
 
     msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
-    msg["From"] = f"Intelligence Brief <{SENDER_EMAIL}>"
+    msg["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
     msg["To"] = ", ".join(recipients)
 
     body_part = MIMEMultipart("alternative")
@@ -1144,7 +1146,7 @@ def send_email(subject, html_body, attachment_html=None, attachment_name="brief.
     context = ssl.create_default_context()
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.starttls(context=context)
-        server.login(SENDER_EMAIL, app_password)
+        server.login(SMTP_USER, app_password)
         server.sendmail(SENDER_EMAIL, recipients, msg.as_string())
 
     print(f"Email sent to {len(recipients)} recipient(s): {subject}")
