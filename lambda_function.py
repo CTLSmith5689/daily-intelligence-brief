@@ -657,13 +657,14 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 <tr><td style="padding:32px 28px 8px">
 
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td>{eh_logo_svg(20, 27, 0.45)}</td>
-<td></td>
+<td style="width:1px;vertical-align:middle;padding-right:16px">{eh_logo_svg(40, 53, 0.55)}</td>
+<td style="vertical-align:middle">
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_RED};text-transform:uppercase">Daily Intelligence Brief</div>
+</td>
 </tr></table>
-<div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
+<div style="height:1px;background:#1A2030;margin:14px 0 18px"></div>
 
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_RED};text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
-<h1 style="font-family:{sans};font-size:24px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 6px;line-height:1.25">{title}</h1>
+<h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 4px;line-height:1.25">{title}</h1>
 <div style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#5A6878;text-transform:uppercase">{timestamp}</div>
 
 {usage_html}
@@ -1723,11 +1724,12 @@ def lambda_handler(event, context):
 <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid #888888">
 <tr><td style="padding:32px 28px">
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td>{eh_logo_svg(20, 27, 0.45)}</td>
-<td></td>
+<td style="width:1px;vertical-align:middle;padding-right:16px">{eh_logo_svg(40, 53, 0.55)}</td>
+<td style="vertical-align:middle">
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:#888888;text-transform:uppercase">Daily Intelligence Brief</div>
+</td>
 </tr></table>
-<div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:#888888;text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
+<div style="height:1px;background:#1A2030;margin:14px 0 18px"></div>
 <h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 14px">{config['subject_prefix']} — {date_str}</h1>
 <p style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.65;margin:0">No material developments since the last brief. Headlines overlap at {int(overlap_pct * 100)}%. The next scheduled brief will run as normal.</p>
 <div style="margin-top:36px;padding-top:18px;border-top:1px solid #1A2030">
