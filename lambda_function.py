@@ -657,8 +657,8 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 <tr><td style="padding:32px 28px 8px">
 
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td><span style="font-family:{sans};font-size:11px;font-weight:800;letter-spacing:5px;color:#E0E8F0;text-transform:uppercase">Dark Matter</span></td>
-<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A;text-transform:uppercase">Investment Intelligence Suite</span></td>
+<td>{eh_logo_svg(20, 27, 0.45)}</td>
+<td></td>
 </tr></table>
 <div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
 
@@ -674,7 +674,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 
 <div style="margin-top:48px;padding-top:18px;border-top:1px solid #1A2030">
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td><span style="font-family:{sans};font-size:9px;font-weight:800;letter-spacing:4px;color:#3A4A5A;text-transform:uppercase">Dark Matter &middot; Event Horizon</span></td>
+<td>{eh_logo_svg(14, 19, 0.3)}</td>
 <td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp}</span></td>
 </tr></table>
 </div>
@@ -1723,8 +1723,8 @@ def lambda_handler(event, context):
 <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid #888888">
 <tr><td style="padding:32px 28px">
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td><span style="font-family:{sans};font-size:11px;font-weight:800;letter-spacing:5px;color:#E0E8F0;text-transform:uppercase">Dark Matter</span></td>
-<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A;text-transform:uppercase">Investment Intelligence Suite</span></td>
+<td>{eh_logo_svg(20, 27, 0.45)}</td>
+<td></td>
 </tr></table>
 <div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
 <div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:#888888;text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
