@@ -1,7 +1,7 @@
 {
-  "name": "Daily Intelligence Brief \u2014 Dark Matter",
+  "name": "Daily Intelligence Brief — Apterreon",
   "short_name": "DIB",
-  "description": "Daily Intelligence Brief \u00b7 Dark Matter Event Horizon",
+  "description": "Apterreon Daily Intelligence Brief — explore what's out there.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050810",

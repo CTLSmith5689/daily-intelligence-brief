@@ -22,17 +22,17 @@ GitHub Actions cron is best-effort and can run 5–15 min late under load.
 
 - `ANTHROPIC_API_KEY`
 - `ALPHAVANTAGE_API_KEY`
-- `JEEVES_ICLOUD_APP_PASSWORD` — app-specific password from appleid.apple.com
+- `APTERREON_ICLOUD_APP_PASSWORD` — app-specific password from appleid.apple.com
 
 **Variables** (same screen, Variables tab):
 
-- `JEEVES_READER_CONTEXT` — the persona/style instructions appended to the analysis prompt
+- `APTERREON_READER_CONTEXT` — the persona/style instructions appended to the analysis prompt
 - `RECIPIENTS` — comma-separated email addresses
-- `JEEVES_MODEL` — optional override; defaults to `claude-haiku-4-5-20251001`
+- `APTERREON_MODEL` — optional override; defaults to `claude-haiku-4-5-20251001`
 
 ## Manual run
 
-Actions tab → "jeeves-brief" → Run workflow → pick edition.
+Actions tab → "apterreon-brief" → Run workflow → pick edition.
 
 ## Archive viewer
 
@@ -57,6 +57,6 @@ docs/                     # GitHub Pages source
   briefs/                 # the actual briefs
     2026-04-25-morning.html
 state/                    # state committed back by the workflow
-  last_headlines.json     # used to skip unchanged briefs
+  last_headlines.json     # legacy; no longer used
   pins.json               # legacy; pins now live in browser localStorage
 ```
