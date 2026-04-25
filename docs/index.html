@@ -132,8 +132,9 @@
   .feat-meta { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; flex-wrap:wrap; }
   .feat-meta .tag { padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }
   .feat-meta .dot { width:3px; height:3px; border-radius:50%; background:var(--text-4); }
-  .feat-h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:38px; line-height:1.15; letter-spacing:-0.02em; color:var(--text-1); margin-bottom:18px; max-width:920px; }
-  .feat-summary { font-size:17px; line-height:1.65; color:var(--text-2); max-width:920px; margin-bottom:28px; }
+  .feat-kicker { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--apt-rose); margin-bottom:14px; }
+  .feat-body { font-size:18px; line-height:1.7; color:var(--text-1); max-width:920px; margin-bottom:8px; font-weight:400; letter-spacing:-0.005em; }
+  .feat-body::first-letter { font-family:'Syne',sans-serif; font-size:1.4em; font-weight:700; line-height:1; color:var(--apt-rose); padding-right:2px; }
   .feat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }
   .feat-stat { padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }
   .feat-stat:hover { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }
@@ -188,17 +189,53 @@
   .sc-arrow { color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }
   .sc-item:hover .sc-arrow { color:var(--apt-red); transform:translateX(4px); }
 
-  /* Live feed */
-  .feed { max-width:1200px; margin:0 auto; padding:64px 24px; }
-  .feed-h { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-  .feed-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:32px; letter-spacing:-0.01em; }
-  .feed-h .live-tag { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.30); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:#34D27A; text-transform:uppercase; }
-  .feed-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-  .feed-item { background:rgba(17,18,26,0.85); padding:18px 22px; display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center; cursor:pointer; transition:background .15s; }
-  .feed-item:hover { background:rgba(22,23,31,0.95); }
-  .feed-time { font-family:'DM Mono',monospace; font-size:11px; color:var(--apt-rose); letter-spacing:1.5px; min-width:64px; }
-  .feed-headline { font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }
-  .feed-src { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }
+  /* Stories library */
+  .lib { max-width:1200px; margin:0 auto; padding:64px 24px; }
+  .lib-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }
+  .lib-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
+  .lib-h .lib-count { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }
+
+  .lib-controls { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }
+  .lib-search { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }
+  .lib-search:focus-within { border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }
+  .lib-search .icon { color:var(--text-3); font-size:16px; }
+  .lib-search input { flex:1; background:transparent; border:none; outline:none; font-family:'DM Mono',monospace; font-size:14px; color:var(--text-1); }
+  .lib-search input::placeholder { color:var(--text-4); }
+  .lib-search .clear-btn { background:transparent; border:none; cursor:pointer; padding:4px 8px; color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; transition:color .15s; }
+  .lib-search .clear-btn:hover { color:var(--text-1); }
+  .lib-search .clear-btn[hidden] { display:none; }
+
+  .lib-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .lib-chip-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }
+  .lib-chip {
+    padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    color:var(--text-3); cursor:pointer; background:transparent;
+    border:1px solid var(--border); border-radius:999px; text-transform:uppercase;
+    user-select:none; transition:all .15s;
+  }
+  .lib-chip:hover { color:var(--text-1); border-color:var(--border-bright); }
+  .lib-chip.active { color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }
+
+  .lib-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .lib-item {
+    background:rgba(17,18,26,0.85); padding:18px 22px;
+    display:grid; grid-template-columns:120px 1fr auto; gap:18px; align-items:center;
+    transition:background .15s;
+  }
+  .lib-item:hover { background:rgba(22,23,31,0.95); }
+  .lib-item .li-section {
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px;
+    color:var(--apt-rose); text-transform:uppercase; padding:4px 8px;
+    border:1px solid rgba(255,31,61,0.20); border-radius:6px; text-align:center;
+    background:rgba(255,31,61,0.06); justify-self:start;
+  }
+  .lib-item .li-headline { font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }
+  .lib-item .li-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:5px; }
+  .lib-item .li-src { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; text-align:right; }
+  @media (max-width:680px) {
+    .lib-item { grid-template-columns:1fr; gap:6px; padding:16px 18px; }
+    .lib-item .li-src { text-align:left; }
+  }
 
   .empty-state { padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }
 
@@ -208,7 +245,7 @@
 
   @media (max-width:760px) {
     h1.hero-title { font-size:48px; }
-    .feat-h2 { font-size:28px; }
+    .feat-body { font-size:16px; }
     .featured-card { padding:32px 24px; }
     .feat-grid { grid-template-columns:1fr; }
   }
@@ -254,17 +291,17 @@
       <span>Apr 25, 2026</span><span class="dot"></span>
       <span>Morning</span>
     </div>
-    <h2 class="feat-h2">Reserve exhaustion in Russia intersects with U.S.</h2>
-    <p class="feat-summary">energy producer reluctance, compressing geopolitical optionality: Russia loses financial flexibility while Western producers refuse supply increases, locking in sustained high energy costs that accelerate energy-intensive capital away from traditional industrial bases toward regions with lower structural costs, reshaping where AI compute infrastructure and manufacturing locate over the next 18 months.</p>
+    <div class="feat-kicker">Today's Take</div>
+    <p class="feat-body">U.S. energy supply inelasticity amid elevated prices collides with Middle East disruptions to create durable regional fuel scarcity and inflation transmission; simultaneously, Russian fiscal exhaustion and China's tech cost advantage form geopolitical leverage asymmetries that shift capital flows toward authoritarian state capacity while democracies manage domestic cost-of-living crises, accelerating talent and capital migration that hollows high-cost metros and weakens relative institutional advantage.</p>
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">14</div>
+        <div class="fs-val">16</div>
         <div class="fs-delta">across 1 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">12</div>
+        <div class="fs-val">14</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
@@ -294,9 +331,9 @@
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Breaking News</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMimgFBVV95cUxNbjRGbVhndmdpeXVrSFpCQXJ6WVZkR1FjRHExblE3T3R2SkJvR29TSkRTZ2RYbjJ4RE9zM1daNW9nWXk2S0lBR2pfSU5oOWRGQTlkZGdYeE9tSkZ3d3VROXk5cXVFNWZYUndmUnd4NkFGbkh4djRMUXBrUjhOVm1SVG1iRmpWakp1SXd5SE1JTGJXNXBfQzd0b2tB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">2 children found dead in Wellesley home after well-being check</div><div class="sc-item-source">WCVB</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMihgFBVV95cUxNWVdBZ2xoSlNhWjM3cjI4MDI5OG5aSTQ5N3NHRW91OEtPWW9IeFlrRE9EOEUzUEtrX3ZYMTBoN2NmenM3MlBpbUx3UWVmemxON1RFWklGSjhvZU40UzVoMVh4YnYwOFdfSDJlX3Fua1BPN1NYM3FhcndWNmhuaXR5eU8yb3lPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">2 Police Officers Are Shot at a Chicago Hospital</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxOWFRhVzZmVnQ3WjdrejE3cks3ZC1KeGFsWEdfY1JFUC1MbnRaWEN3V2o3aW5iclNBdkRPa0l0eExLcDk1ZXFERk1CdmNHNVdPZEliLXVHcWpiUWx3cnpvb1puVUxOcThHSVZqeTVSRFUtS0c2c29Kbk56VEhsTVltLS1KQ2ZXMURJelE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Evacuation orders still in place as structures lost in Riverside Fire</div><div class="sc-item-source">KOAT</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMihgFBVV95cUxOWVdBZ2xoSlNhWjM3cjI4MDI5OG5aSTQ5N3NHRW91OEtPWW9IeFlrRE9EOEUzUEtrX3ZYMTBoN2NmenM3MlBpbUx3UWVmemxON1RFWklGSjhvZU40UzVoMVh4YnYwOFdfSDJlX3Fua1BPN1NYM3FhcndWNmhuaXR5eU8yb3lPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Chicago Hospital Shooting Leaves 1 Officer Dead and Another in Critical Condition</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
 
     <article class="sec-card">
@@ -306,7 +343,7 @@
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Finance & Markets</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">03</div>
       </div>
       <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMisgFBVV95cUxQNmZCcXR3d1VjaS11MUU0YjV3Z2VTelRadHRtbkxWLXc2QmVWTHpRRzFaMmI3YzdrbUpDN09qb0x3Rk1ELXBWOThLTWp6alR5WV96SzhxMkYyUjhlWllCMjVuRUVDS1htODNuak4wU0QtakppOUpzSE9HclVOWm8tUUk0RTl5dkV4TmRPUWZQS1k3TGNneFBUNlNtdWdzZ2x5OWJ6cERzLTF4WkZLbk15UkZn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Russia economy minister says 'reserves have largely been used up' while lawmaker warns of revolution</div><div class="sc-item-source">Fortune</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Insider Trading Cases Threaten Reckoning for Prediction Markets</div><div class="sc-item-source">Bloomberg.com</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
@@ -320,7 +357,7 @@
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMijgFBVV95cUxPTGhxZ2FadEZZTnNuRUlGZzdmMjlHMVBxUjd2U1prck1mSG11cnlNUnlUOGp5VXhfVHgxdWh3aWowN0NmR0lYd3RTMHJSWi02U1Rzbl9ia1BRcndKZUt4QUVIRmd3VDFXVEJ5QUlzQko5eFV4MlFkblZhYXFfOHFrd1pRY2JnMXlRZHA2b2Zn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Every Black Republican Is Leaving the House, Erasing Diversity Gains</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump's political headwinds pile up after a week of setbacks</div><div class="sc-item-source">The Washington Post</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump's political headwinds pile up after a week of setbacks</div><div class="sc-item-source">The Washington Post</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMilgFBVV95cUxNYkJnTHREYTlTc1NkWEFWNjVXd2NlVnJNaUp0MWxWV1h0a0x6SGRnYnRLTDE1TUVqTWhhU2l2RGNOZS1rdzg5Yjh3d01pM183emZ0VkRueEM0VURnSGQ0WEhpb19wQnN2aWxBNU5zbk5vZEhDdGNadUNRa084LVBZd3hLNThVcFlmbnkzVnJJSlBibE5LcVE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump to Dine With Reporters He's Been Roasting All Week</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
 
     <article class="sec-card">
@@ -332,7 +369,7 @@
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Billionaire Elon Musk enters courtroom showdown with OpenAI</div><div class="sc-item-source">BNN Bloomberg</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxPVGdJSVJlY1lmZlNqS0s2a2hyakRtM2NKMGVuaWF1amhUTU5qenV6X0g3bFVkbjNjSmdkejdTS3VZQjlTR0dFcXVhLXI1X1VjcWV3ZWNsb0dHSGJERDJ2MnhJS3U2eUFxNDlKZGI4NGNDZVliVmNFY1FUTmw1VWdCM3gzYnNpckcwTHg3NEdGaHhwV3J0aVNLSEJlWGZacHgybTBMU0NqYThGanU3Z0h6WllNdEFELXFUSGVROU5KVnNBWmZuT1lVVXVjR0tZMTVmT0lSSDlRbHFfTVQ1N0VpV3ZHbXpyNW8?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Microsoft Says Third Party Antivirus Software Is No Longer Needed</div><div class="sc-item-source">Forbes</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Billionaire Elon Musk enters courtroom showdown with OpenAI</div><div class="sc-item-source">BNN Bloomberg</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxQRnVOVzVXbDVLc1p1WVU3andwWW40T1VraVltY2xxXy04ZVNGSktGYmg3aVhSaTIyRFlfM2ZoZ0ZFNDJtcjVIZGJ3QnZmQzJaUmVOLXlUNGp5cjhXd05TajBUbGt1Qno4clAzZUl2QkotRVcxWXhDcVU2MHFjZHhENWlSOXBSN3JWM0cxSk9JTkZlbnlmVUVsN0hwWHd1bnE2RzZlSmdn0gGrAUFVX3lxTE0tUkxhcmU0VTdSVTVoOHhRNF9Gdm5RYVR6TnI3d2FfXzRIdmV6V3BUUlRWY2FBNWpLM3ZZTEYzSDBNYWdlSFo3Z0dEZXhrWVNidjF0aTNja1R5Q3dwZWVhNlVCdjAxVGRMQUZlMlVVVTR2cUFpb283eV9RbUtHLUswd1cxeTF4X0FWUWVhakxWOVlpcWthb0NmOXgtMnZWcG83VTBTX0ZuaWx3TQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta slashes 8,000 jobs, or 10% of its workforce, as Microsoft offers buyouts</div><div class="sc-item-source">ABC News - Breaking News, Latest News and Videos</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
 
     <article class="sec-card">
@@ -344,7 +381,7 @@
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMirAFBVV95cUxPQmlidlRoN3RVcVp1bjRQWV9xTkN2czhXck4zNGVDOW81Vm1YVTZGRjUxWHRtMDZDVldNRmNyaWltNnkxbXBZeHQ3bDh0d3hpM0Q0OWlkYl9TYXFydnhxc1JjWURYVjljeTFVWFVpM1FBQzdFWVZBelpzc056aWhiUGxGMkxNbHVac05RRzRDOF9KZDVCb3dMMnFpWGZpS2tBYjFNcXVMcS0yUE9M?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. oil producers aren't coming to the rescue despite high prices as mistrust and chaos hit outlook</div><div class="sc-item-source">Fortune</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">California's jet fuel supply drops to three-year low as Middle East turmoil squeezes global oil market</div><div class="sc-item-source">The Guardian</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">California's jet fuel supply drops to three-year low as Middle East turmoil squeezes global oil market</div><div class="sc-item-source">The Guardian</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixAFBVV95cUxOOUxQLTFTYkdqVllKbTdoQVVnQkMyTFFXVy1KcUMyQ0xsN2hBdnlGalBuVXExd29xZGFsWkUyYW5pUDJRdi1vQzl1dV9oWXR0WXRGRUVRallZcnBvdmVfYTBBSzl2Uzd5NUt4ZHFpNjR5T2pzUzhFQ29kMm04TGJ5UHowdkd3UENINTFLdnVmeXF5WkdMR0YzUlJRMEcxSUsySUtDXzJDLXF3ellFaVlxODAxR2JLOGh3bWp1Vm9JdGR2d1NE0gHKAUFVX3lxTE9EMm1QM28wamE3TVI0N0tqS3hRWWNweDdEZVlReGtvR2FLR0dTMzNLYkV2OXNEOEZzSmV5OTNQNXJhbHRMeEFPZFJ2N0JDRzB6ejZ5dEkzM3BQbHZfWTZ0WHpLc002S2xGUVlJd2tISXhXTXBHbFA1Z3h5dnYwSUxOOFQ0ckhkQ1ZWNkpuLVB0MTItZy00T2Nka0hBY2IxaE9SQk40MVhUVEw1ZGloLUFtb0RDbDIzdHJrMXdIbkp1ZnNXR1E1TDR4UUE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">36-year-old left the U.S. for China,now pays $1,000 rent and $100 for groceries for family of 4</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
 
     <article class="sec-card">
@@ -356,7 +393,7 @@
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizwFBVV95cUxNYmZoMXZSZnhONWtzOTU3N0swN1BhNW5mNmh5TkNHVXk4czZ4X21WdGl2VmxyQ3MybE9pNzZLZU5RQ3hGZGxXRl9uNHpWd2R1Skg4SzlCV01WdGJhR3FZUWRqNGFCVnZCRFJBVTlfLWhXejNBWUZ4dWV6U3B1SE1TaW1RYk1OZnNGZjAweU9JaC1qYlVlRUhKTzdZdWdLVVl1enB2Tl9hWDZwUTU0aEdoVndzYnlfWHk0WlZrRXZhWDJ3djlpYmE5d2VoLV9leE0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NBA playoff TV schedule today, times, where to watch games, stream</div><div class="sc-item-source">Milwaukee Journal Sentinel</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi-gFBVV95cUxQWDlQUXBEa2xhR21nNk9yczN4cnlnNzNlVWgxaUJmMUpGa2M0czJLTXFzTDNoay03cGJ2b0lEX0ZjQ0xOMzE5ZUdZWEVlRnlMLUVVOUJacXF1eVFleEwzQ0NUYnljazZQMkZZblhxSHRETDRaVEhWd21ib3M4dG45dGhyVHZ0MV9IU3RyTy1CdTNqSHA0SkxoaUpYalBfYk42UmZMSHVvRkZLQ3YtOU1IcGpUX09jdEtQS1lWYW9XdFltdmVHMDEyaWZSbU5SZzlNWDZJSE5NQXlsWGRzMW9fZmRfZW5ySzBXT3RFalZDSXNPWV8wQnNRMEVB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">What channel is NFL Draft today? Day 3 start time, how to watch live, stream, draft picks order</div><div class="sc-item-source">IndyStar</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxNa2dLVDh1NTFYMElHYnlvRzhQbG9faF95aUlrWENSTFUyOVBmQVFnMkQ4eXZxVkxxZ3Q0SWlKMUZjOTB5VUpYWTJlc1ZsZ2lYRVRRTU80MC1vYTdVM09LRzc2UE1VM2RPeV8zV1JwUWtScmhWbDh0SkRfbkxLMG0xeEEtZGJKa2hkU2FLdklEb3RybElCSkQ2ZGlCX3d5cEoxZWlrVHQ4dC1ia3VFT0lIRU5HMmdRZURzUy1F0gHPAUFVX3lxTE5ob1F2TE44VzlhVHN5ak41YzF1WWdQdVA3Z1lVaHlvejZTelVyQjJ0dTg3R2lKTUhWaTdkM1dWcTZEYWdKYkxRM1FrWHR1NDJBT0F4ZDhQWXlObHdFVHpoZEFmY09XbDhvQUo3QzI3VEl1TVlWeU1RbE9Bb1pGU2Jna1Z1THlZMVllRWhUT2lzbEtJLXZJSVRRcEI3TWl4SkVzdkQ0MVc3NUNTVERLRDdNRDA5bHJUdHZMN1o1RmNWUFZIb3BfV0VPdndEaXJHYw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NBA Playoffs first round free livestream: Where to watch every game today, TV, schedule</div><div class="sc-item-source">AL.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi0wFBVV95cUxOY083Um1fb2psWjhXb2NNODlMNnlSNnlrdl9vNHB5dEUxQ2w1UkR6eWxEX1VXZGJHMW5EQ2xIa1ZHRkJ4RUZlbFJpdGpkWEZxOVozQUxrTXpvSGhXYzNveFVEYlhGQUFyMUF3UnNOb3ZJWU9JQ21PR3BNdG40dm42RWRvMjdNSnJIeUFVU1BWSURMWF9CQlpiMGNESjUtcnlqMndYSWp5UjdHRDlUZnpoZHRldHNvdlBCQm94VG9GLVlwY3czaHN2Z0ZaLUZuYTR5anBJ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">From 'Apex' to 'Marty Supreme,' 10 movies to stream right now</div><div class="sc-item-source">USA Today</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
 
     <article class="sec-card">
@@ -368,20 +405,29 @@
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi2gFBVV95cUxNTGZqR2F3cVFwcWdRYWxaU3hWaFZPWUtTdWNhZUtSczhYendLMW1VX1NyTXBDM2R4OG5lXzJwakQzQklUdmFwVFZZYVlXaGttNHZ6cno4UGx3X2VhdV9OTzdqWVl6UUhXekZzWEtIdTRScW11WHBpRkI5d0dERUJOTnpocGZiaTEwNTBqSy1lLUx0NHdqeWNWTFVyQ1JIQ2ViVkhBUGlNVm90T091SU16b2NwYW14SHN2YmdaRDdkX0t1YV9PX1BFZTJZRHc5eTNnZm5xR0V1eUUtd9IB7gFBVV95cUxNQUJsMEY0UGZqTUhpU3RJR0Q3Y3pwNnFPczBkYkFqX3FtUGJ6bGZSd1ROWFZMUU4yNHplSGpYWGd1a0ZEM2Y3YWhuMWpzbDFmc0dEdjdsbzNMZTZJOWMyakdseGJ4UzBZd2RTdXFuTFB2SGhKUklyTlRCdDlteHFUX1BreXQtWjJmSV9FY2VWeWtXZk9pcHNCTFR1QjlKaVB0MjRQQUgtN3NiV0JGcndtUDVUdU9JNmZKYi1GYlhFbnRHQkJ5MkpzZVc4MGc1emlmbmI0WnY5TVpXS3k1bXVFR2JlTFNMenA3UlM0V3NB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Investigation underway after two children found dead inside home in Wellesley</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMirgFBVV95cUxQUzR3TnpWWWxEU2Z5dV9TaFpkcnhtYmZFcjV6aUp1SDFUMlBQMER3YzhjRGwtVmdUbDc2enMzWkRTNm81Y2dzSG1oQzZWUTd6OXFuOE9sMl9MSGFTZ0Q3LUxNOXQ2ZTFlNHFjelVSMUZWb0NSWV9jQ3lITzVWUVp2Q2F2SG9Bd0xYMGJ1eDRScGdXdW1HZmJoNEoydDBhRTBwek9aNmxCZnhjdnpDbXfSAbYBQVVfeXFMTTZfQ3Y5dHpUT1JsVV9KWVhfMDVYQVg0V2k4dlF3UzJNdkxGZW81X0w5NnoydmpvVWJ5REJqYnFndFNmMlNUWmpPbE9pLTczRFUwU0xMYm0xZzA5OERtbnVfZEFleGZvNjlEN3FiOEV5TEdXVXpFVU5weVR5bHhOSm9LSkwtMHR4ZmNTMDhfTVZiZlJDVDRQeGpyTHc0eHZkY1U5TWdid3lxR2NiSXpvVWNFRFdvdVE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Mass. sheriff's department officer arrested for human trafficking</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi2gFBVV95cUxNTGZqR2F3cVFwcWdRYWxaU3hWaFZPWUtTdWNhZUtSczhYendLMW1VX1NyTXBDM2R4OG5lXzJwakQzQklUdmFwVFZZYVlXaGttNHZ6cno4UGx3X2VhdV9OTzdqWVl6UUhXekZzWEtIdTRScW11WHBpRkI5d0dERUJOTnpocGZiaTEwNTBqSy1lLUx0NHdqeWNWTFVyQ1JIQ2ViVkhBUGlNVm90T091SU16b2NwYW14SHN2YmdaRDdkX0t1YV9PX1BFZTJZRHc5eTNnZm5xR0V1eUUtd9IB7gFBVV95cUxNQUJsMEY0UGZqTUhpU3RJR0Q3Y3pwNnFPczBkYkFqX3FtUGJ6bGZSd1ROWFZMUO4yNHplSGpYWGd1a0ZEM2Y3YWhuMWpzbDFmc0dEdjdsbzNMZTZJOWMyakdseGJ4UzBZd2RTdXFuTFB2SGhKUklyTlRCdDlteHFUX1BreXQtWjJmSV9FY2VWeWtXZk9pcHNCTFR1QjlKaVB0MjRQQUgtN3NiV0JGcndtUDVUdU9JNmZKYi1GYlhFbnRHQkJ5MkpzZVc4MGc1emlmbmI0WnY5TVpXS3k1bXVFR2JlTFNMenA3UlM0V3NB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Investigation underway after two children found dead inside home in Wellesley</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMirgFBVV95cUxQUzR3TnpWWWxEU2Z5dV9TaFpkcnhtYmZFcjV6aUp1SDFUMlBQMER3YzhjRGwtVmdUbDc2enMzWkRTNm81Y2dzSG1oQzZWUTd6OXFuOE9sMl9MSGFTZ0Q3LUxNOXQ2ZTFlNHFjelVSMUZWb0NSWV9jQ3lITzVWUVp2Q2F2SG9Bd0xYMGJ1eDRScGdXdW1HZmJoNEoydDBhRTBwek9aNmxCZnhjdnpDbXfSAbYBQVVfeXFMTTZfQ3Y5dHpUT1JsVV9KWVhfMDVYQVg0V2k4dlF3UzJNdkxGZW81X0w5NnoydmpvVWJ5REJqYnFndFNmMlNUWmpPbE9pLTczRFUwU0xMYm0xZzA5OERtbnVfZEFleGZvNjlEN3FiOEV5TEdXVXpFVU5weVR5bHhOSm9LSkwtMHR4ZmNTMDhfTVZiZlJDVDRQeGpyTHc0eHZkY1U5TWdid3lxR2NiSXpvVWNFRFdvdVE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Mass. sheriff's department officer arrested for human trafficking</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
 
   </div>
 </section>
 
-<section class="feed" id="stories">
-  <div class="feed-h">
-    <h2>Live feed.</h2>
-    <span class="live-tag"><span class="pulse-dot"></span>Updating</span>
+<section class="lib" id="stories">
+  <div class="lib-h">
+    <h2>Stories library.</h2>
+    <span class="lib-count" id="lib-count">All stories</span>
   </div>
-  <div class="feed-list">
-    <a class="feed-item" href="https://news.google.com/rss/articles/CBMimgFBVV95cUxNbjRGbVhndmdpeXVrSFpCQXJ6WVZkR1FjRHExblE3T3R2SkJvR29TSkRTZ2RYbjJ4RE9zM1daNW9nWXk2S0lBR2pfSU5oOWRGQTlkZGdYeE9tSkZ3d3VROXk5cXVFNWZYUndmUnd4NkFGbkh4djRMUXBrUjhOVm1SVG1iRmpWakp1SXd5SE1JTGJXNXBfQzd0b2tB?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">2 children found dead in Wellesley home after well-being check</span><span class="feed-src">WCVB</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMihgFBVV95cUxNWVdBZ2xoSlNhWjM3cjI4MDI5OG5aSTQ5N3NHRW91OEtPWW9IeFlrRE9EOEUzUEtrX3ZYMTBoN2NmenM3MlBpbUx3UWVmemxON1RFWklGSjhvZU40UzVoMVh4YnYwOFdfSDJlX3Fua1BPN1NYM3FhcndWNmhuaXR5eU8yb3lPZw?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">2 Police Officers Are Shot at a Chicago Hospital</span><span class="feed-src">The New York Times</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMisgFBVV95cUxQNmZCcXR3d1VjaS11MUU0YjV3Z2VTelRadHRtbkxWLXc2QmVWTHpRRzFaMmI3YzdrbUpDN09qb0x3Rk1ELXBWOThLTWp6alR5WV96SzhxMkYyUjhlWllCMjVuRUVDS1htODNuak4wU0QtakppOUpzSE9HclVOWm8tUUk0RTl5dkV4TmRPUWZQS1k3TGNneFBUNlNtdWdzZ2x5OWJ6cERzLTF4WkZLbk15UkZn?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">Russia economy minister says 'reserves have largely been used up' while lawmaker warns of revolution</span><span class="feed-src">Fortune</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">Insider Trading Cases Threaten Reckoning for Prediction Markets</span><span class="feed-src">Bloomberg.com</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMijgFBVV95cUxPTGhxZ2FadEZZTnNuRUlGZzdmMjlHMVBxUjd2U1prck1mSG11cnlNUnlUOGp5VXhfVHgxdWh3aWowN0NmR0lYd3RTMHJSWi02U1Rzbl9ia1BRcndKZUt4QUVIRmd3VDFXVEJ5QUlzQko5eFV4MlFkblZhYXFfOHFrd1pRY2JnMXlRZHA2b2Zn?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">Every Black Republican Is Leaving the House, Erasing Diversity Gains</span><span class="feed-src">The New York Times</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">Trump's political headwinds pile up after a week of setbacks</span><span class="feed-src">The Washington Post</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">Billionaire Elon Musk enters courtroom showdown with OpenAI</span><span class="feed-src">BNN Bloomberg</span></a><a class="feed-item" href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxPVGdJSVJlY1lmZlNqS0s2a2hyakRtM2NKMGVuaWF1amhUTU5qenV6X0g3bFVkbjNjSmdkejdTS3VZQjlTR0dFcXVhLXI1X1VjcWV3ZWNsb0dHSGJERDJ2MnhJS3U2eUFxNDlKZGI4NGNDZVliVmNFY1FUTmw1VWdCM3gzYnNpckcwTHg3NEdGaHhwV3J0aVNLSEJlWGZacHgybTBMU0NqYThGanU3Z0h6WllNdEFELXFUSGVROU5KVnNBWmZuT1lVVXVjR0tZMTVmT0lSSDlRbHFfTVQ1N0VpV3ZHbXpyNW8?oc=5" target="_blank" rel="noopener"><span class="feed-time">MORNING</span><span class="feed-headline">Microsoft Says Third Party Antivirus Software Is No Longer Needed</span><span class="feed-src">Forbes</span></a>
+  <div class="lib-controls">
+    <label class="lib-search">
+      <span class="icon">&#8981;</span>
+      <input type="search" id="lib-search" placeholder="Search headlines, summaries, sources..." autocomplete="off" spellcheck="false">
+      <button type="button" class="clear-btn" id="lib-clear" hidden>Clear</button>
+    </label>
+    <div class="lib-chips" id="lib-chips">
+      <span class="lib-chip-label">Topic</span>
+      <span class="lib-chip active" data-section="">All</span>
+    </div>
   </div>
+  <div class="lib-list" id="lib-list"></div>
 </section>
 
 <footer class="footer">
@@ -393,6 +439,86 @@
 </footer>
 
 <script>
+// ── Stories library ──
+(function() {
+  const ALL_STORIES = [{"headline":"Evacuation orders still in place as structures lost in Riverside Fire","summary":"","source":"KOAT","link":"https://news.google.com/rss/articles/CBMiigFBVV95cUxOWFRhVzZmVnQ3WjdrejE3cks3ZC1KeGFsWEdfY1JFUC1MbnRaWEN3V2o3aW5iclNBdkRPa0l0eExLcDk1ZXFERk1CdmNHNVdPZEliLXVHcWpiUWx3cnpvb1puVUxOcThHSVZqeTVSRFUtS0c2c29Kbk56VEhsTVltLS1KQ2ZXMURJelE?oc=5","edition":"morning","date":"2026-04-25","section":"Breaking News","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Chicago Hospital Shooting Leaves 1 Officer Dead and Another in Critical Condition","summary":"","source":"The New York Times","link":"https://news.google.com/rss/articles/CBMihgFBVV95cUxOWVdBZ2xoSlNhWjM3cjI4MDI5OG5aSTQ5N3NHRW91OEtPWW9IeFlrRE9EOEUzUEtrX3ZYMTBoN2NmenM3MlBpbUx3UWVmemxON1RFWklGSjhvZU40UzVoMVh4YnYwOFdfSDJlX3Fua1BPN1NYM3FhcndWNmhuaXR5eU8yb3lPZw?oc=5","edition":"morning","date":"2026-04-25","section":"Breaking News","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"2 children found dead in Wellesley home after well-being check","summary":"","source":"WCVB","link":"https://news.google.com/rss/articles/CBMimgFBVV95cUxNbjRGbVhndmdpeXVrSFpCQXJ6WVZkR1FjRHExblE3T3R2SkJvR29TSkRTZ2RYbjJ4RE9zM1daNW9nWXk2S0lBR2pfSU5oOWRGQTlkZGdYeE9tSkZ3d3VROXk5cXVFNWZYUndmUnd4NkFGbkh4djRMUXBrUjhOVm1SVG1iRmpWakp1SXd5SE1JTGJXNXBfQzd0b2tB?oc=5","edition":"morning","date":"2026-04-25","section":"Breaking News","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Russia economy minister says 'reserves have largely been used up' while lawmaker warns of revolution","summary":"Russian officials publicly signaled fiscal stress, with the economy minister admitting reserve depletion and a lawmaker warning of internal instability amid ongoing Western sanctions.","source":"Fortune","link":"https://news.google.com/rss/articles/CBMisgFBVV95cUxQNmZCcXR3d1VjaS11MUU0YjV3Z2VTelRadHRtbkxWLXc2QmVWTHpRRzFaMmI3YzdrbUpDN09qb0x3Rk1ELXBWOThLTWp6alR5WV96SzhxMkYyUjhlWllCMjVuRUVDS1htODNuak4wU0QtakppOUpzSE9HclVOWm8tUUk0RTl5dkV4TmRPUWZQS1k3TGNneFBUNlNtdWdzZ2x5OWJ6cERzLTF4WkZLbk15UkZn?oc=5","edition":"morning","date":"2026-04-25","section":"Finance & Markets","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Insider Trading Cases Threaten Reckoning for Prediction Markets","summary":"Regulatory pressure mounting on prediction market platforms as insider trading investigations expose structural vulnerabilities in markets lacking surveillance infrastructure.","source":"Bloomberg.com","link":"https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5","edition":"morning","date":"2026-04-25","section":"Finance & Markets","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"U.S. oil producers aren't coming to the rescue despite high prices as mistrust and chaos hit outlook","summary":"U.S. shale producers are refusing to increase capital expenditure despite elevated oil prices due to capital discipline mandates and reduced investment horizons amid geopolitical uncertainty.","source":"Fortune","link":"https://news.google.com/rss/articles/CBMirAFBVV95cUxPQmlidlRoN3RVcVp1bjRQWV9xTkN2czhXck4zNGVDOW81Vm1YVTZGRjUxWHRtMDZDVldNRmNyaWltNnkxbXBZeHQ3bDh0d3hpM0Q0OWlkYl9TYXFydnhxc1JjWURYVjljeTFVWFVpM1FBQzdFWVZBelpzc056aWhiUGxGMkxNbHVac05RRzRDOF9KZDVCb3dMMnFpWGZpS2tBYjFNcXVMcS0yUE9M?oc=5","edition":"morning","date":"2026-04-25","section":"Finance & Markets","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Trump's political headwinds pile up after a week of setbacks","summary":"Trump faced accumulating political reversals over the past week, damaging campaign momentum heading into general election phase.","source":"The Washington Post","link":"https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5","edition":"morning","date":"2026-04-25","section":"Politics & Policy","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Trump to Dine With Reporters He's Been Roasting All Week","summary":"Trump scheduled a dinner with members of the press corps he had been publicly criticizing, a symbolic messaging move.","source":"The New York Times","link":"https://news.google.com/rss/articles/CBMilgFBVV95cUxNYkJnTHREYTlTc1NkWEFWNjVXd2NlVnJNaUp0MWxWV1h0a0x6SGRnYnRLTDE1TUVqTWhhU2l2RGNOZS1rdzg5Yjh3d01pM183emZ0VkRueEM0VURnSGQ0WEhpb19wQnN2aWxBNU5zbk5vZEhDdGNadUNRa084LVBZd3hLNThVcFlmbnkzVnJJSlBibE5LcVE?oc=5","edition":"morning","date":"2026-04-25","section":"Politics & Policy","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Billionaire Elon Musk enters courtroom showdown with OpenAI","summary":"Musk filed legal action against OpenAI over the company's transition from nonprofit to capped-profit structure, claiming breach of its original charter.","source":"BNN Bloomberg","link":"https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5","edition":"morning","date":"2026-04-25","section":"AI & Technology","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Meta slashes 8,000 jobs, or 10% of its workforce, as Microsoft offers buyouts","summary":"Meta announced workforce reduction of 8,000 employees while Microsoft simultaneously opened buyout programs, signaling sector-wide efficiency recalibration.","source":"ABC News - Breaking News, Latest News and Videos","link":"https://news.google.com/rss/articles/CBMipgFBVV95cUxQRnVOVzVXbDVLc1p1WVU3andwWW40T1VraVltY2xxXy04ZVNGSktGYmg3aVhSaTIyRFlfM2ZoZ0ZFNDJtcjVIZGJ3QnZmQzJaUmVOLXlUNGp5cjhXd05TajBUbGt1Qno4clAzZUl2QkotRVcxWXhDcVU2MHFjZHhENWlSOXBSN3JWM0cxSk9JTkZlbnlmVUVsN0hwWHd1bnE2RzZlSmdn0gGrAUFVX3lxTE0tUkxhcmU0VTdSVTVoOHhRNF9Gdm5RYVR6TnI3d2FfXzRIdmV6V3BUUlRWY2FBNWpLM3ZZTEYzSDBNYWdlSFo3Z0dEZXhrWVNidjF0aTNja1R5Q3dwZWVhNlVCdjAxVGRMQUZlMlVVVTR2cUFpb283eV9RbUtHLUswd1cxeTF4X0FWUWVhakxWOVlpcWthb0NmOXgtMnZWcG83VTBTX0ZuaWx3TQ?oc=5","edition":"morning","date":"2026-04-25","section":"AI & Technology","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"California's jet fuel supply drops to three-year low as Middle East turmoil squeezes global oil market","summary":"California aviation fuel inventories hit 3-year lows driven by Middle East supply disruptions redirecting global energy flows away from West Coast demand centers.","source":"The Guardian","link":"https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5","edition":"morning","date":"2026-04-25","section":"International","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"36-year-old left the U.S. for China,now pays $1,000 rent and $100 for groceries for family of 4","summary":"American expatriate moved to China citing significantly lower cost of living and perceived quality-of-life improvements compared to U.S. metropolitan centers.","source":"CNBC","link":"https://news.google.com/rss/articles/CBMixAFBVV95cUxOOUxQLTFTYkdqVllKbTdoQVVnQkMyTFFXVy1KcUMyQ0xsN2hBdnlGalBuVXExd29xZGFsWkUyYW5pUDJRdi1vQzl1dV9oWXR0WXRGRUVRallZcnBvdmVfYTBBSzl2Uzd5NUt4ZHFpNjR5T2pzUzhFQ29kMm04TGJ5UHowdkd3UENINTFLdnVmeXF5WkdMR0YzUlJRMEcxSUsySUtDXzJDLXF3ellFaVlxODAxR2JLOGh3bWp1Vm9JdGR2d1NE0gHKAUFVX3lxTE9EMm1QM28wamE3TVI0N0tqS3hRWWNweDdEZVlReGtvR2FLR0dTMzNLYkV2OXNEOEZzSmV5OTNQNXJhbHRMeEFPZFJ2N0JDRzB6ejZ5dEkzM3BQbHZfWTZ0WHpLc002S2xGUVlJd2tISXhXTXBHbFA1Z3h5dnYwSUxOOFQ0ckhkQ1ZWNkpuLVB0MTItZy00T2Nka0hBY2IxaE9SQk40MVhUVEw1ZGloLUFtb0RDbDIzdHJrMXdIbkp1ZnNXR1E1TDR4UUE?oc=5","edition":"morning","date":"2026-04-25","section":"International","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"NBA Playoffs first round free livestream: Where to watch every game today, TV, schedule","summary":"NBA first round playoff games are available across multiple broadcast channels and streaming platforms with free preview options.","source":"AL.com","link":"https://news.google.com/rss/articles/CBMiuwFBVV95cUxNa2dLVDh1NTFYMElHYnlvRzhQbG9faF95aUlrWENSTFUyOVBmQVFnMkQ4eXZxVkxxZ3Q0SWlKMUZjOTB5VUpYWTJlc1ZsZ2lYRVRRTU80MC1vYTdVM09LRzc2UE1VM2RPeV8zV1JwUWtScmhWbDh0SkRfbkxLMG0xeEEtZGJKa2hkU2FLdklEb3RybElCSkQ2ZGlCX3d5cEoxZWlrVHQ4dC1ia3VFT0lIRU5HMmdRZURzUy1F0gHPAUFVX3lxTE5ob1F2TE44VzlhVHN5ak41YzF1WWdQdVA3Z1lVaHlvejZTelVyQjJ0dTg3R2lKTUhWaTdkM1dWcTZEYWdKYkxRM1FrWHR1NDJBT0F4ZDhQWXlObHdFVHpoZEFmY09XbDhvQUo3QzI3VEl1TVlWeU1RbE9Bb1pGU2Jna1Z1THlZMVllRWhUT2lzbEtJLXZJSVRRcEI3TWl4SkVzdkQ0MVc3NUNTVERLRDdNRDA5bHJUdHZMN1o1RmNWUFZIb3BfV0VPdndEaXJHYw?oc=5","edition":"morning","date":"2026-04-25","section":"Culture & Sports","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"From 'Apex' to 'Marty Supreme,' 10 movies to stream right now","summary":"Entertainment guide listing current theatrical and streaming releases across multiple platforms.","source":"USA Today","link":"https://news.google.com/rss/articles/CBMi0wFBVV95cUxOY083Um1fb2psWjhXb2NNODlMNnlSNnlrdl9vNHB5dEUxQ2w1UkR6eWxEX1VXZGJHMW5EQ2xIa1ZHRkJ4RUZlbFJpdGpkWEZxOVozQUxrTXpvSGhXYzNveFVEYlhGQUFyMUF3UnNOb3ZJWU9JQ21PR3BNdG40dm42RWRvMjdNSnJIeUFVU1BWSURMWF9CQlpiMGNESjUtcnlqMndYSWp5UjdHRDlUZnpoZHRldHNvdlBCQm94VG9GLVlwY3czaHN2Z0ZaLUZuYTR5anBJ?oc=5","edition":"morning","date":"2026-04-25","section":"Culture & Sports","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Investigation underway after two children found dead inside home in Wellesley","summary":"Two children were discovered deceased during a wellness check in Wellesley, Massachusetts, triggering ongoing investigation.","source":"Boston 25 News","link":"https://news.google.com/rss/articles/CBMi2gFBVV95cUxNTGZqR2F3cVFwcWdRYWxaU3hWaFZPWUtTdWNhZUtSczhYendLMW1VX1NyTXBDM2R4OG5lXzJwakQzQklUdmFwVFZZYVlXaGttNHZ6cno4UGx3X2VhdV9OTzdqWVl6UUhXekZzWEtIdTRScW11WHBpRkI5d0dERUJOTnpocGZiaTEwNTBqSy1lLUx0NHdqeWNWTFVyQ1JIQ2ViVkhBUGlNVm90T091SU16b2NwYW14SHN2YmdaRDdkX0t1YV9PX1BFZTJZRHc5eTNnZm5xR0V1eUUtd9IB7gFBVV95cUxNQUJsMEY0UGZqTUhpU3RJR0Q3Y3pwNnFPczBkYkFqX3FtUGJ6bGZSd1ROWFZMUO4yNHplSGpYWGd1a0ZEM2Y3YWhuMWpzbDFmc0dEdjdsbzNMZTZJOWMyakdseGJ4UzBZd2RTdXFuTFB2SGhKUklyTlRCdDlteHFUX1BreXQtWjJmSV9FY2VWeWtXZk9pcHNCTFR1QjlKaVB0MjRQQUgtN3NiV0JGcndtUDVUdU9JNmZKYi1GYlhFbnRHQkJ5MkpzZVc4MGc1emlmbmI0WnY5TVpXS3k1bXVFR2JlTFNMenA3UlM0V3NB?oc=5","edition":"morning","date":"2026-04-25","section":"Boston","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"},{"headline":"Mass. sheriff's department officer arrested for human trafficking","summary":"A Massachusetts sheriff's officer was arrested on human trafficking charges, indicating law enforcement accountability breach.","source":"NBC Boston","link":"https://news.google.com/rss/articles/CBMirgFBVV95cUxQUzR3TnpWWWxEU2Z5dV9TaFpkcnhtYmZFcjV6aUp1SDFUMlBQMER3YzhjRGwtVmdUbDc2enMzWkRTNm81Y2dzSG1oQzZWUTd6OXFuOE9sMl9MSGFTZ0Q3LUxNOXQ2ZTFlNHFjelVSMUZWb0NSWV9jQ3lITzVWUVp2Q2F2SG9Bd0xYMGJ1eDRScGdXdW1HZmJoNEoydDBhRTBwek9aNmxCZnhjdnpDbXfSAbYBQVVfeXFMTTZfQ3Y5dHpUT1JsVV9KWVhfMDVYQVg0V2k4dlF3UzJNdkxGZW81X0w5NnoydmpvVWJ5REJqYnFndFNmMlNUWmpPbE9pLTczRFUwU0xMYm0xZzA5OERtbnVfZEFleGZvNjlEN3FiOEV5TEdXVXpFVU5weVR5bHhOSm9LSkwtMHR4ZmNTMDhfTVZiZlJDVDRQeGpyTHc0eHZkY1U5TWdid3lxR2NiSXpvVWNFRFdvdVE?oc=5","edition":"morning","date":"2026-04-25","section":"Boston","brief_url":"https://ctlsmith5689.github.io/daily-intelligence-brief/briefs/2026-04-25-morning.html"}];
+  const SECTIONS = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+  const listEl = document.getElementById('lib-list');
+  const searchEl = document.getElementById('lib-search');
+  const clearEl = document.getElementById('lib-clear');
+  const chipsEl = document.getElementById('lib-chips');
+  const countEl = document.getElementById('lib-count');
+  if (!listEl) return;
+
+  // Build section chips
+  SECTIONS.forEach(name => {
+    const c = document.createElement('span');
+    c.className = 'lib-chip';
+    c.dataset.section = name;
+    c.textContent = name;
+    chipsEl.appendChild(c);
+  });
+
+  let activeSection = '';
+  let query = '';
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmt(date) {
+    if (!date) return '';
+    try {
+      const d = new Date(date + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric' }).toUpperCase();
+    } catch { return date; }
+  }
+
+  function render() {
+    const q = query.toLowerCase();
+    const filtered = ALL_STORIES.filter(s => {
+      if (activeSection && s.section !== activeSection) return false;
+      if (!q) return true;
+      return ((s.headline||'')+' '+(s.summary||'')+' '+(s.source||'')+' '+(s.section||'')).toLowerCase().includes(q);
+    });
+    countEl.textContent = filtered.length === ALL_STORIES.length
+      ? String(ALL_STORIES.length).padStart(2,'0') + ' stories'
+      : String(filtered.length).padStart(2,'0') + ' of ' + String(ALL_STORIES.length).padStart(2,'0') + ' stories';
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No stories match. Adjust filters or clear the search.</div>';
+      return;
+    }
+    listEl.innerHTML = filtered.map(s => {
+      const link = escapeHtml(s.link || s.brief_url || '#');
+      return '<a class="lib-item" href="'+link+'" target="_blank" rel="noopener">'
+        + '<span class="li-section">'+escapeHtml(s.section||'')+'</span>'
+        + '<span><span class="li-headline">'+escapeHtml(s.headline||'')+'</span>'
+        +   '<span class="li-meta">'+fmt(s.date)+' &middot; '+escapeHtml((s.edition||'').toUpperCase())+'</span></span>'
+        + '<span class="li-src">'+escapeHtml(s.source||'')+'</span>'
+      + '</a>';
+    }).join('');
+  }
+
+  searchEl.addEventListener('input', () => {
+    query = searchEl.value.trim();
+    clearEl.hidden = !query;
+    render();
+  });
+  clearEl.addEventListener('click', () => {
+    searchEl.value = ''; query = ''; clearEl.hidden = true; searchEl.focus(); render();
+  });
+  chipsEl.addEventListener('click', e => {
+    const chip = e.target.closest('.lib-chip');
+    if (!chip) return;
+    activeSection = chip.dataset.section || '';
+    chipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+    render();
+  });
+
+  render();
+})();
+
 // Plexus background canvas, Apterreon red palette
 (function() {
   const c = document.getElementById('plexus');
