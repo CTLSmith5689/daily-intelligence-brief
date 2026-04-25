@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.DS_Store
+Thumbs.db
+
+# Local-only artifacts from the migration
+source/
+*.zip
+.claude/

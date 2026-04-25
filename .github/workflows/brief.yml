@@ -1,0 +1,68 @@
+name: jeeves-brief
+
+on:
+  schedule:
+    - cron: '0 11 * * *'    # morning  ~7am ET
+    - cron: '15 16 * * *'   # midday   ~12:15pm ET
+    - cron: '45 20 * * *'   # evening  ~4:45pm ET
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: 'Which edition to generate'
+        type: choice
+        options: [morning, midday, evening]
+        default: morning
+
+permissions:
+  contents: write   # required to commit the archive back
+
+concurrency:
+  group: jeeves-brief
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - run: pip install -r requirements.txt
+
+      - name: Determine edition
+        id: pick
+        run: |
+          case "${{ github.event.schedule }}" in
+            "0 11 * * *")  EDITION=morning ;;
+            "15 16 * * *") EDITION=midday  ;;
+            "45 20 * * *") EDITION=evening ;;
+            *)             EDITION="${{ github.event.inputs.edition || 'morning' }}" ;;
+          esac
+          echo "edition=$EDITION" >> "$GITHUB_OUTPUT"
+          echo "Edition: $EDITION"
+
+      - name: Generate brief
+        env:
+          ANTHROPIC_API_KEY:          ${{ secrets.ANTHROPIC_API_KEY }}
+          ALPHAVANTAGE_API_KEY:       ${{ secrets.ALPHAVANTAGE_API_KEY }}
+          JEEVES_ICLOUD_APP_PASSWORD: ${{ secrets.JEEVES_ICLOUD_APP_PASSWORD }}
+          JEEVES_MODEL:               ${{ vars.JEEVES_MODEL || 'claude-haiku-4-5-20251001' }}
+          JEEVES_READER_CONTEXT:      ${{ vars.JEEVES_READER_CONTEXT }}
+          RECIPIENTS:                 ${{ vars.RECIPIENTS }}
+        run: python lambda_function.py "${{ steps.pick.outputs.edition }}"
+
+      - name: Commit archive
+        run: |
+          git config user.name "jeeves-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/ state/
+          if git diff --cached --quiet; then
+            echo "No changes to commit (likely a no-new-content skip)."
+          else
+            git commit -m "brief: $(date -u +%F) ${{ steps.pick.outputs.edition }}"
+            git push
+          fi

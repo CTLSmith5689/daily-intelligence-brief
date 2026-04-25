@@ -1,0 +1,2 @@
+# Pure stdlib — no third-party deps required.
+# (Original Lambda used boto3; the GitHub Actions port replaces S3 with filesystem I/O.)
