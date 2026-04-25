@@ -28,46 +28,47 @@
   a { color:inherit; text-decoration:none; }
   ::selection { background:rgba(204,0,0,0.35); color:#fff; }
 
-  /* Topnav */
+  /* Topnav — brand left, nav right. Hero is gone; this is the only header. */
   .topnav {
-    position:sticky; top:0; z-index:120; height:56px; background:rgba(13,15,24,0.85);
+    position:sticky; top:0; z-index:120; height:64px; background:rgba(13,15,24,0.92);
     backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
-    padding:0 32px; gap:18px;
+    padding:0 28px; gap:18px;
   }
-  .topnav .lockup { display:flex; align-items:center; gap:14px; }
-  .topnav .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:12px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; }
-  .topnav .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:9px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
-  .topnav .stats { margin-left:auto; display:none; gap:24px; align-items:center; }
-  @media (min-width:880px) { .topnav .stats { display:flex; } }
-  .topnav .stat { display:flex; flex-direction:column; align-items:flex-end; }
-  .topnav .stat .v { font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--text-primary); }
-  .topnav .stat .l { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }
+  .topnav .lockup { display:flex; align-items:center; gap:14px; min-width:0; }
+  .topnav .lockup-text { display:flex; flex-direction:column; min-width:0; }
+  .topnav .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; line-height:1; }
+  .topnav .tagline { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; margin-top:5px; line-height:1; }
 
-  /* Hero — compact, doesn't dominate */
-  .hero {
-    text-align:center; padding:64px 24px 48px; max-width:1100px; margin:0 auto;
-    border-bottom:1px solid var(--border-dim);
+  .topnav .nav { margin-left:auto; display:flex; align-items:center; gap:0; }
+  .topnav .nav a {
+    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:3px; color:var(--text-dim); text-transform:uppercase;
+    transition:color .15s, background .15s; user-select:none;
+    border-left:1px solid var(--border-dim);
   }
-  .hero .mark { display:flex; justify-content:center; margin-bottom:24px; }
-  .hero h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:44px; letter-spacing:11px; color:#FFFFFF; text-transform:uppercase; margin-bottom:12px; line-height:1.05; }
-  .hero .sub { font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--apt-red); text-transform:uppercase; margin-bottom:14px; }
-  .hero .desc { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
-  .hero .rule { width:80px; height:1px; margin:32px auto 0; background:linear-gradient(to right, transparent, var(--apt-dark-red), transparent); }
-  @media (max-width:640px) {
-    .hero { padding:48px 20px 36px; }
-    .hero h1 { font-size:30px; letter-spacing:7px; }
+  .topnav .nav a:first-child { border-left:none; }
+  .topnav .nav a:hover { color:var(--text-primary); }
+  .topnav .nav a.active { color:#FFFFFF; background:rgba(204,0,0,0.08); }
+  .topnav .nav a .count { display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; letter-spacing:1px; }
+  .topnav .nav a.active .count { color:var(--apt-red); }
+
+  @media (max-width:680px) {
+    .topnav { padding:0 16px; height:auto; flex-direction:column; align-items:stretch; gap:0; }
+    .topnav .lockup { padding:14px 0 10px; }
+    .topnav .nav { margin-left:0; border-top:1px solid var(--border-dim); }
+    .topnav .nav a { flex:1; text-align:center; padding:12px 8px; }
   }
 
-  /* Sticky filter rail — clean 2-row layout */
+  /* Sticky filter rail — sits right under topnav, fixed-height shell. */
   .rail {
-    position:sticky; top:56px; z-index:90; background:rgba(5,8,16,0.92);
+    position:sticky; top:64px; z-index:90; background:rgba(5,8,16,0.92);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border-bottom:1px solid var(--border-dim);
   }
   .rail-inner { max-width:1200px; margin:0 auto; }
 
-  /* Row 1: search + tabs */
+  /* Row 1: search only (tabs moved to topnav) */
   .rail-primary {
     display:flex; align-items:center; gap:14px; padding:14px 24px 10px;
   }
@@ -91,19 +92,7 @@
   .search .clear:hover { color:var(--text-primary); }
   .search .clear[hidden] { display:none; }
 
-  .tabs { display:flex; gap:0; flex-shrink:0; }
-  .tab {
-    padding:11px 18px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:2.5px; font-weight:500; color:var(--text-dim);
-    cursor:pointer; transition:all .15s; text-transform:uppercase;
-    user-select:none; background:var(--bg-surface);
-    border:1px solid var(--border-dim); border-right:none;
-  }
-  .tab:last-child { border-right:1px solid var(--border-dim); }
-  .tab:hover { color:var(--text-primary); }
-  .tab.active { background:var(--bg-elevated); color:var(--text-primary); border-color:var(--text-muted); position:relative; z-index:1; }
-  .tab .count { display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; }
-  .tab.active .count { color:var(--apt-red); }
+  /* (Tabs moved to topnav; legacy .tab/.tabs styles removed.) */
 
   /* Row 2: filter strip — single horizontal scrollable line */
   .rail-filters {
@@ -135,10 +124,7 @@
   .chip.grey.active { background:rgba(136,136,136,0.18); border-color:var(--apt-grey); }
 
   @media (max-width:680px) {
-    .rail-primary { flex-wrap:wrap; padding:12px 18px 8px; }
-    .search { width:100%; flex:0 0 100%; }
-    .tabs { width:100%; }
-    .tab { flex:1; text-align:center; padding:10px 8px; }
+    .rail-primary { padding:12px 18px 8px; }
     .rail-filters { padding:6px 18px 12px; }
   }
 
@@ -361,25 +347,17 @@
 <nav class="topnav">
   <div class="lockup">
     <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
-    <div>
-      <div class="dm">Apterreon</div>
-      <div class="prod">Daily Intelligence Brief</div>
+    <div class="lockup-text">
+      <span class="dm">Apterreon</span>
+      <span class="tagline">Explore what's out there.</span>
     </div>
   </div>
-  <div class="stats">
-    <div class="stat"><span class="v" id="stat-briefs">··</span><span class="l">Briefs</span></div>
-    <div class="stat"><span class="v" id="stat-stories">··</span><span class="l">Stories</span></div>
-    <div class="stat"><span class="v" id="stat-since">··</span><span class="l">Since</span></div>
+  <div class="nav">
+    <a href="#briefs"  data-tab="briefs"  class="active">Briefs <span class="count">··</span></a>
+    <a href="#stories" data-tab="stories">Stories <span class="count">··</span></a>
+    <a href="#pinned"  data-tab="pinned">Pinned <span class="count">··</span></a>
   </div>
 </nav>
-
-<header class="hero">
-  <div class="mark"><svg width="56" height="75" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 14px rgba(204,0,0,0.55));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg></div>
-  <h1>Daily Intelligence Brief</h1>
-  <div class="sub">Apterreon</div>
-  <div class="desc">Three editions per day &middot; Markets, Politics, AI, World</div>
-  <div class="rule"></div>
-</header>
 
 <div class="rail">
   <div class="rail-inner">
@@ -389,11 +367,6 @@
         <input type="search" id="search" placeholder="Search briefs, stories, sources..." autocomplete="off" spellcheck="false">
         <button type="button" class="clear" id="search-clear" hidden>Clear</button>
       </label>
-      <div class="tabs">
-        <div class="tab active" data-tab="briefs">Briefs <span class="count">··</span></div>
-        <div class="tab" data-tab="stories">Stories <span class="count">··</span></div>
-        <div class="tab" data-tab="pinned">Pinned <span class="count">··</span></div>
-      </div>
     </div>
     <div class="rail-filters" id="rail-filters">
       <div class="filter-group">
@@ -417,9 +390,9 @@
 </div>
 
 <main class="main">
-  <div id="briefs" class="view active"></div>
-  <div id="stories" class="view"></div>
-  <div id="pinned" class="view"></div>
+  <div id="view-briefs"  class="view active"></div>
+  <div id="view-stories" class="view"></div>
+  <div id="view-pinned"  class="view"></div>
 </main>
 
 <footer class="footer">
@@ -455,7 +428,7 @@
 </div>
 
 <script>
-const briefs = [{"key": "briefs/2026-04-25-morning.html", "date": "2026-04-25", "type": "morning", "modified": "2026-04-25T18:52:37.551127+00:00", "pinned": false, "sections": [{"name": "Breaking News", "stories": [{"headline": "2 Chicago police officers injured in hospital shooting at North California Avenue", "summary": "", "insight": "", "source": "ABC7 Chicago", "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQM2JmUjN0c1Z2X1ZkSFJ2ZE4wcWtSMnJkZWNndnlRSTBLOGRxcG5OWVBRVjdoLURnek9wS2tiWk1jVlZXS1YwVVNCOV9mcF9sS0prbFJOSnE2cVVFTG5QdVdvWXFVLXoyN3pUOFVrVHhFZEpESTR2eWR0N1F2aUplRTlwRWRXVW95RFR4dmNhOUdET0RWdGFUSXBaU1JiMXZBQTNTbmcweDZ2VUJhbE5wVFlmR0s3OUxpTDhUeEZ4TWtPYzZYdGxmVHJmWk5PNGV3TzFwd3JoTUEwUdIB3wFBVV95cUxQSjIyQ0FMWVZINC0zaGI1SG0tV2gwMmRPLW52QmpxTld5WmhiZzBkTjhRTXFxb1doMHNXX0JEZkpFbTFOUTZacUJlQ3pNQWxiNF9KRnRBdFYtelJsZXVLSlhVNHhlNjMtaUNXY3pOcU5ZREx2aUZaZ29Md0Rrb1R3Tm02VlVJUk5RX2ZGUG94Nl9rdWlNV21UUE44b1BfeHNmZnFsai1CMEllb1VPWkFrWlBGYUJ0ZWNUaWNnRzI2aWhPOENRWUFBQTJfa3VmZzZwelZKMWY2NWJDbjJCWTF3?oc=5"}, {"headline": "Evacuation orders remain in effect as structures destroyed in Espa\u00f1ola fire", "summary": "", "insight": "", "source": "KOAT", "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOWFRhVzZmVnQ3WjdrejE3cks3ZC1KeGFsWEdfY1JFUC1MbnRaWEN3V2o3aW5iclNBdkRPa0l0eExLcDk1ZXFERk1CdmNHNVdPZEliLXVHcWpiUWx3cnpvb1puVUxOcThHSVZqeTVSRFUtS0c2c29Kbk56VEhsTVltLS1KQ2ZXMURJelE?oc=5"}, {"headline": "Suspect surrenders after 12-hour standoff at Winter Park condo complex", "summary": "", "insight": "", "source": "WESH", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQMlgwVU53WGY2dV9xakRjRTMxYkpNVTVjakdrcHZvRDlpYU5Gb2dfVEVaTVdFQVd6THMzWHN2aHFYMHVUVzJMakhSdDZhVU9kb0Z5WWZkSEhJVThDTHdRcXRlczBab1EtbUxlVm5hX25kSnNDNnhHZVp0clE1SG5NdUh1SUgzVVF4WG9Ka3FB?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "Federal Reserve's interest rate dilemma intensifies as hawkish messaging pressures equity valuations", "summary": "The Fed faces conflicting pressures between inflation persistence and growth concerns, with recent hawkish commentary from officials like Warsh signaling potential resistance to rate cuts despite market expectations.", "insight": "Equity duration risk is repricing upward\u2014longer hold periods for earnings become less valuable when real discount rates stay elevated, creating a mechanical headwind for high-growth and unprofitable tech that benefited from 2023's rate-cut expectations.", "source": "The Globe and Mail, MSN", "link": "https://news.google.com/rss/articles/CBMisAJBVV95cUxPQ3dVak1UZGhna0QyUy1NUVBwUGxDdmxkbl92Rk9razNOSTRmdVdDWjlJSmxQbzhZUW9oR0o1N01ZMHgzc2lMMG9lYlRfLVo0Zk93V0pFTF9mc09mdmxTWllzbzIyaUYteW1HdW5TWEJkUXIyUGlPTmVXVzlfcE9MampETnp1Rm9yMmFtN0JnaGQxRlZsTXNteGwzR3I0NlpuR1luQUd2SkJMNjRwWFdSU3BUY2JpUGo1dmVDeEQzWkpXdkdDVEJvbzhONjJ4Nk42aDhJSTRJd1ZiaUczTFVWWTlILWF2QlF0R1dhd3FhV3d5SFdkMmhkYk02OW5EOGRmTWVpUnNzVk9nVXlLdXJIMzg5SENhRjRsaEZXQlEwSEJyel9NbF9ZaExBXzNVLU03UURz?oc=5"}, {"headline": "Insider trading cases threaten regulatory reckoning for prediction markets", "summary": "Recent enforcement actions expose how prediction market platforms lack controls to prevent information asymmetries, with traders using privileged information to arbitrage contract pricing against public knowledge.", "insight": "This creates a regulatory arbitrage closure: platforms enabling efficient price discovery without custody rails face enforcement pressure that favors centralized, regulated exchanges, concentrating market-making power and potentially reducing liquidity for tail-risk hedging.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5"}, {"headline": "Trump accumulates $51 million in bonds as wealth diversification signal shifts portfolio positioning", "summary": "New financial disclosures reveal Trump purchased significant fixed-income holdings in March, signaling a pivot from near-exclusive equity concentration and suggesting conviction in current yield environment.", "insight": "This allocation rebalancing by a major wealth holder reflects confidence that rates are sticky\u2014if he believed cuts were imminent, fixed-rate bonds would be poor timing; instead, the move signals expectation of elevated-for-longer rates, influencing capital allocation sentiment among high-net-worth cohorts.", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOX0xRdkVkVzZzc0JxU0pRN0d5V1R0dU5xWlJZdGhsQWFoLVBHZmctczgwNndnRWNRRkd6VjFfenEza1RmRDZSbDlMS2p4SjBTUUUtendkRTA2V2VORFZYOGt1T3N0TFdNanF5MzBFSjJ3M1JqLXFyU3hUS0xvYThmWWROd2JnS0RuSlcyTTJ5dDZ6R09FR1NQaU5TZ3o1cnlrN0g0X1lfTGpQMHl1TTExcw?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump attends first White House Correspondents' Dinner after years of boycott, signaling tactical media engagement shift", "summary": "After declining to attend for multiple years, Trump will dine with press he has spent the week attacking, marking a notable reversal in his adversarial media strategy and suggesting calculation about public perception during election positioning.", "insight": "This is a tell-tale signal of campaign-season normalcy-seeking\u2014the dinner attendance projects presidential stature and moderation to centrist voters who punish overt media hostility, while the simultaneous attacks on individual reporters maintain base activation without delegitimizing the institution itself.", "source": "The New York Times, Al Jazeera", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNYkJnTHREYTlTc1NkWEFWNjVXd2NlVnJNaUp0MWxWV1h0a0x6SGRnYnRLTDE1TUVqTWhhU2l2RGNOZS1rdzg5Yjh3d01pM183emZ0VkRueEM0VURnSGQ0WEhpb19wQnN2aWxBNU5zbk5vZEhDdGNadUNRa184LVBZd3hLNThVcFlmbnkzVnJJSlBibE5LcVE?oc=5"}, {"headline": "Trump faces mounting political setbacks as judicial and legislative headwinds intensify campaign pressure", "summary": "After a difficult week marked by legal and policy reversals, Trump's political position erodes as both institutional constraints and strategic miscalculations compound, reshaping electoral dynamics.", "insight": "Cascading setbacks reduce his margin for error in swing states by elevating perceptions of executive dysfunction\u2014this matters because a single-digit race turns on whether voters believe he can execute on promises or merely generate noise.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Elon Musk's OpenAI lawsuit escalates as courtroom showdown tests AI governance framework and equity compensation claims", "summary": "Musk's legal challenge against OpenAI moves to trial, forcing adjudication of whether the for-profit transition violated founding principles and claims regarding equity dilution.", "insight": "This case establishes precedent for AI governance accountability\u2014if Musk prevails on breach-of-contract grounds, it exposes the legal liability for AI labs that shift commercial structures without founder consent, affecting how VCs structure AI deals and LP due diligence on governance risk.", "source": "BNN Bloomberg", "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5"}, {"headline": "Tech giants cut 40,000+ jobs as AI efficiency gains and cost discipline reshape headcount economics across sector", "summary": "Major firms including Oracle, Meta, and others announce significant workforce reductions, citing AI automation of engineering tasks and operational consolidation as drivers of realized productivity gains.", "insight": "This signals that AI adoption has moved from hype to operational impact\u2014when companies cut engineers, they're asserting that AI-assisted coding and infrastructure automation reduce marginal engineering labor demand, creating a structural downshift in tech hiring that favors AI-fluent roles over junior positions.", "source": "News18", "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNdUxraE43N0EzQl9RZzY4aEtyU3U2ZkJzUlNSaFRyTjd3REYybFJXeGxPb1E2bjR1aUhwRGUyeDVDbW1aejhweVRZeTk3YjY2SlVpb25pRDE5b2lOXzFYMFBrR1d5WkQwMVVLaXh5b21FUDBoUk9yem83WTFDeDhwMGMyekxzR0hHOHRHb0RXVnRrNGVmM05NM3ZIRVp5eXBjSlBINVNjUkxxTUphVWdiQkwtdHFUTEHSAbwBQVVfeXFMTTk2Y0MxdHQwYVE1MVBsQ0M4aFo4V3poeUVJRUdhMXh3dlFLSGJCVTFBRTZzTTZWWEx3VGw3czlQUTZuODFsVFpOWU5Ka2kzVzJQVEJtVXd3Y1lJRHhqbDA4dDNIMDJYNXNLMzkwc3pKT2hBcWRFZHN0bXlUXzJSTTZWaGZxd215Mm8xeUNCdk5ZMlZlRVBYd3hYd0FJM3hGNmxpVEVlMGhISGlhNVJabmtyOC1CM2JybkNEbE4?oc=5"}]}, {"name": "International", "stories": [{"headline": "California jet fuel reserves drop to three-year low as Middle East geopolitical risk constrains supply flows and elevates refinement costs", "summary": "Western fuel stockpiles decline sharply as Middle East unrest disrupts production and transit routes, forcing California refineries to adjust procurement strategies and absorb tighter margins.", "insight": "This creates a geopolitical optionality trade\u2014refiners holding inventories face holding costs, but undersupply during a conflict spike forces prices up dramatically; allocators with hedged storage positions benefit from volatility expansion, while integrated energy operators see margin compression.", "source": "The Guardian", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5"}, {"headline": "U.S.\u2013China economic competition intensifies around oil markets and AI infrastructure as strategic decoupling accelerates", "summary": "Both nations compete for energy security and AI leadership as geopolitical bifurcation creates dual supply chains and competing technology standards that reshape global capital flows.", "insight": "This establishes hard constraints on arbitrage: firms can no longer optimize purely for cost\u2014they must choose jurisdictions, fragmenting global value chains and raising effective production costs for companies caught between export restrictions and sanctioned markets.", "source": "Cointribune", "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxOR1RFR3ZrcXFjeENaTkU4VkU1SXl1THV2V2dUTWlmV3dmMVRDbmFzZ1diN2k1WmZQVUdVcXFQdEZjSjJKd1p0TlMxUEJSV0FSMm9GQUd3ZWVPcGhuaXNITjJBNDBHd1ZjaUk4RjUxWFBoMU8wUkN2b2JRazQydE1mWUx2bGFlUUNKY0NzOHp3UnlPNnRxV1dCTjhKb0NZbEYtaUZVLVg5Sml3Y2hsUFRwczVObDdpd3J3VGQxTFM5TQ?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "NBA playoffs underway with television schedules and streaming options available for Saturday matchups", "summary": "NBA playoff games commence with full broadcasting coverage across cable and streaming platforms, providing multiple viewing options for weekend audiences.", "insight": "Streaming adoption metrics in sports viewing now drive media rights valuations\u2014leagues monitor which platforms capture engagement to inform next negotiation cycles, creating a direct feedback loop between viewer migration and franchise valuations.", "source": "Milwaukee Journal Sentinel", "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNYmZoMXZSZnhONWtzOTU3N0swN1BhNW5mNmh5TkNHVXk4czZ4X21WdGl2VmxyQ3MybE9pNzZLZU5RQ3hGZGxXRl9uNHpWd2R1Skg4SzlCV05WdGJhR3FZUWRqNGFCVnZCRFJBVTlfLWhXejNBWUZ4dWV6U3B1SE1TaW1RYk1OZnNGZjAweU9JaC1qYlVlRUhKTzdZdWdLVVl1enB2Tl9hWDZwUTU0aEdoVndzYnlfWHk0WlZrRXZhWDJ3djlpYmE5d2VoLV9leE0?oc=5"}, {"headline": "Music industry mourns death of veteran Cliff Downs, notable figure in country music production and management", "summary": "Cliff Downs, a recognized executive in country music circles, has passed away, marking a loss of institutional knowledge and relationships within Nashville's professional ecosystem.", "insight": "Generational transition in music industry leadership creates void in mentorship networks\u2014younger producers and managers lose access to pattern-recognition gained over decades, which may shift negotiation power toward tech platforms and streaming services with algorithmic advantage.", "source": "MusicRow.com", "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNUWdjd2pYWG5UVFRMZUR5QTI5Q1oyTFFQbnR1XzZFVmM0blVKUDU3dXlDNHlQQ0VyeXJNdHp3LTdSNnN5OE9mV3ZHQzVORDJGZnVnTlZkNmF1UWhEa09FZ2lMb0dBQkdoUXQ4OUxuWE94UENiR1BUcnJtSHdha2RLU2hR?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Two children found dead in Wellesley, Massachusetts home during wellness check, investigation underway", "summary": "Police discovered two deceased children during a welfare investigation at a residential property in Wellesley, triggering active investigation into circumstances.", "insight": "Wellness-check protocols matter for liability exposure\u2014municipalities and police departments face increasing scrutiny on response procedures, which drives training costs and systemic design changes that allocate resources to mental health co-responder models.", "source": "CBS News, Boston 25 News", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQM2psaDlVM21pUHhXVTdtem4zYVNNX2JCLWNqalVjZHlPa0VCTy11ZEt0RU95U2hjU2YxazhUdWpLMmhCTTdSZG9nME1uNzZ3bXN4VGJQSVlGczRvMVFIYnBkT3hDOG1seGx2Z3hNY0hDM2otNTZYYmNQbGJ1Z0xUNnBibTczRGNK?oc=5"}, {"headline": "Domestic violence suspect dies in vehicle crash while fleeing Plymouth, Massachusetts police pursuit", "summary": "A fleeing suspect died when his vehicle crashed during a police pursuit in Plymouth, with authorities noting prior domestic violence allegations.", "insight": "Pursuit outcomes create liability and policy cascades\u2014departments balance apprehension risk against public safety costs of high-speed chases, influencing whether similar incidents trigger procedural changes or municipal liability settlements.", "source": "CBS News", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE15NElCZWluOGgxZTF6SUxscWFhbzdsQmVFVGI4bW1majZCOWdxOW1rNTlyb3NvYzZ1S2VKaHVqa0hMOUNkcU9FeFZLaUFfRWtmVk4xQzZBV1QxcWF3TEJTdlYySWthZHF3Mk5QOVZVVHVnWm9YN2dpMkg4LXdCUQ?oc=5"}]}], "the_edge": "The conjunction of sticky rates (Fed hawkishness), tech labor normalization (AI efficiency gains), and geopolitical bifurcation creates a structural headwind for venture-backed growth companies: reduced duration value from higher discount rates collides with tightening labor supply as AI automation flattens engineering demand, while tech supply-chain decoupling raises capex requirements, compressing margins on the very companies that benefited from cheap capital. Allocators should expect M&A consolidation and repricing of unprofitable growth\u2014the arbitrage window for duration plays and AI-inflated human-capital valuations is closing rapidly.", "tomorrow_watch": "", "timestamp": "02:50 PM ET"}];
+const briefs = [{"key": "briefs/2026-04-25-morning.html", "date": "2026-04-25", "type": "morning", "modified": "2026-04-25T18:55:12.157941+00:00", "pinned": false, "sections": [{"name": "Breaking News", "stories": [{"headline": "Swedish Hospital shooting today: 2 cops hurt in Roseland, Chicago hospital shooting", "summary": "", "insight": "", "source": "ABC7 Chicago", "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQM2JmUjN0c1Z2X1ZkSFJ2ZE4wcWtSMnJkZWNndnlRSTBLOGRxcG5OWVBRVjdoLURnek9wS2tiWk1jVlZXS1YwVVNCOV9mcF9sS0prbFJOSnE2cVVFTG5QdVdvWXFVLXoyN3pUOFVrVHhFZEpESTR2eWR0N1F2aUplRTlwRWRXVW95RFR4dmNhOUdET0RWdGFUSXBaU1JiMXZBQTNTbmcweDZ2VUJhbE5wVFlmR0s3OUxpTDhUeEZ4TWtPYzZYdGxmVHJmWk5PNGV3TzFwd3JoTUEwUdIB3wFBVV95cUxQSjIyQ0FMWVZINC0zaGI1SG0tV2gwMmRPLW52QmpxTld5WmhiZzBkTjhRTXFxb1doMHNXX0JEZkpFbTFOUTZacUJlQ3pNQWxiNF9KRnRBdFYtelJsZXVLSlhVNHhlNjMtaUNXY3pOcU5ZREx2aUZaZ29Md0Rrb1R3Tm02VlVJUk5RX2ZGUG94Nl9rdWlNV21UUE44b1BfeHNmZnFsai1CMEllb1VPWkFrWlBGYUJ0ZWNUaWNnRzI2aWhPOENRWUFBQTJfa3VmZzZwelZKMWY2NWJDbjJCWTF3?oc=5"}, {"headline": "Evacuation orders still in place as structures lost in Espa\u00f1ola fire", "summary": "", "insight": "", "source": "KOAT", "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOWFRhVzZmVnQ3WjdrejE3cks3ZC1KeGFsWEdfY1JFUC1MbnRaWEN3V2o3aW5iclNBdkRPa0l0eExLcDk1ZXFERk1CdmNHNVdPZEliLXVHcWpiUWx3cnpvb1puVUxOcThHSVZqeTVSRFUtS0c2c29Kbk56VEhsTVltLS1KQ2ZXMURJelE?oc=5"}, {"headline": "Suspect surrenders after 12-hour standoff at Winter Park condo complex", "summary": "", "insight": "", "source": "WESH", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQMlgwVU53WGY2dV9xakRjRTMxYkpNVTVjakdrcHZvRDlpYU5Gb2dfVEVaTVdFQVd6THMzWHN2aHFYMHVUVzJMakhSdDZhVU9kb0Z5WWZkSEhJVThDTHdRcXRlczBab1EtbUxlVm5hX25kSnNDNnhHZVp0clE1SG5NdUh1SUgzVVF4WG9Ka3FB?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "The Federal Reserve's Interest Rate Dilemma Is About to Go From Bad to Worse", "summary": "Fed faces escalating pressure as inflation remains sticky while economic growth slows, forcing delayed rate cuts that risk both recession and asset volatility.", "insight": "Higher-for-longer rates compress margin spreads across lending, hit refinancing calendars, and create pressure on equity valuations\u2014particularly high-multiple growth stocks that repriced aggressively for lower-for-longer scenarios.", "source": "The Globe and Mail, MSN", "link": "https://news.google.com/rss/articles/CBMiswJBVV95cUxPQ3dVak1UZGhna0QyUy1NUVBwUGxDdmxkbl92Rk9razNOSTRmdVdDWjlJSmxQbzhZUW9oR0o1N01ZMHgzc2lMMG9lYlRfLVo0Zk93V0pFTF9mc09mdmxTWllzbzIyaUYteW1HdW5TWEJkUXIyUGlPTmVXVzlfcE9MampETnp1Rm9yMmFtN0JnaGQxRlZsTXNteGwzR3I0NlpuR1luQUd2SkJMNjRwWFdSU3BUY2JpUGo1dmVDeEQzWkpXdkdDVEJvbzhONjJ4Nk42aDhJSTRJd1ZiaUczTFVWWTlILWF2QlF0R1dhd3FhV3d5SFdkMmhkYk02OW5EOGRmTWVpUnNzVk9nVXlLdXJIMzg5SENhRjRsaEZXQlEwSEJyel9NbF9ZaExBXzNVLU03UURz?oc=5"}, {"headline": "Insider Trading Cases Threaten Reckoning for Prediction Markets", "summary": "SEC and DOJ enforcement actions against traders profiting from non-public information in regulated prediction markets expose structural vulnerabilities in decentralized information markets.", "insight": "This creates a regulatory bifurcation where prediction markets face compliance burden that could fragment liquidity\u2014benefiting offshore platforms with lighter oversight, while legitimate onshore operators face discovery costs that disadvantage retail participants and shift edge to institutional players with compliance infrastructure.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOaUtVWTlfcDlubWxrRWpZLVVfa1ZlQmtuaEQ1MXNYYkoyblRFdVJSakQ5OWRQWnYyZ1k0aXlTcnhGa1UwNXRpS1pmYktZc3VlRVFVRnQzaDRuM2NwcjBPckthNzFHNmdpOTRuUFhsNUduZDBOYVNEMlFpek1OWmVqd3NUOVUyMk05dkxoWnpFY2cyODBzQUtBbkEzTksyZ1o1RjExWUtYYUgzV210M2dQV0VMVDg?oc=5"}, {"headline": "Trump bought at least $51 million in bonds in March, disclosure shows", "summary": "Trump's recent bond purchases signal confidence in fixed income amid rising rate expectations and suggest portfolio rebalancing toward yield-bearing assets.", "insight": "This reflects allocator behavior shifting toward fixed income as real yields rise\u2014capital moving out of duration-sensitive growth equities into defensive positioning, a signal that sophisticated participants are hedging recession risk before the Fed's constrained policy window closes.", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOX0xRdkVkVzZzc0JxU0pRN0d5V1R0dU5xWlJZdGhsQWFoLVBHZmctczgwNndnRWNRRkd6VjFfenEza1RmRDZSbDlMS2p4SjBTUUUtendkRTA2V2VORFZYOGt1T3N0TFdNanF5MzBFSjJ3M1JqLXFyU3hUS0xvYThmWWROd2JnS0RuSlcyTTJ5dDZ6R09FR1NQaU5TZ3o1cnlrN0g0X1lfTGpQMHl1TTExcw?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump to Dine With Reporters He's Been Roasting All Week", "summary": "Trump plans to attend his first White House Correspondents' Association dinner, ending a multi-year boycott of the annual event.", "insight": "This signals a tactical recalibration toward institutional norms ahead of a contested election cycle\u2014appearing presidential while maintaining media criticism\u2014designed to reset perceptions among suburban independents while preserving base enthusiasm.", "source": "The New York Times, Al Jazeera", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNYkJnTHREYTlTc1NkWEFWNjVXd2NlVnJNaUp0MWxWV1h0a0x6SGRnYnRLTDE1TUVqTWhhU2l2RGNOZS1rdzg5Yjh3d01pM183emZ0VkRueEM0VURnSGQ0WEhpb19wQnN2aWxBNU5zbk5vZEhDdGNadUNRa084LVBZd3hLNThVcFlmbnkzVnJJSlBibE5LcVE?oc=5"}, {"headline": "Trump's political headwinds pile up after a week of setbacks", "summary": "Trump faces compounding electoral challenges following recent court defeats and campaign fundraising complications that undermine momentum heading into primary season.", "insight": "Legal and financial friction reduces his ability to execute media dominance strategy\u2014the core mechanism of his political advantage\u2014as legal costs drain capital and narrative control fractures when docket obligations compete with campaign messaging.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Billionaire Elon Musk enters courtroom showdown with OpenAI", "summary": "Musk's lawsuit against OpenAI alleges breach of founding charter by prioritizing for-profit operations over nonprofit mission, seeking injunctive relief and damages.", "insight": "This litigation creates discovery exposure that could reveal OpenAI's cap structure, investor terms, and cost-per-token economics\u2014data that would immediately compress valuations of competitors betting on margin expansion, and demonstrates how unresolved governance questions in AI labs create structural uncertainty for downstream allocators.", "source": "BNN Bloomberg", "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5"}, {"headline": "Meta and Microsoft join the tech layoff tsunami\u2014but is AI really to blame?", "summary": "Major tech platforms accelerate workforce reductions, citing efficiency gains and AI automation of previously manual functions as primary drivers.", "insight": "This represents capital reallocation from labor to inference infrastructure\u2014reducing headcount to fund LLM deployment and edge compute\u2014creating a self-reinforcing cycle where sunk AI costs justify further labor reduction, and benefiting GPU/chip makers and cloud providers over service-layer SaaS incumbents.", "source": "Tech Xplore", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQSC03RnBib0gtNzZza1QtOE1vN2Y1QWlYRV9mRkUzbGQwR0tNcG0weGxTdjBKeUp0U1VTQ2pQWTh4VkluV1JsRWdCUEl1VkJJR1hFUU9IY0xhMjZlLUJWS3Vvc3VPZlExMWQ1YkZxbUh2LWFOdllsYnpXSUozLTRQRw?oc=5"}]}, {"name": "International", "stories": [{"headline": "California's jet fuel supply drops to three-year low as Middle East turmoil squeezes global oil market", "summary": "Refinery outages and Middle East supply tensions have reduced jet fuel inventories to their lowest levels since 2023, pressuring aviation costs.", "insight": "Constrained supply at the refinery level\u2014not crude\u2014creates an inelastic price shock for downstream transport; airlines can't substitute, forcing margin compression that flows immediately to consumer pricing and reduces airline capital allocation to growth, creating competitive advantage for carriers with hedged fuel contracts.", "source": "The Guardian", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5"}, {"headline": "China investing in batteries, India in dockyards; Big cuts in big tech", "summary": "China accelerates capital deployment in energy storage and battery manufacturing while India expands port infrastructure, representing sectoral divergence in industrial policy.", "insight": "China's battery positioning locks in asymmetric control over EV/energy transition value chain at scale, while India's dockyard expansion targets supply-chain diversification away from Chinese ports\u2014creating decade-long compounding advantage for whoever secures battery manufacturing and logistical control, directly undermining Western tech firm margins.", "source": "Adam Tooze | Substack", "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5TR1NHR01HSDBeY3VjZmRSdUlLbEdyRlRwN1RwdGRJemJPdG5JRFBaR3R1UTRYUXZWV0RXbTUxb0JWLWhSZmU4M1lOVmE4clJZSjJfUUFjbW96Um9DSjIwTWtXalJJLUFGLTFhbDJVM3F5RWFxb0tFQQ?oc=5"}, {"headline": "36-year-old left the U.S. for China\u2014now pays $1,000 rent and $100 for groceries for family of 4", "summary": "American expat documents cost-of-living arbitrage by relocating to China, achieving housing and subsistence costs 60-80% below U.S. equivalents.", "insight": "This signals remapping of lifestyle purchasing power to lower-cost jurisdictions\u2014a structural trend that accelerates talent drain from high-cost tech hubs and creates brain-drain risk for innovation clusters if arbitrage becomes formalized through remote work policies.", "source": "CNBC", "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxOOUxQLTFTYkdqVllKbTdoQVVnQkMyTFFXVy1KcUMyQ0xsN2hBdnlGalBuVXExd29xZGFsWkUyYW5pUDJRdi1vQzl1dV9oWXR0WXRGRUVRallZcnBvdmVfYTBBSzl2Uzd5NUt4ZHFpNjR5T2pzUzhFQ29kMm04TGJ5UHowdkd3UENINTFLdnVmeXF5WkdMR0YzUlJRMEcxSUsySklDXzJDLXF3ellFaVlxODAxR2JLOGh3bWp1Vm9JdGR2d1NE0gHKAUFVX3lxTE9EMm1QM28wamE3TVI0N0tqS3hRWWNweDdEZVlReGtvR2FLR0dTMzNLYkV2OXNEOEZzSmV5OTNQNXJhbHRMeEFPZFJ2N0JDRzB6ejZ5dEkzM3BQbHZfWTZ0WHpLc002S2xGUVlJd2tISXhXTXBHbFA1Z3h5dnYwSUxOOFQ0ckhkQ1ZWNkpuLVB0MTItZy00T2Nka0hBY2IxaE9SQk40MVhUVEw1ZGloLUFtb0RDbGIzdHJrMXdIbkp1ZnNXR1E1TDR4UUE?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "NBA playoff TV schedule, times, where to watch games today, stream", "summary": "NBA playoffs underway with scheduled games across multiple television networks and streaming platforms.", "insight": "Broadcast fragmentation across ESPN, ABC, TNT, and streaming services reflects media rights monetization expansion but creates viewership fragmentation that reduces aggregate audiences\u2014disadvantaging traditional networks and creating arbitrage for sports betting operators who aggregate distributed viewership data.", "source": "Milwaukee Journal Sentinel", "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNYmZoMXZSZnhONWtzOTU3N0swN1BhNW5mNmh5TkNHVXk4czZ4X21WdGl2VmxyQ3MybE9pNzZLZU5RQ3hGZGxXRl9uNHpWd2R1Skg4SzlCV05WdGJhR3FZUWRqNGFCVnZCRFJBVTlfLWhXejNBWUZ4dWV6U3B1SE1TaW1RYk1OZnNGZjAweU9JaC1qYlVlRUhKTzdZdWdLVVl1enB2Tl9hWDZwUTU0aEdoVndzYnlfWHk0WlZrRXZhWDJ3djlpYmE5d2VoLV9leE0?oc=5"}, {"headline": "From 'Apex' to 'Marty Supreme,' 10 movies to stream right now", "summary": "Streaming platforms highlight curated film selections spanning indie to mainstream releases available across multiple SVOD services.", "insight": "Content curation fragmentation mirrors broadcast distribution\u2014viewers face increased decision friction across competing platforms, benefiting algorithmic recommendation engines and centralizing discovery through aggregation apps, while original content differentiation becomes harder to defend at scale.", "source": "USA Today", "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOY083Um1fb2psWjhXb2NNODlMNnlSNnlrdl9vNHB5dEUxQ2w1UkR6eWxEX1VXZGJHMW5EQ2xIa1ZHRkJ4RUZlbFJpdGpkWEZxOVozQUxrTXpvSGhXYzNveFVEYlhGQUFyMUF3UnNOb3ZJWU9JQ21PR3BNdG40dm42RWRvMjdNSnJIeUFVU1BWSURMWF9CQlpiMGNESjUtcnlqMndYSWp5UjdHRDlUZnpoZHRldHNvdlBCQm94VG9GLVlwY3czaHN2Z0ZaLUZuYTR5anBJ?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "2 children found dead inside Wellesley, Massachusetts home during wellness check", "summary": "Investigation underway after two children discovered deceased in a Wellesley residence during a welfare check.", "insight": "This represents systemic gaps in child protective services and inter-agency coordination\u2014creating liability exposure for municipalities and potential policy pressure for expanded mandated reporter requirements and surveillance infrastructure.", "source": "CBS News, Boston 25 News", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQM2psaDlVM21pUHhXVTdtem4zYVNNX2JCLWNqalVjZHlPa0VCTy11ZEt0RU95U2hjU2YxazhUdWpLMmhCTTdSZG9nME1uNzZ3bXN4VGJQSVlGczRvMVFIYnBkT3hDOG1seGx2Z3hNY0hDM2otNTZYYmNQbGJ1Z0xUNnBibTczRGNK?oc=5"}, {"headline": "Domestic violence suspect killed in crash while fleeing Plymouth, Massachusetts police", "summary": "A domestic violence suspect was fatally injured in a vehicle crash while attempting to evade police in Plymouth.", "insight": "High-speed pursuit protocols and outcome escalation reflect enforcement risk management\u2014creating liability cascades where initial intervention triggers terminal events, signaling pressure for de-escalation training and alternative response mechanisms.", "source": "CBS News", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE15NElCZWluOGgxZTF6SUxscWFhbzdsQmVFVGI4bW1majZCOWdxOW1rNTlyb3NvYzZ1S2VKaHVqa0hMOUNkcU9FeFZLaUFfRWtmVk4xQzZBV1QxcWF3TEJTdlYySWthZHF3Mk5QOVZVVHVnWm9YN2dpMkg4LXdCUQ?oc=5"}]}], "the_edge": "Fixed-income reallocation ahead of sustained higher rates creates a window where inflation-hedged hard assets (energy infrastructure, commodities logistics, Chinese battery capacity) compound advantage over purely software-defined valuations. Simultaneously, geographic arbitrage (cost-of-living escape to China, dockyard expansion in India) signals capital and talent flight from high-cost Western innovation hubs\u2014the structural setup that enables second-order moats for whoever controls terminal infrastructure in competing jurisdictions.", "tomorrow_watch": "", "timestamp": "02:52 PM ET"}];
 const today = "2026-04-25";
 const SECTION_NAMES = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
 const SECTION_COLORS = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
@@ -716,7 +689,7 @@ modalEl.addEventListener('click', e => { if (e.target === modalEl) closeStoryMod
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalEl.classList.contains('open')) closeStoryModal(); });
 
 // Delegate clicks on story rows: open modal unless modifier keys (let new-tab work).
-document.getElementById('stories').addEventListener('click', e => {
+document.getElementById('view-stories').addEventListener('click', e => {
   const row = e.target.closest('.story-row[data-story-idx]');
   if (!row) return;
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
@@ -764,30 +737,34 @@ function render() {
   const filteredStories = filterStories();
   const pinned = filteredBriefs.filter(b => b.pinned);
 
-  document.getElementById('briefs').innerHTML = renderBriefsView(filteredBriefs);
-  document.getElementById('stories').innerHTML = renderStoriesView(filteredStories);
-  document.getElementById('pinned').innerHTML = renderBriefsView(pinned);
+  document.getElementById('view-briefs').innerHTML = renderBriefsView(filteredBriefs);
+  document.getElementById('view-stories').innerHTML = renderStoriesView(filteredStories);
+  document.getElementById('view-pinned').innerHTML = renderBriefsView(pinned);
 
-  // Update tab counts
+  // Update tab counts in topnav
   const counts = { briefs: filteredBriefs.length, stories: filteredStories.length, pinned: pinned.length };
-  document.querySelectorAll('.tab').forEach(t => {
-    const c = t.querySelector('.count');
-    if (c) c.textContent = String(counts[t.dataset.tab] || 0).padStart(2, '0');
+  document.querySelectorAll('.nav a[data-tab]').forEach(a => {
+    const c = a.querySelector('.count');
+    if (c) c.textContent = String(counts[a.dataset.tab] || 0).padStart(2, '0');
   });
 
   attachPinHandlers();
 }
 
 function setActiveTab(name) {
+  if (!['briefs','stories','pinned'].includes(name)) name = 'briefs';
   state.tab = name;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === name));
+  document.querySelectorAll('.nav a[data-tab]').forEach(a => a.classList.toggle('active', a.dataset.tab === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
 }
 
-// Wire UI
-document.querySelectorAll('.tab').forEach(t => {
-  t.addEventListener('click', () => setActiveTab(t.dataset.tab));
-});
+// Hash routing — Briefs/Stories/Pinned are addressable URLs.
+function tabFromHash() {
+  const h = (window.location.hash || '').replace('#', '').toLowerCase();
+  return ['briefs','stories','pinned'].includes(h) ? h : 'briefs';
+}
+window.addEventListener('hashchange', () => setActiveTab(tabFromHash()));
+setActiveTab(tabFromHash());
 
 document.querySelectorAll('.chip[data-edition]').forEach(c => {
   c.addEventListener('click', () => {
@@ -842,12 +819,6 @@ searchClear.addEventListener('click', () => {
   searchInput.focus();
   render();
 });
-
-// Stats
-document.getElementById('stat-briefs').textContent = String(briefs.length).padStart(2, '0');
-document.getElementById('stat-stories').textContent = String(allStories.length).padStart(3, '0');
-const oldestDate = briefs.length ? briefs[briefs.length - 1].date : '';
-document.getElementById('stat-since').textContent = oldestDate ? formatShortDate(oldestDate) : '—';
 
 // First render
 render();
