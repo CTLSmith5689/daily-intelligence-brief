@@ -1213,42 +1213,6 @@ def send_email(subject, html_body, attachment_html=None, attachment_name="brief.
 
 # ── Filesystem Storage (replaces S3) ───────────────────────────────────────
 
-def s3_load_last_headlines():
-    """Load the last brief's headline + URL sets from disk."""
-    f = STATE_DIR / "last_headlines.json"
-    if not f.exists():
-        return set(), set()
-    try:
-        data = json.loads(f.read_text(encoding="utf-8"))
-        return set(data.get("headlines", [])), set(data.get("urls", []))
-    except Exception:
-        return set(), set()
-
-
-def s3_save_headlines(headlines, urls):
-    """Save current headline + URL sets to disk for next run comparison."""
-    f = STATE_DIR / "last_headlines.json"
-    f.write_text(
-        json.dumps({"headlines": sorted(headlines), "urls": sorted(urls)}, indent=2),
-        encoding="utf-8",
-    )
-
-
-def check_headline_overlap(current_headlines, current_urls, threshold=0.80):
-    """Compare current headlines + URLs against last run. Returns (should_skip, overlap_pct).
-    Uses the HIGHER overlap of headlines or URLs — catches reworded headlines for same articles."""
-    last_headlines, last_urls = s3_load_last_headlines()
-    if not last_headlines and not last_urls:
-        return False, 0.0
-    if not current_headlines:
-        return True, 1.0
-
-    headline_overlap = len(current_headlines & last_headlines) / len(current_headlines) if current_headlines else 0
-    url_overlap = len(current_urls & last_urls) / len(current_urls) if current_urls else 0
-    pct = max(headline_overlap, url_overlap)
-    print(f"Dedup: headline overlap {headline_overlap:.0%}, URL overlap {url_overlap:.0%} → using {pct:.0%}")
-    return pct >= threshold, round(pct, 2)
-
 
 def s3_write_brief(brief_type, date_str_iso, interactive_html):
     """Write brief HTML to docs/briefs/YYYY-MM-DD-type.html."""
@@ -1707,42 +1671,6 @@ def lambda_handler(event, context):
         subject = f"{config['subject_prefix']} \u2014 {date_str}"
         send_email(subject, "<p>No headlines could be retrieved. RSS feeds may be temporarily unavailable.</p>")
         return {"status": "sent_fallback"}
-
-    # 2b. Dedup check — skip Claude if headlines haven't changed
-    current_headline_set = {h["title"] for h in headlines}
-    current_url_set = {h["link"] for h in headlines if h.get("link")}
-    should_skip, overlap_pct = check_headline_overlap(current_headline_set, current_url_set)
-    if should_skip:
-        print(f"Headline overlap {overlap_pct:.0%} — no material updates since last brief. Skipping.")
-        subject = f"{config['subject_prefix']} — {date_str} — No Major Updates"
-        sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
-        mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
-        skip_html = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"></head>
-<body style="margin:0;padding:0;background:#050810">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#050810"><tr><td align="center" style="padding:32px 16px">
-<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid #888888">
-<tr><td style="padding:32px 28px">
-<table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td style="width:1px;vertical-align:middle;padding-right:16px">{eh_logo_svg(40, 53, 0.55)}</td>
-<td style="vertical-align:middle">
-<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:#888888;text-transform:uppercase">Daily Intelligence Brief</div>
-</td>
-</tr></table>
-<div style="height:1px;background:#1A2030;margin:14px 0 18px"></div>
-<h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 14px">{config['subject_prefix']} — {date_str}</h1>
-<p style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.65;margin:0">No material developments since the last brief. Headlines overlap at {int(overlap_pct * 100)}%. The next scheduled brief will run as normal.</p>
-<div style="margin-top:36px;padding-top:18px;border-top:1px solid #1A2030">
-<span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp} &middot; No material updates</span>
-</div>
-</td></tr></table>
-</td></tr></table>
-</body></html>"""
-        send_email(subject, skip_html)
-        return {"status": "skipped_no_new_content", "overlap": overlap_pct}
-
-    # Save current headlines + URLs for next run's comparison
-    s3_save_headlines(current_headline_set, current_url_set)
 
     # 3. Group headlines by section
     headlines_text = f"Today is {date_str}. Brief type: {brief_type}.\n\n"
