@@ -1373,15 +1373,13 @@ def s3_generate_index(briefs):
     # Eyebrow line
     eyebrow_text = f"Live, {edition_label} edition, {pretty_date}"
 
-    # ── Daily Pick: synthesize a headline + summary from the_edge ──
+    # Daily Pick body. the_edge is Apterreon's 1-2 sentence synthesis from the
+    # latest brief. Render as a single body paragraph, not a headline. Empty
+    # state messages handle the first-run case before any brief has been generated.
     if edge_text:
-        # First sentence is headline-y, rest is summary
-        parts = re.split(r"(?<=[.!?])\s+", edge_text.strip(), maxsplit=1)
-        pick_headline = parts[0] if parts else "Apterreon Daily Pick"
-        pick_summary = parts[1] if len(parts) > 1 else ""
+        pick_body = edge_text.strip()
     else:
-        pick_headline = "Today's brief is generating."
-        pick_summary = "Check back in a moment, or open the latest brief from the link above."
+        pick_body = "Today's brief is generating. Check back in a moment, or open the latest brief from the link above."
 
     # Stats for the Daily Pick panel
     total_stories = sum(len(s.get("stories", [])) for b in briefs for s in b.get("sections", []))
@@ -1433,41 +1431,37 @@ def s3_generate_index(briefs):
     if not section_cards_html:
         section_cards_html = '<div class="empty-state">No sections yet. The next scheduled brief will populate this view.</div>'
 
-    # ── Live feed (top 8 stories across the last few briefs) ──
-    feed_items = []
-    for b in briefs[:3]:
+    # ── All stories across every brief (powers the Stories library) ──
+    all_stories = []
+    sections_present = []
+    seen_sections = set()
+    for b in briefs:
         b_key = b.get("key", "")
         b_type = b.get("type", "")
+        b_date = b.get("date", "")
         for sec in b.get("sections", []):
+            sec_name = sec.get("name", "")
+            if sec_name and sec_name not in seen_sections:
+                seen_sections.add(sec_name)
+                sections_present.append(sec_name)
             for st in sec.get("stories", []):
                 if not st.get("headline"):
                     continue
-                feed_items.append({
+                all_stories.append({
                     "headline": st.get("headline", ""),
+                    "summary": st.get("summary", ""),
                     "source": st.get("source", ""),
                     "link": st.get("link") or f"{site_url}/{b_key}",
                     "edition": b_type,
-                    "date": b.get("date", ""),
+                    "date": b_date,
+                    "section": sec_name,
+                    "brief_url": f"{site_url}/{b_key}",
                 })
-        if len(feed_items) >= 12:
-            break
-    feed_items = feed_items[:8]
-
-    feed_html = ""
-    for item in feed_items:
-        h = (item["headline"] or "").replace('"', '&quot;')
-        s = (item["source"] or "").replace('"', '&quot;')
-        link = (item["link"] or "#").replace('"', '&quot;')
-        ed = (item["edition"] or "").upper()
-        feed_html += (
-            f'<a class="feed-item" href="{link}" target="_blank" rel="noopener">'
-            f'<span class="feed-time">{ed}</span>'
-            f'<span class="feed-headline">{h}</span>'
-            f'<span class="feed-src">{s}</span>'
-            f'</a>'
-        )
-    if not feed_html:
-        feed_html = '<div class="empty-state">Feed populates after the next brief runs.</div>'
+    # newest first by date+edition order
+    edition_rank = {"morning": 0, "midday": 1, "evening": 2}
+    all_stories.sort(key=lambda s: (s["date"], edition_rank.get(s["edition"], 99)), reverse=True)
+    all_stories_json = json.dumps(all_stories, separators=(",", ":"))
+    sections_present_json = json.dumps(sections_present)
 
     # Brief count + cost (totals)
     total_briefs = len(briefs)
@@ -1607,8 +1601,9 @@ def s3_generate_index(briefs):
   .feat-meta {{ display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; flex-wrap:wrap; }}
   .feat-meta .tag {{ padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }}
   .feat-meta .dot {{ width:3px; height:3px; border-radius:50%; background:var(--text-4); }}
-  .feat-h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:38px; line-height:1.15; letter-spacing:-0.02em; color:var(--text-1); margin-bottom:18px; max-width:920px; }}
-  .feat-summary {{ font-size:17px; line-height:1.65; color:var(--text-2); max-width:920px; margin-bottom:28px; }}
+  .feat-kicker {{ font-family:'Syne',sans-serif; font-weight:700; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--apt-rose); margin-bottom:14px; }}
+  .feat-body {{ font-size:18px; line-height:1.7; color:var(--text-1); max-width:920px; margin-bottom:8px; font-weight:400; letter-spacing:-0.005em; }}
+  .feat-body::first-letter {{ font-family:'Syne',sans-serif; font-size:1.4em; font-weight:700; line-height:1; color:var(--apt-rose); padding-right:2px; }}
   .feat-grid {{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }}
   .feat-stat {{ padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }}
   .feat-stat:hover {{ background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }}
@@ -1663,17 +1658,53 @@ def s3_generate_index(briefs):
   .sc-arrow {{ color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }}
   .sc-item:hover .sc-arrow {{ color:var(--apt-red); transform:translateX(4px); }}
 
-  /* Live feed */
-  .feed {{ max-width:1200px; margin:0 auto; padding:64px 24px; }}
-  .feed-h {{ display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }}
-  .feed-h h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:32px; letter-spacing:-0.01em; }}
-  .feed-h .live-tag {{ display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.30); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:#34D27A; text-transform:uppercase; }}
-  .feed-list {{ display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }}
-  .feed-item {{ background:rgba(17,18,26,0.85); padding:18px 22px; display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center; cursor:pointer; transition:background .15s; }}
-  .feed-item:hover {{ background:rgba(22,23,31,0.95); }}
-  .feed-time {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--apt-rose); letter-spacing:1.5px; min-width:64px; }}
-  .feed-headline {{ font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }}
-  .feed-src {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }}
+  /* Stories library */
+  .lib {{ max-width:1200px; margin:0 auto; padding:64px 24px; }}
+  .lib-h {{ display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }}
+  .lib-h h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }}
+  .lib-h .lib-count {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }}
+
+  .lib-controls {{ display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }}
+  .lib-search {{ display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }}
+  .lib-search:focus-within {{ border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }}
+  .lib-search .icon {{ color:var(--text-3); font-size:16px; }}
+  .lib-search input {{ flex:1; background:transparent; border:none; outline:none; font-family:'DM Mono',monospace; font-size:14px; color:var(--text-1); }}
+  .lib-search input::placeholder {{ color:var(--text-4); }}
+  .lib-search .clear-btn {{ background:transparent; border:none; cursor:pointer; padding:4px 8px; color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; transition:color .15s; }}
+  .lib-search .clear-btn:hover {{ color:var(--text-1); }}
+  .lib-search .clear-btn[hidden] {{ display:none; }}
+
+  .lib-chips {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }}
+  .lib-chip-label {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }}
+  .lib-chip {{
+    padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    color:var(--text-3); cursor:pointer; background:transparent;
+    border:1px solid var(--border); border-radius:999px; text-transform:uppercase;
+    user-select:none; transition:all .15s;
+  }}
+  .lib-chip:hover {{ color:var(--text-1); border-color:var(--border-bright); }}
+  .lib-chip.active {{ color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }}
+
+  .lib-list {{ display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }}
+  .lib-item {{
+    background:rgba(17,18,26,0.85); padding:18px 22px;
+    display:grid; grid-template-columns:120px 1fr auto; gap:18px; align-items:center;
+    transition:background .15s;
+  }}
+  .lib-item:hover {{ background:rgba(22,23,31,0.95); }}
+  .lib-item .li-section {{
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px;
+    color:var(--apt-rose); text-transform:uppercase; padding:4px 8px;
+    border:1px solid rgba(255,31,61,0.20); border-radius:6px; text-align:center;
+    background:rgba(255,31,61,0.06); justify-self:start;
+  }}
+  .lib-item .li-headline {{ font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }}
+  .lib-item .li-meta {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:5px; }}
+  .lib-item .li-src {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; text-align:right; }}
+  @media (max-width:680px) {{
+    .lib-item {{ grid-template-columns:1fr; gap:6px; padding:16px 18px; }}
+    .lib-item .li-src {{ text-align:left; }}
+  }}
 
   .empty-state {{ padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }}
 
@@ -1683,7 +1714,7 @@ def s3_generate_index(briefs):
 
   @media (max-width:760px) {{
     h1.hero-title {{ font-size:48px; }}
-    .feat-h2 {{ font-size:28px; }}
+    .feat-body {{ font-size:16px; }}
     .featured-card {{ padding:32px 24px; }}
     .feat-grid {{ grid-template-columns:1fr; }}
   }}
@@ -1729,8 +1760,8 @@ def s3_generate_index(briefs):
       <span>{pretty_date}</span><span class="dot"></span>
       <span>{edition_label}</span>
     </div>
-    <h2 class="feat-h2">{pick_headline}</h2>
-    <p class="feat-summary">{pick_summary}</p>
+    <div class="feat-kicker">Today's Take</div>
+    <p class="feat-body">{pick_body}</p>
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
@@ -1765,14 +1796,23 @@ def s3_generate_index(briefs):
   </div>
 </section>
 
-<section class="feed" id="stories">
-  <div class="feed-h">
-    <h2>Live feed.</h2>
-    <span class="live-tag"><span class="pulse-dot"></span>Updating</span>
+<section class="lib" id="stories">
+  <div class="lib-h">
+    <h2>Stories library.</h2>
+    <span class="lib-count" id="lib-count">All stories</span>
   </div>
-  <div class="feed-list">
-    {feed_html}
+  <div class="lib-controls">
+    <label class="lib-search">
+      <span class="icon">&#8981;</span>
+      <input type="search" id="lib-search" placeholder="Search headlines, summaries, sources..." autocomplete="off" spellcheck="false">
+      <button type="button" class="clear-btn" id="lib-clear" hidden>Clear</button>
+    </label>
+    <div class="lib-chips" id="lib-chips">
+      <span class="lib-chip-label">Topic</span>
+      <span class="lib-chip active" data-section="">All</span>
+    </div>
   </div>
+  <div class="lib-list" id="lib-list"></div>
 </section>
 
 <footer class="footer">
@@ -1784,6 +1824,86 @@ def s3_generate_index(briefs):
 </footer>
 
 <script>
+// ── Stories library ──
+(function() {{
+  const ALL_STORIES = {all_stories_json};
+  const SECTIONS = {sections_present_json};
+  const listEl = document.getElementById('lib-list');
+  const searchEl = document.getElementById('lib-search');
+  const clearEl = document.getElementById('lib-clear');
+  const chipsEl = document.getElementById('lib-chips');
+  const countEl = document.getElementById('lib-count');
+  if (!listEl) return;
+
+  // Build section chips
+  SECTIONS.forEach(name => {{
+    const c = document.createElement('span');
+    c.className = 'lib-chip';
+    c.dataset.section = name;
+    c.textContent = name;
+    chipsEl.appendChild(c);
+  }});
+
+  let activeSection = '';
+  let query = '';
+
+  function escapeHtml(s) {{
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }}
+
+  function fmt(date) {{
+    if (!date) return '';
+    try {{
+      const d = new Date(date + 'T12:00:00');
+      return d.toLocaleDateString('en-US', {{ month:'short', day:'numeric' }}).toUpperCase();
+    }} catch {{ return date; }}
+  }}
+
+  function render() {{
+    const q = query.toLowerCase();
+    const filtered = ALL_STORIES.filter(s => {{
+      if (activeSection && s.section !== activeSection) return false;
+      if (!q) return true;
+      return ((s.headline||'')+' '+(s.summary||'')+' '+(s.source||'')+' '+(s.section||'')).toLowerCase().includes(q);
+    }});
+    countEl.textContent = filtered.length === ALL_STORIES.length
+      ? String(ALL_STORIES.length).padStart(2,'0') + ' stories'
+      : String(filtered.length).padStart(2,'0') + ' of ' + String(ALL_STORIES.length).padStart(2,'0') + ' stories';
+    if (filtered.length === 0) {{
+      listEl.innerHTML = '<div class="empty-state">No stories match. Adjust filters or clear the search.</div>';
+      return;
+    }}
+    listEl.innerHTML = filtered.map(s => {{
+      const link = escapeHtml(s.link || s.brief_url || '#');
+      return '<a class="lib-item" href="'+link+'" target="_blank" rel="noopener">'
+        + '<span class="li-section">'+escapeHtml(s.section||'')+'</span>'
+        + '<span><span class="li-headline">'+escapeHtml(s.headline||'')+'</span>'
+        +   '<span class="li-meta">'+fmt(s.date)+' &middot; '+escapeHtml((s.edition||'').toUpperCase())+'</span></span>'
+        + '<span class="li-src">'+escapeHtml(s.source||'')+'</span>'
+      + '</a>';
+    }}).join('');
+  }}
+
+  searchEl.addEventListener('input', () => {{
+    query = searchEl.value.trim();
+    clearEl.hidden = !query;
+    render();
+  }});
+  clearEl.addEventListener('click', () => {{
+    searchEl.value = ''; query = ''; clearEl.hidden = true; searchEl.focus(); render();
+  }});
+  chipsEl.addEventListener('click', e => {{
+    const chip = e.target.closest('.lib-chip');
+    if (!chip) return;
+    activeSection = chip.dataset.section || '';
+    chipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+    render();
+  }});
+
+  render();
+}})();
+
 // Plexus background canvas, Apterreon red palette
 (function() {{
   const c = document.getElementById('plexus');
