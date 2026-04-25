@@ -1,5 +1,5 @@
 """
-Daily Intelligence Brief — AWS Lambda Handler
+Daily Intelligence Brief. AWS Lambda Handler.
 Full-spectrum newsfeed with real market data via Alpha Vantage.
 Fetches news via RSS, market data via Alpha Vantage, analysis via Claude API.
 Sends via iCloud SMTP. Triggered by EventBridge rules at 7 AM, 12:15 PM, and 4:45 PM ET.
@@ -23,7 +23,7 @@ from pathlib import Path
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
-SMTP_USER = "ctlsmith@me.com"  # Apple ID for SMTP auth — must match the APTERREON_ICLOUD_APP_PASSWORD owner
+SMTP_USER = "ctlsmith@me.com"  # Apple ID for SMTP auth (must match the APTERREON_ICLOUD_APP_PASSWORD owner)
 SENDER_EMAIL = "Daily_Intel_Briefs@icloud.com"  # iCloud alias used as From: header
 SENDER_NAME = "Daily Intelligence Brief"
 RECIPIENT_EMAIL = os.environ.get("RECIPIENTS", SMTP_USER)
@@ -34,9 +34,9 @@ ANTHROPIC_MODEL = os.environ.get("APTERREON_MODEL", "claude-sonnet-4-6")
 ET_OFFSET = timedelta(hours=-4)  # EDT
 
 # ── Brand: Apterreon ─────────────────────────────────────────────────────────
-APT_RED        = "#CC0000"  # bright red — leads, accent
-APT_DARK_RED   = "#7A1010"  # dark red — grounds
-APT_GREY       = "#888888"  # grey — recedes
+APT_RED        = "#CC0000"  # bright red, leads, accent
+APT_DARK_RED   = "#7A1010"  # dark red, grounds
+APT_GREY       = "#888888"  # grey, recedes
 BG_BASE       = "#050810"  # deepest background (page)
 BG_SURFACE    = "#0D0F18"  # primary surface (cards, body)
 BG_ELEVATED   = "#111420"  # elevated surface (nested cards)
@@ -102,10 +102,10 @@ RSS_FEEDS = {
     "Breaking": "https://news.google.com/rss/search?q=when:4h+breaking+news+today&hl=en-US&gl=US&ceid=US:en",
 }
 
-# Sections that skip Claude insights — just headlines + source
+# Sections that skip Claude insights, just headlines + source
 NO_INSIGHT_SECTIONS = {"Breaking News"}
 
-# Fixed sections — always present, always this order
+# Fixed sections, always present, always this order
 SECTIONS = [
     ("Breaking News", ["Breaking"]),
     ("Finance & Markets", ["Markets", "Institutional AM", "Economy", "Reuters Biz", "Bloomberg", "WSJ Markets", "FT Markets", "P&I"]),
@@ -117,9 +117,9 @@ SECTIONS = [
 ]
 
 # Section accent colors mapped to the Apterreon palette. Tiered hierarchy:
-#   tier 1 — bright red (#CC0000): primary attention
-#   tier 2 — dark red  (#7A1010): important context
-#   tier 3 — grey      (#888888): supporting context
+#   tier 1:bright red (#CC0000): primary attention
+#   tier 2:dark red  (#7A1010): important context
+#   tier 3:grey      (#888888): supporting context
 SECTION_COLORS = {
     "Breaking News":     APT_RED,
     "Finance & Markets": APT_RED,
@@ -130,7 +130,7 @@ SECTION_COLORS = {
     "Boston":            APT_GREY,
 }
 
-# Emoji icons retired — brand is minimalist typography. Section labels use
+# Emoji icons retired. Brand is minimalist typography. Section labels use
 # numbered prefixes ("01 · BREAKING NEWS") instead.
 SECTION_ICONS = {}
 
@@ -346,7 +346,7 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
                 if fresh_count >= max_per_feed:
                     break
 
-                # Filter by recency — drop articles older than the cutoff
+                # Filter by recency, drop articles older than the cutoff
                 parsed_date = parse_rss_date(pub_date)
                 if parsed_date and parsed_date < cutoff:
                     stale_count += 1
@@ -375,7 +375,7 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
 
 # ── Claude API ──────────────────────────────────────────────────────────────
 
-# Pricing per million tokens — updates automatically based on model env var
+# Pricing per million tokens. Updates automatically based on model env var.
 # Opus: $15/$75, Sonnet: $3/$15, Haiku: $0.80/$4
 MODEL_PRICING = {
     "claude-opus-4-6": (15.00, 75.00),
@@ -472,6 +472,7 @@ RULES:
 - For "Breaking News": include headline, source, and link ONLY. Set summary and insight to empty strings. These are raw headlines, no analysis needed.
 - For all other sections: 2-3 stories per section with full summary and insight.
 - CRITICAL: Every summary must be ONE sentence. Every insight must be ONE sentence. No exceptions.
+- NEVER use em dashes (the long dash character). Use periods, commas, or colons instead. Em dashes are an AI-writing tell and the brand voice forbids them.
 - Deduplicate similar headlines.
 - Output ONLY the JSON object. No commentary, no summary, no text before or after the JSON. Start with {{ and end with }}."""
 
@@ -550,13 +551,13 @@ def usage_banner_email(usage_info):
     tokens = usage_info.get("total_tokens", 0)
 
     if monthly < 2:
-        bar_color = "#5599CC"  # singularity blue — calm
+        bar_color = "#5599CC"  # singularity blue, calm
         status = "LOW"
     elif monthly < 5:
-        bar_color = "#888888"  # grey — neutral
+        bar_color = "#888888"  # grey, neutral
         status = "MODERATE"
     else:
-        bar_color = "#CC0000"  # red — over budget
+        bar_color = "#CC0000"  # red, over budget
         status = "HIGH"
 
     budget = 10.0
@@ -579,9 +580,11 @@ ${cost:.4f} this brief &middot; {tokens:,} tokens &middot; ${monthly:.2f}/mo pro
 </td></tr></table>"""
 
 
-def build_email_preview(title, data, quotes, timestamp, usage_info=None):
-    """Email preview — Apterreon. Email-safe (inline styles, tables,
-    system fonts only — no web fonts since most clients strip @import)."""
+def build_email_preview(title, data, quotes, timestamp, usage_info=None, brief_url=None, site_url=None):
+    """Email preview, Apterreon. Email-safe (inline styles, tables,
+    system fonts only, no web fonts since most clients strip @import).
+    brief_url: deep link to this brief on the public site.
+    site_url: home page link."""
     sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
     mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
 
@@ -662,7 +665,10 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 <div style="height:1px;background:#1A2030;margin:14px 0 18px"></div>
 
 <h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 4px;line-height:1.25">{title}</h1>
-<div style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase">{timestamp}</div>
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px"><tr>
+<td style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase">{timestamp}</td>
+{('<td style="text-align:right;font-family:' + mono + ';font-size:10px;letter-spacing:2px;text-transform:uppercase"><a href="' + brief_url + '" style="color:' + APT_RED + ';text-decoration:none;border-bottom:1px solid ' + APT_DARK_RED + ';padding-bottom:1px">View on web &rarr;</a></td>') if brief_url else ''}
+</tr></table>
 
 {usage_html}
 {market_html}
@@ -673,8 +679,9 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 <div style="margin-top:48px;padding-top:18px;border-top:1px solid #1A2030">
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
 <td style="vertical-align:middle">{apt_logo_svg(14, 19, 0.3)} <span style="font-family:{sans};font-size:10px;font-weight:700;color:#6A7888;letter-spacing:1px;vertical-align:middle">Apterreon</span> <span style="font-family:{sans};font-size:10px;color:#4A5A6A;vertical-align:middle">&nbsp;&middot;&nbsp;Explore what&#8217;s out there.</span></td>
-<td style="text-align:right;vertical-align:middle"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#6A7888">{timestamp}</span></td>
+<td style="text-align:right;vertical-align:middle">{('<a href="' + site_url + '" style="font-family:' + mono + ';font-size:10px;letter-spacing:2px;color:' + APT_RED + ';text-transform:uppercase;text-decoration:none">Apterreon home &rarr;</a>') if site_url else ''}</td>
 </tr></table>
+<div style="margin-top:12px;font-family:{mono};font-size:9px;letter-spacing:2px;color:#6A7888">{timestamp}</div>
 </div>
 
 </td></tr></table>
@@ -686,7 +693,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 # ── Interactive HTML Attachment ─────────────────────────────────────────────
 
 def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
-    """Self-contained interactive HTML brief — Apterreon."""
+    """Self-contained interactive HTML brief (Apterreon)."""
 
     sections_json = json.dumps(data.get("sections", []))
     edge_text = json.dumps(data.get("the_edge", ""))
@@ -992,7 +999,7 @@ sectionOrder.forEach((secName, idx) => {{
         '<div class="story-details">' +
           '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
           '<div class="story-insight">' +
-            '<div class="insight-label">Claude Insight</div>' +
+            '<div class="insight-label">Apterreon Insight</div>' +
             escapeHtml(story.insight || '') +
           '</div>' +
           linkHtml +
@@ -1029,7 +1036,7 @@ if (tomorrowText) {{
 # ── Email Sender ────────────────────────────────────────────────────────────
 
 def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None):
-    """Static HTML attachment — no JavaScript. Renders in any mail client, including iOS."""
+    """Static HTML attachment (no JavaScript). Renders in any mail client, including iOS."""
 
     # ── Usage banner ──
     usage_html = ""
@@ -1107,7 +1114,7 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
   <div style="font-size:11px;color:#555;margin-top:2px">{story.get('source', '')}</div>
   <div style="font-size:14px;color:#aaa;margin:12px 0 10px;line-height:1.55">{story['summary']}</div>
   <div style="font-size:13px;color:{APT_RED};line-height:1.55;padding:12px 14px;background:rgba(224,122,47,0.06);border-radius:8px;border-left:3px solid {APT_RED}">
-    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:{APT_RED};opacity:0.6;margin-bottom:4px">Claude Insight</div>
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:{APT_RED};opacity:0.6;margin-bottom:4px">Apterreon Insight</div>
     {story['insight']}
   </div>
   {link_html}
@@ -1276,7 +1283,7 @@ def s3_load_pins():
 
 def s3_toggle_pin(brief_key):
     """Toggle pin status for a brief. Returns new pin state.
-    (Cron context only — there's no live API endpoint; UI pin button uses localStorage.)"""
+    (Cron context only. No live API endpoint; UI pin button uses localStorage.)"""
     pinned = s3_load_pins()
     if brief_key in pinned:
         pinned.discard(brief_key)
@@ -1318,7 +1325,7 @@ def s3_list_briefs():
         if json_path.exists():
             try:
                 sidecar = json.loads(json_path.read_text(encoding="utf-8"))
-                # Compact representation for the search index — keep only what's
+                # Compact representation for the search index. Keep only what's
                 # useful for filtering/search and brief previews.
                 entry["sections"] = sidecar.get("sections", [])
                 entry["the_edge"] = sidecar.get("the_edge", "")
@@ -1337,17 +1344,134 @@ def s3_list_briefs():
 
 
 def s3_generate_index(briefs):
-    """Generate docs/index.html (and manifest.json) with today/archive/pinned views."""
+    """Generate docs/index.html (and manifest.json) for the Apterreon home page.
+    v6 design (modern landing): floating pill topnav, gradient hero, Daily Pick panel
+    sourced from the latest brief's the_edge synthesis, section grid, live feed.
+    """
     now_et = datetime.now(timezone(ET_OFFSET))
     today_str = now_et.strftime("%Y-%m-%d")
+    site_url = os.environ.get("APTERREON_SITE_URL", "https://ctlsmith5689.github.io/daily-intelligence-brief")
 
-    briefs_json = json.dumps(briefs)
+    logo_nav = apt_logo_svg(22, 29, 0.45)
 
-    logo_hero = apt_logo_svg(56, 75, 0.55)
-    logo_nav = apt_logo_svg(20, 27, 0.45)
+    # ── Latest brief (drives Daily Pick + Section grid + Live feed) ──
+    latest = briefs[0] if briefs else None
+    edge_text = (latest or {}).get("the_edge", "") or ""
+    latest_date = (latest or {}).get("date", today_str)
+    latest_type = (latest or {}).get("type", "morning")
+    latest_key = (latest or {}).get("key", "")
+    latest_url = f"{site_url}/{latest_key}" if latest_key else "#"
 
-    section_names_json = json.dumps([s[0] for s in SECTIONS])
-    section_colors_json = json.dumps(SECTION_COLORS)
+    # Pretty edition + date for the meta line
+    edition_label = {"morning": "Morning", "midday": "Midday", "evening": "Evening"}.get(latest_type, latest_type.title())
+    try:
+        _d = datetime.strptime(latest_date, "%Y-%m-%d")
+        pretty_date = _d.strftime("%b %d, %Y")
+    except Exception:
+        pretty_date = latest_date
+
+    # Eyebrow line
+    eyebrow_text = f"Live, {edition_label} edition, {pretty_date}"
+
+    # ── Daily Pick: synthesize a headline + summary from the_edge ──
+    if edge_text:
+        # First sentence is headline-y, rest is summary
+        parts = re.split(r"(?<=[.!?])\s+", edge_text.strip(), maxsplit=1)
+        pick_headline = parts[0] if parts else "Apterreon Daily Pick"
+        pick_summary = parts[1] if len(parts) > 1 else ""
+    else:
+        pick_headline = "Today's brief is generating."
+        pick_summary = "Check back in a moment, or open the latest brief from the link above."
+
+    # Stats for the Daily Pick panel
+    total_stories = sum(len(s.get("stories", [])) for b in briefs for s in b.get("sections", []))
+    sources_set = set()
+    for b in briefs:
+        for sec in b.get("sections", []):
+            for st in sec.get("stories", []):
+                src = st.get("source", "")
+                if src:
+                    sources_set.add(src.split("·")[0].strip())
+    total_sources = len(sources_set) or 0
+
+    # ── Section cards (from latest brief sections) ──
+    section_cards_html = ""
+    if latest:
+        for idx, sec in enumerate(latest.get("sections", []), start=1):
+            sec_name = sec.get("name", "")
+            stories = sec.get("stories", [])
+            top = stories[:2]
+            if not top:
+                continue
+            stories_html = ""
+            for st in top:
+                headline = st.get("headline", "").replace('"', '&quot;')
+                source = st.get("source", "").replace('"', '&quot;')
+                link = (st.get("link") or latest_url).replace('"', '&quot;')
+                stories_html += (
+                    f'<a class="sc-item" href="{link}" target="_blank" rel="noopener">'
+                    f'<div><div class="sc-item-headline">{headline}</div>'
+                    f'<div class="sc-item-source">{source}</div></div>'
+                    f'<span class="sc-arrow">&rarr;</span>'
+                    f'</a>'
+                )
+            num_str = f"{idx:02d}"
+            count_str = f"{len(stories):02d}"
+            section_cards_html += f"""
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">{num_str}</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">{sec_name}</div>
+        </div>
+        <div class="sc-count">{count_str}</div>
+      </div>
+      <div class="sc-list">{stories_html}</div>
+    </article>
+"""
+    if not section_cards_html:
+        section_cards_html = '<div class="empty-state">No sections yet. The next scheduled brief will populate this view.</div>'
+
+    # ── Live feed (top 8 stories across the last few briefs) ──
+    feed_items = []
+    for b in briefs[:3]:
+        b_key = b.get("key", "")
+        b_type = b.get("type", "")
+        for sec in b.get("sections", []):
+            for st in sec.get("stories", []):
+                if not st.get("headline"):
+                    continue
+                feed_items.append({
+                    "headline": st.get("headline", ""),
+                    "source": st.get("source", ""),
+                    "link": st.get("link") or f"{site_url}/{b_key}",
+                    "edition": b_type,
+                    "date": b.get("date", ""),
+                })
+        if len(feed_items) >= 12:
+            break
+    feed_items = feed_items[:8]
+
+    feed_html = ""
+    for item in feed_items:
+        h = (item["headline"] or "").replace('"', '&quot;')
+        s = (item["source"] or "").replace('"', '&quot;')
+        link = (item["link"] or "#").replace('"', '&quot;')
+        ed = (item["edition"] or "").upper()
+        feed_html += (
+            f'<a class="feed-item" href="{link}" target="_blank" rel="noopener">'
+            f'<span class="feed-time">{ed}</span>'
+            f'<span class="feed-headline">{h}</span>'
+            f'<span class="feed-src">{s}</span>'
+            f'</a>'
+        )
+    if not feed_html:
+        feed_html = '<div class="empty-state">Feed populates after the next brief runs.</div>'
+
+    # Brief count + cost (totals)
+    total_briefs = len(briefs)
+    cost_estimate = 0.04  # static placeholder; live cost lives inside each brief
 
     index_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1357,374 +1481,211 @@ def s3_generate_index(briefs):
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#050810">
+<meta name="theme-color" content="#0A0A0F">
 <link rel="manifest" href="manifest.json">
-<title>Daily Intelligence Brief &middot; Apterreon</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Apterreon, Daily Intelligence Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
   :root {{
-    /* DARK (default) */
-    --bg-base:#050810; --bg-surface:rgba(13,15,24,0.78); --bg-surface-solid:#0D0F18;
-    --bg-elevated:rgba(20,24,38,0.82); --bg-deep:rgba(7,10,15,0.82);
-    --border-dim:#1F2738; --border-bright:#3A4A5C;
-    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
-    --text-primary:#F0F4F8; --text-body:#D8DFE7; --text-dim:#9AA8B8;
-    --text-muted:#6A7888; --text-faint:#4A5A6A;
-    --plexus-on:1;
+    --bg-base:#0A0A0F; --bg-1:#11121A; --bg-2:#16171F;
+    --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
+    --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
+    --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
   }}
-  :root[data-theme="light"] {{
-    --bg-base:#FAFBFC; --bg-surface:rgba(255,255,255,0.88); --bg-surface-solid:#FFFFFF;
-    --bg-elevated:rgba(244,246,250,0.92); --bg-deep:rgba(240,242,247,0.92);
-    --border-dim:#E2E6EE; --border-bright:#B8C2D0;
-    --apt-red:#B30000; --apt-dark-red:#5A0808; --apt-grey:#6A7888;
-    --text-primary:#0A0F1A; --text-body:#1F2937; --text-dim:#4A5560;
-    --text-muted:#6A7888; --text-faint:#9AA8B8;
-    --plexus-on:0;
-  }}
-  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }}
-  body {{ background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }}
-
-  /* Plexus canvas (dark mode only — fades out in light mode) */
-  #plexus {{
-    position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0;
-    pointer-events:auto; opacity:calc(var(--plexus-on)); transition:opacity .3s;
-  }}
-  /* All content stacks above the canvas */
-  .topnav, .rail, .main, .footer, .modal-backdrop {{ position:relative; z-index:1; }}
-  .topnav {{ z-index:120; }}
-  .rail {{ z-index:90; }}
-  .modal-backdrop {{ z-index:200; }}
-  ::-webkit-scrollbar {{ width:6px; height:6px; }}
-  ::-webkit-scrollbar-track {{ background:transparent; }}
-  ::-webkit-scrollbar-thumb {{ background:var(--border-dim); border-radius:3px; }}
-  ::-webkit-scrollbar-thumb:hover {{ background:var(--border-bright); }}
+  html {{ background:var(--bg-base); color:var(--text-1); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }}
+  body {{ min-height:100vh; overflow-x:hidden; }}
+  ::-webkit-scrollbar {{ width:6px; }}
+  ::-webkit-scrollbar-thumb {{ background:var(--border-bright); border-radius:3px; }}
   a {{ color:inherit; text-decoration:none; }}
-  ::selection {{ background:rgba(204,0,0,0.35); color:#fff; }}
 
-  /* Topnav — brand left, nav right. Hero is gone; this is the only header. */
+  /* Plexus + soft mesh background */
+  #plexus {{ position:fixed; inset:0; z-index:0; opacity:0.55; }}
+  body::before {{
+    content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(800px 600px at 15% 20%, rgba(255,31,61,0.10), transparent 60%),
+      radial-gradient(900px 700px at 85% 80%, rgba(204,0,40,0.07), transparent 60%),
+      radial-gradient(1200px 800px at 50% 40%, rgba(255,122,133,0.04), transparent 70%);
+  }}
+  body::after {{
+    content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:3px 3px; opacity:0.5; mix-blend-mode:overlay;
+  }}
+  .topnav, .hero, .featured, .features, .feed, .footer {{ position:relative; z-index:3; }}
+
+  /* Floating pill topnav */
   .topnav {{
-    position:sticky; top:0; z-index:120; height:64px; background:var(--bg-surface);
-    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
-    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
-    padding:0 28px; gap:18px;
-  }}
-  .topnav .lockup {{ display:flex; align-items:center; gap:14px; min-width:0; }}
-  .topnav .lockup-text {{ display:flex; flex-direction:column; min-width:0; }}
-  .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; line-height:1; }}
-  .topnav .tagline {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; margin-top:5px; line-height:1; }}
-
-  .topnav .nav {{ margin-left:auto; display:flex; align-items:center; gap:0; }}
-  .topnav .nav a {{
-    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:3px; color:var(--text-dim); text-transform:uppercase;
-    transition:color .15s, background .15s; user-select:none;
-    border-left:1px solid var(--border-dim);
-  }}
-  .topnav .nav a:first-child {{ border-left:none; }}
-  .topnav .nav a:hover {{ color:var(--text-primary); }}
-  .topnav .nav a.active {{ color:#FFFFFF; background:rgba(204,0,0,0.08); }}
-  .topnav .nav a .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; letter-spacing:1px; }}
-  .topnav .nav a.active .count {{ color:var(--apt-red); }}
-
-  /* Theme toggle button */
-  .theme-toggle {{
-    margin-left:6px; padding:9px 12px; background:transparent;
-    border:1px solid var(--border-dim); cursor:pointer;
-    color:var(--text-dim); font-size:14px; line-height:1;
-    transition:all .15s;
-  }}
-  .theme-toggle:hover {{ color:var(--apt-red); border-color:var(--apt-red); }}
-
-  @media (max-width:680px) {{
-    .topnav {{ padding:0 16px; height:auto; flex-direction:column; align-items:stretch; gap:0; }}
-    .topnav .lockup {{ padding:14px 0 10px; position:relative; }}
-    .topnav .lockup .theme-toggle {{ position:absolute; right:0; top:14px; margin-left:0; }}
-    .topnav .nav {{ margin-left:0; border-top:1px solid var(--border-dim); }}
-    .topnav .nav a {{ flex:1; text-align:center; padding:12px 8px; }}
-  }}
-
-  /* Sticky filter rail — sits right under topnav, fixed-height shell. */
-  .rail {{
-    position:sticky; top:64px; z-index:90; background:var(--bg-surface);
-    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
-    border-bottom:1px solid var(--border-dim);
-  }}
-  .rail-inner {{ max-width:1200px; margin:0 auto; }}
-
-  /* Row 1: search only (tabs moved to topnav) */
-  .rail-primary {{
-    display:flex; align-items:center; gap:14px; padding:14px 24px 10px;
-  }}
-  .search {{
-    flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
-    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
-    padding:11px 14px; transition:border-color .15s;
-  }}
-  .search:focus-within {{ border-color:var(--apt-red); }}
-  .search .icon {{ color:var(--text-dim); font-size:13px; flex-shrink:0; }}
-  .search input {{
-    flex:1; background:transparent; border:none; outline:none;
-    font-family:'DM Mono',monospace; font-size:13px; color:var(--text-primary);
-  }}
-  .search input::placeholder {{ color:var(--text-muted); letter-spacing:0.5px; }}
-  .search .clear {{
-    background:transparent; border:none; cursor:pointer; padding:0 4px;
-    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px;
-    color:var(--text-muted); text-transform:uppercase; transition:color .15s;
-  }}
-  .search .clear:hover {{ color:var(--text-primary); }}
-  .search .clear[hidden] {{ display:none; }}
-
-  /* (Tabs moved to topnav; legacy .tab/.tabs styles removed.) */
-
-  /* Row 2: filter strip — single horizontal scrollable line */
-  .rail-filters {{
+    position:sticky; top:16px; max-width:1200px; margin:16px auto 0; padding:10px 14px 10px 18px;
     display:flex; align-items:center; gap:14px;
-    padding:6px 24px 14px;
-    overflow-x:auto; scrollbar-width:none;
-    white-space:nowrap;
+    background:rgba(17,18,26,0.55);
+    backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%);
+    border:1px solid var(--border); border-radius:18px;
   }}
-  .rail-filters::-webkit-scrollbar {{ display:none; }}
-  .rail-filters .sep {{
-    flex-shrink:0; width:1px; height:18px; background:var(--border-dim); margin:0 4px;
-  }}
-  .filter-group {{ display:inline-flex; align-items:center; gap:6px; flex-shrink:0; }}
-  .filter-group .filter-label {{
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
-    color:var(--text-muted); text-transform:uppercase; margin-right:2px;
-  }}
+  .lockup {{ display:flex; align-items:center; gap:12px; }}
+  .lockup-text {{ display:flex; flex-direction:column; line-height:1; }}
+  .brand {{ font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:4px; color:var(--text-1); text-transform:uppercase; }}
+  .lockup-tagline {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-top:5px; }}
+  .pulse-row {{ display:flex; align-items:center; gap:8px; margin-left:14px; padding-left:14px; border-left:1px solid var(--border); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }}
+  .pulse-dot {{ width:6px; height:6px; border-radius:50%; background:#34D27A; box-shadow:0 0 12px rgba(52,210,122,0.7); animation:pulse 1.8s ease-out infinite; }}
+  @keyframes pulse {{ 0%{{box-shadow:0 0 0 0 rgba(52,210,122,0.55);}} 70%{{box-shadow:0 0 0 10px rgba(52,210,122,0);}} 100%{{box-shadow:0 0 0 0 rgba(52,210,122,0);}} }}
 
-  .chip {{
-    padding:5px 10px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:1.5px; color:var(--text-dim); cursor:pointer;
-    background:transparent; border:1px solid var(--border-dim);
-    text-transform:uppercase; user-select:none; transition:all .15s;
-    flex-shrink:0;
-  }}
-  .chip:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
-  .chip.active {{ color:#fff; background:rgba(204,0,0,0.18); border-color:var(--apt-red); }}
-  .chip.dim.active {{ background:rgba(122,16,16,0.25); border-color:var(--apt-dark-red); }}
-  .chip.grey.active {{ background:rgba(136,136,136,0.18); border-color:var(--apt-grey); }}
+  .nav {{ margin-left:auto; display:flex; gap:4px; }}
+  .nav a {{ padding:8px 14px; font-size:13px; font-weight:500; color:var(--text-3); border-radius:10px; transition:all .2s; }}
+  .nav a:hover {{ color:var(--text-1); background:rgba(255,255,255,0.04); }}
+  .nav a.active {{ color:var(--text-1); background:rgba(255,31,61,0.10); }}
 
-  @media (max-width:680px) {{
-    .rail-primary {{ padding:12px 18px 8px; }}
-    .rail-filters {{ padding:6px 18px 12px; }}
+  .cta {{
+    padding:8px 16px; font-size:13px; font-weight:600;
+    background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%);
+    color:#FFF; border:none; cursor:pointer; border-radius:10px;
+    transition:transform .15s, box-shadow .25s;
+    box-shadow:0 4px 24px rgba(255,31,61,0.25);
   }}
+  .cta:hover {{ transform:translateY(-1px); box-shadow:0 8px 32px rgba(255,31,61,0.4); }}
 
-  /* Main content area */
-  .main {{ max-width:1200px; margin:0 auto; padding:32px 24px 96px; }}
+  /* Hero */
+  .hero {{ max-width:1200px; margin:0 auto; padding:96px 24px 48px; }}
+  .eyebrow {{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px;
+    background:rgba(255,31,61,0.08); border:1px solid rgba(255,31,61,0.20);
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose);
+    text-transform:uppercase; margin-bottom:24px;
+    opacity:0; transform:translateY(8px); animation:fadeUp .8s .1s ease-out forwards;
+  }}
+  .eyebrow .live-dot {{ width:6px; height:6px; border-radius:50%; background:#34D27A; }}
 
-  .view {{ display:none; }}
-  .view.active {{ display:block; }}
+  h1.hero-title {{
+    font-family:'Syne',sans-serif; font-weight:800; font-size:84px; line-height:0.98;
+    letter-spacing:-0.03em; margin-bottom:24px; max-width:1000px;
+    background:linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 40%, #FF7A85 70%, #FF1F3D 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    opacity:0; transform:translateY(16px); animation:fadeUp .9s .25s ease-out forwards;
+  }}
+  @keyframes fadeUp {{ to {{ opacity:1; transform:translateY(0); }} }}
 
-  /* Date group header */
-  .date-group {{ margin-bottom:36px; }}
-  .date-label {{
-    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:4px;
-    color:var(--text-dim); text-transform:uppercase; margin-bottom:14px;
-    padding-bottom:10px; border-bottom:1px solid var(--border-dim);
-    display:flex; justify-content:space-between; align-items:baseline;
+  .hero-sub {{
+    font-size:19px; line-height:1.6; color:var(--text-2); max-width:640px; margin-bottom:40px; font-weight:400;
+    opacity:0; transform:translateY(12px); animation:fadeUp .9s .4s ease-out forwards;
   }}
-  .date-label .count {{ color:var(--text-muted); font-size:9px; letter-spacing:2px; }}
+  .hero-actions {{ display:flex; gap:12px; flex-wrap:wrap; opacity:0; transform:translateY(12px); animation:fadeUp .9s .55s ease-out forwards; }}
+  .btn-primary {{
+    padding:14px 24px; font-size:14px; font-weight:600;
+    background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%); color:#FFF;
+    border-radius:12px; cursor:pointer; transition:transform .15s, box-shadow .25s;
+    box-shadow:0 8px 32px rgba(255,31,61,0.3); display:inline-flex; align-items:center; gap:8px;
+    text-decoration:none;
+  }}
+  .btn-primary:hover {{ transform:translateY(-2px); box-shadow:0 12px 40px rgba(255,31,61,0.45); }}
+  .btn-secondary {{
+    padding:14px 24px; font-size:14px; font-weight:500;
+    background:rgba(255,255,255,0.04); color:var(--text-1);
+    border:1px solid var(--border-bright); border-radius:12px;
+    cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px;
+    text-decoration:none;
+  }}
+  .btn-secondary:hover {{ background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.20); }}
 
-  /* Brief cards (BRIEFS view) — grid */
-  .brief-grid {{
-    display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr));
-    gap:14px;
+  /* Featured Daily Pick */
+  .featured {{ max-width:1200px; margin:0 auto; padding:32px 24px 64px; }}
+  .featured-card {{
+    position:relative;
+    background:linear-gradient(180deg, rgba(22,23,31,0.85) 0%, rgba(17,18,26,0.92) 100%);
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border-bright); border-radius:24px;
+    padding:48px; overflow:hidden;
+    opacity:0; transform:translateY(20px); animation:fadeUp 1s .7s ease-out forwards;
   }}
-  .brief-card {{
-    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
-    padding:0; display:flex; flex-direction:column; transition:border-color .2s, background .2s, box-shadow .2s;
-    overflow:hidden; box-shadow:0 1px 0 rgba(0,0,0,0.2);
+  .featured-card::before {{
+    content:''; position:absolute; inset:-1px; border-radius:24px; padding:1px;
+    background:linear-gradient(135deg, rgba(255,31,61,0.5), transparent 40%, transparent 60%, rgba(255,122,133,0.3));
+    -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
   }}
-  :root[data-theme="light"] .brief-card {{ box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04); }}
-  .brief-card:hover {{ border-color:var(--text-muted); background:var(--bg-elevated); }}
-  .brief-card[data-type="morning"]  {{ border-top:2px solid var(--apt-red); }}
-  .brief-card[data-type="midday"]   {{ border-top:2px solid var(--apt-dark-red); }}
-  .brief-card[data-type="evening"]  {{ border-top:2px solid var(--apt-grey); }}
+  .feat-meta {{ display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; flex-wrap:wrap; }}
+  .feat-meta .tag {{ padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }}
+  .feat-meta .dot {{ width:3px; height:3px; border-radius:50%; background:var(--text-4); }}
+  .feat-h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:38px; line-height:1.15; letter-spacing:-0.02em; color:var(--text-1); margin-bottom:18px; max-width:920px; }}
+  .feat-summary {{ font-size:17px; line-height:1.65; color:var(--text-2); max-width:920px; margin-bottom:28px; }}
+  .feat-grid {{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }}
+  .feat-stat {{ padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }}
+  .feat-stat:hover {{ background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }}
+  .fs-label {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }}
+  .fs-val {{ font-family:'Syne',sans-serif; font-size:30px; font-weight:700; color:var(--text-1); letter-spacing:-0.02em; line-height:1; }}
+  .fs-delta {{ font-size:12px; color:#34D27A; margin-top:6px; }}
+  .feat-actions {{ margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }}
+  .feat-actions .quiet {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:2px; }}
 
-  .bc-head {{
-    display:flex; align-items:flex-start; justify-content:space-between;
-    padding:18px 20px 12px; gap:14px;
-  }}
-  .bc-num {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; }}
-  .bc-title {{
-    font-family:'Syne',sans-serif; font-size:16px; font-weight:700;
-    letter-spacing:3px; color:var(--text-primary); text-transform:uppercase;
-  }}
-  .bc-meta {{
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    color:var(--text-dim); margin-top:6px; text-transform:uppercase;
-  }}
-  .bc-pin {{
-    background:transparent; border:1px solid var(--border-dim); cursor:pointer;
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
-    color:var(--text-dim); padding:4px 8px; transition:all .15s;
-    text-transform:uppercase; flex-shrink:0;
-  }}
-  .bc-pin:hover {{ color:var(--apt-red); border-color:var(--apt-red); }}
-  .bc-pin.pinned {{ color:var(--apt-red); border-color:var(--apt-red); background:rgba(204,0,0,0.08); }}
+  /* Section grid */
+  .features {{ max-width:1200px; margin:0 auto; padding:64px 24px; }}
+  .features-h {{ display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px; }}
+  .features-h h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; max-width:600px; }}
+  .features-h p {{ font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }}
 
-  .bc-preview {{ padding:0 20px 14px; }}
-  .bc-preview-headline {{
-    font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body);
-    line-height:1.55; padding:8px 0 8px 14px; position:relative;
-    border-top:1px solid var(--border-dim); cursor:pointer; transition:color .15s;
-  }}
-  .bc-preview-headline:hover {{ color:#fff; }}
-  .bc-preview-headline:hover::before {{ background:var(--apt-red); }}
-  .bc-preview-headline:first-child {{ border-top:none; }}
-  .bc-preview-headline::before {{
-    content:''; position:absolute; left:0; top:14px; width:6px; height:1px;
-    background:var(--text-muted); transition:background .15s;
-  }}
-  .bc-preview-headline.no-data {{ color:var(--text-muted); font-style:italic; cursor:default; }}
-  .bc-preview-headline.no-data:hover {{ color:var(--text-muted); }}
+  .section-grid {{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }}
+  @media (max-width:780px) {{ .section-grid {{ grid-template-columns:1fr; }} }}
 
-  .bc-foot {{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:12px 20px; border-top:1px solid var(--border-dim);
-    background:var(--bg-deep);
+  .sec-card {{
+    position:relative;
+    background:rgba(17,18,26,0.65);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--border); border-radius:20px;
+    padding:28px; transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
+    overflow:hidden;
   }}
-  .bc-open {{
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    color:var(--apt-red); text-transform:uppercase;
+  .sec-card::after {{
+    content:''; position:absolute; inset:0; border-radius:20px;
+    background:linear-gradient(135deg, rgba(255,31,61,0.18), transparent 50%);
+    opacity:0; transition:opacity .35s; pointer-events:none;
   }}
-  .bc-open:hover {{ color:#fff; }}
-  .bc-section-tags {{ display:flex; gap:6px; flex-wrap:wrap; }}
-  .bc-section-tag {{
-    font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px;
-    color:var(--text-dim); text-transform:uppercase;
+  .sec-card:hover {{ transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }}
+  .sec-card:hover::after {{ opacity:1; }}
+  .sc-head {{ display:flex; align-items:flex-start; gap:14px; margin-bottom:20px; }}
+  .sc-num {{
+    width:44px; height:44px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, rgba(255,31,61,0.16), rgba(255,31,61,0.04));
+    border:1px solid rgba(255,31,61,0.22); border-radius:12px;
+    font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--apt-rose);
   }}
+  .sc-titles {{ flex:1; min-width:0; }}
+  .sc-eyebrow {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:4px; }}
+  .sc-title {{ font-family:'Syne',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); }}
+  .sc-count {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); padding:4px 10px; background:rgba(255,255,255,0.04); border-radius:8px; }}
+  .sc-list {{ display:flex; flex-direction:column; gap:0; }}
+  .sc-item {{ padding:14px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:start; transition:padding-left .15s; }}
+  .sc-item:first-child {{ border-top:none; padding-top:4px; }}
+  .sc-item:hover {{ padding-left:6px; }}
+  .sc-item-headline {{ font-size:15px; font-weight:500; color:var(--text-1); line-height:1.45; }}
+  .sc-item-source {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:6px; }}
+  .sc-arrow {{ color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }}
+  .sc-item:hover .sc-arrow {{ color:var(--apt-red); transform:translateX(4px); }}
 
-  /* Stories view — flat list */
-  .story-row {{
-    display:grid; grid-template-columns:140px 1fr 100px 80px;
-    gap:18px; align-items:center;
-    padding:14px 18px; background:var(--bg-surface-solid);
-    border:1px solid var(--border-dim); border-bottom:none;
-    transition:border-color .15s, background .15s;
-    cursor:pointer;
-  }}
-  .story-row:hover {{ background:var(--bg-elevated); border-color:var(--text-muted); }}
-  .story-row:last-child {{ border-bottom:1px solid var(--border-dim); }}
-  .story-section {{
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    text-transform:uppercase; padding:4px 8px;
-    border:1px solid var(--border-dim); display:inline-block; text-align:center;
-  }}
-  .story-headline {{ font-family:'DM Mono',monospace; font-size:13px; color:var(--text-primary); line-height:1.5; }}
-  .story-headline:hover {{ color:var(--apt-red); }}
-  .story-source {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; text-align:right; }}
-  .story-edition {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; text-align:right; }}
+  /* Live feed */
+  .feed {{ max-width:1200px; margin:0 auto; padding:64px 24px; }}
+  .feed-h {{ display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }}
+  .feed-h h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:32px; letter-spacing:-0.01em; }}
+  .feed-h .live-tag {{ display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.30); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:#34D27A; text-transform:uppercase; }}
+  .feed-list {{ display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }}
+  .feed-item {{ background:rgba(17,18,26,0.85); padding:18px 22px; display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center; cursor:pointer; transition:background .15s; }}
+  .feed-item:hover {{ background:rgba(22,23,31,0.95); }}
+  .feed-time {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--apt-rose); letter-spacing:1.5px; min-width:64px; }}
+  .feed-headline {{ font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }}
+  .feed-src {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }}
 
-  @media (max-width:680px) {{
-    .story-row {{ grid-template-columns:1fr; gap:6px; }}
-    .story-source, .story-edition {{ text-align:left; }}
-  }}
+  .empty-state {{ padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }}
 
-  /* Empty / no-results */
-  .empty {{
-    text-align:center; padding:80px 20px; font-family:'DM Mono',monospace;
-    font-size:11px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase;
-  }}
-  .empty .big {{ font-family:'Syne',sans-serif; font-size:18px; font-weight:700; letter-spacing:4px; color:var(--text-dim); margin-bottom:10px; }}
+  .footer {{ max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }}
+  .footer .brand-foot {{ font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }}
+  .footer .meta {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); letter-spacing:1px; }}
 
-  /* Story modal */
-  .modal-backdrop {{
-    position:fixed; inset:0; z-index:200; background:rgba(5,8,16,0.78);
-    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-    display:none; align-items:flex-start; justify-content:center;
-    padding:64px 16px 24px; overflow-y:auto;
-  }}
-  .modal-backdrop.open {{ display:flex; }}
-  .modal {{
-    background:var(--bg-surface-solid); border:1px solid var(--border-bright);
-    border-top:2px solid var(--apt-red);
-    max-width:720px; width:100%; padding:0;
-    box-shadow:0 24px 80px rgba(0,0,0,0.6);
-  }}
-  .modal-head {{
-    display:flex; align-items:flex-start; justify-content:space-between;
-    padding:22px 28px 18px; gap:16px; border-bottom:1px solid var(--border-dim);
-  }}
-  .modal-section {{
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px;
-    text-transform:uppercase; padding:5px 10px;
-    border:1px solid currentColor; flex-shrink:0;
-  }}
-  .modal-meta {{
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    color:var(--text-dim); text-transform:uppercase; flex:1; text-align:right;
-  }}
-  .modal-close {{
-    background:transparent; border:1px solid var(--border-dim);
-    cursor:pointer; padding:6px 12px;
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    color:var(--text-dim); text-transform:uppercase; transition:all .15s;
-    flex-shrink:0;
-  }}
-  .modal-close:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
-  .modal-body {{ padding:24px 28px; }}
-  .modal-headline {{
-    font-family:'Syne',sans-serif; font-size:22px; font-weight:700;
-    letter-spacing:0.5px; color:#FFFFFF; line-height:1.3; margin-bottom:14px;
-  }}
-  .modal-source {{
-    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px;
-    color:var(--text-dim); text-transform:uppercase; margin-bottom:24px;
-  }}
-  .modal-block {{ margin-top:20px; padding-top:20px; border-top:1px solid var(--border-dim); }}
-  .modal-block:first-of-type {{ border-top:none; padding-top:0; margin-top:0; }}
-  .modal-label {{
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:4px;
-    color:var(--apt-red); text-transform:uppercase; margin-bottom:10px;
-  }}
-  .modal-text {{
-    font-family:'DM Mono',monospace; font-size:14px; color:var(--text-body);
-    line-height:1.7; white-space:pre-wrap;
-  }}
-  .modal-insight {{
-    background:var(--bg-deep); border-left:2px solid var(--apt-red);
-    padding:16px 18px; margin-top:8px;
-  }}
-  .modal-foot {{
-    display:flex; gap:10px; padding:18px 28px; border-top:1px solid var(--border-dim);
-    background:var(--bg-deep); flex-wrap:wrap;
-  }}
-  .modal-btn {{
-    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:2px; color:var(--text-primary); text-transform:uppercase;
-    background:transparent; border:1px solid var(--border-bright); cursor:pointer;
-    transition:all .15s; flex:1; text-align:center; min-width:140px;
-  }}
-  .modal-btn:hover {{ border-color:var(--apt-red); color:var(--apt-red); }}
-  .modal-btn.primary {{ border-color:var(--apt-red); color:var(--apt-red); background:rgba(204,0,0,0.06); }}
-  .modal-btn.primary:hover {{ background:rgba(204,0,0,0.18); color:#FFFFFF; }}
-  @media (max-width:560px) {{
-    .modal-head {{ padding:18px 20px 14px; }}
-    .modal-body {{ padding:20px; }}
-    .modal-foot {{ padding:14px 20px; }}
-    .modal-headline {{ font-size:18px; }}
-  }}
-
-  /* Footer */
-  .footer {{
-    max-width:1200px; margin:80px auto 0; padding:24px;
-    border-top:1px solid var(--border-dim);
-    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
-  }}
-  .footer .brand {{ font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:5px; color:var(--text-dim); text-transform:uppercase; }}
-  .footer .tagline {{ font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); letter-spacing:1px; }}
-  .footer .ts {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }}
-
-  @media (max-width:560px) {{
-    .topnav {{ padding:0 18px; }}
-    .rail {{ padding:12px 18px; top:56px; }}
-    .main {{ padding:24px 18px 64px; }}
-    .footer {{ padding:24px 18px; }}
-    .brief-grid {{ grid-template-columns:1fr; }}
+  @media (max-width:760px) {{
+    h1.hero-title {{ font-size:48px; }}
+    .feat-h2 {{ font-size:28px; }}
+    .featured-card {{ padding:32px 24px; }}
+    .feat-grid {{ grid-template-columns:1fr; }}
   }}
 </style>
 </head>
@@ -1736,709 +1697,166 @@ def s3_generate_index(briefs):
   <div class="lockup">
     {logo_nav}
     <div class="lockup-text">
-      <span class="dm">Apterreon</span>
-      <span class="tagline">Explore what's out there.</span>
+      <span class="brand">Apterreon</span>
+      <span class="lockup-tagline">Explore what's out there.</span>
     </div>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light/dark mode" title="Toggle theme">&#9789;</button>
+    <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
   </div>
   <div class="nav">
-    <a href="#briefs"  data-tab="briefs"  class="active">Briefs <span class="count">··</span></a>
-    <a href="#stories" data-tab="stories">Stories <span class="count">··</span></a>
-    <a href="#pinned"  data-tab="pinned">Pinned <span class="count">··</span></a>
+    <a href="#briefs">Briefs</a>
+    <a href="#stories">Stories</a>
+    <a href="#pinned">Pinned</a>
+    <a href="#archive">Archive</a>
   </div>
+  <a class="cta" href="{latest_url}">Open latest &rarr;</a>
 </nav>
 
-<div class="rail">
-  <div class="rail-inner">
-    <div class="rail-primary">
-      <label class="search">
-        <span class="icon">&#8981;</span>
-        <input type="search" id="search" placeholder="Search briefs, stories, sources..." autocomplete="off" spellcheck="false">
-        <button type="button" class="clear" id="search-clear" hidden>Clear</button>
-      </label>
-    </div>
-    <div class="rail-filters" id="rail-filters">
-      <div class="filter-group">
-        <span class="filter-label">Sort</span>
-        <span class="chip" data-sort="newest" id="sort-newest">Newest</span>
-        <span class="chip" data-sort="oldest" id="sort-oldest">Oldest</span>
-      </div>
-      <div class="sep"></div>
-      <div class="filter-group">
-        <span class="filter-label">Edition</span>
-        <span class="chip" data-edition="morning">Morning</span>
-        <span class="chip dim" data-edition="midday">Midday</span>
-        <span class="chip grey" data-edition="evening">Evening</span>
-      </div>
-      <div class="sep"></div>
-      <div class="filter-group" id="section-chips">
-        <span class="filter-label">Sections</span>
-      </div>
-    </div>
+<section class="hero">
+  <div class="eyebrow"><span class="live-dot"></span>{eyebrow_text}</div>
+  <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
+  <p class="hero-sub">Finance, Politics, Tech, and more. Explore what's out there with Apterreon's Daily Intelligence Briefs and story catalogue.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="{latest_url}">Read today's briefs <span style="font-size:16px">&rarr;</span></a>
+    <a class="btn-secondary" href="#stories">Browse stories <span style="font-size:16px">&rarr;</span></a>
   </div>
-</div>
+</section>
 
-<main class="main">
-  <div id="view-briefs"  class="view active"></div>
-  <div id="view-stories" class="view"></div>
-  <div id="view-pinned"  class="view"></div>
-</main>
+<section class="featured" id="daily-pick">
+  <article class="featured-card">
+    <div class="feat-meta">
+      <span class="tag">Daily Pick</span>
+      <span>Apterreon</span><span class="dot"></span>
+      <span>{pretty_date}</span><span class="dot"></span>
+      <span>{edition_label}</span>
+    </div>
+    <h2 class="feat-h2">{pick_headline}</h2>
+    <p class="feat-summary">{pick_summary}</p>
+    <div class="feat-grid">
+      <div class="feat-stat">
+        <div class="fs-label">Stories synthesized</div>
+        <div class="fs-val">{total_stories}</div>
+        <div class="fs-delta">across {total_briefs} briefs</div>
+      </div>
+      <div class="feat-stat">
+        <div class="fs-label">Sources</div>
+        <div class="fs-val">{total_sources}</div>
+        <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
+      </div>
+      <div class="feat-stat">
+        <div class="fs-label">Cost to produce</div>
+        <div class="fs-val">${cost_estimate:.2f}</div>
+        <div class="fs-delta">per brief, average</div>
+      </div>
+    </div>
+    <div class="feat-actions">
+      <a class="btn-primary" href="{latest_url}">Read the full take <span style="font-size:16px">&rarr;</span></a>
+      <a class="quiet" href="#archive">Browse past picks</a>
+    </div>
+  </article>
+</section>
+
+<section class="features" id="briefs">
+  <div class="features-h">
+    <h2>Today's sections at a glance.</h2>
+    <p>Each card opens to source links. Click through to read the full brief or jump to a story.</p>
+  </div>
+  <div class="section-grid">
+    {section_cards_html}
+  </div>
+</section>
+
+<section class="feed" id="stories">
+  <div class="feed-h">
+    <h2>Live feed.</h2>
+    <span class="live-tag"><span class="pulse-dot"></span>Updating</span>
+  </div>
+  <div class="feed-list">
+    {feed_html}
+  </div>
+</section>
 
 <footer class="footer">
-  <span class="brand">Apterreon</span>
-  <span class="tagline">Explore what's out there.</span>
-  <span class="ts" id="footer-ts"></span>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <span class="brand-foot">Apterreon</span>
+    <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--apt-rose)">Explore what's out there.</span>
+  </div>
+  <span class="meta">Daily Intelligence Brief, generated by Apterreon, hosted on GitHub Pages</span>
 </footer>
 
-<div class="modal-backdrop" id="story-modal" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-  <div class="modal" role="document">
-    <div class="modal-head">
-      <span class="modal-section" id="modal-section">Section</span>
-      <span class="modal-meta" id="modal-meta">&middot;</span>
-      <button class="modal-close" id="modal-close" aria-label="Close">&#10005; Close</button>
-    </div>
-    <div class="modal-body">
-      <h2 class="modal-headline" id="modal-headline">Headline</h2>
-      <div class="modal-source" id="modal-source">Source</div>
-      <div class="modal-block" id="modal-summary-block">
-        <div class="modal-label">Summary</div>
-        <div class="modal-text" id="modal-summary"></div>
-      </div>
-      <div class="modal-block" id="modal-insight-block">
-        <div class="modal-label">Claude Insight</div>
-        <div class="modal-text modal-insight" id="modal-insight"></div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <a class="modal-btn" id="modal-link-source" target="_blank" rel="noopener">Read source &#8594;</a>
-      <a class="modal-btn primary" id="modal-link-brief">Open in brief &#8594;</a>
-    </div>
-  </div>
-</div>
-
 <script>
-const briefs = {briefs_json};
-const today = "{today_str}";
-const SECTION_NAMES = {section_names_json};
-const SECTION_COLORS = {section_colors_json};
-
-document.getElementById('footer-ts').textContent =
-  new Date().toLocaleString('en-US', {{ timeZone:'America/New_York', month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }}).toUpperCase();
-
-// State
-const state = {{
-  query: '',
-  tab: 'briefs',
-  editionFilter: new Set(),  // 'morning', 'midday', 'evening'
-  sectionFilter: new Set(),  // section names
-  sort: 'newest',
-}};
-
-// Per-device pins (localStorage)
-const PIN_STORE = 'dib.pins';
-function loadLocalPins() {{
-  try {{ return new Set(JSON.parse(localStorage.getItem(PIN_STORE) || '[]')); }}
-  catch {{ return new Set(); }}
-}}
-function saveLocalPins(set) {{
-  localStorage.setItem(PIN_STORE, JSON.stringify([...set]));
-}}
-const _localPins = loadLocalPins();
-briefs.forEach(b => {{ if (_localPins.has(b.key)) b.pinned = true; }});
-
-// Build a flat list of stories from all briefs (for STORIES view + search)
-function buildStories() {{
-  const out = [];
-  briefs.forEach(b => {{
-    (b.sections || []).forEach(sec => {{
-      (sec.stories || []).forEach(s => {{
-        out.push({{
-          briefKey: b.key,
-          briefDate: b.date,
-          briefType: b.type,
-          section: sec.name,
-          headline: s.headline || '',
-          summary: s.summary || '',
-          insight: s.insight || '',
-          source: s.source || '',
-          link: s.link || '',
-        }});
-      }});
-    }});
-  }});
-  return out;
-}}
-const allStories = buildStories();
-
-// Helpers
-function escapeHtml(s) {{
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}}
-function briefLabel(type) {{
-  if (type === 'morning') return 'Morning Brief';
-  if (type === 'midday')  return 'Midday Update';
-  if (type === 'evening') return 'Evening Wrap';
-  return type ? (type.charAt(0).toUpperCase() + type.slice(1)) : 'Brief';
-}}
-function briefNumber(type) {{
-  if (type === 'morning') return '01';
-  if (type === 'midday')  return '02';
-  if (type === 'evening') return '03';
-  return '··';
-}}
-function formatDate(dateStr) {{
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('en-US', {{ weekday:'long', month:'long', day:'numeric' }}).toUpperCase();
-}}
-function formatShortDate(dateStr) {{
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('en-US', {{ month:'short', day:'numeric' }}).toUpperCase();
-}}
-
-// Search matching — returns true if obj matches query (in any of the listed fields).
-function matches(query, fields) {{
-  if (!query) return true;
-  const q = query.toLowerCase();
-  for (const f of fields) {{ if (f && String(f).toLowerCase().includes(q)) return true; }}
-  return false;
-}}
-
-function filterBriefs() {{
-  return briefs.filter(b => {{
-    if (state.editionFilter.size > 0 && !state.editionFilter.has(b.type)) return false;
-    if (state.sectionFilter.size > 0) {{
-      const briefSections = new Set((b.sections || []).map(s => s.name));
-      let any = false;
-      for (const s of state.sectionFilter) {{ if (briefSections.has(s)) {{ any = true; break; }} }}
-      if (!any) return false;
-    }}
-    if (state.query) {{
-      const fields = [b.date, b.type, briefLabel(b.type)];
-      (b.sections || []).forEach(sec => {{
-        fields.push(sec.name);
-        (sec.stories || []).forEach(s => {{
-          fields.push(s.headline, s.summary, s.source, s.insight);
-        }});
-      }});
-      if (!matches(state.query, fields)) return false;
-    }}
-    return true;
-  }});
-}}
-
-function filterStories() {{
-  return allStories.filter(s => {{
-    if (state.editionFilter.size > 0 && !state.editionFilter.has(s.briefType)) return false;
-    if (state.sectionFilter.size > 0 && !state.sectionFilter.has(s.section)) return false;
-    if (state.query) {{
-      if (!matches(state.query, [s.headline, s.summary, s.source, s.insight, s.section, s.briefDate])) return false;
-    }}
-    return true;
-  }});
-}}
-
-function sortByDate(arr, dateKey) {{
-  return arr.slice().sort((a, b) => {{
-    const cmp = (a[dateKey] || '').localeCompare(b[dateKey] || '');
-    return state.sort === 'newest' ? -cmp : cmp;
-  }});
-}}
-
-// Card renderers
-function renderBriefCard(b) {{
-  const pinClass = b.pinned ? 'pinned' : '';
-  const pinLabel = b.pinned ? '\u2605 PINNED' : '\u2606 PIN';
-  const safeKey = escapeHtml(b.key).replace(/'/g, "&#39;");
-  const sections = b.sections || [];
-  // Top 3 headlines preview (skip Breaking News if its stories have empty summaries — those are headline-only)
-  let previews = [];
-  for (const sec of sections) {{
-    for (const story of (sec.stories || [])) {{
-      if (story.headline) previews.push(story.headline);
-      if (previews.length >= 3) break;
-    }}
-    if (previews.length >= 3) break;
-  }}
-  const previewHtml = previews.length
-    ? previews.map(p => '<div class="bc-preview-headline">' + escapeHtml(p) + '</div>').join('')
-    : '<div class="bc-preview-headline no-data">No story preview available</div>';
-  const sectionTags = sections.length
-    ? sections.slice(0, 4).map(s => '<span class="bc-section-tag">' + escapeHtml(s.name.split(' ')[0]) + '</span>').join('')
-    : '';
-  return '<article class="brief-card" data-type="' + escapeHtml(b.type) + '">' +
-    '<div class="bc-head">' +
-      '<div>' +
-        '<div class="bc-num">' + briefNumber(b.type) + ' &middot; ' + formatShortDate(b.date) + '</div>' +
-        '<div class="bc-title">' + briefLabel(b.type) + '</div>' +
-        '<div class="bc-meta">' + formatDate(b.date) + '</div>' +
-      '</div>' +
-      '<button class="bc-pin ' + pinClass + '" data-key="' + safeKey + '">' + pinLabel + '</button>' +
-    '</div>' +
-    '<div class="bc-preview">' + previewHtml + '</div>' +
-    '<a class="bc-foot" href="' + escapeHtml(b.key) + '">' +
-      '<span class="bc-section-tags">' + sectionTags + '</span>' +
-      '<span class="bc-open">Open &#8594;</span>' +
-    '</a>' +
-  '</article>';
-}}
-
-function renderBriefsView(list) {{
-  if (list.length === 0) {{
-    return '<div class="empty"><div class="big">No briefs match</div>Adjust filters or clear the search.</div>';
-  }}
-  // Group by date
-  const byDate = {{}};
-  list.forEach(b => {{ (byDate[b.date] = byDate[b.date] || []).push(b); }});
-  const dates = Object.keys(byDate).sort();
-  if (state.sort === 'newest') dates.reverse();
-  let html = '';
-  dates.forEach(date => {{
-    const cards = byDate[date].map(renderBriefCard).join('');
-    const dateHeader = date === today ? 'Today &middot; ' + formatDate(date) : formatDate(date);
-    html += '<div class="date-group">' +
-      '<div class="date-label"><span>' + dateHeader + '</span><span class="count">' + String(byDate[date].length).padStart(2,'0') + ' edition' + (byDate[date].length === 1 ? '' : 's') + '</span></div>' +
-      '<div class="brief-grid">' + cards + '</div>' +
-    '</div>';
-  }});
-  return html;
-}}
-
-function renderStoriesView(list) {{
-  if (list.length === 0) {{
-    return '<div class="empty"><div class="big">No stories match</div>Try a broader search or different filters.</div>';
-  }}
-  const sorted = list.slice().sort((a, b) => {{
-    const cmp = (a.briefDate || '').localeCompare(b.briefDate || '');
-    return state.sort === 'newest' ? -cmp : cmp;
-  }});
-  const byDate = {{}};
-  sorted.forEach(s => {{ (byDate[s.briefDate] = byDate[s.briefDate] || []).push(s); }});
-  const dates = Object.keys(byDate).sort();
-  if (state.sort === 'newest') dates.reverse();
-  let html = '';
-  dates.forEach(date => {{
-    const rows = byDate[date].map((s, i) => {{
-      const link = escapeHtml(s.briefKey);
-      const idx = allStories.indexOf(s);
-      return '<a class="story-row" href="' + link + '" data-story-idx="' + idx + '">' +
-        '<span class="story-section" style="color:' + (SECTION_COLORS[s.section] || '#888') + '">' + escapeHtml(s.section) + '</span>' +
-        '<span class="story-headline">' + escapeHtml(s.headline) + '</span>' +
-        '<span class="story-source">' + escapeHtml(s.source) + '</span>' +
-        '<span class="story-edition">' + briefNumber(s.briefType) + ' &middot; ' + escapeHtml(s.briefType) + '</span>' +
-      '</a>';
-    }}).join('');
-    const dateHeader = date === today ? 'Today &middot; ' + formatDate(date) : formatDate(date);
-    html += '<div class="date-group">' +
-      '<div class="date-label"><span>' + dateHeader + '</span><span class="count">' + String(byDate[date].length).padStart(2,'0') + ' stories</span></div>' +
-      rows +
-    '</div>';
-  }});
-  return html;
-}}
-
-// Story modal
-const modalEl = document.getElementById('story-modal');
-function openStoryModal(story) {{
-  if (!story) return;
-  const sectionEl = document.getElementById('modal-section');
-  sectionEl.textContent = story.section || 'Story';
-  sectionEl.style.color = SECTION_COLORS[story.section] || '#888';
-  document.getElementById('modal-meta').textContent =
-    formatShortDate(story.briefDate) + ' \u00B7 ' + briefLabel(story.briefType);
-  document.getElementById('modal-headline').textContent = story.headline || '';
-  document.getElementById('modal-source').textContent = story.source ? ('Source \u00B7 ' + story.source) : '';
-  const summaryBlock = document.getElementById('modal-summary-block');
-  const insightBlock = document.getElementById('modal-insight-block');
-  if (story.summary) {{
-    document.getElementById('modal-summary').textContent = story.summary;
-    summaryBlock.style.display = '';
-  }} else {{
-    summaryBlock.style.display = 'none';
-  }}
-  if (story.insight) {{
-    document.getElementById('modal-insight').textContent = story.insight;
-    insightBlock.style.display = '';
-  }} else {{
-    insightBlock.style.display = 'none';
-  }}
-  const sourceLink = document.getElementById('modal-link-source');
-  if (story.link) {{ sourceLink.href = story.link; sourceLink.style.display = ''; }}
-  else {{ sourceLink.style.display = 'none'; }}
-  const briefLink = document.getElementById('modal-link-brief');
-  briefLink.href = story.briefKey || '#';
-  modalEl.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}}
-function closeStoryModal() {{
-  modalEl.classList.remove('open');
-  document.body.style.overflow = '';
-}}
-document.getElementById('modal-close').addEventListener('click', closeStoryModal);
-modalEl.addEventListener('click', e => {{ if (e.target === modalEl) closeStoryModal(); }});
-document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && modalEl.classList.contains('open')) closeStoryModal(); }});
-
-// Delegate clicks on story rows: open modal unless modifier keys (let new-tab work).
-document.getElementById('view-stories').addEventListener('click', e => {{
-  const row = e.target.closest('.story-row[data-story-idx]');
-  if (!row) return;
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-  const idx = parseInt(row.dataset.storyIdx, 10);
-  const story = allStories[idx];
-  if (!story) return;
-  e.preventDefault();
-  openStoryModal(story);
-}});
-
-// Make brief-card preview headlines also open the matching story modal.
-document.addEventListener('click', e => {{
-  const ph = e.target.closest('.bc-preview-headline');
-  if (!ph || ph.classList.contains('no-data')) return;
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-  const card = ph.closest('.brief-card');
-  if (!card) return;
-  const headline = ph.textContent.trim();
-  const briefType = card.dataset.type;
-  const story = allStories.find(s => s.briefType === briefType && s.headline === headline);
-  if (!story) return;
-  e.preventDefault();
-  e.stopPropagation();
-  openStoryModal(story);
-}});
-
-function attachPinHandlers() {{
-  document.querySelectorAll('.bc-pin').forEach(btn => {{
-    btn.addEventListener('click', e => {{
-      e.preventDefault(); e.stopPropagation();
-      const key = btn.dataset.key;
-      const b = briefs.find(x => x.key === key);
-      if (!b) return;
-      b.pinned = !b.pinned;
-      const pins = loadLocalPins();
-      if (b.pinned) pins.add(key); else pins.delete(key);
-      saveLocalPins(pins);
-      render();
-    }});
-  }});
-}}
-
-function render() {{
-  const filteredBriefs = filterBriefs();
-  const filteredStories = filterStories();
-  const pinned = filteredBriefs.filter(b => b.pinned);
-
-  document.getElementById('view-briefs').innerHTML = renderBriefsView(filteredBriefs);
-  document.getElementById('view-stories').innerHTML = renderStoriesView(filteredStories);
-  document.getElementById('view-pinned').innerHTML = renderBriefsView(pinned);
-
-  // Update tab counts in topnav
-  const counts = {{ briefs: filteredBriefs.length, stories: filteredStories.length, pinned: pinned.length }};
-  document.querySelectorAll('.nav a[data-tab]').forEach(a => {{
-    const c = a.querySelector('.count');
-    if (c) c.textContent = String(counts[a.dataset.tab] || 0).padStart(2, '0');
-  }});
-
-  attachPinHandlers();
-}}
-
-function setActiveTab(name) {{
-  if (!['briefs','stories','pinned'].includes(name)) name = 'briefs';
-  state.tab = name;
-  document.querySelectorAll('.nav a[data-tab]').forEach(a => a.classList.toggle('active', a.dataset.tab === name));
-  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
-}}
-
-// Hash routing — Briefs/Stories/Pinned are addressable URLs.
-function tabFromHash() {{
-  const h = (window.location.hash || '').replace('#', '').toLowerCase();
-  return ['briefs','stories','pinned'].includes(h) ? h : 'briefs';
-}}
-window.addEventListener('hashchange', () => setActiveTab(tabFromHash()));
-setActiveTab(tabFromHash());
-
-document.querySelectorAll('.chip[data-edition]').forEach(c => {{
-  c.addEventListener('click', () => {{
-    const ed = c.dataset.edition;
-    if (state.editionFilter.has(ed)) state.editionFilter.delete(ed);
-    else state.editionFilter.add(ed);
-    c.classList.toggle('active');
-    render();
-  }});
-}});
-
-// Build section chips dynamically
-const sectionChipsEl = document.getElementById('section-chips');
-SECTION_NAMES.forEach(name => {{
-  const chip = document.createElement('span');
-  const color = SECTION_COLORS[name] || '#888';
-  const tier = color === '#CC0000' ? '' : (color === '#7A1010' ? ' dim' : ' grey');
-  chip.className = 'chip' + tier;
-  chip.dataset.section = name;
-  chip.textContent = name;
-  chip.addEventListener('click', () => {{
-    if (state.sectionFilter.has(name)) state.sectionFilter.delete(name);
-    else state.sectionFilter.add(name);
-    chip.classList.toggle('active');
-    render();
-  }});
-  sectionChipsEl.appendChild(chip);
-}});
-
-// Sort
-document.querySelectorAll('.chip[data-sort]').forEach(c => {{
-  c.addEventListener('click', () => {{
-    state.sort = c.dataset.sort;
-    document.querySelectorAll('.chip[data-sort]').forEach(x => x.classList.toggle('active', x.dataset.sort === state.sort));
-    render();
-  }});
-}});
-document.getElementById('sort-newest').classList.add('active');
-
-// Search
-const searchInput = document.getElementById('search');
-const searchClear = document.getElementById('search-clear');
-searchInput.addEventListener('input', () => {{
-  state.query = searchInput.value.trim();
-  searchClear.hidden = !state.query;
-  render();
-}});
-searchClear.addEventListener('click', () => {{
-  searchInput.value = '';
-  state.query = '';
-  searchClear.hidden = true;
-  searchInput.focus();
-  render();
-}});
-
-// First render
-render();
-
-// ── Theme toggle ──
-const THEME_STORE = 'dib.theme';
-const themeToggle = document.getElementById('theme-toggle');
-function applyTheme(theme) {{
-  if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-  else document.documentElement.removeAttribute('data-theme');
-  themeToggle.innerHTML = theme === 'light' ? '&#9728;' : '&#9789;'; // sun / crescent
-  themeToggle.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
-}}
-applyTheme(localStorage.getItem(THEME_STORE) || 'dark');
-themeToggle.addEventListener('click', () => {{
-  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-  localStorage.setItem(THEME_STORE, next);
-  applyTheme(next);
-}});
-
-// ── Plexus background canvas (Apterreon red palette) ──
+// Plexus background canvas, Apterreon red palette
 (function() {{
   const c = document.getElementById('plexus');
   if (!c) return;
   const ctx = c.getContext('2d');
-  let W, H, dpr;
-  let stars = [], nodes = [], flowParticles = [], popParticles = [];
-  const CONNECT_DIST = 200;
-  let mouseX = -999, mouseY = -999;
-
-  function isLight() {{ return document.documentElement.getAttribute('data-theme') === 'light'; }}
-
+  let W, H, dpr, stars = [], nodes = [], flow = [];
+  const CONNECT = 220; let mx = -999, my = -999;
   function resize() {{
     dpr = window.devicePixelRatio || 1;
-    W = window.innerWidth;
-    H = window.innerHeight;
-    c.width = W * dpr; c.height = H * dpr;
-    c.style.width = W + 'px'; c.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    buildScene();
+    W = innerWidth; H = innerHeight;
+    c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); build();
   }}
-
-  function buildScene() {{
-    stars = [];
-    for (let i = 0; i < 320; i++) {{
-      stars.push({{ x:Math.random()*W, y:Math.random()*H, r:Math.random()*0.7+0.2, b:Math.random()*0.22+0.03, p:Math.random()*6.28 }});
-    }}
-    nodes = [];
-    const count = Math.max(50, Math.floor((W*H)/22000));
-    for (let i = 0; i < count; i++) {{
-      nodes.push({{ x:Math.random()*W, y:Math.random()*H, size:0.5+Math.random()*1.6, brightness:0.10+Math.random()*0.32, phase:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 }});
-    }}
-    flowParticles = [];
-    for (let i = 0; i < 60; i++) {{
-      flowParticles.push({{ nodeA:-1, nodeB:-1, t:Math.random(), speed:0.002+Math.random()*0.003, size:0.3+Math.random()*0.6, bright:0.15+Math.random()*0.3 }});
-    }}
+  function build() {{
+    stars = []; for (let i = 0; i < 240; i++) stars.push({{x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.7+0.2,b:Math.random()*0.18+0.03,p:Math.random()*6.28}});
+    nodes = []; const n = Math.max(40, Math.floor((W*H)/26000));
+    for (let i = 0; i < n; i++) nodes.push({{x:Math.random()*W,y:Math.random()*H,size:0.5+Math.random()*1.5,b:0.10+Math.random()*0.30,ph:Math.random()*6.28,vx:(Math.random()-0.5)*0.16,vy:(Math.random()-0.5)*0.12}});
+    flow = []; for (let i = 0; i < 40; i++) flow.push({{a:-1,b:-1,t:Math.random(),s:0.002+Math.random()*0.003,sz:0.3+Math.random()*0.6,br:0.15+Math.random()*0.3}});
   }}
-
-  function assignEdge(fp) {{
+  function pickEdge(fp) {{
     if (!nodes.length) return;
-    const a = Math.floor(Math.random()*nodes.length);
-    let bestJ = -1, bestD = CONNECT_DIST;
-    for (let j = 0; j < nodes.length; j++) {{
-      if (j === a) continue;
-      const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y;
-      const d = Math.sqrt(dx*dx+dy*dy);
-      if (d < bestD) {{ bestD = d; bestJ = j; }}
-    }}
-    fp.nodeA = a; fp.nodeB = bestJ; fp.t = 0;
+    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT;
+    for (let j = 0; j < nodes.length; j++) {{ if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) {{ bd = d; bj = j; }} }}
+    fp.a = a; fp.b = bj; fp.t = 0;
   }}
-
-  c.addEventListener('click', e => {{
-    if (isLight()) return;
-    const rect = c.getBoundingClientRect();
-    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
-    let bestIdx = -1, bestDist = 30;
-    for (let i = 0; i < nodes.length; i++) {{
-      const dx = nodes[i].x - cx, dy = nodes[i].y - cy;
-      const d = Math.sqrt(dx*dx + dy*dy);
-      if (d < bestDist) {{ bestDist = d; bestIdx = i; }}
-    }}
-    if (bestIdx >= 0) {{
-      const n = nodes[bestIdx];
-      const count = 12 + Math.floor(Math.random()*8);
-      for (let i = 0; i < count; i++) {{
-        const angle = (Math.PI*2/count)*i + (Math.random()-0.5)*0.4;
-        const speed = 1.5 + Math.random()*3;
-        popParticles.push({{ x:n.x, y:n.y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:1.0, decay:0.015+Math.random()*0.01, size:n.size*0.8+Math.random()*1.5, bright:0.6+Math.random()*0.4 }});
-      }}
-      popParticles.push({{ x:n.x, y:n.y, vx:0, vy:0, life:1.0, decay:0.025, size:n.size, bright:0.8, isRing:true }});
-      nodes.splice(bestIdx, 1);
-      for (const fp of flowParticles) {{
-        if (fp.nodeA === bestIdx || fp.nodeB === bestIdx) {{ fp.nodeA = -1; fp.nodeB = -1; }}
-        else {{ if (fp.nodeA > bestIdx) fp.nodeA--; if (fp.nodeB > bestIdx) fp.nodeB--; }}
-      }}
-    }}
-  }});
-
-  document.addEventListener('mousemove', e => {{ mouseX = e.clientX; mouseY = e.clientY; }});
-  document.addEventListener('mouseleave', () => {{ mouseX = -999; mouseY = -999; }});
-
+  document.addEventListener('mousemove', e => {{ mx = e.clientX; my = e.clientY; }});
+  document.addEventListener('mouseleave', () => {{ mx = -999; my = -999; }});
   let t = 0;
   function draw() {{
     t += 0.004;
-
-    // Skip painting when in light mode (CSS fades canvas opacity to 0)
-    if (isLight()) {{ ctx.clearRect(0,0,W,H); requestAnimationFrame(draw); return; }}
-
-    ctx.fillStyle = '#050810';
-    ctx.fillRect(0,0,W,H);
-
-    // Stars
-    for (const s of stars) {{
-      const tw = 0.5 + 0.5*Math.sin(t*5+s.p);
-      ctx.fillStyle = 'rgba(220,210,210,' + (s.b*tw) + ')';
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
-    }}
-
-    // Node motion + mouse repel
+    ctx.fillStyle = '#0A0A0F'; ctx.fillRect(0,0,W,H);
+    for (const s of stars) {{ const tw = 0.5+0.5*Math.sin(t*5+s.p); ctx.fillStyle = `rgba(220,210,210,${{s.b*tw}})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }}
     for (const n of nodes) {{
-      n.x += n.vx + Math.sin(t*1.5+n.phase)*0.06;
-      n.y += n.vy + Math.cos(t*1.2+n.phase*1.3)*0.04;
-      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40;
-      if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
-      const dx = n.x-mouseX, dy = n.y-mouseY;
-      const md = Math.sqrt(dx*dx+dy*dy);
-      if (md < 180 && md > 0) {{ const f = (1-md/180)*0.6; n.x += (dx/md)*f; n.y += (dy/md)*f; }}
+      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06; n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40; if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mx, dy = n.y-my, md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) {{ const f = (1-md/180)*0.5; n.x += (dx/md)*f; n.y += (dy/md)*f; }}
     }}
-
-    // Edges between close nodes — Apterreon red palette
-    for (let i = 0; i < nodes.length; i++) {{
-      for (let j = i+1; j < nodes.length; j++) {{
-        const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y;
-        const dist = Math.sqrt(dx*dx+dy*dy);
-        if (dist < CONNECT_DIST) {{
-          const alpha = (1 - dist/CONNECT_DIST);
-          ctx.strokeStyle = 'rgba(122,16,16,' + (alpha*0.07) + ')'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
-          ctx.strokeStyle = 'rgba(204,0,0,' + (alpha*0.20) + ')'; ctx.lineWidth = 0.6;
-          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
-        }}
+    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {{
+      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < CONNECT) {{
+        const a = (1-d/CONNECT);
+        ctx.strokeStyle = `rgba(122,16,16,${{a*0.06}})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,31,61,${{a*0.18}})`; ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
       }}
     }}
-
-    // Cursor → nodes
-    if (mouseX > -100) {{
-      for (const n of nodes) {{
-        const dx = n.x-mouseX, dy = n.y-mouseY;
-        const dist = Math.sqrt(dx*dx+dy*dy);
-        if (dist < 180) {{
-          const alpha = (1 - dist/180)*0.4;
-          ctx.strokeStyle = 'rgba(255,80,80,' + alpha + ')'; ctx.lineWidth = 0.7;
-          ctx.beginPath(); ctx.moveTo(mouseX,mouseY); ctx.lineTo(n.x,n.y); ctx.stroke();
-        }}
-      }}
+    if (mx > -100) for (const n of nodes) {{
+      const dx = n.x-mx, dy = n.y-my, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 180) {{ const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(255,80,100,${{a}})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(n.x,n.y); ctx.stroke(); }}
     }}
-
-    // Flow particles along edges
-    for (const fp of flowParticles) {{
-      if (fp.nodeA < 0 || fp.nodeB < 0 || fp.nodeA >= nodes.length || fp.nodeB >= nodes.length) {{ assignEdge(fp); continue; }}
-      const na = nodes[fp.nodeA], nb = nodes[fp.nodeB];
-      if (!na || !nb) {{ assignEdge(fp); continue; }}
-      const edx = na.x-nb.x, edy = na.y-nb.y;
-      if (Math.sqrt(edx*edx+edy*edy) > CONNECT_DIST*1.2) {{ assignEdge(fp); continue; }}
-      fp.t += fp.speed;
+    for (const fp of flow) {{
+      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) {{ pickEdge(fp); continue; }}
+      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) {{ pickEdge(fp); continue; }}
+      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT*1.2) {{ pickEdge(fp); continue; }}
+      fp.t += fp.s;
       if (fp.t > 1) {{
-        fp.nodeA = fp.nodeB;
-        let bestJ = -1, bestD = CONNECT_DIST;
-        for (let j = 0; j < nodes.length; j++) {{
-          if (j === fp.nodeA) continue;
-          const dx = nodes[fp.nodeA].x-nodes[j].x, dy = nodes[fp.nodeA].y-nodes[j].y;
-          const d = Math.sqrt(dx*dx+dy*dy);
-          if (d < bestD && Math.random() < 0.5) {{ bestD = d; bestJ = j; }}
-        }}
-        fp.nodeB = bestJ >= 0 ? bestJ : Math.floor(Math.random()*nodes.length); fp.t = 0;
+        fp.a = fp.b; let bj = -1, bd = CONNECT;
+        for (let j = 0; j < nodes.length; j++) {{ if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) {{ bd = d; bj = j; }} }}
+        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
       }}
       const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
-      ctx.fillStyle = 'rgba(204,40,40,' + (fp.bright*0.07) + ')';
-      ctx.beginPath(); ctx.arc(x,y,fp.size*3,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,160,160,' + (fp.bright*0.55) + ')';
-      ctx.beginPath(); ctx.arc(x,y,fp.size,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,31,61,${{fp.br*0.10}})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,160,170,${{fp.br*0.55}})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
     }}
-
-    // Nodes
     for (const n of nodes) {{
-      ctx.fillStyle = 'rgba(204,0,0,' + (n.brightness*0.10) + ')';
-      ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,150,150,' + n.brightness + ')';
-      ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,31,61,${{n.b*0.10}})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,150,160,${{n.b}})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
     }}
-
-    // Pop particles
-    for (let i = popParticles.length-1; i >= 0; i--) {{
-      const p = popParticles[i];
-      p.life -= p.decay;
-      if (p.life <= 0) {{ popParticles.splice(i,1); continue; }}
-      if (p.isRing) {{
-        const radius = (1-p.life)*60;
-        ctx.strokeStyle = 'rgba(255,160,160,' + (p.life*p.bright*0.6) + ')';
-        ctx.lineWidth = p.life*2;
-        ctx.beginPath(); ctx.arc(p.x,p.y,radius,0,Math.PI*2); ctx.stroke();
-        ctx.strokeStyle = 'rgba(204,0,0,' + (p.life*0.2) + ')';
-        ctx.lineWidth = p.life*6;
-        ctx.beginPath(); ctx.arc(p.x,p.y,radius,0,Math.PI*2); ctx.stroke();
-      }} else {{
-        p.x += p.vx; p.y += p.vy; p.vx *= 0.97; p.vy *= 0.97;
-        ctx.fillStyle = 'rgba(204,40,40,' + (p.life*p.bright*0.15) + ')';
-        ctx.beginPath(); ctx.arc(p.x,p.y,p.size*3,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = 'rgba(255,200,200,' + (p.life*p.bright) + ')';
-        ctx.beginPath(); ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); ctx.fill();
-      }}
-    }}
-
-    // Regenerate
-    const target = Math.max(50, Math.floor((W*H)/22000));
-    if (nodes.length < target && Math.random() < 0.02) {{
-      const edge = Math.floor(Math.random()*4);
-      let nx, ny;
-      if (edge === 0) {{ nx = -20; ny = Math.random()*H; }}
-      else if (edge === 1) {{ nx = W+20; ny = Math.random()*H; }}
-      else if (edge === 2) {{ nx = Math.random()*W; ny = -20; }}
-      else {{ nx = Math.random()*W; ny = H+20; }}
-      nodes.push({{ x:nx, y:ny, size:0.5+Math.random()*1.6, brightness:0.10+Math.random()*0.32, phase:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 }});
-    }}
-
     requestAnimationFrame(draw);
   }}
-
-  window.addEventListener('resize', resize);
-  resize();
-  requestAnimationFrame(draw);
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
 }})();
 </script>
 </body>
@@ -2446,20 +1864,18 @@ themeToggle.addEventListener('click', () => {{
 
     (DOCS_DIR / "index.html").write_text(index_html, encoding="utf-8")
 
-    # Also write PWA manifest
+    # PWA manifest
     manifest = {
-        "name": "Daily Intelligence Brief — Apterreon",
-        "short_name": "DIB",
-        "description": "Apterreon Daily Intelligence Brief — explore what's out there.",
+        "name": "Apterreon, Daily Intelligence Brief",
+        "short_name": "Apterreon",
+        "description": "Apterreon Daily Intelligence Brief. Explore what's out there.",
         "start_url": "./index.html",
         "display": "standalone",
-        "background_color": BG_BASE,
-        "theme_color": BG_BASE,
+        "background_color": "#0A0A0F",
+        "theme_color": "#0A0A0F",
     }
     (DOCS_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    print("Wrote docs/index.html and docs/manifest.json.")
-
-
+    print("Wrote docs/index.html and docs/manifest.json (v6 modern landing).")
 def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):
     """Write brief HTML + JSON sidecar, clean old ones, regenerate index."""
     date_iso = now_et.strftime("%Y-%m-%d")
@@ -2490,7 +1906,7 @@ def lambda_handler(event, context):
 
     # Weekends: only send the morning brief
     if is_weekend and brief_type != "morning":
-        print(f"Weekend — skipping {brief_type} brief.")
+        print(f"Weekend, skipping {brief_type} brief.")
         return {"status": "skipped_weekend", "brief_type": brief_type}
 
     # On weekends, relabel as "Weekend Brief"
@@ -2511,7 +1927,7 @@ def lambda_handler(event, context):
 
     if not headlines:
         print("No headlines fetched. Sending fallback.")
-        subject = f"{config['subject_prefix']} \u2014 {date_str}"
+        subject = f"{config['subject_prefix']} \u00b7 {date_str}"
         send_email(subject, "<p>No headlines could be retrieved. RSS feeds may be temporarily unavailable.</p>")
         return {"status": "sent_fallback"}
 
@@ -2534,7 +1950,7 @@ def lambda_handler(event, context):
     print(f"Calling Claude ({ANTHROPIC_MODEL}) for analysis...")
     raw_response, usage_info = call_claude(config["system_prompt"], headlines_text)
 
-    # Parse JSON — extract the object even if the model adds commentary or truncates.
+    # Parse JSON:extract the object even if the model adds commentary or truncates.
     cleaned = raw_response.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.split("\n", 1)[-1]
@@ -2544,7 +1960,7 @@ def lambda_handler(event, context):
 
     # Find the JSON object by matching braces. If depth never closes (truncation),
     # take everything from the first { to the end so json.loads gives a useful error
-    # — not an empty string.
+    #:not an empty string.
     start = cleaned.find("{")
     if start != -1:
         depth = 0
@@ -2558,6 +1974,10 @@ def lambda_handler(event, context):
                     end = i + 1
                     break
         cleaned = cleaned[start:end]
+
+    # Brand voice forbids em dashes (AI-writing tell). Strip them defensively
+    # in case the model ignored the instruction in the prompt.
+    cleaned = cleaned.replace(" \u2014 ", ", ").replace("\u2014", ",")
 
     data = None
     try:
@@ -2587,7 +2007,7 @@ def lambda_handler(event, context):
         except json.JSONDecodeError as e2:
             print(f"JSON parse error (unrecoverable): {e2}")
             print(f"Raw[:1000]: {raw_response[:1000]}")
-            subject = f"{config['subject_prefix']} \u2014 {date_str} \u2014 Generation Error"
+            subject = f"{config['subject_prefix']}, {date_str}, Generation Error"
             fallback = (
                 f"<div style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;"
                 f"max-width:600px;margin:0 auto;padding:32px 24px;background:#0D0F18;color:#E0E8F0'>"
@@ -2602,11 +2022,14 @@ def lambda_handler(event, context):
             return {"status": "sent_fallback_parse_error", "error": str(e2)}
 
     # 5. Build all views
-    title = f"{config['subject_prefix']} \u2014 {date_str}"
-    email_html = build_email_preview(title, data, quotes, timestamp, usage_info)
+    title = f"{config['subject_prefix']} \u00b7 {date_str}"
+    site_url = os.environ.get("APTERREON_SITE_URL", "https://ctlsmith5689.github.io/daily-intelligence-brief")
+    date_iso_for_url = now_et.strftime("%Y-%m-%d")
+    brief_url = f"{site_url}/briefs/{date_iso_for_url}-{brief_type}.html"
+    email_html = build_email_preview(title, data, quotes, timestamp, usage_info, brief_url=brief_url, site_url=site_url)
     interactive_html = build_interactive_html(title, data, quotes, timestamp, usage_info)
 
-    # 6. Send email (preview only — no attachment for minimal traceability)
+    # 6. Send email (preview only, no attachment for minimal traceability)
     send_email(title, email_html)
 
     # 7. Publish brief HTML + JSON sidecar, regenerate site index

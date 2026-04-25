@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en" data-variant="red">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apterreon · v5 dashboard demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:rgba(13,15,24,0.78); --bg-surface-solid:#0D0F18;
+    --bg-elevated:rgba(20,24,38,0.82); --bg-deep:rgba(7,10,15,0.85);
+    --border-dim:#1F2738; --border-bright:#3A4A5C;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#F0F4F8; --text-body:#D8DFE7; --text-dim:#9AA8B8;
+    --text-muted:#6A7888; --text-faint:#4A5A6A;
+    --green:#44BB66; --amber:#E5A845;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { min-height:100vh; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:3px; }
+  a { color:inherit; text-decoration:none; }
+
+  #plexus { position:fixed; inset:0; z-index:0; }
+  .topnav, .ticker, .stats-strip, .grid-wrap { position:relative; z-index:1; }
+  .topnav { z-index:120; }
+
+  /* Scan-line overlay */
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:2;
+    background:repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(255,255,255,0.012) 3px, transparent 4px);
+    mix-blend-mode:overlay;
+  }
+
+  /* ── Topnav (compact) ───────────────────────────────────────────── */
+  .topnav {
+    position:sticky; top:0; height:56px; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
+    border-bottom:1px solid var(--border-dim);
+    display:flex; align-items:center; padding:0 22px; gap:14px;
+  }
+  .lockup { display:flex; align-items:center; gap:12px; }
+  .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:13px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; line-height:1; }
+  .tagline { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; line-height:1; margin-top:4px; }
+  .hud { display:flex; align-items:center; gap:16px; margin-left:18px; padding-left:18px; border-left:1px solid var(--border-dim); font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+  .pulse-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.8s ease-out infinite; box-shadow:0 0 0 0 rgba(68,187,102,0.55); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(68,187,102,0.55);} 70%{box-shadow:0 0 0 8px rgba(68,187,102,0);} 100%{box-shadow:0 0 0 0 rgba(68,187,102,0);} }
+  .clock-val { color:var(--text-body); letter-spacing:1.5px; font-size:11px; }
+  .nav { margin-left:auto; display:flex; gap:0; }
+  .nav a { padding:10px 14px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; border-left:1px solid var(--border-dim); transition:color .15s, background .15s; }
+  .nav a:first-child { border-left:none; }
+  .nav a:hover { color:var(--text-primary); }
+  .nav a.active { color:#FFF; background:rgba(204,0,0,0.08); }
+  .nav a .count { margin-left:6px; color:var(--text-muted); font-size:9px; }
+  .nav a.active .count { color:var(--apt-red); }
+
+  /* ── Marquee ticker ─────────────────────────────────────────────── */
+  .ticker {
+    height:32px; background:rgba(7,10,15,0.92); border-bottom:1px solid var(--border-dim);
+    overflow:hidden; position:sticky; top:56px;
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    display:flex; align-items:center; gap:14px;
+  }
+  .ticker-label {
+    flex-shrink:0; padding:0 14px; height:100%; display:flex; align-items:center;
+    background:var(--apt-red); color:#FFF; font-family:'DM Mono',monospace;
+    font-size:9px; letter-spacing:3px; text-transform:uppercase; font-weight:500;
+  }
+  .ticker-track { flex:1; overflow:hidden; position:relative; }
+  .ticker-row {
+    display:flex; gap:32px; animation:tickerMove 60s linear infinite;
+    white-space:nowrap; will-change:transform;
+  }
+  .ticker-item { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-body); display:inline-flex; align-items:center; gap:10px; }
+  .ticker-item .src { color:var(--text-muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+  .ticker-item .sep { color:var(--apt-dark-red); }
+  @keyframes tickerMove { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+  /* ── Stats strip ────────────────────────────────────────────────── */
+  .stats-strip {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:1px;
+    background:var(--border-dim);
+    border-bottom:1px solid var(--border-dim);
+  }
+  .stat {
+    background:var(--bg-surface-solid); padding:18px 22px; position:relative;
+  }
+  .stat .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; }
+  .stat .val { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:var(--text-primary); letter-spacing:1px; line-height:1; }
+  .stat .delta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; margin-top:6px; }
+  .stat .delta.up   { color:var(--green); }
+  .stat .delta.flat { color:var(--text-dim); }
+  .stat .delta.down { color:var(--apt-red); }
+  .stat .spark { position:absolute; right:16px; bottom:14px; opacity:0.7; }
+
+  /* ── Main grid: 3-col dashboard ─────────────────────────────────── */
+  .grid-wrap {
+    display:grid; grid-template-columns:260px 1fr 320px;
+    gap:0; min-height:calc(100vh - 56px - 32px - 96px);
+  }
+  @media (max-width:1100px) { .grid-wrap { grid-template-columns:1fr; } .col-side, .col-rail { display:none; } }
+
+  /* Left timeline */
+  .col-side {
+    background:rgba(13,15,24,0.55);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-right:1px solid var(--border-dim);
+    padding:24px 18px; overflow-y:auto;
+  }
+  .col-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border-dim); }
+  .timeline { position:relative; padding-left:18px; }
+  .timeline::before { content:''; position:absolute; left:5px; top:0; bottom:0; width:1px; background:linear-gradient(to bottom, var(--apt-dark-red), transparent); }
+  .tl-item {
+    position:relative; padding:8px 0 14px; cursor:pointer;
+    transition:padding-left .2s;
+  }
+  .tl-item::before {
+    content:''; position:absolute; left:-17px; top:14px; width:8px; height:8px;
+    border:1px solid var(--text-muted); background:var(--bg-base); transition:all .2s;
+  }
+  .tl-item:hover::before { border-color:var(--apt-red); }
+  .tl-item.active::before { background:var(--apt-red); border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(204,0,0,0.15); }
+  .tl-date { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .tl-edition { font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; color:var(--text-primary); text-transform:uppercase; margin-top:3px; }
+  .tl-item.active .tl-edition { color:var(--apt-red); }
+  .tl-item.active .tl-date { color:var(--text-primary); }
+
+  /* Center featured */
+  .col-main { padding:32px 32px 64px; min-width:0; overflow-x:hidden; }
+  .feat-tag { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:5px; color:var(--apt-red); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+  .feat-tag::after { content:''; flex:1; height:1px; background:linear-gradient(to right, var(--apt-dark-red), transparent); }
+  .feat-h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:34px; letter-spacing:1.5px; color:#FFF; line-height:1.1; margin-bottom:10px; }
+  .feat-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:28px; display:flex; gap:14px; align-items:center; }
+  .feat-meta .dot { width:4px; height:4px; border-radius:50%; background:var(--text-muted); }
+
+  .section-block {
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
+    margin-bottom:14px; transition:border-color .25s, transform .25s, box-shadow .35s;
+    animation:slideIn .5s ease-out both;
+  }
+  .section-block:hover { border-color:var(--apt-red); transform:translateY(-1px); box-shadow:0 0 0 1px var(--apt-red), 0 8px 28px rgba(204,0,0,0.12); }
+  @keyframes slideIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .sb-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; border-bottom:1px solid var(--border-dim);
+  }
+  .sb-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--apt-red); }
+  .sb-title { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; flex:1; margin-left:14px; }
+  .sb-bar { display:flex; gap:2px; flex-shrink:0; }
+  .sb-bar span { width:14px; height:6px; background:var(--border-dim); }
+  .sb-bar span.on { background:var(--apt-red); }
+  .sb-bar span.dim { background:var(--apt-dark-red); }
+  .sb-count { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); margin-left:14px; letter-spacing:2px; }
+
+  .sb-stories { padding:6px 20px 14px; }
+  .story {
+    padding:14px 0; border-top:1px solid var(--border-dim);
+    display:grid; grid-template-columns:24px 1fr auto; gap:14px; align-items:start;
+    cursor:pointer; transition:padding-left .15s;
+  }
+  .story:first-child { border-top:none; }
+  .story:hover { padding-left:6px; }
+  .story:hover .s-marker { background:var(--apt-red); }
+  .s-marker { width:4px; height:4px; background:var(--text-muted); border-radius:50%; margin-top:8px; transition:background .15s; align-self:start; }
+  .s-content { min-width:0; }
+  .s-headline { font-family:'Syne',sans-serif; font-size:14px; font-weight:600; color:var(--text-primary); line-height:1.4; margin-bottom:5px; }
+  .s-summary  { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.6; margin:6px 0; }
+  .s-source   { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .s-arrow    { color:var(--text-muted); font-size:14px; transition:color .15s, transform .15s; }
+  .story:hover .s-arrow { color:var(--apt-red); transform:translateX(3px); }
+
+  .edge-panel {
+    margin-top:24px; background:var(--bg-deep); border:1px solid var(--border-dim);
+    border-left:3px solid var(--apt-red); padding:20px 22px; position:relative;
+  }
+  .edge-tag { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:5px; color:var(--apt-red); text-transform:uppercase; margin-bottom:12px; }
+  .edge-text { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  /* Right rail */
+  .col-rail {
+    background:rgba(13,15,24,0.55);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-left:1px solid var(--border-dim);
+    padding:24px 18px; overflow-y:auto;
+  }
+  .market-list { display:flex; flex-direction:column; gap:1px; background:var(--border-dim); margin-bottom:24px; border:1px solid var(--border-dim); }
+  .mkt-row { background:var(--bg-surface-solid); padding:10px 14px; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; }
+  .mkt-tkr { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; color:var(--text-primary); letter-spacing:1px; }
+  .mkt-spark { width:60px; height:18px; }
+  .mkt-pct { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; }
+  .mkt-pct.up   { color:var(--green); }
+  .mkt-pct.down { color:var(--apt-red); }
+
+  .feed { display:flex; flex-direction:column; gap:1px; background:var(--border-dim); border:1px solid var(--border-dim); }
+  .feed-row { background:var(--bg-surface-solid); padding:11px 14px; transition:background .15s; cursor:pointer; }
+  .feed-row:hover { background:var(--bg-elevated); }
+  .feed-time { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; margin-bottom:4px; }
+  .feed-headline { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-body); line-height:1.45; }
+  .feed-src { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-muted); text-transform:uppercase; margin-top:4px; }
+
+  .demo-banner { padding:10px 22px; border-bottom:1px solid var(--border-dim); background:var(--bg-deep); font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; position:relative; z-index:1; }
+  .demo-banner b { color:var(--apt-red); font-weight:500; }
+</style>
+</head>
+<body>
+
+<canvas id="plexus" aria-hidden="true"></canvas>
+
+<nav class="topnav">
+  <div class="lockup">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45))">
+      <polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/>
+      <polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/>
+      <polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/>
+    </svg>
+    <div style="display:flex;flex-direction:column">
+      <span class="dm">Apterreon</span>
+      <span class="tagline">Explore what's out there.</span>
+    </div>
+    <div class="hud">
+      <div style="display:flex;align-items:center;gap:7px"><span class="pulse-dot"></span><span>Live</span></div>
+      <div>UTC <span class="clock-val" id="utc">— —</span></div>
+      <div>Build <span class="clock-val" style="color:var(--text-muted)">a3b9</span></div>
+    </div>
+  </div>
+  <div class="nav">
+    <a href="#" class="active">Briefs <span class="count">12</span></a>
+    <a href="#">Stories <span class="count">86</span></a>
+    <a href="#">Pinned <span class="count">03</span></a>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-label">Latest</div>
+  <div class="ticker-track">
+    <div class="ticker-row" id="ticker-row"></div>
+  </div>
+</div>
+
+<div class="stats-strip">
+  <div class="stat">
+    <div class="label">Briefs / 7d</div>
+    <div class="val" data-count="12">00</div>
+    <div class="delta up">▲ 03 vs prior week</div>
+    <svg class="spark" width="56" height="20" viewBox="0 0 56 20"><polyline fill="none" stroke="#CC0000" stroke-width="1.2" points="0,15 8,12 16,14 24,10 32,11 40,7 48,8 56,3"/></svg>
+  </div>
+  <div class="stat">
+    <div class="label">Stories tracked</div>
+    <div class="val" data-count="412">000</div>
+    <div class="delta up">▲ 86 today</div>
+    <svg class="spark" width="56" height="20" viewBox="0 0 56 20"><polyline fill="none" stroke="#CC0000" stroke-width="1.2" points="0,18 8,16 16,15 24,13 32,11 40,9 48,7 56,5"/></svg>
+  </div>
+  <div class="stat">
+    <div class="label">Sources</div>
+    <div class="val" data-count="24">00</div>
+    <div class="delta flat">— stable</div>
+    <svg class="spark" width="56" height="20" viewBox="0 0 56 20"><polyline fill="none" stroke="#888888" stroke-width="1.2" points="0,10 8,11 16,9 24,10 32,10 40,11 48,9 56,10"/></svg>
+  </div>
+  <div class="stat">
+    <div class="label">Avg cost / brief</div>
+    <div class="val" data-count="0.04" data-suffix=" usd">0.00</div>
+    <div class="delta down">▼ 12% vs last week</div>
+    <svg class="spark" width="56" height="20" viewBox="0 0 56 20"><polyline fill="none" stroke="#44BB66" stroke-width="1.2" points="0,5 8,6 16,8 24,9 32,10 40,12 48,13 56,15"/></svg>
+  </div>
+</div>
+
+<div class="demo-banner">
+  <b>v5 dashboard demo</b> &middot; HUD topnav · scrolling ticker · KPI strip with sparklines · 3-col layout (timeline / featured brief / live feed + market) · gradient hairlines · animated count-up · hover micro-interactions
+</div>
+
+<div class="grid-wrap">
+
+  <aside class="col-side">
+    <div class="col-h">Timeline</div>
+    <div class="timeline">
+      <div class="tl-item active">
+        <div class="tl-date">Apr 25 · 07:00 ET</div>
+        <div class="tl-edition">Morning Brief</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 24 · 16:45 ET</div>
+        <div class="tl-edition">Evening Wrap</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 24 · 12:15 ET</div>
+        <div class="tl-edition">Midday Update</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 24 · 07:00 ET</div>
+        <div class="tl-edition">Morning Brief</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 23 · 16:45 ET</div>
+        <div class="tl-edition">Evening Wrap</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 23 · 12:15 ET</div>
+        <div class="tl-edition">Midday Update</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 23 · 07:00 ET</div>
+        <div class="tl-edition">Morning Brief</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="col-main">
+    <div class="feat-tag">Featured · Morning Brief</div>
+    <h1 class="feat-h1">Saturday, April 25</h1>
+    <div class="feat-meta">
+      <span>07:00 ET</span><span class="dot"></span>
+      <span>04 sections</span><span class="dot"></span>
+      <span>09 stories</span><span class="dot"></span>
+      <span>$0.038 cost</span>
+    </div>
+
+    <div class="section-block" style="animation-delay:0ms">
+      <div class="sb-head">
+        <span class="sb-num">01 ·</span>
+        <span class="sb-title">Breaking News</span>
+        <span class="sb-bar"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span></span>
+        <span class="sb-count">04</span>
+      </div>
+      <div class="sb-stories">
+        <div class="story">
+          <span class="s-marker"></span>
+          <div class="s-content">
+            <div class="s-headline">Suspect surrenders after 12-hour standoff at Winter Park condo</div>
+            <div class="s-source">WESH</div>
+          </div>
+          <span class="s-arrow">›</span>
+        </div>
+        <div class="story">
+          <span class="s-marker"></span>
+          <div class="s-content">
+            <div class="s-headline">Record-breaking heat hits Houston: 80s today, 90s tomorrow</div>
+            <div class="s-source">Click2Houston</div>
+          </div>
+          <span class="s-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" style="animation-delay:80ms">
+      <div class="sb-head">
+        <span class="sb-num">02 ·</span>
+        <span class="sb-title">Finance &amp; Markets</span>
+        <span class="sb-bar"><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></span>
+        <span class="sb-count">03</span>
+      </div>
+      <div class="sb-stories">
+        <div class="story">
+          <span class="s-marker"></span>
+          <div class="s-content">
+            <div class="s-headline">Federal Reserve's rate dilemma may cost stocks — Warsh warns of escalating risks</div>
+            <div class="s-summary">Policy divergence and inflation persistence are forcing the Fed into a corner where either hawkish extension or pivot triggers major market repricing, with equity valuations particularly exposed to duration risk.</div>
+            <div class="s-source">WSJ · Bloomberg</div>
+          </div>
+          <span class="s-arrow">›</span>
+        </div>
+        <div class="story">
+          <span class="s-marker"></span>
+          <div class="s-content">
+            <div class="s-headline">Tech rally extends to fifth day on Nvidia earnings beat</div>
+            <div class="s-source">FT · Reuters</div>
+          </div>
+          <span class="s-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" style="animation-delay:160ms">
+      <div class="sb-head">
+        <span class="sb-num">03 ·</span>
+        <span class="sb-title">AI &amp; Technology</span>
+        <span class="sb-bar"><span class="dim"></span><span class="dim"></span><span></span><span></span><span></span></span>
+        <span class="sb-count">02</span>
+      </div>
+      <div class="sb-stories">
+        <div class="story">
+          <span class="s-marker"></span>
+          <div class="s-content">
+            <div class="s-headline">Anthropic releases Claude 4.7 with extended reasoning capabilities</div>
+            <div class="s-source">TechCrunch</div>
+          </div>
+          <span class="s-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="edge-panel">
+      <div class="edge-tag">The Edge</div>
+      <div class="edge-text">Fed signaling cycles are decoupling from earnings growth: markets are pricing zero cuts through mid-year while corporate guidance deteriorates, creating a timing arbitrage where allocators pivot defensive before hawkish positioning unwinds.</div>
+    </div>
+  </main>
+
+  <aside class="col-rail">
+    <div class="col-h">Markets</div>
+    <div class="market-list">
+      <div class="mkt-row">
+        <span class="mkt-tkr">SPY</span>
+        <svg class="mkt-spark" viewBox="0 0 60 18"><polyline fill="none" stroke="#44BB66" stroke-width="1.1" points="0,12 8,10 16,11 24,9 32,7 40,8 48,5 60,3"/></svg>
+        <span class="mkt-pct up">+0.84%</span>
+      </div>
+      <div class="mkt-row">
+        <span class="mkt-tkr">IWB</span>
+        <svg class="mkt-spark" viewBox="0 0 60 18"><polyline fill="none" stroke="#44BB66" stroke-width="1.1" points="0,11 8,10 16,9 24,8 32,9 40,6 48,7 60,4"/></svg>
+        <span class="mkt-pct up">+0.62%</span>
+      </div>
+      <div class="mkt-row">
+        <span class="mkt-tkr">IWM</span>
+        <svg class="mkt-spark" viewBox="0 0 60 18"><polyline fill="none" stroke="#CC0000" stroke-width="1.1" points="0,8 8,9 16,10 24,11 32,10 40,12 48,13 60,14"/></svg>
+        <span class="mkt-pct down">−0.41%</span>
+      </div>
+      <div class="mkt-row">
+        <span class="mkt-tkr">EFA</span>
+        <svg class="mkt-spark" viewBox="0 0 60 18"><polyline fill="none" stroke="#44BB66" stroke-width="1.1" points="0,10 8,9 16,9 24,7 32,7 40,8 48,6 60,5"/></svg>
+        <span class="mkt-pct up">+0.28%</span>
+      </div>
+    </div>
+
+    <div class="col-h">Live Feed</div>
+    <div class="feed">
+      <div class="feed-row">
+        <div class="feed-time">07:14 ET</div>
+        <div class="feed-headline">Fed's Williams: rate path will depend on inflation persistence</div>
+        <div class="feed-src">Reuters</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-time">07:08 ET</div>
+        <div class="feed-headline">Apple to ship on-device AI for iOS 19 in fall</div>
+        <div class="feed-src">Bloomberg</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-time">06:55 ET</div>
+        <div class="feed-headline">Oil falls 3% on surprise inventory build</div>
+        <div class="feed-src">FT</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-time">06:42 ET</div>
+        <div class="feed-headline">SEC finalizes new private fund disclosure rules</div>
+        <div class="feed-src">WSJ</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-time">06:30 ET</div>
+        <div class="feed-headline">China Q1 GDP +5.4%, beating consensus 5.1%</div>
+        <div class="feed-src">FT · Reuters</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// UTC clock
+function tick() {
+  const d = new Date();
+  document.getElementById('utc').textContent =
+    String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')+':'+String(d.getUTCSeconds()).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
+
+// Animated stat count-up
+document.querySelectorAll('.stat .val[data-count]').forEach(el => {
+  const target = parseFloat(el.dataset.count);
+  const suffix = el.dataset.suffix || '';
+  const isFloat = String(target).indexOf('.') >= 0;
+  const dur = 1100;
+  const start = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const v = target * eased;
+    el.textContent = (isFloat ? '$' + v.toFixed(2) : Math.round(v).toLocaleString()) + suffix;
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = (isFloat ? '$' + target.toFixed(2) : target.toLocaleString()) + suffix;
+  }
+  requestAnimationFrame(step);
+});
+
+// Ticker — duplicate items for seamless loop
+const items = [
+  {time:'07:14', src:'Reuters',  text:"Fed's Williams: rate path depends on inflation persistence"},
+  {time:'07:08', src:'Bloomberg', text:'Apple to ship on-device AI for iOS 19'},
+  {time:'06:55', src:'FT',        text:'Oil falls 3% on surprise inventory build'},
+  {time:'06:42', src:'WSJ',       text:'SEC finalizes new private fund disclosure rules'},
+  {time:'06:30', src:'Reuters',   text:'China Q1 GDP +5.4%, beating consensus 5.1%'},
+  {time:'06:18', src:'TechCrunch',text:'Anthropic releases Claude 4.7 with extended reasoning'},
+];
+const row = document.getElementById('ticker-row');
+const renderItem = it =>
+  `<span class="ticker-item"><span class="src">${it.time} · ${it.src}</span> <span>${it.text}</span><span class="sep">//</span></span>`;
+row.innerHTML = (items.map(renderItem).join('')) + (items.map(renderItem).join('')); // duplicate for loop
+
+// ── Plexus ──
+(function() {
+  const c = document.getElementById('plexus');
+  const ctx = c.getContext('2d');
+  let W, H, dpr, stars = [], nodes = [], flowParticles = [];
+  const CONNECT = 200; let mx = -999, my = -999;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = innerWidth; H = innerHeight;
+    c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); build();
+  }
+  function build() {
+    stars = []; for (let i = 0; i < 280; i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.7+0.2,b:Math.random()*0.22+0.03,p:Math.random()*6.28});
+    nodes = []; const n = Math.max(45, Math.floor((W*H)/24000));
+    for (let i = 0; i < n; i++) nodes.push({x:Math.random()*W,y:Math.random()*H,size:0.5+Math.random()*1.6,b:0.10+Math.random()*0.32,ph:Math.random()*6.28,vx:(Math.random()-0.5)*0.18,vy:(Math.random()-0.5)*0.13});
+    flowParticles = []; for (let i = 0; i < 50; i++) flowParticles.push({a:-1,b:-1,t:Math.random(),s:0.002+Math.random()*0.003,sz:0.3+Math.random()*0.6,br:0.15+Math.random()*0.3});
+  }
+  function pickEdge(fp) {
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT;
+    for (let j = 0; j < nodes.length; j++) { if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) { bd = d; bj = j; } }
+    fp.a = a; fp.b = bj; fp.t = 0;
+  }
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseleave', () => { mx = -999; my = -999; });
+  let t = 0;
+  function draw() {
+    t += 0.004;
+    ctx.fillStyle = '#050810'; ctx.fillRect(0,0,W,H);
+    for (const s of stars) { const tw = 0.5+0.5*Math.sin(t*5+s.p); ctx.fillStyle = `rgba(220,210,210,${s.b*tw})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }
+    for (const n of nodes) {
+      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06; n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40; if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mx, dy = n.y-my, md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) { const f = (1-md/180)*0.6; n.x += (dx/md)*f; n.y += (dy/md)*f; }
+    }
+    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < CONNECT) {
+        const a = (1-d/CONNECT);
+        ctx.strokeStyle = `rgba(122,16,16,${a*0.07})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        ctx.strokeStyle = `rgba(204,0,0,${a*0.20})`; ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+      }
+    }
+    if (mx > -100) for (const n of nodes) {
+      const dx = n.x-mx, dy = n.y-my, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 180) { const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(255,80,80,${a})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(n.x,n.y); ctx.stroke(); }
+    }
+    for (const fp of flowParticles) {
+      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) { pickEdge(fp); continue; }
+      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) { pickEdge(fp); continue; }
+      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT*1.2) { pickEdge(fp); continue; }
+      fp.t += fp.s;
+      if (fp.t > 1) {
+        fp.a = fp.b; let bj = -1, bd = CONNECT;
+        for (let j = 0; j < nodes.length; j++) { if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) { bd = d; bj = j; } }
+        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = `rgba(204,40,40,${fp.br*0.07})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,160,160,${fp.br*0.55})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = `rgba(204,0,0,${n.b*0.10})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,150,150,${n.b})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

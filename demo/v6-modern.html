@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apterreon · v6 modern demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#0A0A0F;
+    --bg-1:#11121A;
+    --bg-2:#16171F;
+    --border:rgba(255,255,255,0.06);
+    --border-bright:rgba(255,255,255,0.12);
+    --apt-red:#FF1F3D;
+    --apt-red-deep:#CC0028;
+    --apt-rose:#FF7A85;
+    --apt-amber:#FFB347;
+    --text-1:#FFFFFF;
+    --text-2:#E2E5EC;
+    --text-3:#9CA3AF;
+    --text-4:#6B7280;
+    --text-5:#3F4654;
+  }
+  html { background:var(--bg-base); color:var(--text-1); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+  body { min-height:100vh; overflow-x:hidden; }
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
+  a { color:inherit; text-decoration:none; }
+
+  /* ── Plexus + soft mesh background ─────────────────────────────── */
+  #plexus { position:fixed; inset:0; z-index:0; opacity:0.55; }
+  /* radial mesh gradient layered above plexus for depth */
+  body::before {
+    content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(800px 600px at 15% 20%, rgba(255,31,61,0.10), transparent 60%),
+      radial-gradient(900px 700px at 85% 80%, rgba(204,0,40,0.07), transparent 60%),
+      radial-gradient(1200px 800px at 50% 40%, rgba(255,122,133,0.04), transparent 70%);
+  }
+  /* ultra-faint film grain */
+  body::after {
+    content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:3px 3px; opacity:0.5; mix-blend-mode:overlay;
+  }
+
+  .topnav, .hero, .features, .feed, .footer { position:relative; z-index:3; }
+
+  /* ── Topnav ────────────────────────────────────────────────────── */
+  .topnav {
+    position:sticky; top:16px; max-width:1200px; margin:16px auto 0; padding:10px 14px 10px 18px;
+    display:flex; align-items:center; gap:14px;
+    background:rgba(17,18,26,0.55);
+    backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%);
+    border:1px solid var(--border); border-radius:18px;
+  }
+  .lockup { display:flex; align-items:center; gap:12px; }
+  .lockup-text { display:flex; flex-direction:column; line-height:1; }
+  .brand { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:4px; color:var(--text-1); text-transform:uppercase; }
+  .lockup-tagline { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-top:5px; }
+  .pulse-row { display:flex; align-items:center; gap:8px; margin-left:14px; padding-left:14px; border-left:1px solid var(--border); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+  .pulse-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; box-shadow:0 0 12px rgba(52,210,122,0.7); animation:pulse 1.8s ease-out infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(52,210,122,0.55);} 70%{box-shadow:0 0 0 10px rgba(52,210,122,0);} 100%{box-shadow:0 0 0 0 rgba(52,210,122,0);} }
+
+  .nav { margin-left:auto; display:flex; gap:4px; }
+  .nav a {
+    padding:8px 14px; font-size:13px; font-weight:500; color:var(--text-3);
+    border-radius:10px; transition:all .2s;
+  }
+  .nav a:hover { color:var(--text-1); background:rgba(255,255,255,0.04); }
+  .nav a.active { color:var(--text-1); background:rgba(255,31,61,0.10); }
+
+  .cta {
+    padding:8px 16px; font-size:13px; font-weight:600;
+    background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%);
+    color:#FFF; border:none; cursor:pointer; border-radius:10px;
+    transition:transform .15s, box-shadow .25s;
+    box-shadow:0 4px 24px rgba(255,31,61,0.25);
+  }
+  .cta:hover { transform:translateY(-1px); box-shadow:0 8px 32px rgba(255,31,61,0.4); }
+
+  /* ── Hero ──────────────────────────────────────────────────────── */
+  .hero { max-width:1200px; margin:0 auto; padding:96px 24px 48px; }
+  .eyebrow {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:6px 14px; border-radius:999px;
+    background:rgba(255,31,61,0.08); border:1px solid rgba(255,31,61,0.20);
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px;
+    color:var(--apt-rose); text-transform:uppercase; margin-bottom:24px;
+    opacity:0; transform:translateY(8px); animation:fadeUp .8s .1s ease-out forwards;
+  }
+  .eyebrow .live-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; }
+
+  h1.hero-title {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:84px; line-height:0.98;
+    letter-spacing:-0.03em; margin-bottom:24px; max-width:1000px;
+    background:linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 40%, #FF7A85 70%, #FF1F3D 100%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+    opacity:0; transform:translateY(16px); animation:fadeUp .9s .25s ease-out forwards;
+  }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+  .hero-sub {
+    font-size:19px; line-height:1.6; color:var(--text-2); max-width:640px;
+    margin-bottom:40px; font-weight:400;
+    opacity:0; transform:translateY(12px); animation:fadeUp .9s .4s ease-out forwards;
+  }
+  .hero-actions {
+    display:flex; gap:12px; flex-wrap:wrap;
+    opacity:0; transform:translateY(12px); animation:fadeUp .9s .55s ease-out forwards;
+  }
+  .btn-primary {
+    padding:14px 24px; font-size:14px; font-weight:600;
+    background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%); color:#FFF;
+    border-radius:12px; cursor:pointer; transition:transform .15s, box-shadow .25s;
+    box-shadow:0 8px 32px rgba(255,31,61,0.3); display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(255,31,61,0.45); }
+  .btn-secondary {
+    padding:14px 24px; font-size:14px; font-weight:500;
+    background:rgba(255,255,255,0.04); color:var(--text-1);
+    border:1px solid var(--border-bright); border-radius:12px;
+    cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-secondary:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.20); }
+
+  /* ── Featured panel ────────────────────────────────────────────── */
+  .featured {
+    max-width:1200px; margin:0 auto; padding:32px 24px 64px;
+  }
+  .featured-card {
+    position:relative;
+    background:linear-gradient(180deg, rgba(22,23,31,0.85) 0%, rgba(17,18,26,0.92) 100%);
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border-bright); border-radius:24px;
+    padding:48px; overflow:hidden;
+    opacity:0; transform:translateY(20px); animation:fadeUp 1s .7s ease-out forwards;
+  }
+  /* glow rim around the card */
+  .featured-card::before {
+    content:''; position:absolute; inset:-1px; border-radius:24px; padding:1px;
+    background:linear-gradient(135deg, rgba(255,31,61,0.5), transparent 40%, transparent 60%, rgba(255,122,133,0.3));
+    -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+  }
+  .feat-meta { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+  .feat-meta .tag { padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }
+  .feat-meta .dot { width:3px; height:3px; border-radius:50%; background:var(--text-4); }
+  .feat-h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:38px; line-height:1.15; letter-spacing:-0.02em; color:var(--text-1); margin-bottom:18px; max-width:780px; }
+  .feat-summary { font-size:17px; line-height:1.65; color:var(--text-2); max-width:780px; margin-bottom:28px; }
+  .feat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }
+  .feat-stat { padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }
+  .feat-stat:hover { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }
+  .fs-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+  .fs-val { font-family:'Syne',sans-serif; font-size:30px; font-weight:700; color:var(--text-1); letter-spacing:-0.02em; line-height:1; }
+  .fs-delta { font-size:12px; color:#34D27A; margin-top:6px; }
+
+  /* ── Section grid ──────────────────────────────────────────────── */
+  .features { max-width:1200px; margin:0 auto; padding:64px 24px; }
+  .features-h {
+    display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px;
+  }
+  .features-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; max-width:600px; }
+  .features-h p { font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }
+
+  .section-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }
+  @media (max-width:780px) { .section-grid { grid-template-columns:1fr; } }
+
+  .sec-card {
+    position:relative;
+    background:rgba(17,18,26,0.65);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--border); border-radius:20px;
+    padding:28px; transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
+    overflow:hidden; cursor:pointer;
+  }
+  /* gradient edge on hover */
+  .sec-card::after {
+    content:''; position:absolute; inset:0; border-radius:20px;
+    background:linear-gradient(135deg, rgba(255,31,61,0.18), transparent 50%);
+    opacity:0; transition:opacity .35s; pointer-events:none;
+  }
+  .sec-card:hover { transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }
+  .sec-card:hover::after { opacity:1; }
+
+  .sc-head { display:flex; align-items:flex-start; gap:14px; margin-bottom:20px; }
+  .sc-num {
+    width:44px; height:44px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, rgba(255,31,61,0.16), rgba(255,31,61,0.04));
+    border:1px solid rgba(255,31,61,0.22); border-radius:12px;
+    font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--apt-rose);
+  }
+  .sc-titles { flex:1; min-width:0; }
+  .sc-eyebrow { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:4px; }
+  .sc-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); }
+  .sc-count { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); padding:4px 10px; background:rgba(255,255,255,0.04); border-radius:8px; }
+
+  .sc-list { display:flex; flex-direction:column; gap:14px; }
+  .sc-item { padding:14px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:start; transition:padding-left .15s; cursor:pointer; }
+  .sc-item:first-child { border-top:none; padding-top:4px; }
+  .sc-item:hover { padding-left:6px; }
+  .sc-item-headline { font-size:15px; font-weight:500; color:var(--text-1); line-height:1.45; }
+  .sc-item-source { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:6px; }
+  .sc-arrow { color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }
+  .sc-item:hover .sc-arrow { color:var(--apt-red); transform:translateX(4px); }
+
+  /* ── Live feed ─────────────────────────────────────────────────── */
+  .feed { max-width:1200px; margin:0 auto; padding:64px 24px; }
+  .feed-h { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+  .feed-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:32px; letter-spacing:-0.01em; }
+  .feed-h .live-tag { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.30); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:#34D27A; text-transform:uppercase; }
+  .feed-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .feed-item { background:rgba(17,18,26,0.85); padding:18px 22px; display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center; cursor:pointer; transition:background .15s; }
+  .feed-item:hover { background:rgba(22,23,31,0.95); }
+  .feed-time { font-family:'DM Mono',monospace; font-size:11px; color:var(--apt-rose); letter-spacing:1.5px; min-width:64px; }
+  .feed-headline { font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }
+  .feed-src { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }
+
+  /* ── Footer ────────────────────────────────────────────────────── */
+  .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
+  .footer .brand-foot { font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }
+  .footer .meta { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); letter-spacing:1px; }
+
+  @media (max-width:760px) {
+    h1.hero-title { font-size:48px; }
+    .feat-h2 { font-size:28px; }
+    .featured-card { padding:32px 24px; }
+    .feat-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="plexus" aria-hidden="true"></canvas>
+
+<nav class="topnav">
+  <div class="lockup">
+    <svg width="22" height="29" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 8px rgba(255,31,61,0.45))">
+      <polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/>
+      <polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/>
+      <polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#FF1F3D"/>
+    </svg>
+    <div class="lockup-text">
+      <span class="brand">Apterreon</span>
+      <span class="lockup-tagline">Explore what's out there.</span>
+    </div>
+    <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
+  </div>
+  <div class="nav">
+    <a href="#">Briefs</a>
+    <a href="#">Stories</a>
+    <a href="#">Pinned</a>
+    <a href="#">Archive</a>
+  </div>
+  <button class="cta">Open latest →</button>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow"><span class="live-dot"></span>Saturday Morning Brief · 07:00 ET</div>
+  <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
+  <p class="hero-sub">Finance, Politics, Tech, and more. Explore what's out there with Apterreon's Daily Intelligence Briefs and story catalogue.</p>
+  <div class="hero-actions">
+    <button class="btn-primary">Read today's briefs <span style="font-size:16px">→</span></button>
+    <button class="btn-secondary">Browse stories <span style="font-size:16px">→</span></button>
+  </div>
+</section>
+
+<section class="featured">
+  <article class="featured-card">
+    <div class="feat-meta">
+      <span class="tag">Daily Pick</span>
+      <span>Apterreon</span><span class="dot"></span>
+      <span>Apr 25, 2026</span><span class="dot"></span>
+      <span>Morning</span><span class="dot"></span>
+      <span>3 min read</span>
+    </div>
+    <h2 class="feat-h2">Fed signaling cycles are decoupling from earnings growth, and the timing arbitrage is closing fast.</h2>
+    <p class="feat-summary">Markets are pricing zero cuts through mid-year while corporate guidance deteriorates. Allocators are pivoting defensive before hawkish positioning unwinds. The window for repositioning ahead of consensus is narrowing. The structural reasoning most people skip: when Fed forward guidance and CFO cap-ex commentary diverge by this much, multiple compression usually follows in 8 to 12 weeks.</p>
+    <div class="feat-grid">
+      <div class="feat-stat">
+        <div class="fs-label">Stories synthesized</div>
+        <div class="fs-val" data-count="412">000</div>
+        <div class="fs-delta">▲ 86 today</div>
+      </div>
+      <div class="feat-stat">
+        <div class="fs-label">Sources</div>
+        <div class="fs-val" data-count="24">00</div>
+        <div class="fs-delta" style="color:var(--text-4)">stable</div>
+      </div>
+      <div class="feat-stat">
+        <div class="fs-label">Cost to produce</div>
+        <div class="fs-val" data-count="0.04" data-prefix="$">$0.00</div>
+        <div class="fs-delta">▼ 12% vs last week</div>
+      </div>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+      <a href="#" class="btn-primary" style="text-decoration:none">Read the full take <span style="font-size:16px">→</span></a>
+      <a href="#" style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--text-3);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:2px">Browse past findings</a>
+    </div>
+  </article>
+</section>
+
+<section class="features">
+  <div class="features-h">
+    <h2>Today's sections at a glance.</h2>
+    <p>Hover any card to see the top stories. Click through to the full brief or jump straight to a story.</p>
+  </div>
+  <div class="section-grid">
+
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">01</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Breaking News</div>
+        </div>
+        <div class="sc-count">04</div>
+      </div>
+      <div class="sc-list">
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Suspect surrenders after 12-hour standoff at Winter Park condo</div>
+            <div class="sc-item-source">WESH</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Record-breaking heat hits Houston: 80s today, 90s tomorrow</div>
+            <div class="sc-item-source">Click2Houston</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">02</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Finance &amp; Markets</div>
+        </div>
+        <div class="sc-count">03</div>
+      </div>
+      <div class="sc-list">
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Fed's interest rate dilemma may cost stocks, Warsh warns of escalating risks</div>
+            <div class="sc-item-source">WSJ · Bloomberg</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Tech rally extends to fifth day on Nvidia earnings beat</div>
+            <div class="sc-item-source">FT · Reuters</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">03</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Politics &amp; Policy</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list">
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">SEC finalizes new private fund disclosure rules</div>
+            <div class="sc-item-source">FT</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Senate passes infrastructure bill in 67-32 vote</div>
+            <div class="sc-item-source">Reuters</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">04</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">AI &amp; Technology</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list">
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Anthropic releases Claude 4.7 with extended reasoning</div>
+            <div class="sc-item-source">TechCrunch</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+        <div class="sc-item">
+          <div>
+            <div class="sc-item-headline">Apple to ship on-device AI for iOS 19 in fall</div>
+            <div class="sc-item-source">Bloomberg</div>
+          </div>
+          <span class="sc-arrow">→</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="feed">
+  <div class="feed-h">
+    <h2>Live feed.</h2>
+    <span class="live-tag"><span class="pulse-dot" style="background:#34D27A;animation:pulse 1.8s ease-out infinite"></span>Updating</span>
+  </div>
+  <div class="feed-list">
+    <div class="feed-item">
+      <span class="feed-time">07:14 ET</span>
+      <span class="feed-headline">Fed's Williams: rate path will depend on inflation persistence</span>
+      <span class="feed-src">Reuters</span>
+    </div>
+    <div class="feed-item">
+      <span class="feed-time">07:08 ET</span>
+      <span class="feed-headline">Apple to ship on-device AI for iOS 19 in fall</span>
+      <span class="feed-src">Bloomberg</span>
+    </div>
+    <div class="feed-item">
+      <span class="feed-time">06:55 ET</span>
+      <span class="feed-headline">Oil falls 3% on surprise inventory build</span>
+      <span class="feed-src">FT</span>
+    </div>
+    <div class="feed-item">
+      <span class="feed-time">06:42 ET</span>
+      <span class="feed-headline">SEC finalizes new private fund disclosure rules</span>
+      <span class="feed-src">WSJ</span>
+    </div>
+    <div class="feed-item">
+      <span class="feed-time">06:30 ET</span>
+      <span class="feed-headline">China Q1 GDP +5.4%, beating consensus 5.1%</span>
+      <span class="feed-src">FT · Reuters</span>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <span class="brand-foot">Apterreon</span>
+    <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--apt-rose)">Explore what's out there.</span>
+  </div>
+  <span class="meta">v6 modern demo · plexus · gradient text · glass cards · fade-up reveal · live ticker</span>
+</footer>
+
+<script>
+// Stat count-up
+document.querySelectorAll('.fs-val[data-count]').forEach(el => {
+  const target = parseFloat(el.dataset.count);
+  const prefix = el.dataset.prefix || '';
+  const isFloat = String(target).indexOf('.') >= 0;
+  const dur = 1400;
+  const start = performance.now() + 700;
+  function step(now) {
+    if (now < start) { requestAnimationFrame(step); return; }
+    const t = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const v = target * eased;
+    el.textContent = prefix + (isFloat ? v.toFixed(2) : Math.round(v).toLocaleString());
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = prefix + (isFloat ? target.toFixed(2) : target.toLocaleString());
+  }
+  requestAnimationFrame(step);
+});
+
+// ── Plexus (existing red palette, slightly toned for layered mesh bg) ──
+(function() {
+  const c = document.getElementById('plexus');
+  const ctx = c.getContext('2d');
+  let W, H, dpr, stars = [], nodes = [], flow = [];
+  const CONNECT = 220; let mx = -999, my = -999;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = innerWidth; H = innerHeight;
+    c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); build();
+  }
+  function build() {
+    stars = []; for (let i = 0; i < 240; i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.7+0.2,b:Math.random()*0.18+0.03,p:Math.random()*6.28});
+    nodes = []; const n = Math.max(40, Math.floor((W*H)/26000));
+    for (let i = 0; i < n; i++) nodes.push({x:Math.random()*W,y:Math.random()*H,size:0.5+Math.random()*1.5,b:0.10+Math.random()*0.30,ph:Math.random()*6.28,vx:(Math.random()-0.5)*0.16,vy:(Math.random()-0.5)*0.12});
+    flow = []; for (let i = 0; i < 40; i++) flow.push({a:-1,b:-1,t:Math.random(),s:0.002+Math.random()*0.003,sz:0.3+Math.random()*0.6,br:0.15+Math.random()*0.3});
+  }
+  function pickEdge(fp) {
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT;
+    for (let j = 0; j < nodes.length; j++) { if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) { bd = d; bj = j; } }
+    fp.a = a; fp.b = bj; fp.t = 0;
+  }
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseleave', () => { mx = -999; my = -999; });
+  let t = 0;
+  function draw() {
+    t += 0.004;
+    ctx.fillStyle = '#0A0A0F'; ctx.fillRect(0,0,W,H);
+    for (const s of stars) { const tw = 0.5+0.5*Math.sin(t*5+s.p); ctx.fillStyle = `rgba(220,210,210,${s.b*tw})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }
+    for (const n of nodes) {
+      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06; n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40; if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mx, dy = n.y-my, md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) { const f = (1-md/180)*0.5; n.x += (dx/md)*f; n.y += (dy/md)*f; }
+    }
+    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < CONNECT) {
+        const a = (1-d/CONNECT);
+        ctx.strokeStyle = `rgba(122,16,16,${a*0.06})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,31,61,${a*0.18})`; ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+      }
+    }
+    if (mx > -100) for (const n of nodes) {
+      const dx = n.x-mx, dy = n.y-my, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 180) { const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(255,80,100,${a})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(n.x,n.y); ctx.stroke(); }
+    }
+    for (const fp of flow) {
+      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) { pickEdge(fp); continue; }
+      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) { pickEdge(fp); continue; }
+      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT*1.2) { pickEdge(fp); continue; }
+      fp.t += fp.s;
+      if (fp.t > 1) {
+        fp.a = fp.b; let bj = -1, bd = CONNECT;
+        for (let j = 0; j < nodes.length; j++) { if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) { bd = d; bj = j; } }
+        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = `rgba(255,31,61,${fp.br*0.10})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,160,170,${fp.br*0.55})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = `rgba(255,31,61,${n.b*0.10})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,150,160,${n.b})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

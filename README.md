@@ -22,13 +22,13 @@ GitHub Actions cron is best-effort and can run 5–15 min late under load.
 
 - `ANTHROPIC_API_KEY`
 - `ALPHAVANTAGE_API_KEY`
-- `APTERREON_ICLOUD_APP_PASSWORD` — app-specific password from appleid.apple.com
+- `APTERREON_ICLOUD_APP_PASSWORD` (app-specific password from appleid.apple.com)
 
 **Variables** (same screen, Variables tab):
 
-- `APTERREON_READER_CONTEXT` — the persona/style instructions appended to the analysis prompt
-- `RECIPIENTS` — comma-separated email addresses
-- `APTERREON_MODEL` — optional override; defaults to `claude-haiku-4-5-20251001`
+- `APTERREON_READER_CONTEXT` (persona/style instructions appended to the analysis prompt)
+- `RECIPIENTS` (comma-separated email addresses)
+- `APTERREON_MODEL` (optional override; defaults to `claude-haiku-4-5-20251001`)
 
 ## Manual run
 

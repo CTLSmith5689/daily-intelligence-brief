@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-variant="red">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apterreon · v4 polish demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+  /* ── Tokens ────────────────────────────────────────────────────────────── */
+  :root {
+    --bg-base:#050810; --bg-surface:rgba(13,15,24,0.78); --bg-surface-solid:#0D0F18;
+    --bg-elevated:rgba(20,24,38,0.82); --bg-deep:rgba(7,10,15,0.82);
+    --border-dim:#1F2738; --border-bright:#3A4A5C;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#F0F4F8; --text-body:#D8DFE7; --text-dim:#9AA8B8;
+    --text-muted:#6A7888; --text-faint:#4A5A6A;
+    --accent:var(--apt-red);
+    --accent-dim:var(--apt-dark-red);
+    --live:#5599CC; /* blue pulse stays universal */
+  }
+  /* Singularity (blue) variant — same plexus geometry, swapped accent. */
+  :root[data-variant="blue"] {
+    --apt-red:#5599CC; --apt-dark-red:#1A3A5A; --apt-grey:#0A1A2A;
+    --accent:#5599CC; --accent-dim:#1A3A5A;
+  }
+
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; }
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:3px; }
+  a { color:inherit; text-decoration:none; }
+
+  /* Plexus canvas */
+  #plexus { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:auto; }
+  .topnav, .rail, .main { position:relative; z-index:1; }
+  .topnav { z-index:120; }
+  .rail   { z-index:90; }
+
+  /* ── HUD scan-line overlay (very subtle) ─────────────────────────────── */
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:2;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0px,
+      rgba(255,255,255,0) 2px,
+      rgba(255,255,255,0.012) 3px,
+      rgba(255,255,255,0) 4px
+    );
+    mix-blend-mode:overlay;
+  }
+
+  /* ── Topnav ──────────────────────────────────────────────────────────── */
+  .topnav {
+    position:sticky; top:0; height:64px; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
+    border-bottom:1px solid var(--border-dim);
+    display:flex; align-items:center; padding:0 24px; gap:14px;
+  }
+  .lockup { display:flex; align-items:center; gap:14px; min-width:0; }
+  .lockup-text { display:flex; flex-direction:column; min-width:0; }
+  .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; line-height:1; }
+  .tagline { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-top:5px; line-height:1; transition:color .25s; }
+
+  /* HUD strip — LIVE pulse + UTC clock + variant toggle + theme toggle */
+  .hud { display:flex; align-items:center; gap:14px; margin-left:18px; padding-left:18px; border-left:1px solid var(--border-dim); }
+  .pulse-row { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2.5px; color:var(--text-dim); text-transform:uppercase; }
+  .pulse-dot {
+    width:6px; height:6px; border-radius:50%; background:#44BB66; flex-shrink:0;
+    box-shadow:0 0 0 0 rgba(68,187,102,0.6);
+    animation:pulse 1.8s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow:0 0 0 0 rgba(68,187,102,0.55); }
+    70%  { box-shadow:0 0 0 8px rgba(68,187,102,0); }
+    100% { box-shadow:0 0 0 0 rgba(68,187,102,0); }
+  }
+  .utc-clock { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--text-body); }
+  .utc-clock .label { color:var(--text-muted); margin-right:6px; }
+
+  .nav { margin-left:auto; display:flex; align-items:center; gap:0; }
+  .nav a {
+    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:3px; color:var(--text-dim); text-transform:uppercase;
+    transition:color .15s, background .15s; border-left:1px solid var(--border-dim);
+  }
+  .nav a:first-child { border-left:none; }
+  .nav a:hover { color:var(--text-primary); }
+  .nav a.active { color:#FFF; background:rgba(204,0,0,0.08); }
+  :root[data-variant="blue"] .nav a.active { background:rgba(85,153,204,0.10); }
+  .nav a .count { display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; }
+  .nav a.active .count { color:var(--accent); }
+
+  .toggle-group { display:flex; gap:0; margin-left:8px; }
+  .toggle-btn {
+    padding:8px 12px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+    background:transparent; border:1px solid var(--border-dim); color:var(--text-dim);
+    cursor:pointer; text-transform:uppercase; transition:all .15s;
+  }
+  .toggle-btn:hover { color:var(--text-primary); }
+  .toggle-btn.active { color:#FFF; background:rgba(204,0,0,0.12); border-color:var(--accent); }
+  :root[data-variant="blue"] .toggle-btn.active { background:rgba(85,153,204,0.12); }
+  .toggle-group .toggle-btn + .toggle-btn { border-left:none; }
+
+  /* ── Filter rail ─────────────────────────────────────────────────────── */
+  .rail {
+    position:sticky; top:64px; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
+    border-bottom:1px solid var(--border-dim);
+  }
+  .rail-inner { max-width:1200px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; gap:14px; }
+  .search {
+    flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim); padding:11px 14px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .search:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(204,0,0,0.10); }
+  :root[data-variant="blue"] .search:focus-within { box-shadow:0 0 0 3px rgba(85,153,204,0.12); }
+  .search .icon { color:var(--text-dim); font-size:13px; }
+  .search input {
+    flex:1; background:transparent; border:none; outline:none;
+    font-family:'DM Mono',monospace; font-size:13px; color:var(--text-primary);
+  }
+  .search input::placeholder { color:var(--text-muted); letter-spacing:0.5px; }
+
+  /* ── Content + cards ─────────────────────────────────────────────────── */
+  .main { max-width:1200px; margin:0 auto; padding:32px 24px 96px; }
+
+  .date-label {
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:4px;
+    color:var(--text-dim); text-transform:uppercase; margin-bottom:16px;
+    padding-bottom:10px; position:relative;
+    display:flex; justify-content:space-between; align-items:baseline;
+  }
+  /* Gradient hairline — fades out on the right */
+  .date-label::after {
+    content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background:linear-gradient(to right, var(--accent-dim), transparent 70%);
+    opacity:0.7;
+  }
+  .date-label .count { color:var(--text-muted); font-size:9px; letter-spacing:2px; }
+
+  .brief-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:16px; }
+
+  /* Bracket chrome — corner accents drawn with pseudo-elements */
+  .brief-card {
+    position:relative;
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
+    overflow:visible;
+    transition:border-color .25s, transform .25s, box-shadow .35s;
+    /* Reveal animation */
+    animation:cardIn .6s ease-out both;
+    animation-delay:calc(var(--i, 0) * 80ms);
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .brief-card[data-type="morning"] { border-top:2px solid var(--accent); }
+  .brief-card[data-type="midday"]  { border-top:2px solid var(--accent-dim); }
+  .brief-card[data-type="evening"] { border-top:2px solid var(--apt-grey); }
+
+  /* Corner brackets — 4 small L-shaped accents */
+  .brief-card::before, .brief-card::after,
+  .bc-cnr-tl, .bc-cnr-tr, .bc-cnr-bl, .bc-cnr-br {
+    content:''; position:absolute; width:10px; height:10px; pointer-events:none;
+    transition:border-color .25s;
+  }
+  .bc-cnr-tl { top:-1px; left:-1px; border-top:1px solid var(--accent); border-left:1px solid var(--accent); }
+  .bc-cnr-tr { top:-1px; right:-1px; border-top:1px solid var(--accent); border-right:1px solid var(--accent); }
+  .bc-cnr-bl { bottom:-1px; left:-1px; border-bottom:1px solid var(--accent); border-left:1px solid var(--accent); }
+  .bc-cnr-br { bottom:-1px; right:-1px; border-bottom:1px solid var(--accent); border-right:1px solid var(--accent); }
+  .brief-card::before, .brief-card::after { display:none; } /* unused, defined but inert */
+
+  /* Hover glow + lift */
+  .brief-card:hover {
+    border-color:var(--accent);
+    transform:translateY(-2px);
+    box-shadow:0 0 0 1px var(--accent), 0 8px 32px rgba(204,0,0,0.18), 0 24px 64px rgba(0,0,0,0.5);
+  }
+  :root[data-variant="blue"] .brief-card:hover {
+    box-shadow:0 0 0 1px var(--accent), 0 8px 32px rgba(85,153,204,0.18), 0 24px 64px rgba(0,0,0,0.5);
+  }
+
+  .bc-head { display:flex; align-items:flex-start; justify-content:space-between; padding:18px 22px 12px; gap:14px; }
+  .bc-num  { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--text-muted); }
+  .bc-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; letter-spacing:3px; color:var(--text-primary); text-transform:uppercase; }
+  .bc-meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-top:6px; text-transform:uppercase; }
+  .bc-pin { background:transparent; border:1px solid var(--border-dim); padding:5px 9px; cursor:pointer; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; transition:all .15s; }
+  .bc-pin:hover { color:var(--accent); border-color:var(--accent); }
+
+  .bc-preview { padding:0 22px 14px; }
+  .bc-preview-headline {
+    font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body);
+    line-height:1.55; padding:8px 0 8px 16px; position:relative;
+    border-top:1px solid var(--border-dim); cursor:pointer; transition:color .15s;
+  }
+  .bc-preview-headline:hover { color:#FFF; }
+  .bc-preview-headline:hover::before { background:var(--accent); width:10px; }
+  .bc-preview-headline:first-child { border-top:none; }
+  .bc-preview-headline::before {
+    content:''; position:absolute; left:0; top:14px; width:6px; height:1px;
+    background:var(--text-muted); transition:background .15s, width .15s;
+  }
+
+  .bc-foot { display:flex; align-items:center; justify-content:space-between; padding:12px 22px; border-top:1px solid var(--border-dim); background:var(--bg-deep); }
+  .bc-section-tags { display:flex; gap:8px; }
+  .bc-section-tag { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; }
+  .bc-open { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; }
+
+  .demo-banner {
+    position:relative; max-width:1200px; margin:0 auto; padding:14px 24px;
+    border-bottom:1px solid var(--border-dim);
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;
+  }
+  .demo-banner b { color:var(--accent); font-weight:500; letter-spacing:3px; }
+</style>
+</head>
+<body>
+
+<canvas id="plexus" aria-hidden="true"></canvas>
+
+<nav class="topnav">
+  <div class="lockup">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0">
+      <polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/>
+      <polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/>
+      <polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/>
+    </svg>
+    <div class="lockup-text">
+      <span class="dm">Apterreon</span>
+      <span class="tagline">Explore what's out there.</span>
+    </div>
+    <div class="hud">
+      <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
+      <div class="utc-clock"><span class="label">UTC</span><span id="utc-time">— —</span></div>
+    </div>
+  </div>
+  <div class="nav">
+    <a href="#" class="active">Briefs <span class="count">12</span></a>
+    <a href="#">Stories <span class="count">86</span></a>
+    <a href="#">Pinned <span class="count">03</span></a>
+  </div>
+  <div class="toggle-group">
+    <button class="toggle-btn active" data-variant="red"  type="button">Apt</button>
+    <button class="toggle-btn"        data-variant="blue" type="button">Sig</button>
+  </div>
+</nav>
+
+<div class="rail">
+  <div class="rail-inner">
+    <label class="search">
+      <span class="icon">&#8981;</span>
+      <input type="search" placeholder="Search briefs, stories, sources..." />
+    </label>
+  </div>
+</div>
+
+<div class="demo-banner">
+  <b>v4 polish demo</b> &middot; reveal animation, hover glow, corner brackets, HUD pulse + UTC clock, variant toggle (Apt/Sig), gradient hairlines, scan-line overlay
+</div>
+
+<main class="main">
+  <div class="date-label"><span>Today &middot; Saturday, April 25</span><span class="count">03 editions</span></div>
+
+  <div class="brief-grid" id="grid"></div>
+</main>
+
+<script>
+const briefs = [
+  {
+    type: 'morning', num: '01',
+    headlines: [
+      'Fed signals June rate decision likely after May jobs report',
+      'Tech rally extends to fifth day on Nvidia earnings beat',
+      'Senate passes infrastructure bill in 67-32 vote',
+    ],
+    sections: ['Breaking', 'Markets', 'Politics', 'AI'],
+  },
+  {
+    type: 'midday', num: '02',
+    headlines: [
+      'SEC finalizes new private fund disclosure rules',
+      'Anthropic releases Claude 4.7 with extended reasoning',
+      'Oil falls 3% on surprise inventory build',
+    ],
+    sections: ['Markets', 'AI', 'Intl'],
+  },
+  {
+    type: 'evening', num: '03',
+    headlines: [
+      'Apple to ship on-device AI for iOS 19 in fall',
+      'China reports Q1 GDP +5.4%, beating consensus',
+      'NBA finals Game 4: Celtics edge Mavericks in OT',
+    ],
+    sections: ['AI', 'Intl', 'Sports'],
+  },
+];
+
+const labelMap = { morning:'Morning Brief', midday:'Midday Update', evening:'Evening Wrap' };
+
+const grid = document.getElementById('grid');
+briefs.forEach((b, i) => {
+  const el = document.createElement('article');
+  el.className = 'brief-card';
+  el.dataset.type = b.type;
+  el.style.setProperty('--i', i);
+  el.innerHTML = `
+    <span class="bc-cnr-tl"></span>
+    <span class="bc-cnr-tr"></span>
+    <span class="bc-cnr-bl"></span>
+    <span class="bc-cnr-br"></span>
+    <div class="bc-head">
+      <div>
+        <div class="bc-num">${b.num} &middot; APR 25</div>
+        <div class="bc-title">${labelMap[b.type]}</div>
+        <div class="bc-meta">Saturday, April 25</div>
+      </div>
+      <button class="bc-pin">&#9734; Pin</button>
+    </div>
+    <div class="bc-preview">
+      ${b.headlines.map(h => `<div class="bc-preview-headline">${h}</div>`).join('')}
+    </div>
+    <div class="bc-foot">
+      <span class="bc-section-tags">
+        ${b.sections.map(s => `<span class="bc-section-tag">${s}</span>`).join('')}
+      </span>
+      <span class="bc-open">Open &rarr;</span>
+    </div>
+  `;
+  grid.appendChild(el);
+});
+
+// ── HUD: UTC clock ──
+function tickClock() {
+  const d = new Date();
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const mm = String(d.getUTCMinutes()).padStart(2, '0');
+  const ss = String(d.getUTCSeconds()).padStart(2, '0');
+  document.getElementById('utc-time').textContent = `${hh}:${mm}:${ss}`;
+}
+tickClock(); setInterval(tickClock, 1000);
+
+// ── Variant toggle (Apterreon red / Singularity blue) ──
+const variantBtns = document.querySelectorAll('.toggle-btn');
+variantBtns.forEach(btn => btn.addEventListener('click', () => {
+  const v = btn.dataset.variant;
+  document.documentElement.dataset.variant = v;
+  variantBtns.forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+}));
+
+// ── Plexus ──
+(function() {
+  const c = document.getElementById('plexus');
+  const ctx = c.getContext('2d');
+  let W, H, dpr, stars = [], nodes = [], flowParticles = [];
+  const CONNECT_DIST = 200;
+  let mouseX = -999, mouseY = -999;
+
+  const PALETTES = {
+    red:  { star:'220,210,210', edge1:'122,16,16',  edge2:'204,0,0',     cur:'255,80,80',   flow1:'204,40,40', flow2:'255,160,160', node1:'204,0,0',    node2:'255,150,150' },
+    blue: { star:'180,200,230', edge1:'26,58,90',   edge2:'85,153,204',  cur:'136,204,255', flow1:'85,170,230', flow2:'150,215,255', node1:'85,153,204', node2:'136,204,255' },
+  };
+  function P() { return PALETTES[document.documentElement.dataset.variant] || PALETTES.red; }
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth; H = window.innerHeight;
+    c.width = W * dpr; c.height = H * dpr;
+    c.style.width = W + 'px'; c.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+  }
+  function build() {
+    stars = []; for (let i = 0; i < 280; i++) stars.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*0.7+0.2, b:Math.random()*0.22+0.03, p:Math.random()*6.28 });
+    nodes = []; const n = Math.max(45, Math.floor((W*H)/24000));
+    for (let i = 0; i < n; i++) nodes.push({ x:Math.random()*W, y:Math.random()*H, size:0.5+Math.random()*1.6, b:0.10+Math.random()*0.32, ph:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 });
+    flowParticles = []; for (let i = 0; i < 50; i++) flowParticles.push({ a:-1, b:-1, t:Math.random(), s:0.002+Math.random()*0.003, sz:0.3+Math.random()*0.6, br:0.15+Math.random()*0.3 });
+  }
+  function pickEdge(fp) {
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT_DIST;
+    for (let j = 0; j < nodes.length; j++) { if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) { bd = d; bj = j; } }
+    fp.a = a; fp.b = bj; fp.t = 0;
+  }
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+  document.addEventListener('mouseleave', () => { mouseX = -999; mouseY = -999; });
+
+  let t = 0;
+  function draw() {
+    t += 0.004;
+    const p = P();
+    ctx.fillStyle = '#050810'; ctx.fillRect(0,0,W,H);
+    for (const s of stars) {
+      const tw = 0.5+0.5*Math.sin(t*5+s.p);
+      ctx.fillStyle = `rgba(${p.star},${s.b*tw})`;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    }
+    for (const n of nodes) {
+      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06;
+      n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40;
+      if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mouseX, dy = n.y-mouseY, md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) { const f = (1-md/180)*0.6; n.x += (dx/md)*f; n.y += (dy/md)*f; }
+    }
+    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < CONNECT_DIST) {
+        const a = (1-d/CONNECT_DIST);
+        ctx.strokeStyle = `rgba(${p.edge1},${a*0.07})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        ctx.strokeStyle = `rgba(${p.edge2},${a*0.20})`; ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+      }
+    }
+    if (mouseX > -100) for (const n of nodes) {
+      const dx = n.x-mouseX, dy = n.y-mouseY, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 180) { const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(${p.cur},${a})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mouseX,mouseY); ctx.lineTo(n.x,n.y); ctx.stroke(); }
+    }
+    for (const fp of flowParticles) {
+      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) { pickEdge(fp); continue; }
+      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) { pickEdge(fp); continue; }
+      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT_DIST*1.2) { pickEdge(fp); continue; }
+      fp.t += fp.s;
+      if (fp.t > 1) {
+        fp.a = fp.b; let bj = -1, bd = CONNECT_DIST;
+        for (let j = 0; j < nodes.length; j++) { if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) { bd = d; bj = j; } }
+        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = `rgba(${p.flow1},${fp.br*0.07})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(${p.flow2},${fp.br*0.55})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = `rgba(${p.node1},${n.b*0.10})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(${p.node2},${n.b})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize(); requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
