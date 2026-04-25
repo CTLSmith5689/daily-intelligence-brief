@@ -1364,14 +1364,37 @@ def s3_generate_index(briefs):
 <style>
   *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
   :root {{
-    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#141826; --bg-deep:#070A0F;
+    /* DARK (default) */
+    --bg-base:#050810; --bg-surface:rgba(13,15,24,0.78); --bg-surface-solid:#0D0F18;
+    --bg-elevated:rgba(20,24,38,0.82); --bg-deep:rgba(7,10,15,0.82);
     --border-dim:#1F2738; --border-bright:#3A4A5C;
     --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
-    --text-primary:#F0F4F8; --text-body:#CCD4DC; --text-dim:#9AA8B8;
+    --text-primary:#F0F4F8; --text-body:#D8DFE7; --text-dim:#9AA8B8;
     --text-muted:#6A7888; --text-faint:#4A5A6A;
+    --plexus-on:1;
   }}
-  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }}
+  :root[data-theme="light"] {{
+    --bg-base:#FAFBFC; --bg-surface:rgba(255,255,255,0.88); --bg-surface-solid:#FFFFFF;
+    --bg-elevated:rgba(244,246,250,0.92); --bg-deep:rgba(240,242,247,0.92);
+    --border-dim:#E2E6EE; --border-bright:#B8C2D0;
+    --apt-red:#B30000; --apt-dark-red:#5A0808; --apt-grey:#6A7888;
+    --text-primary:#0A0F1A; --text-body:#1F2937; --text-dim:#4A5560;
+    --text-muted:#6A7888; --text-faint:#9AA8B8;
+    --plexus-on:0;
+  }}
+  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }}
   body {{ background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }}
+
+  /* Plexus canvas (dark mode only — fades out in light mode) */
+  #plexus {{
+    position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0;
+    pointer-events:auto; opacity:calc(var(--plexus-on)); transition:opacity .3s;
+  }}
+  /* All content stacks above the canvas */
+  .topnav, .rail, .main, .footer, .modal-backdrop {{ position:relative; z-index:1; }}
+  .topnav {{ z-index:120; }}
+  .rail {{ z-index:90; }}
+  .modal-backdrop {{ z-index:200; }}
   ::-webkit-scrollbar {{ width:6px; height:6px; }}
   ::-webkit-scrollbar-track {{ background:transparent; }}
   ::-webkit-scrollbar-thumb {{ background:var(--border-dim); border-radius:3px; }}
@@ -1381,8 +1404,8 @@ def s3_generate_index(briefs):
 
   /* Topnav — brand left, nav right. Hero is gone; this is the only header. */
   .topnav {{
-    position:sticky; top:0; z-index:120; height:64px; background:rgba(13,15,24,0.92);
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    position:sticky; top:0; z-index:120; height:64px; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
     border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
     padding:0 28px; gap:18px;
   }}
@@ -1404,17 +1427,27 @@ def s3_generate_index(briefs):
   .topnav .nav a .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; letter-spacing:1px; }}
   .topnav .nav a.active .count {{ color:var(--apt-red); }}
 
+  /* Theme toggle button */
+  .theme-toggle {{
+    margin-left:6px; padding:9px 12px; background:transparent;
+    border:1px solid var(--border-dim); cursor:pointer;
+    color:var(--text-dim); font-size:14px; line-height:1;
+    transition:all .15s;
+  }}
+  .theme-toggle:hover {{ color:var(--apt-red); border-color:var(--apt-red); }}
+
   @media (max-width:680px) {{
     .topnav {{ padding:0 16px; height:auto; flex-direction:column; align-items:stretch; gap:0; }}
-    .topnav .lockup {{ padding:14px 0 10px; }}
+    .topnav .lockup {{ padding:14px 0 10px; position:relative; }}
+    .topnav .lockup .theme-toggle {{ position:absolute; right:0; top:14px; margin-left:0; }}
     .topnav .nav {{ margin-left:0; border-top:1px solid var(--border-dim); }}
     .topnav .nav a {{ flex:1; text-align:center; padding:12px 8px; }}
   }}
 
   /* Sticky filter rail — sits right under topnav, fixed-height shell. */
   .rail {{
-    position:sticky; top:64px; z-index:90; background:rgba(5,8,16,0.92);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    position:sticky; top:64px; z-index:90; background:var(--bg-surface);
+    backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
     border-bottom:1px solid var(--border-dim);
   }}
   .rail-inner {{ max-width:1200px; margin:0 auto; }}
@@ -1425,7 +1458,7 @@ def s3_generate_index(briefs):
   }}
   .search {{
     flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
-    background:var(--bg-surface); border:1px solid var(--border-dim);
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
     padding:11px 14px; transition:border-color .15s;
   }}
   .search:focus-within {{ border-color:var(--apt-red); }}
@@ -1501,10 +1534,11 @@ def s3_generate_index(briefs):
     gap:14px;
   }}
   .brief-card {{
-    background:var(--bg-surface); border:1px solid var(--border-dim);
-    padding:0; display:flex; flex-direction:column; transition:border-color .2s, background .2s;
-    overflow:hidden;
+    background:var(--bg-surface-solid); border:1px solid var(--border-dim);
+    padding:0; display:flex; flex-direction:column; transition:border-color .2s, background .2s, box-shadow .2s;
+    overflow:hidden; box-shadow:0 1px 0 rgba(0,0,0,0.2);
   }}
+  :root[data-theme="light"] .brief-card {{ box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04); }}
   .brief-card:hover {{ border-color:var(--text-muted); background:var(--bg-elevated); }}
   .brief-card[data-type="morning"]  {{ border-top:2px solid var(--apt-red); }}
   .brief-card[data-type="midday"]   {{ border-top:2px solid var(--apt-dark-red); }}
@@ -1568,9 +1602,10 @@ def s3_generate_index(briefs):
   .story-row {{
     display:grid; grid-template-columns:140px 1fr 100px 80px;
     gap:18px; align-items:center;
-    padding:14px 18px; background:var(--bg-surface);
+    padding:14px 18px; background:var(--bg-surface-solid);
     border:1px solid var(--border-dim); border-bottom:none;
     transition:border-color .15s, background .15s;
+    cursor:pointer;
   }}
   .story-row:hover {{ background:var(--bg-elevated); border-color:var(--text-muted); }}
   .story-row:last-child {{ border-bottom:1px solid var(--border-dim); }}
@@ -1605,10 +1640,10 @@ def s3_generate_index(briefs):
   }}
   .modal-backdrop.open {{ display:flex; }}
   .modal {{
-    background:var(--bg-surface); border:1px solid var(--border-bright);
+    background:var(--bg-surface-solid); border:1px solid var(--border-bright);
     border-top:2px solid var(--apt-red);
     max-width:720px; width:100%; padding:0;
-    box-shadow:0 24px 64px rgba(0,0,0,0.6);
+    box-shadow:0 24px 80px rgba(0,0,0,0.6);
   }}
   .modal-head {{
     display:flex; align-items:flex-start; justify-content:space-between;
@@ -1695,6 +1730,8 @@ def s3_generate_index(briefs):
 </head>
 <body>
 
+<canvas id="plexus" aria-hidden="true"></canvas>
+
 <nav class="topnav">
   <div class="lockup">
     {logo_nav}
@@ -1702,6 +1739,7 @@ def s3_generate_index(briefs):
       <span class="dm">Apterreon</span>
       <span class="tagline">Explore what's out there.</span>
     </div>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light/dark mode" title="Toggle theme">&#9789;</button>
   </div>
   <div class="nav">
     <a href="#briefs"  data-tab="briefs"  class="active">Briefs <span class="count">··</span></a>
@@ -2173,6 +2211,235 @@ searchClear.addEventListener('click', () => {{
 
 // First render
 render();
+
+// ── Theme toggle ──
+const THEME_STORE = 'dib.theme';
+const themeToggle = document.getElementById('theme-toggle');
+function applyTheme(theme) {{
+  if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  themeToggle.innerHTML = theme === 'light' ? '&#9728;' : '&#9789;'; // sun / crescent
+  themeToggle.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+}}
+applyTheme(localStorage.getItem(THEME_STORE) || 'dark');
+themeToggle.addEventListener('click', () => {{
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  localStorage.setItem(THEME_STORE, next);
+  applyTheme(next);
+}});
+
+// ── Plexus background canvas (Apterreon red palette) ──
+(function() {{
+  const c = document.getElementById('plexus');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let W, H, dpr;
+  let stars = [], nodes = [], flowParticles = [], popParticles = [];
+  const CONNECT_DIST = 200;
+  let mouseX = -999, mouseY = -999;
+
+  function isLight() {{ return document.documentElement.getAttribute('data-theme') === 'light'; }}
+
+  function resize() {{
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    c.width = W * dpr; c.height = H * dpr;
+    c.style.width = W + 'px'; c.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildScene();
+  }}
+
+  function buildScene() {{
+    stars = [];
+    for (let i = 0; i < 320; i++) {{
+      stars.push({{ x:Math.random()*W, y:Math.random()*H, r:Math.random()*0.7+0.2, b:Math.random()*0.22+0.03, p:Math.random()*6.28 }});
+    }}
+    nodes = [];
+    const count = Math.max(50, Math.floor((W*H)/22000));
+    for (let i = 0; i < count; i++) {{
+      nodes.push({{ x:Math.random()*W, y:Math.random()*H, size:0.5+Math.random()*1.6, brightness:0.10+Math.random()*0.32, phase:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 }});
+    }}
+    flowParticles = [];
+    for (let i = 0; i < 60; i++) {{
+      flowParticles.push({{ nodeA:-1, nodeB:-1, t:Math.random(), speed:0.002+Math.random()*0.003, size:0.3+Math.random()*0.6, bright:0.15+Math.random()*0.3 }});
+    }}
+  }}
+
+  function assignEdge(fp) {{
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length);
+    let bestJ = -1, bestD = CONNECT_DIST;
+    for (let j = 0; j < nodes.length; j++) {{
+      if (j === a) continue;
+      const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      if (d < bestD) {{ bestD = d; bestJ = j; }}
+    }}
+    fp.nodeA = a; fp.nodeB = bestJ; fp.t = 0;
+  }}
+
+  c.addEventListener('click', e => {{
+    if (isLight()) return;
+    const rect = c.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    let bestIdx = -1, bestDist = 30;
+    for (let i = 0; i < nodes.length; i++) {{
+      const dx = nodes[i].x - cx, dy = nodes[i].y - cy;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < bestDist) {{ bestDist = d; bestIdx = i; }}
+    }}
+    if (bestIdx >= 0) {{
+      const n = nodes[bestIdx];
+      const count = 12 + Math.floor(Math.random()*8);
+      for (let i = 0; i < count; i++) {{
+        const angle = (Math.PI*2/count)*i + (Math.random()-0.5)*0.4;
+        const speed = 1.5 + Math.random()*3;
+        popParticles.push({{ x:n.x, y:n.y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:1.0, decay:0.015+Math.random()*0.01, size:n.size*0.8+Math.random()*1.5, bright:0.6+Math.random()*0.4 }});
+      }}
+      popParticles.push({{ x:n.x, y:n.y, vx:0, vy:0, life:1.0, decay:0.025, size:n.size, bright:0.8, isRing:true }});
+      nodes.splice(bestIdx, 1);
+      for (const fp of flowParticles) {{
+        if (fp.nodeA === bestIdx || fp.nodeB === bestIdx) {{ fp.nodeA = -1; fp.nodeB = -1; }}
+        else {{ if (fp.nodeA > bestIdx) fp.nodeA--; if (fp.nodeB > bestIdx) fp.nodeB--; }}
+      }}
+    }}
+  }});
+
+  document.addEventListener('mousemove', e => {{ mouseX = e.clientX; mouseY = e.clientY; }});
+  document.addEventListener('mouseleave', () => {{ mouseX = -999; mouseY = -999; }});
+
+  let t = 0;
+  function draw() {{
+    t += 0.004;
+
+    // Skip painting when in light mode (CSS fades canvas opacity to 0)
+    if (isLight()) {{ ctx.clearRect(0,0,W,H); requestAnimationFrame(draw); return; }}
+
+    ctx.fillStyle = '#050810';
+    ctx.fillRect(0,0,W,H);
+
+    // Stars
+    for (const s of stars) {{
+      const tw = 0.5 + 0.5*Math.sin(t*5+s.p);
+      ctx.fillStyle = 'rgba(220,210,210,' + (s.b*tw) + ')';
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    }}
+
+    // Node motion + mouse repel
+    for (const n of nodes) {{
+      n.x += n.vx + Math.sin(t*1.5+n.phase)*0.06;
+      n.y += n.vy + Math.cos(t*1.2+n.phase*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40;
+      if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mouseX, dy = n.y-mouseY;
+      const md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) {{ const f = (1-md/180)*0.6; n.x += (dx/md)*f; n.y += (dy/md)*f; }}
+    }}
+
+    // Edges between close nodes — Apterreon red palette
+    for (let i = 0; i < nodes.length; i++) {{
+      for (let j = i+1; j < nodes.length; j++) {{
+        const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < CONNECT_DIST) {{
+          const alpha = (1 - dist/CONNECT_DIST);
+          ctx.strokeStyle = 'rgba(122,16,16,' + (alpha*0.07) + ')'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+          ctx.strokeStyle = 'rgba(204,0,0,' + (alpha*0.20) + ')'; ctx.lineWidth = 0.6;
+          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        }}
+      }}
+    }}
+
+    // Cursor → nodes
+    if (mouseX > -100) {{
+      for (const n of nodes) {{
+        const dx = n.x-mouseX, dy = n.y-mouseY;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < 180) {{
+          const alpha = (1 - dist/180)*0.4;
+          ctx.strokeStyle = 'rgba(255,80,80,' + alpha + ')'; ctx.lineWidth = 0.7;
+          ctx.beginPath(); ctx.moveTo(mouseX,mouseY); ctx.lineTo(n.x,n.y); ctx.stroke();
+        }}
+      }}
+    }}
+
+    // Flow particles along edges
+    for (const fp of flowParticles) {{
+      if (fp.nodeA < 0 || fp.nodeB < 0 || fp.nodeA >= nodes.length || fp.nodeB >= nodes.length) {{ assignEdge(fp); continue; }}
+      const na = nodes[fp.nodeA], nb = nodes[fp.nodeB];
+      if (!na || !nb) {{ assignEdge(fp); continue; }}
+      const edx = na.x-nb.x, edy = na.y-nb.y;
+      if (Math.sqrt(edx*edx+edy*edy) > CONNECT_DIST*1.2) {{ assignEdge(fp); continue; }}
+      fp.t += fp.speed;
+      if (fp.t > 1) {{
+        fp.nodeA = fp.nodeB;
+        let bestJ = -1, bestD = CONNECT_DIST;
+        for (let j = 0; j < nodes.length; j++) {{
+          if (j === fp.nodeA) continue;
+          const dx = nodes[fp.nodeA].x-nodes[j].x, dy = nodes[fp.nodeA].y-nodes[j].y;
+          const d = Math.sqrt(dx*dx+dy*dy);
+          if (d < bestD && Math.random() < 0.5) {{ bestD = d; bestJ = j; }}
+        }}
+        fp.nodeB = bestJ >= 0 ? bestJ : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }}
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = 'rgba(204,40,40,' + (fp.bright*0.07) + ')';
+      ctx.beginPath(); ctx.arc(x,y,fp.size*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,160,160,' + (fp.bright*0.55) + ')';
+      ctx.beginPath(); ctx.arc(x,y,fp.size,0,Math.PI*2); ctx.fill();
+    }}
+
+    // Nodes
+    for (const n of nodes) {{
+      ctx.fillStyle = 'rgba(204,0,0,' + (n.brightness*0.10) + ')';
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,150,150,' + n.brightness + ')';
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }}
+
+    // Pop particles
+    for (let i = popParticles.length-1; i >= 0; i--) {{
+      const p = popParticles[i];
+      p.life -= p.decay;
+      if (p.life <= 0) {{ popParticles.splice(i,1); continue; }}
+      if (p.isRing) {{
+        const radius = (1-p.life)*60;
+        ctx.strokeStyle = 'rgba(255,160,160,' + (p.life*p.bright*0.6) + ')';
+        ctx.lineWidth = p.life*2;
+        ctx.beginPath(); ctx.arc(p.x,p.y,radius,0,Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(204,0,0,' + (p.life*0.2) + ')';
+        ctx.lineWidth = p.life*6;
+        ctx.beginPath(); ctx.arc(p.x,p.y,radius,0,Math.PI*2); ctx.stroke();
+      }} else {{
+        p.x += p.vx; p.y += p.vy; p.vx *= 0.97; p.vy *= 0.97;
+        ctx.fillStyle = 'rgba(204,40,40,' + (p.life*p.bright*0.15) + ')';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size*3,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,200,200,' + (p.life*p.bright) + ')';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); ctx.fill();
+      }}
+    }}
+
+    // Regenerate
+    const target = Math.max(50, Math.floor((W*H)/22000));
+    if (nodes.length < target && Math.random() < 0.02) {{
+      const edge = Math.floor(Math.random()*4);
+      let nx, ny;
+      if (edge === 0) {{ nx = -20; ny = Math.random()*H; }}
+      else if (edge === 1) {{ nx = W+20; ny = Math.random()*H; }}
+      else if (edge === 2) {{ nx = Math.random()*W; ny = -20; }}
+      else {{ nx = Math.random()*W; ny = H+20; }}
+      nodes.push({{ x:nx, y:ny, size:0.5+Math.random()*1.6, brightness:0.10+Math.random()*0.32, phase:Math.random()*6.28, vx:(Math.random()-0.5)*0.18, vy:(Math.random()-0.5)*0.13 }});
+    }}
+
+    requestAnimationFrame(draw);
+  }}
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+}})();
 </script>
 </body>
 </html>"""
