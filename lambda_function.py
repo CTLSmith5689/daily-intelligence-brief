@@ -1379,46 +1379,47 @@ def s3_generate_index(briefs):
   a {{ color:inherit; text-decoration:none; }}
   ::selection {{ background:rgba(204,0,0,0.35); color:#fff; }}
 
-  /* Topnav */
+  /* Topnav — brand left, nav right. Hero is gone; this is the only header. */
   .topnav {{
-    position:sticky; top:0; z-index:120; height:56px; background:rgba(13,15,24,0.85);
+    position:sticky; top:0; z-index:120; height:64px; background:rgba(13,15,24,0.92);
     backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
-    padding:0 32px; gap:18px;
+    padding:0 28px; gap:18px;
   }}
-  .topnav .lockup {{ display:flex; align-items:center; gap:14px; }}
-  .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:12px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; }}
-  .topnav .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:9px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }}
-  .topnav .stats {{ margin-left:auto; display:none; gap:24px; align-items:center; }}
-  @media (min-width:880px) {{ .topnav .stats {{ display:flex; }} }}
-  .topnav .stat {{ display:flex; flex-direction:column; align-items:flex-end; }}
-  .topnav .stat .v {{ font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--text-primary); }}
-  .topnav .stat .l {{ font-family:'DM Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }}
+  .topnav .lockup {{ display:flex; align-items:center; gap:14px; min-width:0; }}
+  .topnav .lockup-text {{ display:flex; flex-direction:column; min-width:0; }}
+  .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; line-height:1; }}
+  .topnav .tagline {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; margin-top:5px; line-height:1; }}
 
-  /* Hero — compact, doesn't dominate */
-  .hero {{
-    text-align:center; padding:64px 24px 48px; max-width:1100px; margin:0 auto;
-    border-bottom:1px solid var(--border-dim);
+  .topnav .nav {{ margin-left:auto; display:flex; align-items:center; gap:0; }}
+  .topnav .nav a {{
+    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:3px; color:var(--text-dim); text-transform:uppercase;
+    transition:color .15s, background .15s; user-select:none;
+    border-left:1px solid var(--border-dim);
   }}
-  .hero .mark {{ display:flex; justify-content:center; margin-bottom:24px; }}
-  .hero h1 {{ font-family:'Syne',sans-serif; font-weight:800; font-size:44px; letter-spacing:11px; color:#FFFFFF; text-transform:uppercase; margin-bottom:12px; line-height:1.05; }}
-  .hero .sub {{ font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--apt-red); text-transform:uppercase; margin-bottom:14px; }}
-  .hero .desc {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }}
-  .hero .rule {{ width:80px; height:1px; margin:32px auto 0; background:linear-gradient(to right, transparent, var(--apt-dark-red), transparent); }}
-  @media (max-width:640px) {{
-    .hero {{ padding:48px 20px 36px; }}
-    .hero h1 {{ font-size:30px; letter-spacing:7px; }}
+  .topnav .nav a:first-child {{ border-left:none; }}
+  .topnav .nav a:hover {{ color:var(--text-primary); }}
+  .topnav .nav a.active {{ color:#FFFFFF; background:rgba(204,0,0,0.08); }}
+  .topnav .nav a .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; letter-spacing:1px; }}
+  .topnav .nav a.active .count {{ color:var(--apt-red); }}
+
+  @media (max-width:680px) {{
+    .topnav {{ padding:0 16px; height:auto; flex-direction:column; align-items:stretch; gap:0; }}
+    .topnav .lockup {{ padding:14px 0 10px; }}
+    .topnav .nav {{ margin-left:0; border-top:1px solid var(--border-dim); }}
+    .topnav .nav a {{ flex:1; text-align:center; padding:12px 8px; }}
   }}
 
-  /* Sticky filter rail — clean 2-row layout */
+  /* Sticky filter rail — sits right under topnav, fixed-height shell. */
   .rail {{
-    position:sticky; top:56px; z-index:90; background:rgba(5,8,16,0.92);
+    position:sticky; top:64px; z-index:90; background:rgba(5,8,16,0.92);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border-bottom:1px solid var(--border-dim);
   }}
   .rail-inner {{ max-width:1200px; margin:0 auto; }}
 
-  /* Row 1: search + tabs */
+  /* Row 1: search only (tabs moved to topnav) */
   .rail-primary {{
     display:flex; align-items:center; gap:14px; padding:14px 24px 10px;
   }}
@@ -1442,19 +1443,7 @@ def s3_generate_index(briefs):
   .search .clear:hover {{ color:var(--text-primary); }}
   .search .clear[hidden] {{ display:none; }}
 
-  .tabs {{ display:flex; gap:0; flex-shrink:0; }}
-  .tab {{
-    padding:11px 18px; font-family:'DM Mono',monospace; font-size:10px;
-    letter-spacing:2.5px; font-weight:500; color:var(--text-dim);
-    cursor:pointer; transition:all .15s; text-transform:uppercase;
-    user-select:none; background:var(--bg-surface);
-    border:1px solid var(--border-dim); border-right:none;
-  }}
-  .tab:last-child {{ border-right:1px solid var(--border-dim); }}
-  .tab:hover {{ color:var(--text-primary); }}
-  .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); border-color:var(--text-muted); position:relative; z-index:1; }}
-  .tab .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); font-size:9px; }}
-  .tab.active .count {{ color:var(--apt-red); }}
+  /* (Tabs moved to topnav; legacy .tab/.tabs styles removed.) */
 
   /* Row 2: filter strip — single horizontal scrollable line */
   .rail-filters {{
@@ -1486,10 +1475,7 @@ def s3_generate_index(briefs):
   .chip.grey.active {{ background:rgba(136,136,136,0.18); border-color:var(--apt-grey); }}
 
   @media (max-width:680px) {{
-    .rail-primary {{ flex-wrap:wrap; padding:12px 18px 8px; }}
-    .search {{ width:100%; flex:0 0 100%; }}
-    .tabs {{ width:100%; }}
-    .tab {{ flex:1; text-align:center; padding:10px 8px; }}
+    .rail-primary {{ padding:12px 18px 8px; }}
     .rail-filters {{ padding:6px 18px 12px; }}
   }}
 
@@ -1712,25 +1698,17 @@ def s3_generate_index(briefs):
 <nav class="topnav">
   <div class="lockup">
     {logo_nav}
-    <div>
-      <div class="dm">Apterreon</div>
-      <div class="prod">Daily Intelligence Brief</div>
+    <div class="lockup-text">
+      <span class="dm">Apterreon</span>
+      <span class="tagline">Explore what's out there.</span>
     </div>
   </div>
-  <div class="stats">
-    <div class="stat"><span class="v" id="stat-briefs">··</span><span class="l">Briefs</span></div>
-    <div class="stat"><span class="v" id="stat-stories">··</span><span class="l">Stories</span></div>
-    <div class="stat"><span class="v" id="stat-since">··</span><span class="l">Since</span></div>
+  <div class="nav">
+    <a href="#briefs"  data-tab="briefs"  class="active">Briefs <span class="count">··</span></a>
+    <a href="#stories" data-tab="stories">Stories <span class="count">··</span></a>
+    <a href="#pinned"  data-tab="pinned">Pinned <span class="count">··</span></a>
   </div>
 </nav>
-
-<header class="hero">
-  <div class="mark">{logo_hero}</div>
-  <h1>Daily Intelligence Brief</h1>
-  <div class="sub">Apterreon</div>
-  <div class="desc">Three editions per day &middot; Markets, Politics, AI, World</div>
-  <div class="rule"></div>
-</header>
 
 <div class="rail">
   <div class="rail-inner">
@@ -1740,11 +1718,6 @@ def s3_generate_index(briefs):
         <input type="search" id="search" placeholder="Search briefs, stories, sources..." autocomplete="off" spellcheck="false">
         <button type="button" class="clear" id="search-clear" hidden>Clear</button>
       </label>
-      <div class="tabs">
-        <div class="tab active" data-tab="briefs">Briefs <span class="count">··</span></div>
-        <div class="tab" data-tab="stories">Stories <span class="count">··</span></div>
-        <div class="tab" data-tab="pinned">Pinned <span class="count">··</span></div>
-      </div>
     </div>
     <div class="rail-filters" id="rail-filters">
       <div class="filter-group">
@@ -1768,9 +1741,9 @@ def s3_generate_index(briefs):
 </div>
 
 <main class="main">
-  <div id="briefs" class="view active"></div>
-  <div id="stories" class="view"></div>
-  <div id="pinned" class="view"></div>
+  <div id="view-briefs"  class="view active"></div>
+  <div id="view-stories" class="view"></div>
+  <div id="view-pinned"  class="view"></div>
 </main>
 
 <footer class="footer">
@@ -2067,7 +2040,7 @@ modalEl.addEventListener('click', e => {{ if (e.target === modalEl) closeStoryMo
 document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && modalEl.classList.contains('open')) closeStoryModal(); }});
 
 // Delegate clicks on story rows: open modal unless modifier keys (let new-tab work).
-document.getElementById('stories').addEventListener('click', e => {{
+document.getElementById('view-stories').addEventListener('click', e => {{
   const row = e.target.closest('.story-row[data-story-idx]');
   if (!row) return;
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
@@ -2115,30 +2088,34 @@ function render() {{
   const filteredStories = filterStories();
   const pinned = filteredBriefs.filter(b => b.pinned);
 
-  document.getElementById('briefs').innerHTML = renderBriefsView(filteredBriefs);
-  document.getElementById('stories').innerHTML = renderStoriesView(filteredStories);
-  document.getElementById('pinned').innerHTML = renderBriefsView(pinned);
+  document.getElementById('view-briefs').innerHTML = renderBriefsView(filteredBriefs);
+  document.getElementById('view-stories').innerHTML = renderStoriesView(filteredStories);
+  document.getElementById('view-pinned').innerHTML = renderBriefsView(pinned);
 
-  // Update tab counts
+  // Update tab counts in topnav
   const counts = {{ briefs: filteredBriefs.length, stories: filteredStories.length, pinned: pinned.length }};
-  document.querySelectorAll('.tab').forEach(t => {{
-    const c = t.querySelector('.count');
-    if (c) c.textContent = String(counts[t.dataset.tab] || 0).padStart(2, '0');
+  document.querySelectorAll('.nav a[data-tab]').forEach(a => {{
+    const c = a.querySelector('.count');
+    if (c) c.textContent = String(counts[a.dataset.tab] || 0).padStart(2, '0');
   }});
 
   attachPinHandlers();
 }}
 
 function setActiveTab(name) {{
+  if (!['briefs','stories','pinned'].includes(name)) name = 'briefs';
   state.tab = name;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === name));
+  document.querySelectorAll('.nav a[data-tab]').forEach(a => a.classList.toggle('active', a.dataset.tab === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
 }}
 
-// Wire UI
-document.querySelectorAll('.tab').forEach(t => {{
-  t.addEventListener('click', () => setActiveTab(t.dataset.tab));
-}});
+// Hash routing — Briefs/Stories/Pinned are addressable URLs.
+function tabFromHash() {{
+  const h = (window.location.hash || '').replace('#', '').toLowerCase();
+  return ['briefs','stories','pinned'].includes(h) ? h : 'briefs';
+}}
+window.addEventListener('hashchange', () => setActiveTab(tabFromHash()));
+setActiveTab(tabFromHash());
 
 document.querySelectorAll('.chip[data-edition]').forEach(c => {{
   c.addEventListener('click', () => {{
@@ -2193,12 +2170,6 @@ searchClear.addEventListener('click', () => {{
   searchInput.focus();
   render();
 }});
-
-// Stats
-document.getElementById('stat-briefs').textContent = String(briefs.length).padStart(2, '0');
-document.getElementById('stat-stories').textContent = String(allStories.length).padStart(3, '0');
-const oldestDate = briefs.length ? briefs[briefs.length - 1].date : '';
-document.getElementById('stat-since').textContent = oldestDate ? formatShortDate(oldestDate) : '\u2014';
 
 // First render
 render();
