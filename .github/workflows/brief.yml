@@ -57,17 +57,25 @@ jobs:
 
       - name: Commit archive
         run: |
+          set +e
           git config user.name "apterreon-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/ state/
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-          git commit -m "brief: $(date -u +%F) ${{ steps.pick.outputs.edition }}"
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main && git push && exit 0
-            echo "Push attempt $i failed (concurrent push?). Retrying in 3s..."
+            # Sync to latest remote main, keep our generated working-tree changes.
+            git fetch origin main
+            git reset --soft origin/main
+            git reset HEAD -- . >/dev/null 2>&1   # unstage anything pre-existing
+            git add docs/ state/
+            if git diff --cached --quiet; then
+              echo "No changes to commit (after sync)."
+              exit 0
+            fi
+            git commit -m "brief: $(date -u +%F) ${{ steps.pick.outputs.edition }}"
+            if git push; then
+              echo "Pushed on attempt $i."
+              exit 0
+            fi
+            echo "Push attempt $i failed (concurrent push?). Resyncing and retrying in 3s..."
             sleep 3
           done
           echo "Failed to push after 5 attempts."
