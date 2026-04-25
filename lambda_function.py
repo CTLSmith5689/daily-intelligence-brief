@@ -33,7 +33,35 @@ SMTP_PORT = 587
 ANTHROPIC_MODEL = os.environ.get("JEEVES_MODEL", "claude-sonnet-4-6")
 ET_OFFSET = timedelta(hours=-4)  # EDT
 
-CLAUDE_ORANGE = "#E07A2F"
+# ── Brand: Dark Matter · Event Horizon ──────────────────────────────────────
+EH_RED        = "#CC0000"  # bright red — leads, accent
+EH_DARK_RED   = "#7A1010"  # dark red — grounds
+EH_GREY       = "#888888"  # grey — recedes
+BG_BASE       = "#050810"  # deepest background (page)
+BG_SURFACE    = "#0D0F18"  # primary surface (cards, body)
+BG_ELEVATED   = "#111420"  # elevated surface (nested cards)
+BG_DEEP       = "#070A0F"  # below-base for code / inset boxes
+BORDER_DIM    = "#1A2030"
+BORDER_RED    = "#3A0A0A"
+TEXT_PRIMARY  = "#E0E8F0"
+TEXT_BODY     = "#A8B4C0"
+TEXT_DIM      = "#5A6878"
+TEXT_MUTED    = "#3A4A5A"
+TEXT_FAINT    = "#252E3A"
+
+# Legacy alias kept for backwards-compat with leftover references
+CLAUDE_ORANGE = EH_RED
+
+# Inline 3-triangle Event Horizon mark, scaled by the embedding context.
+def eh_logo_svg(width: int = 24, height: int = 32, glow: float = 0.45) -> str:
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 90 120" '
+        f'style="filter:drop-shadow(0 0 {int(width/4)}px rgba(204,0,0,{glow}));flex-shrink:0">'
+        '<polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/>'
+        '<polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/>'
+        '<polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/>'
+        '</svg>'
+    )
 
 # ── Storage Config (filesystem, replaces S3) ────────────────────────────────
 REPO_ROOT = Path(__file__).resolve().parent
@@ -91,25 +119,23 @@ SECTIONS = [
     ("Boston", ["Boston"]),
 ]
 
+# Section accent colors mapped to the Event Horizon palette. Tiered hierarchy:
+#   tier 1 — bright red (#CC0000): primary attention
+#   tier 2 — dark red  (#7A1010): important context
+#   tier 3 — grey      (#888888): supporting context
 SECTION_COLORS = {
-    "Breaking News": "#c0392b",
-    "Finance & Markets": "#1a5276",
-    "Politics & Policy": "#7b241c",
-    "AI & Technology": "#0e6655",
-    "International": "#6c3483",
-    "Culture & Sports": "#b9770e",
-    "Boston": "#2e4053",
+    "Breaking News":     EH_RED,
+    "Finance & Markets": EH_RED,
+    "Politics & Policy": EH_DARK_RED,
+    "AI & Technology":   EH_DARK_RED,
+    "International":     EH_GREY,
+    "Culture & Sports":  EH_GREY,
+    "Boston":            EH_GREY,
 }
 
-SECTION_ICONS = {
-    "Breaking News": "&#128680;",
-    "Finance & Markets": "&#128200;",
-    "Politics & Policy": "&#127963;",
-    "AI & Technology": "&#129302;",
-    "International": "&#127758;",
-    "Culture & Sports": "&#127917;",
-    "Boston": "&#127961;",
-}
+# Emoji icons retired — brand is minimalist typography. Section labels use
+# numbered prefixes ("01 · BREAKING NEWS") instead.
+SECTION_ICONS = {}
 
 # Alpha Vantage tickers for market data bar
 MARKET_TICKERS = [
@@ -370,7 +396,7 @@ def call_claude(system_prompt, user_content):
 
     payload = json.dumps({
         "model": ANTHROPIC_MODEL,
-        "max_tokens": 8192,
+        "max_tokens": 32000,
         "system": system_prompt,
         "messages": [{"role": "user", "content": user_content}],
     }).encode("utf-8")
@@ -481,31 +507,31 @@ def get_brief_config(brief_type):
 # ── Market Data Bar HTML ───────────────────────────────────────────────────
 
 def market_bar_email(quotes):
-    """Market data row for the email preview."""
+    """Market data row for the email preview (Dark Matter · Event Horizon)."""
     if not quotes:
         return ""
     cells = ""
     for q in quotes:
         is_yield = q.get("is_yield", False)
         if is_yield:
-            cells += f"""<td style="padding:8px 10px;text-align:center">
-<div style="font-size:10px;color:#888;margin-bottom:2px">{q['label']}</div>
-<div style="font-size:15px;font-weight:700;color:#1a1a1a">{q['price']}</div>
-<div style="font-size:11px;color:#888">7d yield</div>
+            cells += f"""<td style="padding:14px 10px;text-align:center;background:#0D0F18;border:1px solid #1A2030">
+<div style="font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{q['label']}</div>
+<div style="font-size:16px;font-weight:700;color:#E0E8F0;font-family:'SF Mono',Menlo,Consolas,monospace">{q['price']}</div>
+<div style="font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-top:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">7d yield</div>
 </td>"""
         else:
             try:
                 change = float(q["change_pct"])
             except (ValueError, KeyError):
                 change = 0
-            color = "#27ae60" if change >= 0 else "#e74c3c"
+            color = "#5599CC" if change >= 0 else "#CC0000"
             arrow = "&#9650;" if change >= 0 else "&#9660;"
-            cells += f"""<td style="padding:8px 10px;text-align:center">
-<div style="font-size:10px;color:#888;margin-bottom:2px">{q['label']}</div>
-<div style="font-size:15px;font-weight:700;color:#1a1a1a">{q['price']}</div>
-<div style="font-size:11px;color:{color}">{arrow} {abs(change):.2f}%</div>
+            cells += f"""<td style="padding:14px 10px;text-align:center;background:#0D0F18;border:1px solid #1A2030">
+<div style="font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{q['label']}</div>
+<div style="font-size:16px;font-weight:700;color:#E0E8F0;font-family:'SF Mono',Menlo,Consolas,monospace">{q['price']}</div>
+<div style="font-size:11px;color:{color};margin-top:4px;font-family:'SF Mono',Menlo,Consolas,monospace">{arrow} {abs(change):.2f}%</div>
 </td>"""
-    return f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;border-bottom:1px solid #eee;padding-bottom:16px">
+    return f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-collapse:collapse">
 <tr>{cells}</tr></table>"""
 
 
@@ -519,7 +545,7 @@ def market_bar_interactive(quotes):
 # ── Email Preview ──────────────────────────────────────────────────────────
 
 def usage_banner_email(usage_info):
-    """API usage banner for the email."""
+    """API usage banner for the email (Dark Matter · Event Horizon)."""
     if not usage_info:
         return ""
     cost = usage_info.get("cost_this_call", 0)
@@ -527,81 +553,134 @@ def usage_banner_email(usage_info):
     tokens = usage_info.get("total_tokens", 0)
 
     if monthly < 2:
-        bar_color = "#27ae60"
+        bar_color = "#5599CC"  # singularity blue — calm
         status = "LOW"
     elif monthly < 5:
-        bar_color = "#f39c12"
+        bar_color = "#888888"  # grey — neutral
         status = "MODERATE"
     else:
-        bar_color = "#e74c3c"
+        bar_color = "#CC0000"  # red — over budget
         status = "HIGH"
 
     budget = 10.0
     pct = min(100, (monthly / budget) * 100)
 
-    return f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px">
-<tr><td style="padding:10px 14px;background:#f8f8f8;border-radius:6px;border:1px solid #eee">
+    return f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;border-collapse:collapse">
+<tr><td style="padding:12px 16px;background:#070A0F;border:1px solid #1A2030">
 <table width="100%" cellpadding="0" cellspacing="0">
 <tr>
-<td style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:700">API Usage</td>
-<td style="text-align:right;font-size:10px;color:{bar_color};font-weight:700">{status}</td>
+<td style="font-size:9px;letter-spacing:3px;color:#5A6878;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">API Usage</td>
+<td style="text-align:right;font-size:9px;letter-spacing:3px;color:{bar_color};font-weight:700;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{status}</td>
 </tr>
-<tr><td colspan="2" style="padding-top:6px">
-<div style="background:#eee;border-radius:3px;height:4px;overflow:hidden"><div style="background:{bar_color};width:{pct:.0f}%;height:4px;border-radius:3px"></div></div>
+<tr><td colspan="2" style="padding-top:8px">
+<div style="background:#111420;height:2px;overflow:hidden"><div style="background:{bar_color};width:{pct:.0f}%;height:2px"></div></div>
 </td></tr>
-<tr><td colspan="2" style="padding-top:4px;font-size:10px;color:#999">
-This brief: ${cost:.4f} ({tokens:,} tokens) &middot; Projected: ${monthly:.2f}/mo &middot; Budget: $10.00/mo
+<tr><td colspan="2" style="padding-top:8px;font-size:10px;color:#5A6878;font-family:'SF Mono',Menlo,Consolas,monospace">
+${cost:.4f} this brief &middot; {tokens:,} tokens &middot; ${monthly:.2f}/mo projected &middot; $10.00 budget
 </td></tr>
 </table>
 </td></tr></table>"""
 
 
 def build_email_preview(title, data, quotes, timestamp, usage_info=None):
-    """Clean headline-only email preview with market bar and usage banner."""
+    """Email preview — Dark Matter · Event Horizon. Email-safe (inline styles, tables,
+    system fonts only — no web fonts since most clients strip @import)."""
+    sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
+    mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
+
     usage_html = usage_banner_email(usage_info)
     market_html = market_bar_email(quotes)
     sections_html = ""
 
+    section_idx = 0
     for sec_name, _ in SECTIONS:
-        color = SECTION_COLORS.get(sec_name, "#333")
+        color = SECTION_COLORS.get(sec_name, EH_GREY)
         sec_data = next((s for s in data.get("sections", []) if s["name"] == sec_name), None)
         if not sec_data or not sec_data.get("stories"):
             continue
+        section_idx += 1
+        sec_num = f"{section_idx:02d}"
 
         stories_html = ""
         for story in sec_data["stories"]:
-            stories_html += f"""<tr>
-<td style="padding:5px 0;font-size:14px;color:#1a1a1a;border-bottom:1px solid #f0f0f0">{story['headline']} <span style="color:#aaa;font-size:11px">— {story.get('source','')}</span></td>
-</tr>"""
+            link = story.get("link", "")
+            headline = story["headline"]
+            source = story.get("source", "")
+            summary = story.get("summary", "") or ""
+            insight = story.get("insight", "") or ""
 
-        sections_html += f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0 4px">
-<tr><td style="font-size:12px;font-weight:700;color:{color};text-transform:uppercase;letter-spacing:1px;padding-bottom:5px;border-bottom:2px solid {color}">{sec_name}</td></tr>
+            headline_html = (
+                f'<a href="{link}" style="color:#E0E8F0;text-decoration:none;border-bottom:1px solid #1A2030">{headline}</a>'
+                if link else f'<span style="color:#E0E8F0">{headline}</span>'
+            )
+
+            inner = f"""<div style="font-family:{sans};font-size:14px;font-weight:600;color:#E0E8F0;line-height:1.45;margin-bottom:6px">{headline_html}</div>
+<div style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-bottom:8px">{source}</div>"""
+            if summary:
+                inner += f'<div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.55;margin-bottom:6px">{summary}</div>'
+            if insight:
+                inner += f'<div style="font-family:{sans};font-size:12px;color:#7A8A9A;line-height:1.55;font-style:italic;border-left:2px solid {color};padding-left:10px;margin-top:8px">{insight}</div>'
+
+            stories_html += f"""<tr><td style="padding:14px 0;border-bottom:1px solid #1A2030">{inner}</td></tr>"""
+
+        sections_html += f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0 0;border-collapse:collapse">
+<tr><td style="padding-bottom:12px;border-bottom:1px solid {color}">
+<span style="font-family:{mono};font-size:10px;letter-spacing:3px;color:{color};text-transform:uppercase">{sec_num} &middot;</span>
+<span style="font-family:{sans};font-size:14px;font-weight:700;color:#E0E8F0;text-transform:uppercase;letter-spacing:3px;margin-left:6px">{sec_name}</span>
+</td></tr>
 {stories_html}</table>"""
 
     edge_text = data.get("the_edge", "")
     edge_html = ""
     if edge_text:
-        edge_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 0">
-<tr><td style="padding:14px 16px;background:#fdf3eb;border-left:3px solid {CLAUDE_ORANGE};border-radius:4px">
-<div style="font-size:11px;font-weight:700;color:{CLAUDE_ORANGE};text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">The Edge</div>
-<div style="font-size:13px;color:#555;line-height:1.5">{edge_text[:200]}...</div>
+        edge_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:36px 0 0;border-collapse:collapse">
+<tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #3A0A0A;border-left:3px solid {EH_RED}">
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_RED};text-transform:uppercase;margin-bottom:10px">The Edge</div>
+<div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.6">{edge_text}</div>
+</td></tr></table>"""
+
+    tomorrow_text = data.get("tomorrow_watch", "")
+    tomorrow_html = ""
+    if tomorrow_text:
+        tomorrow_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0 0;border-collapse:collapse">
+<tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #1A2030">
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_GREY};text-transform:uppercase;margin-bottom:10px">Tomorrow Watch</div>
+<div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.6">{tomorrow_text}</div>
 </td></tr></table>"""
 
     return f"""<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f5f5f5">
-<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:24px 20px;color:#1a1a1a;background:#ffffff">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head>
+<body style="margin:0;padding:0;background:#050810">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#050810"><tr><td align="center" style="padding:32px 16px">
+<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid {EH_RED}">
+<tr><td style="padding:32px 28px 8px">
+
+<table width="100%" cellpadding="0" cellspacing="0"><tr>
+<td><span style="font-family:{sans};font-size:11px;font-weight:800;letter-spacing:5px;color:#E0E8F0;text-transform:uppercase">Dark Matter</span></td>
+<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A;text-transform:uppercase">Investment Intelligence Suite</span></td>
+</tr></table>
+<div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
+
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{EH_RED};text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
+<h1 style="font-family:{sans};font-size:24px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 6px;line-height:1.25">{title}</h1>
+<div style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#5A6878;text-transform:uppercase">{timestamp}</div>
+
 {usage_html}
-<h1 style="font-size:20px;font-weight:700;margin:0 0 4px">{title}</h1>
-<p style="margin:0 0 16px;font-size:12px;color:#999">Headlines &amp; insights at a glance</p>
 {market_html}
 {sections_html}
 {edge_html}
-<div style="margin-top:28px;padding-top:10px;border-top:1px solid #eee">
-<p style="color:#bbb;font-size:10px;margin:0">{timestamp}</p>
+{tomorrow_html}
+
+<div style="margin-top:48px;padding-top:18px;border-top:1px solid #1A2030">
+<table width="100%" cellpadding="0" cellspacing="0"><tr>
+<td><span style="font-family:{sans};font-size:9px;font-weight:800;letter-spacing:4px;color:#3A4A5A;text-transform:uppercase">Dark Matter &middot; Event Horizon</span></td>
+<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp}</span></td>
+</tr></table>
 </div>
-</div>
+
+</td></tr></table>
+</td></tr></table>
 </body>
 </html>"""
 
@@ -609,13 +688,12 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 # ── Interactive HTML Attachment ─────────────────────────────────────────────
 
 def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
-    """Self-contained interactive HTML with widget cards and tap-to-expand."""
+    """Self-contained interactive HTML brief — Dark Matter · Event Horizon."""
 
     sections_json = json.dumps(data.get("sections", []))
     edge_text = json.dumps(data.get("the_edge", ""))
     tomorrow_text = json.dumps(data.get("tomorrow_watch", ""))
     colors_json = json.dumps(SECTION_COLORS)
-    icons_json = json.dumps(SECTION_ICONS)
     quotes_json = market_bar_interactive(quotes)
     section_order_json = json.dumps(SECTION_NAMES)
     usage_json = json.dumps(usage_info or {})
@@ -625,199 +703,188 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
 <title>{title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  * {{ margin:0; padding:0; box-sizing:border-box; }}
-  body {{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f5; color:#1a1a1a; line-height:1.6; -webkit-font-smoothing:antialiased; }}
-  .container {{ max-width:700px; margin:0 auto; padding:20px 16px 60px; }}
+  *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
+  :root {{
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --eh-red:#CC0000; --eh-dark-red:#7A1010; --eh-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878; --text-muted:#3A4A5A; --text-faint:#252E3A;
+  }}
+  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }}
+  body {{ background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }}
+  ::-webkit-scrollbar {{ width:4px; height:4px; }}
+  ::-webkit-scrollbar-track {{ background:transparent; }}
+  ::-webkit-scrollbar-thumb {{ background:var(--border-dim); border-radius:2px; }}
+  a {{ color:inherit; text-decoration:none; }}
 
-  /* Header */
-  .header {{ margin-bottom:20px; }}
-  .header h1 {{ font-size:22px; font-weight:700; color:#1a1a1a; }}
-  .header .meta {{ font-size:11px; color:#999; margin-top:2px; }}
+  .topnav {{
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }}
+  .topnav .back {{
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }}
+  .topnav .back:hover {{ color:var(--text-primary); }}
+  .topnav .lockup {{ display:flex; align-items:center; gap:10px; margin-left:auto; }}
+  .topnav .lockup .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }}
+  .topnav .lockup .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; }}
+  .topnav .suite {{ display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }}
+  @media (min-width:720px) {{ .topnav .suite {{ display:inline; }} }}
 
-  /* Market Bar */
+  .container {{ max-width:760px; margin:0 auto; padding:32px 24px 96px; }}
+
+  .header {{ margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }}
+  .header .tag {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; margin-bottom:10px; }}
+  .header h1 {{ font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }}
+  .header .meta {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }}
+
   .market-bar {{
-    display:flex; gap:8px; margin-bottom:24px; overflow-x:auto;
-    padding-bottom:4px; -webkit-overflow-scrolling:touch;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
   }}
   .market-card {{
-    flex:1; min-width:80px; background:#ffffff; border-radius:10px;
-    padding:12px 10px; text-align:center; border:1px solid #e0e0e0;
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
   }}
-  .market-card .label {{ font-size:10px; color:#888; text-transform:uppercase; letter-spacing:0.5px; }}
-  .market-card .price {{ font-size:18px; font-weight:700; color:#1a1a1a; margin:4px 0 2px; }}
-  .market-card .change {{ font-size:12px; font-weight:600; }}
-  .market-card .change.up {{ color:#1e8449; }}
-  .market-card .change.down {{ color:#c0392b; }}
+  .market-card .label {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }}
+  .market-card .price {{ font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }}
+  .market-card .change {{ font-family:'DM Mono',monospace; font-size:11px; }}
+  .market-card .change.up {{ color:#5599CC; }}
+  .market-card .change.down {{ color:var(--eh-red); }}
 
-  /* Section Widgets */
-  .widgets {{ display:flex; flex-direction:column; gap:12px; }}
+  .usage-banner {{
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }}
+  .usage-row {{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }}
+  .usage-label {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }}
+  .usage-status {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }}
+  .usage-bar {{ background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }}
+  .usage-bar-fill {{ height:2px; transition:width 0.3s; }}
+  .usage-details {{ font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }}
+
+  .widgets {{ display:flex; flex-direction:column; gap:14px; }}
 
   .widget {{
-    background:#ffffff; border-radius:12px; border:1px solid #e0e0e0;
-    overflow:hidden; transition:border-color 0.2s;
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
   }}
-  .widget.active {{ border-color:#bbb; }}
+  .widget.active {{ border-color:var(--text-muted); }}
+  .widget[data-tier="1"] {{ border-bottom:2px solid var(--eh-red); }}
+  .widget[data-tier="2"] {{ border-bottom:2px solid var(--eh-dark-red); }}
+  .widget[data-tier="3"] {{ border-bottom:2px solid var(--eh-grey); }}
 
-  .widget-header {{
-    display:flex; align-items:flex-start; padding:16px 18px; cursor:pointer;
-    gap:14px; transition:background 0.15s;
-  }}
-  .widget-header:hover {{ background:#fafafa; }}
+  .widget-header {{ display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }}
+  .widget-header:hover {{ background:rgba(255,255,255,0.02); }}
+  .widget-num {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }}
+  .widget-info {{ flex:1; min-width:0; }}
+  .widget-title {{ font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }}
+  .widget-headlines {{ margin:8px 0 0; padding:0; list-style:none; }}
+  .widget-headlines li {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }}
+  .widget-headlines li::before {{ content:'·'; position:absolute; left:2px; color:var(--text-muted); }}
+  .widget-count {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }}
+  .widget-chevron {{ color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }}
+  .widget.active .widget-chevron {{ transform:rotate(90deg); color:var(--eh-red); }}
 
-  .widget-icon {{ font-size:24px; flex-shrink:0; }}
-  .widget-info {{ flex:1; }}
-  .widget-title {{
-    font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
-  }}
-  .widget-headlines {{
-    margin:6px 0 0 0; padding:0; list-style:none;
-  }}
-  .widget-headlines li {{
-    font-size:12px; color:#666; line-height:1.4; padding:2px 0;
-    padding-left:12px; position:relative; word-wrap:break-word;
-  }}
-  .widget-headlines li::before {{
-    content:'\\2022'; position:absolute; left:0; color:#999;
-  }}
-  .widget-count {{
-    font-size:11px; color:#888; background:#f0f0f0; padding:3px 8px;
-    border-radius:10px; flex-shrink:0;
-  }}
-  .widget-chevron {{
-    color:#bbb; font-size:16px; transition:transform 0.2s; flex-shrink:0;
-  }}
-  .widget.active .widget-chevron {{ transform:rotate(90deg); color:{CLAUDE_ORANGE}; }}
+  .widget-body {{ max-height:0; overflow:hidden; transition:max-height .35s ease; }}
+  .widget.active .widget-body {{ max-height:4000px; }}
 
-  /* Stories inside widget */
-  .widget-body {{
-    max-height:0; overflow:hidden; transition:max-height 0.35s ease;
-  }}
-  .widget.active .widget-body {{ max-height:2000px; }}
+  .widget-stories {{ padding:0 22px 20px; border-top:1px solid var(--border-dim); }}
 
-  .widget-stories {{ padding:0 18px 16px; }}
-
-  .story {{
-    padding:14px 0; border-top:1px solid #eee; cursor:pointer;
-  }}
+  .story {{ padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }}
   .story:first-child {{ border-top:none; }}
+  .story-headline {{ font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }}
+  .story-headline .arrow {{ font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }}
+  .story.open .story-headline .arrow {{ transform:rotate(90deg); color:var(--eh-red); }}
+  .story-source {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }}
 
-  .story-headline {{
-    font-size:15px; font-weight:600; color:#1a1a1a;
-    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-  }}
-  .story-headline .arrow {{
-    font-size:11px; color:#ccc; transition:transform 0.2s, color 0.2s;
-    flex-shrink:0; margin-top:4px;
-  }}
-  .story.open .story-headline .arrow {{ transform:rotate(90deg); color:{CLAUDE_ORANGE}; }}
-  .story-source {{ font-size:11px; color:#999; margin-top:2px; }}
+  .story-details {{ max-height:0; overflow:hidden; transition:max-height .3s ease; }}
+  .story.open .story-details {{ max-height:600px; }}
 
-  .story-details {{
-    max-height:0; overflow:hidden; transition:max-height 0.3s ease;
-  }}
-  .story.open .story-details {{ max-height:500px; }}
+  .story-summary {{ font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }}
+  .story-insight {{ font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--eh-red); }}
+  .insight-label {{ font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--eh-red); margin-bottom:8px; }}
+  .story-link {{ display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--eh-red); text-transform:uppercase; }}
+  .story-link:hover {{ color:#FFFFFF; }}
 
-  .story-summary {{
-    font-size:14px; color:#555; margin:12px 0 10px; line-height:1.55;
-  }}
-  .story-insight {{
-    font-size:13px; color:#b35c1e; line-height:1.55;
-    padding:12px 14px; background:rgba(224,122,47,0.08); border-radius:8px;
-    border-left:3px solid {CLAUDE_ORANGE};
-  }}
-  .insight-label {{
-    font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
-    color:{CLAUDE_ORANGE}; opacity:0.7; margin-bottom:4px;
-  }}
+  .panel {{ margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }}
+  .panel.edge {{ border-left:3px solid var(--eh-red); }}
+  .panel-title {{ font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }}
+  .panel.edge .panel-title {{ color:var(--eh-red); }}
+  .panel:not(.edge) .panel-title {{ color:var(--eh-grey); }}
+  .panel p {{ font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }}
 
-  /* The Edge */
-  .edge {{
-    margin-top:24px; padding:20px; background:#ffffff; border-radius:12px;
-    border:1px solid rgba(224,122,47,0.2);
-  }}
-  .edge-title {{
-    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;
-    color:{CLAUDE_ORANGE}; margin-bottom:10px;
-  }}
-  .edge p {{ font-size:14px; color:#555; line-height:1.7; }}
+  .footer {{ margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }}
+  .footer .brand {{ font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }}
+  .footer .ts {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }}
 
-  /* Tomorrow */
-  .tomorrow {{
-    margin-top:12px; padding:16px 20px; background:#ffffff; border-radius:12px;
-    border:1px solid #e0e0e0;
-  }}
-  .tomorrow-title {{
-    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;
-    color:#888; margin-bottom:8px;
-  }}
-  .tomorrow p {{ font-size:13px; color:#666; line-height:1.55; }}
-
-  /* Back Nav */
-  .back-nav {{
-    display:flex; align-items:center; gap:8px; margin-bottom:20px;
-    padding:10px 0;
-  }}
-  .back-nav a {{
-    display:flex; align-items:center; gap:6px; text-decoration:none;
-    font-size:13px; font-weight:600; color:#888; transition:color 0.2s;
-  }}
-  .back-nav a:hover {{ color:{CLAUDE_ORANGE}; }}
-  .back-nav .arrow {{ font-size:16px; }}
-
-  .footer {{ margin-top:32px; text-align:center; }}
-  .footer p {{ font-size:11px; color:#999; }}
-
-  /* Usage Banner */
-  .usage-banner {{
-    background:#ffffff; border-radius:10px; padding:12px 16px; margin-bottom:20px;
-    border:1px solid #e0e0e0;
-  }}
-  .usage-row {{
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;
-  }}
-  .usage-label {{ font-size:10px; color:#888; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; }}
-  .usage-status {{ font-size:10px; font-weight:700; }}
-  .usage-bar {{
-    background:#e8e8e8; border-radius:3px; height:4px; overflow:hidden; margin-bottom:6px;
-  }}
-  .usage-bar-fill {{ height:4px; border-radius:3px; transition:width 0.3s; }}
-  .usage-details {{ font-size:10px; color:#888; }}
-
-  @media (max-width:480px) {{
-    .container {{ padding:14px 10px 40px; }}
-    .widget-header {{ padding:14px 14px; }}
-    .widget-stories {{ padding:0 14px 14px; }}
-    .market-card {{ min-width:70px; padding:10px 6px; }}
-    .market-card .price {{ font-size:15px; }}
+  @media (max-width:560px) {{
+    .container {{ padding:24px 16px 64px; }}
+    .header h1 {{ font-size:24px; }}
+    .widget-header {{ padding:16px 18px; gap:14px; }}
+    .widget-stories {{ padding:0 18px 18px; }}
   }}
 </style>
 </head>
 <body>
+
+<nav class="topnav">
+  <a class="back" href="./index.html"><span>&#9664;</span> Briefs</a>
+  <div class="lockup">
+    {eh_logo_svg(20, 27, 0.45)}
+    <div>
+      <div class="dm">Dark Matter</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+    <span class="suite">&middot; Investment Intelligence Suite</span>
+  </div>
+</nav>
+
 <div class="container">
-  <div class="back-nav"><a href="/index.html"><span class="arrow">&#9664;</span> Briefs</a></div>
   <div id="usage"></div>
   <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
     <h1>{title}</h1>
     <div class="meta">{timestamp} &middot; Tap any section to expand</div>
   </div>
+
   <div id="market-bar" class="market-bar"></div>
   <div id="widgets" class="widgets"></div>
   <div id="edge"></div>
   <div id="tomorrow"></div>
-  <div class="footer"><p>{timestamp}</p></div>
+
+  <div class="footer">
+    <span class="brand">Dark Matter &middot; Event Horizon</span>
+    <span class="ts">{timestamp}</span>
+  </div>
 </div>
+
 <script>
 const usageInfo = {usage_json};
 const rawSections = {sections_json};
 const edgeText = {edge_text};
 const tomorrowText = {tomorrow_text};
 const colors = {colors_json};
-const icons = {icons_json};
 const quotes = {quotes_json};
 const sectionOrder = {section_order_json};
+const noInsight = {json_no_insight};
+
+const TIER_BY_COLOR = {{ '#CC0000':1, '#7A1010':2, '#888888':3 }};
+
+function escapeHtml(s) {{
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\\"/g,'&quot;').replace(/'/g,'&#39;');
+}}
 
 // Usage banner
 if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {{
@@ -827,9 +894,9 @@ if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {{
   const budget = 10.0;
   const pct = Math.min(100, (monthly / budget) * 100);
   let barColor, status;
-  if (monthly < 2) {{ barColor = '#27ae60'; status = 'LOW'; }}
-  else if (monthly < 5) {{ barColor = '#f39c12'; status = 'MODERATE'; }}
-  else {{ barColor = '#e74c3c'; status = 'HIGH'; }}
+  if (monthly < 2)      {{ barColor = '#5599CC'; status = 'LOW'; }}
+  else if (monthly < 5) {{ barColor = '#888888'; status = 'MODERATE'; }}
+  else                  {{ barColor = '#CC0000'; status = 'HIGH'; }}
 
   document.getElementById('usage').innerHTML =
     '<div class="usage-banner">' +
@@ -838,7 +905,7 @@ if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {{
         '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
       '</div>' +
       '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
-      '<div class="usage-details">This brief: $' + cost.toFixed(4) + ' (' + tokens.toLocaleString() + ' tokens) &middot; Projected: $' + monthly.toFixed(2) + '/mo &middot; Budget: $10.00/mo</div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
     '</div>';
 }}
 
@@ -849,16 +916,16 @@ quotes.forEach(q => {{
   card.className = 'market-card';
   if (q.is_yield) {{
     card.innerHTML =
-      '<div class="label">' + q.label + '</div>' +
-      '<div class="price">' + q.price + '</div>' +
-      '<div class="change" style="color:#888">7d yield</div>';
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
   }} else {{
     const change = parseFloat(q.change_pct) || 0;
     const dir = change >= 0 ? 'up' : 'down';
     const arrow = change >= 0 ? '&#9650;' : '&#9660;';
     card.innerHTML =
-      '<div class="label">' + q.label + '</div>' +
-      '<div class="price">' + q.price + '</div>' +
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
       '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
   }}
   marketBar.appendChild(card);
@@ -867,82 +934,75 @@ quotes.forEach(q => {{
 // Build sections in fixed order
 const sectionsMap = {{}};
 rawSections.forEach(s => {{ sectionsMap[s.name] = s; }});
-
 const widgetsContainer = document.getElementById('widgets');
 
-sectionOrder.forEach(secName => {{
+sectionOrder.forEach((secName, idx) => {{
   const section = sectionsMap[secName] || {{ name: secName, stories: [] }};
-  const color = colors[secName] || '#888';
-  const icon = icons[secName] || '&#128196;';
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
   const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
 
-  // Build headline bullet list for widget header
-  var headlineBullets = '';
+  let headlineBullets;
   if (stories.length > 0) {{
-    headlineBullets = '<ul class="widget-headlines">';
-    stories.forEach(function(s) {{
-      headlineBullets += '<li>' + s.headline + '</li>';
-    }});
-    headlineBullets += '</ul>';
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
   }} else {{
     headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
   }}
 
   const widget = document.createElement('div');
   widget.className = 'widget';
+  widget.dataset.tier = tier;
 
-  // Header
   const header = document.createElement('div');
   header.className = 'widget-header';
   header.innerHTML =
-    '<span class="widget-icon">' + icon + '</span>' +
+    '<span class="widget-num">' + num + ' &middot;</span>' +
     '<div class="widget-info">' +
-      '<div class="widget-title" style="color:' + color + '">' + secName + '</div>' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
       headlineBullets +
     '</div>' +
     '<span class="widget-count">' + stories.length + '</span>' +
     '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
 
-  header.addEventListener('click', function() {{
-    widget.classList.toggle('active');
-  }});
-
-  // Body
   const body = document.createElement('div');
   body.className = 'widget-body';
-
   const storiesDiv = document.createElement('div');
   storiesDiv.className = 'widget-stories';
-
-  const noInsight = {json_no_insight};
-  const skipInsight = noInsight.includes(secName);
 
   stories.forEach(story => {{
     const storyEl = document.createElement('div');
     storyEl.className = 'story';
-    const linkHtml = story.link ? '<a href="' + story.link + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:12px;color:{CLAUDE_ORANGE};text-decoration:none">Read source &#8594;</a>' : '';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
     if (skipInsight) {{
-      // Breaking News — headline + source + link only, no expand
       storyEl.innerHTML =
-        '<div class="story-headline"><span>' + story.headline + '</span></div>' +
-        '<div class="story-source">' + (story.source || '') + '</div>' +
-        (story.link ? '<a href="' + story.link + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:4px;font-size:12px;color:{CLAUDE_ORANGE};text-decoration:none">Read source &#8594;</a>' : '');
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
     }} else {{
       storyEl.innerHTML =
-        '<div class="story-headline"><span>' + story.headline + '</span><span class="arrow">&#9656;</span></div>' +
-        '<div class="story-source">' + (story.source || '') + '</div>' +
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
         '<div class="story-details">' +
-          '<div class="story-summary">' + story.summary + '</div>' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
           '<div class="story-insight">' +
             '<div class="insight-label">Claude Insight</div>' +
-            story.insight +
+            escapeHtml(story.insight || '') +
           '</div>' +
           linkHtml +
         '</div>';
-      storyEl.addEventListener('click', function(e) {{
+      storyEl.addEventListener('click', e => {{
         if (e.target.tagName === 'A') return;
         e.stopPropagation();
-        this.classList.toggle('open');
+        storyEl.classList.toggle('open');
       }});
     }}
     storiesDiv.appendChild(storyEl);
@@ -954,16 +1014,14 @@ sectionOrder.forEach(secName => {{
   widgetsContainer.appendChild(widget);
 }});
 
-// The Edge
 if (edgeText) {{
   document.getElementById('edge').innerHTML =
-    '<div class="edge"><div class="edge-title">&#9889; The Edge</div><p>' + edgeText + '</p></div>';
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
 }}
 
-// Tomorrow's Watch
 if (tomorrowText) {{
   document.getElementById('tomorrow').innerHTML =
-    '<div class="tomorrow"><div class="tomorrow-title">&#128337; Tomorrow\\'s Watch</div><p>' + tomorrowText + '</p></div>';
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
 }}
 </script>
 </body>
@@ -1281,6 +1339,9 @@ def s3_generate_index(briefs):
 
     briefs_json = json.dumps(briefs)
 
+    logo_hero = eh_logo_svg(56, 75, 0.55)
+    logo_nav = eh_logo_svg(20, 27, 0.45)
+
     index_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1288,104 +1349,136 @@ def s3_generate_index(briefs):
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>Intelligence Brief</title>
+<title>Daily Intelligence Brief &middot; Dark Matter</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  * {{ margin:0; padding:0; box-sizing:border-box; }}
-  body {{
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    background:#0a0a0a; color:#e8e8e8; line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
+  :root {{
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --eh-red:#CC0000; --eh-dark-red:#7A1010; --eh-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878;
+    --text-muted:#3A4A5A; --text-faint:#252E3A;
   }}
-  .container {{ max-width:700px; margin:0 auto; padding:20px 16px 80px; }}
-  .header {{ text-align:center; margin-bottom:28px; padding-top:10px; }}
-  .header h1 {{ font-size:28px; font-weight:700; color:#fff; letter-spacing:-0.5px; }}
-  .header .sub {{ font-size:12px; color:#555; margin-top:4px; }}
-  .header .orange {{ color:{CLAUDE_ORANGE}; }}
+  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }}
+  body {{ background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }}
+  ::-webkit-scrollbar {{ width:4px; }}
+  ::-webkit-scrollbar-thumb {{ background:var(--border-dim); border-radius:2px; }}
+  a {{ color:inherit; text-decoration:none; }}
 
-  /* Tab Navigation */
+  .topnav {{
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }}
+  .topnav .lockup {{ display:flex; align-items:center; gap:12px; }}
+  .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }}
+  .topnav .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; }}
+  .topnav .suite {{ display:none; margin-left:auto; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }}
+  @media (min-width:720px) {{ .topnav .suite {{ display:inline; }} }}
+
+  .container {{ max-width:760px; margin:0 auto; padding:48px 24px 96px; }}
+
+  .cover {{
+    text-align:center; padding:32px 0 48px; border-bottom:1px solid var(--border-dim);
+    margin-bottom:48px;
+  }}
+  .cover .mark {{ display:flex; justify-content:center; margin-bottom:24px; }}
+  .cover h1 {{ font-family:'Syne',sans-serif; font-weight:800; font-size:36px; letter-spacing:9px; color:#FFFFFF; text-transform:uppercase; margin-bottom:10px; }}
+  .cover .sub {{ font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--eh-red); text-transform:uppercase; margin-bottom:8px; }}
+  .cover .desc {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-faint); text-transform:uppercase; }}
+
   .tabs {{
-    display:flex; gap:0; margin-bottom:24px; background:#141414;
-    border-radius:12px; padding:4px; border:1px solid #1e1e1e;
+    display:flex; gap:0; margin-bottom:32px; background:var(--bg-surface);
+    border:1px solid var(--border-dim); padding:4px;
   }}
   .tab {{
-    flex:1; text-align:center; padding:10px 12px; font-size:13px;
-    font-weight:600; color:#666; cursor:pointer; border-radius:8px;
-    transition:all 0.2s;
+    flex:1; text-align:center; padding:12px 14px; font-family:'DM Mono',monospace;
+    font-size:10px; letter-spacing:3px; font-weight:500; color:var(--text-dim);
+    cursor:pointer; transition:all .2s; text-transform:uppercase;
+    user-select:none;
   }}
-  .tab.active {{ background:#1e1e1e; color:#fff; }}
-  .tab .count {{
-    display:inline-block; font-size:10px; background:#1e1e1e; color:#888;
-    padding:1px 6px; border-radius:8px; margin-left:4px;
-  }}
-  .tab.active .count {{ background:#333; color:#bbb; }}
+  .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); }}
+  .tab .count {{ display:inline-block; margin-left:6px; color:var(--text-muted); }}
+  .tab.active .count {{ color:var(--eh-red); }}
 
-  /* Brief Cards */
   .view {{ display:none; }}
   .view.active {{ display:block; }}
 
-  .date-group {{ margin-bottom:20px; }}
+  .date-group {{ margin-bottom:24px; }}
   .date-label {{
-    font-size:11px; font-weight:700; color:#555; text-transform:uppercase;
-    letter-spacing:1.5px; margin-bottom:10px; padding-left:4px;
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px;
+    color:var(--text-muted); text-transform:uppercase; margin-bottom:12px;
+    padding-bottom:10px; border-bottom:1px solid var(--border-dim);
   }}
 
   .brief-card {{
-    display:flex; align-items:center; background:#141414; border-radius:12px;
-    border:1px solid #1e1e1e; padding:16px 18px; margin-bottom:8px;
-    cursor:pointer; transition:border-color 0.2s, background 0.2s;
-    text-decoration:none; color:inherit;
+    position:relative;
+    display:flex; align-items:center; background:var(--bg-surface);
+    border:1px solid var(--border-dim); padding:18px 20px; margin-bottom:10px;
+    cursor:pointer; transition:border-color .2s, background .2s;
   }}
-  .brief-card:hover {{ border-color:#333; background:#1a1a1a; }}
+  .brief-card:hover {{ border-color:var(--text-muted); background:var(--bg-elevated); }}
+  .brief-card[data-type="morning"]  {{ border-left:2px solid var(--eh-red); }}
+  .brief-card[data-type="midday"]   {{ border-left:2px solid var(--eh-dark-red); }}
+  .brief-card[data-type="evening"]  {{ border-left:2px solid var(--eh-grey); }}
 
-  .brief-icon {{
-    width:40px; height:40px; border-radius:10px; display:flex;
-    align-items:center; justify-content:center; font-size:18px;
-    flex-shrink:0; margin-right:14px;
-  }}
-  .brief-icon.morning {{ background:rgba(241,196,15,0.15); }}
-  .brief-icon.midday {{ background:rgba(52,152,219,0.15); }}
-  .brief-icon.evening {{ background:rgba(155,89,182,0.15); }}
-
-  .brief-info {{ flex:1; }}
-  .brief-title {{ font-size:15px; font-weight:600; color:#e0e0e0; }}
-  .brief-meta {{ font-size:11px; color:#555; margin-top:2px; }}
-
+  .brief-num {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); width:48px; flex-shrink:0; }}
+  .brief-info {{ flex:1; min-width:0; }}
+  .brief-title {{ font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; color:var(--text-primary); text-transform:uppercase; }}
+  .brief-meta {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-top:4px; text-transform:uppercase; }}
   .brief-pin {{
-    width:32px; height:32px; border-radius:8px; border:none;
-    background:transparent; cursor:pointer; font-size:16px;
-    color:#444; transition:color 0.2s; display:flex;
-    align-items:center; justify-content:center; flex-shrink:0;
+    background:transparent; border:none; cursor:pointer;
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:var(--text-muted); padding:6px 10px; transition:color .2s;
+    text-transform:uppercase;
   }}
-  .brief-pin:hover {{ color:{CLAUDE_ORANGE}; }}
-  .brief-pin.pinned {{ color:{CLAUDE_ORANGE}; }}
-
-  .brief-arrow {{ color:#444; margin-left:8px; flex-shrink:0; }}
+  .brief-pin:hover {{ color:var(--eh-red); }}
+  .brief-pin.pinned {{ color:var(--eh-red); }}
+  .brief-arrow {{ color:var(--text-muted); font-size:14px; margin-left:8px; flex-shrink:0; }}
 
   .empty {{
-    text-align:center; padding:40px 20px; color:#444; font-size:14px;
+    text-align:center; padding:48px 20px; font-family:'DM Mono',monospace;
+    font-size:11px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase;
   }}
 
   .footer {{
-    text-align:center; margin-top:40px; padding-top:20px;
-    border-top:1px solid #1a1a1a;
+    margin-top:80px; padding-top:24px; border-top:1px solid var(--border-dim);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
   }}
-  .footer p {{ font-size:11px; color:#333; }}
+  .footer .brand {{ font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }}
+  .footer .ts {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }}
 
-  @media (max-width:480px) {{
-    .container {{ padding:14px 10px 60px; }}
-    .brief-card {{ padding:14px 14px; }}
+  @media (max-width:560px) {{
+    .container {{ padding:32px 16px 64px; }}
+    .cover h1 {{ font-size:26px; letter-spacing:6px; }}
+    .brief-card {{ padding:16px 16px; }}
+    .brief-num {{ width:40px; }}
   }}
 </style>
 </head>
 <body>
+
+<nav class="topnav">
+  <div class="lockup">
+    {logo_nav}
+    <div>
+      <div class="dm">Dark Matter</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </div>
+  <span class="suite">Investment Intelligence Suite</span>
+</nav>
+
 <div class="container">
-  <div class="header">
-    <h1>Intelligence Brief</h1>
-    <div class="sub">Daily Intelligence Brief</div>
+
+  <div class="cover">
+    <div class="mark">{logo_hero}</div>
+    <h1>Daily Intelligence Brief</h1>
+    <div class="sub">Event Horizon</div>
+    <div class="desc">Three editions per day &middot; Markets, Politics, AI, World</div>
   </div>
 
   <div class="tabs">
@@ -1398,15 +1491,19 @@ def s3_generate_index(briefs):
   <div id="archive" class="view"></div>
   <div id="pinned" class="view"></div>
 
-  <div class="footer"><p>Intelligence on demand</p></div>
+  <div class="footer">
+    <span class="brand">Dark Matter &middot; Event Horizon</span>
+    <span class="ts" id="footer-ts"></span>
+  </div>
 </div>
 
 <script>
 const briefs = {briefs_json};
 const today = "{today_str}";
-const ORANGE = "{CLAUDE_ORANGE}";
 
-// Tab switching
+document.getElementById('footer-ts').textContent =
+  new Date().toLocaleString('en-US', {{ timeZone:'America/New_York', month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }}).toUpperCase();
+
 document.querySelectorAll('.tab').forEach(tab => {{
   tab.addEventListener('click', () => {{
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1416,44 +1513,46 @@ document.querySelectorAll('.tab').forEach(tab => {{
   }});
 }});
 
-function briefIcon(type) {{
-  if (type === 'morning') return '\\u2600\\ufe0f';
-  if (type === 'midday') return '\\u2601\\ufe0f';
-  if (type === 'evening') return '\\ud83c\\udf19';
-  return '\\ud83d\\udcf0';
-}}
-
 function briefLabel(type) {{
   if (type === 'morning') return 'Morning Brief';
-  if (type === 'midday') return 'Midday Update';
+  if (type === 'midday')  return 'Midday Update';
   if (type === 'evening') return 'Evening Wrap';
   return type.charAt(0).toUpperCase() + type.slice(1);
 }}
-
+function briefNumber(type) {{
+  if (type === 'morning') return '01';
+  if (type === 'midday')  return '02';
+  if (type === 'evening') return '03';
+  return '··';
+}}
 function formatDate(dateStr) {{
   const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('en-US', {{ weekday:'long', month:'long', day:'numeric' }});
+  return d.toLocaleDateString('en-US', {{ weekday:'long', month:'long', day:'numeric' }}).toUpperCase();
+}}
+function escapeHtml(s) {{
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }}
 
 function renderCard(brief) {{
-  const url = brief.key;
   const pinClass = brief.pinned ? 'pinned' : '';
-  const pinIcon = brief.pinned ? '\\ud83d\\udccc' : '\\ud83d\\udccc';
-  return '<div class="brief-card" style="position:relative">' +
-    '<a href="' + url + '" style="display:flex;align-items:center;flex:1;text-decoration:none;color:inherit">' +
-      '<div class="brief-icon ' + brief.type + '">' + briefIcon(brief.type) + '</div>' +
-      '<div class="brief-info">' +
-        '<div class="brief-title">' + briefLabel(brief.type) + '</div>' +
-        '<div class="brief-meta">' + formatDate(brief.date) + '</div>' +
-      '</div>' +
-      '<span class="brief-arrow">&#9656;</span>' +
-    '</a>' +
-    '<button class="brief-pin ' + pinClass + '" onclick="togglePin(event, \\'' + brief.key + '\\')" title="Pin this brief">' + pinIcon + '</button>' +
-  '</div>';
+  const pinLabel = brief.pinned ? 'PINNED' : 'PIN';
+  const safeKey = escapeHtml(brief.key).replace(/'/g, "&#39;");
+  return '' +
+    '<div class="brief-card" data-type="' + escapeHtml(brief.type) + '">' +
+      '<a href="' + escapeHtml(brief.key) + '" style="display:flex;align-items:center;flex:1">' +
+        '<span class="brief-num">' + briefNumber(brief.type) + ' &middot;</span>' +
+        '<span class="brief-info">' +
+          '<span class="brief-title">' + briefLabel(brief.type) + '</span>' +
+          '<span class="brief-meta">' + formatDate(brief.date) + '</span>' +
+        '</span>' +
+        '<span class="brief-arrow">&#9656;</span>' +
+      '</a>' +
+      '<button class="brief-pin ' + pinClass + '" data-key="' + safeKey + '">' + pinLabel + '</button>' +
+    '</div>';
 }}
 
-// Pins are per-device (localStorage), since this is a static site.
-const PIN_STORE = 'jeeves.pins';
+// Per-device pins (localStorage) — site is static, no server pin store.
+const PIN_STORE = 'dib.pins';
 function loadLocalPins() {{
   try {{ return new Set(JSON.parse(localStorage.getItem(PIN_STORE) || '[]')); }}
   catch {{ return new Set(); }}
@@ -1461,38 +1560,41 @@ function loadLocalPins() {{
 function saveLocalPins(set) {{
   localStorage.setItem(PIN_STORE, JSON.stringify([...set]));
 }}
-// Merge persisted local pins on top of server-side state.
 const _localPins = loadLocalPins();
 briefs.forEach(b => {{ if (_localPins.has(b.key)) b.pinned = true; }});
 
-function togglePin(e, key) {{
-  e.stopPropagation();
-  e.preventDefault();
-  const brief = briefs.find(b => b.key === key);
-  if (!brief) return;
-  brief.pinned = !brief.pinned;
-  const pins = loadLocalPins();
-  if (brief.pinned) pins.add(key); else pins.delete(key);
-  saveLocalPins(pins);
-  renderAll();
+function attachPinHandlers() {{
+  document.querySelectorAll('.brief-pin').forEach(btn => {{
+    btn.addEventListener('click', e => {{
+      e.preventDefault(); e.stopPropagation();
+      const key = btn.dataset.key;
+      const brief = briefs.find(b => b.key === key);
+      if (!brief) return;
+      brief.pinned = !brief.pinned;
+      const pins = loadLocalPins();
+      if (brief.pinned) pins.add(key); else pins.delete(key);
+      saveLocalPins(pins);
+      renderAll();
+    }});
+  }});
 }}
 
 function renderAll() {{
-  // Today
   const todayBriefs = briefs.filter(b => b.date === today);
+  const archiveBriefs = briefs.filter(b => b.date !== today);
+  const pinnedBriefs = briefs.filter(b => b.pinned);
+
   const todayEl = document.getElementById('today');
   if (todayBriefs.length === 0) {{
-    todayEl.innerHTML = '<div class="empty">No briefs yet today. Check back after 7 AM ET.</div>';
+    todayEl.innerHTML = '<div class="empty">No briefs yet today &middot; Check back after 07:00 ET</div>';
   }} else {{
     todayEl.innerHTML = '<div class="date-group"><div class="date-label">Today &middot; ' +
       formatDate(today) + '</div>' + todayBriefs.map(renderCard).join('') + '</div>';
   }}
 
-  // Archive (grouped by date, skip today)
-  const archiveBriefs = briefs.filter(b => b.date !== today);
   const archiveEl = document.getElementById('archive');
   if (archiveBriefs.length === 0) {{
-    archiveEl.innerHTML = '<div class="empty">No archived briefs yet.</div>';
+    archiveEl.innerHTML = '<div class="empty">No archived briefs yet</div>';
   }} else {{
     const grouped = {{}};
     archiveBriefs.forEach(b => {{
@@ -1507,26 +1609,26 @@ function renderAll() {{
     archiveEl.innerHTML = html;
   }}
 
-  // Pinned
-  const pinnedBriefs = briefs.filter(b => b.pinned);
   const pinnedEl = document.getElementById('pinned');
   if (pinnedBriefs.length === 0) {{
-    pinnedEl.innerHTML = '<div class="empty">No pinned briefs. Tap the pin icon on any brief to save it.</div>';
+    pinnedEl.innerHTML = '<div class="empty">No pinned briefs &middot; Tap PIN on any brief to save it</div>';
   }} else {{
     pinnedEl.innerHTML = pinnedBriefs.map(renderCard).join('');
   }}
 
-  // Update tab counts
   document.querySelectorAll('.tab').forEach(tab => {{
     const name = tab.dataset.tab;
     let count = 0;
-    if (name === 'today') count = todayBriefs.length;
-    else if (name === 'archive') count = archiveBriefs.length;
-    else if (name === 'pinned') count = pinnedBriefs.length;
+    if (name === 'today')   count = todayBriefs.length;
+    if (name === 'archive') count = archiveBriefs.length;
+    if (name === 'pinned')  count = pinnedBriefs.length;
     const existing = tab.querySelector('.count');
-    if (existing) existing.textContent = count;
-    else tab.innerHTML += ' <span class="count">' + count + '</span>';
+    const cstr = String(count).padStart(2, '0');
+    if (existing) existing.textContent = cstr;
+    else tab.innerHTML += ' <span class="count">' + cstr + '</span>';
   }});
+
+  attachPinHandlers();
 }}
 
 renderAll();
@@ -1536,15 +1638,15 @@ renderAll();
 
     (DOCS_DIR / "index.html").write_text(index_html, encoding="utf-8")
 
-    # Also write PWA manifest (icons referenced but optional — 404 is harmless)
+    # Also write PWA manifest
     manifest = {
-        "name": "Intelligence Brief",
-        "short_name": "Intel Brief",
-        "description": "Daily Intelligence Brief",
+        "name": "Daily Intelligence Brief — Dark Matter",
+        "short_name": "DIB",
+        "description": "Daily Intelligence Brief · Dark Matter Event Horizon",
         "start_url": "./index.html",
         "display": "standalone",
-        "background_color": "#0a0a0a",
-        "theme_color": "#0a0a0a",
+        "background_color": BG_BASE,
+        "theme_color": BG_BASE,
     }
     (DOCS_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print("Wrote docs/index.html and docs/manifest.json.")
@@ -1612,16 +1714,27 @@ def lambda_handler(event, context):
     if should_skip:
         print(f"Headline overlap {overlap_pct:.0%} — no material updates since last brief. Skipping.")
         subject = f"{config['subject_prefix']} — {date_str} — No Major Updates"
+        sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
+        mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
         skip_html = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f5f5f5">
-<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:24px 20px;color:#1a1a1a;background:#ffffff">
-<h1 style="font-size:20px;font-weight:700;margin:0 0 12px">{config['subject_prefix']} — {date_str}</h1>
-<p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 16px">No material developments since the last brief. Headlines overlap at {int(overlap_pct * 100)}%. The next scheduled brief will run as normal.</p>
-<div style="margin-top:20px;padding-top:10px;border-top:1px solid #eee">
-<p style="color:#bbb;font-size:10px;margin:0">{timestamp} · No material updates.</p>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"></head>
+<body style="margin:0;padding:0;background:#050810">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#050810"><tr><td align="center" style="padding:32px 16px">
+<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#0D0F18;border:1px solid #1A2030;border-bottom:2px solid #888888">
+<tr><td style="padding:32px 28px">
+<table width="100%" cellpadding="0" cellspacing="0"><tr>
+<td><span style="font-family:{sans};font-size:11px;font-weight:800;letter-spacing:5px;color:#E0E8F0;text-transform:uppercase">Dark Matter</span></td>
+<td style="text-align:right"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A;text-transform:uppercase">Investment Intelligence Suite</span></td>
+</tr></table>
+<div style="height:1px;background:#1A2030;margin:14px 0 22px"></div>
+<div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:#888888;text-transform:uppercase;margin-bottom:6px">Daily Intelligence Brief</div>
+<h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 14px">{config['subject_prefix']} — {date_str}</h1>
+<p style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.65;margin:0">No material developments since the last brief. Headlines overlap at {int(overlap_pct * 100)}%. The next scheduled brief will run as normal.</p>
+<div style="margin-top:36px;padding-top:18px;border-top:1px solid #1A2030">
+<span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp} &middot; No material updates</span>
 </div>
-</div>
+</td></tr></table>
+</td></tr></table>
 </body></html>"""
         send_email(subject, skip_html)
         return {"status": "skipped_no_new_content", "overlap": overlap_pct}
@@ -1648,7 +1761,7 @@ def lambda_handler(event, context):
     print(f"Calling Claude ({ANTHROPIC_MODEL}) for analysis...")
     raw_response, usage_info = call_claude(config["system_prompt"], headlines_text)
 
-    # Parse JSON — extract the object even if the model adds commentary
+    # Parse JSON — extract the object even if the model adds commentary or truncates.
     cleaned = raw_response.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.split("\n", 1)[-1]
@@ -1656,11 +1769,13 @@ def lambda_handler(event, context):
             cleaned = cleaned[:-3]
     cleaned = cleaned.strip()
 
-    # Find the JSON object by matching braces
+    # Find the JSON object by matching braces. If depth never closes (truncation),
+    # take everything from the first { to the end so json.loads gives a useful error
+    # — not an empty string.
     start = cleaned.find("{")
     if start != -1:
         depth = 0
-        end = start
+        end = len(cleaned)  # default: full remainder, not start (avoid empty slice on truncation)
         for i in range(start, len(cleaned)):
             if cleaned[i] == "{":
                 depth += 1
@@ -1671,15 +1786,47 @@ def lambda_handler(event, context):
                     break
         cleaned = cleaned[start:end]
 
+    data = None
     try:
         data = json.loads(cleaned)
     except json.JSONDecodeError as e:
-        print(f"JSON parse error: {e}")
-        print(f"Raw: {raw_response[:500]}")
-        subject = f"{config['subject_prefix']} \u2014 {date_str}"
-        fallback = f"<div style='font-family:sans-serif;padding:20px'><pre style='white-space:pre-wrap'>{raw_response}</pre></div>"
-        send_email(subject, fallback)
-        return {"status": "sent_fallback_parse_error"}
+        # Try one repair pass: close any unterminated string and balance braces/brackets.
+        repaired = cleaned
+        # If the last quote is unmatched, append a closing quote.
+        if repaired.count('"') % 2 == 1:
+            repaired += '"'
+        # Trim a trailing comma that often appears mid-truncation.
+        repaired = re.sub(r',\s*$', '', repaired)
+        # Balance brackets and braces (close in correct order using a stack walk).
+        stack = []
+        for ch in repaired:
+            if ch in '{[':
+                stack.append(ch)
+            elif ch == '}' and stack and stack[-1] == '{':
+                stack.pop()
+            elif ch == ']' and stack and stack[-1] == '[':
+                stack.pop()
+        for opener in reversed(stack):
+            repaired += '}' if opener == '{' else ']'
+        try:
+            data = json.loads(repaired)
+            print(f"JSON repaired after truncation (added {len(repaired) - len(cleaned)} chars).")
+        except json.JSONDecodeError as e2:
+            print(f"JSON parse error (unrecoverable): {e2}")
+            print(f"Raw[:1000]: {raw_response[:1000]}")
+            subject = f"{config['subject_prefix']} \u2014 {date_str} \u2014 Generation Error"
+            fallback = (
+                f"<div style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;"
+                f"max-width:600px;margin:0 auto;padding:32px 24px;background:#0D0F18;color:#E0E8F0'>"
+                f"<h1 style='font-size:18px;font-weight:700;margin:0 0 12px'>Brief generation failed</h1>"
+                f"<p style='font-size:13px;color:#7A8A9A;line-height:1.6;margin:0 0 16px'>"
+                f"The model response could not be parsed. The next scheduled brief will retry automatically."
+                f"</p>"
+                f"<p style='font-size:11px;color:#3A4A5A;margin:0'>Error: {e2}</p>"
+                f"</div>"
+            )
+            send_email(subject, fallback)
+            return {"status": "sent_fallback_parse_error", "error": str(e2)}
 
     # 5. Build all views
     title = f"{config['subject_prefix']} \u2014 {date_str}"
