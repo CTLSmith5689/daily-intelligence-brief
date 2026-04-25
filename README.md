@@ -1,4 +1,4 @@
-# jeeves-intelligence-brief
+# Daily Intelligence Brief
 
 Daily intelligence brief: 3x/day finance + tech + politics + culture roundup, generated via Claude, emailed via iCloud SMTP, archived as static HTML on GitHub Pages.
 
@@ -36,7 +36,7 @@ Actions tab → "jeeves-brief" → Run workflow → pick edition.
 
 ## Archive viewer
 
-GitHub Pages serves `docs/` at `https://ctlsmith5689.github.io/jeeves-intelligence-brief/` with Today / Archive / Pinned tabs. Pins are device-local (localStorage) since the site is static.
+GitHub Pages serves `docs/` at `https://ctlsmith5689.github.io/daily-intelligence-brief/` with Today / Archive / Pinned tabs. Pins are device-local (localStorage) since the site is static.
 
 ## Local dev (optional)
 
