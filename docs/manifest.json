@@ -1,0 +1,9 @@
+{
+  "name": "Daily Intelligence Brief \u2014 Dark Matter",
+  "short_name": "DIB",
+  "description": "Daily Intelligence Brief \u00b7 Dark Matter Event Horizon",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050810",
+  "theme_color": "#050810"
+}

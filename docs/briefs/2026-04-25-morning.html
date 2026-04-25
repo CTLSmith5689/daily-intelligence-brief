@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Weekend Brief — Saturday, April 25</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --eh-red:#CC0000; --eh-dark-red:#7A1010; --eh-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878; --text-muted:#3A4A5A; --text-faint:#252E3A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'DM Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--eh-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--eh-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--eh-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--eh-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--eh-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--eh-red); }
+  .story-source { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--eh-red); }
+  .insight-label { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--eh-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--eh-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--eh-red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--eh-red); }
+  .panel:not(.edge) .panel-title { color:var(--eh-grey); }
+  .panel p { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="./index.html"><span>&#9664;</span> Briefs</a>
+  <div class="lockup">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Dark Matter</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+    <span class="suite">&middot; Investment Intelligence Suite</span>
+  </div>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Weekend Brief — Saturday, April 25</h1>
+    <div class="meta">01:43 PM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Dark Matter &middot; Event Horizon</span>
+    <span class="ts">01:43 PM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {"input_tokens": 13026, "output_tokens": 6924, "total_tokens": 19950, "cost_this_call": 0.0381, "cost_daily_projected": 0.1144, "cost_monthly_projected": 3.43};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "I-94 crash: 1 hurt, 2 in custody after Illinois State Police chase ends in Dan Ryan Expressway collision", "summary": "", "insight": "", "source": "ABC7 Chicago", "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPZC1GbWRScWxLREk3eXp2WlE3b0o0a29XMGNaNlFlUjVEdHE0WW5QLUV1dnMyM0ZUY2c5UGZ4a0Z4SzhtM1hJbnBSZXE0VjE5cnRMU1IxNktmTktLc3BDanNzVzZqQno0RHJ1UkNtaGlRVDJnREkzeDZEU1pYdHZwZHlGU2h1X1lrcGZTM2FubDJSRFRCR3F5M0J2S3NLOFU3N0hySTFkYkJ6aWIzZ0pMYzNwbDI4NjR6Nzl3Qnlud3JGdUEyNGdPMkRLNS15SWlGUlHSAdcBQVVfeXFMUFE0SnVwWVBVQ0Z1ekU5aEFRODE1S3BaWFVNNzY5RkNiSHN1OUt1UXk5WTFuTHhBQk04TzVPX0VncGY5WGtvQVdLRjZzM0tNNURxMGVDUGhJZEU4NVlNNW5LdHRFeU1jNVRGV0xYaTJBNTh5YXVjYjU4WWl6MGg2dWJ6U3RZZGs0bzJkU3RBNGF5TWhuXzBMWElkeElNLWd6OC0tUmxCLTl5X05pOWg5dC1KSkRwSG1fODg4WTJaRzY0M1JCdmJ3ZjZMMHdad3pvQ2FBNGZhdjA?oc=5"}, {"headline": "Evacuation orders still in place as structures lost in Espa\u00f1ola fire", "summary": "", "insight": "", "source": "KOAT", "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOWFRhVzZmVnQ3WjdrejE3cks3ZC1KeGFsWEdfY1JFUC1MbnRaWEN3V2o3aW5iclNBdkRPa0l0eExLcDk1ZXFERk1CdmNHNVdPZEliLXVHcWpiUWx3cnpvb1puVUxOcThHSVZqeTVSRFUtS0c2c29Kbk56VEhsTVltLS1KQ2ZXMURJelE?oc=5"}, {"headline": "Suspect surrenders after 12-hour standoff at Winter Park condo complex", "summary": "", "insight": "", "source": "WESH", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQMlgwVU53WGY2dV9xakRjRTMxYkpNVTVjakdrcHZvRDlpYU5Gb2dfVEVaTVdFQVd6THMzWHN2aHFYMHVUVzJMakhSdDZhVU9kb0Z5WWZkSEhJVThDTHdRcXRlczBab1EtbUxlVm5hX25kSnNDNnhHZVp0clE1SG5NdUh1SUgzVVF4WG9Ka3FA?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "The Federal Reserve's Interest Rate Dilemma: Will the Stock Market End Up Paying the Price?", "summary": "The Fed faces mounting pressure to cut rates despite sticky inflation, creating a tension between labor-market softness and price stability that could force equity valuations to re-rate downward if rate cuts are delayed or smaller than expected.", "insight": "This is the core arbitrage: markets have priced in aggressive rate cuts by year-end, but recent inflation data and Fed hawkishness suggest cuts may not materialize until late 2025 at earliest, meaning the equity risk premium embedded in current valuations assumes monetary accommodation that policy makers may not deliver.", "source": "The Globe and Mail", "link": "https://news.google.com/rss/articles/CBMiswJBVV95cUxPQ3dVak1UZGhna0QyUy1NUVBwUGxDdmxkbl92Rk9hazNOSTRmdVdDWjlJSmxQbzhZUW9oR0o1N01ZMHgzc2lMMG9lYlRfLVo0Zk93V0pFTF9mc09mdmxTWllzbzIyaUYteW1HdW5TWEJkUXIyUGlPTmVXVzlfcE9MampETnp1Rm9yMmFtN0JnaGQxRlZsTXNteGwzR3I0NlpuR1luQUd2SkJMNjRwWFdSU3BUY2JpUGo1dmVDeEQzWkpXdkdDVEJvbzhONjJ4Nk42aDhJSTRJd1ZiaUczTFVWWTlILWF2QlF0R1dhd3FhV3d5SFdkMmhkYk02OW5EOGRmTWVpUnNzVk9nVXlLdXJIMzg5SENhRjRsaEZXQlEwSEJyel9NbF9ZaExBXzNVLU03UURz?oc=5"}, {"headline": "When Will Markets Wake Up to Iran War Damage?", "summary": "Oil markets have remained surprisingly resilient despite escalating Middle East tensions and supply disruptions, suggesting either structural shifts in global energy demand or significant underpricing of tail risks.", "insight": "The dislocation between geopolitical risk and commodity price response reveals a structural shift: global oil demand growth is decelerating (EV adoption, efficiency), reducing the scarcity premium for disrupted barrels and allowing the market to absorb Middle East friction without the 1970s-style supply shocks that historically compressed equity multiples.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNNlJYWkhBYzE3UHlvOVhRelQ1STZjbmhSaHlselZxQV90RDhUMjhhTDJyWWhBU2VKRW1BWFh1M0p3alB6N081MzRPeXJ1MnFvcm9VQzVCSUJxdEZjSTFNQnQtenpNVFFPak9LeTB0ajVRcENYMmhkYjI0bWJuUFhjWS02alZZOGFXMy1JbC1QV2FURDVkdHpkUWNzdF83WG8?oc=5"}, {"headline": "South America's 'Normal Recessions' Signal Structural Macroeconomic Stabilization", "summary": "Latin American economies are experiencing conventional cyclical downturns rather than the deeper structural crises that historically defined the region, reflecting improved policy credibility, inflation control, and external balance discipline.", "insight": "This normalization reduces idiosyncratic EM volatility and improves term-structure stability for credit and currency, enabling allocators to compress regional risk premia and rotate capital into higher-yielding EM debt without the tail-risk hedging costs that previously justified developed-market allocation spreads.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQSXRRQS1EaER2ZGRsMTAyM092TmNRNXdGUFRzMFZQTU9CcjZpN1p5WGhPdDFjLThkNHpPN2xLb05QV3BENXpjTExQZEhzQm1lZzk2VndqM3k3NkxVbXNxb1RQallFZEdOdXlPdGlRNDZQSGp4dkVfZ1M5WG9KRlZGNVFzS0pkVUNwd1hJdHRSUnZuNS1hWVdFMEFhUU9WZzFLMkFjVHpBNHltdFp1bW5NLXFNVTRVUQ?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump Attends White House Correspondents' Dinner After Years of Boycotts", "summary": "Trump ended his multi-year boycott of the annual White House Correspondents' Dinner, appearing at the event after a week of political headwinds and criticism from media outlets.", "insight": "This symbolic reengagement with institutional press apparatus suggests a tactical recalibration after recent court losses and policy setbacks; the dinner's attendance serves as a pressure-release valve and signals willingness to normalize executive-media relations, which may reduce political polarization around executive action but increases scrutiny of policy vulnerabilities.", "source": "Reuters, NBC News, The New York Times", "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxORDRrS3VYV3dNdXBueDhWckFTYVFwaHJGNk9RMGs4V0dZd0F5TXM3R0V2Q2FWa2QwN1ZXa0ltN1lPVU9lcGNJLURIRE1uWVEwdmF4Z24xNnJRR0RKN05pWENsNXd3a3I3blBtX2luSzE3WnZfVDhFUnRuOGpHTWFQR2MzRTRVakp5YVhWN3ZkY1VDb1pudGtzX2tBZE9mSV85LURuT1BVaklkWC1wSWExQ2hTcF83MG8yb0dUNTVvTjg?oc=5"}, {"headline": "Trump's Political Headwinds Pile Up After Week of Setbacks", "summary": "Trump faces mounting legal, legislative, and political obstacles including court losses, congressional friction, and eroding public confidence in his judicial strategy.", "insight": "Legal setbacks reduce Trump's ability to execute executive agenda through courts, forcing reliance on legislative deals that require bipartisan compromise\u2014a structural constraint that limits his policy flexibility and elevates uncertainty around his signature initiatives (immigration, tariffs), which creates political risk premium for equities tied to regulatory or trade outcomes.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNOERpTTUtd0pkSlhQaTQ4M0VpNzd4X3M1SHdEaWlGbzZRZVBvc3UtSC1kTGk1Q2N4OV9PbFRCMVl4ZjF5NFdSMG9naXBQU2tZaDJPTUc4dUxTVl9kOXU1ci04Vk5CQ1daZVBlWHVtYVZpd1B2RUpZVVQyc2VwMDdHd1VZaEVDaTFJVzkw?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Elon Musk Enters Courtroom Showdown With OpenAI Over Fiduciary Duty and Mission Drift", "summary": "Musk's lawsuit against OpenAI proceeds toward trial, alleging the company violated its nonprofit charter by prioritizing commercial Microsoft partnership over its original open-source mission.", "insight": "This litigation exposes structural fragility in AI governance models: if Musk prevails on mission-drift claims, it could force OpenAI to restructure its for-profit subsidiary or cap commercial partnerships, which would constrain capital allocation and slow model scaling\u2014directly undermining the compute-at-scale race where OpenAI's competitive moat depends on Microsoft infrastructure investment.", "source": "BNN Bloomberg", "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNaTNpXzFaa2V3U3o4NzhER3pjZDZ2d1gtVHBKeGhDeGFBeFZieG5uUlpIM1BWNl9ObzluNTdETEg2MllJQUpBRTk3M1dTOHFwMmJpN2owVWRpYWtnalFWTXlrWGU5VHU4Z2cwZFEtVFRjU3EyaDRESFlkWUpjalFQRE84c1NDSmxwLXdZZjBienFfaGlBaGNnLXFBb3NCRTJUbkF1dWg2djNXa1Z3NWFaVWRtQ2NjWFJMa1RVMmpvWTEySDFhaE9RMGFSbDU?oc=5"}, {"headline": "Meta, Microsoft, and Other Tech Giants Cut Over 40,000 Jobs in 2025\u2014But AI Scaling, Not Automation, Drives the Cuts", "summary": "Major tech firms are conducting significant workforce reductions citing AI optimization, operational efficiency, and shifting capital allocation toward AI infrastructure rather than headcount-heavy services.", "insight": "These layoffs signal a competitive inflection: firms are consolidating gains from AI scaling and reallocating labor budgets to GPU/compute infrastructure where marginal returns now exceed hiring returns; this shifts the tech employment curve downward structurally and concentrates AI capability (and margin expansion) among capital-intensive players, widening competitive moats for capital-rich incumbents like Microsoft and Meta versus scrappier competitors.", "source": "News18", "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNdUxraE43N0EzQl9RZzY4aEtyU3U2ZkJzUlNSaFRyTjd3REYybFJXeGxPb1E2bjR1aUhwRGUyeDVDbW1aejhweVRZeTk3YjY2SlVpb25pRDE5b2lOXzFYMFBrR1d5WkQwMVVLaXh5b21FUDBoUk9yem83WTFDeDhwMGMyekxzR0hHOHRHb0RXVnRrNGVmM05NM3ZIRVp5eXBjSlBINVNjUkxxTUphVWdiQkwtdHFUTEHSAbwBQVVfeXFMTTk2Y0MxdHQwYVE1MVBsQ0M4aFo4V3poeUVJRUdhMXh3dlFLSGJCVTFBRTZzTTZWWEx3VGw3czlQUTZuODFsVFpOWU5Ka2kzVzJQVEJtVXd3Y1lJRHhqbDA4dDNIMDJYNXNLMzkwc3pKT2hBcWRFZHN0bXlUXzJSTTZWaGZxd215Mm8xeUNCdk5ZMlZlRVBYd3hYd0FJM3hGNmxpVEVlMGhISGlhNVJabmtyOC1CM2JybkNEbE4?oc=5"}]}, {"name": "International", "stories": [{"headline": "California's Jet Fuel Supply Drops to Three-Year Low as Middle East Conflict Squeezes Global Oil Markets", "summary": "California's Strategic Petroleum Reserve and commercial jet fuel stocks have fallen to multi-year lows amid Middle East supply disruptions and constrained refinery capacity, signaling potential energy supply stress.", "insight": "This inventory drawdown at the margin (state-level, not global) indicates refiners are not hedging Middle East tail risk through precautionary stocking, implying confidence in spare capacity availability\u2014but if supply disruptions accelerate or persist, California's export-constrained refining base becomes a bottleneck, creating regional energy inflation that could pressure consumer margins and wage demands disproportionately in high-energy-intensity sectors.", "source": "The Guardian", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQMkg4WUZ6MnNWaWhtWlhtZHprV0hOWEFZaXdJRVZTcDd2dkxBdUZ4bEYwQUt4eFdKUk9RekJaYXFIYjltZDM5d0FHd09zV2g5eEtRRXA3RExmNDlsVHl5X2t6Tmg2bU1ZSWg2b2RtcDZLZUgxZXRIMWhZcFhQU3V0WQ?oc=5"}, {"headline": "U.S. State Department Orders Global Warning About Chinese AI Thefts by DeepSeek and Others", "summary": "The State Department has issued guidance to diplomatic missions warning of alleged large-scale intellectual property theft by Chinese AI firms, including DeepSeek, targeting model architectures, training data, and compute infrastructure designs.", "insight": "If substantiated, this suggests DeepSeek's cost-competitive AI models may rely partly on reverse-engineered or stolen proprietary architectures rather than indigenous innovation\u2014a competitive asymmetry that weakens DeepSeek's moat and validates U.S. export controls on advanced semiconductors, but also signals that IP enforcement mechanisms are insufficient to prevent state-backed technology appropriation, creating perpetual re-commoditization pressure on U.S. AI advantage.", "source": "CNBC", "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQUjJhb2VhdlFXWTBCVUZQa3ZLQ2ZfTjJFUE9lbzRQNmJGYzhFZXJFLTJ3RWdDb0NPT1hQZkdwcW5wMjFfalUzSHNzdWM2dkpLa25vbG1XMXd2Tmo0SmpFZWUxMkU5U2hCcy1xY1RpNmpSMUxPLURFaTZYVVFSUWlSU1dvUdIBiAFBVV95cUxOQ0kwYjI1eHhaVjRuaGtiNGRldGRNLVFLRXpaQnc1MVhlMkZodm1iRlQ2U2pyWndzUnJwRW5pS0hHTVpWR1puM0Z2dnN2clg1V19IeWFVbkZTWnR0eTRuV3g3Nm9iVXVQMnRrUUlMVDNzc0VpX1d2QXZoZEJCZGFnNjF0djVaTTZk?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "NBA Playoff Games Today: Schedule and Viewing Information for April 25", "summary": "NBA playoff matches are scheduled for today with broadcast and streaming options available across major networks.", "insight": "Playoff viewership metrics will be tracked as signal of sports fan engagement and media consumption trends; weakness in playoff ratings would suggest cord-cutting and streaming migration are accelerating, reducing legacy media valuations and forcing sports leagues to diversify revenue through direct-to-consumer streaming platforms.", "source": "USA Today, Milwaukee Journal Sentinel", "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQYnFabG9QSFNsQ29kakN3MjNMWWpvNkgyU0Z3Uk9XYTQwLVBZSTNvOUhjNFB3SkJFS21PV3hCbldiaFVoZEFDT2FKUkpwR1VpcFI4VThWaEtQYVQwOF92dlpRQldFOF96UmVZQTIwdHhIUnVCOWV5NHlOYmxfTjdJdUIxX2ZhbGpXVjB2aFlMSGQ5Ull3SEEyQTc3a19iTjhQeF9zaFUzaHo0azlf?oc=5"}, {"headline": "MLB Home Run Prop Bets and Predictions for Today", "summary": "Sports betting markets are offering home run prop bets with odds and predictions for today's MLB games.", "insight": "Growth in legal sports betting propensities increases real-money engagement with sports outcomes and creates derivative revenue streams for teams/leagues; it also embeds sports into personal financial decision-making, which may increase viewership stability during low-novelty game periods and lock in younger demographics to traditional sports properties.", "source": "Yahoo Sports", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPOUxCbFFHaVAtbkRUUTk2am1zb1JjX0J5c25ETGxlZ25ibkN4Xzg1TE1zMEtqY1lEQmhOTGNMYnlTRnZnSVlWYjh4dWtybVZYQUg3TnhhakVYNUk2UnotSXJfc0lPQlVQaHdiMGY4QjQ2Uno3UFpyMFEzRTltbjhzVDh5bnNWdw?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Two Children Found Dead Inside Wellesley, Massachusetts Home During Wellness Check", "summary": "Two children were discovered deceased in a Wellesley residence during a wellness investigation; authorities are conducting an investigation into the circumstances.", "insight": "Wellness-check protocols and child protective service responsiveness will face scrutiny; if systemic failures are identified, it may accelerate policy changes around mandatory reporting and emergency intervention timelines, affecting liability exposure for schools, healthcare providers, and social service agencies across Massachusetts.", "source": "CBS News, Boston 25 News", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQM2psaDlVM21pUHhXVTdtem4zYVNNX2JCLWNqalVjZHlPa0VCTy11ZEt0RU95U2hjU2YxazhUdWpLMmhCTTdSZG9nME1uNzZ3bXN4VGJQSVlGczRvMVFIYnBkT3hDOG1seGx2Z3hNY0hDM2otNTZYYmNQbGJ1Z0xUNnBibTczRGNK?oc=5"}, {"headline": "Domestic Violence Suspect Killed in Crash While Fleeing Plymouth, Massachusetts Police", "summary": "A domestic violence suspect died in a vehicle collision while attempting to evade Plymouth police during a traffic stop.", "insight": "High-speed pursuit outcomes and domestic violence response protocols will be scrutinized; if the suspect's death is attributed to police tactics, it may accelerate policy shifts around pursuit authorization and de-escalation training, affecting law enforcement operational procedures and municipal liability exposure across Massachusetts departments.", "source": "CBS News", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE15NElCZWluOGgxZTF6SUxscWFhbzdsQmVFVGI4bW1majZCOWdxOW1rNTlyb3NvYzZ1S2VKaHVqa0hMOUNkcU9FeFZLaUFfRWtmVk4xQzZBV1QxcWF3TEJTdlYySWthZHF3Mk5QOVZVVHVnWm9YN2dpMkg4LXdCUQ?oc=5"}]}];
+const edgeText = "Three structural arbitrage windows are closing simultaneously: (1) equity valuations assume Fed rate cuts that policy data no longer supports, creating re-rating risk; (2) Chinese AI cost advantage may rest partly on IP theft rather than innovation, making U.S. export controls more defensible but validating perpetual re-commoditization pressure; (3) tech layoffs signal AI capital intensity now exceeds hiring returns, concentrating moat-building and margin expansion among capital-rich incumbents, which favors mega-cap tech but undermines mid-market AI services. Allocators overweight in late-cycle equities and underweight in capital-constrained innovation bets face asymmetric downside if growth stalls without monetary accommodation.";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "713.94", "change_pct": "0.7749"}, {"ticker": "IWB", "label": "Russell 1000", "price": "390.70", "change_pct": "0.7140"}, {"ticker": "IWM", "label": "Russell 2000", "price": "276.65", "change_pct": "0.4101"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "101.77", "change_pct": "0.5235"}, {"ticker": "FFR", "label": "MM Yield (avg)", "price": "3.64%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Claude Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>
