@@ -43,11 +43,11 @@ BG_ELEVATED   = "#111420"  # elevated surface (nested cards)
 BG_DEEP       = "#070A0F"  # below-base for code / inset boxes
 BORDER_DIM    = "#1A2030"
 BORDER_RED    = "#3A0A0A"
-TEXT_PRIMARY  = "#E0E8F0"
-TEXT_BODY     = "#A8B4C0"
-TEXT_DIM      = "#5A6878"
-TEXT_MUTED    = "#3A4A5A"
-TEXT_FAINT    = "#252E3A"
+TEXT_PRIMARY  = "#F0F4F8"
+TEXT_BODY     = "#CCD4DC"
+TEXT_DIM      = "#9AA8B8"
+TEXT_MUTED    = "#6A7888"
+TEXT_FAINT    = "#4A5A6A"
 
 # Inline 3-triangle Apterreon mark, scaled by the embedding context.
 def apt_logo_svg(width: int = 24, height: int = 32, glow: float = 0.45) -> str:
@@ -512,9 +512,9 @@ def market_bar_email(quotes):
         is_yield = q.get("is_yield", False)
         if is_yield:
             cells += f"""<td style="padding:14px 10px;text-align:center;background:#0D0F18;border:1px solid #1A2030">
-<div style="font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{q['label']}</div>
+<div style="font-size:9px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{q['label']}</div>
 <div style="font-size:16px;font-weight:700;color:#E0E8F0;font-family:'SF Mono',Menlo,Consolas,monospace">{q['price']}</div>
-<div style="font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-top:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">7d yield</div>
+<div style="font-size:9px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase;margin-top:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">7d yield</div>
 </td>"""
         else:
             try:
@@ -524,7 +524,7 @@ def market_bar_email(quotes):
             color = "#5599CC" if change >= 0 else "#CC0000"
             arrow = "&#9650;" if change >= 0 else "&#9660;"
             cells += f"""<td style="padding:14px 10px;text-align:center;background:#0D0F18;border:1px solid #1A2030">
-<div style="font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{q['label']}</div>
+<div style="font-size:9px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{q['label']}</div>
 <div style="font-size:16px;font-weight:700;color:#E0E8F0;font-family:'SF Mono',Menlo,Consolas,monospace">{q['price']}</div>
 <div style="font-size:11px;color:{color};margin-top:4px;font-family:'SF Mono',Menlo,Consolas,monospace">{arrow} {abs(change):.2f}%</div>
 </td>"""
@@ -566,13 +566,13 @@ def usage_banner_email(usage_info):
 <tr><td style="padding:12px 16px;background:#070A0F;border:1px solid #1A2030">
 <table width="100%" cellpadding="0" cellspacing="0">
 <tr>
-<td style="font-size:9px;letter-spacing:3px;color:#5A6878;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">API Usage</td>
+<td style="font-size:9px;letter-spacing:3px;color:#9AA8B8;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">API Usage</td>
 <td style="text-align:right;font-size:9px;letter-spacing:3px;color:{bar_color};font-weight:700;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{status}</td>
 </tr>
 <tr><td colspan="2" style="padding-top:8px">
 <div style="background:#111420;height:2px;overflow:hidden"><div style="background:{bar_color};width:{pct:.0f}%;height:2px"></div></div>
 </td></tr>
-<tr><td colspan="2" style="padding-top:8px;font-size:10px;color:#5A6878;font-family:'SF Mono',Menlo,Consolas,monospace">
+<tr><td colspan="2" style="padding-top:8px;font-size:10px;color:#9AA8B8;font-family:'SF Mono',Menlo,Consolas,monospace">
 ${cost:.4f} this brief &middot; {tokens:,} tokens &middot; ${monthly:.2f}/mo projected &middot; $10.00 budget
 </td></tr>
 </table>
@@ -612,9 +612,9 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
             )
 
             inner = f"""<div style="font-family:{sans};font-size:14px;font-weight:600;color:#E0E8F0;line-height:1.45;margin-bottom:6px">{headline_html}</div>
-<div style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#5A6878;text-transform:uppercase;margin-bottom:8px">{source}</div>"""
+<div style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase;margin-bottom:8px">{source}</div>"""
             if summary:
-                inner += f'<div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.55;margin-bottom:6px">{summary}</div>'
+                inner += f'<div style="font-family:{sans};font-size:13px;color:#CCD4DC;line-height:1.55;margin-bottom:6px">{summary}</div>'
             if insight:
                 inner += f'<div style="font-family:{sans};font-size:12px;color:#7A8A9A;line-height:1.55;font-style:italic;border-left:2px solid {color};padding-left:10px;margin-top:8px">{insight}</div>'
 
@@ -633,7 +633,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
         edge_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:36px 0 0;border-collapse:collapse">
 <tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #3A0A0A;border-left:3px solid {APT_RED}">
 <div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{APT_RED};text-transform:uppercase;margin-bottom:10px">The Edge</div>
-<div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.6">{edge_text}</div>
+<div style="font-family:{sans};font-size:13px;color:#CCD4DC;line-height:1.6">{edge_text}</div>
 </td></tr></table>"""
 
     tomorrow_text = data.get("tomorrow_watch", "")
@@ -642,7 +642,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
         tomorrow_html = f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0 0;border-collapse:collapse">
 <tr><td style="padding:18px 20px;background:#070A0F;border:1px solid #1A2030">
 <div style="font-family:{mono};font-size:9px;letter-spacing:4px;color:{APT_GREY};text-transform:uppercase;margin-bottom:10px">Tomorrow Watch</div>
-<div style="font-family:{sans};font-size:13px;color:#A8B4C0;line-height:1.6">{tomorrow_text}</div>
+<div style="font-family:{sans};font-size:13px;color:#CCD4DC;line-height:1.6">{tomorrow_text}</div>
 </td></tr></table>"""
 
     return f"""<!DOCTYPE html>
@@ -662,7 +662,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 <div style="height:1px;background:#1A2030;margin:14px 0 18px"></div>
 
 <h1 style="font-family:{sans};font-size:22px;font-weight:800;letter-spacing:1px;color:#FFFFFF;margin:0 0 4px;line-height:1.25">{title}</h1>
-<div style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#5A6878;text-transform:uppercase">{timestamp}</div>
+<div style="font-family:{mono};font-size:10px;letter-spacing:2px;color:#9AA8B8;text-transform:uppercase">{timestamp}</div>
 
 {usage_html}
 {market_html}
@@ -672,8 +672,8 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None):
 
 <div style="margin-top:48px;padding-top:18px;border-top:1px solid #1A2030">
 <table width="100%" cellpadding="0" cellspacing="0"><tr>
-<td style="vertical-align:middle">{apt_logo_svg(14, 19, 0.3)} <span style="font-family:{sans};font-size:10px;font-weight:700;color:#3A4A5A;letter-spacing:1px;vertical-align:middle">Apterreon</span> <span style="font-family:{sans};font-size:10px;color:#252E3A;vertical-align:middle">&nbsp;&middot;&nbsp;Explore what&#8217;s out there.</span></td>
-<td style="text-align:right;vertical-align:middle"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#3A4A5A">{timestamp}</span></td>
+<td style="vertical-align:middle">{apt_logo_svg(14, 19, 0.3)} <span style="font-family:{sans};font-size:10px;font-weight:700;color:#6A7888;letter-spacing:1px;vertical-align:middle">Apterreon</span> <span style="font-family:{sans};font-size:10px;color:#4A5A6A;vertical-align:middle">&nbsp;&middot;&nbsp;Explore what&#8217;s out there.</span></td>
+<td style="text-align:right;vertical-align:middle"><span style="font-family:{mono};font-size:9px;letter-spacing:2px;color:#6A7888">{timestamp}</span></td>
 </tr></table>
 </div>
 
@@ -712,7 +712,7 @@ def build_interactive_html(title, data, quotes, timestamp, usage_info=None):
     --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
     --border-dim:#1A2030; --border-red:#3A0A0A;
     --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
-    --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878; --text-muted:#3A4A5A; --text-faint:#252E3A;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
   }}
   html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }}
   body {{ background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }}
@@ -1211,18 +1211,35 @@ def send_email(subject, html_body, attachment_html=None, attachment_name="brief.
 # ── Filesystem Storage (replaces S3) ───────────────────────────────────────
 
 
-def s3_write_brief(brief_type, date_str_iso, interactive_html):
-    """Write brief HTML to docs/briefs/YYYY-MM-DD-type.html."""
+def s3_write_brief(brief_type, date_str_iso, interactive_html, data=None, quotes=None, timestamp=None):
+    """Write brief HTML to docs/briefs/YYYY-MM-DD-type.html. Also write a JSON sidecar
+    with structured story data so the index page can build a full-text search across
+    all archived briefs."""
     key = f"briefs/{date_str_iso}-{brief_type}.html"
     out_path = DOCS_DIR / key
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(interactive_html, encoding="utf-8")
     print(f"Wrote {out_path}")
+
+    if data is not None:
+        json_path = out_path.with_suffix(".json")
+        sidecar = {
+            "key": key,
+            "date": date_str_iso,
+            "type": brief_type,
+            "timestamp": timestamp,
+            "sections": data.get("sections", []),
+            "the_edge": data.get("the_edge", ""),
+            "tomorrow_watch": data.get("tomorrow_watch", ""),
+            "quotes": quotes or [],
+        }
+        json_path.write_text(json.dumps(sidecar, separators=(",", ":")), encoding="utf-8")
+
     return key
 
 
 def s3_cleanup_old_briefs():
-    """Delete briefs older than retention period, skip pinned."""
+    """Delete briefs (and their JSON sidecars) older than retention period; skip pinned."""
     cutoff = datetime.now(timezone.utc) - timedelta(days=RETENTION_DAYS)
     pinned = s3_load_pins()
 
@@ -1234,6 +1251,9 @@ def s3_cleanup_old_briefs():
         mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
         if mtime < cutoff:
             path.unlink()
+            sidecar = path.with_suffix(".json")
+            if sidecar.exists():
+                sidecar.unlink()
             deleted += 1
     if deleted:
         print(f"Cleaned up {deleted} old briefs.")
@@ -1272,8 +1292,10 @@ def s3_toggle_pin(brief_key):
 
 
 def s3_list_briefs():
-    """List all brief files with metadata, sorted newest first."""
+    """List all brief files with metadata + structured story data (when sidecar JSON
+    exists). Sorted newest first; secondary sort by edition order morning < midday < evening."""
     pinned = s3_load_pins()
+    edition_order = {"morning": 0, "midday": 1, "evening": 2}
     briefs = []
     for path in BRIEFS_DIR.glob("*.html"):
         filename = path.stem  # e.g., "2026-04-25-morning"
@@ -1283,14 +1305,34 @@ def s3_list_briefs():
         else:
             date_part, brief_type = filename, "unknown"
         key = f"briefs/{path.name}"
-        briefs.append({
+
+        entry = {
             "key": key,
             "date": date_part,
             "type": brief_type,
             "modified": datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat(),
             "pinned": key in pinned,
-        })
-    briefs.sort(key=lambda b: b["date"], reverse=True)
+        }
+
+        json_path = path.with_suffix(".json")
+        if json_path.exists():
+            try:
+                sidecar = json.loads(json_path.read_text(encoding="utf-8"))
+                # Compact representation for the search index — keep only what's
+                # useful for filtering/search and brief previews.
+                entry["sections"] = sidecar.get("sections", [])
+                entry["the_edge"] = sidecar.get("the_edge", "")
+                entry["tomorrow_watch"] = sidecar.get("tomorrow_watch", "")
+                entry["timestamp"] = sidecar.get("timestamp", "")
+            except Exception as e:
+                print(f"Sidecar parse failed for {json_path.name}: {e}")
+
+        briefs.append(entry)
+
+    briefs.sort(
+        key=lambda b: (b["date"], edition_order.get(b.get("type"), 99)),
+        reverse=True,
+    )
     return briefs
 
 
@@ -1303,6 +1345,9 @@ def s3_generate_index(briefs):
 
     logo_hero = apt_logo_svg(56, 75, 0.55)
     logo_nav = apt_logo_svg(20, 27, 0.45)
+
+    section_names_json = json.dumps([s[0] for s in SECTIONS])
+    section_colors_json = json.dumps(SECTION_COLORS)
 
     index_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1319,105 +1364,247 @@ def s3_generate_index(briefs):
 <style>
   *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
   :root {{
-    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
-    --border-dim:#1A2030; --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
-    --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878;
-    --text-muted:#3A4A5A; --text-faint:#252E3A;
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#141826; --bg-deep:#070A0F;
+    --border-dim:#1F2738; --border-bright:#3A4A5C;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#F0F4F8; --text-body:#CCD4DC; --text-dim:#9AA8B8;
+    --text-muted:#6A7888; --text-faint:#4A5A6A;
   }}
-  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }}
+  html {{ background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }}
   body {{ background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }}
-  ::-webkit-scrollbar {{ width:4px; }}
-  ::-webkit-scrollbar-thumb {{ background:var(--border-dim); border-radius:2px; }}
+  ::-webkit-scrollbar {{ width:6px; height:6px; }}
+  ::-webkit-scrollbar-track {{ background:transparent; }}
+  ::-webkit-scrollbar-thumb {{ background:var(--border-dim); border-radius:3px; }}
+  ::-webkit-scrollbar-thumb:hover {{ background:var(--border-bright); }}
   a {{ color:inherit; text-decoration:none; }}
+  ::selection {{ background:rgba(204,0,0,0.35); color:#fff; }}
 
+  /* Topnav */
   .topnav {{
-    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    position:sticky; top:0; z-index:120; height:56px; background:rgba(13,15,24,0.85);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
-    padding:0 24px; gap:14px;
+    padding:0 32px; gap:18px;
   }}
-  .topnav .lockup {{ display:flex; align-items:center; gap:12px; }}
-  .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }}
-  .topnav .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }}
-  .topnav .suite {{ display:none; margin-left:auto; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }}
-  @media (min-width:720px) {{ .topnav .suite {{ display:inline; }} }}
+  .topnav .lockup {{ display:flex; align-items:center; gap:14px; }}
+  .topnav .dm {{ font-family:'Syne',sans-serif; font-weight:800; font-size:12px; letter-spacing:5px; color:var(--text-primary); text-transform:uppercase; }}
+  .topnav .prod {{ font-family:'Syne',sans-serif; font-weight:700; font-size:9px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }}
+  .topnav .stats {{ margin-left:auto; display:none; gap:24px; align-items:center; }}
+  @media (min-width:880px) {{ .topnav .stats {{ display:flex; }} }}
+  .topnav .stat {{ display:flex; flex-direction:column; align-items:flex-end; }}
+  .topnav .stat .v {{ font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--text-primary); }}
+  .topnav .stat .l {{ font-family:'DM Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }}
 
-  .container {{ max-width:760px; margin:0 auto; padding:48px 24px 96px; }}
-
-  .cover {{
-    text-align:center; padding:32px 0 48px; border-bottom:1px solid var(--border-dim);
-    margin-bottom:48px;
+  /* Hero — compact, doesn't dominate */
+  .hero {{
+    text-align:center; padding:64px 24px 48px; max-width:1100px; margin:0 auto;
+    border-bottom:1px solid var(--border-dim);
   }}
-  .cover .mark {{ display:flex; justify-content:center; margin-bottom:24px; }}
-  .cover h1 {{ font-family:'Syne',sans-serif; font-weight:800; font-size:36px; letter-spacing:9px; color:#FFFFFF; text-transform:uppercase; margin-bottom:10px; }}
-  .cover .sub {{ font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--apt-red); text-transform:uppercase; margin-bottom:8px; }}
-  .cover .desc {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-faint); text-transform:uppercase; }}
-
-  .tabs {{
-    display:flex; gap:0; margin-bottom:32px; background:var(--bg-surface);
-    border:1px solid var(--border-dim); padding:4px;
+  .hero .mark {{ display:flex; justify-content:center; margin-bottom:24px; }}
+  .hero h1 {{ font-family:'Syne',sans-serif; font-weight:800; font-size:44px; letter-spacing:11px; color:#FFFFFF; text-transform:uppercase; margin-bottom:12px; line-height:1.05; }}
+  .hero .sub {{ font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--apt-red); text-transform:uppercase; margin-bottom:14px; }}
+  .hero .desc {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }}
+  .hero .rule {{ width:80px; height:1px; margin:32px auto 0; background:linear-gradient(to right, transparent, var(--apt-dark-red), transparent); }}
+  @media (max-width:640px) {{
+    .hero {{ padding:48px 20px 36px; }}
+    .hero h1 {{ font-size:30px; letter-spacing:7px; }}
   }}
+
+  /* Sticky filter rail */
+  .rail {{
+    position:sticky; top:56px; z-index:90; background:rgba(5,8,16,0.92);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border-dim);
+    padding:14px 24px;
+  }}
+  .rail-inner {{ max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }}
+  .rail-row {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }}
+
+  /* Search input */
+  .search {{
+    flex:1; min-width:240px; display:flex; align-items:center; gap:10px;
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:10px 14px; transition:border-color .2s;
+  }}
+  .search:focus-within {{ border-color:var(--apt-red); }}
+  .search .icon {{ color:var(--text-dim); font-size:13px; flex-shrink:0; }}
+  .search input {{
+    flex:1; background:transparent; border:none; outline:none;
+    font-family:'DM Mono',monospace; font-size:13px; color:var(--text-primary);
+  }}
+  .search input::placeholder {{ color:var(--text-muted); letter-spacing:1px; }}
+  .search .clear {{
+    background:transparent; border:none; cursor:pointer; padding:0 4px;
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px;
+    color:var(--text-muted); text-transform:uppercase; transition:color .15s;
+  }}
+  .search .clear:hover {{ color:var(--text-primary); }}
+  .search .clear[hidden] {{ display:none; }}
+
+  /* Tabs (BRIEFS / STORIES / PINNED) */
+  .tabs {{ display:flex; gap:4px; }}
   .tab {{
-    flex:1; text-align:center; padding:12px 14px; font-family:'DM Mono',monospace;
-    font-size:10px; letter-spacing:3px; font-weight:500; color:var(--text-dim);
-    cursor:pointer; transition:all .2s; text-transform:uppercase;
-    user-select:none;
+    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:3px; font-weight:500; color:var(--text-dim);
+    cursor:pointer; transition:all .15s; text-transform:uppercase;
+    user-select:none; background:var(--bg-surface);
+    border:1px solid var(--border-dim);
   }}
-  .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); }}
-  .tab .count {{ display:inline-block; margin-left:6px; color:var(--text-muted); }}
+  .tab:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
+  .tab.active {{ background:var(--bg-elevated); color:var(--text-primary); border-color:var(--text-muted); }}
+  .tab .count {{ display:inline-block; margin-left:8px; color:var(--text-muted); }}
   .tab.active .count {{ color:var(--apt-red); }}
+
+  /* Chips (section + edition filters) */
+  .chip-group {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }}
+  .chip-group .chip-label {{
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:var(--text-muted); text-transform:uppercase; margin-right:4px;
+  }}
+  .chip {{
+    padding:5px 10px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:2px; color:var(--text-dim); cursor:pointer;
+    background:transparent; border:1px solid var(--border-dim);
+    text-transform:uppercase; user-select:none; transition:all .15s;
+  }}
+  .chip:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
+  .chip.active {{ color:#fff; background:rgba(204,0,0,0.18); border-color:var(--apt-red); }}
+  .chip.dim.active {{ background:rgba(122,16,16,0.25); border-color:var(--apt-dark-red); }}
+  .chip.grey.active {{ background:rgba(136,136,136,0.18); border-color:var(--apt-grey); }}
+
+  /* Sort */
+  .sort-group {{ display:flex; gap:6px; margin-left:auto; }}
+
+  /* Main content area */
+  .main {{ max-width:1200px; margin:0 auto; padding:32px 24px 96px; }}
 
   .view {{ display:none; }}
   .view.active {{ display:block; }}
 
-  .date-group {{ margin-bottom:24px; }}
+  /* Date group header */
+  .date-group {{ margin-bottom:36px; }}
   .date-label {{
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px;
-    color:var(--text-muted); text-transform:uppercase; margin-bottom:12px;
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:4px;
+    color:var(--text-dim); text-transform:uppercase; margin-bottom:14px;
     padding-bottom:10px; border-bottom:1px solid var(--border-dim);
+    display:flex; justify-content:space-between; align-items:baseline;
   }}
+  .date-label .count {{ color:var(--text-muted); font-size:9px; letter-spacing:2px; }}
 
+  /* Brief cards (BRIEFS view) — grid */
+  .brief-grid {{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr));
+    gap:14px;
+  }}
   .brief-card {{
-    position:relative;
-    display:flex; align-items:center; background:var(--bg-surface);
-    border:1px solid var(--border-dim); padding:18px 20px; margin-bottom:10px;
-    cursor:pointer; transition:border-color .2s, background .2s;
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:0; display:flex; flex-direction:column; transition:border-color .2s, background .2s;
+    overflow:hidden;
   }}
   .brief-card:hover {{ border-color:var(--text-muted); background:var(--bg-elevated); }}
-  .brief-card[data-type="morning"]  {{ border-left:2px solid var(--apt-red); }}
-  .brief-card[data-type="midday"]   {{ border-left:2px solid var(--apt-dark-red); }}
-  .brief-card[data-type="evening"]  {{ border-left:2px solid var(--apt-grey); }}
+  .brief-card[data-type="morning"]  {{ border-top:2px solid var(--apt-red); }}
+  .brief-card[data-type="midday"]   {{ border-top:2px solid var(--apt-dark-red); }}
+  .brief-card[data-type="evening"]  {{ border-top:2px solid var(--apt-grey); }}
 
-  .brief-num {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); width:48px; flex-shrink:0; }}
-  .brief-info {{ flex:1; min-width:0; }}
-  .brief-title {{ font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; color:var(--text-primary); text-transform:uppercase; }}
-  .brief-meta {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-top:4px; text-transform:uppercase; }}
-  .brief-pin {{
-    background:transparent; border:none; cursor:pointer;
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
-    color:var(--text-muted); padding:6px 10px; transition:color .2s;
-    text-transform:uppercase;
+  .bc-head {{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:18px 20px 12px; gap:14px;
   }}
-  .brief-pin:hover {{ color:var(--apt-red); }}
-  .brief-pin.pinned {{ color:var(--apt-red); }}
-  .brief-arrow {{ color:var(--text-muted); font-size:14px; margin-left:8px; flex-shrink:0; }}
+  .bc-num {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; }}
+  .bc-title {{
+    font-family:'Syne',sans-serif; font-size:16px; font-weight:700;
+    letter-spacing:3px; color:var(--text-primary); text-transform:uppercase;
+  }}
+  .bc-meta {{
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); margin-top:6px; text-transform:uppercase;
+  }}
+  .bc-pin {{
+    background:transparent; border:1px solid var(--border-dim); cursor:pointer;
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:var(--text-dim); padding:4px 8px; transition:all .15s;
+    text-transform:uppercase; flex-shrink:0;
+  }}
+  .bc-pin:hover {{ color:var(--apt-red); border-color:var(--apt-red); }}
+  .bc-pin.pinned {{ color:var(--apt-red); border-color:var(--apt-red); background:rgba(204,0,0,0.08); }}
 
+  .bc-preview {{ padding:0 20px 14px; }}
+  .bc-preview-headline {{
+    font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body);
+    line-height:1.55; padding:6px 0 6px 14px; position:relative;
+    border-top:1px solid var(--border-dim);
+  }}
+  .bc-preview-headline:first-child {{ border-top:none; }}
+  .bc-preview-headline::before {{
+    content:''; position:absolute; left:0; top:13px; width:6px; height:1px;
+    background:var(--text-muted);
+  }}
+  .bc-preview-headline.no-data {{ color:var(--text-muted); font-style:italic; }}
+
+  .bc-foot {{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; border-top:1px solid var(--border-dim);
+    background:var(--bg-deep);
+  }}
+  .bc-open {{
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--apt-red); text-transform:uppercase;
+  }}
+  .bc-open:hover {{ color:#fff; }}
+  .bc-section-tags {{ display:flex; gap:6px; flex-wrap:wrap; }}
+  .bc-section-tag {{
+    font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px;
+    color:var(--text-dim); text-transform:uppercase;
+  }}
+
+  /* Stories view — flat list */
+  .story-row {{
+    display:grid; grid-template-columns:140px 1fr 100px 80px;
+    gap:18px; align-items:center;
+    padding:14px 18px; background:var(--bg-surface);
+    border:1px solid var(--border-dim); border-bottom:none;
+    transition:border-color .15s, background .15s;
+  }}
+  .story-row:hover {{ background:var(--bg-elevated); border-color:var(--text-muted); }}
+  .story-row:last-child {{ border-bottom:1px solid var(--border-dim); }}
+  .story-section {{
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 8px;
+    border:1px solid var(--border-dim); display:inline-block; text-align:center;
+  }}
+  .story-headline {{ font-family:'DM Mono',monospace; font-size:13px; color:var(--text-primary); line-height:1.5; }}
+  .story-headline:hover {{ color:var(--apt-red); }}
+  .story-source {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; text-align:right; }}
+  .story-edition {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; text-align:right; }}
+
+  @media (max-width:680px) {{
+    .story-row {{ grid-template-columns:1fr; gap:6px; }}
+    .story-source, .story-edition {{ text-align:left; }}
+  }}
+
+  /* Empty / no-results */
   .empty {{
-    text-align:center; padding:48px 20px; font-family:'DM Mono',monospace;
+    text-align:center; padding:80px 20px; font-family:'DM Mono',monospace;
     font-size:11px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase;
   }}
+  .empty .big {{ font-family:'Syne',sans-serif; font-size:18px; font-weight:700; letter-spacing:4px; color:var(--text-dim); margin-bottom:10px; }}
 
+  /* Footer */
   .footer {{
-    margin-top:80px; padding-top:24px; border-top:1px solid var(--border-dim);
+    max-width:1200px; margin:80px auto 0; padding:24px;
+    border-top:1px solid var(--border-dim);
     display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
   }}
-  .footer .brand {{ font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }}
+  .footer .brand {{ font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:5px; color:var(--text-dim); text-transform:uppercase; }}
+  .footer .tagline {{ font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); letter-spacing:1px; }}
   .footer .ts {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }}
 
   @media (max-width:560px) {{
-    .container {{ padding:32px 16px 64px; }}
-    .cover h1 {{ font-size:26px; letter-spacing:6px; }}
-    .brief-card {{ padding:16px 16px; }}
-    .brief-num {{ width:40px; }}
+    .topnav {{ padding:0 18px; }}
+    .rail {{ padding:12px 18px; top:56px; }}
+    .main {{ padding:24px 18px 64px; }}
+    .footer {{ padding:24px 18px; }}
+    .brief-grid {{ grid-template-columns:1fr; }}
   }}
 </style>
 </head>
@@ -1431,89 +1618,84 @@ def s3_generate_index(briefs):
       <div class="prod">Daily Intelligence Brief</div>
     </div>
   </div>
+  <div class="stats">
+    <div class="stat"><span class="v" id="stat-briefs">··</span><span class="l">Briefs</span></div>
+    <div class="stat"><span class="v" id="stat-stories">··</span><span class="l">Stories</span></div>
+    <div class="stat"><span class="v" id="stat-since">··</span><span class="l">Since</span></div>
+  </div>
 </nav>
 
-<div class="container">
+<header class="hero">
+  <div class="mark">{logo_hero}</div>
+  <h1>Daily Intelligence Brief</h1>
+  <div class="sub">Apterreon</div>
+  <div class="desc">Three editions per day &middot; Markets, Politics, AI, World</div>
+  <div class="rule"></div>
+</header>
 
-  <div class="cover">
-    <div class="mark">{logo_hero}</div>
-    <h1>Daily Intelligence Brief</h1>
-    <div class="sub">Apterreon</div>
-    <div class="desc">Three editions per day &middot; Markets, Politics, AI, World</div>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" data-tab="today">Today</div>
-    <div class="tab" data-tab="archive">Archive</div>
-    <div class="tab" data-tab="pinned">Pinned</div>
-  </div>
-
-  <div id="today" class="view active"></div>
-  <div id="archive" class="view"></div>
-  <div id="pinned" class="view"></div>
-
-  <div class="footer">
-    <span class="brand">Apterreon</span>
-    <span class="tagline">Explore what&#8217;s out there.</span>
-    <span class="ts" id="footer-ts"></span>
+<div class="rail">
+  <div class="rail-inner">
+    <div class="rail-row">
+      <label class="search">
+        <span class="icon">&#8981;</span>
+        <input type="search" id="search" placeholder="Search across briefs, stories, sources..." autocomplete="off" spellcheck="false">
+        <button type="button" class="clear" id="search-clear" hidden>Clear</button>
+      </label>
+      <div class="tabs">
+        <div class="tab active" data-tab="briefs">Briefs <span class="count">··</span></div>
+        <div class="tab" data-tab="stories">Stories <span class="count">··</span></div>
+        <div class="tab" data-tab="pinned">Pinned <span class="count">··</span></div>
+      </div>
+    </div>
+    <div class="rail-row">
+      <div class="chip-group">
+        <span class="chip-label">Edition</span>
+        <span class="chip" data-edition="morning">Morning</span>
+        <span class="chip dim" data-edition="midday">Midday</span>
+        <span class="chip grey" data-edition="evening">Evening</span>
+      </div>
+      <div class="chip-group" id="section-chips">
+        <span class="chip-label">Sections</span>
+      </div>
+      <div class="sort-group">
+        <span class="chip" data-sort="newest" id="sort-newest">Newest</span>
+        <span class="chip" data-sort="oldest" id="sort-oldest">Oldest</span>
+      </div>
+    </div>
   </div>
 </div>
+
+<main class="main">
+  <div id="briefs" class="view active"></div>
+  <div id="stories" class="view"></div>
+  <div id="pinned" class="view"></div>
+</main>
+
+<footer class="footer">
+  <span class="brand">Apterreon</span>
+  <span class="tagline">Explore what's out there.</span>
+  <span class="ts" id="footer-ts"></span>
+</footer>
 
 <script>
 const briefs = {briefs_json};
 const today = "{today_str}";
+const SECTION_NAMES = {section_names_json};
+const SECTION_COLORS = {section_colors_json};
 
 document.getElementById('footer-ts').textContent =
   new Date().toLocaleString('en-US', {{ timeZone:'America/New_York', month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }}).toUpperCase();
 
-document.querySelectorAll('.tab').forEach(tab => {{
-  tab.addEventListener('click', () => {{
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab).classList.add('active');
-  }});
-}});
+// State
+const state = {{
+  query: '',
+  tab: 'briefs',
+  editionFilter: new Set(),  // 'morning', 'midday', 'evening'
+  sectionFilter: new Set(),  // section names
+  sort: 'newest',
+}};
 
-function briefLabel(type) {{
-  if (type === 'morning') return 'Morning Brief';
-  if (type === 'midday')  return 'Midday Update';
-  if (type === 'evening') return 'Evening Wrap';
-  return type.charAt(0).toUpperCase() + type.slice(1);
-}}
-function briefNumber(type) {{
-  if (type === 'morning') return '01';
-  if (type === 'midday')  return '02';
-  if (type === 'evening') return '03';
-  return '··';
-}}
-function formatDate(dateStr) {{
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('en-US', {{ weekday:'long', month:'long', day:'numeric' }}).toUpperCase();
-}}
-function escapeHtml(s) {{
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}}
-
-function renderCard(brief) {{
-  const pinClass = brief.pinned ? 'pinned' : '';
-  const pinLabel = brief.pinned ? 'PINNED' : 'PIN';
-  const safeKey = escapeHtml(brief.key).replace(/'/g, "&#39;");
-  return '' +
-    '<div class="brief-card" data-type="' + escapeHtml(brief.type) + '">' +
-      '<a href="' + escapeHtml(brief.key) + '" style="display:flex;align-items:center;flex:1">' +
-        '<span class="brief-num">' + briefNumber(brief.type) + ' &middot;</span>' +
-        '<span class="brief-info">' +
-          '<span class="brief-title">' + briefLabel(brief.type) + '</span>' +
-          '<span class="brief-meta">' + formatDate(brief.date) + '</span>' +
-        '</span>' +
-        '<span class="brief-arrow">&#9656;</span>' +
-      '</a>' +
-      '<button class="brief-pin ' + pinClass + '" data-key="' + safeKey + '">' + pinLabel + '</button>' +
-    '</div>';
-}}
-
-// Per-device pins (localStorage) — site is static, no server pin store.
+// Per-device pins (localStorage)
 const PIN_STORE = 'dib.pins';
 function loadLocalPins() {{
   try {{ return new Set(JSON.parse(localStorage.getItem(PIN_STORE) || '[]')); }}
@@ -1525,75 +1707,304 @@ function saveLocalPins(set) {{
 const _localPins = loadLocalPins();
 briefs.forEach(b => {{ if (_localPins.has(b.key)) b.pinned = true; }});
 
+// Build a flat list of stories from all briefs (for STORIES view + search)
+function buildStories() {{
+  const out = [];
+  briefs.forEach(b => {{
+    (b.sections || []).forEach(sec => {{
+      (sec.stories || []).forEach(s => {{
+        out.push({{
+          briefKey: b.key,
+          briefDate: b.date,
+          briefType: b.type,
+          section: sec.name,
+          headline: s.headline || '',
+          summary: s.summary || '',
+          insight: s.insight || '',
+          source: s.source || '',
+          link: s.link || '',
+        }});
+      }});
+    }});
+  }});
+  return out;
+}}
+const allStories = buildStories();
+
+// Helpers
+function escapeHtml(s) {{
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}}
+function briefLabel(type) {{
+  if (type === 'morning') return 'Morning Brief';
+  if (type === 'midday')  return 'Midday Update';
+  if (type === 'evening') return 'Evening Wrap';
+  return type ? (type.charAt(0).toUpperCase() + type.slice(1)) : 'Brief';
+}}
+function briefNumber(type) {{
+  if (type === 'morning') return '01';
+  if (type === 'midday')  return '02';
+  if (type === 'evening') return '03';
+  return '··';
+}}
+function formatDate(dateStr) {{
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', {{ weekday:'long', month:'long', day:'numeric' }}).toUpperCase();
+}}
+function formatShortDate(dateStr) {{
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', {{ month:'short', day:'numeric' }}).toUpperCase();
+}}
+
+// Search matching — returns true if obj matches query (in any of the listed fields).
+function matches(query, fields) {{
+  if (!query) return true;
+  const q = query.toLowerCase();
+  for (const f of fields) {{ if (f && String(f).toLowerCase().includes(q)) return true; }}
+  return false;
+}}
+
+function filterBriefs() {{
+  return briefs.filter(b => {{
+    if (state.editionFilter.size > 0 && !state.editionFilter.has(b.type)) return false;
+    if (state.sectionFilter.size > 0) {{
+      const briefSections = new Set((b.sections || []).map(s => s.name));
+      let any = false;
+      for (const s of state.sectionFilter) {{ if (briefSections.has(s)) {{ any = true; break; }} }}
+      if (!any) return false;
+    }}
+    if (state.query) {{
+      const fields = [b.date, b.type, briefLabel(b.type)];
+      (b.sections || []).forEach(sec => {{
+        fields.push(sec.name);
+        (sec.stories || []).forEach(s => {{
+          fields.push(s.headline, s.summary, s.source, s.insight);
+        }});
+      }});
+      if (!matches(state.query, fields)) return false;
+    }}
+    return true;
+  }});
+}}
+
+function filterStories() {{
+  return allStories.filter(s => {{
+    if (state.editionFilter.size > 0 && !state.editionFilter.has(s.briefType)) return false;
+    if (state.sectionFilter.size > 0 && !state.sectionFilter.has(s.section)) return false;
+    if (state.query) {{
+      if (!matches(state.query, [s.headline, s.summary, s.source, s.insight, s.section, s.briefDate])) return false;
+    }}
+    return true;
+  }});
+}}
+
+function sortByDate(arr, dateKey) {{
+  return arr.slice().sort((a, b) => {{
+    const cmp = (a[dateKey] || '').localeCompare(b[dateKey] || '');
+    return state.sort === 'newest' ? -cmp : cmp;
+  }});
+}}
+
+// Card renderers
+function renderBriefCard(b) {{
+  const pinClass = b.pinned ? 'pinned' : '';
+  const pinLabel = b.pinned ? '\u2605 PINNED' : '\u2606 PIN';
+  const safeKey = escapeHtml(b.key).replace(/'/g, "&#39;");
+  const sections = b.sections || [];
+  // Top 3 headlines preview (skip Breaking News if its stories have empty summaries — those are headline-only)
+  let previews = [];
+  for (const sec of sections) {{
+    for (const story of (sec.stories || [])) {{
+      if (story.headline) previews.push(story.headline);
+      if (previews.length >= 3) break;
+    }}
+    if (previews.length >= 3) break;
+  }}
+  const previewHtml = previews.length
+    ? previews.map(p => '<div class="bc-preview-headline">' + escapeHtml(p) + '</div>').join('')
+    : '<div class="bc-preview-headline no-data">No story preview available</div>';
+  const sectionTags = sections.length
+    ? sections.slice(0, 4).map(s => '<span class="bc-section-tag">' + escapeHtml(s.name.split(' ')[0]) + '</span>').join('')
+    : '';
+  return '<article class="brief-card" data-type="' + escapeHtml(b.type) + '">' +
+    '<div class="bc-head">' +
+      '<div>' +
+        '<div class="bc-num">' + briefNumber(b.type) + ' &middot; ' + formatShortDate(b.date) + '</div>' +
+        '<div class="bc-title">' + briefLabel(b.type) + '</div>' +
+        '<div class="bc-meta">' + formatDate(b.date) + '</div>' +
+      '</div>' +
+      '<button class="bc-pin ' + pinClass + '" data-key="' + safeKey + '">' + pinLabel + '</button>' +
+    '</div>' +
+    '<div class="bc-preview">' + previewHtml + '</div>' +
+    '<a class="bc-foot" href="' + escapeHtml(b.key) + '">' +
+      '<span class="bc-section-tags">' + sectionTags + '</span>' +
+      '<span class="bc-open">Open &#8594;</span>' +
+    '</a>' +
+  '</article>';
+}}
+
+function renderBriefsView(list) {{
+  if (list.length === 0) {{
+    return '<div class="empty"><div class="big">No briefs match</div>Adjust filters or clear the search.</div>';
+  }}
+  // Group by date
+  const byDate = {{}};
+  list.forEach(b => {{ (byDate[b.date] = byDate[b.date] || []).push(b); }});
+  const dates = Object.keys(byDate).sort();
+  if (state.sort === 'newest') dates.reverse();
+  let html = '';
+  dates.forEach(date => {{
+    const cards = byDate[date].map(renderBriefCard).join('');
+    const dateHeader = date === today ? 'Today &middot; ' + formatDate(date) : formatDate(date);
+    html += '<div class="date-group">' +
+      '<div class="date-label"><span>' + dateHeader + '</span><span class="count">' + String(byDate[date].length).padStart(2,'0') + ' edition' + (byDate[date].length === 1 ? '' : 's') + '</span></div>' +
+      '<div class="brief-grid">' + cards + '</div>' +
+    '</div>';
+  }});
+  return html;
+}}
+
+function renderStoriesView(list) {{
+  if (list.length === 0) {{
+    return '<div class="empty"><div class="big">No stories match</div>Try a broader search or different filters.</div>';
+  }}
+  const sorted = list.slice().sort((a, b) => {{
+    const cmp = (a.briefDate || '').localeCompare(b.briefDate || '');
+    return state.sort === 'newest' ? -cmp : cmp;
+  }});
+  // Group by date
+  const byDate = {{}};
+  sorted.forEach(s => {{ (byDate[s.briefDate] = byDate[s.briefDate] || []).push(s); }});
+  const dates = Object.keys(byDate).sort();
+  if (state.sort === 'newest') dates.reverse();
+  let html = '';
+  dates.forEach(date => {{
+    const rows = byDate[date].map(s => {{
+      const link = escapeHtml(s.briefKey);
+      return '<a class="story-row" href="' + link + '">' +
+        '<span class="story-section" style="color:' + (SECTION_COLORS[s.section] || '#888') + '">' + escapeHtml(s.section) + '</span>' +
+        '<span class="story-headline">' + escapeHtml(s.headline) + '</span>' +
+        '<span class="story-source">' + escapeHtml(s.source) + '</span>' +
+        '<span class="story-edition">' + briefNumber(s.briefType) + ' &middot; ' + escapeHtml(s.briefType) + '</span>' +
+      '</a>';
+    }}).join('');
+    const dateHeader = date === today ? 'Today &middot; ' + formatDate(date) : formatDate(date);
+    html += '<div class="date-group">' +
+      '<div class="date-label"><span>' + dateHeader + '</span><span class="count">' + String(byDate[date].length).padStart(2,'0') + ' stories</span></div>' +
+      rows +
+    '</div>';
+  }});
+  return html;
+}}
+
 function attachPinHandlers() {{
-  document.querySelectorAll('.brief-pin').forEach(btn => {{
+  document.querySelectorAll('.bc-pin').forEach(btn => {{
     btn.addEventListener('click', e => {{
       e.preventDefault(); e.stopPropagation();
       const key = btn.dataset.key;
-      const brief = briefs.find(b => b.key === key);
-      if (!brief) return;
-      brief.pinned = !brief.pinned;
+      const b = briefs.find(x => x.key === key);
+      if (!b) return;
+      b.pinned = !b.pinned;
       const pins = loadLocalPins();
-      if (brief.pinned) pins.add(key); else pins.delete(key);
+      if (b.pinned) pins.add(key); else pins.delete(key);
       saveLocalPins(pins);
-      renderAll();
+      render();
     }});
   }});
 }}
 
-function renderAll() {{
-  const todayBriefs = briefs.filter(b => b.date === today);
-  const archiveBriefs = briefs.filter(b => b.date !== today);
-  const pinnedBriefs = briefs.filter(b => b.pinned);
+function render() {{
+  const filteredBriefs = filterBriefs();
+  const filteredStories = filterStories();
+  const pinned = filteredBriefs.filter(b => b.pinned);
 
-  const todayEl = document.getElementById('today');
-  if (todayBriefs.length === 0) {{
-    todayEl.innerHTML = '<div class="empty">No briefs yet today &middot; Check back after 07:00 ET</div>';
-  }} else {{
-    todayEl.innerHTML = '<div class="date-group"><div class="date-label">Today &middot; ' +
-      formatDate(today) + '</div>' + todayBriefs.map(renderCard).join('') + '</div>';
-  }}
+  document.getElementById('briefs').innerHTML = renderBriefsView(filteredBriefs);
+  document.getElementById('stories').innerHTML = renderStoriesView(filteredStories);
+  document.getElementById('pinned').innerHTML = renderBriefsView(pinned);
 
-  const archiveEl = document.getElementById('archive');
-  if (archiveBriefs.length === 0) {{
-    archiveEl.innerHTML = '<div class="empty">No archived briefs yet</div>';
-  }} else {{
-    const grouped = {{}};
-    archiveBriefs.forEach(b => {{
-      if (!grouped[b.date]) grouped[b.date] = [];
-      grouped[b.date].push(b);
-    }});
-    let html = '';
-    Object.keys(grouped).sort().reverse().forEach(date => {{
-      html += '<div class="date-group"><div class="date-label">' + formatDate(date) + '</div>' +
-        grouped[date].map(renderCard).join('') + '</div>';
-    }});
-    archiveEl.innerHTML = html;
-  }}
-
-  const pinnedEl = document.getElementById('pinned');
-  if (pinnedBriefs.length === 0) {{
-    pinnedEl.innerHTML = '<div class="empty">No pinned briefs &middot; Tap PIN on any brief to save it</div>';
-  }} else {{
-    pinnedEl.innerHTML = pinnedBriefs.map(renderCard).join('');
-  }}
-
-  document.querySelectorAll('.tab').forEach(tab => {{
-    const name = tab.dataset.tab;
-    let count = 0;
-    if (name === 'today')   count = todayBriefs.length;
-    if (name === 'archive') count = archiveBriefs.length;
-    if (name === 'pinned')  count = pinnedBriefs.length;
-    const existing = tab.querySelector('.count');
-    const cstr = String(count).padStart(2, '0');
-    if (existing) existing.textContent = cstr;
-    else tab.innerHTML += ' <span class="count">' + cstr + '</span>';
+  // Update tab counts
+  const counts = {{ briefs: filteredBriefs.length, stories: filteredStories.length, pinned: pinned.length }};
+  document.querySelectorAll('.tab').forEach(t => {{
+    const c = t.querySelector('.count');
+    if (c) c.textContent = String(counts[t.dataset.tab] || 0).padStart(2, '0');
   }});
 
   attachPinHandlers();
 }}
 
-renderAll();
+function setActiveTab(name) {{
+  state.tab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === name));
+}}
+
+// Wire UI
+document.querySelectorAll('.tab').forEach(t => {{
+  t.addEventListener('click', () => setActiveTab(t.dataset.tab));
+}});
+
+document.querySelectorAll('.chip[data-edition]').forEach(c => {{
+  c.addEventListener('click', () => {{
+    const ed = c.dataset.edition;
+    if (state.editionFilter.has(ed)) state.editionFilter.delete(ed);
+    else state.editionFilter.add(ed);
+    c.classList.toggle('active');
+    render();
+  }});
+}});
+
+// Build section chips dynamically
+const sectionChipsEl = document.getElementById('section-chips');
+SECTION_NAMES.forEach(name => {{
+  const chip = document.createElement('span');
+  const color = SECTION_COLORS[name] || '#888';
+  const tier = color === '#CC0000' ? '' : (color === '#7A1010' ? ' dim' : ' grey');
+  chip.className = 'chip' + tier;
+  chip.dataset.section = name;
+  chip.textContent = name;
+  chip.addEventListener('click', () => {{
+    if (state.sectionFilter.has(name)) state.sectionFilter.delete(name);
+    else state.sectionFilter.add(name);
+    chip.classList.toggle('active');
+    render();
+  }});
+  sectionChipsEl.appendChild(chip);
+}});
+
+// Sort
+document.querySelectorAll('.chip[data-sort]').forEach(c => {{
+  c.addEventListener('click', () => {{
+    state.sort = c.dataset.sort;
+    document.querySelectorAll('.chip[data-sort]').forEach(x => x.classList.toggle('active', x.dataset.sort === state.sort));
+    render();
+  }});
+}});
+document.getElementById('sort-newest').classList.add('active');
+
+// Search
+const searchInput = document.getElementById('search');
+const searchClear = document.getElementById('search-clear');
+searchInput.addEventListener('input', () => {{
+  state.query = searchInput.value.trim();
+  searchClear.hidden = !state.query;
+  render();
+}});
+searchClear.addEventListener('click', () => {{
+  searchInput.value = '';
+  state.query = '';
+  searchClear.hidden = true;
+  searchInput.focus();
+  render();
+}});
+
+// Stats
+document.getElementById('stat-briefs').textContent = String(briefs.length).padStart(2, '0');
+document.getElementById('stat-stories').textContent = String(allStories.length).padStart(3, '0');
+const oldestDate = briefs.length ? briefs[briefs.length - 1].date : '';
+document.getElementById('stat-since').textContent = oldestDate ? formatShortDate(oldestDate) : '\u2014';
+
+// First render
+render();
 </script>
 </body>
 </html>"""
@@ -1614,10 +2025,10 @@ renderAll();
     print("Wrote docs/index.html and docs/manifest.json.")
 
 
-def s3_publish_brief(brief_type, now_et, interactive_html):
-    """Write brief HTML, clean old ones, regenerate index."""
+def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):
+    """Write brief HTML + JSON sidecar, clean old ones, regenerate index."""
     date_iso = now_et.strftime("%Y-%m-%d")
-    s3_write_brief(brief_type, date_iso, interactive_html)
+    s3_write_brief(brief_type, date_iso, interactive_html, data=data, quotes=quotes, timestamp=timestamp)
     s3_cleanup_old_briefs()
     briefs = s3_list_briefs()
     s3_generate_index(briefs)
@@ -1749,7 +2160,7 @@ def lambda_handler(event, context):
                 f"<p style='font-size:13px;color:#7A8A9A;line-height:1.6;margin:0 0 16px'>"
                 f"The model response could not be parsed. The next scheduled brief will retry automatically."
                 f"</p>"
-                f"<p style='font-size:11px;color:#3A4A5A;margin:0'>Error: {e2}</p>"
+                f"<p style='font-size:11px;color:#6A7888;margin:0'>Error: {e2}</p>"
                 f"</div>"
             )
             send_email(subject, fallback)
@@ -1763,8 +2174,8 @@ def lambda_handler(event, context):
     # 6. Send email (preview only — no attachment for minimal traceability)
     send_email(title, email_html)
 
-    # 7. Publish to S3 app (if configured)
-    s3_publish_brief(brief_type, now_et, interactive_html)
+    # 7. Publish brief HTML + JSON sidecar, regenerate site index
+    s3_publish_brief(brief_type, now_et, interactive_html, data=data, quotes=quotes, timestamp=timestamp)
 
     return {"status": "sent", "brief_type": brief_type, "stories": len(headlines), "quotes": len(quotes), "usage": usage_info}
 
