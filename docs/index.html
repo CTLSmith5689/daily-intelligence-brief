@@ -14,7 +14,7 @@
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
   :root {
     --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
-    --border-dim:#1A2030; --eh-red:#CC0000; --eh-dark-red:#7A1010; --eh-grey:#888888;
+    --border-dim:#1A2030; --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
     --text-primary:#E0E8F0; --text-body:#A8B4C0; --text-dim:#5A6878;
     --text-muted:#3A4A5A; --text-faint:#252E3A;
   }
@@ -31,7 +31,7 @@
   }
   .topnav .lockup { display:flex; align-items:center; gap:12px; }
   .topnav .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
-  .topnav .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--eh-red); text-transform:uppercase; }
+  .topnav .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
   .topnav .suite { display:none; margin-left:auto; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
   @media (min-width:720px) { .topnav .suite { display:inline; } }
 
@@ -43,7 +43,7 @@
   }
   .cover .mark { display:flex; justify-content:center; margin-bottom:24px; }
   .cover h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:36px; letter-spacing:9px; color:#FFFFFF; text-transform:uppercase; margin-bottom:10px; }
-  .cover .sub { font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--eh-red); text-transform:uppercase; margin-bottom:8px; }
+  .cover .sub { font-family:'Syne',sans-serif; font-weight:700; font-size:11px; letter-spacing:6px; color:var(--apt-red); text-transform:uppercase; margin-bottom:8px; }
   .cover .desc { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-faint); text-transform:uppercase; }
 
   .tabs {
@@ -58,7 +58,7 @@
   }
   .tab.active { background:var(--bg-elevated); color:var(--text-primary); }
   .tab .count { display:inline-block; margin-left:6px; color:var(--text-muted); }
-  .tab.active .count { color:var(--eh-red); }
+  .tab.active .count { color:var(--apt-red); }
 
   .view { display:none; }
   .view.active { display:block; }
@@ -77,9 +77,9 @@
     cursor:pointer; transition:border-color .2s, background .2s;
   }
   .brief-card:hover { border-color:var(--text-muted); background:var(--bg-elevated); }
-  .brief-card[data-type="morning"]  { border-left:2px solid var(--eh-red); }
-  .brief-card[data-type="midday"]   { border-left:2px solid var(--eh-dark-red); }
-  .brief-card[data-type="evening"]  { border-left:2px solid var(--eh-grey); }
+  .brief-card[data-type="morning"]  { border-left:2px solid var(--apt-red); }
+  .brief-card[data-type="midday"]   { border-left:2px solid var(--apt-dark-red); }
+  .brief-card[data-type="evening"]  { border-left:2px solid var(--apt-grey); }
 
   .brief-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); width:48px; flex-shrink:0; }
   .brief-info { flex:1; min-width:0; }
@@ -91,8 +91,8 @@
     color:var(--text-muted); padding:6px 10px; transition:color .2s;
     text-transform:uppercase;
   }
-  .brief-pin:hover { color:var(--eh-red); }
-  .brief-pin.pinned { color:var(--eh-red); }
+  .brief-pin:hover { color:var(--apt-red); }
+  .brief-pin.pinned { color:var(--apt-red); }
   .brief-arrow { color:var(--text-muted); font-size:14px; margin-left:8px; flex-shrink:0; }
 
   .empty {
@@ -154,7 +154,7 @@
 </div>
 
 <script>
-const briefs = [{"key": "briefs/2026-04-25-morning.html", "date": "2026-04-25", "type": "morning", "modified": "2026-04-25T15:45:20.842042+00:00", "pinned": false}];
+const briefs = [{"key": "briefs/2026-04-25-morning.html", "date": "2026-04-25", "type": "morning", "modified": "2026-04-25T18:13:21.768066+00:00", "pinned": false}];
 const today = "2026-04-25";
 
 document.getElementById('footer-ts').textContent =
