@@ -1531,15 +1531,18 @@ def s3_generate_index(briefs):
   .bc-preview {{ padding:0 20px 14px; }}
   .bc-preview-headline {{
     font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body);
-    line-height:1.55; padding:6px 0 6px 14px; position:relative;
-    border-top:1px solid var(--border-dim);
+    line-height:1.55; padding:8px 0 8px 14px; position:relative;
+    border-top:1px solid var(--border-dim); cursor:pointer; transition:color .15s;
   }}
+  .bc-preview-headline:hover {{ color:#fff; }}
+  .bc-preview-headline:hover::before {{ background:var(--apt-red); }}
   .bc-preview-headline:first-child {{ border-top:none; }}
   .bc-preview-headline::before {{
-    content:''; position:absolute; left:0; top:13px; width:6px; height:1px;
-    background:var(--text-muted);
+    content:''; position:absolute; left:0; top:14px; width:6px; height:1px;
+    background:var(--text-muted); transition:background .15s;
   }}
-  .bc-preview-headline.no-data {{ color:var(--text-muted); font-style:italic; }}
+  .bc-preview-headline.no-data {{ color:var(--text-muted); font-style:italic; cursor:default; }}
+  .bc-preview-headline.no-data:hover {{ color:var(--text-muted); }}
 
   .bc-foot {{
     display:flex; align-items:center; justify-content:space-between;
@@ -1588,6 +1591,84 @@ def s3_generate_index(briefs):
     font-size:11px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase;
   }}
   .empty .big {{ font-family:'Syne',sans-serif; font-size:18px; font-weight:700; letter-spacing:4px; color:var(--text-dim); margin-bottom:10px; }}
+
+  /* Story modal */
+  .modal-backdrop {{
+    position:fixed; inset:0; z-index:200; background:rgba(5,8,16,0.78);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    display:none; align-items:flex-start; justify-content:center;
+    padding:64px 16px 24px; overflow-y:auto;
+  }}
+  .modal-backdrop.open {{ display:flex; }}
+  .modal {{
+    background:var(--bg-surface); border:1px solid var(--border-bright);
+    border-top:2px solid var(--apt-red);
+    max-width:720px; width:100%; padding:0;
+    box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  }}
+  .modal-head {{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:22px 28px 18px; gap:16px; border-bottom:1px solid var(--border-dim);
+  }}
+  .modal-section {{
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px;
+    text-transform:uppercase; padding:5px 10px;
+    border:1px solid currentColor; flex-shrink:0;
+  }}
+  .modal-meta {{
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; flex:1; text-align:right;
+  }}
+  .modal-close {{
+    background:transparent; border:1px solid var(--border-dim);
+    cursor:pointer; padding:6px 12px;
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:all .15s;
+    flex-shrink:0;
+  }}
+  .modal-close:hover {{ color:var(--text-primary); border-color:var(--text-muted); }}
+  .modal-body {{ padding:24px 28px; }}
+  .modal-headline {{
+    font-family:'Syne',sans-serif; font-size:22px; font-weight:700;
+    letter-spacing:0.5px; color:#FFFFFF; line-height:1.3; margin-bottom:14px;
+  }}
+  .modal-source {{
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; margin-bottom:24px;
+  }}
+  .modal-block {{ margin-top:20px; padding-top:20px; border-top:1px solid var(--border-dim); }}
+  .modal-block:first-of-type {{ border-top:none; padding-top:0; margin-top:0; }}
+  .modal-label {{
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:4px;
+    color:var(--apt-red); text-transform:uppercase; margin-bottom:10px;
+  }}
+  .modal-text {{
+    font-family:'DM Mono',monospace; font-size:14px; color:var(--text-body);
+    line-height:1.7; white-space:pre-wrap;
+  }}
+  .modal-insight {{
+    background:var(--bg-deep); border-left:2px solid var(--apt-red);
+    padding:16px 18px; margin-top:8px;
+  }}
+  .modal-foot {{
+    display:flex; gap:10px; padding:18px 28px; border-top:1px solid var(--border-dim);
+    background:var(--bg-deep); flex-wrap:wrap;
+  }}
+  .modal-btn {{
+    padding:10px 16px; font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:2px; color:var(--text-primary); text-transform:uppercase;
+    background:transparent; border:1px solid var(--border-bright); cursor:pointer;
+    transition:all .15s; flex:1; text-align:center; min-width:140px;
+  }}
+  .modal-btn:hover {{ border-color:var(--apt-red); color:var(--apt-red); }}
+  .modal-btn.primary {{ border-color:var(--apt-red); color:var(--apt-red); background:rgba(204,0,0,0.06); }}
+  .modal-btn.primary:hover {{ background:rgba(204,0,0,0.18); color:#FFFFFF; }}
+  @media (max-width:560px) {{
+    .modal-head {{ padding:18px 20px 14px; }}
+    .modal-body {{ padding:20px; }}
+    .modal-foot {{ padding:14px 20px; }}
+    .modal-headline {{ font-size:18px; }}
+  }}
 
   /* Footer */
   .footer {{
@@ -1676,6 +1757,32 @@ def s3_generate_index(briefs):
   <span class="tagline">Explore what's out there.</span>
   <span class="ts" id="footer-ts"></span>
 </footer>
+
+<div class="modal-backdrop" id="story-modal" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+  <div class="modal" role="document">
+    <div class="modal-head">
+      <span class="modal-section" id="modal-section">Section</span>
+      <span class="modal-meta" id="modal-meta">&middot;</span>
+      <button class="modal-close" id="modal-close" aria-label="Close">&#10005; Close</button>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-headline" id="modal-headline">Headline</h2>
+      <div class="modal-source" id="modal-source">Source</div>
+      <div class="modal-block" id="modal-summary-block">
+        <div class="modal-label">Summary</div>
+        <div class="modal-text" id="modal-summary"></div>
+      </div>
+      <div class="modal-block" id="modal-insight-block">
+        <div class="modal-label">Claude Insight</div>
+        <div class="modal-text modal-insight" id="modal-insight"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <a class="modal-btn" id="modal-link-source" target="_blank" rel="noopener">Read source &#8594;</a>
+      <a class="modal-btn primary" id="modal-link-brief">Open in brief &#8594;</a>
+    </div>
+  </div>
+</div>
 
 <script>
 const briefs = {briefs_json};
@@ -1872,16 +1979,16 @@ function renderStoriesView(list) {{
     const cmp = (a.briefDate || '').localeCompare(b.briefDate || '');
     return state.sort === 'newest' ? -cmp : cmp;
   }});
-  // Group by date
   const byDate = {{}};
   sorted.forEach(s => {{ (byDate[s.briefDate] = byDate[s.briefDate] || []).push(s); }});
   const dates = Object.keys(byDate).sort();
   if (state.sort === 'newest') dates.reverse();
   let html = '';
   dates.forEach(date => {{
-    const rows = byDate[date].map(s => {{
+    const rows = byDate[date].map((s, i) => {{
       const link = escapeHtml(s.briefKey);
-      return '<a class="story-row" href="' + link + '">' +
+      const idx = allStories.indexOf(s);
+      return '<a class="story-row" href="' + link + '" data-story-idx="' + idx + '">' +
         '<span class="story-section" style="color:' + (SECTION_COLORS[s.section] || '#888') + '">' + escapeHtml(s.section) + '</span>' +
         '<span class="story-headline">' + escapeHtml(s.headline) + '</span>' +
         '<span class="story-source">' + escapeHtml(s.source) + '</span>' +
@@ -1896,6 +2003,75 @@ function renderStoriesView(list) {{
   }});
   return html;
 }}
+
+// Story modal
+const modalEl = document.getElementById('story-modal');
+function openStoryModal(story) {{
+  if (!story) return;
+  const sectionEl = document.getElementById('modal-section');
+  sectionEl.textContent = story.section || 'Story';
+  sectionEl.style.color = SECTION_COLORS[story.section] || '#888';
+  document.getElementById('modal-meta').textContent =
+    formatShortDate(story.briefDate) + ' \u00B7 ' + briefLabel(story.briefType);
+  document.getElementById('modal-headline').textContent = story.headline || '';
+  document.getElementById('modal-source').textContent = story.source ? ('Source \u00B7 ' + story.source) : '';
+  const summaryBlock = document.getElementById('modal-summary-block');
+  const insightBlock = document.getElementById('modal-insight-block');
+  if (story.summary) {{
+    document.getElementById('modal-summary').textContent = story.summary;
+    summaryBlock.style.display = '';
+  }} else {{
+    summaryBlock.style.display = 'none';
+  }}
+  if (story.insight) {{
+    document.getElementById('modal-insight').textContent = story.insight;
+    insightBlock.style.display = '';
+  }} else {{
+    insightBlock.style.display = 'none';
+  }}
+  const sourceLink = document.getElementById('modal-link-source');
+  if (story.link) {{ sourceLink.href = story.link; sourceLink.style.display = ''; }}
+  else {{ sourceLink.style.display = 'none'; }}
+  const briefLink = document.getElementById('modal-link-brief');
+  briefLink.href = story.briefKey || '#';
+  modalEl.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}}
+function closeStoryModal() {{
+  modalEl.classList.remove('open');
+  document.body.style.overflow = '';
+}}
+document.getElementById('modal-close').addEventListener('click', closeStoryModal);
+modalEl.addEventListener('click', e => {{ if (e.target === modalEl) closeStoryModal(); }});
+document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && modalEl.classList.contains('open')) closeStoryModal(); }});
+
+// Delegate clicks on story rows: open modal unless modifier keys (let new-tab work).
+document.getElementById('stories').addEventListener('click', e => {{
+  const row = e.target.closest('.story-row[data-story-idx]');
+  if (!row) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+  const idx = parseInt(row.dataset.storyIdx, 10);
+  const story = allStories[idx];
+  if (!story) return;
+  e.preventDefault();
+  openStoryModal(story);
+}});
+
+// Make brief-card preview headlines also open the matching story modal.
+document.addEventListener('click', e => {{
+  const ph = e.target.closest('.bc-preview-headline');
+  if (!ph || ph.classList.contains('no-data')) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+  const card = ph.closest('.brief-card');
+  if (!card) return;
+  const headline = ph.textContent.trim();
+  const briefType = card.dataset.type;
+  const story = allStories.find(s => s.briefType === briefType && s.headline === headline);
+  if (!story) return;
+  e.preventDefault();
+  e.stopPropagation();
+  openStoryModal(story);
+}});
 
 function attachPinHandlers() {{
   document.querySelectorAll('.bc-pin').forEach(btn => {{
