@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Weekend Brief · Sunday, May 03</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'DM Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--apt-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--apt-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--apt-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--apt-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--apt-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--apt-red); }
+  .story-source { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }
+  .insight-label { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--apt-red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--apt-red); }
+  .panel:not(.edge) .panel-title { color:var(--apt-grey); }
+  .panel p { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Apterreon</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </a>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Weekend Brief · Sunday, May 03</h1>
+    <div class="meta">07:40 AM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
+    <span class="ts">07:40 AM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {"input_tokens": 12286, "output_tokens": 6588, "total_tokens": 18874, "cost_this_call": 0.0362, "cost_daily_projected": 0.1085, "cost_monthly_projected": 3.26};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "Squawk Box: Watch Interviews & Clips, Schedule, Latest News", "summary": "", "insight": "", "source": "CNBC", "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBIWUp1WU9vYzdFVlc3WERhdHNHV052d1QwR0JwdEIzQUhOekVKX0l3Ni1VYXd2QmZZUWR4M180M0VkTjB3bEFzRW9YYw?oc=5"}, {"headline": "Ukraine News Today: Breaking Updates & Live Coverage - May 3, 2026 from Kyiv Post", "summary": "", "insight": "", "source": "Kyiv Post", "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFB1UmFZamRQSGxjZHdUYXU0MVFQOWNvYWtDQU9IVXBLS0VGR2RFcHJ2RjI1N0Jrdzg1ZlNjd21WR1FrU1psRkRYUXRITTE1dw?oc=5"}, {"headline": "Trump says he is reviewing Iran's new offer but doubts it is 'acceptable'", "summary": "", "insight": "", "source": "NBC News", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOUmc3NVZQczFfTHBDWDY2Z2R6eFhYWnFFZmdnaG52UTBMb215cU52aGIxSDVSNDdYYUozOW50ZGlYaFhiWHNzdXdGanN0OUlEcHRkZnVIUFdvWGg0THEyRy1GMUh6dWhCbV90d0FUVGlEQXRCY0xXUkNfcndqWUdhc2Y1dkdRR1lkeTJMM1Rfa1IzYTVxOFo3S2dtWTdvd3RidUROUXhqcWNaNVFDY0tkbw?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "Trump Wants to Control the Fed. History Says That's How Bear Markets Are Born.", "summary": "Trump's push to control Federal Reserve policy signals intent to subordinate monetary independence to political priorities, echoing regimes where politicized central banks have triggered asset collapses through credibility erosion.", "insight": "Central bank independence commands a liquidity premium in risk assets; markets price in policy discipline and inflation control. Removing that constraint forces repricing of duration and equity risk premium, flattening yield curves and compressing valuation multiples as real rates rise to compensate investors for political interference risk.", "source": "AOL.com, The Motley Fool", "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE15NXBweHNjTWxrXzNISGFmanlQT3gtZlV3Y3o3YWZ0aU1lc0JuN1FDcDdXV3BHYTVkc0VpWjdncllFdnNuR3lKNF9lYW9HZzVYNTZocjhnd0RBUlhubnNTZUdGbk1MVjNHUUdlSXZUS2o1R3JpaXRGU1gteXBGcGM?oc=5"}, {"headline": "Stock Market Investors Just Got an Urgent Warning From Fed Chair Jerome Powell", "summary": "Powell signals heightened policy restrictiveness ahead, warning equities that rate cuts are not imminent and inflation expectations remain above target.", "insight": "The market is pricing in rate cuts by late 2025 based on soft landing narratives, but Powell's messaging resets expectations to a longer hiking cycle. This compresses near-term equity upside and forces allocators to shift positioning from growth into value and dividend plays, reducing multiple expansion risk.", "source": "The Motley Fool, The Globe and Mail", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPV1MtQzh3aEFhdkx5ZDlnM2RjalBQMVJXZl9KN2lfbnNJR1IxVzR2Z0V6cVJBZ0NaUDVaM2lPTjhwZkljZXFPSVlHQWdhMVRMbmFIVFk3Vy11cmlMcUc2amdvVzF3YU5fQUhuRGZBQ1g0RXh1UUYwejlsOHhibXM0dDdBVmg3WmdKQ241ZlZManRiZ09ma0E?oc=5"}, {"headline": "Germany Has the Cash to Revitalize Its Economy, but Can't Seem to Spend It", "summary": "Germany's constitutional debt brake constrains fiscal stimulus despite available capital reserves, leaving its economy structurally underinvested in infrastructure and productivity growth.", "insight": "Fiscal policy constraints in the Eurozone's largest economy create a growth drag that forces structural savings into financial assets, driving capital outflows and creating relative valuation compression for European equities versus the US where fiscal multipliers remain positive.", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQQzg3ekJSNE9DeW8xT3Y5Qjc1WTAyTGVZWXh5ODBPN255ZVhpekN6b2tZTUdRMVhFYXhoeE1UTHdOQVhiT0dMWUVlR290VnpQQ2VXUGVWQmZmQk03ZzkxOWxEWWszT1duRWVUV2N5TVQ0R3hGaFJ5UEQ5SXVvenktb1Ezd29tdERuenFNeEJ1bVdiZ1A0a1BRTTBpWXN2eGRSM2RCcUxYU1g5OGQ4bTFtMVMzZDI?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump disapproval reaches new high, Post-ABC-Ipsos poll finds", "summary": "Trump's disapproval rating hits a record high in polling, signaling erosion of public confidence as his second term progresses.", "insight": "Sustained disapproval constrains executive power to implement pro-business deregulation and tax policy through Congressional channels, requiring negotiation capital that reduces probability of agenda completion. This increases policy uncertainty risk premium embedded in equity valuations.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPYXJ6eTYtS1RYaS1UZkNQMzhoRHg0UHhUVUVTamVRT0g5VzllMHRTMWtRaTJvZ0NEN3ZzWUxtVlFWelNrdXEycUhfcmUzWG1qWHl1SXhpcUZlcW5JVkhURXhYM1lUa1dEQWhzZ2hfV3dJUnotY1lmb08weFRHOVRPS0VnNkhrZw?oc=5"}, {"headline": "US approves $8.6bn in arms sales to Middle East allies amid Iran tensions", "summary": "The US authorized $8.6 billion in weapons sales to regional partners, signaling continued military deterrence positioning against Iran.", "insight": "Defense contractor order books expand on geopolitical escalation; allocators gain visibility into multi-year revenue streams. However, this also increases tail risk of kinetic conflict that could disrupt oil supply and trigger commodity volatility, imposing a volatility tax on growth-dependent equities.", "source": "Al Jazeera, Crypto Briefing", "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNdWJWTm5KbnBCeTdWa0VjbzJTRi1tWVBsQTB2RVJOYTlFdkhoa0tqN18xTEFqUGFHeW5SUVN4clN6T25iTXNVQTZrdXk3VzNPOHJxX0VldmF1WUZPSVhEdkRxZ211UGJwbjZqc2lsX280RUN6RGQ1S2xHQU5PbkVvdnlYSVJTdm80QnF2NUU5T3VTcThDa0Q3cURyWGLSAaIBQVVfeXFMTU41LTl0eWpDajk1XzRfT1h5MEdpU1RIT1BHRmhwd2pLeHlxY2Z5Qk81NjhwSFBOTmVyVjdHc3lMVHB6TElRYTV5QmlRbzBSQ1J0cXRkTFJ3TXhBaXJwQUJUaUZYc2dPcVRhV1JyaEMxckwycnU5WXYxaHZuMXBua1dsek50ekVqNk5fUXotTFo1ejNhSUI1T3UzbmRuQ2t3NkR3?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Gov't to inject 560 bln won into S. Korean AI startup Upstage", "summary": "South Korea announced $560 billion won in government funding for Upstage, a domestic AI startup, accelerating national AI capability-building.", "insight": "Governments are deploying capital directly into national champions to compete with US and Chinese AI incumbents. This arms the technology transfer race and creates regulatory moats through state backing, benefiting companies with sovereign funding but creating commoditization pressure on open-source and non-backed competitors.", "source": "Yonhap News Agency", "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFA1aFlFY2dBd28yV3pCMFVfdElpTU16bHpweFhSdlJoMVFBT3dBWTN0b3p5eWo3Y0xJcmJVQmliVVRGTy1teV9IeS0wUGs2UzAyLWE0M1ppNXBLRFNyQQ?oc=5"}, {"headline": "Big Tech Earnings Spotlight AI Winners: Alphabet, Amazon Ahead of Meta", "summary": "Earnings season focuses on AI monetization across major cloud and search providers, with Alphabet and Amazon positioned as leaders in infrastructure and applications.", "insight": "AI spending correlates directly to customer acquisition cost efficiency and margin expansion in cloud services. Allocators are rotating capital from legacy software into cloud infrastructure plays where AI workloads justify higher opex and create durable competitive advantage through data network effects.", "source": "FXLeaders", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPLV9ZeF9xa3dURzFhZTdMcVU0dVJqQ3lXdVlZUF9hRy1Lc25KNkpsckpWUUVlMTZjbnFkY3M2VEI0OURReEgzNFNmSG9nWEZ0V0dPLXhWNmh4LWFkeVVTdElKVDRMYXpjNXc2ZGZQOG1kRThBVW5LR2RVaS1ramxWbzBXSVUyTkFaRmY1M3BvLVJ5dlNObkRTWi1USmxKV1pmTm5NaUU1ZUdSbGJFU2FVTw?oc=5"}, {"headline": "Meta and Microsoft have joined the tech layoff tsunami", "summary": "Meta and Microsoft announced workforce reductions as part of broader tech sector cost rationalization and restructuring.", "insight": "Layoffs signal peak hiring cycles and margin compression pressure; they reduce near-term revenue growth but improve operating leverage and return excess capital. Allocators should watch redeployment efficiency: companies that cut headcount without losing revenue growth velocity command valuation premiums versus those taking demand destruction.", "source": "Moneyweb", "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQNGZCN3Fvd0NNbXdZZ21LUGFWMEliMXF3OEZZYWM4VXE0bHRJV3ZBeVlNZ0RXdUJPY0otclB4NUdscDVSVm1UcXdseFZnWFpMSExGMl81a2dCN21OTmhiS1JpU0pFNmhvcnpDbUl3d2ZaQmdUSU1NeVI2N0ZkeTBOdzZkMk9YdENWS2dZZkdHeG5KSmZuMlhr?oc=5"}]}, {"name": "International", "stories": [{"headline": "Trump says Iran has not yet 'paid a big enough price' as he reviews new peace proposal", "summary": "Trump signaled skepticism toward Iran's latest peace overture, indicating preference for continued maximum pressure before negotiation.", "insight": "Dovish language on Iran removes from pricing, extending the risk period for Middle East geopolitical premium and oil supply tail risk. Energy allocators should extend hedges; this communication style favors elevated WTI and Brent pricing into 2026.", "source": "The Guardian", "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQSVhDS3V2QmhuOGNOdzA4NFVnVUo3eFBGZzNGZDVWM2NORjhERU02SmNPRWlqVERwU0ZRVnJ4aFpKankxTkV2cDEzYzV5TzNDdV9tamxrOUxOcXlrU0JNMVUwempheldJdWlDTHl0VW8zN1JsdEEyT3ZOakswY1pHUjF6VE8wbmdpMVhPRzl2UDdJSjdqS3B4S3dxU3NlLXRJM2NHOGw1U0V6ZGhaWjBuVTBfVDhpMnpvcDVtUG8xMVhaQnF1Qk9mSGNn?oc=5"}, {"headline": "How A.I. Is Transforming China's Entertainment Industry", "summary": "Chinese entertainment companies are integrating AI into content creation, distribution, and personalization at scale, accelerating content velocity and margin expansion.", "insight": "China's vertical integration of AI into entertainment creates local advantage in content networks and IP monetization that US platforms cannot replicate. This shifts competitive advantage toward Chinese tech platforms in domestic markets and emerging markets where content localization at lower cost creates unfillable moats.", "source": "The New York Times", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNM2FKeHZCT01ROWJ1aVNMemctSFg5VkE0Z2R2V1Jwa3FzSS00UktvQ2pscEtLZno1N0R1NUdYbTVOSjk0OE5hWjNsUVYxQUhZMkxVX2pwVjJnX0tZSnZiS21UYlczNVZWejBCSEhobDVyYWxYeGtpWkdmaDJkcXl1bHg4Vi1nQQ?oc=5"}, {"headline": "China blocks Meta's $2B Manus AI deal amid US-China tech tensions", "summary": "China's regulators rejected Meta's $2 billion acquisition of AI talent and infrastructure, signaling escalation of tech decoupling enforcement.", "insight": "Blocking the deal removes a direct acquisition path for US tech capital to source AI talent and engineering capacity from China. This forces US companies to build AI competency in-house or through allies, increasing opex and time-to-market while incentivizing China's domestic AI ecosystem to mature faster through necessity. Long-term, this accelerates bifurcation of AI stacks and creates durable regional monopolies.", "source": "Crypto Briefing", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQbmhsdXpNSGMyQXFtV1BJOWc4WG1XSFNzSHM1akZuVkxFQlJqSXF1NFlRUWFrMTF5TEE5OW1pTkNhdm4zaV95YU02Wlo0VWZvSVNTNHZwMU5pTWdzMFZmSExkT0VIMXdPaWJPOXRFWW12N3oxNjZHeEdhczJZZ0xVN2pudFFMd0IzMnpHWFBOUEtmdV9ONGc?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "How A.I. Is Transforming China's Entertainment Industry", "summary": "Chinese entertainment companies are integrating AI into content creation, distribution, and personalization at scale, accelerating content velocity and margin expansion.", "insight": "China's vertical integration of AI into entertainment creates local advantage in content networks and IP monetization that US platforms cannot replicate. This shifts competitive advantage toward Chinese tech platforms in domestic markets and emerging markets where content localization at lower cost creates unfillable moats.", "source": "The New York Times", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNM2FKeHZCT01ROWJ1aVNMemctSFg5VkE0Z2R2V1Jwa3FzSS00UktvQ2pscEtLZno1N0R1NUdYbTVOSjk0OE5hWjNsUVYxQUhZMkxVX2pwVjJnX0tZSnZiS21UYlczNVZWejBCSEhobDVyYWxYeGtpWkdmaDJkcXl1bHg4Vi1nQQ?oc=5"}, {"headline": "Blue Raiders Shine at Outdoor Music City Challenge", "summary": "Middle Tennessee State University athletics achieved performance success at a regional outdoor championship competition.", "insight": "College athletics continue generating local media attention and alumni engagement; institutional funding through NIL and corporate partnerships creates sponsorship arbitrage for regional conferences competing for media rights allocation.", "source": "Middle Tennessee State University Athletics", "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNLVhtdVFsOUtUTEVyZm9LNjNUZC1HZnZxRU5YMmpjZmpRUXNfU19yVFFNQ3ppZU1wb0gtWGdGMlNaWFpZLTFoQVRTVGdVLS1IRWxkUHlTWEQ4ZzVRVy1PYWp5UDJ1ckRFUi02NEJMODBYZC1NdDlQT3ZLOHlNYUVBZDdJbW9nbjF2MlVEWWtidERBZXppTFUzWlV6T3N5ZDA5WTQ1ZVJwZGpnUDU3ZGU5cGRKTzg2b0JGc1pWNkh2R3ZNS0xC?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Man dead after Milford incident, 1 in custody, police say", "summary": "A fatal incident in Milford resulted in one death and one arrest by local law enforcement.", "insight": "Local crime incidents have limited macro impact but signal regional safety concerns that affect property values and capital deployment patterns in specific municipal markets.", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOZmV0WmVxUzlpRVNQdUxvd0ZtRUZmZDV1aVNuV21aUV9LQ1U0N19pSTExd3A3dXNseHRWODNIVzQ1VUdNVVJ1SXJxd1Q3UGh2NEtCcXNkcVNBRGpPSHBwVVJ2NlNEb3Y4MXVUR0hJYUNwcTFDNE1oVGtSTGpCb29NU0hoZUfSAYwBQVVfeXFMT2VTVWk2YkNFMEs0Z3d6cjY4a25mZzlVUUpQN2x2RXN0aXZVQXYzRUdoYUNJOEZxWWpEM2ItTUNXM2Q4UUU2WUV2a0NpWUNOLVpJa2w1Nmdlc0Z6OVktRHpoYmNWd0RkUWtXSVF3WU5pSWJwaFdMckZIOEpHSmhob180ekJQMUxmUmtkSkY?oc=5"}, {"headline": "Dramatic video: Brothers, dog rescued from water after Mass. sailboat incident", "summary": "Two brothers and a dog were rescued from water following a sailboat accident in Massachusetts.", "insight": "Recreational asset incidents have limited systemic relevance but underscore seasonal water rescue demand and municipal emergency services capacity constraints.", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNSkpXMnBjUEpJaE9mUUp3RzE1NFhORk9IU2owNWhZVkRjVXdrVDVWYXFib1dKRG1GQ281M3EwUE8wU2MwR1dBenRaa3ZHT240dFhzci1aNU0xa29qcnlxZlNfQnhZbVNBX3A4RXB6SVp4Mlc0dnd0eG00M1B6ZlZTT2hsQzd5YXpvMTVCaNIBlAFBVV95cUxQT3VCd0FMMGp6OWF1RmNRdFJlUGpfZFlkTDZqVGRNUS1XMWdYS25ucVRzeVNjMzJwZGhReHcxQkllVjJKWlpnaWpaUFZZZDV6X280ajVqNlozdFkyVzQ1U2JGaVVmWVdjMVpSTjlGRVdrUjh1d2QtMmQ2QzJNSTFlSF9sNmkzMUFqWlpSNXZubUFFeXZx?oc=5"}]}];
+const edgeText = "Central bank subordination to political control (Fed independence threat) collides with geopolitical risk elevation (Iran tensions) and China's technology decoupling enforcement, creating a stagflationary environment where allocators cannot hide in traditional safe havens. The arbitrage window between US policy uncertainty premiums and China's state-backed AI champions' structural growth is rapidly closing as capital controls tighten and execution becomes regional.";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "720.65", "change_pct": "0.2769"}, {"ticker": "IWB", "label": "Russell 1000", "price": "393.89", "change_pct": "0.2698"}, {"ticker": "IWM", "label": "Russell 2000", "price": "279.28", "change_pct": "0.4713"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "102.10", "change_pct": "-0.2150"}, {"ticker": "FFR", "label": "MM Yield (avg)", "price": "3.64%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Apterreon Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>
