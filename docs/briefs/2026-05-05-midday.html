@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Midday Update · Tuesday, May 05</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'DM Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--apt-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--apt-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--apt-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--apt-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--apt-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--apt-red); }
+  .story-source { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }
+  .insight-label { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--apt-red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--apt-red); }
+  .panel:not(.edge) .panel-title { color:var(--apt-grey); }
+  .panel p { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Apterreon</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </a>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Midday Update · Tuesday, May 05</h1>
+    <div class="meta">01:47 PM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
+    <span class="ts">01:47 PM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {"input_tokens": 12237, "output_tokens": 5200, "total_tokens": 17437, "cost_this_call": 0.0306, "cost_daily_projected": 0.0918, "cost_monthly_projected": 2.75};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "Shelter-in-place ordered at U.S. Army facility in Natick", "summary": "", "insight": "", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQcERZbTZiZGFrbWJoLUprOFVtcGVCVVBjb21NNkZjZ2Fzc2NQNW04Yzh0azBPUWNDVzVhbks2aS1iblVfc2ZKRzVzcTNtdXZKcFE3VjdQdzl1SF9ZcTNRSjVIUjRrX2hCS3k4MDJtNmdjZnFkb0RhZENqOE9qWlpUbE1PNGJHM2dBVE03VmZQQmNOMUlJZEhaUFVsS1JXeVlvYi1j0gGrAUFVX3lxTE0yZkltc1dnWUxvWU5KOWlvSENrOVhoN1VIMzdkbjYtWlVndldsSzNEcWNBMDdNRjhaM0J5TzRPU21Pd0tOSmtyYzBXSEliakx5Y0V6UUhieWJOS3VNd0xyZ2dieTNCSmV0TFZycWFrUmlGRG9wbHNZQ3FBNC1fellvV2t1dm5lcWdvMWR4UWxySW1Vc1c0X21TSnJXY3JNQnBYbVBfQkZKem0yVQ"}, {"headline": "Child dies after tree falls on playground outside Melrose school", "summary": "", "insight": "", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQcERZbTZiZGFrbWJoLUprOFVtcGVCVVBjb21NNkZjZ2Fzc2NQNW04Yzh0azBPUWNDVzVhbks2aS1iblVfc2ZKRzVzcTNtdXZKcFE3VjdQdzl1SF9ZcTNRSjVIUjRrX2hCS3k4MDJtNmdjZnFkb0RhZENqOE9qWlpUbE1PNGJHM2dBVE03VmZQQmNOMUlJZEhaUFVsS1JXeVlvYi1j0gGrAUFVX3lxTE0yZkltc1dnWUxvWU5KOWlvSENrOVhoN1VIMzdkbjYtWlVndldsSzNEcWNBMDdNRjhaM0J5TzRPU21Pd0tOSmtyYzBXSEliakx5Y0V6UUhieWJOS3VNd0xyZ2dieTNCSmV0TFZycWFrUmlGRG9wbHNZQ3FBNC1fellvV2t1dm5lcWdvMWR4UWxySW1Vc1c0X21TSnJXY3JNQnBYbVBfQkZKem0yVQ"}]}, {"name": "Finance & Markets", "stories": [{"headline": "XA Investments adopts tender offer fund from $4bn hedge fund shop", "summary": "XA Investments added advisory and management responsibilities for alternative investment funds previously operated by a multi-billion dollar hedge fund manager.", "insight": "This signals capital consolidation in the alternative asset space where scale and regulatory expertise become competitive advantages as institutional allocators concentrate AUM with fewer platforms.", "source": "Citywire", "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNX2ZSbjYyeXBFMVVSR0hsUjVKQTVvZlhSVkRSbGcyZ1NLTzlUYk40STZJU0tCbXRoTTJ4SGpma3J1SkswdUZKV3k1NVhGTDJYaHRaR0VsSUN3UG5RTlhkdnFteXZNYWRrOXFOMDVrLWc0a2xPbGtpQU54a2RHbzdBZVhVbll4OTVGbXdXNWVaV2UycE5JaERvWUxUTHd0THUxTG5zeTdhVWFUVWhKNFE"}, {"headline": "Legendary economist known for 1969-70 recession prediction warns downturn may hit in 2026", "summary": "A historically accurate forecaster signaled recession risk in 2026 as macro pressures build from tariff inflation and potential Iran-related energy shocks.", "insight": "Recession calls from proven forecasters typically move capital allocation away from growth into defensives and alternatives, creating tactical opportunities for those positioning ahead of consensus shift.", "source": "Fox Business", "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxOeW1LbF9KamRfVE1fc1dVY1g1ZXAwOFRHUXZDLWJxSWxmX2pWd3l5aFFsVWlLemplbGNrZTNDazZPUmJYeC0tZHJSNGZLX05VWjRoZHB5QzdZR1dkNXc0ZUktSlRleTRobGt0azlmYmdZaFdpYTQ0MnZwUm9yam80ZUkxZVN2N25FeXNyNTlJVnExWkdIOE5YM2xSekZld0NTbEFtNk5OWHRneVlQb0NXUGxKQ2h6OVZhUEFxc1ZtTdIBxAFBVV95cUxOZF80RVZuZXUwZDBkMW1sUC1zWUR6NzBINm1XMXBTeVdKSHltMWwxeUtMSmZsY2JMS2Y2WXg0bExSS0U3UUVBRTc3NWtUUkdjTWZDdEhwZ3lVbU56cllwOVE3cnVVX3pJektaTXpIQzVjeEhTTGRaS2MxTW9FZHRJckh6WGtIYi05WnhaWDZtV3MxcTdHR2JGMlBNbmRJM3BhOWpaMS1pcVhhOTJUeUc3WkxFeWNSbk5mN2w0VUk4MGZkZkdZ"}, {"headline": "Seedli Capital Secures $20 Million from Nimbus Capital to Accelerate Global Exposure to Tokenized RWAs", "summary": "A tokenized real-world assets infrastructure platform raised $20M to expand its reach into institutional and global markets.", "insight": "RWA tokenization capital flowing to infrastructure providers indicates allocators see real settlement risk arbitrage and operational efficiency gains, compressing valuations for traditional custodians.", "source": "markets.businessinsider.com", "link": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxPRWh2NXltSjFzZmJsYVBfSWpEaXVYWC1tSGg3VXdyLTVzN0l4Q2cyT2VhaktOT0pRTWcyZEJZcUE3dmZfODNWVmVHeHpuNXpvS1dhX0FPV0FfS2dQWUxlTzBTRnVOamlDRDNtRzcyWEpBX29vcUJvWUpHYUxESVp6dVBKanpYdzNZNEs5QjczWDFpOGR3bVJVS2lsMHRvalJQWEtWb3BWOFdEY0pTdXBlajdCR2JsY016dzR2ZFJLRjcxX3R6aWJaLVV4cDRyUUJOVlFUbFRiQks3T1Zyb00yUFFQcHRIeG0yZWc1UG1Bb2Vpdw"}]}, {"name": "Politics & Policy", "stories": [{"headline": "GOP offers $1B for White House security, sparking dispute over ballroom", "summary": "Senate Republicans proposed $1 billion in security funding for a Trump ballroom as part of ICE and border patrol spending, creating legislative tension.", "insight": "Tying security infrastructure spending to unrelated priorities signals partisan budget leverage and potential leverage for other appropriations bills.", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQcHpCdGRGT2pEbnA4Z0E2YXZMVXFNcmJONldBOTQ2bUl4eXpobGVKYl9KQU5jWnVMX3RqX1A3X0tvMktSdHhQdlVEdGxya2lJQW9ZekVfUWgwMWtxNDdzdkJnMzlfcXRsQVVGT3BUV2NpOTNjS3lRVWFTOHpFNHdnY0xWSWw0RXRLZ3pPNnhR"}, {"headline": "SEC Proposes Amendments to Permit Optional Semiannual Reporting by Public Companies", "summary": "The SEC proposed allowing public companies to shift from quarterly to optional semiannual reporting, reducing disclosure frequency and compliance burden.", "insight": "Relaxed reporting requirements reduce analyst coverage quality and increase information asymmetry for retail investors, widening the institutional edge in real-time fundamental analysis.", "source": "SEC", "link": "https://www.sec.gov/newsroom/press-releases/2026-42-sec-proposes-amendments-permit-optional-semiannual-reporting-public-companies"}]}, {"name": "AI & Technology", "stories": [{"headline": "AI Computing Is a Memory Hog. An Nvidia-Backed Startup Has an Answer.", "summary": "An Nvidia-backed company developed a memory optimization solution for large language models, addressing a critical bottleneck in inference costs.", "insight": "Memory efficiency gains directly reduce operating costs per token and enable lower-latency inference at scale, creating competitive advantage for early adopters and raising barriers for memory-constrained competitors.", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNcWhUU2tfUlVleHFCZmxYRmVkUEhITGt4WlVzYkRlMnFxd0RRMU03dG5QMUA4UURfclRHNGdXRjhReWJlNl9nY3hiTXBCVEpqazJKdXlHUTR1QktFd0VHSXBmcFRDb0lPVVlVRkV3Nk1Odllxa0VoVHplZF9DdEc3SkYwQ3NZTU5ia0cyYW82SmVmaHZIOFlVb2t1RjdCUFNHUFZBS2daQQ"}, {"headline": "Google AI workers demand union recognition over use of technology by Israeli and US military", "summary": "Google AI workers launched unionization efforts citing objections to military applications of the company's technology.", "insight": "Labor organizing around AI use cases signals talent flight risk and compliance friction for contractors working on defense contracts, creating operational drag and talent cost inflation.", "source": "Sky News", "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPaFp3eUU1LTBRcEE5bnN3dE5TVkI2RjMtam8yaE9HSk9jNTNBRGxkSkI4N1lHT2FsenY3ZkxCQkxfb2FQdTJIdVhxWWhCTW83Rzl5aTAtR1dVcF9XanZtRk5aNFZhQ3pXSk5hd09wdmp4aTgyX2MzRGlPRkVheU5DdUdRMkh5d0VPaS04SFNXalVaamJZenlob3FKd3dRVEJzelRKWkdtSlF6T1NrSmk3ZkFBb3V4LVQta1o5a1dDbE9nWVpHOXdB"}]}, {"name": "International", "stories": [{"headline": "U.S. insists Iran ceasefire not over despite attacks in Strait of Hormuz", "summary": "Despite Iranian attacks on shipping in the Strait of Hormuz, the U.S. maintained that ceasefire negotiations remain on track.", "insight": "Continued geopolitical ambiguity over energy corridor security creates persistent oil volatility and risk premium for exporters, benefiting commodity hedging strategies and energy infrastructure plays.", "source": "NBC News", "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPNzBIRUZETXZacGhVdmJGdzZ4b2JoS3VOV0hCclEya0pQRDMxMGp5NnFIU0ZlaUtyVEVFMGhGR3lQbzduQkNvdHZvbEMzSWQ2aUJ3VDJjM1NBRDdzNGFaZTJqZ3BtYXpveFZ0bXoxZTBKSEN3eEFCN0ZTWFVJTFcycDRTaXZiaVhFaFp6Z1ZjZEhqQnBaMy0yTlpwZVVZZWRi"}, {"headline": "China's Big Bet on Wind Power Is Paying Off", "summary": "China's wind generation capacity and output exceeded expectations, positioning it as the global renewable energy leader.", "insight": "Chinese renewable dominance raises capital cost for Western energy infrastructure and forces accelerated deployment timelines for competing jurisdictions, creating investment sequencing pressure.", "source": "The New York Times", "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1ibTN1aGl2VjBROEgzVF9QUjR0aVduZFZRSHpoQVZtMUFYaWY4Vm1pdl9vZWRsb01DVEZxcjdQYVQtWTVic1BWN1RacWNLNDBCRGkwUWdJQ1hoSXZ3ZjZEalNBUnpzWW44NzRmVUFUNXlpb3BhR19V"}]}, {"name": "Culture & Sports", "stories": [{"headline": "How A.I. Is Transforming China's Entertainment Industry", "summary": "AI tools are reshaping content production, distribution, and personalization in Chinese entertainment and media.", "insight": "AI-driven content personalization in China's massive market accelerates viewer fragmentation and talent platform consolidation, reducing bargaining power for creators and shifting economics to platform operators.", "source": "The New York Times", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNM2FKeHZCT01ROWJ1aVNMemctSFg5VkE0Z2R2V1Jwa3FzSS00UktvQ2pscEtLZno1N0R1NUdYbTVOSjk0OE5hWjNsUVYxQUhZMkxVX2pwVjJnX0tZSnZiS21UYlczNVZWejBCSEhobDVyYWxYeGtpWkdmaDJkcXl1bHg4Vi1nQQ"}]}, {"name": "Boston", "stories": [{"headline": "Child dies after tree falls on playground outside Melrose school", "summary": "A child died after a tree fell on the playground at a Massachusetts school, prompting investigation into facility maintenance.", "insight": "Municipal and school district infrastructure liability exposure rises, creating insurance cost inflation and capital requirements for preventive maintenance upgrades across regional property portfolios.", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQcERZbTZiZGFrbWJoLUprOFVtcGVCVVBjb21NNkZjZ2Fzc2NQNW04Yzh0azBPUWNDVzVhbks2aS1iblVfc2ZKRzVzcTNtdXZKcFE3VjdQdzl1SF9ZcTNRSjVIUjRrX2hCS3k4MDJtNmdjZnFkb0RhZENqOE9qWlpUbE1PNGJHM2dBVE03VmZQQmNOMUlJZEhaUFVsS1JXeVlvYi1j0gGrAUFVX3lxTE0yZkltc1dnWUxvWU5KOWlvSENrOVhoN1VIMzdkbjYtWlVndldsSzNEcWNBMDdNRjhaM0J5TzRPU21Pd0tOSmtyYzBXSEliakx5Y0V6UUhieWJOS3VNd0xyZ2dieTNCSmV0TFZycWFrUmlGRG9wbHNZQ3FBNC1mellvV2t1dm5lcWdvMWR4UWxySW1Vc1c0X21TSnJXY3JNQnBYbVBfQkZKem0yVQ"}]}];
+const edgeText = "Confluence of three capital flows: recession warnings pulling allocators into alternatives and RWAs (Seedli raising $20M into tokenized infrastructure), geopolitical ambiguity sustaining oil risk premium across supply chains, and labor organizing around military AI raising embedded compliance costs for defense contractors. Early movers positioning into memory-efficient AI infrastructure capture both the AI capex margin compression and the emerging cost advantage as inference scales.";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "718.01", "change_pct": "-0.3663"}, {"ticker": "IWB", "label": "Russell 1000", "price": "392.39", "change_pct": "-0.3808"}, {"ticker": "IWM", "label": "Russell 2000", "price": "277.88", "change_pct": "-0.5013"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "100.70", "change_pct": "-1.3712"}, {"ticker": "FFR", "label": "MM Yield (avg)", "price": "3.64%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Apterreon Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>
