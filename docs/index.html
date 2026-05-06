@@ -259,28 +259,31 @@ h1.hero-title {
 
 .empty-state { padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }
 
-.picks { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
-.picks-h { margin-bottom:24px; }
-.picks-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; margin-bottom:10px; }
-.picks-h p { font-size:15px; color:var(--text-3); line-height:1.6; max-width:680px; }
-.picks-disclaimer { padding:14px 18px; margin-bottom:24px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--text-2); text-transform:uppercase; background:rgba(255,179,71,0.06); border:1px solid rgba(255,179,71,0.20); border-radius:10px; }
-.picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:32px; }
-.tranche {
-  margin-bottom:24px; padding:28px;
-  background:rgba(17,18,26,0.65);
-  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  border:1px solid var(--border); border-radius:20px;
+/* Stocks page: filterable table */
+.lib-sub { font-size:14px; color:var(--text-3); line-height:1.6; max-width:780px; margin-bottom:24px; }
+.picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.stk-head { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-th { cursor:pointer; user-select:none; transition:color .15s; }
+.stk-th:hover { color:var(--text-1); }
+.stk-th.asc::after { content:' \2191'; color:var(--apt-rose); margin-left:4px; }
+.stk-th.desc::after { content:' \2193'; color:var(--apt-rose); margin-left:4px; }
+.stk-row { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
+.stk-row:hover { background:rgba(22,23,31,0.6); }
+.stk-ticker { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
+.stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
+.stk-name .stk-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; font-weight:400; }
+.stk-sector { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; padding-top:1px; }
+.stk-cap { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; padding-top:1px; }
+.stk-pct { font-family:'DM Mono',monospace; font-size:12px; text-align:right; padding-top:1px; }
+.stk-pct.stk-pos { color:#34D27A; }
+.stk-pct.stk-neg { color:var(--apt-red); }
+.stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+@media (max-width:780px) {
+  .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
+  .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
+  .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
 }
-.tranche-head { display:flex; align-items:baseline; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-.tranche-name { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; color:var(--text-1); }
-.tranche-cap { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
-.tranche-list { display:flex; flex-direction:column; gap:0; }
-.pick { display:grid; grid-template-columns:110px 1fr; gap:18px; align-items:start; padding:14px 0; border-top:1px solid var(--border); }
-.pick:first-child { border-top:none; padding-top:4px; }
-.pick-ticker { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; }
-.pick-name { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; }
-.pick-sector { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; margin-top:6px; opacity:0.75; }
-.pick-thesis { font-size:14px; line-height:1.55; color:var(--text-1); }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
 .footer .brand-foot { font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }
@@ -312,7 +315,7 @@ h1.hero-title {
     <a href="./index.html" class="active">Home</a>
     <a href="./today.html">Today</a>
     <a href="./stories.html">Stories</a>
-    <a href="./stock-picks.html">Stock Picks</a>
+    <a href="./stocks.html">Stocks</a>
   </div>
 </nav>
 
@@ -320,7 +323,7 @@ h1.hero-title {
 <section class="hero">
   <div class="eyebrow"><span class="live-dot"></span>Live, Evening edition, May 06, 2026</div>
   <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
-  <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a weekly stock-picks watchlist.</p>
+  <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a filterable universe of US-listed stocks.</p>
   <div class="hero-actions">
     <a class="btn-primary" href="./today.html">Read today's briefs <span style="font-size:16px">&rarr;</span></a>
     <a class="btn-secondary" href="./stories.html">Browse stories <span style="font-size:16px">&rarr;</span></a>
@@ -340,7 +343,7 @@ h1.hero-title {
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">374</div>
+        <div class="fs-val">375</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
@@ -379,11 +382,11 @@ h1.hero-title {
       <p class="dest-body">Search and filter every story across recent briefs. Headline, source, section, and a deep link to the original.</p>
       <span class="dest-cta">Browse the library &rarr;</span>
     </a>
-    <a class="dest-card" href="./stock-picks.html">
-      <div class="dest-eyebrow">Weekly</div>
-      <div class="dest-title">Stock Picks</div>
-      <p class="dest-body">Two to three names per market-cap tranche from Micro to Mega, refreshed each week. Not investment advice.</p>
-      <span class="dest-cta">See this week &rarr;</span>
+    <a class="dest-card" href="./stocks.html">
+      <div class="dest-eyebrow">Research</div>
+      <div class="dest-title">Stocks</div>
+      <p class="dest-body">Filterable universe of US-listed names from S&amp;P 500, 400, and 600. Search by ticker or sector, sort by market cap. Refreshed weekly.</p>
+      <span class="dest-cta">Explore &rarr;</span>
     </a>
   </div>
 </section>
