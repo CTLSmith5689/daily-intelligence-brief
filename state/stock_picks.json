@@ -1,0 +1,100 @@
+{
+  "iso_week": "2026-W19",
+  "generated_at": "2026-05-06T19:34:11.414279-04:00",
+  "source": "claude-only",
+  "tranches": {
+    "micro": [
+      {
+        "ticker": "DGII",
+        "name": "Digi International Inc",
+        "thesis": "IoT connectivity plays China manufacturing shift and enterprise AI edge deployment."
+      },
+      {
+        "ticker": "IPHI",
+        "name": "Intra-Cellular Therapies Inc",
+        "thesis": "Biotech resilience as retail seeks non-correlated healthcare exposure amid macro uncertainty."
+      },
+      {
+        "ticker": "CLFD",
+        "name": "Clearfield Inc",
+        "thesis": "Fiber infrastructure beneficiary of AI buildout decentralization away from megacap incumbents."
+      }
+    ],
+    "small": [
+      {
+        "ticker": "FTFT",
+        "name": "Fit Therapeutics Inc",
+        "thesis": "Niche healthcare play captures bifurcated consumer spending on chronic condition management."
+      },
+      {
+        "ticker": "BLFS",
+        "name": "BioLife Solutions Inc",
+        "thesis": "Cell therapy logistics benefits from AI drug discovery acceleration and biotech expansion."
+      },
+      {
+        "ticker": "SCHW",
+        "name": "The Charles Schwab Corp",
+        "thesis": "Wealth platform captures yield-seeking retail rotation into alternatives and structured products."
+      }
+    ],
+    "mid": [
+      {
+        "ticker": "CRUS",
+        "name": "Cirrus Logic Inc",
+        "thesis": "Audio semiconductor supplier gains from AI device proliferation outside megacap control."
+      },
+      {
+        "ticker": "PSTG",
+        "name": "Pure Storage Inc",
+        "thesis": "Enterprise storage scales with distributed AI and de-risked data infrastructure demand."
+      },
+      {
+        "ticker": "CVLT",
+        "name": "Commvault Systems Inc",
+        "thesis": "Data management software benefits from AI scaling requiring robust backup and compliance."
+      }
+    ],
+    "large": [
+      {
+        "ticker": "QCOM",
+        "name": "Qualcomm Incorporated",
+        "thesis": "Mobile and edge AI demand expands as regulatory capture limits megacap AI scaling."
+      },
+      {
+        "ticker": "PLTR",
+        "name": "Palantir Technologies Inc",
+        "thesis": "Geopolitical de-escalation drives enterprise data platform adoption and AI monetization."
+      },
+      {
+        "ticker": "SQ",
+        "name": "Block Inc",
+        "thesis": "Fintech platform captures bifurcated consumer via point of sale AI and yield products."
+      }
+    ],
+    "mega": [
+      {
+        "ticker": "GLD",
+        "name": "SPDR Gold Shares ETF",
+        "thesis": "Geopolitical risk fade and yield hunt drive alternative asset allocation flows."
+      },
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft Corporation",
+        "thesis": "Regulatory capture concentrates AI scaling to incumbent cloud platforms and enterprise software."
+      },
+      {
+        "ticker": "BRK.B",
+        "name": "Berkshire Hathaway Inc",
+        "thesis": "De-risked megacap beneficiary of capital flight from cyclicals amid consumption bifurcation."
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 399,
+    "output_tokens": 830,
+    "total_tokens": 1229,
+    "cost_this_call": 0.0036,
+    "cost_daily_projected": 0.0109,
+    "cost_monthly_projected": 0.33
+  }
+}
