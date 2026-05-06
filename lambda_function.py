@@ -12,6 +12,7 @@ import json
 import smtplib
 import urllib.request
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -1593,28 +1594,31 @@ h1.hero-title {
 
 .empty-state { padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }
 
-.picks { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
-.picks-h { margin-bottom:24px; }
-.picks-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; margin-bottom:10px; }
-.picks-h p { font-size:15px; color:var(--text-3); line-height:1.6; max-width:680px; }
-.picks-disclaimer { padding:14px 18px; margin-bottom:24px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--text-2); text-transform:uppercase; background:rgba(255,179,71,0.06); border:1px solid rgba(255,179,71,0.20); border-radius:10px; }
-.picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:32px; }
-.tranche {
-  margin-bottom:24px; padding:28px;
-  background:rgba(17,18,26,0.65);
-  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  border:1px solid var(--border); border-radius:20px;
+/* Stocks page: filterable table */
+.lib-sub { font-size:14px; color:var(--text-3); line-height:1.6; max-width:780px; margin-bottom:24px; }
+.picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.stk-head { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-th { cursor:pointer; user-select:none; transition:color .15s; }
+.stk-th:hover { color:var(--text-1); }
+.stk-th.asc::after { content:' \\2191'; color:var(--apt-rose); margin-left:4px; }
+.stk-th.desc::after { content:' \\2193'; color:var(--apt-rose); margin-left:4px; }
+.stk-row { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
+.stk-row:hover { background:rgba(22,23,31,0.6); }
+.stk-ticker { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
+.stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
+.stk-name .stk-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; font-weight:400; }
+.stk-sector { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; padding-top:1px; }
+.stk-cap { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; padding-top:1px; }
+.stk-pct { font-family:'DM Mono',monospace; font-size:12px; text-align:right; padding-top:1px; }
+.stk-pct.stk-pos { color:#34D27A; }
+.stk-pct.stk-neg { color:var(--apt-red); }
+.stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+@media (max-width:780px) {
+  .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
+  .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
+  .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
 }
-.tranche-head { display:flex; align-items:baseline; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-.tranche-name { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; color:var(--text-1); }
-.tranche-cap { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
-.tranche-list { display:flex; flex-direction:column; gap:0; }
-.pick { display:grid; grid-template-columns:110px 1fr; gap:18px; align-items:start; padding:14px 0; border-top:1px solid var(--border); }
-.pick:first-child { border-top:none; padding-top:4px; }
-.pick-ticker { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; }
-.pick-name { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; }
-.pick-sector { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; margin-top:6px; opacity:0.75; }
-.pick-thesis { font-size:14px; line-height:1.55; color:var(--text-1); }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
 .footer .brand-foot { font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }
@@ -1787,8 +1791,142 @@ STORIES_JS_TEMPLATE = """
 """
 
 
+STOCKS_JS_TEMPLATE = """
+(function() {
+  const ALL = __STOCKS_JSON__;
+  const SECTORS = __SECTORS_JSON__;
+  const INDEXES = __INDEXES_JSON__;
+  const listEl = document.getElementById('stk-list');
+  const searchEl = document.getElementById('stk-search');
+  const clearEl = document.getElementById('stk-clear');
+  const sectorChipsEl = document.getElementById('stk-sector-chips');
+  const indexChipsEl = document.getElementById('stk-index-chips');
+  const countEl = document.getElementById('stk-count');
+  if (!listEl) return;
+
+  SECTORS.forEach(name => {
+    const c = document.createElement('span');
+    c.className = 'lib-chip';
+    c.dataset.sector = name;
+    c.textContent = name;
+    sectorChipsEl.appendChild(c);
+  });
+  INDEXES.forEach(name => {
+    const c = document.createElement('span');
+    c.className = 'lib-chip';
+    c.dataset.index = name;
+    c.textContent = name;
+    indexChipsEl.appendChild(c);
+  });
+
+  let activeSector = '';
+  let activeIndex = '';
+  let query = '';
+  let sortKey = 'market_cap';
+  let sortDir = -1;
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtCap(n) {
+    if (n == null || isNaN(n)) return '—';
+    if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+    if (n >= 1e9)  return (n/1e9).toFixed(2)  + 'B';
+    if (n >= 1e6)  return (n/1e6).toFixed(0)  + 'M';
+    return String(n);
+  }
+  function fmtPct(n) {
+    if (n == null || isNaN(n)) return '—';
+    const sign = n >= 0 ? '+' : '';
+    return sign + Number(n).toFixed(2) + '%';
+  }
+  function fmtNum(n, d) {
+    if (n == null || isNaN(n)) return '—';
+    return Number(n).toFixed(d == null ? 0 : d);
+  }
+
+  function render() {
+    const q = query.toLowerCase();
+    let filtered = ALL.filter(s => {
+      if (activeSector && s.sector !== activeSector) return false;
+      if (activeIndex && s.index !== activeIndex) return false;
+      if (!q) return true;
+      return ((s.ticker||'')+' '+(s.name||'')+' '+(s.sector||'')+' '+(s.sub_industry||'')).toLowerCase().includes(q);
+    });
+    filtered.sort((a, b) => {
+      let av = a[sortKey], bv = b[sortKey];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+      return (av - bv) * sortDir;
+    });
+    countEl.textContent = filtered.length === ALL.length
+      ? String(ALL.length) + ' stocks'
+      : String(filtered.length) + ' of ' + String(ALL.length) + ' stocks';
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
+      return;
+    }
+    const rows = filtered.slice(0, 1500).map(s => {
+      const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
+      return '<div class="stk-row">'
+        + '<div class="stk-ticker">'+escapeHtml(s.ticker||'')+'</div>'
+        + '<div class="stk-name">'+escapeHtml(s.name||'')+'<div class="stk-sub">'+escapeHtml(s.sub_industry||'')+'</div></div>'
+        + '<div class="stk-sector">'+escapeHtml(s.sector||'')+'</div>'
+        + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
+        + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
+        + '<div class="stk-pe">'+fmtNum(s.pe, 1)+'</div>'
+      + '</div>';
+    }).join('');
+    listEl.innerHTML = rows;
+  }
+
+  searchEl.addEventListener('input', () => {
+    query = searchEl.value.trim();
+    clearEl.hidden = !query;
+    render();
+  });
+  clearEl.addEventListener('click', () => {
+    searchEl.value = ''; query = ''; clearEl.hidden = true; searchEl.focus(); render();
+  });
+  sectorChipsEl.addEventListener('click', e => {
+    const chip = e.target.closest('.lib-chip');
+    if (!chip) return;
+    activeSector = chip.dataset.sector || '';
+    sectorChipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+    render();
+  });
+  indexChipsEl.addEventListener('click', e => {
+    const chip = e.target.closest('.lib-chip');
+    if (!chip) return;
+    activeIndex = chip.dataset.index || '';
+    indexChipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+    render();
+  });
+  document.querySelectorAll('.stk-th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.sort;
+      if (sortKey === k) {
+        sortDir = -sortDir;
+      } else {
+        sortKey = k;
+        sortDir = (k === 'ticker' || k === 'name' || k === 'sector') ? 1 : -1;
+      }
+      document.querySelectorAll('.stk-th').forEach(h => h.classList.remove('asc','desc'));
+      th.classList.add(sortDir > 0 ? 'asc' : 'desc');
+      render();
+    });
+  });
+
+  render();
+})();
+"""
+
+
 def render_topnav(active=""):
-    """Topnav with real-URL nav links. active is one of: 'home', 'today', 'stories', 'picks'."""
+    """Topnav with real-URL nav links. active is one of: 'home', 'today', 'stories', 'stocks'."""
     logo = apt_logo_svg(22, 29, 0.45)
     def cls(name):
         return ' class="active"' if active == name else ''
@@ -1805,7 +1943,7 @@ def render_topnav(active=""):
     <a href="./index.html"{cls('home')}>Home</a>
     <a href="./today.html"{cls('today')}>Today</a>
     <a href="./stories.html"{cls('stories')}>Stories</a>
-    <a href="./stock-picks.html"{cls('picks')}>Stock Picks</a>
+    <a href="./stocks.html"{cls('stocks')}>Stocks</a>
   </div>
 </nav>'''
 
@@ -1859,7 +1997,7 @@ def render_page(title, body_html, active_nav="", extra_scripts=""):
 """
 
 
-# ── Recent Trends and Stock Picks: cached Claude generations ────────────────
+# ── Recent Trends: cached Claude generation across past brief days ──────────
 
 RECENT_TRENDS_PROMPT = """You are an analyst summarizing the past several days of an intelligence brief.
 
@@ -1875,121 +2013,6 @@ RULES:
 - Themes: 3 to 5 short phrases, 4 to 8 words each, capturing the recurring threads.
 - NEVER use em dashes (the long dash character). Use periods, commas, or colons instead.
 - Output ONLY the JSON object. No commentary."""
-
-
-STOCK_PICKS_PROMPT = """You are a markets analyst proposing a watchlist for a curious retail reader. This is NOT investment advice and the reader knows that.
-
-Generate 2 to 3 stock picks per market-cap tranche:
-- Micro: under $300M market cap
-- Small: $300M to $2B
-- Mid: $2B to $10B
-- Large: $10B to $200B
-- Mega: above $200B
-
-For each pick: ticker, company name, and a one-sentence thesis (under 25 words). Bias toward US-listed names with reasonable trading liquidity. Mix sectors. Avoid extreme penny stocks.
-
-Return ONLY valid JSON (no markdown fences, no preamble):
-{
-  "tranches": {
-    "micro": [{"ticker": "ABC", "name": "Company Name", "thesis": "one-sentence thesis"}],
-    "small": [],
-    "mid": [],
-    "large": [],
-    "mega": []
-  }
-}
-
-RULES:
-- Each tranche must have 2 to 3 picks.
-- Theses are one sentence, under 25 words.
-- NEVER use em dashes. Use periods, commas, or colons instead.
-- Tickers uppercase, 1 to 5 characters.
-- Output ONLY the JSON object."""
-
-
-STOCK_PICKS_FROM_UNIVERSE_PROMPT = """You are a markets analyst proposing a watchlist for a curious retail reader. This is NOT investment advice and the reader knows that.
-
-You will receive (1) the recurring narratives from this week's intelligence brief, and (2) per-tranche universes of US-listed tickers with their sector. Pick 2 to 3 tickers per tranche from the provided universe. Tie each thesis to one of the week's themes or to a structural narrative the reader would find interesting.
-
-Return ONLY valid JSON (no markdown fences, no preamble):
-{
-  "tranches": {
-    "micro": [{"ticker": "ABC", "name": "Company Name", "thesis": "one-sentence thesis"}],
-    "small": [],
-    "mid": [],
-    "large": [],
-    "mega": []
-  }
-}
-
-RULES:
-- Pick ONLY from the provided universes. Do not invent tickers. Anything not in the universe will be dropped.
-- Each tranche must have 2 to 3 picks.
-- Theses: one sentence, under 25 words, tied to a theme or structural narrative.
-- Mix sectors across each tranche where possible.
-- NEVER use em dashes. Use periods, commas, or colons instead.
-- Output ONLY the JSON object."""
-
-
-# ── FMP screener (free tier: stock universe per market-cap tranche) ─────────
-
-FMP_TRANCHE_RANGES = {
-    "micro": (None, 300_000_000),
-    "small": (300_000_000, 2_000_000_000),
-    "mid":   (2_000_000_000, 10_000_000_000),
-    "large": (10_000_000_000, 200_000_000_000),
-    "mega":  (200_000_000_000, None),
-}
-
-
-def fetch_tranche_universe(tier, api_key, limit=80):
-    """Hit FMP /stock-screener for a given tranche. Returns list of dicts:
-    [{ticker, name, sector, market_cap, volume}]. Empty list on any error."""
-    if tier not in FMP_TRANCHE_RANGES:
-        return []
-    lo, hi = FMP_TRANCHE_RANGES[tier]
-    params = [
-        "country=US",
-        "isActivelyTrading=true",
-        "isEtf=false",
-        "isFund=false",
-        "volumeMoreThan=100000",
-        f"limit={limit}",
-        f"apikey={api_key}",
-    ]
-    if lo is not None:
-        params.append(f"marketCapMoreThan={lo}")
-    if hi is not None:
-        params.append(f"marketCapLowerThan={hi}")
-    url = "https://financialmodelingprep.com/api/v3/stock-screener?" + "&".join(params)
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "IntelBrief/1.0"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        if not isinstance(data, list):
-            print(f"FMP screener for {tier}: unexpected response shape: {type(data).__name__}")
-            return []
-        results = []
-        for row in data:
-            sym = (row.get("symbol") or "").strip().upper()
-            name = (row.get("companyName") or "").strip()
-            sector = (row.get("sector") or "").strip()
-            mcap = row.get("marketCap")
-            vol = row.get("volume")
-            if not sym or not name:
-                continue
-            # Skip obvious junk: dot-class shares, ADR-suffixed, units, etc. only if needed
-            results.append({
-                "ticker": sym,
-                "name": name[:80],
-                "sector": sector[:40],
-                "market_cap": mcap,
-                "volume": vol,
-            })
-        return results
-    except Exception as e:
-        print(f"FMP screener for {tier} failed: {e}")
-        return []
 
 
 def _parse_json_strict(text):
@@ -2088,17 +2111,233 @@ def get_or_generate_recent_trends(briefs):
         return fallback
 
 
-def get_or_generate_stock_picks(recent_trends=None):
-    """Weekly-cached stock picks by market-cap tranche.
+# ── Wikipedia constituent scraper ───────────────────────────────────────────
 
-    With FMP_API_KEY set: pulls per-tranche universes from FMP screener, passes them plus the
-    week's Recent Trends themes to Claude, validates returned tickers against the universe,
-    drops any hallucinated picks. Without FMP_API_KEY: falls back to free-form Claude picks.
-    Caches by ISO week. Falls back to last-known cache on any error."""
+class _WikiTableParser(HTMLParser):
+    """Extract rows from the first <table class="wikitable"> in the document.
+    Rows are lists of cell text. Whitespace collapsed, tags stripped, footnote
+    markers like [1] stripped."""
+    def __init__(self):
+        super().__init__()
+        self.in_table = False
+        self.found_first_table = False
+        self.table_depth = 0
+        self.in_row = False
+        self.in_cell = False
+        self.cell_parts = []
+        self.current_row = []
+        self.rows = []
+        self.skip_depth = 0  # for nested elements we want to ignore
+
+    def handle_starttag(self, tag, attrs):
+        attr_dict = dict(attrs)
+        cls = attr_dict.get("class", "")
+        if tag == "table":
+            if "wikitable" in cls and not self.found_first_table:
+                self.in_table = True
+                self.found_first_table = True
+                self.table_depth = 1
+            elif self.in_table:
+                self.table_depth += 1
+        elif self.in_table and tag == "tr":
+            if self.table_depth == 1:
+                self.in_row = True
+                self.current_row = []
+        elif self.in_row and tag in ("td", "th"):
+            self.in_cell = True
+            self.cell_parts = []
+        elif self.in_cell and tag == "sup":
+            # Footnote markers like <sup class="reference">[1]</sup>
+            self.skip_depth += 1
+
+    def handle_endtag(self, tag):
+        if tag == "table" and self.in_table:
+            self.table_depth -= 1
+            if self.table_depth == 0:
+                self.in_table = False
+        elif tag == "tr" and self.in_row:
+            self.in_row = False
+            if self.current_row:
+                self.rows.append(self.current_row)
+        elif tag in ("td", "th") and self.in_cell:
+            self.in_cell = False
+            text = "".join(self.cell_parts).strip()
+            text = re.sub(r"\s+", " ", text)
+            text = re.sub(r"\[.*?\]", "", text).strip()
+            self.current_row.append(text)
+        elif self.in_cell and tag == "sup" and self.skip_depth > 0:
+            self.skip_depth -= 1
+
+    def handle_data(self, data):
+        if self.in_cell and self.skip_depth == 0:
+            self.cell_parts.append(data)
+
+
+WIKIPEDIA_INDEX_SOURCES = [
+    {
+        "url":   "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
+        "label": "S&P 500",
+        "ticker_col": 0, "name_col": 1, "sector_col": 2, "sub_col": 3,
+    },
+    {
+        "url":   "https://en.wikipedia.org/wiki/List_of_S%26P_400_companies",
+        "label": "S&P 400",
+        "ticker_col": 0, "name_col": 1, "sector_col": 2, "sub_col": 3,
+    },
+    {
+        "url":   "https://en.wikipedia.org/wiki/List_of_S%26P_600_companies",
+        "label": "S&P 600",
+        "ticker_col": 0, "name_col": 1, "sector_col": 2, "sub_col": 3,
+    },
+]
+
+
+def fetch_wikipedia_constituents(url, ticker_col=0, name_col=1, sector_col=2, sub_col=3):
+    """Fetch one Wikipedia constituent page, parse first wikitable, return list of
+    {ticker, name, sector, sub_industry}. Empty list on any failure."""
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Apterreon-IntelBrief/1.0 (research aggregator; ctlsmith@me.com)",
+            "Accept": "text/html",
+        })
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            html_content = resp.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"Wikipedia fetch failed for {url}: {e}")
+        return []
+
+    parser = _WikiTableParser()
+    try:
+        parser.feed(html_content)
+    except Exception as e:
+        print(f"Wikipedia parse failed for {url}: {e}")
+        return []
+
+    rows = parser.rows
+    if len(rows) < 2:
+        print(f"Wikipedia parse: no data rows for {url}")
+        return []
+
+    out = []
+    max_col = max(ticker_col, name_col, sector_col, sub_col)
+    # Skip the header row (rows[0]); take all subsequent rows
+    for row in rows[1:]:
+        if len(row) <= max_col:
+            continue
+        ticker = row[ticker_col].strip().upper()
+        # Tickers from Wikipedia sometimes have backslash or extra refs; normalize
+        ticker = ticker.split()[0] if ticker else ""
+        if not ticker or len(ticker) > 8 or not re.match(r"^[A-Z][A-Z0-9.\-]*$", ticker):
+            continue
+        name = row[name_col].strip()
+        sector = row[sector_col].strip()
+        sub_industry = row[sub_col].strip() if sub_col < len(row) else ""
+        if name:
+            out.append({
+                "ticker": ticker,
+                "name": name,
+                "sector": sector,
+                "sub_industry": sub_industry,
+            })
+    return out
+
+
+def fetch_all_wiki_universes():
+    """Fetch all configured Wikipedia constituent lists. Returns deduplicated list of
+    dicts with {ticker, name, sector, sub_industry, index} (first occurrence wins
+    when a ticker appears in multiple indexes)."""
+    seen = set()
+    out = []
+    for src in WIKIPEDIA_INDEX_SOURCES:
+        rows = fetch_wikipedia_constituents(
+            src["url"],
+            ticker_col=src["ticker_col"],
+            name_col=src["name_col"],
+            sector_col=src["sector_col"],
+            sub_col=src["sub_col"],
+        )
+        kept = 0
+        for r in rows:
+            t = r["ticker"]
+            if t in seen:
+                continue
+            seen.add(t)
+            r["index"] = src["label"]
+            out.append(r)
+            kept += 1
+        print(f"Wikipedia {src['label']}: parsed {len(rows)} rows, kept {kept} new tickers (total now {len(out)}).")
+    return out
+
+
+# ── FMP bulk quote enrichment (free tier safe) ──────────────────────────────
+
+def enrich_with_fmp_quotes(stocks, api_key, batch_size=400):
+    """Enrich stock dicts in place with live quote data: price, market_cap,
+    change_pct, pe, volume. Calls FMP /api/v3/quote/SYMBOLS in bulk. Skips on
+    missing key or per-batch errors. Returns count of enriched rows."""
+    if not api_key:
+        print("FMP enrichment: no API key, skipping (page will render without live data).")
+        return 0
+    if not stocks:
+        return 0
+
+    by_ticker = {s["ticker"]: s for s in stocks}
+    tickers = list(by_ticker.keys())
+    enriched = 0
+    n_batches = (len(tickers) + batch_size - 1) // batch_size
+
+    for i in range(0, len(tickers), batch_size):
+        batch = tickers[i:i + batch_size]
+        # FMP wants symbols comma-joined, dots are fine (e.g. BRK.B)
+        symbols = ",".join(batch)
+        url = f"https://financialmodelingprep.com/api/v3/quote/{symbols}?apikey={api_key}"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Apterreon-IntelBrief/1.0"})
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            if not isinstance(data, list):
+                print(f"FMP quote batch {i // batch_size + 1}/{n_batches}: unexpected response shape")
+                continue
+            for row in data:
+                sym = (row.get("symbol") or "").upper()
+                if sym not in by_ticker:
+                    continue
+                s = by_ticker[sym]
+                price = row.get("price")
+                if price is not None:
+                    s["price"] = price
+                cap = row.get("marketCap")
+                if cap is not None:
+                    s["market_cap"] = cap
+                chg = row.get("changesPercentage")
+                if chg is not None:
+                    s["change_pct"] = chg
+                pe = row.get("pe")
+                if pe is not None:
+                    s["pe"] = pe
+                vol = row.get("volume")
+                if vol is not None:
+                    s["volume"] = vol
+                enriched += 1
+        except Exception as e:
+            print(f"FMP quote batch {i // batch_size + 1}/{n_batches} failed: {e}")
+            continue
+
+    print(f"FMP enrichment: enriched {enriched}/{len(tickers)} tickers in {n_batches} batches.")
+    return enriched
+
+
+# ── Stocks universe (weekly cached) ─────────────────────────────────────────
+
+def get_or_generate_stocks_universe():
+    """Weekly-cached US stocks universe scraped from Wikipedia (S&P 500/400/600),
+    optionally enriched with live quote data from FMP. Returns dict:
+    {iso_week, generated_at, stocks: [...], enriched: bool, source}.
+    Falls back to last-known cache on any error."""
     now = datetime.now(timezone(ET_OFFSET))
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
-    cache_path = STATE_DIR / "stock_picks.json"
+    cache_path = STATE_DIR / "stocks_universe.json"
 
     last_known = None
     if cache_path.exists():
@@ -2107,109 +2346,27 @@ def get_or_generate_stock_picks(recent_trends=None):
             if last_known.get("iso_week") == week_key:
                 return last_known
         except Exception as e:
-            print(f"stock_picks: cache read error: {e}")
+            print(f"stocks_universe: cache read error: {e}")
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("stock_picks: no Anthropic key, returning last-known cache or empty.")
-        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
+    stocks = fetch_all_wiki_universes()
+    if not stocks:
+        print("stocks_universe: Wikipedia returned nothing, falling back to last cache.")
+        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
 
     fmp_key = os.environ.get("FMP_API_KEY", "")
-    universes = {}
-    if fmp_key:
-        for tier in ("micro", "small", "mid", "large", "mega"):
-            universes[tier] = fetch_tranche_universe(tier, fmp_key)
-        total_universe = sum(len(v) for v in universes.values())
-        print(f"FMP screener: fetched {total_universe} tickers across 5 tranches.")
-    else:
-        print("stock_picks: no FMP key, falling back to free-form Claude picks.")
+    enriched_count = enrich_with_fmp_quotes(stocks, fmp_key)
 
-    themes = (recent_trends or {}).get("themes") or []
-    themes_block = ""
-    if themes:
-        themes_block = "This week's recurring narratives across the brief:\n" + "\n".join(f"- {t}" for t in themes) + "\n\n"
+    result = {
+        "iso_week": week_key,
+        "generated_at": now.isoformat(),
+        "source": "wikipedia + fmp" if enriched_count else "wikipedia",
+        "enriched": bool(enriched_count),
+        "stocks": stocks,
+    }
+    cache_path.write_text(json.dumps(result, separators=(",", ":")), encoding="utf-8")
+    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks, {enriched_count} enriched).")
+    return result
 
-    have_universe = bool(universes) and any(universes.values())
-    if have_universe:
-        tier_labels = {
-            "micro": "Micro Cap (under $300M)",
-            "small": "Small Cap ($300M to $2B)",
-            "mid":   "Mid Cap ($2B to $10B)",
-            "large": "Large Cap ($10B to $200B)",
-            "mega":  "Mega Cap (above $200B)",
-        }
-        universe_blocks = []
-        for tier in ("micro", "small", "mid", "large", "mega"):
-            entries = universes.get(tier) or []
-            if not entries:
-                continue
-            lines = [f"=== {tier_labels[tier]} ==="]
-            for e in entries[:60]:
-                sect = e.get("sector") or "-"
-                lines.append(f"{e['ticker']} | {e['name']} | {sect}")
-            universe_blocks.append("\n".join(lines))
-        universe_text = "\n\n".join(universe_blocks)
-        user_input = themes_block + "Universes (you must pick ONLY from these tickers):\n\n" + universe_text
-        system_prompt = STOCK_PICKS_FROM_UNIVERSE_PROMPT
-    else:
-        user_input = themes_block + "Generate this week's picks now."
-        system_prompt = STOCK_PICKS_PROMPT
-
-    try:
-        text, usage = call_claude(system_prompt, user_input)
-        parsed = _parse_json_strict(text)
-        tranches = parsed.get("tranches") or {}
-        cleaned_tranches = {}
-        dropped = 0
-        for tier in ("micro", "small", "mid", "large", "mega"):
-            picks = tranches.get(tier, [])
-            if not isinstance(picks, list):
-                picks = []
-            valid_set = {e["ticker"]: e for e in (universes.get(tier) or [])}
-            cleaned = []
-            for p in picks[:3]:
-                if not isinstance(p, dict):
-                    continue
-                ticker = str(p.get("ticker", "")).upper().strip()[:6]
-                if not ticker:
-                    continue
-                if valid_set and ticker not in valid_set:
-                    print(f"stock_picks: dropping hallucinated ticker {ticker} for {tier}")
-                    dropped += 1
-                    continue
-                # Prefer FMP's canonical name + sector when validated
-                if ticker in valid_set:
-                    name = valid_set[ticker]["name"]
-                    sector = valid_set[ticker].get("sector", "")
-                else:
-                    name = str(p.get("name", "")).strip()[:80]
-                    sector = ""
-                thesis = str(p.get("thesis", "")).strip().replace(" — ", ", ").replace("—", ",")[:240]
-                if ticker and name and thesis:
-                    pick = {"ticker": ticker, "name": name, "thesis": thesis}
-                    if sector:
-                        pick["sector"] = sector
-                    cleaned.append(pick)
-            cleaned_tranches[tier] = cleaned
-
-        total_picks = sum(len(v) for v in cleaned_tranches.values())
-        if total_picks == 0:
-            print("stock_picks: empty result, falling back to previous cache.")
-            return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
-
-        result = {
-            "iso_week": week_key,
-            "generated_at": now.isoformat(),
-            "source": "fmp+claude" if have_universe else "claude-only",
-            "tranches": cleaned_tranches,
-            "usage": usage,
-        }
-        cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        src = "FMP universe + Claude picks" if have_universe else "Claude only"
-        print(f"stock_picks: regenerated for {week_key} via {src} ({total_picks} picks, {dropped} dropped, ${usage.get('cost_this_call', 0):.4f}).")
-        return result
-    except Exception as e:
-        print(f"stock_picks: generation failed: {e}")
-        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
 
 
 # ── Per-page generators ─────────────────────────────────────────────────────
@@ -2256,7 +2413,7 @@ def generate_home(briefs, recent_trends):
 <section class="hero">
   <div class="eyebrow"><span class="live-dot"></span>{eyebrow_text}</div>
   <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
-  <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a weekly stock-picks watchlist.</p>
+  <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a filterable universe of US-listed stocks.</p>
   <div class="hero-actions">
     <a class="btn-primary" href="./today.html">Read today's briefs <span style="font-size:16px">&rarr;</span></a>
     <a class="btn-secondary" href="./stories.html">Browse stories <span style="font-size:16px">&rarr;</span></a>
@@ -2315,11 +2472,11 @@ def generate_home(briefs, recent_trends):
       <p class="dest-body">Search and filter every story across recent briefs. Headline, source, section, and a deep link to the original.</p>
       <span class="dest-cta">Browse the library &rarr;</span>
     </a>
-    <a class="dest-card" href="./stock-picks.html">
-      <div class="dest-eyebrow">Weekly</div>
-      <div class="dest-title">Stock Picks</div>
-      <p class="dest-body">Two to three names per market-cap tranche from Micro to Mega, refreshed each week. Not investment advice.</p>
-      <span class="dest-cta">See this week &rarr;</span>
+    <a class="dest-card" href="./stocks.html">
+      <div class="dest-eyebrow">Research</div>
+      <div class="dest-title">Stocks</div>
+      <p class="dest-body">Filterable universe of US-listed names from S&amp;P 500, 400, and 600. Search by ticker or sector, sort by market cap. Refreshed weekly.</p>
+      <span class="dest-cta">Explore &rarr;</span>
     </a>
   </div>
 </section>
@@ -2468,75 +2625,72 @@ def generate_stories(briefs):
     (DOCS_DIR / "stories.html").write_text(html, encoding="utf-8")
 
 
-def generate_stock_picks_page(stock_picks):
-    """Write docs/stock-picks.html: tranches with picks + disclaimer."""
-    tranches = stock_picks.get("tranches", {}) or {}
-    iso_week = stock_picks.get("iso_week", "")
-    source = stock_picks.get("source", "claude-only")
+def generate_stocks_page(universe):
+    """Write docs/stocks.html: filterable table of US stocks scraped from Wikipedia
+    (S&P 500/400/600), optionally enriched with live FMP quote data."""
+    stocks = universe.get("stocks", []) or []
+    iso_week = universe.get("iso_week", "")
+    enriched = universe.get("enriched", False)
+    source = universe.get("source", "wikipedia")
 
-    tranche_meta = [
-        ("micro", "Micro Cap", "Under $300M"),
-        ("small", "Small Cap", "$300M to $2B"),
-        ("mid", "Mid Cap", "$2B to $10B"),
-        ("large", "Large Cap", "$10B to $200B"),
-        ("mega", "Mega Cap", "Above $200B"),
-    ]
-    blocks_html = ""
-    any_picks = False
-    for key, label, cap_range in tranche_meta:
-        picks = tranches.get(key, []) or []
-        if not picks:
-            continue
-        any_picks = True
-        items = ""
-        for p in picks:
-            ticker = (p.get("ticker") or "").upper()
-            name = p.get("name") or ""
-            sector = p.get("sector") or ""
-            thesis = p.get("thesis") or ""
-            sector_html = f'<div class="pick-sector">{sector}</div>' if sector else ""
-            items += f"""
-    <div class="pick">
-      <div>
-        <div class="pick-ticker">{ticker}</div>
-        <div class="pick-name">{name}</div>
-        {sector_html}
-      </div>
-      <div class="pick-thesis">{thesis}</div>
-    </div>"""
-        blocks_html += f"""
-<div class="tranche">
-  <div class="tranche-head">
-    <div class="tranche-name">{label}</div>
-    <div class="tranche-cap">{cap_range}</div>
-  </div>
-  <div class="tranche-list">{items}</div>
-</div>
-"""
+    sectors = sorted({(s.get("sector") or "").strip() for s in stocks if (s.get("sector") or "").strip()})
+    indexes = []
+    seen_idx = set()
+    for s in stocks:
+        idx = (s.get("index") or "").strip()
+        if idx and idx not in seen_idx:
+            seen_idx.add(idx)
+            indexes.append(idx)
 
-    if not any_picks:
-        blocks_html = '<div class="edition-empty">This week’s picks are still generating. Check back shortly.</div>'
+    stocks_json = json.dumps(stocks, separators=(",", ":"))
+    sectors_json = json.dumps(sectors)
+    indexes_json = json.dumps(indexes)
 
-    meta_line = f"Updated for {iso_week}" if iso_week else "Updated weekly"
-    if source == "fmp+claude":
-        subtitle = "Two to three names per market-cap tranche, refreshed weekly. Universe screened from US-listed actively-traded names via Financial Modeling Prep, then Claude picks tied to the week's brief themes."
-        meta_line += " · Source: FMP screener + Claude"
-    else:
-        subtitle = "Two to three names per market-cap tranche, refreshed weekly. Generated by Claude from training-time knowledge, not from real-time market data."
+    enrich_note = "Live price, market cap, and P/E from Financial Modeling Prep. " if enriched else ""
+    meta_line = f"Updated for {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
 
     body = f"""
-<section class="picks">
-  <div class="picks-h">
-    <h2>Stock Picks.</h2>
-    <p>{subtitle}</p>
+<section class="lib">
+  <div class="lib-h">
+    <h2>Stocks.</h2>
+    <span class="lib-count" id="stk-count">{len(stocks)} stocks</span>
   </div>
-  <div class="picks-disclaimer">Not investment advice. AI-generated picks for informational purposes only. Verify any decision with a licensed advisor.</div>
-  <div class="picks-meta">{meta_line}</div>
-  {blocks_html}
+  <p class="lib-sub">{len(stocks)} US-listed names from S&amp;P 500, S&amp;P 400 Mid Cap, and S&amp;P 600 Small Cap. {enrich_note}Filter by index or sector, search by ticker or name. Refreshed weekly. Not investment advice.</p>
+  <div class="lib-controls">
+    <label class="lib-search">
+      <span class="icon">&#8981;</span>
+      <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
+      <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
+    </label>
+    <div class="lib-chips" id="stk-index-chips">
+      <span class="lib-chip-label">Index</span>
+      <span class="lib-chip active" data-index="">All</span>
+    </div>
+    <div class="lib-chips" id="stk-sector-chips">
+      <span class="lib-chip-label">Sector</span>
+      <span class="lib-chip active" data-sector="">All</span>
+    </div>
+  </div>
+  <div class="stk-table">
+    <div class="stk-head">
+      <div class="stk-th" data-sort="ticker">Ticker</div>
+      <div class="stk-th" data-sort="name">Name</div>
+      <div class="stk-th" data-sort="sector">Sector</div>
+      <div class="stk-th desc" data-sort="market_cap">Mkt Cap</div>
+      <div class="stk-th" data-sort="change_pct">1d %</div>
+      <div class="stk-th" data-sort="pe">P/E</div>
+    </div>
+    <div id="stk-list"></div>
+  </div>
+  <div class="picks-meta" style="margin-top:18px">{meta_line}</div>
 </section>
 """
-    html = render_page("Stock Picks, Apterreon", body, active_nav="picks")
-    (DOCS_DIR / "stock-picks.html").write_text(html, encoding="utf-8")
+    stocks_js = (STOCKS_JS_TEMPLATE
+                 .replace("__STOCKS_JSON__", stocks_json)
+                 .replace("__SECTORS_JSON__", sectors_json)
+                 .replace("__INDEXES_JSON__", indexes_json))
+    html = render_page("Stocks, Apterreon", body, active_nav="stocks", extra_scripts=stocks_js)
+    (DOCS_DIR / "stocks.html").write_text(html, encoding="utf-8")
 
 
 def write_manifest():
@@ -2554,17 +2708,17 @@ def write_manifest():
 
 def generate_site(briefs):
     """Orchestrator. Generates the full multi-page static site under docs/.
-    Triggers cached Claude calls for Recent Trends (daily) and Stock Picks (weekly).
-    Stock Picks uses Recent Trends themes as context to tie picks to the brief."""
+    Triggers Recent Trends (daily-cached Claude call) and Stocks Universe (weekly,
+    Wikipedia scrape + optional FMP enrichment)."""
     recent_trends = get_or_generate_recent_trends(briefs)
-    stock_picks = get_or_generate_stock_picks(recent_trends)
+    universe = get_or_generate_stocks_universe()
 
     generate_home(briefs, recent_trends)
     generate_today(briefs)
     generate_stories(briefs)
-    generate_stock_picks_page(stock_picks)
+    generate_stocks_page(universe)
     write_manifest()
-    print("Wrote docs/index.html, today.html, stories.html, stock-picks.html, manifest.json.")
+    print("Wrote docs/index.html, today.html, stories.html, stocks.html, manifest.json.")
 
 
 def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):
