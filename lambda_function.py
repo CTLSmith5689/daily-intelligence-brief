@@ -1613,6 +1613,7 @@ h1.hero-title {
 .pick:first-child { border-top:none; padding-top:4px; }
 .pick-ticker { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; }
 .pick-name { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; }
+.pick-sector { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; margin-top:6px; opacity:0.75; }
 .pick-thesis { font-size:14px; line-height:1.55; color:var(--text-1); }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
@@ -1906,6 +1907,91 @@ RULES:
 - Output ONLY the JSON object."""
 
 
+STOCK_PICKS_FROM_UNIVERSE_PROMPT = """You are a markets analyst proposing a watchlist for a curious retail reader. This is NOT investment advice and the reader knows that.
+
+You will receive (1) the recurring narratives from this week's intelligence brief, and (2) per-tranche universes of US-listed tickers with their sector. Pick 2 to 3 tickers per tranche from the provided universe. Tie each thesis to one of the week's themes or to a structural narrative the reader would find interesting.
+
+Return ONLY valid JSON (no markdown fences, no preamble):
+{
+  "tranches": {
+    "micro": [{"ticker": "ABC", "name": "Company Name", "thesis": "one-sentence thesis"}],
+    "small": [],
+    "mid": [],
+    "large": [],
+    "mega": []
+  }
+}
+
+RULES:
+- Pick ONLY from the provided universes. Do not invent tickers. Anything not in the universe will be dropped.
+- Each tranche must have 2 to 3 picks.
+- Theses: one sentence, under 25 words, tied to a theme or structural narrative.
+- Mix sectors across each tranche where possible.
+- NEVER use em dashes. Use periods, commas, or colons instead.
+- Output ONLY the JSON object."""
+
+
+# ── FMP screener (free tier: stock universe per market-cap tranche) ─────────
+
+FMP_TRANCHE_RANGES = {
+    "micro": (None, 300_000_000),
+    "small": (300_000_000, 2_000_000_000),
+    "mid":   (2_000_000_000, 10_000_000_000),
+    "large": (10_000_000_000, 200_000_000_000),
+    "mega":  (200_000_000_000, None),
+}
+
+
+def fetch_tranche_universe(tier, api_key, limit=80):
+    """Hit FMP /stock-screener for a given tranche. Returns list of dicts:
+    [{ticker, name, sector, market_cap, volume}]. Empty list on any error."""
+    if tier not in FMP_TRANCHE_RANGES:
+        return []
+    lo, hi = FMP_TRANCHE_RANGES[tier]
+    params = [
+        "country=US",
+        "isActivelyTrading=true",
+        "isEtf=false",
+        "isFund=false",
+        "volumeMoreThan=100000",
+        f"limit={limit}",
+        f"apikey={api_key}",
+    ]
+    if lo is not None:
+        params.append(f"marketCapMoreThan={lo}")
+    if hi is not None:
+        params.append(f"marketCapLowerThan={hi}")
+    url = "https://financialmodelingprep.com/api/v3/stock-screener?" + "&".join(params)
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "IntelBrief/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        if not isinstance(data, list):
+            print(f"FMP screener for {tier}: unexpected response shape: {type(data).__name__}")
+            return []
+        results = []
+        for row in data:
+            sym = (row.get("symbol") or "").strip().upper()
+            name = (row.get("companyName") or "").strip()
+            sector = (row.get("sector") or "").strip()
+            mcap = row.get("marketCap")
+            vol = row.get("volume")
+            if not sym or not name:
+                continue
+            # Skip obvious junk: dot-class shares, ADR-suffixed, units, etc. only if needed
+            results.append({
+                "ticker": sym,
+                "name": name[:80],
+                "sector": sector[:40],
+                "market_cap": mcap,
+                "volume": vol,
+            })
+        return results
+    except Exception as e:
+        print(f"FMP screener for {tier} failed: {e}")
+        return []
+
+
 def _parse_json_strict(text):
     """Tolerant JSON parse: strip code fences, trim to outermost braces, drop em dashes, then loads."""
     cleaned = text.strip()
@@ -2002,9 +2088,13 @@ def get_or_generate_recent_trends(briefs):
         return fallback
 
 
-def get_or_generate_stock_picks():
+def get_or_generate_stock_picks(recent_trends=None):
     """Weekly-cached stock picks by market-cap tranche.
-    Returns dict with 'iso_week', 'generated_at', 'tranches'. Falls back gracefully on any error."""
+
+    With FMP_API_KEY set: pulls per-tranche universes from FMP screener, passes them plus the
+    week's Recent Trends themes to Claude, validates returned tickers against the universe,
+    drops any hallucinated picks. Without FMP_API_KEY: falls back to free-form Claude picks.
+    Caches by ISO week. Falls back to last-known cache on any error."""
     now = datetime.now(timezone(ET_OFFSET))
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
@@ -2020,27 +2110,85 @@ def get_or_generate_stock_picks():
             print(f"stock_picks: cache read error: {e}")
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("stock_picks: no API key, returning last-known cache or empty.")
+        print("stock_picks: no Anthropic key, returning last-known cache or empty.")
         return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
 
+    fmp_key = os.environ.get("FMP_API_KEY", "")
+    universes = {}
+    if fmp_key:
+        for tier in ("micro", "small", "mid", "large", "mega"):
+            universes[tier] = fetch_tranche_universe(tier, fmp_key)
+        total_universe = sum(len(v) for v in universes.values())
+        print(f"FMP screener: fetched {total_universe} tickers across 5 tranches.")
+    else:
+        print("stock_picks: no FMP key, falling back to free-form Claude picks.")
+
+    themes = (recent_trends or {}).get("themes") or []
+    themes_block = ""
+    if themes:
+        themes_block = "This week's recurring narratives across the brief:\n" + "\n".join(f"- {t}" for t in themes) + "\n\n"
+
+    have_universe = bool(universes) and any(universes.values())
+    if have_universe:
+        tier_labels = {
+            "micro": "Micro Cap (under $300M)",
+            "small": "Small Cap ($300M to $2B)",
+            "mid":   "Mid Cap ($2B to $10B)",
+            "large": "Large Cap ($10B to $200B)",
+            "mega":  "Mega Cap (above $200B)",
+        }
+        universe_blocks = []
+        for tier in ("micro", "small", "mid", "large", "mega"):
+            entries = universes.get(tier) or []
+            if not entries:
+                continue
+            lines = [f"=== {tier_labels[tier]} ==="]
+            for e in entries[:60]:
+                sect = e.get("sector") or "-"
+                lines.append(f"{e['ticker']} | {e['name']} | {sect}")
+            universe_blocks.append("\n".join(lines))
+        universe_text = "\n\n".join(universe_blocks)
+        user_input = themes_block + "Universes (you must pick ONLY from these tickers):\n\n" + universe_text
+        system_prompt = STOCK_PICKS_FROM_UNIVERSE_PROMPT
+    else:
+        user_input = themes_block + "Generate this week's picks now."
+        system_prompt = STOCK_PICKS_PROMPT
+
     try:
-        text, usage = call_claude(STOCK_PICKS_PROMPT, "Generate this week's picks now.")
+        text, usage = call_claude(system_prompt, user_input)
         parsed = _parse_json_strict(text)
         tranches = parsed.get("tranches") or {}
         cleaned_tranches = {}
+        dropped = 0
         for tier in ("micro", "small", "mid", "large", "mega"):
             picks = tranches.get(tier, [])
             if not isinstance(picks, list):
                 picks = []
+            valid_set = {e["ticker"]: e for e in (universes.get(tier) or [])}
             cleaned = []
             for p in picks[:3]:
                 if not isinstance(p, dict):
                     continue
                 ticker = str(p.get("ticker", "")).upper().strip()[:6]
-                name = str(p.get("name", "")).strip()[:80]
+                if not ticker:
+                    continue
+                if valid_set and ticker not in valid_set:
+                    print(f"stock_picks: dropping hallucinated ticker {ticker} for {tier}")
+                    dropped += 1
+                    continue
+                # Prefer FMP's canonical name + sector when validated
+                if ticker in valid_set:
+                    name = valid_set[ticker]["name"]
+                    sector = valid_set[ticker].get("sector", "")
+                else:
+                    name = str(p.get("name", "")).strip()[:80]
+                    sector = ""
                 thesis = str(p.get("thesis", "")).strip().replace(" — ", ", ").replace("—", ",")[:240]
                 if ticker and name and thesis:
-                    cleaned.append({"ticker": ticker, "name": name, "thesis": thesis})
+                    pick = {"ticker": ticker, "name": name, "thesis": thesis}
+                    if sector:
+                        pick["sector"] = sector
+                    cleaned.append(pick)
             cleaned_tranches[tier] = cleaned
 
         total_picks = sum(len(v) for v in cleaned_tranches.values())
@@ -2051,11 +2199,13 @@ def get_or_generate_stock_picks():
         result = {
             "iso_week": week_key,
             "generated_at": now.isoformat(),
+            "source": "fmp+claude" if have_universe else "claude-only",
             "tranches": cleaned_tranches,
             "usage": usage,
         }
         cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        print(f"stock_picks: regenerated for {week_key} ({total_picks} picks, ${usage.get('cost_this_call', 0):.4f}).")
+        src = "FMP universe + Claude picks" if have_universe else "Claude only"
+        print(f"stock_picks: regenerated for {week_key} via {src} ({total_picks} picks, {dropped} dropped, ${usage.get('cost_this_call', 0):.4f}).")
         return result
     except Exception as e:
         print(f"stock_picks: generation failed: {e}")
@@ -2322,6 +2472,7 @@ def generate_stock_picks_page(stock_picks):
     """Write docs/stock-picks.html: tranches with picks + disclaimer."""
     tranches = stock_picks.get("tranches", {}) or {}
     iso_week = stock_picks.get("iso_week", "")
+    source = stock_picks.get("source", "claude-only")
 
     tranche_meta = [
         ("micro", "Micro Cap", "Under $300M"),
@@ -2341,12 +2492,15 @@ def generate_stock_picks_page(stock_picks):
         for p in picks:
             ticker = (p.get("ticker") or "").upper()
             name = p.get("name") or ""
+            sector = p.get("sector") or ""
             thesis = p.get("thesis") or ""
+            sector_html = f'<div class="pick-sector">{sector}</div>' if sector else ""
             items += f"""
     <div class="pick">
       <div>
         <div class="pick-ticker">{ticker}</div>
         <div class="pick-name">{name}</div>
+        {sector_html}
       </div>
       <div class="pick-thesis">{thesis}</div>
     </div>"""
@@ -2364,12 +2518,17 @@ def generate_stock_picks_page(stock_picks):
         blocks_html = '<div class="edition-empty">This week’s picks are still generating. Check back shortly.</div>'
 
     meta_line = f"Updated for {iso_week}" if iso_week else "Updated weekly"
+    if source == "fmp+claude":
+        subtitle = "Two to three names per market-cap tranche, refreshed weekly. Universe screened from US-listed actively-traded names via Financial Modeling Prep, then Claude picks tied to the week's brief themes."
+        meta_line += " · Source: FMP screener + Claude"
+    else:
+        subtitle = "Two to three names per market-cap tranche, refreshed weekly. Generated by Claude from training-time knowledge, not from real-time market data."
 
     body = f"""
 <section class="picks">
   <div class="picks-h">
     <h2>Stock Picks.</h2>
-    <p>Two to three names per market-cap tranche, refreshed weekly. Generated by Claude from training-time knowledge, not from real-time market data.</p>
+    <p>{subtitle}</p>
   </div>
   <div class="picks-disclaimer">Not investment advice. AI-generated picks for informational purposes only. Verify any decision with a licensed advisor.</div>
   <div class="picks-meta">{meta_line}</div>
@@ -2395,9 +2554,10 @@ def write_manifest():
 
 def generate_site(briefs):
     """Orchestrator. Generates the full multi-page static site under docs/.
-    Triggers cached Claude calls for Recent Trends (daily) and Stock Picks (weekly)."""
+    Triggers cached Claude calls for Recent Trends (daily) and Stock Picks (weekly).
+    Stock Picks uses Recent Trends themes as context to tie picks to the brief."""
     recent_trends = get_or_generate_recent_trends(briefs)
-    stock_picks = get_or_generate_stock_picks()
+    stock_picks = get_or_generate_stock_picks(recent_trends)
 
     generate_home(briefs, recent_trends)
     generate_today(briefs)
