@@ -1,0 +1,94 @@
+{
+  "iso_week": "2026-W19",
+  "generated_at": "2026-05-06T19:09:33.049108-04:00",
+  "tranches": {
+    "micro": [
+      {
+        "ticker": "BGFV",
+        "name": "Big 5 Sporting Goods",
+        "thesis": "Retail turnaround play with improving inventory management and regional cult following."
+      },
+      {
+        "ticker": "CELH",
+        "name": "Celsius Holdings",
+        "thesis": "Energy drink category growth driver with strong social media presence and retail expansion."
+      },
+      {
+        "ticker": "SIGA",
+        "name": "SIGA Technologies",
+        "thesis": "Monkeypox treatment provider with government contracts and recurring revenue visibility."
+      }
+    ],
+    "small": [
+      {
+        "ticker": "CRWD",
+        "name": "CrowdStrike Holdings",
+        "thesis": "Cloud security leader with strong endpoint protection growth and enterprise customer momentum."
+      },
+      {
+        "ticker": "DDOG",
+        "name": "Datadog",
+        "thesis": "Observability platform expanding AI monitoring capabilities with accelerating net retention rates."
+      },
+      {
+        "ticker": "SMCI",
+        "name": "Super Micro Computer",
+        "thesis": "AI infrastructure supplier benefiting from data center GPU demand and custom systems."
+      }
+    ],
+    "mid": [
+      {
+        "ticker": "ROKU",
+        "name": "Roku Inc",
+        "thesis": "Streaming TV platform with advertising recovery and growing platform services monetization."
+      },
+      {
+        "ticker": "MSTR",
+        "name": "MicroStrategy",
+        "thesis": "Bitcoin treasury company with leveraged BTC exposure and corporate strategic pivot."
+      },
+      {
+        "ticker": "COIN",
+        "name": "Coinbase Global",
+        "thesis": "Crypto exchange positioned for regulatory clarity and institutional adoption growth."
+      }
+    ],
+    "large": [
+      {
+        "ticker": "NVDA",
+        "name": "NVIDIA",
+        "thesis": "AI chip leader dominating data center GPUs with sustained demand and ecosystem lock-in."
+      },
+      {
+        "ticker": "TSLA",
+        "name": "Tesla",
+        "thesis": "EV manufacturer with Optimus robotics potential and energy storage business acceleration."
+      },
+      {
+        "ticker": "META",
+        "name": "Meta Platforms",
+        "thesis": "AI-driven ad targeting and Llama model strength supporting margin expansion."
+      }
+    ],
+    "mega": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft",
+        "thesis": "AI integration across Office products and Azure cloud drives recurring revenue growth."
+      },
+      {
+        "ticker": "AAPL",
+        "name": "Apple",
+        "thesis": "Services segment growth and AI features support premium pricing and ecosystem expansion."
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 321,
+    "output_tokens": 717,
+    "total_tokens": 1038,
+    "cost_this_call": 0.0031,
+    "cost_daily_projected": 0.0094,
+    "cost_monthly_projected": 0.28
+  }
+}

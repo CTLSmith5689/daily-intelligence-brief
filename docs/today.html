@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0A0A0F">
+<link rel="manifest" href="manifest.json">
+<title>Today's Briefs, Apterreon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --bg-base:#0A0A0F; --bg-1:#11121A; --bg-2:#16171F;
+  --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
+  --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
+  --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
+}
+html { background:var(--bg-base); color:var(--text-1); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+body { min-height:100vh; overflow-x:hidden; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
+a { color:inherit; text-decoration:none; }
+
+#plexus { position:fixed; inset:0; z-index:0; opacity:0.55; }
+body::before {
+  content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(800px 600px at 15% 20%, rgba(255,31,61,0.10), transparent 60%),
+    radial-gradient(900px 700px at 85% 80%, rgba(204,0,40,0.07), transparent 60%),
+    radial-gradient(1200px 800px at 50% 40%, rgba(255,122,133,0.04), transparent 70%);
+}
+body::after {
+  content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:3px 3px; opacity:0.5; mix-blend-mode:overlay;
+}
+.topnav, .hero, .featured, .features, .feed, .lib, .footer, .destinations, .picks, .editions { position:relative; z-index:3; }
+
+.topnav {
+  position:sticky; top:16px; max-width:1200px; margin:16px auto 0; padding:10px 14px 10px 18px;
+  display:flex; align-items:center; gap:14px;
+  background:rgba(17,18,26,0.55);
+  backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border:1px solid var(--border); border-radius:18px;
+}
+.lockup { display:flex; align-items:center; gap:12px; }
+.lockup-text { display:flex; flex-direction:column; line-height:1; }
+.brand { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:4px; color:var(--text-1); text-transform:uppercase; }
+.lockup-tagline { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-top:5px; }
+.pulse-row { display:flex; align-items:center; gap:8px; margin-left:14px; padding-left:14px; border-left:1px solid var(--border); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.pulse-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; box-shadow:0 0 12px rgba(52,210,122,0.7); animation:pulse 1.8s ease-out infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(52,210,122,0.55);} 70%{box-shadow:0 0 0 10px rgba(52,210,122,0);} 100%{box-shadow:0 0 0 0 rgba(52,210,122,0);} }
+
+.nav { margin-left:auto; display:flex; gap:4px; }
+.nav a { padding:8px 14px; font-size:13px; font-weight:500; color:var(--text-3); border-radius:10px; transition:all .2s; }
+.nav a:hover { color:var(--text-1); background:rgba(255,255,255,0.04); }
+.nav a.active { color:var(--text-1); background:rgba(255,31,61,0.10); }
+
+.hero { max-width:1200px; margin:0 auto; padding:96px 24px 48px; }
+.eyebrow {
+  display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px;
+  background:rgba(255,31,61,0.08); border:1px solid rgba(255,31,61,0.20);
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose);
+  text-transform:uppercase; margin-bottom:24px;
+  opacity:0; transform:translateY(8px); animation:fadeUp .8s .1s ease-out forwards;
+}
+.eyebrow .live-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; }
+
+h1.hero-title {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:84px; line-height:0.98;
+  letter-spacing:-0.03em; margin-bottom:24px; max-width:1000px;
+  background:linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 40%, #FF7A85 70%, #FF1F3D 100%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  opacity:0; transform:translateY(16px); animation:fadeUp .9s .25s ease-out forwards;
+}
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+.hero-sub {
+  font-size:19px; line-height:1.6; color:var(--text-2); max-width:640px; margin-bottom:40px; font-weight:400;
+  opacity:0; transform:translateY(12px); animation:fadeUp .9s .4s ease-out forwards;
+}
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; opacity:0; transform:translateY(12px); animation:fadeUp .9s .55s ease-out forwards; }
+.btn-primary {
+  padding:14px 24px; font-size:14px; font-weight:600;
+  background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%); color:#FFF;
+  border-radius:12px; cursor:pointer; transition:transform .15s, box-shadow .25s;
+  box-shadow:0 8px 32px rgba(255,31,61,0.3); display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(255,31,61,0.45); }
+.btn-secondary {
+  padding:14px 24px; font-size:14px; font-weight:500;
+  background:rgba(255,255,255,0.04); color:var(--text-1);
+  border:1px solid var(--border-bright); border-radius:12px;
+  cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none;
+}
+.btn-secondary:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.20); }
+
+.featured { max-width:1200px; margin:0 auto; padding:32px 24px 64px; }
+.featured-card {
+  position:relative;
+  background:linear-gradient(180deg, rgba(22,23,31,0.85) 0%, rgba(17,18,26,0.92) 100%);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--border-bright); border-radius:24px;
+  padding:48px; overflow:hidden;
+  opacity:0; transform:translateY(20px); animation:fadeUp 1s .7s ease-out forwards;
+}
+.featured-card::before {
+  content:''; position:absolute; inset:-1px; border-radius:24px; padding:1px;
+  background:linear-gradient(135deg, rgba(255,31,61,0.5), transparent 40%, transparent 60%, rgba(255,122,133,0.3));
+  -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+  mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+}
+.feat-meta { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; flex-wrap:wrap; }
+.feat-meta .tag { padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }
+.feat-meta .dot { width:3px; height:3px; border-radius:50%; background:var(--text-4); }
+.feat-kicker { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--apt-rose); margin-bottom:14px; }
+.feat-body { font-size:18px; line-height:1.7; color:var(--text-1); max-width:920px; margin-bottom:8px; font-weight:400; letter-spacing:-0.005em; }
+.feat-body::first-letter { font-family:'Syne',sans-serif; font-size:1.4em; font-weight:700; line-height:1; color:var(--apt-rose); padding-right:2px; }
+.feat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }
+.feat-stat { padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }
+.feat-stat:hover { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }
+.fs-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fs-val { font-family:'Syne',sans-serif; font-size:30px; font-weight:700; color:var(--text-1); letter-spacing:-0.02em; line-height:1; }
+.fs-delta { font-size:12px; color:#34D27A; margin-top:6px; }
+.feat-actions { margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+.feat-actions .quiet { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:2px; }
+
+.themes-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+.theme-pill { padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; background:rgba(255,31,61,0.06); border:1px solid rgba(255,31,61,0.20); border-radius:999px; }
+
+.destinations { max-width:1200px; margin:0 auto; padding:24px 24px 64px; }
+.destinations-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:32px; flex-wrap:wrap; gap:18px; }
+.destinations-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:36px; letter-spacing:-0.02em; line-height:1.1; }
+.destinations-h p { font-size:15px; color:var(--text-3); line-height:1.6; max-width:380px; }
+.destinations-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
+@media (max-width:780px) { .destinations-grid { grid-template-columns:1fr; } }
+.dest-card {
+  display:block; padding:32px;
+  background:rgba(17,18,26,0.65);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:20px;
+  transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
+}
+.dest-card:hover { transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }
+.dest-eyebrow { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-bottom:12px; }
+.dest-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); margin-bottom:10px; }
+.dest-body { font-size:14px; line-height:1.55; color:var(--text-3); margin-bottom:18px; }
+.dest-cta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; }
+
+.features { max-width:1200px; margin:0 auto; padding:64px 24px; }
+.features-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px; }
+.features-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; max-width:600px; }
+.features-h p { font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }
+
+.section-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }
+@media (max-width:780px) { .section-grid { grid-template-columns:1fr; } }
+
+.sec-card {
+  position:relative;
+  background:rgba(17,18,26,0.65);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:20px;
+  padding:28px; transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
+  overflow:hidden;
+}
+.sec-card::after {
+  content:''; position:absolute; inset:0; border-radius:20px;
+  background:linear-gradient(135deg, rgba(255,31,61,0.18), transparent 50%);
+  opacity:0; transition:opacity .35s; pointer-events:none;
+}
+.sec-card:hover { transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }
+.sec-card:hover::after { opacity:1; }
+.sc-head { display:flex; align-items:flex-start; gap:14px; margin-bottom:20px; }
+.sc-num {
+  width:44px; height:44px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, rgba(255,31,61,0.16), rgba(255,31,61,0.04));
+  border:1px solid rgba(255,31,61,0.22); border-radius:12px;
+  font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--apt-rose);
+}
+.sc-titles { flex:1; min-width:0; }
+.sc-eyebrow { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:4px; }
+.sc-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); }
+.sc-count { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); padding:4px 10px; background:rgba(255,255,255,0.04); border-radius:8px; }
+.sc-list { display:flex; flex-direction:column; gap:0; }
+.sc-item { padding:14px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:start; transition:padding-left .15s; }
+.sc-item:first-child { border-top:none; padding-top:4px; }
+.sc-item:hover { padding-left:6px; }
+.sc-item-headline { font-size:15px; font-weight:500; color:var(--text-1); line-height:1.45; }
+.sc-item-source { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:6px; }
+.sc-arrow { color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }
+.sc-item:hover .sc-arrow { color:var(--apt-red); transform:translateX(4px); }
+
+.editions { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.editions-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px; }
+.editions-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
+.editions-h p { font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }
+.edition-block { margin-bottom:48px; }
+.edition-head { display:flex; align-items:baseline; gap:12px; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.edition-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; color:var(--text-1); }
+.edition-time { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.edition-link { margin-left:auto; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; }
+.edition-edge { font-size:16px; line-height:1.65; color:var(--text-2); margin-bottom:24px; padding:18px 22px; background:rgba(17,18,26,0.55); border-left:3px solid var(--apt-red); border-radius:8px; }
+.edition-empty { padding:32px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px dashed var(--border); border-radius:14px; }
+
+.lib { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.lib-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }
+.lib-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
+.lib-h .lib-count { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }
+
+.lib-controls { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }
+.lib-search { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }
+.lib-search:focus-within { border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }
+.lib-search .icon { color:var(--text-3); font-size:16px; }
+.lib-search input { flex:1; background:transparent; border:none; outline:none; font-family:'DM Mono',monospace; font-size:14px; color:var(--text-1); }
+.lib-search input::placeholder { color:var(--text-4); }
+.lib-search .clear-btn { background:transparent; border:none; cursor:pointer; padding:4px 8px; color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; transition:color .15s; }
+.lib-search .clear-btn:hover { color:var(--text-1); }
+.lib-search .clear-btn[hidden] { display:none; }
+
+.lib-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.lib-chip-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }
+.lib-chip {
+  padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  color:var(--text-3); cursor:pointer; background:transparent;
+  border:1px solid var(--border); border-radius:999px; text-transform:uppercase;
+  user-select:none; transition:all .15s;
+}
+.lib-chip:hover { color:var(--text-1); border-color:var(--border-bright); }
+.lib-chip.active { color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }
+
+.lib-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.lib-item {
+  background:rgba(17,18,26,0.85); padding:18px 22px;
+  display:grid; grid-template-columns:120px 1fr auto; gap:18px; align-items:center;
+  transition:background .15s;
+}
+.lib-item:hover { background:rgba(22,23,31,0.95); }
+.lib-item .li-section {
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  color:var(--apt-rose); text-transform:uppercase; padding:4px 8px;
+  border:1px solid rgba(255,31,61,0.20); border-radius:6px; text-align:center;
+  background:rgba(255,31,61,0.06); justify-self:start;
+}
+.lib-item .li-headline { font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }
+.lib-item .li-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:5px; }
+.lib-item .li-src { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; text-align:right; }
+@media (max-width:680px) {
+  .lib-item { grid-template-columns:1fr; gap:6px; padding:16px 18px; }
+  .lib-item .li-src { text-align:left; }
+}
+
+.empty-state { padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }
+
+.picks { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.picks-h { margin-bottom:24px; }
+.picks-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; margin-bottom:10px; }
+.picks-h p { font-size:15px; color:var(--text-3); line-height:1.6; max-width:680px; }
+.picks-disclaimer { padding:14px 18px; margin-bottom:24px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--text-2); text-transform:uppercase; background:rgba(255,179,71,0.06); border:1px solid rgba(255,179,71,0.20); border-radius:10px; }
+.picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:32px; }
+.tranche {
+  margin-bottom:24px; padding:28px;
+  background:rgba(17,18,26,0.65);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:20px;
+}
+.tranche-head { display:flex; align-items:baseline; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.tranche-name { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; color:var(--text-1); }
+.tranche-cap { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.tranche-list { display:flex; flex-direction:column; gap:0; }
+.pick { display:grid; grid-template-columns:110px 1fr; gap:18px; align-items:start; padding:14px 0; border-top:1px solid var(--border); }
+.pick:first-child { border-top:none; padding-top:4px; }
+.pick-ticker { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; }
+.pick-name { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; }
+.pick-thesis { font-size:14px; line-height:1.55; color:var(--text-1); }
+
+.footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
+.footer .brand-foot { font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }
+.footer .meta { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); letter-spacing:1px; }
+
+@media (max-width:760px) {
+  h1.hero-title { font-size:48px; }
+  .feat-body { font-size:16px; }
+  .featured-card { padding:32px 24px; }
+  .feat-grid { grid-template-columns:1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="plexus" aria-hidden="true"></canvas>
+
+<nav class="topnav">
+  <a class="lockup" href="./index.html" title="Apterreon home">
+    <svg width="22" height="29" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div class="lockup-text">
+      <span class="brand">Apterreon</span>
+      <span class="lockup-tagline">Explore what's out there.</span>
+    </div>
+    <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
+  </a>
+  <div class="nav">
+    <a href="./index.html">Home</a>
+    <a href="./today.html" class="active">Today</a>
+    <a href="./stories.html">Stories</a>
+    <a href="./stock-picks.html">Stock Picks</a>
+  </div>
+</nav>
+
+
+<section class="editions">
+  <div class="editions-h">
+    <h2>Today, Wednesday, May 06, 2026.</h2>
+    <p>Each edition's top sections at a glance. Open the full brief for everything else.</p>
+  </div>
+  
+<div class="edition-block">
+  <div class="edition-head">
+    <div class="edition-name">Morning Brief</div>
+    <div class="edition-time">7:00 AM ET</div>
+    <a class="edition-link" href="./briefs/2026-05-06-morning.html">Open full brief &rarr;</a>
+  </div>
+  <p class="edition-edge">Middle East peace optionality pricing in energy markets collides with China's advanced manufacturing dominance (25 percent global share) and U.S. adoption of China-style AI pre-deployment review regimes: stagflation-resistant oil trajectories reduce energy-transition urgency while regulatory capture of frontier AI locks non-incumbent vendors out of scaling paths, concentrating both energy and compute market structures in state-aligned players, compressing allocator optionality and widening arbitrage windows for idiosyncratic exposure.</p>
+  <div class="section-grid">
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">01</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Breaking News</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi7wFBVV95cUxPd0RWNFZ0ay00bEtOMm5PeUwxQVBBTUlVUFZpMmFJT3dhbkZJai1VQnRaM3U3cUtodTBLeFU2OTl1UDgxTE9IZHJvNHZheVY2b2N0a0dCLVVXZ1ViRktpWFBaUXlDSHNGQXRqaWQ5VEt5WmdLVlVlNDRzYnZtemJJazIycXZzaHA1NjBmX2RjaXBueG9oTVpmQWhWYnMwNTdxSTM4dFlzZW1UVFhHODh2MmVKVUlSZXZTQjFvZ1pGakl3eGcxd1NkbGxWRFlyNlZWVThJX2RNM0NPT0JTYmZhaU9hWmNOS3doaFllelZVOA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump's Approval Rating: Streak Of Record Lows Grows Longer</div><div class="sc-item-source">Forbes</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNNFFkcjBPazVUUkkwVjlCdEVFUEFoUXRQd1k0WE9HaURZVFE5aG8wYkNwZlB4OU1lNjdJSEhINXE1bUs4azJoOVhsamY1V1VuRDM1bjYzV1c3X0xudnR4YV9BRXN0UDNRTEhOeWlVVExQekVaTV9fdG0wTVBqY05MTk02cjEtSnpDWkpvMXM1dk5iQ2tZT0pYMzE3Zk9QYktnUXVDTGkyQkFnMjZpdnhhQVVKdnJydGpPZ1gta2VDUndHYV9NOGc?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Canadian and U.S. stock markets rally on hopes of deal to end war in the Middle East</div><div class="sc-item-source">BNN Bloomberg</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">02</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Finance & Markets</div>
+        </div>
+        <div class="sc-count">03</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxPM2NpR1dWVkh6X1JLVnRVRmZLaVFYT3NnNlhHSkktaVd0eVdGaVdDR2h4TXdXcmRCMGpDZlNyNXJSLVlISkNYTzMzTWx0X0tjR3NZWkd6SjNrX0JrdUdBaU85U3l6LU51dmZCc01va19ValdOeWpkSjZmaFhUV1ZpdkRVMDJxTG55dm9JQmgzV3VnQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Strong April ADP jobs report hides major shift in U.S. employment</div><div class="sc-item-source">thestreet.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMirwFBVV95cUxOOVUxU05RYWxGS080MmZKWkNhTW1Ody1RdWthVm00eVdCaTAycFMyOW95TDUyQzlqMTAyZFlEX2F1bVdYendRWnB3aU9wdGUzNGw0MFRydUgtZWpjQWw2NGFrSGZaVEdUTFgxazNCRVctOWhDVEtJckRDOVlZbmdLVXpRZ3lQVEpXT3Y1LWtLVm1IbVJ3QTM0QmhVX2RtMjJZMWZmR0RfazhmRzJ6VEZj?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Credit secondaries growth trend &quot;here to stay&quot;: Fund Finance Securitisation Forum panel</div><div class="sc-item-source">Funds Europe</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">03</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Politics & Policy</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizwFBVV95cUxNVFQzTHRIVy1SMlREOE9OZ20xenRBQ0VpVU1vRmRDLXFsSDFiVWk0ZUtQWjRmQS1tY01xcW5XN2UwMEJPYVMxQXJwZEFQT0JWcWtoSGFzVll6YkNMb25na0F6X2tyUWZ5c2R4QUt2ZDhXMy1xNXdPMGpNSktweDRidlZMd1R0X3pWQTl4RTB1cHV3cW1YWkNFQUd5TkR2RnBuWVNyZGhseGdVS1NzdjVlT1YwSXZtNndyVnl3T3NqZ0Z4Y21YbWVoOG5yakVubXfSAdQBQVVfeXFMTXo3MC1xbjRCbmxtak05aElQYTNmbTFBZkcyRmx4Q0IxSGV5LTdpY3R0aTh1Z0taeE9FeS1Cd2NwQ3JmWlB5WkRQWVFhNS04VWRHWURHblRLTVNfVGFsdzFFeko4TUlUY0VYbWYzdjlVaERland5dlBTNkxpS0hhYWJud2N5MS0ydG9SYTR1SjAxNlpQNnFIaFVYY3lncmRrV3llOFBXWEszeFc5ei1pRjZTYWlNcU5FNENGLUVPX3dQdG1CN29yaUtmUlVrQ294TGI2by0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Takeaways from Indiana, Ohio and Michigan: Trump's flex pays off and Democrats win special election</div><div class="sc-item-source">PBS</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMioAFBVV95cUxNYjJMdEU4dlpFUmxCSjlfOUdyMmltMS15QWpxcHA4cHA3MkR5QXJHYVowVy1iVXNISlRramRvbDlQMG16V1doT0FkdWEzTXdQQnhWcVcwTkFtaloyR3pPM2lzcEotVnBSX1lESlRBTjc0RFVBRnpKTkQzUUtDN3F4aTViMUtraVMyMF93dHVFUGdYSlU3emIxUkZ0c2RPUm1K?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">The pro-Israel political consensus is collapsing in both parties</div><div class="sc-item-source">The Washington Post</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">04</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">AI & Technology</div>
+        </div>
+        <div class="sc-count">03</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMipwFBVV95cUxQUUVsZnhpcDh5LUJRUDJ4b0tCMksxcExYQmVULWh6TnYzMTZ1NUhEQmltOTVsQXMyMy1PWDdONEQwZHJvbDVsb09ZQV9PSUZ5VlQ0NHlDVjZQZUViQ3VKMmtfbDZRY0JSME9iRUlBSHdCbkY0UVlsaHIzRUNPRzRrNjZKWlgzaFRrTnpLRkFxUTdmVlpDRkN0SXlyaU1EZEpKSkVqclUyMA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">AI consulting startup co-founded by DeepMind scientist lands $22.75M Series A</div><div class="sc-item-source">Tech.eu</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">05</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">International</div>
+        </div>
+        <div class="sc-count">03</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiwAFBVV95cUxNSzhHLVJGNWlkNWFuNXdTZGE5R0pPMXJoeWF4S1RubVgxVlJic3lOWl96TDh0RElhZHc0V3oyZEhRSHdydHo0SHo2a2oyaXQ1QUFqbk85S3VsR25IUlMyZ1pEbDZVVHQ3eVJSdzNiQVJ2aWF2Y0lfN2ZiYXktNHd0ZGZWOFRsR1ctaTRLQXhKWnUxVzNZVlZLYWJOcFpSN3dUOGl3eFpfU2RsLUtTMFRGcjNFSW1US3RPRjNhWWV6NXY?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US oil prices rebound as investors assess prospects for a Middle East peace deal</div><div class="sc-item-source">Reuters</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxOcFRkU09ELXBReXNUb2RjM2NxeDJjdm1xVmJ6V0t0THM3RXYxcVVEMWFjRWR3VU5WdFNoUURGVmVWcFlFVzVpeXFIX2FRLUNQS2xjemNWdTVmZGEzcExyQ0w3Q3BCUlBWcy1BX2xLQ0JCT3FnTzUyOXR6emFUN0dYWWtjTnlkclUySHpQR3o4TEp0MGVjVVZ1eGV4cGZFOEs2S2lmNlpvS2dpTnRuUW5CYVhndjlRNUstSUV3YVlodVd4X3l3MEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">China Now Produces Nearly One-Quarter of Global Output in Advanced Industries</div><div class="sc-item-source">Information Technology and Innovation Foundation (ITIF)</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">06</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Culture & Sports</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMivAFBVV95cUxOSE5XNkNEM0hjLXdnOUhtRXlVUDB6NEQ3RnB4SWE2QzN4U2p1VjBjTk00TXJFYVdCcExHRlFPdXNLS0d4TjJ2XzR6V1ZuVnQzbWFVSDhIRG9WeHV6M1ZTRFhrN0lnVGJXUEYwTEI1c1Z4Y0lYQWdSVWsyakxJX3RnWGhGM0FoOVhOUUd0VHZxU2pub2tMUlh3S3JvQU95ZW51cV9NaGpNVVM1ZWdidjdCZmtuTmgtV2RCSWxweg?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Sony in Talks to Acquire Recognition Music Group In Multibillion Dollar Deal</div><div class="sc-item-source">The Hollywood Reporter</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMimwFBVV95cUxNaGExUGdQZ3ZkNUhod0lmNmFEcnYxZnpUSU9zTTJMNjB4SDFXNWN2Z2otVUFWV252dGhMNVRwZXpEUTNlMEdjMndWRl93SUU0NmJoVXVlazBpempRUDBTQnRFUGVpb3RXRTlKSlV1eDlEai15bHhpbFBCUklFYW1MdzJMSTAtal9jZFpIUGtsWG9nVEtQanBRZ1cwRQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">USA Today Sports Network announces All-Big 12 Team</div><div class="sc-item-source">Texas Tech Red Raiders</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">07</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Boston</div>
+        </div>
+        <div class="sc-count">03</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikwFBVV95cUxPbi0xcE9wZWhVYVpoV0p5ellOWVdsbjFkdndJN21HT3EtY0FuVVVzOVE3RXVQSnFPYUlHRDNiOS1lZEFVOGM0Q2tJQnlSWFdCd3RjOFRzR0MtOENZczg2UEdnSG5FNVZTcGZpd1FiN0NKN0twc1k5aU93RHlTc0hMSmpUcTg0OUZJUUNoN1IzX2ttQlnSAZsBQVVfeXFMUDJ1S1BzVFZFa2dnbC1ibmlHTV9xZEFlbHhsaTNLSlRUSGtnRURTbkpLek1PeVJJcGpISFlPOG9YV0VqR08zaTZSUnRlblBtMUdTUDhjUldFcGdPWGRkNVFuQVdaTzY1NExRd0tIU2VDODlDcDREU0t4QWJpcVU2endLbThPMy1GS2Vtc2hKTFR2Z0JmbGNEbjZfVjQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">MBTA Green Line station closing for 3 years</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxOTkF3MUhnMmYzSHpXWW9iNVlBQUg2cUpKb0VNclNhQWJ4Z21UclZHYXczSmttMjNtWGtTbTc1MHc3Y1YxUTIwcDVxV1pJM3pDT1hMelVURllYdXR1ZW10VGZub0dZenlBNEJIZ2hfWlJRbTZuSnUyUjBYOVd2YmlSQ00tZzNQRnNlc1E?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">'Remembered as a hero': Trooper killed in crash with wrong-way driver</div><div class="sc-item-source">WCVB</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article></div>
+</div>
+
+<div class="edition-block">
+  <div class="edition-head">
+    <div class="edition-name">Midday Update</div>
+    <div class="edition-time">12:15 PM ET</div>
+    <a class="edition-link" href="./briefs/2026-05-06-midday.html">Open full brief &rarr;</a>
+  </div>
+  <p class="edition-edge">Labor resilience and oil windfalls are aligning: soft U.S. jobs data and Middle East volatility simultaneously reduce Fed urgency while flooding energy-dependent economies with petrodollars, creating asymmetric positioning between rate-sensitive tech and commodity exporters. DeepSeek's $50B funding shows China is monetizing chip cost advantages faster than Western supply-chain diversification can respond.</p>
+  <div class="section-grid">
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">01</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Breaking News</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMifEFVX3lxTFBiSmVjSlJaOHRrSlIyX1Zud3dYNUw1bXdaODM5U1U5bE1teFFHT2NEb2NLOXBVczFYLXRIc3h5MldBYXMyeUdoYTgxOWNBTndMRzBiclUzY2JFTEYtOWwtek5PeE1Kal9ZTG9nUzN5QzZpRmJUdVlkTklEMlU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Carlos Correa out for the 2026 season</div><div class="sc-item-source">MLB.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMickFVX3lxTE83b09UUVY0TVJlb0lISkluUmw3ZGdtMkFRZHJVdERSSmhtOWs5UHMzUHZ5VkxYZHVrbDNXYUR3dmd6cnE2ZmdjSTQtdFRMUnVobmpROXMyaklQMjkxUXdhem5BaU1QcnZmQ2hNWGtPX20xQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">18-year-old victim dies after Arcadia Lake mass shooting; no suspects in custody</div><div class="sc-item-source">KOCO</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">02</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Finance & Markets</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitgFBVV95cUxOSnNMRVphWTEzNlE2VEtVTmduVkRsaUxOdVhZY2czT0hlbllaMXpxMHRxcW1ROVBjellHdlhIUzJXZV81dVZQTjZ1VTQzRndpVldWWDBxWjVCVHF2WHNxbnVIU3lGRE5Venk4RkJzdmdKNExFV3Y0NmxlelBlSThsZ3ZRTTVtbUxoU25qLXdJZENlT3BocldXVUVQcmJ5QkhrVXhBSUREaHpKVVZpSTJobDEyU2RuZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. private sector adds 109K jobs in April, more than estimated: ADP jobs report</div><div class="sc-item-source">Seeking Alpha</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMirwFBVV95cUxOOVUxU05RYWxGS080MmZKWkNhTW1Ody1RdWthVm00eVdCaTAycFMyOW95TDUyQzlqMTAyZFlEX2F1bVdYendRWnB3aU9wdGUzNGw0MFRydUgtZWpjQWw2NGFrSGZaVEdUTFgxazNCRVctOWhDVEtJckRDOVlZbmdLVXpRZ3lQVEpXT3Y1LWtLVm1IbVJ3QTM0QmhVX2RtMjJZMWZmR0RfazhmRzJ6VEZj?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Credit secondaries growth trend 'here to stay': Fund Finance Securitisation Forum panel</div><div class="sc-item-source">Funds Europe</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">03</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Politics & Policy</div>
+        </div>
+        <div class="sc-count">01</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizwFBVV95cUxNVFQzTHRIVy1SMlREOE9OZ20xenRBQ0VpVU1vRmRDLXFsSDFiVWk0ZUtQWjRmQS1tY01xcW5XN2UwMEJPYVMxQXJwZEFQT0JWcWtoSGFzVll6YkNMb25na0F6X2tyUWZ5c2R4QUt2ZDhXMy1xNXdPMGpNSktweDRidlZMd1R0X3pWQTl4RTB1cHV3cW1YWkNFQUd5TkR2RnBuWVNyZGhseGdVS1NzdjVlT1YwSXZtNndyVnl3T3NqZ0Z4Y21YbWVoOG5yakVubXfSAdQBQVVfeXFMTXo3MC1xbjRCbmxtak05aElQYTNmbTFBZkcyRmx4Q0IxSGV5LTdpY3R0aTh1Z0taeE9FeS1Cd2NwQ3JmWlB5WkRQWVFhNS04VWRHWURHblRLTVNfVGFsdzFFeko4TUlUY0VYbWYzdjlVaERland5dlBTNkxpS0hhYWJud2N5MS0ydG9SYTR1SjAxNlpQNnFIaFVYY3lncmRrV3llOFBXWEszeFc5ei1pRjZTYWlNcU5FNENGLUVPX3dQdG1CN29yaUtmUlVrQ294TGI2by0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Takeaways from Indiana, Ohio and Michigan: Trump's flex pays off and Democrats win special election</div><div class="sc-item-source">PBS</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">04</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">AI & Technology</div>
+        </div>
+        <div class="sc-count">03</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://arstechnica.com/ai/2026/05/googles-gemma-4-open-ai-models-use-speculative-decoding-to-get-up-to-3x-faster/" target="_blank" rel="noopener"><div><div class="sc-item-headline">Google's Gemma 4 AI models get 3x speed boost by predicting future tokens</div><div class="sc-item-source">Ars Technica</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi6AFBVV95cUxQMlNoZGhqYjRkS1JHU1Z2UGp1bk5QYnZFdVlPTmVTMVR5WFprS3ZUVmpvQ25QemFoN1NCWHdnRk1VamdCVU9SZGxrOVlnOUVLUThEOF95YkxhcXZKekpBVTg1b20yOXJYVDRoVERGTWtRbGF3UkozWGM4TTNTVjE2U1pPOFAtQW1ONUNhWHg3anREMFRWN2F3SHNMT190UUZSTmM2ZmI3RGtPQVFUemgtX2lFZ25ZTFF3SzU5LXM5UE9KWmE0U2w4c3ZSbTVGQjVaa0Q3dUNKeFdmeU1vbDRkZGF5YVZjOGdx?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">While Big Tech Spends $725 Billion Building AI, Apple Is Letting Them. And That May Be the Smartest Move in Tech</div><div class="sc-item-source">24/7 Wall St.</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">05</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">International</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxOdHRsUlBlaW5mOFVldmVBVFh5ZnM4UGlCcGlRbUt4X29hUzh2UXVyclYybnZpVTJKblp4TDR6cVNUTFRKSWxITU8tUGp3Ym9mMENLaGRydHowVldYWnJUUV9kUjE5MUtuTDNqazJldkRJT05PN2NiUHV0N1lHZlU3STN6amVUUXlvRVNQWFpIU2ZIQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">China to Invest in DeepSeek at $50 Billion Valuation</div><div class="sc-item-source">WSJ</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMirwFBVV95cUxNTDhiTWZ0REpLd3FlekRVblU2d1VCTzF4blYyQkpOLWhibC1yWW9icmdkUFJUUG1SVEh5Mi14UnBNU0JmM2JIbEdPRkxsc2dzdWd3RDY0NnlzNmtVT3phVUhsQ3ZIcGlscVA5bmNGT2YwLUVLSkxqYm1HOTA5dnBubDI4UDdlZDdzU2FVY1l5aGdodUlJTVBhcXVGck8tRDd2cm81T1QwRkZ2cHFSTllr?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Russia set to buy forex as Middle East war oil windfall arrives</div><div class="sc-item-source">Reuters</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">06</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Culture & Sports</div>
+        </div>
+        <div class="sc-count">01</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiywFBVV95cUxOV1BvQ0NadE82dy0tWkpIVV9laUh5MWljOHNDU3Z3UzJKUEFndVdxQzl3TVpyRTlVSlRTTW9ldGNTVzlzbDFoTnlUdW5lZXh1REljdUJuODRSRzk2MHBFUjZsNW9CWEtOLWNNRjdjNXU5c0lqMm9MZ2tyWXR5NG84ZmVPbWd1djlsWmowcW9SU1Ywb2wxT1lZYW9ZamhDMGlwOHFUeUNIZXRWR2pTVGxxdXVKWVpkQmN1aC1rNFBtUzZ1UUxOdzVQSDhR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Sony in advanced talks to buy Blackstone's Recognition Music for up to $4B</div><div class="sc-item-source">Music Business Worldwide</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">07</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Boston</div>
+        </div>
+        <div class="sc-count">01</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi1gFBVV95cUxNbHpRMXRIZ2hfTWNGWmxPYjhMaWhFdTNORm1VMVZnejFET2ZvMS0zaC1pVk82d2NCZ281WEFIbGlKbDJGLVZ6LVJSdFg1SmpTLUY1RXhLWDhFQXBkb0QyYjVPV0VCSEx6S1RKWDZoaWdnR3ZyUlRQRUlqYzRiMTJwQ1RhWEhjdzJPbExiM3Jjc1JEX216R3RWNTV1V3JWUVFvZHRUaW5Md0pTWnNuZUNzYmNVTWZVY0JRYmJqQkJtRUFRam50SnlMeldiNkVjaV9WLUxzaXR30gHqAUFVX3lxTE5OSjdickJ4S1VKbkxZc1dDWW1HcEwwLXhfbWRjWHpOWDdJcnhWcEtvZXV0LW5JWVl6RzVTSHpPZC1FamUtcU9wcko2R05iU3JCZ2hHUWo4ZkF5WUN5VTU5SGItd1hGS0llOE4xaVFJdTc2VUNYR2o3MTB5N3FmQlJLdkZsMXFEY0ZySFZtdFRlazc3QTByWlpSQzBOVUZzZE1NMDhnMjVPVEo0bWtzZFpFUG5aYlRPdlF3ZmJLM3Fpb3dWY2Z2VEM5YnQwSkx2c1h1d0E0dGZvcEtTNjhES1J3VjhyamR0RWdqdw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Heartbroken: Mass. Gov. Healey issues statement after trooper killed in crash</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article></div>
+</div>
+
+<div class="edition-block">
+  <div class="edition-head">
+    <div class="edition-name">Evening Wrap</div>
+    <div class="edition-time">4:45 PM ET</div>
+    <a class="edition-link" href="./briefs/2026-05-06-evening.html">Open full brief &rarr;</a>
+  </div>
+  <p class="edition-edge">Middle East de-escalation pricing collapsing geopolitical risk premium across energy and duration simultaneously, compressing Fed rate pause duration expectations while extending real duration; parallel bifurcation in labor markets (large firms hiring, small business decelerating) signals consumption vulnerability below headline employment, constraining margin expansion narratives essential to justify equity valuations at current multiples.</p>
+  <div class="section-grid">
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">01</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Breaking News</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMickFVX3lxTE83b09UUVY0TVJlb0lISkluUmw3ZGdtMkFRZHJVdERSSmhtOWs5UHMzUHZ5VkxYZHVrbDNXYUR3dmd6cnE2ZmdjSTQtdFRMUnVobmpROXMyaklQMjkxUXdhem5BaU1QcnZmQ2hNWGtPX20xQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">18-year-old victim dies after Arcadia Lake mass shooting; 1 suspect in custody</div><div class="sc-item-source">KOCO</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxNTUZubnNDTkxCZmFWbDRoSVY1SFhVblZ2Y3RRNThYS0tSTzg1VDVMWEctd2VaMzA0M2FJbWtCUnJmYnhMdllSTXlWZ21xTmJfYzE0Q2JvdVl0dUMwTnhXWHljTmNKSkVCcWZzbGJ4cjV6dlNldU00akpQMW9PREV2aXAzRGxwQm05R3RYOWo3TzloX2IzSkptdVFsQkRiandPTGx6aUFyUmg4M28wdHJyYW9aVEE0VEw0bklicm5DVjEwWTJHTmU5bGtEdVFDbFZvN1E?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Tracking Trump's Crackdown on Higher Education</div><div class="sc-item-source">U.S. News & World Report</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">02</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Finance & Markets</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNNFFkcjBPazVUUkkwVjlCdEVFUEFoUXRQd1k0WE9HaURZVFE5aG8wYkNwZlB4OU1lNjdJSEhINXE1bUs4azJoOVhsamY1V1VuRDM1bjYzV1c3X0xudnR4YV9BRXN0UDNRTEhOeWlVVExQekVaTV9fdG0wTVBqY05MTk02cjEtSnpDWkpvMXM1dk5iQ2tZT0pYMzE3Zk9QYktnUXVDTGkyQkFnMjZpdnhhQVVKdnJydGpPZ1gta2VDUndHYV9NOGc?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Canadian and U.S. stock markets rally on hopes of deal to end war in Middle East</div><div class="sc-item-source">BNN Bloomberg</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxPM2NpR1dWVkh6X1JLVnRVRmZLaVFYT3NnNlhHSkktaVd0eVdGaVdDR2h4TXdXcmRCMGpDZlNyNXJSLVlISkNYTzMzTWx0X0tjR3NZWkd6SjNrX0JrdUdBaU85U3l6LU51dmZCc01va19ValdOeWpkSjZmaFhUV1ZpdkRVMDJxTG55dm9JQmgzV3VnQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Strong April ADP jobs report hides major shift in U.S. employment</div><div class="sc-item-source">thestreet.com</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">03</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Politics & Policy</div>
+        </div>
+        <div class="sc-count">01</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMioAFBVV95cUxNYjJMdEU4dlpFUmxCSjlfOUdyMmltMS15QWpxcHA4cHA3MkR5QXJHYVowVy1iVXNISlRramRvbDlQMG16V1doT0FkdWEzTXdQQnhWcVcwTkFtaloyR3pPM2lzcEotVnBSX1lESlRBTjc0RFVBRnpKTkQzUUtDN3F4aTViMUtraVMyMF93dHVFUGdYSlU3emIxUkZ0c2RPUm1K?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">The pro-Israel political consensus is collapsing in both parties</div><div class="sc-item-source">The Washington Post</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">04</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">AI & Technology</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiggJBVV95cUxPQzlUTHFpcGJHTEhzaVFOUGx5WjZ6NDgyX2lPWnE5VkxmSzJvUTA0R1E3R2s5VXFrWVdYTGhNM0VMa3VSemxIVWZ0aXY2NEZpNEdob3NqU2VuWWdsY2pKc0MwQ1VVc0lqemxGUTRKTk16UFA1YlY5SDdWQTVnSGozMmpVNVdUd2h6cWV6YnBTUnpOZEpBSldxSTlmaGZLdTFTbjQ1ODNFcGlyNEx5aU5hOVlTTTZtTFR2T3RJZGdISGJWTWZXb2lmdGR0ZW5MV1BfZmhpWmxxeEdBVFFvOEthVmtFWlhZZzFwOGVhN3ZKV2FWdlVhSmc5QXVzZUVYeFpoRlE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Microsoft named an overall leader in KuppingerCole Analyst's 2026 Emerging AI Security Operations Center report</div><div class="sc-item-source">Microsoft</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://arstechnica.com/gaming/2026/05/google-deepmind-partners-with-eve-online-for-ai-model-testing/" target="_blank" rel="noopener"><div><div class="sc-item-headline">Google DeepMind partners with EVE Online for AI model testing</div><div class="sc-item-source">Ars Technica</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">05</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">International</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMicEFVX3lxTE9QNGtsQ1N0QlpzNjVFTXd5WnRHZkUxMWpHZnFNSm8tRWExSXRsOEFmTGc0Mlp3LXI1dEZpSjd6MzhJaWE1ME9HcUdsUDBQSElGOWk1NnpudlJMMi1ndzBvblFPR05NMVpvUHZ2UGNlVTLSAXZBVV95cUxOd2dnOGJEcUJjTTdGU2JpSGpHSkV3SUJRbWlfaFZpYkxnN1hjQm1JRmcyMF9IWm5yMm9hZTBKc0NSalB0aWc4R0JFTXRIbTY3aFd5eGxDelhOc3BLR2Q4QkVXcjJ0TTZScEYzT0hMaFN3c3ZYdzVR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil prices plunge amid reported progress in US, Iran talks</div><div class="sc-item-source">The Hill</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxOcFRkU09ELXBReXNUb2RjM2NxeDJjdm1xVmJ6V0t0THM3RXYxcVVEMWFjRWR3VU5WdFNoUURGVmVWcFlFVzVpeXFIX2FRLUNQS2xjemNWdTVmZGEzcExyQ0w3Q3BCUlBWcy1BX2xLQ0JCT3FnTzUyOXR6emFUN0dYWWtjTnlkclUySHpQR3o4TEp0MGVjVVZ1eGV4cGZFOEs2S2lmNlpvS2dpTnRuUW5CYVhndjlRNUstSUV3YVlodVd4X3l3MEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">China Now Produces Nearly One-Quarter of Global Output in Advanced Industries</div><div class="sc-item-source">Information Technology and Innovation Foundation (ITIF)</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">06</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Culture & Sports</div>
+        </div>
+        <div class="sc-count">01</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiygFBVV95cUxOV1BvQ0NadE82dy0tWkpIVV9laUh5MWljOHNDU3Z3UzJKUEFndVdxQzl3TVpyRTlVSlRTTW9ldGNTVzlzbDFoTnlUdW5lZXh1REljdUJuODRSRzk2MHBFUjZsNW9CWEtOLWNNRjdjNXU5c0lqMm9MZ2tyWXR5NG84ZmVPbWd1djlsWmowcW9SU1Ywb2wxT1lZYW9ZamhDMGlwOHFUeUNIZXRWR2pTVGxxdXVKWVpkQmN1aC1rNFBtUzZ1UUxOdzVQSDhR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Sony in advanced talks to buy Blackstone's Recognition Music for up to $4B</div><div class="sc-item-source">Music Business Worldwide</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">07</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Boston</div>
+        </div>
+        <div class="sc-count">02</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikwFBVV95cUxPbi0xcE9wZWhVYVpoV0p5ellOWVdsbjFkdndJN21HT3EtY0FuVVVzOVE3RXVQSnFPYUlHRDNiOS1lZEFVOGM0Q2tJQnlSWFdCd3RjOFRzR0MtOENZczg2UEdnSG5FNVZTcGZpd1FiN0NKN0twc1k5aU93RHlTc0hMSmpUcTg0OUZJUUNoN1IzX2ttQlnSAZsBQVVfeXFMUDJ1S1BzVFZFa2dnbC1ibmlHTV9xZEFlbHhsaTNLSlRUSGtnRURTbkpLek1PeVJJcGpISFlPOG9YV0VqR08zaTZSUnRlblBtMUdTUDhjUldFcGdPWGRkNVFuQVdaTzY1NExRd0tIU2VDODlDcDREU0t4QWJpcVU2endLbThPMy1GS2Vtc2hKTFR2Z0JmbGNEbjZfVjQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">MBTA Green Line station closing for 3 years</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3AFBVV95cUxNUXZkYy1fMnA0YXhPZ3RwSE53YVdUQ2ZKZ2hSaXBtNzNmTFMzU19aN0lnOVdRRjFVZFBlVnFSb0tVQWMyZjRPWG8yUldQRUs3Y21TSHN6X3JHd1hUYjNRbWZvRHJpYldtVTJfaWRmVERSM1BDRHBDNGJFX1NNZU5BS05aWndyeVY4YXlvS3FjeUZZZWlpbnJyOEJXUGNkUm8yZDlkZnRKb0I4NEdBbUtYWUtFdnZFaHdpN2hDdVNDVUstWG4yOGp5UmM3Y1JEZ2NQZnRvQjFxcVJOTmdJ0gHwAUFVX3lxTE5MRVRlWTJNekZTaGVaaFc3YXlwVjh2allKT2xibWlkRGl0VUpSbFUzc1dqcWhMWDBKcVB3MWdKTEZQczBYTC1qOU1GTDdOb1pIamhuNVdPNDNjR3U2QWlRVVZ6NUZPSFJSdVNkc0I1NHJsSUUzdmxhdDVzMmNTZGR0TkF4Z2E2QlZDZkpuZXNnQi1EWGxnUlhpN2RtTjJjbVd5cFVMV2ZhU0ZzdHUzNnhJRGFhVkhOeWdtWWJCcU1UR2tnNHFQZ3pJMVZiN1pnUUMxVlA3eWI3bW90WXlRdjNsX0VDM3dYWFZuRFFXWlEtUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Dignified transfer held for fallen Mass. State Police Trooper Kevin Trainor</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article></div>
+</div>
+
+</section>
+
+
+<footer class="footer">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <span class="brand-foot">Apterreon</span>
+    <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--apt-rose)">Explore what's out there.</span>
+  </div>
+  <span class="meta">Daily Intelligence Brief, generated by Apterreon, hosted on GitHub Pages</span>
+</footer>
+
+<script>
+
+(function() {
+  const c = document.getElementById('plexus');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let W, H, dpr, stars = [], nodes = [], flow = [];
+  const CONNECT = 220; let mx = -999, my = -999;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = innerWidth; H = innerHeight;
+    c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); build();
+  }
+  function build() {
+    stars = []; for (let i = 0; i < 240; i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.7+0.2,b:Math.random()*0.18+0.03,p:Math.random()*6.28});
+    nodes = []; const n = Math.max(40, Math.floor((W*H)/26000));
+    for (let i = 0; i < n; i++) nodes.push({x:Math.random()*W,y:Math.random()*H,size:0.5+Math.random()*1.5,b:0.10+Math.random()*0.30,ph:Math.random()*6.28,vx:(Math.random()-0.5)*0.16,vy:(Math.random()-0.5)*0.12});
+    flow = []; for (let i = 0; i < 40; i++) flow.push({a:-1,b:-1,t:Math.random(),s:0.002+Math.random()*0.003,sz:0.3+Math.random()*0.6,br:0.15+Math.random()*0.3});
+  }
+  function pickEdge(fp) {
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT;
+    for (let j = 0; j < nodes.length; j++) { if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) { bd = d; bj = j; } }
+    fp.a = a; fp.b = bj; fp.t = 0;
+  }
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseleave', () => { mx = -999; my = -999; });
+  let t = 0;
+  function draw() {
+    t += 0.004;
+    ctx.fillStyle = '#0A0A0F'; ctx.fillRect(0,0,W,H);
+    for (const s of stars) { const tw = 0.5+0.5*Math.sin(t*5+s.p); ctx.fillStyle = `rgba(220,210,210,${s.b*tw})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }
+    for (const n of nodes) {
+      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06; n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40; if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mx, dy = n.y-my, md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) { const f = (1-md/180)*0.5; n.x += (dx/md)*f; n.y += (dy/md)*f; }
+    }
+    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < CONNECT) {
+        const a = (1-d/CONNECT);
+        ctx.strokeStyle = `rgba(122,16,16,${a*0.06})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,31,61,${a*0.18})`; ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+      }
+    }
+    if (mx > -100) for (const n of nodes) {
+      const dx = n.x-mx, dy = n.y-my, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 180) { const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(255,80,100,${a})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(n.x,n.y); ctx.stroke(); }
+    }
+    for (const fp of flow) {
+      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) { pickEdge(fp); continue; }
+      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) { pickEdge(fp); continue; }
+      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT*1.2) { pickEdge(fp); continue; }
+      fp.t += fp.s;
+      if (fp.t > 1) {
+        fp.a = fp.b; let bj = -1, bd = CONNECT;
+        for (let j = 0; j < nodes.length; j++) { if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) { bd = d; bj = j; } }
+        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = `rgba(255,31,61,${fp.br*0.10})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,160,170,${fp.br*0.55})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = `rgba(255,31,61,${n.b*0.10})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,150,160,${n.b})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
+})();
+
+
+</script>
+</body>
+</html>
