@@ -1343,79 +1343,885 @@ def s3_list_briefs():
     return briefs
 
 
-def s3_generate_index(briefs):
-    """Generate docs/index.html (and manifest.json) for the Apterreon home page.
-    v6 design (modern landing): floating pill topnav, gradient hero, Daily Pick panel
-    sourced from the latest brief's the_edge synthesis, section grid, live feed.
-    """
+# ── Multi-page site shell: shared CSS, JS, and render helpers ──────────────
+
+SITE_CSS = """
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --bg-base:#0A0A0F; --bg-1:#11121A; --bg-2:#16171F;
+  --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
+  --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
+  --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
+}
+html { background:var(--bg-base); color:var(--text-1); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+body { min-height:100vh; overflow-x:hidden; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
+a { color:inherit; text-decoration:none; }
+
+#plexus { position:fixed; inset:0; z-index:0; opacity:0.55; }
+body::before {
+  content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(800px 600px at 15% 20%, rgba(255,31,61,0.10), transparent 60%),
+    radial-gradient(900px 700px at 85% 80%, rgba(204,0,40,0.07), transparent 60%),
+    radial-gradient(1200px 800px at 50% 40%, rgba(255,122,133,0.04), transparent 70%);
+}
+body::after {
+  content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:3px 3px; opacity:0.5; mix-blend-mode:overlay;
+}
+.topnav, .hero, .featured, .features, .feed, .lib, .footer, .destinations, .picks, .editions { position:relative; z-index:3; }
+
+.topnav {
+  position:sticky; top:16px; max-width:1200px; margin:16px auto 0; padding:10px 14px 10px 18px;
+  display:flex; align-items:center; gap:14px;
+  background:rgba(17,18,26,0.55);
+  backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border:1px solid var(--border); border-radius:18px;
+}
+.lockup { display:flex; align-items:center; gap:12px; }
+.lockup-text { display:flex; flex-direction:column; line-height:1; }
+.brand { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:4px; color:var(--text-1); text-transform:uppercase; }
+.lockup-tagline { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-top:5px; }
+.pulse-row { display:flex; align-items:center; gap:8px; margin-left:14px; padding-left:14px; border-left:1px solid var(--border); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.pulse-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; box-shadow:0 0 12px rgba(52,210,122,0.7); animation:pulse 1.8s ease-out infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(52,210,122,0.55);} 70%{box-shadow:0 0 0 10px rgba(52,210,122,0);} 100%{box-shadow:0 0 0 0 rgba(52,210,122,0);} }
+
+.nav { margin-left:auto; display:flex; gap:4px; }
+.nav a { padding:8px 14px; font-size:13px; font-weight:500; color:var(--text-3); border-radius:10px; transition:all .2s; }
+.nav a:hover { color:var(--text-1); background:rgba(255,255,255,0.04); }
+.nav a.active { color:var(--text-1); background:rgba(255,31,61,0.10); }
+
+.hero { max-width:1200px; margin:0 auto; padding:96px 24px 48px; }
+.eyebrow {
+  display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px;
+  background:rgba(255,31,61,0.08); border:1px solid rgba(255,31,61,0.20);
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose);
+  text-transform:uppercase; margin-bottom:24px;
+  opacity:0; transform:translateY(8px); animation:fadeUp .8s .1s ease-out forwards;
+}
+.eyebrow .live-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; }
+
+h1.hero-title {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:84px; line-height:0.98;
+  letter-spacing:-0.03em; margin-bottom:24px; max-width:1000px;
+  background:linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 40%, #FF7A85 70%, #FF1F3D 100%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  opacity:0; transform:translateY(16px); animation:fadeUp .9s .25s ease-out forwards;
+}
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+.hero-sub {
+  font-size:19px; line-height:1.6; color:var(--text-2); max-width:640px; margin-bottom:40px; font-weight:400;
+  opacity:0; transform:translateY(12px); animation:fadeUp .9s .4s ease-out forwards;
+}
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; opacity:0; transform:translateY(12px); animation:fadeUp .9s .55s ease-out forwards; }
+.btn-primary {
+  padding:14px 24px; font-size:14px; font-weight:600;
+  background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%); color:#FFF;
+  border-radius:12px; cursor:pointer; transition:transform .15s, box-shadow .25s;
+  box-shadow:0 8px 32px rgba(255,31,61,0.3); display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(255,31,61,0.45); }
+.btn-secondary {
+  padding:14px 24px; font-size:14px; font-weight:500;
+  background:rgba(255,255,255,0.04); color:var(--text-1);
+  border:1px solid var(--border-bright); border-radius:12px;
+  cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none;
+}
+.btn-secondary:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.20); }
+
+.featured { max-width:1200px; margin:0 auto; padding:32px 24px 64px; }
+.featured-card {
+  position:relative;
+  background:linear-gradient(180deg, rgba(22,23,31,0.85) 0%, rgba(17,18,26,0.92) 100%);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--border-bright); border-radius:24px;
+  padding:48px; overflow:hidden;
+  opacity:0; transform:translateY(20px); animation:fadeUp 1s .7s ease-out forwards;
+}
+.featured-card::before {
+  content:''; position:absolute; inset:-1px; border-radius:24px; padding:1px;
+  background:linear-gradient(135deg, rgba(255,31,61,0.5), transparent 40%, transparent 60%, rgba(255,122,133,0.3));
+  -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+  mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+}
+.feat-meta { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; flex-wrap:wrap; }
+.feat-meta .tag { padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }
+.feat-meta .dot { width:3px; height:3px; border-radius:50%; background:var(--text-4); }
+.feat-kicker { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--apt-rose); margin-bottom:14px; }
+.feat-body { font-size:18px; line-height:1.7; color:var(--text-1); max-width:920px; margin-bottom:8px; font-weight:400; letter-spacing:-0.005em; }
+.feat-body::first-letter { font-family:'Syne',sans-serif; font-size:1.4em; font-weight:700; line-height:1; color:var(--apt-rose); padding-right:2px; }
+.feat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }
+.feat-stat { padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }
+.feat-stat:hover { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }
+.fs-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fs-val { font-family:'Syne',sans-serif; font-size:30px; font-weight:700; color:var(--text-1); letter-spacing:-0.02em; line-height:1; }
+.fs-delta { font-size:12px; color:#34D27A; margin-top:6px; }
+.feat-actions { margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+.feat-actions .quiet { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:2px; }
+
+.themes-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+.theme-pill { padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; background:rgba(255,31,61,0.06); border:1px solid rgba(255,31,61,0.20); border-radius:999px; }
+
+.destinations { max-width:1200px; margin:0 auto; padding:24px 24px 64px; }
+.destinations-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:32px; flex-wrap:wrap; gap:18px; }
+.destinations-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:36px; letter-spacing:-0.02em; line-height:1.1; }
+.destinations-h p { font-size:15px; color:var(--text-3); line-height:1.6; max-width:380px; }
+.destinations-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
+@media (max-width:780px) { .destinations-grid { grid-template-columns:1fr; } }
+.dest-card {
+  display:block; padding:32px;
+  background:rgba(17,18,26,0.65);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:20px;
+  transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
+}
+.dest-card:hover { transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }
+.dest-eyebrow { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-bottom:12px; }
+.dest-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); margin-bottom:10px; }
+.dest-body { font-size:14px; line-height:1.55; color:var(--text-3); margin-bottom:18px; }
+.dest-cta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; }
+
+.features { max-width:1200px; margin:0 auto; padding:64px 24px; }
+.features-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px; }
+.features-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; max-width:600px; }
+.features-h p { font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }
+
+.section-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }
+@media (max-width:780px) { .section-grid { grid-template-columns:1fr; } }
+
+.sec-card {
+  position:relative;
+  background:rgba(17,18,26,0.65);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:20px;
+  padding:28px; transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
+  overflow:hidden;
+}
+.sec-card::after {
+  content:''; position:absolute; inset:0; border-radius:20px;
+  background:linear-gradient(135deg, rgba(255,31,61,0.18), transparent 50%);
+  opacity:0; transition:opacity .35s; pointer-events:none;
+}
+.sec-card:hover { transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }
+.sec-card:hover::after { opacity:1; }
+.sc-head { display:flex; align-items:flex-start; gap:14px; margin-bottom:20px; }
+.sc-num {
+  width:44px; height:44px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, rgba(255,31,61,0.16), rgba(255,31,61,0.04));
+  border:1px solid rgba(255,31,61,0.22); border-radius:12px;
+  font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--apt-rose);
+}
+.sc-titles { flex:1; min-width:0; }
+.sc-eyebrow { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:4px; }
+.sc-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); }
+.sc-count { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); padding:4px 10px; background:rgba(255,255,255,0.04); border-radius:8px; }
+.sc-list { display:flex; flex-direction:column; gap:0; }
+.sc-item { padding:14px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:start; transition:padding-left .15s; }
+.sc-item:first-child { border-top:none; padding-top:4px; }
+.sc-item:hover { padding-left:6px; }
+.sc-item-headline { font-size:15px; font-weight:500; color:var(--text-1); line-height:1.45; }
+.sc-item-source { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:6px; }
+.sc-arrow { color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }
+.sc-item:hover .sc-arrow { color:var(--apt-red); transform:translateX(4px); }
+
+.editions { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.editions-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px; }
+.editions-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
+.editions-h p { font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }
+.edition-block { margin-bottom:48px; }
+.edition-head { display:flex; align-items:baseline; gap:12px; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.edition-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; color:var(--text-1); }
+.edition-time { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.edition-link { margin-left:auto; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; }
+.edition-edge { font-size:16px; line-height:1.65; color:var(--text-2); margin-bottom:24px; padding:18px 22px; background:rgba(17,18,26,0.55); border-left:3px solid var(--apt-red); border-radius:8px; }
+.edition-empty { padding:32px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px dashed var(--border); border-radius:14px; }
+
+.lib { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.lib-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }
+.lib-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
+.lib-h .lib-count { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }
+
+.lib-controls { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }
+.lib-search { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }
+.lib-search:focus-within { border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }
+.lib-search .icon { color:var(--text-3); font-size:16px; }
+.lib-search input { flex:1; background:transparent; border:none; outline:none; font-family:'DM Mono',monospace; font-size:14px; color:var(--text-1); }
+.lib-search input::placeholder { color:var(--text-4); }
+.lib-search .clear-btn { background:transparent; border:none; cursor:pointer; padding:4px 8px; color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; transition:color .15s; }
+.lib-search .clear-btn:hover { color:var(--text-1); }
+.lib-search .clear-btn[hidden] { display:none; }
+
+.lib-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.lib-chip-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }
+.lib-chip {
+  padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  color:var(--text-3); cursor:pointer; background:transparent;
+  border:1px solid var(--border); border-radius:999px; text-transform:uppercase;
+  user-select:none; transition:all .15s;
+}
+.lib-chip:hover { color:var(--text-1); border-color:var(--border-bright); }
+.lib-chip.active { color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }
+
+.lib-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.lib-item {
+  background:rgba(17,18,26,0.85); padding:18px 22px;
+  display:grid; grid-template-columns:120px 1fr auto; gap:18px; align-items:center;
+  transition:background .15s;
+}
+.lib-item:hover { background:rgba(22,23,31,0.95); }
+.lib-item .li-section {
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  color:var(--apt-rose); text-transform:uppercase; padding:4px 8px;
+  border:1px solid rgba(255,31,61,0.20); border-radius:6px; text-align:center;
+  background:rgba(255,31,61,0.06); justify-self:start;
+}
+.lib-item .li-headline { font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }
+.lib-item .li-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:5px; }
+.lib-item .li-src { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; text-align:right; }
+@media (max-width:680px) {
+  .lib-item { grid-template-columns:1fr; gap:6px; padding:16px 18px; }
+  .lib-item .li-src { text-align:left; }
+}
+
+.empty-state { padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }
+
+.picks { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.picks-h { margin-bottom:24px; }
+.picks-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; margin-bottom:10px; }
+.picks-h p { font-size:15px; color:var(--text-3); line-height:1.6; max-width:680px; }
+.picks-disclaimer { padding:14px 18px; margin-bottom:24px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--text-2); text-transform:uppercase; background:rgba(255,179,71,0.06); border:1px solid rgba(255,179,71,0.20); border-radius:10px; }
+.picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:32px; }
+.tranche {
+  margin-bottom:24px; padding:28px;
+  background:rgba(17,18,26,0.65);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:20px;
+}
+.tranche-head { display:flex; align-items:baseline; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.tranche-name { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; color:var(--text-1); }
+.tranche-cap { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.tranche-list { display:flex; flex-direction:column; gap:0; }
+.pick { display:grid; grid-template-columns:110px 1fr; gap:18px; align-items:start; padding:14px 0; border-top:1px solid var(--border); }
+.pick:first-child { border-top:none; padding-top:4px; }
+.pick-ticker { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; }
+.pick-name { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; }
+.pick-thesis { font-size:14px; line-height:1.55; color:var(--text-1); }
+
+.footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
+.footer .brand-foot { font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }
+.footer .meta { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); letter-spacing:1px; }
+
+@media (max-width:760px) {
+  h1.hero-title { font-size:48px; }
+  .feat-body { font-size:16px; }
+  .featured-card { padding:32px 24px; }
+  .feat-grid { grid-template-columns:1fr; }
+}
+"""
+
+
+PLEXUS_JS = """
+(function() {
+  const c = document.getElementById('plexus');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let W, H, dpr, stars = [], nodes = [], flow = [];
+  const CONNECT = 220; let mx = -999, my = -999;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = innerWidth; H = innerHeight;
+    c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); build();
+  }
+  function build() {
+    stars = []; for (let i = 0; i < 240; i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.7+0.2,b:Math.random()*0.18+0.03,p:Math.random()*6.28});
+    nodes = []; const n = Math.max(40, Math.floor((W*H)/26000));
+    for (let i = 0; i < n; i++) nodes.push({x:Math.random()*W,y:Math.random()*H,size:0.5+Math.random()*1.5,b:0.10+Math.random()*0.30,ph:Math.random()*6.28,vx:(Math.random()-0.5)*0.16,vy:(Math.random()-0.5)*0.12});
+    flow = []; for (let i = 0; i < 40; i++) flow.push({a:-1,b:-1,t:Math.random(),s:0.002+Math.random()*0.003,sz:0.3+Math.random()*0.6,br:0.15+Math.random()*0.3});
+  }
+  function pickEdge(fp) {
+    if (!nodes.length) return;
+    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT;
+    for (let j = 0; j < nodes.length; j++) { if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) { bd = d; bj = j; } }
+    fp.a = a; fp.b = bj; fp.t = 0;
+  }
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseleave', () => { mx = -999; my = -999; });
+  let t = 0;
+  function draw() {
+    t += 0.004;
+    ctx.fillStyle = '#0A0A0F'; ctx.fillRect(0,0,W,H);
+    for (const s of stars) { const tw = 0.5+0.5*Math.sin(t*5+s.p); ctx.fillStyle = `rgba(220,210,210,${s.b*tw})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }
+    for (const n of nodes) {
+      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06; n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
+      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40; if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
+      const dx = n.x-mx, dy = n.y-my, md = Math.sqrt(dx*dx+dy*dy);
+      if (md < 180 && md > 0) { const f = (1-md/180)*0.5; n.x += (dx/md)*f; n.y += (dy/md)*f; }
+    }
+    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < CONNECT) {
+        const a = (1-d/CONNECT);
+        ctx.strokeStyle = `rgba(122,16,16,${a*0.06})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,31,61,${a*0.18})`; ctx.lineWidth = 0.6;
+        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+      }
+    }
+    if (mx > -100) for (const n of nodes) {
+      const dx = n.x-mx, dy = n.y-my, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 180) { const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(255,80,100,${a})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(n.x,n.y); ctx.stroke(); }
+    }
+    for (const fp of flow) {
+      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) { pickEdge(fp); continue; }
+      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) { pickEdge(fp); continue; }
+      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT*1.2) { pickEdge(fp); continue; }
+      fp.t += fp.s;
+      if (fp.t > 1) {
+        fp.a = fp.b; let bj = -1, bd = CONNECT;
+        for (let j = 0; j < nodes.length; j++) { if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) { bd = d; bj = j; } }
+        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
+      }
+      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
+      ctx.fillStyle = `rgba(255,31,61,${fp.br*0.10})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,160,170,${fp.br*0.55})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = `rgba(255,31,61,${n.b*0.10})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,150,160,${n.b})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
+})();
+"""
+
+
+STORIES_JS_TEMPLATE = """
+(function() {
+  const ALL_STORIES = __ALL_STORIES_JSON__;
+  const SECTIONS = __SECTIONS_JSON__;
+  const listEl = document.getElementById('lib-list');
+  const searchEl = document.getElementById('lib-search');
+  const clearEl = document.getElementById('lib-clear');
+  const chipsEl = document.getElementById('lib-chips');
+  const countEl = document.getElementById('lib-count');
+  if (!listEl) return;
+
+  SECTIONS.forEach(name => {
+    const c = document.createElement('span');
+    c.className = 'lib-chip';
+    c.dataset.section = name;
+    c.textContent = name;
+    chipsEl.appendChild(c);
+  });
+
+  let activeSection = '';
+  let query = '';
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmt(date) {
+    if (!date) return '';
+    try {
+      const d = new Date(date + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric' }).toUpperCase();
+    } catch (e) { return date; }
+  }
+
+  function render() {
+    const q = query.toLowerCase();
+    const filtered = ALL_STORIES.filter(s => {
+      if (activeSection && s.section !== activeSection) return false;
+      if (!q) return true;
+      return ((s.headline||'')+' '+(s.summary||'')+' '+(s.source||'')+' '+(s.section||'')).toLowerCase().includes(q);
+    });
+    countEl.textContent = filtered.length === ALL_STORIES.length
+      ? String(ALL_STORIES.length).padStart(2,'0') + ' stories'
+      : String(filtered.length).padStart(2,'0') + ' of ' + String(ALL_STORIES.length).padStart(2,'0') + ' stories';
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No stories match. Adjust filters or clear the search.</div>';
+      return;
+    }
+    listEl.innerHTML = filtered.map(s => {
+      const link = escapeHtml(s.link || s.brief_url || '#');
+      return '<a class="lib-item" href="'+link+'" target="_blank" rel="noopener">'
+        + '<span class="li-section">'+escapeHtml(s.section||'')+'</span>'
+        + '<span><span class="li-headline">'+escapeHtml(s.headline||'')+'</span>'
+        +   '<span class="li-meta">'+fmt(s.date)+' &middot; '+escapeHtml((s.edition||'').toUpperCase())+'</span></span>'
+        + '<span class="li-src">'+escapeHtml(s.source||'')+'</span>'
+      + '</a>';
+    }).join('');
+  }
+
+  searchEl.addEventListener('input', () => {
+    query = searchEl.value.trim();
+    clearEl.hidden = !query;
+    render();
+  });
+  clearEl.addEventListener('click', () => {
+    searchEl.value = ''; query = ''; clearEl.hidden = true; searchEl.focus(); render();
+  });
+  chipsEl.addEventListener('click', e => {
+    const chip = e.target.closest('.lib-chip');
+    if (!chip) return;
+    activeSection = chip.dataset.section || '';
+    chipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+    render();
+  });
+
+  render();
+})();
+"""
+
+
+def render_topnav(active=""):
+    """Topnav with real-URL nav links. active is one of: 'home', 'today', 'stories', 'picks'."""
+    logo = apt_logo_svg(22, 29, 0.45)
+    def cls(name):
+        return ' class="active"' if active == name else ''
+    return f'''<nav class="topnav">
+  <a class="lockup" href="./index.html" title="Apterreon home">
+    {logo}
+    <div class="lockup-text">
+      <span class="brand">Apterreon</span>
+      <span class="lockup-tagline">Explore what's out there.</span>
+    </div>
+    <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
+  </a>
+  <div class="nav">
+    <a href="./index.html"{cls('home')}>Home</a>
+    <a href="./today.html"{cls('today')}>Today</a>
+    <a href="./stories.html"{cls('stories')}>Stories</a>
+    <a href="./stock-picks.html"{cls('picks')}>Stock Picks</a>
+  </div>
+</nav>'''
+
+
+def render_footer():
+    return '''<footer class="footer">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <span class="brand-foot">Apterreon</span>
+    <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--apt-rose)">Explore what's out there.</span>
+  </div>
+  <span class="meta">Daily Intelligence Brief, generated by Apterreon, hosted on GitHub Pages</span>
+</footer>'''
+
+
+def render_page(title, body_html, active_nav="", extra_scripts=""):
+    """Wrap body content in the shared site shell (head, plexus canvas, topnav, body, footer, scripts)."""
+    topnav = render_topnav(active_nav)
+    footer = render_footer()
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0A0A0F">
+<link rel="manifest" href="manifest.json">
+<title>{title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+{SITE_CSS}
+</style>
+</head>
+<body>
+
+<canvas id="plexus" aria-hidden="true"></canvas>
+
+{topnav}
+
+{body_html}
+
+{footer}
+
+<script>
+{PLEXUS_JS}
+{extra_scripts}
+</script>
+</body>
+</html>
+"""
+
+
+# ── Recent Trends and Stock Picks: cached Claude generations ────────────────
+
+RECENT_TRENDS_PROMPT = """You are an analyst summarizing the past several days of an intelligence brief.
+
+You will receive a chronological list of brief synthesis lines and top headlines. Identify the dominant narratives, the recurring threads, and what has shifted across the period.
+
+Return ONLY valid JSON (no markdown fences, no preamble):
+{
+  "synthesis": "1 to 2 short paragraphs of meta-narrative across the period. Plain prose, no lists. About 120 to 180 words total. Be specific. Reference actual events, not abstractions.",
+  "themes": ["short phrase", "short phrase", "..."]
+}
+
+RULES:
+- Themes: 3 to 5 short phrases, 4 to 8 words each, capturing the recurring threads.
+- NEVER use em dashes (the long dash character). Use periods, commas, or colons instead.
+- Output ONLY the JSON object. No commentary."""
+
+
+STOCK_PICKS_PROMPT = """You are a markets analyst proposing a watchlist for a curious retail reader. This is NOT investment advice and the reader knows that.
+
+Generate 2 to 3 stock picks per market-cap tranche:
+- Micro: under $300M market cap
+- Small: $300M to $2B
+- Mid: $2B to $10B
+- Large: $10B to $200B
+- Mega: above $200B
+
+For each pick: ticker, company name, and a one-sentence thesis (under 25 words). Bias toward US-listed names with reasonable trading liquidity. Mix sectors. Avoid extreme penny stocks.
+
+Return ONLY valid JSON (no markdown fences, no preamble):
+{
+  "tranches": {
+    "micro": [{"ticker": "ABC", "name": "Company Name", "thesis": "one-sentence thesis"}],
+    "small": [],
+    "mid": [],
+    "large": [],
+    "mega": []
+  }
+}
+
+RULES:
+- Each tranche must have 2 to 3 picks.
+- Theses are one sentence, under 25 words.
+- NEVER use em dashes. Use periods, commas, or colons instead.
+- Tickers uppercase, 1 to 5 characters.
+- Output ONLY the JSON object."""
+
+
+def _parse_json_strict(text):
+    """Tolerant JSON parse: strip code fences, trim to outermost braces, drop em dashes, then loads."""
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("\n", 1)[-1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned[:-3]
+    cleaned = cleaned.strip()
+    start = cleaned.find("{")
+    if start != -1:
+        depth = 0
+        end = len(cleaned)
+        for i in range(start, len(cleaned)):
+            if cleaned[i] == "{":
+                depth += 1
+            elif cleaned[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        cleaned = cleaned[start:end]
+    cleaned = cleaned.replace(" — ", ", ").replace("—", ",")
+    return json.loads(cleaned)
+
+
+def get_or_generate_recent_trends(briefs):
+    """Daily-cached synthesis across the past ~10 calendar days of briefs.
+    Returns dict with 'date', 'synthesis', 'themes'. Falls back gracefully on any error."""
+    today = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+    cache_path = STATE_DIR / "recent_trends.json"
+
+    if cache_path.exists():
+        try:
+            cached = json.loads(cache_path.read_text(encoding="utf-8"))
+            if cached.get("date") == today:
+                return cached
+        except Exception as e:
+            print(f"recent_trends: cache read error: {e}")
+
+    fallback_synthesis = (briefs[0].get("the_edge") if briefs else "") or "Recent trends will appear here once briefs accumulate."
+    fallback = {"date": today, "synthesis": fallback_synthesis.strip(), "themes": []}
+
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print("recent_trends: no API key, using fallback (latest the_edge).")
+        return fallback
+
+    by_date = {}
+    for b in briefs:
+        d = b.get("date", "")
+        if d:
+            by_date.setdefault(d, []).append(b)
+    recent_dates = sorted(by_date.keys(), reverse=True)[:10]
+    if not recent_dates:
+        return fallback
+
+    lines = []
+    for d in recent_dates:
+        for b in by_date[d]:
+            ed = b.get("type", "")
+            edge = (b.get("the_edge") or "").strip()
+            lines.append(f"=== {d} {ed} ===")
+            if edge:
+                lines.append(f"Edge: {edge}")
+            for sec in b.get("sections", [])[:7]:
+                sec_name = sec.get("name", "")
+                for st in sec.get("stories", [])[:2]:
+                    h = (st.get("headline") or "").strip()
+                    if h:
+                        lines.append(f"- {sec_name}: {h}")
+            lines.append("")
+    user_input = "\n".join(lines)[:18000]
+
+    try:
+        text, usage = call_claude(RECENT_TRENDS_PROMPT, user_input)
+        parsed = _parse_json_strict(text)
+        synthesis = (parsed.get("synthesis") or "").strip()
+        themes = parsed.get("themes") or []
+        if not isinstance(themes, list):
+            themes = []
+        themes = [str(t).strip() for t in themes if str(t).strip()][:5]
+        if not synthesis:
+            return fallback
+        result = {
+            "date": today,
+            "synthesis": synthesis,
+            "themes": themes,
+            "usage": usage,
+        }
+        cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
+        print(f"recent_trends: regenerated for {today} ({usage.get('total_tokens', 0)} tokens, ${usage.get('cost_this_call', 0):.4f}).")
+        return result
+    except Exception as e:
+        print(f"recent_trends: generation failed: {e}")
+        return fallback
+
+
+def get_or_generate_stock_picks():
+    """Weekly-cached stock picks by market-cap tranche.
+    Returns dict with 'iso_week', 'generated_at', 'tranches'. Falls back gracefully on any error."""
+    now = datetime.now(timezone(ET_OFFSET))
+    iso_year, iso_week, _ = now.isocalendar()
+    week_key = f"{iso_year}-W{iso_week:02d}"
+    cache_path = STATE_DIR / "stock_picks.json"
+
+    last_known = None
+    if cache_path.exists():
+        try:
+            last_known = json.loads(cache_path.read_text(encoding="utf-8"))
+            if last_known.get("iso_week") == week_key:
+                return last_known
+        except Exception as e:
+            print(f"stock_picks: cache read error: {e}")
+
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print("stock_picks: no API key, returning last-known cache or empty.")
+        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
+
+    try:
+        text, usage = call_claude(STOCK_PICKS_PROMPT, "Generate this week's picks now.")
+        parsed = _parse_json_strict(text)
+        tranches = parsed.get("tranches") or {}
+        cleaned_tranches = {}
+        for tier in ("micro", "small", "mid", "large", "mega"):
+            picks = tranches.get(tier, [])
+            if not isinstance(picks, list):
+                picks = []
+            cleaned = []
+            for p in picks[:3]:
+                if not isinstance(p, dict):
+                    continue
+                ticker = str(p.get("ticker", "")).upper().strip()[:6]
+                name = str(p.get("name", "")).strip()[:80]
+                thesis = str(p.get("thesis", "")).strip().replace(" — ", ", ").replace("—", ",")[:240]
+                if ticker and name and thesis:
+                    cleaned.append({"ticker": ticker, "name": name, "thesis": thesis})
+            cleaned_tranches[tier] = cleaned
+
+        total_picks = sum(len(v) for v in cleaned_tranches.values())
+        if total_picks == 0:
+            print("stock_picks: empty result, falling back to previous cache.")
+            return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
+
+        result = {
+            "iso_week": week_key,
+            "generated_at": now.isoformat(),
+            "tranches": cleaned_tranches,
+            "usage": usage,
+        }
+        cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
+        print(f"stock_picks: regenerated for {week_key} ({total_picks} picks, ${usage.get('cost_this_call', 0):.4f}).")
+        return result
+    except Exception as e:
+        print(f"stock_picks: generation failed: {e}")
+        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "tranches": {}}
+
+
+# ── Per-page generators ─────────────────────────────────────────────────────
+
+def _hero_eyebrow_text(briefs):
     now_et = datetime.now(timezone(ET_OFFSET))
     today_str = now_et.strftime("%Y-%m-%d")
-    site_url = os.environ.get("APTERREON_SITE_URL", "https://ctlsmith5689.github.io/daily-intelligence-brief")
-
-    logo_nav = apt_logo_svg(22, 29, 0.45)
-
-    # ── Latest brief (drives Daily Pick + Section grid + Live feed) ──
     latest = briefs[0] if briefs else None
-    edge_text = (latest or {}).get("the_edge", "") or ""
     latest_date = (latest or {}).get("date", today_str)
     latest_type = (latest or {}).get("type", "morning")
-    latest_key = (latest or {}).get("key", "")
-    latest_url = f"{site_url}/{latest_key}" if latest_key else "#"
-
-    # Pretty edition + date for the meta line
     edition_label = {"morning": "Morning", "midday": "Midday", "evening": "Evening"}.get(latest_type, latest_type.title())
     try:
         _d = datetime.strptime(latest_date, "%Y-%m-%d")
-        pretty_date = _d.strftime("%b %d, %Y")
+        pretty = _d.strftime("%b %d, %Y")
     except Exception:
-        pretty_date = latest_date
+        pretty = latest_date
+    return f"Live, {edition_label} edition, {pretty}"
 
-    # Eyebrow line
-    eyebrow_text = f"Live, {edition_label} edition, {pretty_date}"
 
-    # Daily Pick body. the_edge is Apterreon's 1-2 sentence synthesis from the
-    # latest brief. Render as a single body paragraph, not a headline. Empty
-    # state messages handle the first-run case before any brief has been generated.
-    if edge_text:
-        pick_body = edge_text.strip()
-    else:
-        pick_body = "Today's brief is generating. Check back in a moment, or open the latest brief from the link above."
+def generate_home(briefs, recent_trends):
+    """Write docs/index.html: v6 hero, Recent Trends panel, three destination cards."""
+    eyebrow_text = _hero_eyebrow_text(briefs)
 
-    # Stats for the Daily Pick panel
-    total_stories = sum(len(s.get("stories", [])) for b in briefs for s in b.get("sections", []))
+    synthesis = (recent_trends.get("synthesis") or "").strip() or "Recent trends will appear here once briefs accumulate."
+    themes = recent_trends.get("themes") or []
+    themes_html = ""
+    if themes:
+        pills = "".join(f'<span class="theme-pill">{t}</span>' for t in themes)
+        themes_html = f'<div class="themes-list">{pills}</div>'
+
+    total_briefs = len(briefs)
     sources_set = set()
+    total_stories = 0
     for b in briefs:
         for sec in b.get("sections", []):
             for st in sec.get("stories", []):
+                total_stories += 1
                 src = st.get("source", "")
                 if src:
                     sources_set.add(src.split("·")[0].strip())
-    total_sources = len(sources_set) or 0
+    total_sources = len(sources_set)
 
-    # ── Section cards (from latest brief sections) ──
-    section_cards_html = ""
-    if latest:
-        for idx, sec in enumerate(latest.get("sections", []), start=1):
-            sec_name = sec.get("name", "")
-            stories = sec.get("stories", [])
-            top = stories[:2]
-            if not top:
-                continue
-            stories_html = ""
-            for st in top:
-                headline = st.get("headline", "").replace('"', '&quot;')
-                source = st.get("source", "").replace('"', '&quot;')
-                link = (st.get("link") or latest_url).replace('"', '&quot;')
-                stories_html += (
-                    f'<a class="sc-item" href="{link}" target="_blank" rel="noopener">'
-                    f'<div><div class="sc-item-headline">{headline}</div>'
-                    f'<div class="sc-item-source">{source}</div></div>'
-                    f'<span class="sc-arrow">&rarr;</span>'
-                    f'</a>'
-                )
-            num_str = f"{idx:02d}"
-            count_str = f"{len(stories):02d}"
-            section_cards_html += f"""
+    body = f"""
+<section class="hero">
+  <div class="eyebrow"><span class="live-dot"></span>{eyebrow_text}</div>
+  <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
+  <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a weekly stock-picks watchlist.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="./today.html">Read today's briefs <span style="font-size:16px">&rarr;</span></a>
+    <a class="btn-secondary" href="./stories.html">Browse stories <span style="font-size:16px">&rarr;</span></a>
+  </div>
+</section>
+
+<section class="featured" id="recent-trends">
+  <article class="featured-card">
+    <div class="feat-meta">
+      <span class="tag">Recent Trends</span>
+      <span>Apterreon</span><span class="dot"></span>
+      <span>Past {min(10, total_briefs)} brief days</span>
+    </div>
+    <div class="feat-kicker">What the picture looks like</div>
+    <p class="feat-body">{synthesis}</p>
+    {themes_html}
+    <div class="feat-grid">
+      <div class="feat-stat">
+        <div class="fs-label">Stories synthesized</div>
+        <div class="fs-val">{total_stories}</div>
+        <div class="fs-delta">across {total_briefs} briefs</div>
+      </div>
+      <div class="feat-stat">
+        <div class="fs-label">Sources</div>
+        <div class="fs-val">{total_sources}</div>
+        <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
+      </div>
+      <div class="feat-stat">
+        <div class="fs-label">Cadence</div>
+        <div class="fs-val">3x</div>
+        <div class="fs-delta">briefs per weekday</div>
+      </div>
+    </div>
+    <div class="feat-actions">
+      <a class="btn-primary" href="./today.html">See today's briefs <span style="font-size:16px">&rarr;</span></a>
+      <a class="quiet" href="./stories.html">Explore the story library</a>
+    </div>
+  </article>
+</section>
+
+<section class="destinations">
+  <div class="destinations-h">
+    <h2>Three places to land.</h2>
+    <p>Pick what you came for. Today's read, the running archive, or this week's watchlist.</p>
+  </div>
+  <div class="destinations-grid">
+    <a class="dest-card" href="./today.html">
+      <div class="dest-eyebrow">Daily</div>
+      <div class="dest-title">Today's Briefs</div>
+      <p class="dest-body">Morning, midday, and evening editions for today, with the section grid and the cross-domain edge from each.</p>
+      <span class="dest-cta">Open today &rarr;</span>
+    </a>
+    <a class="dest-card" href="./stories.html">
+      <div class="dest-eyebrow">Archive</div>
+      <div class="dest-title">Story Library</div>
+      <p class="dest-body">Search and filter every story across recent briefs. Headline, source, section, and a deep link to the original.</p>
+      <span class="dest-cta">Browse the library &rarr;</span>
+    </a>
+    <a class="dest-card" href="./stock-picks.html">
+      <div class="dest-eyebrow">Weekly</div>
+      <div class="dest-title">Stock Picks</div>
+      <p class="dest-body">Two to three names per market-cap tranche from Micro to Mega, refreshed each week. Not investment advice.</p>
+      <span class="dest-cta">See this week &rarr;</span>
+    </a>
+  </div>
+</section>
+"""
+    html = render_page("Apterreon, Daily Intelligence Brief", body, active_nav="home")
+    (DOCS_DIR / "index.html").write_text(html, encoding="utf-8")
+
+
+def generate_today(briefs):
+    """Write docs/today.html: today's editions (morning/midday/evening) with section grid each."""
+    now_et = datetime.now(timezone(ET_OFFSET))
+    today_iso = now_et.strftime("%Y-%m-%d")
+    pretty_today = now_et.strftime("%A, %B %d, %Y")
+
+    todays = [b for b in briefs if b.get("date") == today_iso]
+    todays.sort(key=lambda b: {"morning": 0, "midday": 1, "evening": 2}.get(b.get("type", ""), 9))
+
+    edition_blocks = ""
+    if not todays:
+        edition_blocks = '<div class="edition-empty">Today’s brief has not generated yet. The next scheduled run will populate this view.</div>'
+    else:
+        edition_times = {"morning": "7:00 AM ET", "midday": "12:15 PM ET", "evening": "4:45 PM ET"}
+        edition_names = {"morning": "Morning Brief", "midday": "Midday Update", "evening": "Evening Wrap"}
+        for b in todays:
+            ed_type = b.get("type", "")
+            ed_key = b.get("key", "")
+            brief_url = f"./{ed_key}" if ed_key else "#"
+            edge = (b.get("the_edge") or "").strip()
+            edge_html = f'<p class="edition-edge">{edge}</p>' if edge else ""
+
+            section_cards_html = ""
+            for idx, sec in enumerate(b.get("sections", []), start=1):
+                sec_name = sec.get("name", "")
+                stories = sec.get("stories", [])
+                top = stories[:2]
+                if not top:
+                    continue
+                stories_html = ""
+                for st in top:
+                    headline = (st.get("headline") or "").replace('"', '&quot;')
+                    source = (st.get("source") or "").replace('"', '&quot;')
+                    link = (st.get("link") or brief_url).replace('"', '&quot;')
+                    stories_html += (
+                        f'<a class="sc-item" href="{link}" target="_blank" rel="noopener">'
+                        f'<div><div class="sc-item-headline">{headline}</div>'
+                        f'<div class="sc-item-source">{source}</div></div>'
+                        f'<span class="sc-arrow">&rarr;</span>'
+                        f'</a>'
+                    )
+                num_str = f"{idx:02d}"
+                count_str = f"{len(stories):02d}"
+                section_cards_html += f"""
     <article class="sec-card">
       <div class="sc-head">
         <div class="sc-num">{num_str}</div>
@@ -1426,23 +2232,48 @@ def s3_generate_index(briefs):
         <div class="sc-count">{count_str}</div>
       </div>
       <div class="sc-list">{stories_html}</div>
-    </article>
-"""
-    if not section_cards_html:
-        section_cards_html = '<div class="empty-state">No sections yet. The next scheduled brief will populate this view.</div>'
+    </article>"""
 
-    # ── All stories across every brief (powers the Stories library) ──
+            edition_blocks += f"""
+<div class="edition-block">
+  <div class="edition-head">
+    <div class="edition-name">{edition_names.get(ed_type, ed_type.title())}</div>
+    <div class="edition-time">{edition_times.get(ed_type, '')}</div>
+    <a class="edition-link" href="./{ed_key}">Open full brief &rarr;</a>
+  </div>
+  {edge_html}
+  <div class="section-grid">{section_cards_html}</div>
+</div>
+"""
+
+    body = f"""
+<section class="editions">
+  <div class="editions-h">
+    <h2>Today, {pretty_today}.</h2>
+    <p>Each edition's top sections at a glance. Open the full brief for everything else.</p>
+  </div>
+  {edition_blocks}
+</section>
+"""
+    html = render_page("Today's Briefs, Apterreon", body, active_nav="today")
+    (DOCS_DIR / "today.html").write_text(html, encoding="utf-8")
+
+
+def generate_stories(briefs):
+    """Write docs/stories.html: search + filter + library across all archived briefs."""
+    site_url = os.environ.get("APTERREON_SITE_URL", "https://ctlsmith5689.github.io/daily-intelligence-brief")
+
     all_stories = []
     sections_present = []
-    seen_sections = set()
+    seen = set()
     for b in briefs:
         b_key = b.get("key", "")
         b_type = b.get("type", "")
         b_date = b.get("date", "")
         for sec in b.get("sections", []):
             sec_name = sec.get("name", "")
-            if sec_name and sec_name not in seen_sections:
-                seen_sections.add(sec_name)
+            if sec_name and sec_name not in seen:
+                seen.add(sec_name)
                 sections_present.append(sec_name)
             for st in sec.get("stories", []):
                 if not st.get("headline"):
@@ -1457,348 +2288,15 @@ def s3_generate_index(briefs):
                     "section": sec_name,
                     "brief_url": f"{site_url}/{b_key}",
                 })
-    # newest first by date+edition order
     edition_rank = {"morning": 0, "midday": 1, "evening": 2}
     all_stories.sort(key=lambda s: (s["date"], edition_rank.get(s["edition"], 99)), reverse=True)
     all_stories_json = json.dumps(all_stories, separators=(",", ":"))
     sections_present_json = json.dumps(sections_present)
 
-    # Brief count + cost (totals)
-    total_briefs = len(briefs)
-    cost_estimate = 0.04  # static placeholder; live cost lives inside each brief
-
-    index_html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0A0A0F">
-<link rel="manifest" href="manifest.json">
-<title>Apterreon, Daily Intelligence Brief</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  *,*::before,*::after {{ box-sizing:border-box; margin:0; padding:0; }}
-  :root {{
-    --bg-base:#0A0A0F; --bg-1:#11121A; --bg-2:#16171F;
-    --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
-    --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
-    --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
-  }}
-  html {{ background:var(--bg-base); color:var(--text-1); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }}
-  body {{ min-height:100vh; overflow-x:hidden; }}
-  ::-webkit-scrollbar {{ width:6px; }}
-  ::-webkit-scrollbar-thumb {{ background:var(--border-bright); border-radius:3px; }}
-  a {{ color:inherit; text-decoration:none; }}
-
-  /* Plexus + soft mesh background */
-  #plexus {{ position:fixed; inset:0; z-index:0; opacity:0.55; }}
-  body::before {{
-    content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
-    background:
-      radial-gradient(800px 600px at 15% 20%, rgba(255,31,61,0.10), transparent 60%),
-      radial-gradient(900px 700px at 85% 80%, rgba(204,0,40,0.07), transparent 60%),
-      radial-gradient(1200px 800px at 50% 40%, rgba(255,122,133,0.04), transparent 70%);
-  }}
-  body::after {{
-    content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
-    background-image:radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size:3px 3px; opacity:0.5; mix-blend-mode:overlay;
-  }}
-  .topnav, .hero, .featured, .features, .feed, .footer {{ position:relative; z-index:3; }}
-
-  /* Floating pill topnav */
-  .topnav {{
-    position:sticky; top:16px; max-width:1200px; margin:16px auto 0; padding:10px 14px 10px 18px;
-    display:flex; align-items:center; gap:14px;
-    background:rgba(17,18,26,0.55);
-    backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%);
-    border:1px solid var(--border); border-radius:18px;
-  }}
-  .lockup {{ display:flex; align-items:center; gap:12px; }}
-  .lockup-text {{ display:flex; flex-direction:column; line-height:1; }}
-  .brand {{ font-family:'Syne',sans-serif; font-weight:800; font-size:14px; letter-spacing:4px; color:var(--text-1); text-transform:uppercase; }}
-  .lockup-tagline {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; margin-top:5px; }}
-  .pulse-row {{ display:flex; align-items:center; gap:8px; margin-left:14px; padding-left:14px; border-left:1px solid var(--border); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }}
-  .pulse-dot {{ width:6px; height:6px; border-radius:50%; background:#34D27A; box-shadow:0 0 12px rgba(52,210,122,0.7); animation:pulse 1.8s ease-out infinite; }}
-  @keyframes pulse {{ 0%{{box-shadow:0 0 0 0 rgba(52,210,122,0.55);}} 70%{{box-shadow:0 0 0 10px rgba(52,210,122,0);}} 100%{{box-shadow:0 0 0 0 rgba(52,210,122,0);}} }}
-
-  .nav {{ margin-left:auto; display:flex; gap:4px; }}
-  .nav a {{ padding:8px 14px; font-size:13px; font-weight:500; color:var(--text-3); border-radius:10px; transition:all .2s; }}
-  .nav a:hover {{ color:var(--text-1); background:rgba(255,255,255,0.04); }}
-  .nav a.active {{ color:var(--text-1); background:rgba(255,31,61,0.10); }}
-
-  .cta {{
-    padding:8px 16px; font-size:13px; font-weight:600;
-    background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%);
-    color:#FFF; border:none; cursor:pointer; border-radius:10px;
-    transition:transform .15s, box-shadow .25s;
-    box-shadow:0 4px 24px rgba(255,31,61,0.25);
-  }}
-  .cta:hover {{ transform:translateY(-1px); box-shadow:0 8px 32px rgba(255,31,61,0.4); }}
-
-  /* Hero */
-  .hero {{ max-width:1200px; margin:0 auto; padding:96px 24px 48px; }}
-  .eyebrow {{
-    display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px;
-    background:rgba(255,31,61,0.08); border:1px solid rgba(255,31,61,0.20);
-    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose);
-    text-transform:uppercase; margin-bottom:24px;
-    opacity:0; transform:translateY(8px); animation:fadeUp .8s .1s ease-out forwards;
-  }}
-  .eyebrow .live-dot {{ width:6px; height:6px; border-radius:50%; background:#34D27A; }}
-
-  h1.hero-title {{
-    font-family:'Syne',sans-serif; font-weight:800; font-size:84px; line-height:0.98;
-    letter-spacing:-0.03em; margin-bottom:24px; max-width:1000px;
-    background:linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 40%, #FF7A85 70%, #FF1F3D 100%);
-    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-    opacity:0; transform:translateY(16px); animation:fadeUp .9s .25s ease-out forwards;
-  }}
-  @keyframes fadeUp {{ to {{ opacity:1; transform:translateY(0); }} }}
-
-  .hero-sub {{
-    font-size:19px; line-height:1.6; color:var(--text-2); max-width:640px; margin-bottom:40px; font-weight:400;
-    opacity:0; transform:translateY(12px); animation:fadeUp .9s .4s ease-out forwards;
-  }}
-  .hero-actions {{ display:flex; gap:12px; flex-wrap:wrap; opacity:0; transform:translateY(12px); animation:fadeUp .9s .55s ease-out forwards; }}
-  .btn-primary {{
-    padding:14px 24px; font-size:14px; font-weight:600;
-    background:linear-gradient(135deg, #FF1F3D 0%, #CC0028 100%); color:#FFF;
-    border-radius:12px; cursor:pointer; transition:transform .15s, box-shadow .25s;
-    box-shadow:0 8px 32px rgba(255,31,61,0.3); display:inline-flex; align-items:center; gap:8px;
-    text-decoration:none;
-  }}
-  .btn-primary:hover {{ transform:translateY(-2px); box-shadow:0 12px 40px rgba(255,31,61,0.45); }}
-  .btn-secondary {{
-    padding:14px 24px; font-size:14px; font-weight:500;
-    background:rgba(255,255,255,0.04); color:var(--text-1);
-    border:1px solid var(--border-bright); border-radius:12px;
-    cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px;
-    text-decoration:none;
-  }}
-  .btn-secondary:hover {{ background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.20); }}
-
-  /* Featured Daily Pick */
-  .featured {{ max-width:1200px; margin:0 auto; padding:32px 24px 64px; }}
-  .featured-card {{
-    position:relative;
-    background:linear-gradient(180deg, rgba(22,23,31,0.85) 0%, rgba(17,18,26,0.92) 100%);
-    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-    border:1px solid var(--border-bright); border-radius:24px;
-    padding:48px; overflow:hidden;
-    opacity:0; transform:translateY(20px); animation:fadeUp 1s .7s ease-out forwards;
-  }}
-  .featured-card::before {{
-    content:''; position:absolute; inset:-1px; border-radius:24px; padding:1px;
-    background:linear-gradient(135deg, rgba(255,31,61,0.5), transparent 40%, transparent 60%, rgba(255,122,133,0.3));
-    -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
-    mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
-    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
-  }}
-  .feat-meta {{ display:flex; align-items:center; gap:10px; margin-bottom:18px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; flex-wrap:wrap; }}
-  .feat-meta .tag {{ padding:4px 10px; border-radius:6px; background:rgba(255,31,61,0.10); color:var(--apt-rose); border:1px solid rgba(255,31,61,0.20); }}
-  .feat-meta .dot {{ width:3px; height:3px; border-radius:50%; background:var(--text-4); }}
-  .feat-kicker {{ font-family:'Syne',sans-serif; font-weight:700; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--apt-rose); margin-bottom:14px; }}
-  .feat-body {{ font-size:18px; line-height:1.7; color:var(--text-1); max-width:920px; margin-bottom:8px; font-weight:400; letter-spacing:-0.005em; }}
-  .feat-body::first-letter {{ font-family:'Syne',sans-serif; font-size:1.4em; font-weight:700; line-height:1; color:var(--apt-rose); padding-right:2px; }}
-  .feat-grid {{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:32px; }}
-  .feat-stat {{ padding:18px 20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; transition:all .25s; }}
-  .feat-stat:hover {{ background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }}
-  .fs-label {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }}
-  .fs-val {{ font-family:'Syne',sans-serif; font-size:30px; font-weight:700; color:var(--text-1); letter-spacing:-0.02em; line-height:1; }}
-  .fs-delta {{ font-size:12px; color:#34D27A; margin-top:6px; }}
-  .feat-actions {{ margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }}
-  .feat-actions .quiet {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:2px; }}
-
-  /* Section grid */
-  .features {{ max-width:1200px; margin:0 auto; padding:64px 24px; }}
-  .features-h {{ display:flex; justify-content:space-between; align-items:end; margin-bottom:40px; flex-wrap:wrap; gap:18px; }}
-  .features-h h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; max-width:600px; }}
-  .features-h p {{ font-size:16px; color:var(--text-3); line-height:1.6; max-width:380px; }}
-
-  .section-grid {{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }}
-  @media (max-width:780px) {{ .section-grid {{ grid-template-columns:1fr; }} }}
-
-  .sec-card {{
-    position:relative;
-    background:rgba(17,18,26,0.65);
-    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-    border:1px solid var(--border); border-radius:20px;
-    padding:28px; transition:all .35s cubic-bezier(0.2,0.8,0.2,1);
-    overflow:hidden;
-  }}
-  .sec-card::after {{
-    content:''; position:absolute; inset:0; border-radius:20px;
-    background:linear-gradient(135deg, rgba(255,31,61,0.18), transparent 50%);
-    opacity:0; transition:opacity .35s; pointer-events:none;
-  }}
-  .sec-card:hover {{ transform:translateY(-4px); border-color:rgba(255,31,61,0.4); box-shadow:0 20px 60px rgba(255,31,61,0.15), 0 8px 24px rgba(0,0,0,0.3); }}
-  .sec-card:hover::after {{ opacity:1; }}
-  .sc-head {{ display:flex; align-items:flex-start; gap:14px; margin-bottom:20px; }}
-  .sc-num {{
-    width:44px; height:44px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(135deg, rgba(255,31,61,0.16), rgba(255,31,61,0.04));
-    border:1px solid rgba(255,31,61,0.22); border-radius:12px;
-    font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--apt-rose);
-  }}
-  .sc-titles {{ flex:1; min-width:0; }}
-  .sc-eyebrow {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-bottom:4px; }}
-  .sc-title {{ font-family:'Syne',sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--text-1); }}
-  .sc-count {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); padding:4px 10px; background:rgba(255,255,255,0.04); border-radius:8px; }}
-  .sc-list {{ display:flex; flex-direction:column; gap:0; }}
-  .sc-item {{ padding:14px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:start; transition:padding-left .15s; }}
-  .sc-item:first-child {{ border-top:none; padding-top:4px; }}
-  .sc-item:hover {{ padding-left:6px; }}
-  .sc-item-headline {{ font-size:15px; font-weight:500; color:var(--text-1); line-height:1.45; }}
-  .sc-item-source {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:6px; }}
-  .sc-arrow {{ color:var(--text-4); font-size:18px; transition:color .15s, transform .15s; align-self:start; padding-top:2px; }}
-  .sc-item:hover .sc-arrow {{ color:var(--apt-red); transform:translateX(4px); }}
-
-  /* Stories library */
-  .lib {{ max-width:1200px; margin:0 auto; padding:64px 24px; }}
-  .lib-h {{ display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }}
-  .lib-h h2 {{ font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }}
-  .lib-h .lib-count {{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }}
-
-  .lib-controls {{ display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }}
-  .lib-search {{ display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }}
-  .lib-search:focus-within {{ border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }}
-  .lib-search .icon {{ color:var(--text-3); font-size:16px; }}
-  .lib-search input {{ flex:1; background:transparent; border:none; outline:none; font-family:'DM Mono',monospace; font-size:14px; color:var(--text-1); }}
-  .lib-search input::placeholder {{ color:var(--text-4); }}
-  .lib-search .clear-btn {{ background:transparent; border:none; cursor:pointer; padding:4px 8px; color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; transition:color .15s; }}
-  .lib-search .clear-btn:hover {{ color:var(--text-1); }}
-  .lib-search .clear-btn[hidden] {{ display:none; }}
-
-  .lib-chips {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }}
-  .lib-chip-label {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }}
-  .lib-chip {{
-    padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
-    color:var(--text-3); cursor:pointer; background:transparent;
-    border:1px solid var(--border); border-radius:999px; text-transform:uppercase;
-    user-select:none; transition:all .15s;
-  }}
-  .lib-chip:hover {{ color:var(--text-1); border-color:var(--border-bright); }}
-  .lib-chip.active {{ color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }}
-
-  .lib-list {{ display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }}
-  .lib-item {{
-    background:rgba(17,18,26,0.85); padding:18px 22px;
-    display:grid; grid-template-columns:120px 1fr auto; gap:18px; align-items:center;
-    transition:background .15s;
-  }}
-  .lib-item:hover {{ background:rgba(22,23,31,0.95); }}
-  .lib-item .li-section {{
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px;
-    color:var(--apt-rose); text-transform:uppercase; padding:4px 8px;
-    border:1px solid rgba(255,31,61,0.20); border-radius:6px; text-align:center;
-    background:rgba(255,31,61,0.06); justify-self:start;
-  }}
-  .lib-item .li-headline {{ font-size:15px; color:var(--text-1); line-height:1.45; font-weight:500; }}
-  .lib-item .li-meta {{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:5px; }}
-  .lib-item .li-src {{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; text-align:right; }}
-  @media (max-width:680px) {{
-    .lib-item {{ grid-template-columns:1fr; gap:6px; padding:16px 18px; }}
-    .lib-item .li-src {{ text-align:left; }}
-  }}
-
-  .empty-state {{ padding:48px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px solid var(--border); border-radius:14px; }}
-
-  .footer {{ max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }}
-  .footer .brand-foot {{ font-family:'Syne',sans-serif; font-size:12px; font-weight:800; letter-spacing:5px; color:var(--text-3); text-transform:uppercase; }}
-  .footer .meta {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); letter-spacing:1px; }}
-
-  @media (max-width:760px) {{
-    h1.hero-title {{ font-size:48px; }}
-    .feat-body {{ font-size:16px; }}
-    .featured-card {{ padding:32px 24px; }}
-    .feat-grid {{ grid-template-columns:1fr; }}
-  }}
-</style>
-</head>
-<body>
-
-<canvas id="plexus" aria-hidden="true"></canvas>
-
-<nav class="topnav">
-  <a class="lockup" href="./index.html" title="Apterreon home">
-    {logo_nav}
-    <div class="lockup-text">
-      <span class="brand">Apterreon</span>
-      <span class="lockup-tagline">Explore what's out there.</span>
-    </div>
-    <div class="pulse-row"><span class="pulse-dot"></span><span>Live</span></div>
-  </a>
-  <div class="nav">
-    <a href="#briefs">Briefs</a>
-    <a href="#stories">Stories</a>
-    <a href="#pinned">Pinned</a>
-    <a href="#archive">Archive</a>
-  </div>
-  <a class="cta" href="{latest_url}">Open latest &rarr;</a>
-</nav>
-
-<section class="hero">
-  <div class="eyebrow"><span class="live-dot"></span>{eyebrow_text}</div>
-  <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
-  <p class="hero-sub">Finance, Politics, Tech, and more. Explore what's out there with Apterreon's Daily Intelligence Briefs and story catalogue.</p>
-  <div class="hero-actions">
-    <a class="btn-primary" href="{latest_url}">Read today's briefs <span style="font-size:16px">&rarr;</span></a>
-    <a class="btn-secondary" href="#stories">Browse stories <span style="font-size:16px">&rarr;</span></a>
-  </div>
-</section>
-
-<section class="featured" id="daily-pick">
-  <article class="featured-card">
-    <div class="feat-meta">
-      <span class="tag">Daily Pick</span>
-      <span>Apterreon</span><span class="dot"></span>
-      <span>{pretty_date}</span><span class="dot"></span>
-      <span>{edition_label}</span>
-    </div>
-    <div class="feat-kicker">Today's Take</div>
-    <p class="feat-body">{pick_body}</p>
-    <div class="feat-grid">
-      <div class="feat-stat">
-        <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">{total_stories}</div>
-        <div class="fs-delta">across {total_briefs} briefs</div>
-      </div>
-      <div class="feat-stat">
-        <div class="fs-label">Sources</div>
-        <div class="fs-val">{total_sources}</div>
-        <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
-      </div>
-      <div class="feat-stat">
-        <div class="fs-label">Cost to produce</div>
-        <div class="fs-val">${cost_estimate:.2f}</div>
-        <div class="fs-delta">per brief, average</div>
-      </div>
-    </div>
-    <div class="feat-actions">
-      <a class="btn-primary" href="{latest_url}">Read the full take <span style="font-size:16px">&rarr;</span></a>
-      <a class="quiet" href="#archive">Browse past picks</a>
-    </div>
-  </article>
-</section>
-
-<section class="features" id="briefs">
-  <div class="features-h">
-    <h2>Today's sections at a glance.</h2>
-    <p>Each card opens to source links. Click through to read the full brief or jump to a story.</p>
-  </div>
-  <div class="section-grid">
-    {section_cards_html}
-  </div>
-</section>
-
-<section class="lib" id="stories">
+    body = """
+<section class="lib">
   <div class="lib-h">
-    <h2>Stories library.</h2>
+    <h2>Story library.</h2>
     <span class="lib-count" id="lib-count">All stories</span>
   </div>
   <div class="lib-controls">
@@ -1814,177 +2312,75 @@ def s3_generate_index(briefs):
   </div>
   <div class="lib-list" id="lib-list"></div>
 </section>
+"""
+    stories_js = STORIES_JS_TEMPLATE.replace("__ALL_STORIES_JSON__", all_stories_json).replace("__SECTIONS_JSON__", sections_present_json)
+    html = render_page("Story Library, Apterreon", body, active_nav="stories", extra_scripts=stories_js)
+    (DOCS_DIR / "stories.html").write_text(html, encoding="utf-8")
 
-<footer class="footer">
-  <div style="display:flex;flex-direction:column;gap:6px">
-    <span class="brand-foot">Apterreon</span>
-    <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--apt-rose)">Explore what's out there.</span>
+
+def generate_stock_picks_page(stock_picks):
+    """Write docs/stock-picks.html: tranches with picks + disclaimer."""
+    tranches = stock_picks.get("tranches", {}) or {}
+    iso_week = stock_picks.get("iso_week", "")
+
+    tranche_meta = [
+        ("micro", "Micro Cap", "Under $300M"),
+        ("small", "Small Cap", "$300M to $2B"),
+        ("mid", "Mid Cap", "$2B to $10B"),
+        ("large", "Large Cap", "$10B to $200B"),
+        ("mega", "Mega Cap", "Above $200B"),
+    ]
+    blocks_html = ""
+    any_picks = False
+    for key, label, cap_range in tranche_meta:
+        picks = tranches.get(key, []) or []
+        if not picks:
+            continue
+        any_picks = True
+        items = ""
+        for p in picks:
+            ticker = (p.get("ticker") or "").upper()
+            name = p.get("name") or ""
+            thesis = p.get("thesis") or ""
+            items += f"""
+    <div class="pick">
+      <div>
+        <div class="pick-ticker">{ticker}</div>
+        <div class="pick-name">{name}</div>
+      </div>
+      <div class="pick-thesis">{thesis}</div>
+    </div>"""
+        blocks_html += f"""
+<div class="tranche">
+  <div class="tranche-head">
+    <div class="tranche-name">{label}</div>
+    <div class="tranche-cap">{cap_range}</div>
   </div>
-  <span class="meta">Daily Intelligence Brief, generated by Apterreon, hosted on GitHub Pages</span>
-</footer>
+  <div class="tranche-list">{items}</div>
+</div>
+"""
 
-<script>
-// ── Stories library ──
-(function() {{
-  const ALL_STORIES = {all_stories_json};
-  const SECTIONS = {sections_present_json};
-  const listEl = document.getElementById('lib-list');
-  const searchEl = document.getElementById('lib-search');
-  const clearEl = document.getElementById('lib-clear');
-  const chipsEl = document.getElementById('lib-chips');
-  const countEl = document.getElementById('lib-count');
-  if (!listEl) return;
+    if not any_picks:
+        blocks_html = '<div class="edition-empty">This week’s picks are still generating. Check back shortly.</div>'
 
-  // Build section chips
-  SECTIONS.forEach(name => {{
-    const c = document.createElement('span');
-    c.className = 'lib-chip';
-    c.dataset.section = name;
-    c.textContent = name;
-    chipsEl.appendChild(c);
-  }});
+    meta_line = f"Updated for {iso_week}" if iso_week else "Updated weekly"
 
-  let activeSection = '';
-  let query = '';
+    body = f"""
+<section class="picks">
+  <div class="picks-h">
+    <h2>Stock Picks.</h2>
+    <p>Two to three names per market-cap tranche, refreshed weekly. Generated by Claude from training-time knowledge, not from real-time market data.</p>
+  </div>
+  <div class="picks-disclaimer">Not investment advice. AI-generated picks for informational purposes only. Verify any decision with a licensed advisor.</div>
+  <div class="picks-meta">{meta_line}</div>
+  {blocks_html}
+</section>
+"""
+    html = render_page("Stock Picks, Apterreon", body, active_nav="picks")
+    (DOCS_DIR / "stock-picks.html").write_text(html, encoding="utf-8")
 
-  function escapeHtml(s) {{
-    return String(s == null ? '' : s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }}
 
-  function fmt(date) {{
-    if (!date) return '';
-    try {{
-      const d = new Date(date + 'T12:00:00');
-      return d.toLocaleDateString('en-US', {{ month:'short', day:'numeric' }}).toUpperCase();
-    }} catch {{ return date; }}
-  }}
-
-  function render() {{
-    const q = query.toLowerCase();
-    const filtered = ALL_STORIES.filter(s => {{
-      if (activeSection && s.section !== activeSection) return false;
-      if (!q) return true;
-      return ((s.headline||'')+' '+(s.summary||'')+' '+(s.source||'')+' '+(s.section||'')).toLowerCase().includes(q);
-    }});
-    countEl.textContent = filtered.length === ALL_STORIES.length
-      ? String(ALL_STORIES.length).padStart(2,'0') + ' stories'
-      : String(filtered.length).padStart(2,'0') + ' of ' + String(ALL_STORIES.length).padStart(2,'0') + ' stories';
-    if (filtered.length === 0) {{
-      listEl.innerHTML = '<div class="empty-state">No stories match. Adjust filters or clear the search.</div>';
-      return;
-    }}
-    listEl.innerHTML = filtered.map(s => {{
-      const link = escapeHtml(s.link || s.brief_url || '#');
-      return '<a class="lib-item" href="'+link+'" target="_blank" rel="noopener">'
-        + '<span class="li-section">'+escapeHtml(s.section||'')+'</span>'
-        + '<span><span class="li-headline">'+escapeHtml(s.headline||'')+'</span>'
-        +   '<span class="li-meta">'+fmt(s.date)+' &middot; '+escapeHtml((s.edition||'').toUpperCase())+'</span></span>'
-        + '<span class="li-src">'+escapeHtml(s.source||'')+'</span>'
-      + '</a>';
-    }}).join('');
-  }}
-
-  searchEl.addEventListener('input', () => {{
-    query = searchEl.value.trim();
-    clearEl.hidden = !query;
-    render();
-  }});
-  clearEl.addEventListener('click', () => {{
-    searchEl.value = ''; query = ''; clearEl.hidden = true; searchEl.focus(); render();
-  }});
-  chipsEl.addEventListener('click', e => {{
-    const chip = e.target.closest('.lib-chip');
-    if (!chip) return;
-    activeSection = chip.dataset.section || '';
-    chipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
-    render();
-  }});
-
-  render();
-}})();
-
-// Plexus background canvas, Apterreon red palette
-(function() {{
-  const c = document.getElementById('plexus');
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  let W, H, dpr, stars = [], nodes = [], flow = [];
-  const CONNECT = 220; let mx = -999, my = -999;
-  function resize() {{
-    dpr = window.devicePixelRatio || 1;
-    W = innerWidth; H = innerHeight;
-    c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0); build();
-  }}
-  function build() {{
-    stars = []; for (let i = 0; i < 240; i++) stars.push({{x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.7+0.2,b:Math.random()*0.18+0.03,p:Math.random()*6.28}});
-    nodes = []; const n = Math.max(40, Math.floor((W*H)/26000));
-    for (let i = 0; i < n; i++) nodes.push({{x:Math.random()*W,y:Math.random()*H,size:0.5+Math.random()*1.5,b:0.10+Math.random()*0.30,ph:Math.random()*6.28,vx:(Math.random()-0.5)*0.16,vy:(Math.random()-0.5)*0.12}});
-    flow = []; for (let i = 0; i < 40; i++) flow.push({{a:-1,b:-1,t:Math.random(),s:0.002+Math.random()*0.003,sz:0.3+Math.random()*0.6,br:0.15+Math.random()*0.3}});
-  }}
-  function pickEdge(fp) {{
-    if (!nodes.length) return;
-    const a = Math.floor(Math.random()*nodes.length); let bj = -1, bd = CONNECT;
-    for (let j = 0; j < nodes.length; j++) {{ if (j===a) continue; const dx = nodes[a].x-nodes[j].x, dy = nodes[a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd) {{ bd = d; bj = j; }} }}
-    fp.a = a; fp.b = bj; fp.t = 0;
-  }}
-  document.addEventListener('mousemove', e => {{ mx = e.clientX; my = e.clientY; }});
-  document.addEventListener('mouseleave', () => {{ mx = -999; my = -999; }});
-  let t = 0;
-  function draw() {{
-    t += 0.004;
-    ctx.fillStyle = '#0A0A0F'; ctx.fillRect(0,0,W,H);
-    for (const s of stars) {{ const tw = 0.5+0.5*Math.sin(t*5+s.p); ctx.fillStyle = `rgba(220,210,210,${{s.b*tw}})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }}
-    for (const n of nodes) {{
-      n.x += n.vx + Math.sin(t*1.5+n.ph)*0.06; n.y += n.vy + Math.cos(t*1.2+n.ph*1.3)*0.04;
-      if (n.x < -40) n.x = W+40; if (n.x > W+40) n.x = -40; if (n.y < -40) n.y = H+40; if (n.y > H+40) n.y = -40;
-      const dx = n.x-mx, dy = n.y-my, md = Math.sqrt(dx*dx+dy*dy);
-      if (md < 180 && md > 0) {{ const f = (1-md/180)*0.5; n.x += (dx/md)*f; n.y += (dy/md)*f; }}
-    }}
-    for (let i = 0; i < nodes.length; i++) for (let j = i+1; j < nodes.length; j++) {{
-      const dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y, d = Math.sqrt(dx*dx+dy*dy);
-      if (d < CONNECT) {{
-        const a = (1-d/CONNECT);
-        ctx.strokeStyle = `rgba(122,16,16,${{a*0.06}})`; ctx.lineWidth = 2.5; ctx.lineCap='round';
-        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
-        ctx.strokeStyle = `rgba(255,31,61,${{a*0.18}})`; ctx.lineWidth = 0.6;
-        ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
-      }}
-    }}
-    if (mx > -100) for (const n of nodes) {{
-      const dx = n.x-mx, dy = n.y-my, d = Math.sqrt(dx*dx+dy*dy);
-      if (d < 180) {{ const a = (1-d/180)*0.4; ctx.strokeStyle = `rgba(255,80,100,${{a}})`; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(n.x,n.y); ctx.stroke(); }}
-    }}
-    for (const fp of flow) {{
-      if (fp.a < 0 || fp.b < 0 || fp.a >= nodes.length || fp.b >= nodes.length) {{ pickEdge(fp); continue; }}
-      const na = nodes[fp.a], nb = nodes[fp.b]; if (!na || !nb) {{ pickEdge(fp); continue; }}
-      const edx = na.x-nb.x, edy = na.y-nb.y; if (Math.sqrt(edx*edx+edy*edy) > CONNECT*1.2) {{ pickEdge(fp); continue; }}
-      fp.t += fp.s;
-      if (fp.t > 1) {{
-        fp.a = fp.b; let bj = -1, bd = CONNECT;
-        for (let j = 0; j < nodes.length; j++) {{ if (j===fp.a) continue; const dx = nodes[fp.a].x-nodes[j].x, dy = nodes[fp.a].y-nodes[j].y; const d = Math.sqrt(dx*dx+dy*dy); if (d < bd && Math.random() < 0.5) {{ bd = d; bj = j; }} }}
-        fp.b = bj >= 0 ? bj : Math.floor(Math.random()*nodes.length); fp.t = 0;
-      }}
-      const x = na.x + (nb.x-na.x)*fp.t, y = na.y + (nb.y-na.y)*fp.t;
-      ctx.fillStyle = `rgba(255,31,61,${{fp.br*0.10}})`; ctx.beginPath(); ctx.arc(x,y,fp.sz*3,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = `rgba(255,160,170,${{fp.br*0.55}})`; ctx.beginPath(); ctx.arc(x,y,fp.sz,0,Math.PI*2); ctx.fill();
-    }}
-    for (const n of nodes) {{
-      ctx.fillStyle = `rgba(255,31,61,${{n.b*0.10}})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*2.5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = `rgba(255,150,160,${{n.b}})`; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fill();
-    }}
-    requestAnimationFrame(draw);
-  }}
-  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
-}})();
-</script>
-</body>
-</html>"""
-
-    (DOCS_DIR / "index.html").write_text(index_html, encoding="utf-8")
-
-    # PWA manifest
+def write_manifest():
     manifest = {
         "name": "Apterreon, Daily Intelligence Brief",
         "short_name": "Apterreon",
@@ -1995,14 +2391,29 @@ def s3_generate_index(briefs):
         "theme_color": "#0A0A0F",
     }
     (DOCS_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    print("Wrote docs/index.html and docs/manifest.json (v6 modern landing).")
+
+
+def generate_site(briefs):
+    """Orchestrator. Generates the full multi-page static site under docs/.
+    Triggers cached Claude calls for Recent Trends (daily) and Stock Picks (weekly)."""
+    recent_trends = get_or_generate_recent_trends(briefs)
+    stock_picks = get_or_generate_stock_picks()
+
+    generate_home(briefs, recent_trends)
+    generate_today(briefs)
+    generate_stories(briefs)
+    generate_stock_picks_page(stock_picks)
+    write_manifest()
+    print("Wrote docs/index.html, today.html, stories.html, stock-picks.html, manifest.json.")
+
+
 def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):
-    """Write brief HTML + JSON sidecar, clean old ones, regenerate index."""
+    """Write brief HTML + JSON sidecar, clean old ones, regenerate the multi-page site."""
     date_iso = now_et.strftime("%Y-%m-%d")
     s3_write_brief(brief_type, date_iso, interactive_html, data=data, quotes=quotes, timestamp=timestamp)
     s3_cleanup_old_briefs()
     briefs = s3_list_briefs()
-    s3_generate_index(briefs)
+    generate_site(briefs)
 
 
 # ── Lambda Handler ──────────────────────────────────────────────────────────
@@ -2014,7 +2425,7 @@ def lambda_handler(event, context):
         if key:
             new_state = s3_toggle_pin(key)
             briefs = s3_list_briefs()
-            s3_generate_index(briefs)
+            generate_site(briefs)
             return {"pinned": new_state, "key": key}
         return {"error": "No key provided"}
 
