@@ -4545,15 +4545,24 @@ def compute_benford(facts):
     observed_d1 = [round(digits_d1[d] / n_d1 * 100, 1) for d in range(1, 10)]
     expected_d1 = [_math.log10(1 + 1 / d) * 100 for d in range(1, 10)]
     chi_sq_d1 = sum((observed_d1[i] - expected_d1[i]) ** 2 / expected_d1[i] for i in range(9))
-    if chi_sq_d1 < 13.36:
+    # Mean Absolute Deviation in proportion units (Nigrini, Forensic Analytics).
+    # Chi-square is too sensitive at large n (any 10-K dump has thousands of values
+    # so even tiny structural rounding flips the fit to "poor"). MAD is the
+    # forensic-accounting standard and gives more honest labels.
+    mad_d1 = sum(abs(observed_d1[i] - expected_d1[i]) for i in range(9)) / 9 / 100
+    # Nigrini 1st-digit thresholds: <0.006 close, 0.006-0.012 acceptable,
+    # 0.012-0.015 marginal, >0.015 nonconformity. We use 3 buckets:
+    #   good = close + acceptable, fair = marginal, poor = nonconformity.
+    if mad_d1 < 0.012:
         fit = "good"
-    elif chi_sq_d1 < 20.09:
+    elif mad_d1 < 0.018:
         fit = "fair"
     else:
         fit = "poor"
     result = {
         "observed": observed_d1,
         "chi_sq": round(chi_sq_d1, 1),
+        "mad": round(mad_d1, 4),
         "n": n_d1,
         "fit": fit,
     }
@@ -4567,14 +4576,20 @@ def compute_benford(facts):
         chi_sq_d2 = sum(
             (observed_d2[i] - expected_d2[i]) ** 2 / expected_d2[i] for i in range(10)
         )
-        if chi_sq_d2 < 14.68:
+        mad_d2 = sum(abs(observed_d2[i] - expected_d2[i]) for i in range(10)) / 10 / 100
+        # Nigrini 2nd-digit thresholds: <0.008 close, 0.008-0.010 acceptable,
+        # 0.010-0.012 marginal, >0.012 nonconformity. Same 3-bucket mapping but
+        # widened a touch since trailing-zero rounding (digit "0" inflates) is
+        # a benign and very common pattern in financial reporting.
+        if mad_d2 < 0.014:
             fit_d2 = "good"
-        elif chi_sq_d2 < 21.67:
+        elif mad_d2 < 0.022:
             fit_d2 = "fair"
         else:
             fit_d2 = "poor"
         result["observed_d2"] = observed_d2
         result["chi_sq_d2"] = round(chi_sq_d2, 1)
+        result["mad_d2"] = round(mad_d2, 4)
         result["n_d2"] = n_d2
         result["fit_d2"] = fit_d2
     return result
@@ -4757,7 +4772,10 @@ def get_or_generate_stocks_universe():
     # Schema bump: any cached stock lacking op_margin_history forces a full
     # rebuild even if the 4h cache window says we could short-circuit.
     cached_stocks = (last_known or {}).get("stocks") or []
-    schema_ok = any(s.get("op_margin_history") for s in cached_stocks)
+    schema_ok = (
+        any(s.get("op_margin_history") for s in cached_stocks)
+        and any((s.get("benford") or {}).get("mad") is not None for s in cached_stocks)
+    )
     if last_known and last_known.get("iso_week") == week_key and schema_ok:
         try:
             last_dt = datetime.fromisoformat(last_known.get("generated_at", ""))
@@ -4829,7 +4847,8 @@ def get_or_generate_stocks_universe():
     if last_known and last_known.get("stocks"):
         recent_edgar = next((s for s in last_known["stocks"] if s.get("edgar_updated")), None)
         has_op_margin_history = any(s.get("op_margin_history") for s in last_known["stocks"])
-        if recent_edgar and has_op_margin_history:
+        has_benford_mad = any((s.get("benford") or {}).get("mad") is not None for s in last_known["stocks"])
+        if recent_edgar and has_op_margin_history and has_benford_mad:
             try:
                 edgar_dt = datetime.fromisoformat(recent_edgar["edgar_updated"]).date()
                 edgar_iso_year, edgar_iso_week, _ = edgar_dt.isocalendar()
@@ -4838,8 +4857,11 @@ def get_or_generate_stocks_universe():
                     print(f"EDGAR: cache stamped {recent_edgar['edgar_updated']} (this week), skipping refresh.")
             except Exception:
                 pass
-        elif recent_edgar and not has_op_margin_history:
-            print("EDGAR: schema bump detected (op_margin_history missing), forcing re-run.")
+        elif recent_edgar and (not has_op_margin_history or not has_benford_mad):
+            missing = []
+            if not has_op_margin_history: missing.append("op_margin_history")
+            if not has_benford_mad: missing.append("benford.mad")
+            print(f"EDGAR: schema bump detected ({', '.join(missing)} missing), forcing re-run.")
     edgar_count = 0
     if should_run_edgar:
         cik_map = fetch_edgar_ticker_cik_map()
