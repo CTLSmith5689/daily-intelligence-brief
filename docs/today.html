@@ -290,7 +290,33 @@ h1.hero-title {
 .stk-filter-reset:hover { color:var(--apt-rose); }
 
 .stk-filter-panel { display:flex; flex-direction:column; gap:10px; margin-top:6px; padding:14px 16px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:12px; }
-.stk-filter-row { display:grid; grid-template-columns:160px 110px auto 110px 1fr; align-items:center; gap:10px; }
+.stk-filter-cols { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@media (max-width:980px) { .stk-filter-cols { grid-template-columns:1fr; gap:18px; } }
+.stk-filter-col { display:flex; flex-direction:column; gap:8px; }
+.stk-filter-col-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); padding-bottom:8px; margin-bottom:4px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.stk-filter-col-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; font-weight:400; }
+.stk-filter-row { display:grid; grid-template-columns:130px 90px auto 90px 1fr; align-items:center; gap:8px; }
+
+/* Dimension weight sliders (right column of filter panel) */
+.stk-weight-row { display:grid; grid-template-columns:90px 1fr 50px; align-items:center; gap:12px; padding:6px 0; }
+.stk-weight-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--text-2); text-transform:uppercase; }
+.stk-weight-slider {
+  -webkit-appearance:none; appearance:none; height:4px; background:rgba(255,255,255,0.08);
+  border-radius:2px; outline:none; cursor:pointer; width:100%;
+}
+.stk-weight-slider::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--apt-rose); border:2px solid var(--bg-base); cursor:pointer;
+  box-shadow:0 0 0 1px var(--apt-rose), 0 0 8px rgba(255,31,61,0.3); transition:transform .15s;
+}
+.stk-weight-slider::-webkit-slider-thumb:hover { transform:scale(1.15); }
+.stk-weight-slider::-moz-range-thumb {
+  width:16px; height:16px; border-radius:50%; background:var(--apt-rose);
+  border:2px solid var(--bg-base); cursor:pointer; box-shadow:0 0 8px rgba(255,31,61,0.3);
+}
+.stk-weight-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--apt-rose); font-weight:600; text-align:right; }
+.stk-weight-presets { display:flex; flex-wrap:wrap; gap:5px; align-items:center; padding-top:10px; margin-top:6px; border-top:1px solid var(--border); }
+.stk-weight-presets-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }
 .stk-filter-row-toggle { grid-template-columns:1fr; }
 .stk-filter-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-filter-input {
@@ -339,6 +365,11 @@ h1.hero-title {
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+.stk-score { font-family:'DM Mono',monospace; font-size:13px; font-weight:600; text-align:right; padding-top:1px; letter-spacing:0.02em; }
+.stk-score-pos { color:#34D27A; }
+.stk-score-neg { color:var(--apt-red); }
+.stk-score-neutral { color:var(--text-2); }
+.stk-score-na { color:var(--text-5); }
 .stk-date { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-3); text-align:right; padding-top:3px; }
 .stk-date-dim { color:var(--text-4); }
 .stk-row { cursor:pointer; }
@@ -380,12 +411,12 @@ h1.hero-title {
 .fp-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; }
 .fp-row-na .fp-val { color:var(--text-5); }
 @media (max-width:780px) {
-  .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
+  .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px 60px; gap:8px; padding:12px 14px; }
   .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
-  .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
   .stk-th[data-sort="earnings_date"], .stk-row .stk-date:not(.stk-date-dim) { display:none; }
   .stk-th[data-sort="last_updated"], .stk-row .stk-date.stk-date-dim { display:none; }
   .stk-detail { padding:12px 14px 18px; }
+  .stk-filter-row { grid-template-columns:1fr 1fr; gap:6px 10px; }
 }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
@@ -435,7 +466,7 @@ h1.hero-title {
     <div class="edition-time">7:00 AM ET</div>
     <a class="edition-link" href="./briefs/2026-05-06-morning.html">Open full brief &rarr;</a>
   </div>
-  <p class="edition-edge">Middle East peace momentum and Chinese AI valuation both reflect capital's repricing of tail-risk geopolitical scenarios: the former collapses energy hedges and crowns equity de-risking into an already-extended rally, while the latter decimates the moat around U.S. frontier labs exactly when the administration is negotiating AI guardrails to lock in incumbent advantage. Whichever resolves first determines whether allocators are positioned for energy volatility reversals or geopolitical revaluation of Chinese tech assets into tech sanctions architecture.</p>
+  <p class="edition-edge">Geopolitical de-escalation narratives (Iran peace talks, U.S.-China AI guardrails) compress risk premiums and support equities, but underlying tensions remain unresolved, creating whipsaw exposure for allocators who front-run tactical improvements without hedging structural tail risks. Simultaneously, Chinese AI capability advancement and EU tech decoupling create dual arbitrage: Chinese AI infrastructure captures value migration from Western platforms, while U.S.-allied semiconductor and defense contractors benefit from de-risking capital flows, but competitive windows are narrowing as capital concentrates.</p>
   <div class="section-grid">
     <article class="sec-card">
       <div class="sc-head">
@@ -446,7 +477,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPeXp0U2xsR2xVeVF1ZUdnT0xZZU5NMEZaUW9YVTZXSFRCUGZnN3hEUHhpcTF6NUJfWlB6RmQwdWw2Y3F1a0xXMzl4eWlGSVpxOWdEM3RxNlU4eEtmZEppQ0hsSXBMQ1JhTWZhZDRUQlFPOF9mNnZxbUNHWTYyX3RKcFV6My1jckx5N0MzRDlFczE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Savannah Guthrie Leaves 'Today' Show During Live Broadcast</div><div class="sc-item-source">The Daily Beast</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMijwFBVV95cUxPNE9udU9Sc1BDLXJPUm9zWmZEenFnOU1DdFU2OGtMelRucTNsdTVWNzliQy1nRnhqczBKdEtoNnFPZGdDdGdjTVdzUnRmN2J5bVVQTXFuV1BoTzVKYm5ZZEpMQm9GMS1SajdQVWRxYmJ2M1RCcjJNdXFEQlJ4TlhOR0g4QWRJYW9JbXF1ZXVvNA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Maine wardens, state police involved in search for 2 missing girls in town of Mexico</div><div class="sc-item-source">WMTW</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi7wFBVV95cUxPd0RWNFZ0ay00bEtOMm5PeUwxQVBBTUlVUFZpMmFJT3dhbkZJai1VQnRaM3U3cUtodTBLeFU2OTl1UDgxTE9IZHJvNHZheVY2b2N0a0dCLVVXZ1ViRktpWFBaUXlDSHNGQXRqaWQ5VEt5WmdLVlVlNDRzYnZtemJJazIycXZzaFA1NjBmX2RjaXBueG9oTVpmQWhWYnMwNTdxSTM4dFlzZW1UVFhHODh2MmVKVUlSZXZTQjFvZ1pGakl3eGcxd1NkbGxWRFlyNlZWVThJX2RNM0NPT0JTYmZhaU9hWmNOS3doaFllelZVOA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump's Approval Rating: Streak Of Record Lows Grows Longer</div><div class="sc-item-source">Forbes</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPeXp0U2xsR2xVeVF1ZUdnT0xZZU5NMEZaUW9YVTZXSFRCUGZnN3hEUHhpcTF6NUJfWlB6RmQwdWw2Y3F1a0xXMzl4eWlGSVpxOWdEM3RxNlU4eEtmZEppQ0hsSXBMQ1JhTWZhZDRUQlFPOF9mNnZxbUNHWTYyX3RKcFV6My1jckx5N0MzRDlFczE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Savannah Guthrie Leaves 'Today' Show During Live Broadcast</div><div class="sc-item-source">The Daily Beast</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -457,7 +488,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxPM2NpR1dWVkh6X1JLVnRVRmZLaVFYT3NnNlhHSkktaVd0eVdGaVdDR2h4TXdXcmRCMGpDZlNyNXJSLVlISkNYTzMzTWx0X0tjR3NZWkd6SjNrX0JrdUdBaU85U3l6LU51dmZCc01va19ValdOeWpkSjZmaFhUV1ZpdkRVMDJxTG55dm9JQmgzV3VnQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Strong April ADP jobs report hides major shift in U.S. employment</div><div class="sc-item-source">thestreet.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNNFFkcjBPazVUUkkwVjlCdEVFUEFoUXRQd1k0WE9HaURZVFE5aG8wYkNwZlB4OU1lNjdJSEhINXE1bUs4azJoOVhsamY1V1VuRDM1bjYzV1c3X0xudnR4YV9BRXN0UDNRTEhOeWlVVExQekVaTV9fdG0wTVBqY05MTk02cjEtSnpDWkpvMXM1dk5iQ2tZT0pYMzE3Zk9QYktnUXVDTGkyQkFnMjZpdnhhQVVKdnJydGpPZ1gta2VDUndHYV9NOGc?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Canadian and U.S. stock markets rally on hopes of deal to end war in the Middle East</div><div class="sc-item-source">BNN Bloomberg</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxPM2NpR1dWVkh6X1JLVnRVRmZLaVFYT3NnNlhHSkktaVd0eVdGaVdDR2h4TXdXcmRCMGpDZlNyNXJSLVlISkNYTzMzTWx0X0tjR3NZWkd6SjNrX0JrdUdBaU81U3l6LU51dmZCc01va19ValdOeWpkSjZmaFhUV1ZpdkRVMDJxTG55dm9JQmgzV3VnQQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Strong April ADP jobs report hides major shift in U.S. employment</div><div class="sc-item-source">thestreet.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNNFFkcjBPazVUUkkwVjlCdEVFUEFoUXRQd1k0WE9HaURZVFE5aG8wYkNwZlB4OU1lNjdJSEhINXE1bUs4azJoOVhsamY1V1VuRDM1bjYzV1c3X0xudnR4YV9BRXN0UDNRTEhOeWlVVExQekVaTV9fdG0wTVBqY05MTk02cjEtSnpDWkpvMXM1dk5iQ2tZT0pYMzE3Zk9QYktnUXVDTGkyQkFnMjZpdnhhQVVKdnJydGpPZ1gta2VDUndHYV9NOGc?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Canadian and U.S. stock markets rally on hopes of deal to end war in the Middle East</div><div class="sc-item-source">BNN Bloomberg</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -466,9 +497,9 @@ h1.hero-title {
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Politics & Policy</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMioAFBVV95cUxNYjJMdEU4dlpFUmxCSjlfOUdyMmltMS15QWpxcHA4cHA3MkR5QXJHYVowVy1iVXNISlRramRvbDlQMG16V1doT0FkdWEzTXdQQnhWcVcwNkFtaloyR3pPM2lzcEotVnBSX1lESlRBTjc0RFVBRnpKTkQzUUtDN3F4aTViMUtraVMyMF93dHVFUGdYSlU3emIxUkZ0c2RPUm1K?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">The pro-Israel political consensus is collapsing in both parties</div><div class="sc-item-source">The Washington Post</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiwgFBVV95cUxOR2RtM2QzRXQ0cWtMaUtzdTJvbjgyM3JlRnlXTk9VWEJZZDEwVVVjZ0xkd1QzZEk1WjBtQ2xUcVdnSldScGhjRVRIYmduckRxWl84TVBDOTM1UTNsQlRBTWNSMEhnQUVrcjZCbVFUb01yNDJpSHBURWZtaW9MUjhKeG1mZWtFaUZKQ3hlbm9Ka0FFc05QR29rZVVoTVVIS1FTZ0tPdXo5eUdpbjBYdVdDSXFwQVk3elBUX091WEdXX3FyZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump's abrupt U-turn on a plan to reopen the Strait of Hormuz came after backlash from allies</div><div class="sc-item-source">NBC News</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMigwFBVV95cUxOTHpOZ3JQZ19Zd2duZDZmVURhQkhxQ2gxaVVkS19jVFlHNHQ2RTZtSUJLOVl3Um04N000b0xlQW40VU1OUGpHSWxJZTVpMTBuanNWdXV6MWhkY2hjTDhqOTVBNUoyUHZtbWhnbUVBYW9yTnV5Q2pkaFR3V2g5WW9QX2xNbw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Republicans want to add $1 billion for Trump's ballroom security to ICE funding plan</div><div class="sc-item-source">NPR</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -477,9 +508,9 @@ h1.hero-title {
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">AI & Technology</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://arstechnica.com/ai/2026/05/anthropic-raises-claude-code-usage-limits-credits-new-deal-with-spacex/" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic raises Claude Code usage limits, credits new deal with SpaceX</div><div class="sc-item-source">Ars Technica</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3gFBVV95cUxNUldPY1hyTnJIWFpOSUZQUWJDSUQ4R0tnc0tLajRkUi1uME1TaWNSYWdDRkNTdUxpelZyTVVuTmdIckhGSGU5NXVhWENDTDF0UE9QMHE4UFVyQlZzVkkyN3FtNno2Wi1sckp2X1hxVGJGakdQb2VYdWZoNmduZi02SFRMWTRnbmltV04tbjZsX0NGdlUwNVdQNldUR0hqbmp0bzhmQ2pVMkN3VWJrM2F6Q2lmU1Z0V0lzdVVZaDg0cmhja2ktcW95ZkZzM3ZHTGFsWlpKcWZlaXNlTi1vOFHSAeMBQVVfeXFMTTcwZXNrSjdNa1BHaGZSTjB2SVN3eG9WN3poU2tTaDg0eS1aOWVnN0wzWmphNXdfUnN1ajVoSTcwNURQMXA2TFFuUWM2dUJodWNrbXpKdm9yVkRYYU5KbllnLUJnX2x0MEdCcEpaOTc4RHdiTEhtcFlmRnVjMFUxbDk5WWh0QlI4bU1uMVc4NFNBeGU1ZVdHZ1YyQ21FVndzbVNuNlJYVXFkdXhIaDFzSkxHM2ZfaF9xQ2cyREY5Y1RjcEtfeXp6QVZnenFRaG5PVjFVVnpxdDNoMm83YnB5eUNNVDQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Chinese AI startup DeepSeek could be valued at $50 bn in first fundraise</div><div class="sc-item-source">Business Standard</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3gFBVV95cUxNUldPY1hyTnJIWFpOSUZQUWJDSUQ4R0tnc0tLajRkUi1uME1TaWNSYWdDRkNTdUxpelZyTVVuTmdIckhGSGU5NXVhWENDTDF0UE9QMHE4UFVyQlZzVkkyN3FtNno2Wi1sckp2X1hxVGJGakdQb2VYdWZoNmduZi02SFRMWTRnbmltV04tbjZsX0NGdlUwNVdQNldUR0hqbmp0bzhmQ2pVMkN3VWJrM2F6Q2lmU1Z0V0lzdVVZaDg0cmhja2ktcW95ZkZzM3ZHTGFsWlpKcWZlaXNlTi1vOFHSAeMBQVVfeXFMTTcwZXNrSjdNa1BHaGZSTjB2SVN3eG9WN3poU2tTaDg0eS1aOWVnN0wzWmphNXdfUnN1ajVoSTcwNURQMXA2TFFuUWM2dUJodWNrbXpKdm9yVkRYYU5KbllnLUJnX2x0MEdCcEpaOTc4RHdiTEhtcFlmRnVjMFUxbDk5WWh0QlI4bU1uMVc4NFNBeGU1ZVdHZ1YyQ21FVndzbVNuNlJYVXFkdXhIaDFzSkxHM2ZfaF9xQ2cyREY5Y1RjcEtfeXp6QVZnenFRaG5PVjFVVnpxdDNoMm83YnB5eUNNVDQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">DeepSeek valued at $50 billion in first fundraise</div><div class="sc-item-source">Business Standard</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -512,7 +543,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikwFBVV95cUxPbi0xcE9wZWhVYVpoV0p5ellOWVdsbjFkdndJN21HT3EtY0FuVVVzOVE3RXVQSnFPYUlHRDNiOS1lZEFVOGM0Q2tJQnlSWFdCd3RjOFRzR0MtOENZczg2UEdnSG5FNVZTcGZpd1FiN0NKN0twc1k5aU93RHlTc0hMSmpUcTg0OUZJUUNoN1IzX2ttQlnSAZsBQVVfeXFMUDJ1S1BzVFZFa2dnbC1ibmlHTV9xZEFlbHhsaTNLSlRUSGtnRURTbkpLek1PeVJJcGpISFlPOG9YV0VqR08zaTZSUnRlblBtMUdTUDhjUldFcGdPWGRkNVFuQVdaTzY1NExRd0tIU2VDODlDcDREU0t4QWJpcVU2endLbThPMy1GS2Vtc2hKTFR2Z0JmbGNEbjZfVjQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">MBTA Green Line station closing for 3 years</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3AFBVV95cUxNUXZkYy1fMnA0YXhPZ3RwSE53YVdUQ2ZKZ2hSaXBtNzNmTFMzU19aN0lnOVdRRjFVZFBlVnFSb0tVQWMyZjRPWG8yUldQRUs3Y21TSHN6X3JHd1hUYjNRbWZvRHJpYldtVTJfaWRmVERSM1BDRHBDNGJFX1NNZU5BS05aWndyeVY4YXlvS3FjeUZZZWlpbnJyOEJXUGNkUm8yZDlkZnRKb0I4NEdBbUtYWUtFdnZFaHdpN2hDdVNDVUstWG4yOGp5UmM3Y1JEZ2NQZnRvQjFxcVJOTmdJ0gHwAUFVX3lxTE5MRVRlWTJNekZTaGVaaFc3YXlwVjh2allKT2xibWlkRGl0VUpSbFUzc1dqcWhMWDBKcVB3MWdKTEZQczBYTC1qOU1GTDdOb1pIamhuNVdPNDNjR3U2QWlRVVZ6NUZPSFJSdVNkc0I1NHJsSUUzdmxhdDVzMmNTZGR0TkF4Z2E2QlZDZkpuZXNnQi1EWGxnUlhpN2RtTjJjbVd5cFVMV2ZhU0ZzdHUzNnhJRGFhVkhOeWdtWWJCcU1UR2tnNHFQZ3pJMVZiN1pnUUMxVlA3eWI3bW90WXlRdjNsX0VDM3dYWFZuRFFXWlEtUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Watch: Dignified transfer held for fallen Mass. State Police Trooper Kevin Trainor</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikwFBVV95cUxPbi0xcE9wZWhVYVpoV0p5ellOWVdsbjFkdndJN21HT3EtY0FuVVVzOVE3RXVQSnFPYUlHRDNiOS1lZEFVOGM0Q2tJQnlSWFdCd3RjOFRzR0MtOENZczg2UEdnSG5FNVZTcGZpd1FiN0NKN0twc1k5aU93RHlTc0hMSmpUcTg0OUZJUUNoN1IzX2ttQlnSAZsBQVVfeXFMUDJ1S1BzVFZFa2dnbC1ibmlHTV9xZEFlbHhsaTNLSlRUSGtnRURTbkpLek1PeVJJcGpISFlPOG9YV0VqR081aQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">MBTA Green Line station closing for 3 years</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3AFBVV95cUxNUXZkYy1fMnA0YXhPZ3RwSE53YVdUQ2ZKZ2hSaXBtNzNmTFMzU19aN0lnOVdRRjFVZFBlVnFSb0tVQWMyZjRPWG8yUldQRUs3Y21TSHN6X3JHd1hUYjNRbWZvRHJpYldtVTJfaWRmVERSM1BDRHBDNGJFX1NNZU5BS05aWndyeVY4YXlvS3FjeUZZZWlpbnJyOEJXUGNkUm8yZDlkZnRKb0I4NEdBbUtYWUtFdnZFaHdpN2hDdVNDVUstWG4yOGp5UmM3Y1JEZ2NQZnRvQjFxcVJOTmdJ0gHwAUFVX3lxTE5MRVRlWTJNekZTaGVaaFc3YXlwVjh2allKT2xibWlkRGl0VUpSbFUzc1dqcWhMWDBKcVB3MWdKTEZQczBYTC1qOU1GTDdOb1pIamhuNVdPNDNjR3U2QWlRVVZ6NUZPSFJSdVNkc0I1NHJsSUUzdmxhdDVzMmNTZGR0TkF4Z2E2QlZDZkpuZXNnQi1EWGxnUlhpN2RtTjJjbVd5cFVMV2ZhU0ZzdHUzNnhJRGFhVkhOeWdtWWJCcU1UR2tnNHFQZ3pJMVZiN1pnUUMxVlA3eWI3bW90WXlRdjNsX0VDM3dYWFZuRFFXWlEtUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Watch: Dignified transfer held for fallen Mass. State Police Trooper Kevin Trainor</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article></div>
 </div>
 

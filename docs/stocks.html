@@ -290,7 +290,33 @@ h1.hero-title {
 .stk-filter-reset:hover { color:var(--apt-rose); }
 
 .stk-filter-panel { display:flex; flex-direction:column; gap:10px; margin-top:6px; padding:14px 16px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:12px; }
-.stk-filter-row { display:grid; grid-template-columns:160px 110px auto 110px 1fr; align-items:center; gap:10px; }
+.stk-filter-cols { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@media (max-width:980px) { .stk-filter-cols { grid-template-columns:1fr; gap:18px; } }
+.stk-filter-col { display:flex; flex-direction:column; gap:8px; }
+.stk-filter-col-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); padding-bottom:8px; margin-bottom:4px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.stk-filter-col-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; font-weight:400; }
+.stk-filter-row { display:grid; grid-template-columns:130px 90px auto 90px 1fr; align-items:center; gap:8px; }
+
+/* Dimension weight sliders (right column of filter panel) */
+.stk-weight-row { display:grid; grid-template-columns:90px 1fr 50px; align-items:center; gap:12px; padding:6px 0; }
+.stk-weight-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--text-2); text-transform:uppercase; }
+.stk-weight-slider {
+  -webkit-appearance:none; appearance:none; height:4px; background:rgba(255,255,255,0.08);
+  border-radius:2px; outline:none; cursor:pointer; width:100%;
+}
+.stk-weight-slider::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--apt-rose); border:2px solid var(--bg-base); cursor:pointer;
+  box-shadow:0 0 0 1px var(--apt-rose), 0 0 8px rgba(255,31,61,0.3); transition:transform .15s;
+}
+.stk-weight-slider::-webkit-slider-thumb:hover { transform:scale(1.15); }
+.stk-weight-slider::-moz-range-thumb {
+  width:16px; height:16px; border-radius:50%; background:var(--apt-rose);
+  border:2px solid var(--bg-base); cursor:pointer; box-shadow:0 0 8px rgba(255,31,61,0.3);
+}
+.stk-weight-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--apt-rose); font-weight:600; text-align:right; }
+.stk-weight-presets { display:flex; flex-wrap:wrap; gap:5px; align-items:center; padding-top:10px; margin-top:6px; border-top:1px solid var(--border); }
+.stk-weight-presets-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; margin-right:4px; }
 .stk-filter-row-toggle { grid-template-columns:1fr; }
 .stk-filter-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-filter-input {
@@ -339,6 +365,11 @@ h1.hero-title {
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+.stk-score { font-family:'DM Mono',monospace; font-size:13px; font-weight:600; text-align:right; padding-top:1px; letter-spacing:0.02em; }
+.stk-score-pos { color:#34D27A; }
+.stk-score-neg { color:var(--apt-red); }
+.stk-score-neutral { color:var(--text-2); }
+.stk-score-na { color:var(--text-5); }
 .stk-date { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-3); text-align:right; padding-top:3px; }
 .stk-date-dim { color:var(--text-4); }
 .stk-row { cursor:pointer; }
@@ -380,12 +411,12 @@ h1.hero-title {
 .fp-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; }
 .fp-row-na .fp-val { color:var(--text-5); }
 @media (max-width:780px) {
-  .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
+  .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px 60px; gap:8px; padding:12px 14px; }
   .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
-  .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
   .stk-th[data-sort="earnings_date"], .stk-row .stk-date:not(.stk-date-dim) { display:none; }
   .stk-th[data-sort="last_updated"], .stk-row .stk-date.stk-date-dim { display:none; }
   .stk-detail { padding:12px 14px 18px; }
+  .stk-filter-row { grid-template-columns:1fr 1fr; gap:6px 10px; }
 }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
@@ -452,66 +483,103 @@ h1.hero-title {
       <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset filters</button>
     </div>
     <div class="stk-filter-panel" id="stk-filter-panel" hidden>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">Market Cap</span>
-        <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min (e.g. 300M)">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="max (e.g. 10B)">
-        <span class="stk-filter-quicks">
-          <button type="button" class="stk-quick" data-tier="micro">Micro</button>
-          <button type="button" class="stk-quick" data-tier="small">Small</button>
-          <button type="button" class="stk-quick" data-tier="mid">Mid</button>
-          <button type="button" class="stk-quick" data-tier="large">Large</button>
-          <button type="button" class="stk-quick" data-tier="mega">Mega</button>
-        </span>
-      </div>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">P/E (Trailing)</span>
-        <input type="text" class="stk-filter-input" data-filter="pe" data-bound="min" placeholder="min">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max (e.g. 30)">
-        <span class="stk-filter-hint">absolute multiple, blank for no limit</span>
-      </div>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">Revenue Growth YoY</span>
-        <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min % (e.g. 10)">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max %">
-        <span class="stk-filter-hint">enter as percent</span>
-      </div>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">52W High Proximity</span>
-        <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min % (e.g. -30)">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max % (e.g. -5)">
-        <span class="stk-filter-hint">always &le; 0; -30 means 30% off the high</span>
-      </div>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">ROE (TTM)</span>
-        <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min % (e.g. 15)">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max %">
-        <span class="stk-filter-hint">enter as percent</span>
-      </div>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">FCF Yield</span>
-        <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min % (e.g. 5)">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max %">
-        <span class="stk-filter-hint">enter as percent</span>
-      </div>
-      <div class="stk-filter-row">
-        <span class="stk-filter-label">Net Debt/EBITDA</span>
-        <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min (e.g. -1)">
-        <span class="stk-filter-sep">to</span>
-        <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max (e.g. 3)">
-        <span class="stk-filter-hint">ratio; negative means net cash</span>
-      </div>
-      <div class="stk-filter-row stk-filter-row-toggle">
-        <label class="stk-filter-checkbox">
-          <input type="checkbox" id="stk-only-enriched">
-          <span>Hide stocks without live market cap data</span>
-        </label>
+      <div class="stk-filter-cols">
+        <div class="stk-filter-col">
+          <div class="stk-filter-col-h">Characteristics</div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Market Cap</span>
+            <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min (e.g. 300M)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="max (e.g. 10B)">
+            <span class="stk-filter-quicks">
+              <button type="button" class="stk-quick" data-tier="micro">Micro</button>
+              <button type="button" class="stk-quick" data-tier="small">Small</button>
+              <button type="button" class="stk-quick" data-tier="mid">Mid</button>
+              <button type="button" class="stk-quick" data-tier="large">Large</button>
+              <button type="button" class="stk-quick" data-tier="mega">Mega</button>
+            </span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">P/E (Trailing)</span>
+            <input type="text" class="stk-filter-input" data-filter="pe" data-bound="min" placeholder="min">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max (e.g. 30)">
+            <span class="stk-filter-hint">absolute multiple</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Revenue Growth YoY</span>
+            <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min % (e.g. 10)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max %">
+            <span class="stk-filter-hint">as percent</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">52W High Proximity</span>
+            <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min % (e.g. -30)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max % (e.g. -5)">
+            <span class="stk-filter-hint">always &le; 0</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">ROE (TTM)</span>
+            <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min % (e.g. 15)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max %">
+            <span class="stk-filter-hint">as percent</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">FCF Yield</span>
+            <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min % (e.g. 5)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max %">
+            <span class="stk-filter-hint">as percent</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Net Debt/EBITDA</span>
+            <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min (e.g. -1)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max (e.g. 3)">
+            <span class="stk-filter-hint">ratio</span>
+          </div>
+          <div class="stk-filter-row stk-filter-row-toggle">
+            <label class="stk-filter-checkbox">
+              <input type="checkbox" id="stk-only-enriched">
+              <span>Hide stocks without live market cap data</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="stk-filter-col">
+          <div class="stk-filter-col-h">Dimension Weights <span class="stk-filter-col-sub">how much each factor group counts in the Score</span></div>
+          <div class="stk-weight-row">
+            <span class="stk-weight-label">Growth</span>
+            <input type="range" class="stk-weight-slider" data-weight="Growth" min="0" max="2" step="0.1" value="1">
+            <span class="stk-weight-val" id="stk-w-Growth">1.0&times;</span>
+          </div>
+          <div class="stk-weight-row">
+            <span class="stk-weight-label">Value</span>
+            <input type="range" class="stk-weight-slider" data-weight="Value" min="0" max="2" step="0.1" value="1">
+            <span class="stk-weight-val" id="stk-w-Value">1.0&times;</span>
+          </div>
+          <div class="stk-weight-row">
+            <span class="stk-weight-label">Momentum</span>
+            <input type="range" class="stk-weight-slider" data-weight="Momentum" min="0" max="2" step="0.1" value="1">
+            <span class="stk-weight-val" id="stk-w-Momentum">1.0&times;</span>
+          </div>
+          <div class="stk-weight-row">
+            <span class="stk-weight-label">Quality</span>
+            <input type="range" class="stk-weight-slider" data-weight="Quality" min="0" max="2" step="0.1" value="1">
+            <span class="stk-weight-val" id="stk-w-Quality">1.0&times;</span>
+          </div>
+          <div class="stk-weight-presets">
+            <span class="stk-weight-presets-label">Presets</span>
+            <button type="button" class="stk-quick" data-preset="balanced">Balanced</button>
+            <button type="button" class="stk-quick" data-preset="value">Value tilt</button>
+            <button type="button" class="stk-quick" data-preset="growth">Growth tilt</button>
+            <button type="button" class="stk-quick" data-preset="quality">Quality tilt</button>
+            <button type="button" class="stk-quick" data-preset="momentum">Momentum tilt</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -522,7 +590,7 @@ h1.hero-title {
       <div class="stk-th" data-sort="sector">Sector</div>
       <div class="stk-th desc" data-sort="market_cap">Mkt Cap</div>
       <div class="stk-th" data-sort="change_pct">1d %</div>
-      <div class="stk-th" data-sort="pe">P/E</div>
+      <div class="stk-th" data-sort="__score__">Score</div>
       <div class="stk-th" data-sort="earnings_date">Earnings</div>
       <div class="stk-th" data-sort="last_updated">Updated</div>
     </div>
@@ -872,11 +940,40 @@ h1.hero-title {
     return count > 0 ? sum / count : null;
   }
 
+  // Per-dimension weights for the composite. Range 0 to 2, default 1.0 (equal).
+  // Mutated by the slider event handlers; render() reads on every paint.
+  const weights = { Growth: 1, Value: 1, Momentum: 1, Quality: 1 };
+
+  function computeComposite(s) {
+    const dims = ['Growth', 'Value', 'Momentum', 'Quality'];
+    let weightedSum = 0;
+    let totalWeight = 0;
+    for (const d of dims) {
+      const w = weights[d];
+      if (w <= 0) continue;
+      const score = scoreDimension(s, d);
+      if (score == null) continue;
+      weightedSum += score * w;
+      totalWeight += w;
+    }
+    return totalWeight > 0 ? weightedSum / totalWeight : null;
+  }
+
+  function fmtScore(n) {
+    if (n == null || isNaN(n)) return '—';
+    const sign = n >= 0 ? '+' : '';
+    return sign + Number(n).toFixed(2);
+  }
+  function scoreClass(n) {
+    if (n == null) return 'stk-score-na';
+    if (Math.abs(n) < 0.1) return 'stk-score-neutral';
+    return n >= 0 ? 'stk-score-pos' : 'stk-score-neg';
+  }
+
   function buildScoreBreakdown(s) {
     const dims = ['Growth', 'Value', 'Momentum', 'Quality'];
     const scores = dims.map(d => ({ name: d, val: scoreDimension(s, d) }));
-    const valid = scores.filter(x => x.val != null);
-    const composite = valid.length > 0 ? valid.reduce((a, b) => a + b.val, 0) / valid.length : null;
+    const composite = computeComposite(s);
 
     const rows = scores.map(d => {
       if (d.val == null) {
@@ -928,7 +1025,12 @@ h1.hero-title {
       return ((s.ticker||'')+' '+(s.name||'')+' '+(s.sector||'')+' '+(s.sub_industry||'')).toLowerCase().includes(q);
     });
     filtered.sort((a, b) => {
-      let av = a[sortKey], bv = b[sortKey];
+      let av, bv;
+      if (sortKey === '__score__') {
+        av = computeComposite(a); bv = computeComposite(b);
+      } else {
+        av = a[sortKey]; bv = b[sortKey];
+      }
       if (av == null && bv == null) return 0;
       if (av == null) return 1;
       if (bv == null) return -1;
@@ -947,13 +1049,14 @@ h1.hero-title {
       const isOpen = expanded.has(s.ticker);
       const arrow = isOpen ? '▾' : '▸';
       const detailHtml = isOpen ? buildDetail(s) : '';
+      const composite = computeComposite(s);
       return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
         + '<div class="stk-ticker">'+arrow+' '+escapeHtml(s.ticker||'')+'</div>'
         + '<div class="stk-name">'+escapeHtml(s.name||'')+'<div class="stk-sub">'+escapeHtml(s.sub_industry||'')+'</div></div>'
         + '<div class="stk-sector">'+escapeHtml(s.sector||'')+'</div>'
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
         + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
-        + '<div class="stk-pe">'+fmtNum(s.pe, 1)+'</div>'
+        + '<div class="stk-score '+scoreClass(composite)+'">'+fmtScore(composite)+'</div>'
         + '<div class="stk-date">'+fmtDate(s.earnings_date)+'</div>'
         + '<div class="stk-date stk-date-dim">'+fmtDate(s.last_updated)+'</div>'
       + '</div>'
@@ -1001,6 +1104,7 @@ h1.hero-title {
         sortDir = -sortDir;
       } else {
         sortKey = k;
+        // String columns: ascending. Numeric / score / date: descending (best/most recent first).
         sortDir = (k === 'ticker' || k === 'name' || k === 'sector') ? 1 : -1;
       }
       document.querySelectorAll('.stk-th').forEach(h => h.classList.remove('asc','desc'));
@@ -1093,10 +1197,53 @@ h1.hero-title {
       if (onlyEnrichedEl) onlyEnrichedEl.checked = false;
       document.querySelectorAll('.stk-filter-input').forEach(i => i.value = '');
       document.querySelectorAll('.stk-quick').forEach(b => b.classList.remove('active'));
+      // Also reset weights to balanced
+      ['Growth', 'Value', 'Momentum', 'Quality'].forEach(d => { weights[d] = 1; });
+      document.querySelectorAll('.stk-weight-slider').forEach(sl => {
+        sl.value = '1';
+        const lbl = document.getElementById('stk-w-' + sl.dataset.weight);
+        if (lbl) lbl.innerHTML = '1.0&times;';
+      });
       syncFilterCount();
       render();
     });
   }
+
+  // ── Dimension weight sliders ────────────────────────────────────
+  document.querySelectorAll('.stk-weight-slider').forEach(sl => {
+    sl.addEventListener('input', () => {
+      const dim = sl.dataset.weight;
+      const v = parseFloat(sl.value);
+      weights[dim] = isNaN(v) ? 0 : v;
+      const lbl = document.getElementById('stk-w-' + dim);
+      if (lbl) lbl.innerHTML = v.toFixed(1) + '&times;';
+      // Composite changes -> Score column + sort if currently on score -> re-render.
+      render();
+    });
+  });
+
+  const WEIGHT_PRESETS = {
+    balanced: { Growth: 1,   Value: 1,   Momentum: 1,   Quality: 1   },
+    value:    { Growth: 0.5, Value: 1.7, Momentum: 0.5, Quality: 1.3 },
+    growth:   { Growth: 1.7, Value: 0.5, Momentum: 1.0, Quality: 0.8 },
+    quality:  { Growth: 0.7, Value: 0.7, Momentum: 0.6, Quality: 2.0 },
+    momentum: { Growth: 0.8, Value: 0.5, Momentum: 1.8, Quality: 0.9 },
+  };
+  document.querySelectorAll('.stk-quick[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = WEIGHT_PRESETS[btn.dataset.preset];
+      if (!preset) return;
+      for (const [d, w] of Object.entries(preset)) {
+        weights[d] = w;
+        const sl = document.querySelector('.stk-weight-slider[data-weight="' + d + '"]');
+        if (sl) sl.value = String(w);
+        const lbl = document.getElementById('stk-w-' + d);
+        if (lbl) lbl.innerHTML = w.toFixed(1) + '&times;';
+      }
+      document.querySelectorAll('.stk-quick[data-preset]').forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+  });
 
   render();
 })();
