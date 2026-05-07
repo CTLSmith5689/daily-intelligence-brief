@@ -502,8 +502,29 @@ h1.hero-title {
 /* Sidebar overrides for the existing filter HTML (drop toggle, always-visible panel, single-column inner stacking) */
 .stk-sidebar .stk-filter-panel { display:flex; flex-direction:column; gap:8px; margin-top:0; padding:0; background:transparent; border:0; border-radius:0; }
 .stk-sidebar .stk-filter-cols { display:flex; flex-direction:column; gap:14px; }
-.stk-sidebar .stk-filter-col-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; padding-bottom:8px; margin-bottom:4px; border-bottom:1px solid var(--border); display:block; }
-.stk-sidebar .stk-filter-col-sub { display:none; }
+.stk-sidebar .stk-filter-col-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; padding:8px 0; margin-bottom:6px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none; user-select:none; }
+.stk-sidebar .stk-filter-col-h::-webkit-details-marker { display:none; }
+.stk-sidebar .stk-filter-col-h:hover { color:var(--text-1); }
+.stk-section-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease; }
+.stk-sidebar details[open] > .stk-filter-col-h .stk-section-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.stk-sidebar .stk-filter-col-sub { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; padding:2px 0 6px 0; display:block; }
+.stk-sidebar .stk-filter-select { width:100%; padding:5px 6px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; }
+.stk-sidebar .stk-filter-select:focus { outline:none; border-color:var(--apt-rose); }
+
+/* Saved Views */
+.stk-views { padding:10px 0 12px 0; border-bottom:1px solid var(--border); margin-bottom:4px; }
+.stk-views-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:8px; }
+.stk-views-row { display:flex; gap:6px; margin-bottom:8px; }
+.stk-views-input { flex:1; min-width:0; padding:5px 8px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; }
+.stk-views-input:focus { outline:none; border-color:var(--apt-rose); }
+.stk-views-list { display:flex; flex-wrap:wrap; gap:4px; }
+.stk-views-empty { font-size:9px; color:var(--text-5); font-style:italic; }
+.stk-views-chip { display:inline-flex; align-items:stretch; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+.stk-views-chip:hover { border-color:var(--apt-rose); }
+.stk-views-load { padding:4px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-2); background:transparent; border:0; cursor:pointer; text-transform:uppercase; }
+.stk-views-load:hover { color:var(--text-1); }
+.stk-views-del { padding:4px 8px; font-size:11px; line-height:1; color:var(--text-4); background:transparent; border:0; border-left:1px solid var(--border); cursor:pointer; }
+.stk-views-del:hover { color:var(--apt-red); background:rgba(255,57,77,0.08); }
 .stk-sidebar .stk-filter-row { display:grid; grid-template-columns:1fr 1fr; column-gap:6px; row-gap:4px; padding:5px 0; align-items:center; }
 .stk-sidebar .stk-filter-row > .stk-filter-label { grid-column:1 / -1; font-size:9px; }
 .stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="min"] { grid-column:1; }
@@ -648,7 +669,7 @@ body.page-stocks .footer { display:none; }
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">213</div>
+        <div class="fs-val">212</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
