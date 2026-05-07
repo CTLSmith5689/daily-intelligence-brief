@@ -1736,6 +1736,25 @@ h1.hero-title {
 .sb-comp-pos { color:#34D27A; }
 .sb-comp-neg { color:var(--apt-red); }
 .sb-comp-na { color:var(--text-5); }
+
+/* Benford's Law card (sits below the 4 factor cards in the expand panel) */
+.bf-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.bf-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.bf-fit { font-size:9px; font-weight:600; padding:2px 8px; border-radius:4px; letter-spacing:1.5px; }
+.bf-fit-good { color:#34D27A; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.25); }
+.bf-fit-fair { color:#FFB347; background:rgba(255,179,71,0.10); border:1px solid rgba(255,179,71,0.25); }
+.bf-fit-poor { color:var(--apt-red); background:rgba(255,31,61,0.10); border:1px solid rgba(255,31,61,0.25); }
+.bf-meta { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); margin-left:auto; letter-spacing:1px; text-transform:none; }
+.bf-meta sup { font-size:8px; vertical-align:super; }
+.bf-row { display:grid; grid-template-columns:24px 1fr 60px 70px; align-items:center; gap:14px; padding:5px 0; }
+.bf-d { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--text-2); text-align:center; }
+.bf-bar { position:relative; height:8px; background:rgba(255,255,255,0.04); border-radius:3px; }
+.bf-bar-fill { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg, rgba(255,122,133,0.55), rgba(255,31,61,0.85)); border-radius:3px; }
+.bf-marker { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--text-2); opacity:0.65; }
+.bf-obs { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; font-weight:500; }
+.bf-exp { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); }
+.bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
+.bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
 @media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
@@ -2241,6 +2260,39 @@ STOCKS_JS_TEMPLATE = """
       + '</div>';
   }
 
+  function buildBenfordCard(s) {
+    const b = s.benford;
+    if (!b || !b.observed) {
+      return '<div class="bf-card"><div class="bf-h">Benford\\'s Law <span class="bf-meta">no data</span></div><div class="bf-empty">Not enough EDGAR facts for this company to fit Benford reliably (need 30+ USD-denominated values).</div></div>';
+    }
+    const expected = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6];
+    const fitClass = 'bf-fit-' + b.fit;
+    const fitLabel = String(b.fit).toUpperCase() + ' FIT';
+    const rows = b.observed.map((obs, i) => {
+      const exp = expected[i];
+      // Scale bars to a max of 35% so the largest digit (~30%) is well-shaped.
+      const obsW = Math.min(100, obs / 35 * 100);
+      const expPos = Math.min(100, exp / 35 * 100);
+      return '<div class="bf-row">'
+        + '<span class="bf-d">' + (i + 1) + '</span>'
+        + '<div class="bf-bar">'
+        +   '<div class="bf-bar-fill" style="width:' + obsW.toFixed(1) + '%"></div>'
+        +   '<div class="bf-marker" style="left:' + expPos.toFixed(1) + '%" title="Benford expected ' + exp.toFixed(1) + '%"></div>'
+        + '</div>'
+        + '<span class="bf-obs">' + obs.toFixed(1) + '%</span>'
+        + '<span class="bf-exp">vs ' + exp.toFixed(1) + '%</span>'
+      + '</div>';
+    }).join('');
+    return '<div class="bf-card">'
+      + '<div class="bf-h">Benford\\'s Law'
+      +   ' <span class="bf-fit ' + fitClass + '">' + fitLabel + '</span>'
+      +   ' <span class="bf-meta">&chi;<sup>2</sup> ' + b.chi_sq + '  &middot;  n=' + b.n.toLocaleString() + '</span>'
+      + '</div>'
+      + rows
+      + '<div class="bf-foot">First-digit frequency of every USD value reported in this company\\'s XBRL filings, compared to the Benford distribution. Marker shows the Benford-expected percentage. A poor fit can flag reporting anomalies but is not by itself evidence of irregularity.</div>'
+    + '</div>';
+  }
+
   function buildDetail(s) {
     const groups = FACTOR_GROUPS.map(g => {
       const items = g.rows.map(([label, key, type]) => {
@@ -2251,7 +2303,8 @@ STOCKS_JS_TEMPLATE = """
       return '<div class="fp-card"><div class="fp-card-h">'+g.title+'</div>'+items+'</div>';
     }).join('');
     const scoreCard = buildScoreBreakdown(s);
-    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div></div>';
+    const benfordCard = buildBenfordCard(s);
+    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + benfordCard + '</div>';
   }
 
   let expanded = new Set();
@@ -3122,6 +3175,59 @@ def _extract_quarterly_series(facts, concept_keys, max_periods=12):
     return []
 
 
+def compute_benford(facts):
+    """Compute Benford's law fit across all USD-denominated XBRL values for a company.
+    Returns dict with keys: observed (list of 9 percentages), chi_sq (float, df=8),
+    n (sample size), fit ('good'/'fair'/'poor'). Returns None if n < 30.
+
+    Critical chi-squared values at df=8: 13.36 (p=.10), 15.51 (p=.05), 20.09 (p=.01)."""
+    import math as _math
+    if not facts:
+        return None
+    digits = [0] * 10  # index 1..9 used; 0 is parking
+    n = 0
+    us_gaap = facts.get("us-gaap", {})
+    for concept, data in us_gaap.items():
+        units = data.get("units", {})
+        usd_records = units.get("USD", [])
+        for r in usd_records:
+            val = r.get("val")
+            if val is None:
+                continue
+            try:
+                abs_val = abs(float(val))
+            except (TypeError, ValueError):
+                continue
+            if abs_val < 1:
+                continue
+            try:
+                # Leading non-zero digit via scientific exponent.
+                exp = int(_math.floor(_math.log10(abs_val)))
+                leading = int(abs_val / (10 ** exp))
+                if 1 <= leading <= 9:
+                    digits[leading] += 1
+                    n += 1
+            except Exception:
+                continue
+    if n < 30:
+        return None
+    observed = [round(digits[d] / n * 100, 1) for d in range(1, 10)]
+    expected = [_math.log10(1 + 1 / d) * 100 for d in range(1, 10)]
+    chi_sq = sum((observed[i] - expected[i]) ** 2 / expected[i] for i in range(9))
+    if chi_sq < 13.36:
+        fit = "good"
+    elif chi_sq < 20.09:
+        fit = "fair"
+    else:
+        fit = "poor"
+    return {
+        "observed": observed,
+        "chi_sq": round(chi_sq, 1),
+        "n": n,
+        "fit": fit,
+    }
+
+
 def compute_edgar_factors(facts):
     """Compute the 5 quarterly-trend factors from a CIK's XBRL facts dict.
     Each factor goes through a plausibility clamp; out-of-range values are dropped."""
@@ -3239,7 +3345,12 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
         facts = fetch_edgar_company_facts(cik)
         if not facts:
             return sym, {}
-        return sym, compute_edgar_factors(facts)
+        out = compute_edgar_factors(facts)
+        # Benford analysis on the same fetched facts (no extra HTTP)
+        benford = compute_benford(facts)
+        if benford:
+            out["benford"] = benford
+        return sym, out
 
     enriched = 0
     t0 = time.time()
@@ -3314,6 +3425,7 @@ def get_or_generate_stocks_universe():
         # EDGAR-derived (refreshed weekly)
         "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy",
         "earnings_consistency", "op_margin_stability", "edgar_updated",
+        "benford",
         # Per-row freshness + earnings calendar
         "last_updated", "earnings_date",
     )
