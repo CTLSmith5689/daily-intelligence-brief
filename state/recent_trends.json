@@ -1,0 +1,23 @@
+{
+  "date": "2026-05-06",
+  "snapshot": [
+    "Middle East de-escalation erased geopolitical risk premium across energy and equities simultaneously, compressing Fed pause duration while bifurcating labor markets between large firms and small businesses, threatening margin expansion narratives essential to justify current equity multiples.",
+    "China operationalized advanced manufacturing dominance and AI funding scale as US capital redirected toward domestic political consensus-building, creating irreversible tech supply chain bifurcation that disadvantages Western frontier labs competing without durable lock-in advantages.",
+    "Capital rotation toward tokenized RWAs and private credit discipline signals synchronized de-risking by allocators avoiding US policy uncertainty and concentrated equity bets, while labor organizing around military AI embedment raises compliance costs for defense contractors."
+  ],
+  "themes": [
+    "Geopolitical risk premium collapse and energy repricing",
+    "US-China tech decoupling and supply chain bifurcation",
+    "Labor market fragmentation and margin compression dynamics",
+    "Capital flight from equity concentration into alternatives",
+    "AI consolidation favoring regulated incumbents over frontier labs"
+  ],
+  "usage": {
+    "input_tokens": 4475,
+    "output_tokens": 257,
+    "total_tokens": 4732,
+    "cost_this_call": 0.0046,
+    "cost_daily_projected": 0.0138,
+    "cost_monthly_projected": 0.41
+  }
+}

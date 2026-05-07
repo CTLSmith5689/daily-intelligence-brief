@@ -135,6 +135,12 @@ h1.hero-title {
 .themes-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
 .theme-pill { padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; background:rgba(255,31,61,0.06); border:1px solid rgba(255,31,61,0.20); border-radius:999px; }
 
+.snapshot-list { list-style:none; padding:0; margin:0 0 4px 0; max-width:920px; }
+.snapshot-list li { position:relative; padding:14px 0 14px 28px; border-top:1px solid var(--border); font-size:17px; line-height:1.55; color:var(--text-1); font-weight:400; letter-spacing:-0.005em; }
+.snapshot-list li:first-child { border-top:none; padding-top:6px; }
+.snapshot-list li::before { content:''; position:absolute; left:6px; top:24px; width:8px; height:8px; border-radius:50%; background:var(--apt-rose); box-shadow:0 0 12px rgba(255,31,61,0.35); }
+.snapshot-list li:first-child::before { top:16px; }
+
 .destinations { max-width:1200px; margin:0 auto; padding:24px 24px 64px; }
 .destinations-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:32px; flex-wrap:wrap; gap:18px; }
 .destinations-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:36px; letter-spacing:-0.02em; line-height:1.1; }
@@ -337,18 +343,18 @@ h1.hero-title {
       <span>Apterreon</span><span class="dot"></span>
       <span>Past 10 brief days</span>
     </div>
-    <div class="feat-kicker">What the picture looks like</div>
-    <p class="feat-body">Across this five-day period, three dominant narratives have emerged and shifted dramatically. First, Middle East geopolitical risk migrated from tail hedge to base case and back again, with energy markets repricing continuously: initial escalation (Iran attacks, Strait of Hormuz tensions) compressed equity risk premiums and extended Fed pause expectations, but emerging peace deal prospects then collapsed the geopolitical risk premium by May 6, flooding petrodollar-dependent economies with capital while reducing energy-transition urgency. Second, the labor market bifurcation deepened as headline ADP employment (109K in April) masked a structural crack: large firms continue hiring while small business decelerates, signaling consumption vulnerability that constrains margin expansion narratives essential to justify current equity multiples at compressed duration. Third, irreversible US-China tech bifurcation accelerated: China monetized advanced semiconductor cost advantages through DeepSeek's $50B funding and demonstrated 25 percent global advanced manufacturing share, while simultaneous US pre-deployment AI review regimes and data center restrictions locked non-incumbent vendors out of scaling paths, concentrating both energy and compute structures in state-aligned players and compressing Western allocator optionality.</p>
-    <div class="themes-list"><span class="theme-pill">Middle East de-escalation pricing collapses geopolitical risk premium</span><span class="theme-pill">Labor market bifurcation masks consumption vulnerability below headlines</span><span class="theme-pill">China advances manufacturing dominance and AI monetization</span><span class="theme-pill">US regulatory capture concentrates AI scaling to incumbents</span><span class="theme-pill">Capital flows rotate toward alternatives and de-risked yield generation</span></div>
+    <div class="feat-kicker">Snapshot</div>
+    <ul class="snapshot-list"><li>Middle East de-escalation erased geopolitical risk premium across energy and equities simultaneously, compressing Fed pause duration while bifurcating labor markets between large firms and small businesses, threatening margin expansion narratives essential to justify current equity multiples.</li><li>China operationalized advanced manufacturing dominance and AI funding scale as US capital redirected toward domestic political consensus-building, creating irreversible tech supply chain bifurcation that disadvantages Western frontier labs competing without durable lock-in advantages.</li><li>Capital rotation toward tokenized RWAs and private credit discipline signals synchronized de-risking by allocators avoiding US policy uncertainty and concentrated equity bets, while labor organizing around military AI embedment raises compliance costs for defense contractors.</li></ul>
+    <div class="themes-list"><span class="theme-pill">Geopolitical risk premium collapse and energy repricing</span><span class="theme-pill">US-China tech decoupling and supply chain bifurcation</span><span class="theme-pill">Labor market fragmentation and margin compression dynamics</span><span class="theme-pill">Capital flight from equity concentration into alternatives</span><span class="theme-pill">AI consolidation favoring regulated incumbents over frontier labs</span></div>
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">375</div>
+        <div class="fs-val">374</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">210</div>
+        <div class="fs-val">208</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">

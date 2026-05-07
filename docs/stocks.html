@@ -135,6 +135,12 @@ h1.hero-title {
 .themes-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
 .theme-pill { padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; background:rgba(255,31,61,0.06); border:1px solid rgba(255,31,61,0.20); border-radius:999px; }
 
+.snapshot-list { list-style:none; padding:0; margin:0 0 4px 0; max-width:920px; }
+.snapshot-list li { position:relative; padding:14px 0 14px 28px; border-top:1px solid var(--border); font-size:17px; line-height:1.55; color:var(--text-1); font-weight:400; letter-spacing:-0.005em; }
+.snapshot-list li:first-child { border-top:none; padding-top:6px; }
+.snapshot-list li::before { content:''; position:absolute; left:6px; top:24px; width:8px; height:8px; border-radius:50%; background:var(--apt-rose); box-shadow:0 0 12px rgba(255,31,61,0.35); }
+.snapshot-list li:first-child::before { top:16px; }
+
 .destinations { max-width:1200px; margin:0 auto; padding:24px 24px 64px; }
 .destinations-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:32px; flex-wrap:wrap; gap:18px; }
 .destinations-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:36px; letter-spacing:-0.02em; line-height:1.1; }
