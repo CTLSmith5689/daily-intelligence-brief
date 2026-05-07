@@ -487,6 +487,32 @@ h1.hero-title {
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
+/* Signals row: Neglect (Lynch) + Insider Movement (Seyhun) */
+.sg-row-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+@media (max-width:780px) { .sg-row-grid { grid-template-columns:1fr; } }
+.sg-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; border-left-width:3px; border-left-color:var(--apt-rose); }
+.sg-card-insider { border-left-color:#9B8CFF; }
+.sg-card-stub { opacity:0.7; }
+.sg-h { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.sg-h-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text-1); letter-spacing:0.02em; }
+.sg-h-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; font-weight:400; margin-left:6px; }
+.sg-score-badge { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 9px; border-radius:999px; text-transform:uppercase; }
+.sg-score-badge.sg-pos { color:#34D27A; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.25); }
+.sg-score-badge.sg-neg { color:var(--apt-rose); background:rgba(255,57,77,0.10); border:1px solid rgba(255,57,77,0.25); }
+.sg-score-badge.sg-neutral { color:var(--text-2); background:rgba(255,255,255,0.04); border:1px solid var(--border); }
+.sg-score-badge.sg-na { color:var(--text-4); background:transparent; border:1px dashed var(--border); }
+.sg-rows { display:flex; flex-direction:column; gap:8px; }
+.sg-row { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; font-size:12px; padding:4px 0; }
+.sg-row-stub { color:var(--text-5); }
+.sg-label { color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+.sg-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; text-align:right; min-width:80px; }
+.sg-bar { display:inline-flex; gap:2px; align-items:center; }
+.sg-bar-cell { display:inline-block; width:6px; height:8px; border-radius:1px; background:var(--border); }
+.sg-bar-cell-on { background:var(--apt-rose); }
+.sg-card-insider .sg-bar-cell-on { background:#9B8CFF; }
+.sg-bar-empty { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-5); }
+.sg-foot { margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); font-size:10px; line-height:1.5; color:var(--text-4); }
+
 /* Chart card per ticker (price + op margin, lazy-loaded on expand) */
 .ch-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
 .ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
@@ -719,7 +745,7 @@ body.page-stocks .footer { display:none; }
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">213</div>
+        <div class="fs-val">214</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
