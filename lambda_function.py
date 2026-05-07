@@ -2293,71 +2293,87 @@ def fetch_all_wiki_universes():
     return out
 
 
-# ── FMP bulk quote enrichment (free tier safe) ──────────────────────────────
+# ── yfinance enrichment (free, no API key, parallel) ───────────────────────
 
-def enrich_with_fmp_quotes(stocks, api_key, batch_size=400):
-    """Enrich stock dicts in place with live quote data: price, market_cap,
-    change_pct, pe, volume. Calls FMP /api/v3/quote/SYMBOLS in bulk. Skips on
-    missing key or per-batch errors. Returns count of enriched rows."""
-    if not api_key:
-        print("FMP enrichment: no API key, skipping (page will render without live data).")
-        return 0
+def enrich_with_yfinance(stocks, max_workers=10):
+    """Enrich stock dicts in place with live data from Yahoo Finance via yfinance:
+    price, market_cap, change_pct, pe, volume. Threaded for speed (~45s for 1500
+    tickers with 10 workers under good conditions). Returns count of fields newly
+    fetched (not the total cumulative coverage; merge-cache logic upstream tracks
+    that). Skips silently if yfinance is not installed."""
     if not stocks:
         return 0
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("yfinance: not installed, skipping enrichment.")
+        return 0
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
     by_ticker = {s["ticker"]: s for s in stocks}
     tickers = list(by_ticker.keys())
-    enriched = 0
-    n_batches = (len(tickers) + batch_size - 1) // batch_size
 
-    for i in range(0, len(tickers), batch_size):
-        batch = tickers[i:i + batch_size]
-        # FMP wants symbols comma-joined, dots are fine (e.g. BRK.B)
-        symbols = ",".join(batch)
-        url = f"https://financialmodelingprep.com/api/v3/quote/{symbols}?apikey={api_key}"
+    def fetch_one(sym):
+        # Yahoo uses '-' for class shares (BRK-B); Wikipedia uses '.' (BRK.B). Translate.
+        yf_sym = sym.replace(".", "-")
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Apterreon-IntelBrief/1.0"})
-            with urllib.request.urlopen(req, timeout=25) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            if not isinstance(data, list):
-                print(f"FMP quote batch {i // batch_size + 1}/{n_batches}: unexpected response shape")
-                continue
-            for row in data:
-                sym = (row.get("symbol") or "").upper()
-                if sym not in by_ticker:
-                    continue
-                s = by_ticker[sym]
-                price = row.get("price")
-                if price is not None:
-                    s["price"] = price
-                cap = row.get("marketCap")
-                if cap is not None:
-                    s["market_cap"] = cap
-                chg = row.get("changesPercentage")
-                if chg is not None:
-                    s["change_pct"] = chg
-                pe = row.get("pe")
-                if pe is not None:
-                    s["pe"] = pe
-                vol = row.get("volume")
-                if vol is not None:
-                    s["volume"] = vol
-                enriched += 1
-        except Exception as e:
-            print(f"FMP quote batch {i // batch_size + 1}/{n_batches} failed: {e}")
-            continue
+            return sym, yf.Ticker(yf_sym).info
+        except Exception:
+            return sym, None
 
-    print(f"FMP enrichment: enriched {enriched}/{len(tickers)} tickers in {n_batches} batches.")
+    enriched = 0
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = [ex.submit(fetch_one, s) for s in tickers]
+        for f in as_completed(futures):
+            sym, info = f.result()
+            if not info:
+                continue
+            s = by_ticker.get(sym)
+            if not s:
+                continue
+            cap = info.get("marketCap")
+            price = info.get("currentPrice") or info.get("regularMarketPrice")
+            chg = info.get("regularMarketChangePercent")
+            pe = info.get("trailingPE")
+            vol = info.get("regularMarketVolume") or info.get("averageVolume")
+            if cap is not None and 0 < cap < 1e14:
+                s["market_cap"] = cap
+            if price is not None and 0 < price < 1e6:
+                s["price"] = price
+            if chg is not None:
+                # yfinance returns change as decimal fraction (0.0083) for most tickers,
+                # but occasionally returns full percent (0.83). Heuristic: magnitudes < 1
+                # are assumed decimal and multiplied by 100.
+                pct = chg if abs(chg) > 1 else chg * 100
+                # Plausibility clamp: real single-day moves > 20% are very rare.
+                # Anything beyond is almost always stale/bad data from yfinance's
+                # previousClose field. Drop rather than mislead.
+                if abs(pct) <= 20:
+                    s["change_pct"] = pct
+            if pe is not None and -500 < pe < 1000:
+                s["pe"] = pe
+            if vol is not None and vol > 0:
+                s["volume"] = vol
+            if cap or price:
+                enriched += 1
+
+    elapsed = time.time() - t0
+    print(f"yfinance: enriched {enriched}/{len(tickers)} tickers in {elapsed:.1f}s ({max_workers} threads).")
     return enriched
 
 
 # ── Stocks universe (weekly cached) ─────────────────────────────────────────
 
 def get_or_generate_stocks_universe():
-    """Weekly-cached US stocks universe scraped from Wikipedia (S&P 500/400/600),
-    optionally enriched with live quote data from FMP. Returns dict:
-    {iso_week, generated_at, stocks: [...], enriched: bool, source}.
-    Falls back to last-known cache on any error."""
+    """Cached US stocks universe scraped from Wikipedia (S&P 500/400/600), enriched
+    with live quote data from Yahoo Finance via yfinance.
+
+    Cache strategy: skip the full refresh ONLY if the cache is very fresh (< 4 hours)
+    AND in the same ISO week. Otherwise: re-pull Wikipedia (fast, free), merge any
+    previous static enrichment (market_cap, pe) as a fallback layer, then attempt a
+    fresh yfinance pass. Yahoo rate-limits aggressively so a single run rarely covers
+    100% of 1500 names; subsequent runs accumulate coverage."""
     now = datetime.now(timezone(ET_OFFSET))
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
@@ -2367,28 +2383,65 @@ def get_or_generate_stocks_universe():
     if cache_path.exists():
         try:
             last_known = json.loads(cache_path.read_text(encoding="utf-8"))
-            if last_known.get("iso_week") == week_key:
-                return last_known
         except Exception as e:
             print(f"stocks_universe: cache read error: {e}")
 
+    # Short-circuit: if cache is very fresh (< 4h) and same week, skip the refresh.
+    # This covers the case of midday/evening workflow runs reusing morning's enrichment.
+    if last_known and last_known.get("iso_week") == week_key:
+        try:
+            last_dt = datetime.fromisoformat(last_known.get("generated_at", ""))
+            age_hours = (now - last_dt).total_seconds() / 3600
+            if age_hours < 4:
+                print(f"stocks_universe: using cache from {age_hours:.1f}h ago.")
+                return last_known
+        except Exception:
+            pass
+
+    # Build fresh universe from Wikipedia
     stocks = fetch_all_wiki_universes()
     if not stocks:
         print("stocks_universe: Wikipedia returned nothing, falling back to last cache.")
         return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
 
-    fmp_key = os.environ.get("FMP_API_KEY", "")
-    enriched_count = enrich_with_fmp_quotes(stocks, fmp_key)
+    # Merge static enrichment fields from previous cache as a fallback layer.
+    # We carry forward market_cap and pe (slow-changing), but NOT price/change_pct/volume
+    # because those go stale within hours. Better to show "—" than yesterday's price.
+    carried_forward = 0
+    if last_known and last_known.get("stocks"):
+        prev_by_ticker = {s["ticker"]: s for s in last_known["stocks"]}
+        for s in stocks:
+            prev = prev_by_ticker.get(s["ticker"])
+            if not prev:
+                continue
+            for field in ("market_cap", "pe", "sector", "sub_industry"):
+                if prev.get(field) is not None and s.get(field) is None:
+                    s[field] = prev[field]
+            if prev.get("market_cap"):
+                carried_forward += 1
+    if carried_forward:
+        print(f"stocks_universe: carried forward {carried_forward} market_cap entries from previous cache.")
+
+    # Fresh yfinance pass overwrites carried-forward data where successful and adds
+    # the intraday fields (price, change_pct, volume).
+    fresh_count = enrich_with_yfinance(stocks)
+    total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
+    total_with_price = sum(1 for s in stocks if s.get("price"))
 
     result = {
         "iso_week": week_key,
         "generated_at": now.isoformat(),
-        "source": "wikipedia + fmp" if enriched_count else "wikipedia",
-        "enriched": bool(enriched_count),
+        "source": "wikipedia + yfinance",
+        "enriched": bool(total_with_cap),
+        "fresh_this_run": fresh_count,
+        "total_with_market_cap": total_with_cap,
+        "total_with_price": total_with_price,
         "stocks": stocks,
     }
     cache_path.write_text(json.dumps(result, separators=(",", ":")), encoding="utf-8")
-    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks, {enriched_count} enriched).")
+    pct_cap = (total_with_cap / len(stocks) * 100) if stocks else 0
+    pct_price = (total_with_price / len(stocks) * 100) if stocks else 0
+    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh this run; {total_with_cap} ({pct_cap:.0f}%) with market_cap, {total_with_price} ({pct_price:.0f}%) with current price).")
     return result
 
 
@@ -2676,7 +2729,7 @@ def generate_stocks_page(universe):
     sectors_json = json.dumps(sectors)
     indexes_json = json.dumps(indexes)
 
-    enrich_note = "Live price, market cap, and P/E from Financial Modeling Prep. " if enriched else ""
+    enrich_note = "Live price, market cap, 1d %, and P/E from Yahoo Finance. " if enriched else ""
     meta_line = f"Updated for {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
 
     body = f"""
