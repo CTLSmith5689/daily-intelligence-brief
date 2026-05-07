@@ -2248,7 +2248,7 @@ STOCKS_JS_TEMPLATE = """
     'inst_ownership', 'insider_ownership',
   ]);
   // Market-cap-coded fields use 1B / 300M / 5T suffixes
-  const CAP_FIELDS = new Set(['market_cap', 'volume']);
+  const CAP_FIELDS = new Set(['market_cap', 'volume', 'insider_net_buy_90d']);
 
   const TIER_RANGES = {
     micro: { min: 0,            max: 300e6 },
@@ -2719,22 +2719,60 @@ STOCKS_JS_TEMPLATE = """
       + '<div class="sg-foot">Composite of three normalized 0-to-1 components. Higher means less Wall Street attention. Bars show how much each input contributes to the score.</div>'
       + '</div>';
 
-    // ── Insider Movement (Seyhun) ── placeholder until SEC Form 4 fetcher lands.
+    // ── Insider Movement (Seyhun) ──
+    // Pulls SEC Form 4 transactions from the last 90 days.
+    const inNetBuy = s.insider_net_buy_90d;
+    const inBuyers = s.insider_buyer_count_90d;
+    const inSellers = s.insider_seller_count_90d;
+    const inCluster = s.insider_cluster_max_30d;
+    const inClusterScore = s.insider_cluster_score;
+    const inTxCount = s.insider_tx_count_90d;
+    const inHasData = (inNetBuy != null) || (inTxCount != null && inTxCount > 0);
+
+    let inLabel;
+    if (!inHasData) {
+      inLabel = { text: 'NO ACTIVITY', cls: 'sg-na' };
+    } else if (inClusterScore != null && inClusterScore >= 0.6) {
+      inLabel = { text: 'CLUSTER BUY', cls: 'sg-pos' };
+    } else if (inNetBuy != null && inNetBuy > 0) {
+      inLabel = { text: 'NET BUYING', cls: 'sg-pos' };
+    } else if (inNetBuy != null && inNetBuy < 0) {
+      inLabel = { text: 'NET SELLING', cls: 'sg-neg' };
+    } else {
+      inLabel = { text: 'MIXED', cls: 'sg-neutral' };
+    }
+
+    function fmtUsdShort(v) {
+      if (v == null) return '—';
+      const a = Math.abs(v);
+      const sign = v < 0 ? '-' : (v > 0 ? '+' : '');
+      if (a >= 1e9) return sign + '$' + (a / 1e9).toFixed(2) + 'B';
+      if (a >= 1e6) return sign + '$' + (a / 1e6).toFixed(2) + 'M';
+      if (a >= 1e3) return sign + '$' + (a / 1e3).toFixed(0) + 'K';
+      return sign + '$' + a.toFixed(0);
+    }
+
     const insiderCard =
-        '<div class="sg-card sg-card-insider sg-card-stub">'
+        '<div class="sg-card sg-card-insider' + (inHasData ? '' : ' sg-card-stub') + '">'
       + '<div class="sg-h">'
       +   '<span class="sg-h-title">Insider Movement <span class="sg-h-eyebrow">Nejat Seyhun</span></span>'
-      +   '<span class="sg-score-badge sg-na">SOON</span>'
+      +   '<span class="sg-score-badge ' + inLabel.cls + '">' + inLabel.text + '</span>'
       + '</div>'
       + '<div class="sg-rows">'
-      +   '<div class="sg-row sg-row-stub"><span class="sg-label">Net Insider Buying (90d)</span><span class="sg-val">&mdash;</span></div>'
-      +   '<div class="sg-row sg-row-stub"><span class="sg-label">Distinct Buyers (90d)</span><span class="sg-val">&mdash;</span></div>'
-      +   '<div class="sg-row sg-row-stub"><span class="sg-label">Cluster Signal</span><span class="sg-val">&mdash;</span></div>'
+      +   '<div class="sg-row"><span class="sg-label">Net Buying (90d)</span><span class="sg-val">' + fmtUsdShort(inNetBuy) + '</span></div>'
+      +   '<div class="sg-row"><span class="sg-label">Buyers / Sellers</span><span class="sg-val">'
+      +     (inBuyers != null ? inBuyers : '0') + ' / ' + (inSellers != null ? inSellers : '0')
+      +   '</span></div>'
+      +   '<div class="sg-row"><span class="sg-label">Cluster (max 30d)</span><span class="sg-val">'
+      +     (inCluster != null ? inCluster + ' buyers' : '—')
+      +   '</span>'
+      +   (inClusterScore != null ? fmtMiniBar(inClusterScore) : fmtMiniBar(null))
+      +   '</div>'
       +   (s.insider_ownership != null
-          ? '<div class="sg-row"><span class="sg-label">Insider Ownership (yfinance)</span><span class="sg-val">' + (s.insider_ownership * 100).toFixed(1) + '%</span></div>'
+          ? '<div class="sg-row"><span class="sg-label">Insider Ownership</span><span class="sg-val">' + (s.insider_ownership * 100).toFixed(1) + '%</span></div>'
           : '')
       + '</div>'
-      + '<div class="sg-foot">SEC Form 4 fetcher coming in the next release. Will surface open-market insider purchases (Seyhun: cluster buying is the strongest signal).</div>'
+      + '<div class="sg-foot">Open-market purchases (Form 4 code P) and sales (S) over the last 90 days. Cluster signal: max distinct buyers in any 30-day window. Seyhun: 3+ buyers clustered in one month is the strongest forward signal.</div>'
       + '</div>';
 
     return '<div class="sg-row-grid">' + neglectCard + insiderCard + '</div>';
@@ -3603,7 +3641,10 @@ STOCKS_JS_TEMPLATE = """
   function fmtStatVal(v, type) {
     if (v == null || !isFinite(v)) return '—';
     if (type === 'pct')   return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
-    if (type === 'cap')   return '$' + fmtCapShort(v);
+    if (type === 'cap') {
+      const sign = v < 0 ? '-' : '';
+      return sign + '$' + fmtCapShort(Math.abs(v));
+    }
     if (type === 'score') return (v >= 0 ? '+' : '') + v.toFixed(2);
     if (type === 'int')   return String(Math.round(v));
     return v.toFixed(2);
@@ -5014,6 +5055,214 @@ def compute_edgar_factors(facts):
     return out
 
 
+# ── SEC Form 4 (insider transactions, Seyhun signal) ───────────────────────
+
+EDGAR_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
+# Form 4 XML document fetched at:
+# https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_dashes}/{primary_doc}
+_INSIDER_LOOKBACK_DAYS = 90
+_INSIDER_MAX_DOCS_PER_TICKER = 12  # cap per-ticker fetches to keep workflow under 20 min
+
+
+def _fetch_recent_form4_filings(cik):
+    """Read /submissions/CIK{cik}.json and return a list of recent Form 4
+    filings within the lookback window. Each entry is
+    {accession, filing_date, primary_doc}. Returns [] on failure."""
+    try:
+        url = EDGAR_SUBMISSIONS_URL.format(cik=int(cik))
+        req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return []
+    recent = (data.get("filings", {}) or {}).get("recent", {}) or {}
+    forms = recent.get("form") or []
+    accessions = recent.get("accessionNumber") or []
+    dates = recent.get("filingDate") or []
+    primary_docs = recent.get("primaryDocument") or []
+    cutoff = (datetime.now(timezone.utc).date() - timedelta(days=_INSIDER_LOOKBACK_DAYS)).isoformat()
+    out = []
+    for i, form in enumerate(forms):
+        if form != "4":
+            continue
+        if i >= len(accessions) or i >= len(dates) or i >= len(primary_docs):
+            continue
+        if dates[i] < cutoff:
+            continue
+        out.append({
+            "accession": accessions[i],
+            "filing_date": dates[i],
+            "primary_doc": primary_docs[i],
+        })
+        if len(out) >= _INSIDER_MAX_DOCS_PER_TICKER:
+            break
+    return out
+
+
+def _parse_form4_xml(cik, accession, primary_doc):
+    """Fetch + parse one Form 4 XML. Returns list of nonDerivative transactions
+    {date, code, shares, price, value, acquired_disposed, owner}. Open-market
+    purchases are code='P', open-market sales are code='S'. Skips derivative
+    table for v1 (options/restricted units add noise to the buy/sell signal)."""
+    try:
+        # accession typically formatted like 0001234567-26-000012
+        acc_no_dashes = (accession or "").replace("-", "")
+        url = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc_no_dashes}/{primary_doc}"
+        req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/xml"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            xml_bytes = resp.read()
+    except Exception:
+        return []
+    try:
+        root = ET.fromstring(xml_bytes)
+    except Exception:
+        return []
+
+    # XPath helpers tolerant of optional namespaces (Form 4 XML usually has none).
+    def _find_text(elem, *paths):
+        if elem is None:
+            return None
+        for p in paths:
+            n = elem.find(p)
+            if n is not None and n.text is not None and n.text.strip():
+                return n.text.strip()
+        return None
+
+    owner = _find_text(root, "./reportingOwner/reportingOwnerId/rptOwnerName") or ""
+    out = []
+    for tx in root.findall("./nonDerivativeTable/nonDerivativeTransaction"):
+        date = _find_text(tx, "./transactionDate/value")
+        code = _find_text(tx, "./transactionCoding/transactionCode")
+        shares_s = _find_text(tx, "./transactionAmounts/transactionShares/value")
+        price_s = _find_text(tx, "./transactionAmounts/transactionPricePerShare/value")
+        ad = _find_text(tx, "./transactionAmounts/transactionAcquiredDisposedCode/value")
+        if not date or not code or not shares_s:
+            continue
+        try:
+            shares = float(shares_s)
+            price = float(price_s) if price_s else 0.0
+        except ValueError:
+            continue
+        # Sign shares by acquired/disposed flag so totals add cleanly.
+        signed_shares = shares if ad == "A" else -shares
+        out.append({
+            "date": date,
+            "code": code,
+            "shares": signed_shares,
+            "price": price,
+            "value": signed_shares * price,
+            "owner": owner,
+        })
+    return out
+
+
+def fetch_insider_form4(cik):
+    """Top-level per-ticker Form 4 fetch. Returns list of normalized transactions
+    over the last _INSIDER_LOOKBACK_DAYS, capped to _INSIDER_MAX_DOCS_PER_TICKER
+    most recent filings. Empty list on any failure or no Form 4 activity."""
+    filings = _fetch_recent_form4_filings(cik)
+    if not filings:
+        return []
+    txs = []
+    for f in filings:
+        txs.extend(_parse_form4_xml(cik, f["accession"], f["primary_doc"]))
+    return txs
+
+
+def compute_insider_signal(transactions):
+    """Aggregate per-ticker insider transactions into Seyhun-style signals.
+    Counts only open-market purchases (P) and sales (S); skips awards (A),
+    option exercises (M), gifts (G), discretionary transactions (F), etc.
+    Cluster score: max number of distinct buyers in any rolling 30-day window
+    over the lookback period, normalized by 5. Seyhun's research shows that
+    >=3 distinct insiders buying within 30 days is the strongest forward signal."""
+    if not transactions:
+        return {}
+
+    purchases = [t for t in transactions if t["code"] == "P"]
+    sales     = [t for t in transactions if t["code"] == "S"]
+
+    # Net buy in dollars. Purchases have positive value (signed_shares > 0);
+    # sales are negative. Sum gives net flow.
+    net_buy_usd = sum(t["value"] for t in purchases) + sum(t["value"] for t in sales)
+    buyer_count = len({t["owner"] for t in purchases if t.get("owner")})
+    seller_count = len({t["owner"] for t in sales if t.get("owner")})
+
+    # Cluster: scan 30-day rolling windows over the purchase dates.
+    purchase_dates = sorted([(t["date"], t["owner"]) for t in purchases if t.get("owner")])
+    max_cluster = 0
+    if purchase_dates:
+        from datetime import date as _date
+        for i, (d_i, _) in enumerate(purchase_dates):
+            try:
+                start = _date.fromisoformat(d_i)
+            except Exception:
+                continue
+            window_owners = set()
+            for d_j, owner_j in purchase_dates[i:]:
+                try:
+                    end = _date.fromisoformat(d_j)
+                except Exception:
+                    continue
+                if (end - start).days > 30:
+                    break
+                window_owners.add(owner_j)
+            if len(window_owners) > max_cluster:
+                max_cluster = len(window_owners)
+    cluster_score = min(max_cluster / 5.0, 1.0) if max_cluster else 0.0
+
+    return {
+        "insider_net_buy_90d": round(net_buy_usd, 2),
+        "insider_buyer_count_90d": buyer_count,
+        "insider_seller_count_90d": seller_count,
+        "insider_cluster_max_30d": max_cluster,
+        "insider_cluster_score": round(cluster_score, 3),
+        "insider_tx_count_90d": len(purchases) + len(sales),
+    }
+
+
+def enrich_with_insider(stocks, ticker_cik_map, max_workers=8):
+    """For each ticker with a CIK, fetch recent Form 4 filings and aggregate the
+    Seyhun signal. ~17 min worst case for 2941 tickers (1 submissions request +
+    avg 3-4 Form 4 XML fetches per active ticker, 8 threads, SEC 10 req/sec)."""
+    if not stocks or not ticker_cik_map:
+        print("Insider enrichment: no stocks or empty CIK map, skipping.")
+        return 0
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    by_ticker = {s["ticker"]: s for s in stocks}
+    matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
+    matched = [(t, cik) for t, cik in matched if cik]
+    today_str = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+
+    def process(item):
+        sym, cik = item
+        try:
+            txs = fetch_insider_form4(cik)
+        except Exception:
+            return sym, {}
+        return sym, compute_insider_signal(txs)
+
+    enriched = 0
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = [ex.submit(process, item) for item in matched]
+        for f in as_completed(futures):
+            sym, signal = f.result()
+            s = by_ticker.get(sym)
+            if not s:
+                continue
+            # Always stamp insider_updated even when signal is empty, so we know
+            # we tried this ticker (avoids re-fetching on every workflow run).
+            s["insider_updated"] = today_str
+            if signal:
+                s.update(signal)
+                enriched += 1
+    elapsed = time.time() - t0
+    print(f"Insider Form 4 enrichment: signals for {enriched}/{len(matched)} tickers in {elapsed:.1f}s.")
+    return enriched
+
+
 def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
     """For each stock with a CIK match, fetch EDGAR companyfacts and compute the
     5 quarterly-trend factors. Updates dicts in place. Honors SEC's 10 req/sec
@@ -5138,6 +5387,10 @@ def get_or_generate_stocks_universe():
         "news_lm_avg", "news_vader_avg", "news_count_7d",
         # Neglect inputs + composite (Lynch)
         "analyst_count", "inst_ownership", "insider_ownership", "neglect_score",
+        # Insider Form 4 signals (Seyhun, refreshed weekly)
+        "insider_net_buy_90d", "insider_buyer_count_90d", "insider_seller_count_90d",
+        "insider_cluster_max_30d", "insider_cluster_score", "insider_tx_count_90d",
+        "insider_updated",
         # Per-row freshness + earnings calendar
         "last_updated", "earnings_date",
     )
@@ -5184,10 +5437,35 @@ def get_or_generate_stocks_universe():
             if not has_benford_mad: missing.append("benford.mad")
             print(f"EDGAR: schema bump detected ({', '.join(missing)} missing), forcing re-run.")
     edgar_count = 0
+    cik_map = None
     if should_run_edgar:
         cik_map = fetch_edgar_ticker_cik_map()
         if cik_map:
             edgar_count = enrich_with_edgar(stocks, cik_map)
+
+    # Insider Form 4 enrichment: weekly cadence, gated like EDGAR. Heavy: ~12-15 min
+    # for 2941 tickers. Schema bump triggers a re-run when insider_updated is missing
+    # across the cached universe.
+    should_run_insider = True
+    if last_known and last_known.get("stocks"):
+        recent_insider = next((s for s in last_known["stocks"] if s.get("insider_updated")), None)
+        if recent_insider:
+            try:
+                insider_dt = datetime.fromisoformat(recent_insider["insider_updated"]).date()
+                in_iso_year, in_iso_week, _ = insider_dt.isocalendar()
+                if in_iso_year == iso_year and in_iso_week == iso_week:
+                    should_run_insider = False
+                    print(f"Insider: cache stamped {recent_insider['insider_updated']} (this week), skipping refresh.")
+            except Exception:
+                pass
+        else:
+            print("Insider: schema bump detected (insider_updated missing), forcing re-run.")
+    insider_count = 0
+    if should_run_insider:
+        if cik_map is None:
+            cik_map = fetch_edgar_ticker_cik_map()
+        if cik_map:
+            insider_count = enrich_with_insider(stocks, cik_map)
 
     # Per-ticker news fetched once a day (12h cache) so midday/evening workflow
     # runs reuse morning's pull. Writes one small JSON per ticker, lazy-loaded
@@ -5226,7 +5504,7 @@ def get_or_generate_stocks_universe():
     pct_cap = (total_with_cap / len(stocks) * 100) if stocks else 0
     pct_price = (total_with_price / len(stocks) * 100) if stocks else 0
     pct_edgar = (total_with_edgar / len(stocks) * 100) if stocks else 0
-    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
+    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {insider_count} insider signals, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
     return result
 
 
@@ -5539,6 +5817,12 @@ FILTER_PANEL = [
         {"label": "Analyst Count",         "key": "analyst_count",      "type": "int",   "placeholder_min": "min",              "placeholder_max": "max (e.g. 5)"},
         {"label": "Institutional Ownership", "key": "inst_ownership",   "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max % (e.g. 30)"},
         {"label": "Insider Ownership",     "key": "insider_ownership",  "type": "pct",   "placeholder_min": "min % (e.g. 5)",   "placeholder_max": "max %"},
+    ]},
+    {"title": "Insider (Seyhun)", "open": False, "rows": [
+        {"label": "Net Buying USD (90d)",  "key": "insider_net_buy_90d", "type": "cap",  "placeholder_min": "min (e.g. 1M)",    "placeholder_max": "max"},
+        {"label": "Distinct Buyers (90d)", "key": "insider_buyer_count_90d", "type": "int", "placeholder_min": "min (e.g. 2)",  "placeholder_max": "max"},
+        {"label": "Cluster Score",         "key": "insider_cluster_score", "type": "ratio", "placeholder_min": "min (e.g. 0.6)", "placeholder_max": "max"},
+        {"label": "Cluster (max 30d)",     "key": "insider_cluster_max_30d", "type": "int", "placeholder_min": "min (e.g. 3)",  "placeholder_max": "max"},
     ]},
 ]
 
