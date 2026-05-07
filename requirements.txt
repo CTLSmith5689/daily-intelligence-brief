@@ -1,2 +1,3 @@
-# Pure stdlib — no third-party deps required.
-# (Original Lambda used boto3; the GitHub Actions port replaces S3 with filesystem I/O.)
+# yfinance powers the live financial enrichment on the Stocks page
+# (market cap, price, 1d %, P/E). Free, no API key, scrapes Yahoo.
+yfinance>=0.2.40
