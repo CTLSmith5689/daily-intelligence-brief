@@ -346,6 +346,28 @@ h1.hero-title {
 /* Expand-on-click factor panel */
 .stk-detail { padding:14px 22px 22px; background:rgba(10,10,15,0.6); border-top:1px solid var(--border); animation:fpFadeIn .25s ease-out; }
 @keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+/* Score breakdown card (sits above the 4 factor cards) */
+.sb-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; }
+.sb-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
+.sb-h-sub { font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:none; font-style:italic; opacity:0.8; }
+.sb-row { display:grid; grid-template-columns:90px 1fr 60px; align-items:center; gap:14px; padding:5px 0; }
+.sb-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--text-2); text-transform:capitalize; }
+.sb-bar { position:relative; height:6px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
+.sb-bar-axis { position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18); z-index:2; }
+.sb-bar-fill { position:absolute; top:0; bottom:0; border-radius:2px; z-index:1; transition:width .25s ease-out; }
+.sb-bar-fill.sb-pos { background:linear-gradient(90deg, rgba(52,210,122,0.4), rgba(52,210,122,0.85)); }
+.sb-bar-fill.sb-neg { background:linear-gradient(270deg, rgba(255,31,61,0.4), rgba(255,31,61,0.85)); }
+.sb-val { font-family:'DM Mono',monospace; font-size:12px; text-align:right; font-weight:500; }
+.sb-val-pos { color:#34D27A; }
+.sb-val-neg { color:var(--apt-red); }
+.sb-val-na { color:var(--text-5); }
+.sb-comp-row { display:grid; grid-template-columns:90px 1fr; align-items:baseline; gap:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+.sb-comp-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.sb-comp { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; letter-spacing:-0.02em; text-align:right; line-height:1; }
+.sb-comp-pos { color:#34D27A; }
+.sb-comp-neg { color:var(--apt-red); }
+.sb-comp-na { color:var(--text-5); }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
 @media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
@@ -420,12 +442,12 @@ h1.hero-title {
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">372</div>
+        <div class="fs-val">371</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">210</div>
+        <div class="fs-val">209</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
