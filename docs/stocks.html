@@ -268,6 +268,60 @@ h1.hero-title {
 /* Stocks page: filterable table */
 .lib-sub { font-size:14px; color:var(--text-3); line-height:1.6; max-width:780px; margin-bottom:24px; }
 .picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+/* Advanced filter panel */
+.stk-filter-bar { display:flex; align-items:center; gap:10px; padding-top:6px; border-top:1px solid var(--border); margin-top:4px; flex-wrap:wrap; }
+.stk-filter-toggle {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 14px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px;
+  color:var(--text-2); cursor:pointer; background:rgba(255,31,61,0.06);
+  border:1px solid rgba(255,31,61,0.20); border-radius:999px; text-transform:uppercase;
+  transition:all .15s;
+}
+.stk-filter-toggle:hover { color:var(--text-1); border-color:rgba(255,31,61,0.45); }
+.stk-filter-toggle.open { color:var(--text-1); background:rgba(255,31,61,0.12); border-color:rgba(255,31,61,0.45); }
+.stk-filter-toggle-arrow { display:inline-block; font-size:14px; line-height:1; transition:transform .2s; }
+.stk-filter-toggle.open .stk-filter-toggle-arrow { transform:rotate(90deg); }
+.stk-filter-toggle-count { color:var(--apt-rose); font-weight:600; }
+.stk-filter-reset {
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  color:var(--text-3); background:transparent; border:none; cursor:pointer;
+  text-transform:uppercase; padding:8px 4px;
+}
+.stk-filter-reset:hover { color:var(--apt-rose); }
+
+.stk-filter-panel { display:flex; flex-direction:column; gap:10px; margin-top:6px; padding:14px 16px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:12px; }
+.stk-filter-row { display:grid; grid-template-columns:160px 110px auto 110px 1fr; align-items:center; gap:10px; }
+.stk-filter-row-toggle { grid-template-columns:1fr; }
+.stk-filter-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-filter-input {
+  padding:7px 10px; font-family:'DM Mono',monospace; font-size:12px;
+  color:var(--text-1); background:rgba(10,10,15,0.6);
+  border:1px solid var(--border); border-radius:8px; outline:none;
+  transition:border-color .15s, box-shadow .15s; width:100%;
+}
+.stk-filter-input:focus { border-color:var(--apt-red); box-shadow:0 0 0 2px rgba(255,31,61,0.10); }
+.stk-filter-input::placeholder { color:var(--text-5); }
+.stk-filter-sep { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); text-align:center; }
+.stk-filter-hint { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.stk-filter-quicks { display:flex; gap:5px; flex-wrap:wrap; }
+.stk-quick {
+  padding:5px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.2px;
+  color:var(--text-3); cursor:pointer; background:transparent;
+  border:1px solid var(--border); border-radius:6px; text-transform:uppercase; transition:all .15s;
+}
+.stk-quick:hover { color:var(--text-1); border-color:var(--border-bright); }
+.stk-quick.active { color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }
+.stk-filter-checkbox { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-2); cursor:pointer; }
+.stk-filter-checkbox input { accent-color:var(--apt-red); width:14px; height:14px; cursor:pointer; }
+
+@media (max-width:780px) {
+  .stk-filter-row { grid-template-columns:1fr 1fr; gap:6px 10px; }
+  .stk-filter-row .stk-filter-label { grid-column:1 / -1; }
+  .stk-filter-sep { display:none; }
+  .stk-filter-hint { grid-column:1 / -1; }
+  .stk-filter-quicks { grid-column:1 / -1; margin-top:4px; }
+}
+
 .stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
 .stk-head { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
@@ -362,6 +416,77 @@ h1.hero-title {
     <div class="lib-chips" id="stk-sector-chips">
       <span class="lib-chip-label">Sector</span>
       <span class="lib-chip active" data-sector="">All</span>
+    </div>
+    <div class="stk-filter-bar">
+      <button type="button" class="stk-filter-toggle" id="stk-filter-toggle" aria-expanded="false">
+        <span class="stk-filter-toggle-label">Advanced filters</span>
+        <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
+        <span class="stk-filter-toggle-arrow">&rsaquo;</span>
+      </button>
+      <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset filters</button>
+    </div>
+    <div class="stk-filter-panel" id="stk-filter-panel" hidden>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">Market Cap</span>
+        <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min (e.g. 300M)">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="max (e.g. 10B)">
+        <span class="stk-filter-quicks">
+          <button type="button" class="stk-quick" data-tier="micro">Micro</button>
+          <button type="button" class="stk-quick" data-tier="small">Small</button>
+          <button type="button" class="stk-quick" data-tier="mid">Mid</button>
+          <button type="button" class="stk-quick" data-tier="large">Large</button>
+          <button type="button" class="stk-quick" data-tier="mega">Mega</button>
+        </span>
+      </div>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">P/E (Trailing)</span>
+        <input type="text" class="stk-filter-input" data-filter="pe" data-bound="min" placeholder="min">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max (e.g. 30)">
+        <span class="stk-filter-hint">absolute multiple, blank for no limit</span>
+      </div>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">Revenue Growth YoY</span>
+        <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min % (e.g. 10)">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max %">
+        <span class="stk-filter-hint">enter as percent</span>
+      </div>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">52W High Proximity</span>
+        <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min % (e.g. -30)">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max % (e.g. -5)">
+        <span class="stk-filter-hint">always &le; 0; -30 means 30% off the high</span>
+      </div>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">ROE (TTM)</span>
+        <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min % (e.g. 15)">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max %">
+        <span class="stk-filter-hint">enter as percent</span>
+      </div>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">FCF Yield</span>
+        <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min % (e.g. 5)">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max %">
+        <span class="stk-filter-hint">enter as percent</span>
+      </div>
+      <div class="stk-filter-row">
+        <span class="stk-filter-label">Net Debt/EBITDA</span>
+        <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min (e.g. -1)">
+        <span class="stk-filter-sep">to</span>
+        <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max (e.g. 3)">
+        <span class="stk-filter-hint">ratio; negative means net cash</span>
+      </div>
+      <div class="stk-filter-row stk-filter-row-toggle">
+        <label class="stk-filter-checkbox">
+          <input type="checkbox" id="stk-only-enriched">
+          <span>Hide stocks without live market cap data</span>
+        </label>
+      </div>
     </div>
   </div>
   <div class="stk-table">
@@ -497,6 +622,73 @@ h1.hero-title {
   let sortKey = 'market_cap';
   let sortDir = -1;
 
+  // Range filter state. Values are stored in DATA UNITS (decimal fractions for
+  // percent fields, raw dollars for market cap). UI inputs use HUMAN UNITS
+  // (e.g. "10" for 10%, "5B" for $5B); parseFilterInput translates.
+  // Percent-coded fields are listed here so we can convert correctly.
+  const PCT_FIELDS = new Set([
+    'revenue_growth_yoy', 'high52w_proximity', 'roe_ttm', 'fcf_yield',
+    'eps_growth_yoy', 'change_pct', 'return_1m', 'return_12_2',
+    'rel_strength_sp500', 'volume_trend',
+    'gross_margin', 'operating_margin', 'gross_margin_trend',
+    'revenue_acceleration', 'fcf_growth_yoy',
+  ]);
+  // Market-cap-coded fields use 1B / 300M / 5T suffixes
+  const CAP_FIELDS = new Set(['market_cap', 'volume']);
+
+  const TIER_RANGES = {
+    micro: { min: 0,            max: 300e6 },
+    small: { min: 300e6,        max: 2e9 },
+    mid:   { min: 2e9,          max: 10e9 },
+    large: { min: 10e9,         max: 200e9 },
+    mega:  { min: 200e9,        max: null },
+  };
+
+  const filters = {};      // {field: {min, max}} in DATA UNITS
+  let onlyEnriched = false;
+
+  function parseFilterInput(raw, field) {
+    if (raw == null) return null;
+    let s = String(raw).trim().toUpperCase();
+    if (!s) return null;
+    let mult = 1;
+    if (s.endsWith('T'))      { mult = 1e12; s = s.slice(0, -1); }
+    else if (s.endsWith('B')) { mult = 1e9;  s = s.slice(0, -1); }
+    else if (s.endsWith('M')) { mult = 1e6;  s = s.slice(0, -1); }
+    else if (s.endsWith('K')) { mult = 1e3;  s = s.slice(0, -1); }
+    else if (s.endsWith('%')) { mult = 0.01; s = s.slice(0, -1); }
+    const n = parseFloat(s);
+    if (isNaN(n)) return null;
+    let val = n * mult;
+    // For percent-coded fields, treat bare numbers as percent (10 -> 0.10)
+    if (PCT_FIELDS.has(field) && mult === 1) val = val / 100;
+    return val;
+  }
+
+  function activeFilterCount() {
+    let c = 0;
+    for (const f of Object.values(filters)) {
+      if (f.min != null) c++;
+      if (f.max != null) c++;
+    }
+    if (onlyEnriched) c++;
+    return c;
+  }
+
+  function passesFilters(s) {
+    if (onlyEnriched && s.market_cap == null) return false;
+    for (const [field, range] of Object.entries(filters)) {
+      const v = s[field];
+      if (range.min != null) {
+        if (v == null || v < range.min) return false;
+      }
+      if (range.max != null) {
+        if (v == null || v > range.max) return false;
+      }
+    }
+    return true;
+  }
+
   function escapeHtml(s) {
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -600,6 +792,7 @@ h1.hero-title {
     let filtered = ALL.filter(s => {
       if (activeSector && s.sector !== activeSector) return false;
       if (activeIndex && s.index !== activeIndex) return false;
+      if (!passesFilters(s)) return false;
       if (!q) return true;
       return ((s.ticker||'')+' '+(s.name||'')+' '+(s.sector||'')+' '+(s.sub_industry||'')).toLowerCase().includes(q);
     });
@@ -682,6 +875,95 @@ h1.hero-title {
       render();
     });
   });
+
+  // ── Advanced filter panel ───────────────────────────────────────
+  const filterPanel = document.getElementById('stk-filter-panel');
+  const filterToggle = document.getElementById('stk-filter-toggle');
+  const filterCountEl = document.getElementById('stk-filter-count');
+  const filterReset = document.getElementById('stk-filter-reset');
+  const onlyEnrichedEl = document.getElementById('stk-only-enriched');
+
+  function syncFilterCount() {
+    const c = activeFilterCount();
+    if (c > 0) {
+      filterCountEl.hidden = false;
+      filterCountEl.textContent = '(' + c + ' active)';
+      filterReset.hidden = false;
+    } else {
+      filterCountEl.hidden = true;
+      filterReset.hidden = true;
+    }
+  }
+
+  if (filterToggle && filterPanel) {
+    filterToggle.addEventListener('click', () => {
+      const open = filterPanel.hasAttribute('hidden');
+      if (open) {
+        filterPanel.removeAttribute('hidden');
+        filterToggle.setAttribute('aria-expanded', 'true');
+        filterToggle.classList.add('open');
+      } else {
+        filterPanel.setAttribute('hidden', '');
+        filterToggle.setAttribute('aria-expanded', 'false');
+        filterToggle.classList.remove('open');
+      }
+    });
+  }
+
+  document.querySelectorAll('.stk-filter-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const field = inp.dataset.filter;
+      const bound = inp.dataset.bound;  // 'min' or 'max'
+      if (!filters[field]) filters[field] = { min: null, max: null };
+      filters[field][bound] = parseFilterInput(inp.value, field);
+      syncFilterCount();
+      render();
+    });
+  });
+
+  document.querySelectorAll('.stk-quick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tier = btn.dataset.tier;
+      const range = TIER_RANGES[tier];
+      if (!range) return;
+      filters.market_cap = { min: range.min, max: range.max };
+      // Reflect in inputs
+      const minInp = document.querySelector('.stk-filter-input[data-filter="market_cap"][data-bound="min"]');
+      const maxInp = document.querySelector('.stk-filter-input[data-filter="market_cap"][data-bound="max"]');
+      function fmtCapInput(v) {
+        if (v == null) return '';
+        if (v >= 1e9) return (v / 1e9) + 'B';
+        if (v >= 1e6) return (v / 1e6) + 'M';
+        return String(v);
+      }
+      if (minInp) minInp.value = fmtCapInput(range.min);
+      if (maxInp) maxInp.value = fmtCapInput(range.max);
+      // Visual highlight
+      document.querySelectorAll('.stk-quick').forEach(b => b.classList.toggle('active', b === btn));
+      syncFilterCount();
+      render();
+    });
+  });
+
+  if (onlyEnrichedEl) {
+    onlyEnrichedEl.addEventListener('change', () => {
+      onlyEnriched = onlyEnrichedEl.checked;
+      syncFilterCount();
+      render();
+    });
+  }
+
+  if (filterReset) {
+    filterReset.addEventListener('click', () => {
+      for (const k of Object.keys(filters)) delete filters[k];
+      onlyEnriched = false;
+      if (onlyEnrichedEl) onlyEnrichedEl.checked = false;
+      document.querySelectorAll('.stk-filter-input').forEach(i => i.value = '');
+      document.querySelectorAll('.stk-quick').forEach(b => b.classList.remove('active'));
+      syncFilterCount();
+      render();
+    });
+  }
 
   render();
 })();

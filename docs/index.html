@@ -268,6 +268,60 @@ h1.hero-title {
 /* Stocks page: filterable table */
 .lib-sub { font-size:14px; color:var(--text-3); line-height:1.6; max-width:780px; margin-bottom:24px; }
 .picks-meta { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+/* Advanced filter panel */
+.stk-filter-bar { display:flex; align-items:center; gap:10px; padding-top:6px; border-top:1px solid var(--border); margin-top:4px; flex-wrap:wrap; }
+.stk-filter-toggle {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 14px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1.5px;
+  color:var(--text-2); cursor:pointer; background:rgba(255,31,61,0.06);
+  border:1px solid rgba(255,31,61,0.20); border-radius:999px; text-transform:uppercase;
+  transition:all .15s;
+}
+.stk-filter-toggle:hover { color:var(--text-1); border-color:rgba(255,31,61,0.45); }
+.stk-filter-toggle.open { color:var(--text-1); background:rgba(255,31,61,0.12); border-color:rgba(255,31,61,0.45); }
+.stk-filter-toggle-arrow { display:inline-block; font-size:14px; line-height:1; transition:transform .2s; }
+.stk-filter-toggle.open .stk-filter-toggle-arrow { transform:rotate(90deg); }
+.stk-filter-toggle-count { color:var(--apt-rose); font-weight:600; }
+.stk-filter-reset {
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  color:var(--text-3); background:transparent; border:none; cursor:pointer;
+  text-transform:uppercase; padding:8px 4px;
+}
+.stk-filter-reset:hover { color:var(--apt-rose); }
+
+.stk-filter-panel { display:flex; flex-direction:column; gap:10px; margin-top:6px; padding:14px 16px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:12px; }
+.stk-filter-row { display:grid; grid-template-columns:160px 110px auto 110px 1fr; align-items:center; gap:10px; }
+.stk-filter-row-toggle { grid-template-columns:1fr; }
+.stk-filter-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-filter-input {
+  padding:7px 10px; font-family:'DM Mono',monospace; font-size:12px;
+  color:var(--text-1); background:rgba(10,10,15,0.6);
+  border:1px solid var(--border); border-radius:8px; outline:none;
+  transition:border-color .15s, box-shadow .15s; width:100%;
+}
+.stk-filter-input:focus { border-color:var(--apt-red); box-shadow:0 0 0 2px rgba(255,31,61,0.10); }
+.stk-filter-input::placeholder { color:var(--text-5); }
+.stk-filter-sep { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); text-align:center; }
+.stk-filter-hint { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.stk-filter-quicks { display:flex; gap:5px; flex-wrap:wrap; }
+.stk-quick {
+  padding:5px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.2px;
+  color:var(--text-3); cursor:pointer; background:transparent;
+  border:1px solid var(--border); border-radius:6px; text-transform:uppercase; transition:all .15s;
+}
+.stk-quick:hover { color:var(--text-1); border-color:var(--border-bright); }
+.stk-quick.active { color:#FFF; background:rgba(255,31,61,0.18); border-color:var(--apt-red); }
+.stk-filter-checkbox { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-2); cursor:pointer; }
+.stk-filter-checkbox input { accent-color:var(--apt-red); width:14px; height:14px; cursor:pointer; }
+
+@media (max-width:780px) {
+  .stk-filter-row { grid-template-columns:1fr 1fr; gap:6px 10px; }
+  .stk-filter-row .stk-filter-label { grid-column:1 / -1; }
+  .stk-filter-sep { display:none; }
+  .stk-filter-hint { grid-column:1 / -1; }
+  .stk-filter-quicks { grid-column:1 / -1; margin-top:4px; }
+}
+
 .stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
 .stk-head { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
@@ -366,12 +420,12 @@ h1.hero-title {
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">374</div>
+        <div class="fs-val">372</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">208</div>
+        <div class="fs-val">210</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
