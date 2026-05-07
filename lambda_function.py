@@ -1879,14 +1879,19 @@ STOCKS_JS_TEMPLATE = """
     return Number(n).toFixed(d == null ? 2 : d);
   }
 
-  // Factor groups for the expand panel, mirrored from Dark Matter playbook
+  // Factor groups for the expand panel: 5/5/5/5 layout matching Dark Matter playbook.
+  // Sources: yfinance for Tier-1/2 fields, SEC EDGAR for the 5 quarterly-trend fields
+  // (Revenue Acceleration, Gross Margin Trend, FCF Growth YoY, Earnings Consistency,
+  // Op Margin Stability).
   const FACTOR_GROUPS = [
     {
       title: 'Growth',
       rows: [
         ['Revenue Growth YoY', 'revenue_growth_yoy', 'pct'],
         ['EPS Growth YoY (GAAP)', 'eps_growth_yoy', 'pct'],
-        ['Gross Margin', 'gross_margin', 'pct'],
+        ['Revenue Acceleration', 'revenue_acceleration', 'pct'],
+        ['Gross Margin Trend', 'gross_margin_trend', 'pct'],
+        ['FCF Growth YoY', 'fcf_growth_yoy', 'pct'],
       ],
     },
     {
@@ -1902,9 +1907,9 @@ STOCKS_JS_TEMPLATE = """
     {
       title: 'Momentum',
       rows: [
-        ['52W High Proximity', 'high52w_proximity', 'pct'],
-        ['1-Month Return', 'return_1m', 'pct'],
         ['12-2 Month Return', 'return_12_2', 'pct'],
+        ['1-Month Return', 'return_1m', 'pct'],
+        ['52W High Proximity', 'high52w_proximity', 'pct'],
         ['Rel Strength vs S&P', 'rel_strength_sp500', 'pct'],
         ['Volume Trend', 'volume_trend', 'pct'],
       ],
@@ -1913,8 +1918,9 @@ STOCKS_JS_TEMPLATE = """
       title: 'Quality',
       rows: [
         ['ROE (TTM)', 'roe_ttm', 'pct'],
-        ['Operating Margin', 'operating_margin', 'pct'],
+        ['Earnings Consistency', 'earnings_consistency', 'ratio'],
         ['Net Debt/EBITDA', 'net_debt_ebitda', 'ratio'],
+        ['Op Margin Stability', 'op_margin_stability', 'ratio'],
         ['Accruals Ratio', 'accruals_ratio', 'pct'],
       ],
     },
@@ -2536,6 +2542,240 @@ def enrich_with_yfinance(stocks, max_workers=10):
     return enriched
 
 
+# ── SEC EDGAR (free, official) for quarterly-trend factors ──────────────────
+
+EDGAR_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
+EDGAR_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
+# SEC requires a User-Agent identifying the requester with a contact email.
+EDGAR_USER_AGENT = "Apterreon-IntelBrief/1.0 (ctlsmith@me.com)"
+
+# US-GAAP XBRL concept fallbacks. Companies tag the same economic concept under
+# different names depending on industry / vintage. Try each in order, keep the first.
+EDGAR_CONCEPT_FALLBACKS = {
+    "revenue": [
+        "Revenues",
+        "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "RevenueFromContractWithCustomerIncludingAssessedTax",
+        "SalesRevenueNet",
+        "SalesRevenueGoodsNet",
+    ],
+    "gross_profit": ["GrossProfit"],
+    "operating_income": ["OperatingIncomeLoss"],
+    "cfo": ["NetCashProvidedByUsedInOperatingActivities"],
+    "capex": [
+        "PaymentsToAcquirePropertyPlantAndEquipment",
+        "PaymentsToAcquireProductiveAssets",
+    ],
+    "eps_basic": ["EarningsPerShareBasic"],
+}
+
+
+def fetch_edgar_ticker_cik_map():
+    """Pull SEC's master ticker -> CIK mapping. ~14k entries, ~700KB. Cache friendly."""
+    try:
+        req = urllib.request.Request(EDGAR_TICKERS_URL, headers={"User-Agent": EDGAR_USER_AGENT})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        out = {}
+        for v in data.values():
+            t = (v.get("ticker") or "").upper().strip()
+            cik = v.get("cik_str")
+            if t and cik:
+                out[t] = int(cik)
+        return out
+    except Exception as e:
+        print(f"EDGAR ticker map fetch failed: {e}")
+        return {}
+
+
+def fetch_edgar_company_facts(cik):
+    """Fetch full XBRL facts for one CIK. Returns the 'facts' dict or None."""
+    try:
+        url = EDGAR_FACTS_URL.format(cik=int(cik))
+        req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        return data.get("facts", {})
+    except Exception:
+        return None
+
+
+def _extract_quarterly_series(facts, concept_keys, max_periods=12):
+    """Extract quarterly values for the first matching concept name.
+    Filters to ~90-day periods from 10-Qs (avoids YTD/comparable overlaps).
+    Returns list of {end, val} sorted most-recent-first, dedup'd by end date
+    (most recent filing wins)."""
+    from datetime import date as _date
+    us_gaap = facts.get("us-gaap", {})
+    for concept in concept_keys:
+        if concept not in us_gaap:
+            continue
+        units_dict = us_gaap[concept].get("units", {})
+        records = units_dict.get("USD") or units_dict.get("USD/shares") or []
+        if not records:
+            continue
+        clean = []
+        for r in records:
+            if r.get("form") not in ("10-Q", "10-Q/A"):
+                continue
+            start, end = r.get("start", ""), r.get("end", "")
+            if not start or not end:
+                continue
+            try:
+                period_days = (_date.fromisoformat(end) - _date.fromisoformat(start)).days
+                if 60 <= period_days <= 100:
+                    clean.append({"end": end, "val": r.get("val"), "filed": r.get("filed", "")})
+            except Exception:
+                continue
+        # Dedup by end date, keep most recent filing
+        by_end = {}
+        for r in clean:
+            existing = by_end.get(r["end"])
+            if not existing or r["filed"] > existing["filed"]:
+                by_end[r["end"]] = r
+        sorted_periods = sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
+        if sorted_periods:
+            return sorted_periods[:max_periods]
+    return []
+
+
+def compute_edgar_factors(facts):
+    """Compute the 5 quarterly-trend factors from a CIK's XBRL facts dict.
+    Each factor goes through a plausibility clamp; out-of-range values are dropped."""
+    if not facts:
+        return {}
+
+    revenues = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["revenue"])
+    gp = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["gross_profit"])
+    op_inc = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["operating_income"])
+    cfo = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["cfo"])
+    capex = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["capex"])
+    eps = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["eps_basic"])
+
+    out = {}
+
+    # Revenue Acceleration: ΔYoY growth quarter-over-quarter
+    # = (Q[n] vs Q[n-4]) growth - (Q[n-1] vs Q[n-5]) growth
+    if len(revenues) >= 5:
+        try:
+            base_curr = revenues[3].get("val")
+            base_prev = revenues[4].get("val")
+            if base_curr and base_prev and base_curr != 0 and base_prev != 0:
+                curr_g = (revenues[0]["val"] - base_curr) / abs(base_curr)
+                prev_g = (revenues[1]["val"] - base_prev) / abs(base_prev)
+                accel = curr_g - prev_g
+                if abs(accel) < 1:
+                    out["revenue_acceleration"] = accel
+        except (TypeError, KeyError):
+            pass
+
+    # Gross Margin Trend: this Q margin - same Q prior year margin
+    if revenues and gp:
+        rev_by_end = {r["end"]: r["val"] for r in revenues if r.get("val")}
+        gp_by_end = {r["end"]: r["val"] for r in gp if r.get("val")}
+        common = sorted(set(rev_by_end) & set(gp_by_end), reverse=True)
+        if len(common) >= 4:
+            try:
+                if rev_by_end[common[0]] > 0 and rev_by_end[common[3]] > 0:
+                    curr_m = gp_by_end[common[0]] / rev_by_end[common[0]]
+                    prev_m = gp_by_end[common[3]] / rev_by_end[common[3]]
+                    trend = curr_m - prev_m
+                    if abs(trend) < 0.5:
+                        out["gross_margin_trend"] = trend
+            except (TypeError, KeyError):
+                pass
+
+    # FCF Growth YoY: TTM FCF current vs TTM FCF prior year
+    # FCF = CFO - CapEx (per quarter), TTM = sum of last 4 quarters
+    if cfo and capex:
+        cfo_by_end = {r["end"]: r["val"] for r in cfo if r.get("val") is not None}
+        capex_by_end = {r["end"]: r["val"] for r in capex if r.get("val") is not None}
+        common = sorted(set(cfo_by_end) & set(capex_by_end), reverse=True)
+        if len(common) >= 8:
+            try:
+                curr_ttm = sum(cfo_by_end[d] - capex_by_end[d] for d in common[:4])
+                prev_ttm = sum(cfo_by_end[d] - capex_by_end[d] for d in common[4:8])
+                if prev_ttm != 0:
+                    growth = (curr_ttm - prev_ttm) / abs(prev_ttm)
+                    if abs(growth) < 5:
+                        out["fcf_growth_yoy"] = growth
+            except (TypeError, KeyError):
+                pass
+
+    # Earnings Consistency: 1 / (1 + coefficient_of_variation) of quarterly EPS.
+    # Higher value = more consistent (range 0 to 1, intuitive for users).
+    if len(eps) >= 4:
+        vals = [r["val"] for r in eps[:8] if r.get("val") is not None]
+        if len(vals) >= 4:
+            mean_v = sum(vals) / len(vals)
+            if abs(mean_v) > 0.001:
+                variance = sum((v - mean_v) ** 2 for v in vals) / len(vals)
+                stddev = variance ** 0.5
+                cv = stddev / abs(mean_v)
+                if 0 <= cv < 100:
+                    out["earnings_consistency"] = 1 / (1 + cv)
+
+    # Op Margin Stability: stddev of quarterly operating margins (lower = more stable).
+    # We report raw stddev so users see the dispersion directly; smaller is better.
+    if revenues and op_inc:
+        rev_by_end = {r["end"]: r["val"] for r in revenues if r.get("val")}
+        op_by_end = {r["end"]: r["val"] for r in op_inc if r.get("val") is not None}
+        common = sorted(set(rev_by_end) & set(op_by_end), reverse=True)
+        margins = []
+        for d in common[:8]:
+            if rev_by_end[d] > 0:
+                margins.append(op_by_end[d] / rev_by_end[d])
+        if len(margins) >= 4:
+            mean_m = sum(margins) / len(margins)
+            variance = sum((m - mean_m) ** 2 for m in margins) / len(margins)
+            stddev = variance ** 0.5
+            if 0 <= stddev < 1:
+                out["op_margin_stability"] = stddev
+
+    return out
+
+
+def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
+    """For each stock with a CIK match, fetch EDGAR companyfacts and compute the
+    5 quarterly-trend factors. Updates dicts in place. Honors SEC's 10 req/sec
+    rate limit via 8 worker threads (each thread sleeps minimally between calls).
+    Returns count of tickers enriched."""
+    if not stocks or not ticker_cik_map:
+        print("EDGAR enrichment: no stocks or empty CIK map, skipping.")
+        return 0
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    by_ticker = {s["ticker"]: s for s in stocks}
+    matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
+    matched = [(t, cik) for t, cik in matched if cik]
+
+    today_str = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+
+    def process(item):
+        sym, cik = item
+        facts = fetch_edgar_company_facts(cik)
+        if not facts:
+            return sym, {}
+        return sym, compute_edgar_factors(facts)
+
+    enriched = 0
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = [ex.submit(process, item) for item in matched]
+        for f in as_completed(futures):
+            sym, factors = f.result()
+            if not factors:
+                continue
+            s = by_ticker.get(sym)
+            if s:
+                s.update(factors)
+                s["edgar_updated"] = today_str
+                enriched += 1
+    elapsed = time.time() - t0
+    print(f"EDGAR enrichment: enriched {enriched}/{len(matched)} matched tickers ({len(by_ticker) - len(matched)} no CIK match) in {elapsed:.1f}s.")
+    return enriched
+
+
 # ── Stocks universe (weekly cached) ─────────────────────────────────────────
 
 def get_or_generate_stocks_universe():
@@ -2588,6 +2828,9 @@ def get_or_generate_stocks_universe():
         "rel_strength_sp500", "volume_trend",
         "roe_ttm", "net_debt_ebitda", "accruals_ratio",
         "operating_margin", "gross_margin",
+        # EDGAR-derived (refreshed weekly)
+        "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy",
+        "earnings_consistency", "op_margin_stability", "edgar_updated",
     )
     carried_forward = 0
     if last_known and last_known.get("stocks"):
@@ -2607,23 +2850,48 @@ def get_or_generate_stocks_universe():
     # Fresh yfinance pass overwrites carried-forward data where successful and adds
     # the intraday fields (price, change_pct, volume).
     fresh_count = enrich_with_yfinance(stocks)
+
+    # EDGAR enrichment: weekly cadence (heavy: ~3 min for 1500 tickers).
+    # Skip if any cached ticker has edgar_updated stamped within this ISO week.
+    should_run_edgar = True
+    if last_known and last_known.get("stocks"):
+        recent_edgar = next((s for s in last_known["stocks"] if s.get("edgar_updated")), None)
+        if recent_edgar:
+            try:
+                edgar_dt = datetime.fromisoformat(recent_edgar["edgar_updated"]).date()
+                edgar_iso_year, edgar_iso_week, _ = edgar_dt.isocalendar()
+                if edgar_iso_year == iso_year and edgar_iso_week == iso_week:
+                    should_run_edgar = False
+                    print(f"EDGAR: cache stamped {recent_edgar['edgar_updated']} (this week), skipping refresh.")
+            except Exception:
+                pass
+    edgar_count = 0
+    if should_run_edgar:
+        cik_map = fetch_edgar_ticker_cik_map()
+        if cik_map:
+            edgar_count = enrich_with_edgar(stocks, cik_map)
+
     total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
     total_with_price = sum(1 for s in stocks if s.get("price"))
+    total_with_edgar = sum(1 for s in stocks if s.get("edgar_updated"))
 
     result = {
         "iso_week": week_key,
         "generated_at": now.isoformat(),
-        "source": "wikipedia + yfinance",
+        "source": "wikipedia + yfinance + edgar",
         "enriched": bool(total_with_cap),
         "fresh_this_run": fresh_count,
+        "edgar_this_run": edgar_count,
         "total_with_market_cap": total_with_cap,
         "total_with_price": total_with_price,
+        "total_with_edgar": total_with_edgar,
         "stocks": stocks,
     }
     cache_path.write_text(json.dumps(result, separators=(",", ":")), encoding="utf-8")
     pct_cap = (total_with_cap / len(stocks) * 100) if stocks else 0
     pct_price = (total_with_price / len(stocks) * 100) if stocks else 0
-    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh this run; {total_with_cap} ({pct_cap:.0f}%) with market_cap, {total_with_price} ({pct_price:.0f}%) with current price).")
+    pct_edgar = (total_with_edgar / len(stocks) * 100) if stocks else 0
+    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
     return result
 
 
