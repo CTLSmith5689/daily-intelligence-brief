@@ -5342,6 +5342,7 @@ def get_or_generate_stocks_universe():
         any(s.get("op_margin_history") for s in cached_stocks)
         and any((s.get("benford") or {}).get("mad") is not None for s in cached_stocks)
         and any(s.get("analyst_count") is not None for s in cached_stocks)
+        and any(s.get("insider_updated") for s in cached_stocks)
     )
     if last_known and last_known.get("iso_week") == week_key and schema_ok:
         try:
