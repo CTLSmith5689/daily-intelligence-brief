@@ -3623,14 +3623,18 @@ def get_or_generate_stocks_universe():
         except Exception as e:
             print(f"stocks_universe: cache read error: {e}")
 
-    # Short-circuit: if cache is very fresh (< 4h) and same week, skip the refresh.
-    # This covers the case of midday/evening workflow runs reusing morning's enrichment.
+    # Short-circuit: if cache is very fresh (< 4h) and same week, skip the heavy
+    # refresh. News still gets a chance to fetch on its own 12h cadence so a
+    # fresh-deploy after a recent run doesn't have to wait until tomorrow morning.
     if last_known and last_known.get("iso_week") == week_key:
         try:
             last_dt = datetime.fromisoformat(last_known.get("generated_at", ""))
             age_hours = (now - last_dt).total_seconds() / 3600
             if age_hours < 4:
                 print(f"stocks_universe: using cache from {age_hours:.1f}h ago.")
+                # News has its own 12h per-file cache; this call is a no-op for
+                # tickers already cached and just fills any holes.
+                enrich_with_news(last_known.get("stocks") or [])
                 return last_known
         except Exception:
             pass
