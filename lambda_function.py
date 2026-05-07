@@ -5103,11 +5103,16 @@ def _parse_form4_xml(cik, accession, primary_doc):
     """Fetch + parse one Form 4 XML. Returns list of nonDerivative transactions
     {date, code, shares, price, value, acquired_disposed, owner}. Open-market
     purchases are code='P', open-market sales are code='S'. Skips derivative
-    table for v1 (options/restricted units add noise to the buy/sell signal)."""
+    table for v1 (options/restricted units add noise to the buy/sell signal).
+    Note: SEC's primaryDocument path often points to the XSL-rendered HTML
+    view (xslF345X06/wk-form4_*.xml). Strip that prefix to get raw XML."""
     try:
-        # accession typically formatted like 0001234567-26-000012
         acc_no_dashes = (accession or "").replace("-", "")
-        url = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc_no_dashes}/{primary_doc}"
+        # Drop the XSL stylesheet prefix when present so we get raw XML.
+        doc_raw = primary_doc or ""
+        if "/" in doc_raw:
+            doc_raw = doc_raw.rsplit("/", 1)[-1]
+        url = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc_no_dashes}/{doc_raw}"
         req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/xml"})
         with urllib.request.urlopen(req, timeout=15) as resp:
             xml_bytes = resp.read()
@@ -5342,7 +5347,9 @@ def get_or_generate_stocks_universe():
         any(s.get("op_margin_history") for s in cached_stocks)
         and any((s.get("benford") or {}).get("mad") is not None for s in cached_stocks)
         and any(s.get("analyst_count") is not None for s in cached_stocks)
-        and any(s.get("insider_updated") for s in cached_stocks)
+        # Need at least one ticker with an actual signal (not just the timestamp),
+        # otherwise we're trusting a known-broken first run.
+        and any(s.get("insider_tx_count_90d") for s in cached_stocks)
     )
     if last_known and last_known.get("iso_week") == week_key and schema_ok:
         try:
@@ -5450,7 +5457,8 @@ def get_or_generate_stocks_universe():
     should_run_insider = True
     if last_known and last_known.get("stocks"):
         recent_insider = next((s for s in last_known["stocks"] if s.get("insider_updated")), None)
-        if recent_insider:
+        has_real_signal = any(s.get("insider_tx_count_90d") for s in last_known["stocks"])
+        if recent_insider and has_real_signal:
             try:
                 insider_dt = datetime.fromisoformat(recent_insider["insider_updated"]).date()
                 in_iso_year, in_iso_week, _ = insider_dt.isocalendar()
@@ -5459,6 +5467,8 @@ def get_or_generate_stocks_universe():
                     print(f"Insider: cache stamped {recent_insider['insider_updated']} (this week), skipping refresh.")
             except Exception:
                 pass
+        elif recent_insider and not has_real_signal:
+            print("Insider: previous run produced 0 signals, forcing re-run (likely a parser fix).")
         else:
             print("Insider: schema bump detected (insider_updated missing), forcing re-run.")
     insider_count = 0
