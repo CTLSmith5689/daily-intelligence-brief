@@ -1470,6 +1470,12 @@ h1.hero-title {
 .themes-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
 .theme-pill { padding:6px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; background:rgba(255,31,61,0.06); border:1px solid rgba(255,31,61,0.20); border-radius:999px; }
 
+.snapshot-list { list-style:none; padding:0; margin:0 0 4px 0; max-width:920px; }
+.snapshot-list li { position:relative; padding:14px 0 14px 28px; border-top:1px solid var(--border); font-size:17px; line-height:1.55; color:var(--text-1); font-weight:400; letter-spacing:-0.005em; }
+.snapshot-list li:first-child { border-top:none; padding-top:6px; }
+.snapshot-list li::before { content:''; position:absolute; left:6px; top:24px; width:8px; height:8px; border-radius:50%; background:var(--apt-rose); box-shadow:0 0 12px rgba(255,31,61,0.35); }
+.snapshot-list li:first-child::before { top:16px; }
+
 .destinations { max-width:1200px; margin:0 auto; padding:24px 24px 64px; }
 .destinations-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:32px; flex-wrap:wrap; gap:18px; }
 .destinations-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:36px; letter-spacing:-0.02em; line-height:1.1; }
@@ -2001,16 +2007,21 @@ def render_page(title, body_html, active_nav="", extra_scripts=""):
 
 RECENT_TRENDS_PROMPT = """You are an analyst summarizing the past several days of an intelligence brief.
 
-You will receive a chronological list of brief synthesis lines and top headlines. Identify the dominant narratives, the recurring threads, and what has shifted across the period.
+You will receive a chronological list of brief synthesis lines and top headlines. Identify the dominant shifts, the recurring threads, and the structural narratives that emerged across the period.
 
 Return ONLY valid JSON (no markdown fences, no preamble):
 {
-  "synthesis": "1 to 2 short paragraphs of meta-narrative across the period. Plain prose, no lists. About 120 to 180 words total. Be specific. Reference actual events, not abstractions.",
+  "snapshot": [
+    "Bullet 1: a single-sentence shift or narrative across the period. Specific. References actual events.",
+    "Bullet 2: a different shift or narrative.",
+    "Bullet 3: a third shift or narrative."
+  ],
   "themes": ["short phrase", "short phrase", "..."]
 }
 
 RULES:
-- Themes: 3 to 5 short phrases, 4 to 8 words each, capturing the recurring threads.
+- snapshot: EXACTLY 3 bullets. Each is one sentence, 20 to 35 words. No filler, no hedging. Each must stand alone (the reader scans these in 5 seconds).
+- themes: 3 to 5 short phrases, 4 to 8 words each, capturing recurring threads orthogonally to the snapshot bullets.
 - NEVER use em dashes (the long dash character). Use periods, commas, or colons instead.
 - Output ONLY the JSON object. No commentary."""
 
@@ -2041,24 +2052,33 @@ def _parse_json_strict(text):
 
 
 def get_or_generate_recent_trends(briefs):
-    """Daily-cached synthesis across the past ~10 calendar days of briefs.
-    Returns dict with 'date', 'synthesis', 'themes'. Falls back gracefully on any error."""
+    """Daily-cached snapshot of the past ~10 calendar days of briefs as 3 scannable
+    bullets plus 3-5 recurring themes. Returns dict with 'date', 'snapshot' (list of
+    bullet strings), 'themes' (list of phrase strings). Falls back gracefully on
+    any error."""
     today = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
     cache_path = STATE_DIR / "recent_trends.json"
 
     if cache_path.exists():
         try:
             cached = json.loads(cache_path.read_text(encoding="utf-8"))
-            if cached.get("date") == today:
+            if cached.get("date") == today and cached.get("snapshot"):
                 return cached
         except Exception as e:
             print(f"recent_trends: cache read error: {e}")
 
-    fallback_synthesis = (briefs[0].get("the_edge") if briefs else "") or "Recent trends will appear here once briefs accumulate."
-    fallback = {"date": today, "synthesis": fallback_synthesis.strip(), "themes": []}
+    # Fallback: derive bullets from the latest few the_edge synthesis lines
+    fallback_bullets = []
+    for b in briefs[:3]:
+        edge = (b.get("the_edge") or "").strip()
+        if edge:
+            fallback_bullets.append(edge)
+    if not fallback_bullets:
+        fallback_bullets = ["Recent trends will appear here once briefs accumulate."]
+    fallback = {"date": today, "snapshot": fallback_bullets[:3], "themes": []}
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("recent_trends: no API key, using fallback (latest the_edge).")
+        print("recent_trends: no API key, using fallback (latest the_edge bullets).")
         return fallback
 
     by_date = {}
@@ -2090,21 +2110,25 @@ def get_or_generate_recent_trends(briefs):
     try:
         text, usage = call_claude(RECENT_TRENDS_PROMPT, user_input)
         parsed = _parse_json_strict(text)
-        synthesis = (parsed.get("synthesis") or "").strip()
+        snapshot_raw = parsed.get("snapshot") or []
+        if not isinstance(snapshot_raw, list):
+            snapshot_raw = []
+        snapshot = [str(b).strip().replace(" — ", ", ").replace("—", ",") for b in snapshot_raw if str(b).strip()][:3]
         themes = parsed.get("themes") or []
         if not isinstance(themes, list):
             themes = []
         themes = [str(t).strip() for t in themes if str(t).strip()][:5]
-        if not synthesis:
+        if not snapshot:
+            print("recent_trends: empty snapshot from Claude, using fallback.")
             return fallback
         result = {
             "date": today,
-            "synthesis": synthesis,
+            "snapshot": snapshot,
             "themes": themes,
             "usage": usage,
         }
         cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        print(f"recent_trends: regenerated for {today} ({usage.get('total_tokens', 0)} tokens, ${usage.get('cost_this_call', 0):.4f}).")
+        print(f"recent_trends: regenerated for {today} ({len(snapshot)} bullets, {len(themes)} themes, ${usage.get('cost_this_call', 0):.4f}).")
         return result
     except Exception as e:
         print(f"recent_trends: generation failed: {e}")
@@ -2390,7 +2414,13 @@ def generate_home(briefs, recent_trends):
     """Write docs/index.html: v6 hero, Recent Trends panel, three destination cards."""
     eyebrow_text = _hero_eyebrow_text(briefs)
 
-    synthesis = (recent_trends.get("synthesis") or "").strip() or "Recent trends will appear here once briefs accumulate."
+    snapshot = recent_trends.get("snapshot") or []
+    if not snapshot:
+        # Backwards-compat: read legacy 'synthesis' as a single bullet
+        legacy = (recent_trends.get("synthesis") or "").strip()
+        snapshot = [legacy] if legacy else ["Recent trends will appear here once briefs accumulate."]
+    snapshot_html = '<ul class="snapshot-list">' + "".join(f'<li>{b}</li>' for b in snapshot) + '</ul>'
+
     themes = recent_trends.get("themes") or []
     themes_html = ""
     if themes:
@@ -2427,8 +2457,8 @@ def generate_home(briefs, recent_trends):
       <span>Apterreon</span><span class="dot"></span>
       <span>Past {min(10, total_briefs)} brief days</span>
     </div>
-    <div class="feat-kicker">What the picture looks like</div>
-    <p class="feat-body">{synthesis}</p>
+    <div class="feat-kicker">Snapshot</div>
+    {snapshot_html}
     {themes_html}
     <div class="feat-grid">
       <div class="feat-stat">
