@@ -452,6 +452,16 @@ h1.hero-title {
 .nws-item:hover .nws-title { color:var(--apt-rose); }
 .nws-empty { padding:14px 0; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-5); text-transform:uppercase; text-align:center; }
 
+/* Per-bucket sentiment header (Loughran-McDonald + VADER) */
+.nws-sent-row { display:flex; gap:14px; padding:8px 10px; margin-bottom:8px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:6px; align-items:center; }
+.nws-sent-cell { display:flex; align-items:baseline; gap:6px; flex:1; }
+.nws-sent-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }
+.nws-sent-val { font-family:'DM Mono',monospace; font-size:12px; font-weight:600; }
+.nws-sent-pos { color:#34D27A; }
+.nws-sent-neg { color:var(--apt-red); }
+.nws-sent-neutral { color:var(--text-2); }
+.nws-sent-na { color:var(--text-5); }
+
 /* Stocks page top row: search + Index/Sector chips full-width above the wrap */
 .stk-toprow { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:14px 16px; margin-bottom:14px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; }
 .stk-toprow > .lib-search { flex:1 1 280px; min-width:220px; }
@@ -1227,9 +1237,35 @@ h1.hero-title {
     const week  = items.filter(i => i.ts && (now - i.ts) >= DAY && (now - i.ts) < 7 * DAY);
     const month = items.filter(i => i.ts && (now - i.ts) >= 7 * DAY && (now - i.ts) < 31 * DAY);
 
+    function avgScore(bucket, key) {
+      const vals = bucket.map(i => i[key]).filter(v => typeof v === 'number');
+      if (!vals.length) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+    function fmtSent(v) {
+      if (v == null) return '—';
+      const s = v >= 0 ? '+' : '';
+      return s + v.toFixed(2);
+    }
+    function sentClass(v) {
+      if (v == null) return 'nws-sent-na';
+      if (v <= -0.10) return 'nws-sent-neg';
+      if (v >= 0.10) return 'nws-sent-pos';
+      return 'nws-sent-neutral';
+    }
+    function sentimentRow(bucket) {
+      const lm = avgScore(bucket, 'lm');
+      const vd = avgScore(bucket, 'vader');
+      return '<div class="nws-sent-row">'
+        + '<div class="nws-sent-cell"><span class="nws-sent-label">LM</span> <span class="nws-sent-val ' + sentClass(lm) + '">' + fmtSent(lm) + '</span></div>'
+        + '<div class="nws-sent-cell"><span class="nws-sent-label">VADER</span> <span class="nws-sent-val ' + sentClass(vd) + '">' + fmtSent(vd) + '</span></div>'
+      + '</div>';
+    }
+
     function bucketHTML(label, bucket) {
       if (!bucket.length) {
         return '<div class="nws-col"><div class="nws-col-h">' + label + '</div>'
+          + sentimentRow(bucket)
           + '<div class="nws-empty">—</div></div>';
       }
       const links = bucket.slice(0, 6).map(i =>
@@ -1240,6 +1276,7 @@ h1.hero-title {
       ).join('');
       return '<div class="nws-col"><div class="nws-col-h">' + label
         + ' <span class="nws-count">' + bucket.length + '</span></div>'
+        + sentimentRow(bucket)
         + links + '</div>';
     }
 
