@@ -505,6 +505,18 @@ h1.hero-title {
 .stk-sidebar .stk-weight-presets-label { font-size:8px; }
 .stk-filter-toggle-count { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:2px 0; }
 
+/* Stocks page: lock the page to the viewport so only the list scrolls. */
+body.page-stocks { overflow:hidden; height:100vh; }
+body.page-stocks .lib.lib-wide { height:calc(100vh - 90px); padding-top:18px; padding-bottom:14px; display:flex; flex-direction:column; min-height:0; }
+body.page-stocks .lib.lib-wide .lib-h { flex-shrink:0; }
+body.page-stocks .stk-toprow { position:static; flex-shrink:0; margin-bottom:10px; }
+body.page-stocks .stk-wrap { flex:1 1 auto; min-height:0; margin-top:0; align-items:stretch; }
+body.page-stocks .stk-sidebar { position:static; top:auto; max-height:none; height:100%; }
+body.page-stocks .stk-main { display:flex; flex-direction:column; min-height:0; height:100%; }
+body.page-stocks .stk-table { flex:1 1 auto; min-height:0; max-height:none; }
+body.page-stocks .picks-meta { display:none; }
+body.page-stocks .footer { display:none; }
+
 @media (max-width:1080px) {
   .stk-wrap { grid-template-columns:1fr; }
   .stk-sidebar { position:static; max-height:none; overflow:visible; }
@@ -540,7 +552,7 @@ h1.hero-title {
 
 </style>
 </head>
-<body>
+<body class="page-stocks">
 
 <canvas id="plexus" aria-hidden="true"></canvas>
 
