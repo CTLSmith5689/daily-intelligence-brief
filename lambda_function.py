@@ -1681,6 +1681,28 @@ h1.hero-title {
 /* Expand-on-click factor panel */
 .stk-detail { padding:14px 22px 22px; background:rgba(10,10,15,0.6); border-top:1px solid var(--border); animation:fpFadeIn .25s ease-out; }
 @keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+/* Score breakdown card (sits above the 4 factor cards) */
+.sb-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; }
+.sb-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
+.sb-h-sub { font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:none; font-style:italic; opacity:0.8; }
+.sb-row { display:grid; grid-template-columns:90px 1fr 60px; align-items:center; gap:14px; padding:5px 0; }
+.sb-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--text-2); text-transform:capitalize; }
+.sb-bar { position:relative; height:6px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
+.sb-bar-axis { position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18); z-index:2; }
+.sb-bar-fill { position:absolute; top:0; bottom:0; border-radius:2px; z-index:1; transition:width .25s ease-out; }
+.sb-bar-fill.sb-pos { background:linear-gradient(90deg, rgba(52,210,122,0.4), rgba(52,210,122,0.85)); }
+.sb-bar-fill.sb-neg { background:linear-gradient(270deg, rgba(255,31,61,0.4), rgba(255,31,61,0.85)); }
+.sb-val { font-family:'DM Mono',monospace; font-size:12px; text-align:right; font-weight:500; }
+.sb-val-pos { color:#34D27A; }
+.sb-val-neg { color:var(--apt-red); }
+.sb-val-na { color:var(--text-5); }
+.sb-comp-row { display:grid; grid-template-columns:90px 1fr; align-items:baseline; gap:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+.sb-comp-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.sb-comp { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; letter-spacing:-0.02em; text-align:right; line-height:1; }
+.sb-comp-pos { color:#34D27A; }
+.sb-comp-neg { color:var(--apt-red); }
+.sb-comp-na { color:var(--text-5); }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
 @media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
@@ -2053,6 +2075,100 @@ STOCKS_JS_TEMPLATE = """
     return fmtNum(val, 2);
   }
 
+  // ── Score breakdown: peer-relative z-scores per dimension ──────
+  // Benchmark = the stock's own sector peers within the universe.
+  // Higher score = better-than-peers on that dimension.
+  // Fields where a LOWER value is better (P/E, leverage, accruals) are inverted.
+  const SCORE_GROUPS = {
+    Growth:   { fields: ['revenue_growth_yoy', 'eps_growth_yoy', 'revenue_acceleration', 'gross_margin_trend', 'fcf_growth_yoy'], invert: [] },
+    Value:    { fields: ['pe', 'ev_ebitda', 'ev_revenue', 'price_book', 'fcf_yield'], invert: ['pe', 'ev_ebitda', 'ev_revenue', 'price_book'] },
+    Momentum: { fields: ['return_12_2', 'return_1m', 'high52w_proximity', 'rel_strength_sp500', 'volume_trend'], invert: [] },
+    Quality:  { fields: ['roe_ttm', 'earnings_consistency', 'net_debt_ebitda', 'op_margin_stability', 'accruals_ratio'], invert: ['net_debt_ebitda', 'op_margin_stability', 'accruals_ratio'] },
+  };
+
+  // Pre-compute per-sector mean and stddev for every scoring field at init.
+  // ~12 sectors x ~20 fields = 240 stats objects, computed once. Fast.
+  const PEER_STATS = (function() {
+    const stats = {};
+    const allFields = new Set();
+    for (const g of Object.values(SCORE_GROUPS)) {
+      for (const f of g.fields) allFields.add(f);
+    }
+    for (const s of ALL) {
+      const sector = s.sector || 'Unknown';
+      if (!stats[sector]) stats[sector] = {};
+      for (const f of allFields) {
+        const v = s[f];
+        if (v == null || !isFinite(v)) continue;
+        if (!stats[sector][f]) stats[sector][f] = { sum: 0, sumSq: 0, count: 0 };
+        stats[sector][f].sum += v;
+        stats[sector][f].sumSq += v * v;
+        stats[sector][f].count++;
+      }
+    }
+    for (const sector of Object.keys(stats)) {
+      for (const f of Object.keys(stats[sector])) {
+        const x = stats[sector][f];
+        x.mean = x.sum / x.count;
+        const variance = (x.sumSq / x.count) - (x.mean * x.mean);
+        x.stddev = Math.sqrt(Math.max(0, variance));
+      }
+    }
+    return stats;
+  })();
+
+  function scoreDimension(s, groupKey) {
+    const sector = s.sector || 'Unknown';
+    const sectorStats = PEER_STATS[sector];
+    if (!sectorStats) return null;
+    const group = SCORE_GROUPS[groupKey];
+    let sum = 0, count = 0;
+    for (const f of group.fields) {
+      const v = s[f];
+      if (v == null || !isFinite(v)) continue;
+      const stat = sectorStats[f];
+      if (!stat || !stat.stddev || stat.stddev === 0 || stat.count < 5) continue;
+      let z = (v - stat.mean) / stat.stddev;
+      if (group.invert.includes(f)) z = -z;
+      // Clamp to ±3 for display sanity (real outliers usually mean bad data)
+      z = Math.max(-3, Math.min(3, z));
+      sum += z;
+      count++;
+    }
+    return count > 0 ? sum / count : null;
+  }
+
+  function buildScoreBreakdown(s) {
+    const dims = ['Growth', 'Value', 'Momentum', 'Quality'];
+    const scores = dims.map(d => ({ name: d, val: scoreDimension(s, d) }));
+    const valid = scores.filter(x => x.val != null);
+    const composite = valid.length > 0 ? valid.reduce((a, b) => a + b.val, 0) / valid.length : null;
+
+    const rows = scores.map(d => {
+      if (d.val == null) {
+        return '<div class="sb-row"><span class="sb-label">'+d.name+'</span><div class="sb-bar"><div class="sb-bar-axis"></div></div><span class="sb-val sb-val-na">—</span></div>';
+      }
+      const pct = Math.min(100, Math.abs(d.val) / 3 * 50);  // 50% = max half-bar at z=±3
+      const isPos = d.val >= 0;
+      const fill = '<div class="sb-bar-fill ' + (isPos ? 'sb-pos' : 'sb-neg') + '" style="' + (isPos ? 'left:50%' : 'right:50%') + '; width:' + pct.toFixed(1) + '%"></div>';
+      const valStr = (isPos ? '+' : '') + d.val.toFixed(2);
+      const valClass = isPos ? 'sb-val sb-val-pos' : 'sb-val sb-val-neg';
+      return '<div class="sb-row"><span class="sb-label">'+d.name+'</span><div class="sb-bar"><div class="sb-bar-axis"></div>'+fill+'</div><span class="'+valClass+'">'+valStr+'</span></div>';
+    }).join('');
+
+    let compositeStr, compClass;
+    if (composite == null) {
+      compositeStr = '—'; compClass = 'sb-comp-na';
+    } else {
+      compositeStr = (composite >= 0 ? '+' : '') + composite.toFixed(2);
+      compClass = composite >= 0 ? 'sb-comp-pos' : 'sb-comp-neg';
+    }
+    return '<div class="sb-card"><div class="sb-h">Score Breakdown <span class="sb-h-sub">vs Sector Peers</span></div>'
+      + rows
+      + '<div class="sb-comp-row"><span class="sb-comp-label">vs Bmk</span><span class="sb-comp ' + compClass + '">' + compositeStr + '</span></div>'
+      + '</div>';
+  }
+
   function buildDetail(s) {
     const groups = FACTOR_GROUPS.map(g => {
       const items = g.rows.map(([label, key, type]) => {
@@ -2062,7 +2178,8 @@ STOCKS_JS_TEMPLATE = """
       }).join('');
       return '<div class="fp-card"><div class="fp-card-h">'+g.title+'</div>'+items+'</div>';
     }).join('');
-    return '<div class="stk-detail"><div class="fp-grid">'+groups+'</div></div>';
+    const scoreCard = buildScoreBreakdown(s);
+    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div></div>';
   }
 
   let expanded = new Set();
