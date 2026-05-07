@@ -323,12 +323,12 @@ h1.hero-title {
 }
 
 .stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-.stk-head { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
+.stk-row { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
 .stk-row:hover { background:rgba(22,23,31,0.6); }
 .stk-ticker { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
@@ -339,6 +339,8 @@ h1.hero-title {
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+.stk-date { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-3); text-align:right; padding-top:3px; }
+.stk-date-dim { color:var(--text-4); }
 .stk-row { cursor:pointer; }
 .stk-row .stk-ticker { transition:color .15s; }
 .stk-row:hover .stk-ticker { color:#FFB347; }
@@ -381,6 +383,8 @@ h1.hero-title {
   .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
   .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
   .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
+  .stk-th[data-sort="earnings_date"], .stk-row .stk-date:not(.stk-date-dim) { display:none; }
+  .stk-th[data-sort="last_updated"], .stk-row .stk-date.stk-date-dim { display:none; }
   .stk-detail { padding:12px 14px 18px; }
 }
 
@@ -442,7 +446,7 @@ h1.hero-title {
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">371</div>
+        <div class="fs-val">374</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
