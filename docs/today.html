@@ -546,10 +546,21 @@ body.page-stocks .footer { display:none; }
 .fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
 .fp-card-toggle:hover { color:var(--apt-rose); }
 .fp-card-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease, color .15s; }
-.fp-card.fp-card-open .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
-.fp-meta { display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); }
-.fp-card.fp-card-open .fp-meta { display:block; }
-.fp-meta-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fp-card.fp-card-active .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.fp-card.fp-card-active { border-color:var(--apt-rose); box-shadow:0 0 0 1px rgba(255,57,77,0.18); }
+
+/* Standalone methodology card. Slides in below the 4 factor cards when one is clicked. */
+.fp-meta-panel { margin-top:14px; }
+.fp-meta-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; border-left-width:3px; }
+.fp-meta-growth   { border-left-color:#34D27A; }
+.fp-meta-value    { border-left-color:#9B8CFF; }
+.fp-meta-momentum { border-left-color:#FFB347; }
+.fp-meta-quality  { border-left-color:#67B7FF; }
+.fp-meta-card-h { display:flex; align-items:baseline; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.fp-meta-card-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.fp-meta-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text-1); letter-spacing:0.02em; flex:1; }
+.fp-meta-card-close { background:transparent; border:0; color:var(--text-3); font-size:18px; line-height:1; cursor:pointer; padding:0 4px; transition:color .15s; }
+.fp-meta-card-close:hover { color:var(--apt-rose); }
 .fp-meta-table { width:100%; border-collapse:collapse; font-size:11px; }
 .fp-meta-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; text-align:left; padding:4px 8px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
 .fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; line-height:1.4; }
@@ -621,7 +632,7 @@ body.page-stocks .footer { display:none; }
     <div class="edition-time">12:15 PM ET</div>
     <a class="edition-link" href="./briefs/2026-05-07-midday.html">Open full brief &rarr;</a>
   </div>
-  <p class="edition-edge">US debt-to-GDP crossing 100 percent while Federal Reserve maintains neutral rates creates timing asymmetry: fiscal consolidation pressures will eventually force either inflation or austerity, both destructive to long-duration assets, yet the Bitcoin reserve announcement signals regime shift toward currency debasement as preferred solution, compressing arbitrage windows for traditional macro hedges while opening structural demand for hard assets and sovereign wealth reallocation.</p>
+  <p class="edition-edge">The Iran escalation creates a structural petro-premium that benefits commodity allocators, while simultaneous U.S. Bitcoin reserve announcements and U.S.-China AI guardrails both reflect a shift toward asset autonomy and decoupled technology stacks. Allocators should position for stagflationary positioning: long oil volatility hedges, strategic Bitcoin exposure, and defensive AI exposure through non-China semiconductor plays.</p>
   <div class="section-grid">
     <article class="sec-card">
       <div class="sc-head">
@@ -630,9 +641,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Breaking News</div>
         </div>
-        <div class="sc-count">03</div>
+        <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiTkFVX3lxTFBjd2FNeE1Sa2h0UTJYOTVVaE5nRmM2WXh6Q0VtN1EwRHU4V0VsaVV3UlVjNTlqT1RMWkdwa0hONTBabkVjbWdHRjZ1TWxPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Ukraine News Today: Breaking Updates & Live Coverage - May 7, 2026</div><div class="sc-item-source">Kyiv Post</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxNV0JoemVsLTlfZUpuNmdrVHF3ZVZRcmhqZWRoTm5YYTQtdzdicF9SV0ZHc2pTeU5yU1JCRmNnVkR6X2VIUzhWVTRRS2l1OGwtUnI2ZWNTdzUwaDMwVXlUbmVsZzFrN2VEQWpvRWN4QXdJajMtMFNQc3EtMnVlMmRRdVBodjZ1R1VLel81cnJicmg2c1VCZS1jSzNxZ3BrR0d3RHp4emoyMVlDMldYSVFha09KUXVfNDZaWlRN?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Iran-US war latest: Trump's 'Project Freedom' received backlash from allies</div><div class="sc-item-source">The Independent</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxNV0JoemVsLTlfZUpuNmdrVHF3ZVZRcmhqZWRoTm5YYTQtdzdicF9SV0ZHc2pTeU5yU1JCRmNnVkR6X2VIUzhWVTRRS2l1OGwtUnI2ZWNTdzUwaDMwVXlUbmVsZzFrN2VEQWpvRWN4QXdJajMtMFNQc3EtMnVlMmRRdVBodjZ1R1VLel81cnJicmg2c1VCZS1jSzNxZ3BrR0d3RHp4emoyMVlDMldYSVFha09KUXVfNDZaWlRN?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Iran-US war latest: Trump's 'Project Freedom' received backlash from allies</div><div class="sc-item-source">The Independent</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPeXp0U2xsR2xVeVF1ZUdnT0xZZU5NMEZaUW9YVTZXSFRCUGZnN3hEUHhpcTF6NUJfWlB6RmQwdWw2Y3F1a0xXMzl4eWlGSVpxOWdEM3RxNlU4eEtmZEppQ0hsSXBMQ1JhTWZhZDRUQlFPOF9mNnZxbUNHWTYyX3RKcFV6My1jckx5N0MzRDlFczE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Savannah Guthrie Leaves 'Today' Show During Live Broadcast</div><div class="sc-item-source">The Daily Beast</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -641,9 +652,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Finance & Markets</div>
         </div>
-        <div class="sc-count">01</div>
+        <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1wWEhiVDJwLU5DM0pFRHpidnVaZk54NFZsMGV6aHZROXlfY3BZRlBMbWlVaGxORnVncEh4UHI2cUpEN04tV2l0RGI0T0w1NTlod3ZBb0YtZDRCYjg0dEtyVm1kVkl1cFlt0gFcQVVfeXFMTmtaeDlqZUtBWUJyZS1BVm13QXk5LVEtNnBNZTQ5R2ljSHpubW1zSHFmc0hJekJROEVaYVNDR3RGenBDbEE4ZVBxOHl3S21lMG1hNjBWOTNqbGNfeG0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US borrowing exceeds GDP: What does it mean for the economy?</div><div class="sc-item-source">Modern Ghana</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1wWEhiVDJwLU5DM0pFRHpidnVaZk54NFZsMGV6aHZROXlfY3BZRlBMbWlVaGxORnVncEh4UHI2cUpEN04tV2l0RGI0T0w1NTlod3ZBb0YtZDRCYjg0dEtyVm1kVkl1cFlt0gFcQVVfeXFMTmtaeDlqZUtBWUJyZS1BVm13QXk5LVEtNnBNZTQ5R2ljSHpubW1zSHFmc0hJekJROEVaYVNDR3RGenBDbEE4ZVBxOHl3S21lMG1hNjBWOTNqbGNfeG0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US borrowing exceeds GDP: What does it mean for the economy?</div><div class="sc-item-source">Modern Ghana</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPY2FNYnpBdVQyOVJBTTNudHQ0UW5lNkJJNUJocHpZbmQ5T2pTOUVxS2hHWksyT1pBVHFkZ3E0ME1rZXBjVWc0cXR5WnB6SXpPa05aWHRkNkZiZVF4Y3VpRjlNcEYyWlo5eExKTjlzYXVnbHNzUFNYU0dpME1hUG1XcExNeTg5S3BieDZwRjRuY0d3dnprZ3NzOHJfVWJna2s?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Economic Sentiment Rises Following GDP Growth Despite Mounting Inflation</div><div class="sc-item-source">CivicScience</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -654,7 +665,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC Press</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC Press Release</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -665,7 +676,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SUVE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW01WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -676,7 +687,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMisgFBVV95cUxPUGlaTXJXbVVvTVFfMGZOa1BjZ1B5QTQwNXY3VWxWaGNMV2VNZ2FwakJhalFuaTh5Tm12UkJXQlNGY1pGV2Z3Nk1DaHlDTGpsWGlpTldCalZGcXFyLV83WjlpcmNsdHo5dmNFZEZOam0zMFNIb00wcWZ5cUhNbDRUWnZCNkxtVmJZd3lBckg4ZlBpSzdSenJSUmVBeHVXUVNsM1B1YktuMVN3SlRIcUdBQzRB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">China Asks Banks to Pause New Loans to US-Sanctioned Refiners</div><div class="sc-item-source">Bloomberg.com</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxOOWRzdlNYRnJndmpPLXFNZ2JoZUlkSkxCY2JBQXZBS3ZkNGV3dkt0aGkyY0JjWThDTDA1RUh3b3J3Tm1WcnFiYjVrUXZUZG5PTVBRcWR6T3o5RmlXVGhlVjJ6QnlCTUNhNWdLcDNxYy1CcGJNMTU4Y28tbVVqY0REdndfdkdOUG5SRkpsWVpmTTFpaEE2RGtlOXNkS2hDOUJQbTdDa0tWek9zU3ZGeDJabXptSUw3dzBadEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. and China Pursue Guardrails to Stop AI Rivalry From Spiraling Into Crisis</div><div class="sc-item-source">WSJ</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -696,9 +707,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Boston</div>
         </div>
-        <div class="sc-count">01</div>
+        <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizgFBVV95cUxPR3lSdTkzcW5NSThqVzVka2VoaDg0RldrS2ozWjhtV0tMMXRCSzJhdjhGNVFrRkU4S2VJZWdhRmNzN3RRWEk0b0xxRnNQOVdtcGJRaXhzNkR1RndPZVVlMnptVEttMFdaRHlqX21wdW1qNGVkNmxEWVBhV3J1cmRDZThvSHZ2a0lIMjVhZnQybF9mUkp3eHhJYXQ5QVBiSjhMbVZOLXZxR1BTUmFlZUs3OWlwM0o2OTVCcGN0S3drNXZsMFZWdFR0enl4S2tmQdIB4gFBVV95cUxNUER4ME1UVUQyTURkc0RtdHFvMUQ5bS1rQURkUVUxWGY1ZjQwM3ZxYmcyQjFvQkk2SDE1eEtwODZpSFVEV3VZdy1ZeksyWEdkV1pWN3lQenVDaHlpdVFYbUNka1pHTkxtWjl6ZlI5bm1sa1JPSUFUSlBTcXQ4U2FCYmc2aENCUE5felZBVTEtdXY1andOMXExakFfVFNvYVBLbkRSa2R1d1pDZDY2VDRhaUFLQm8xeWxoUG9LMUNUQkZHMDZfSzNGWG9waEhZN3dUTXl1SGxWSm9LX0JNMUNtZ093?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">What we know about Mass. State Trooper who was killed in the line-of-duty</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizgFBVV95cUxPR3lSdTkzcW5NSThqVzVka2VoaDg0RldrS2ozWjhtV0tMMXRCSzJhdjhGNVFrRkU4S2VJZWdhRmNzN3RRWEk0b0xxRnNQOVdtcGJRaXhzNkR1RndPZVVlMnptVEttMFdaRHlqX21wdW1qNGVkNmxEWVBhV3J1cmRDZThvSHZ2a0lIMjVhZnQybF9mUkp3eHhJYXQ5QVBiSjhMbVZOLXZxR1BTUmFlZUs3OWlwM0o2OTVCcGN0S3drNXZsMFZWdFR0enl4S2tmAA" target="_blank" rel="noopener"><div><div class="sc-item-headline">What we know about Mass. State Trooper who was killed in the line-of-duty</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxNNjZyMEJydkNsY0Rpc3JwdVhlT3B5V0dNOXdqUVpHTDdvSVJxMTkydTBwMW1KeEpjZl9LaFlxMEw2VjhxTGVpUEZWLXlpaVh5dVM1Q3dCaWttY21fSFhWV1YtYmpISjMyZGo2ckcxVHdOaS1TM3c3MnJoM0VSVTVHVGlHbUxWWVIxVEHSAZIBQVVfeXFMT24xZXV6MWVIVkpISTZ6QnlvbUZzRzNpZk9xT0ZLUU0yY0x0cGVfQS1YUnltS0UwZWtVdFdSTmtEeENBZTdwZERFcVRsSUwxSXlTUzA0dTVDdE05YnJPTXJfYkpPQmpfNHhuS3ZWNnBtVjhlc0N4bjJ2bHJiZEJ4NGRpTFU2WXlLLUtoUHY1QUZmZUE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">As the penny starts going extinct, how do Mass. businesses round prices right?</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article></div>
 </div>
 

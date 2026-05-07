@@ -546,10 +546,21 @@ body.page-stocks .footer { display:none; }
 .fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
 .fp-card-toggle:hover { color:var(--apt-rose); }
 .fp-card-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease, color .15s; }
-.fp-card.fp-card-open .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
-.fp-meta { display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); }
-.fp-card.fp-card-open .fp-meta { display:block; }
-.fp-meta-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fp-card.fp-card-active .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.fp-card.fp-card-active { border-color:var(--apt-rose); box-shadow:0 0 0 1px rgba(255,57,77,0.18); }
+
+/* Standalone methodology card. Slides in below the 4 factor cards when one is clicked. */
+.fp-meta-panel { margin-top:14px; }
+.fp-meta-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; border-left-width:3px; }
+.fp-meta-growth   { border-left-color:#34D27A; }
+.fp-meta-value    { border-left-color:#9B8CFF; }
+.fp-meta-momentum { border-left-color:#FFB347; }
+.fp-meta-quality  { border-left-color:#67B7FF; }
+.fp-meta-card-h { display:flex; align-items:baseline; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.fp-meta-card-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.fp-meta-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text-1); letter-spacing:0.02em; flex:1; }
+.fp-meta-card-close { background:transparent; border:0; color:var(--text-3); font-size:18px; line-height:1; cursor:pointer; padding:0 4px; transition:color .15s; }
+.fp-meta-card-close:hover { color:var(--apt-rose); }
 .fp-meta-table { width:100%; border-collapse:collapse; font-size:11px; }
 .fp-meta-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; text-align:left; padding:4px 8px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
 .fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; line-height:1.4; }
@@ -632,7 +643,7 @@ body.page-stocks .footer { display:none; }
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">385</div>
+        <div class="fs-val">386</div>
         <div class="fs-delta">across 29 briefs</div>
       </div>
       <div class="feat-stat">
