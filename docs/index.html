@@ -285,10 +285,27 @@ h1.hero-title {
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+.stk-row { cursor:pointer; }
+.stk-row .stk-ticker { transition:color .15s; }
+.stk-row:hover .stk-ticker { color:#FFB347; }
+
+/* Expand-on-click factor panel */
+.stk-detail { padding:14px 22px 22px; background:rgba(10,10,15,0.6); border-top:1px solid var(--border); animation:fpFadeIn .25s ease-out; }
+@keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
+@media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
+@media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
+.fp-card { padding:14px 16px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.fp-card-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.fp-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; font-size:12px; }
+.fp-label { color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+.fp-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; }
+.fp-row-na .fp-val { color:var(--text-5); }
 @media (max-width:780px) {
   .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
   .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
   .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
+  .stk-detail { padding:12px 14px 18px; }
 }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
@@ -349,12 +366,12 @@ h1.hero-title {
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">376</div>
+        <div class="fs-val">372</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">210</div>
+        <div class="fs-val">209</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
