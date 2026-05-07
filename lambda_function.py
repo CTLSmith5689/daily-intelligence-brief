@@ -2218,7 +2218,8 @@ STOCKS_JS_TEMPLATE = """
     'eps_growth_yoy', 'change_pct', 'return_1m', 'return_12_2',
     'rel_strength_sp500', 'volume_trend',
     'gross_margin', 'operating_margin', 'gross_margin_trend',
-    'revenue_acceleration', 'fcf_growth_yoy',
+    'revenue_acceleration', 'fcf_growth_yoy', 'accruals_ratio',
+    'inst_ownership', 'insider_ownership',
   ]);
   // Market-cap-coded fields use 1B / 300M / 5T suffixes
   const CAP_FIELDS = new Set(['market_cap', 'volume']);
@@ -4138,6 +4139,17 @@ def enrich_with_yfinance(stocks, max_workers=10):
             if gm is not None and -2 < gm < 2:
                 s["gross_margin"] = gm
 
+            # ── Neglect inputs (Peter Lynch thesis: under-followed names) ──
+            n_analysts = info.get("numberOfAnalystOpinions")
+            if isinstance(n_analysts, (int, float)) and 0 <= n_analysts < 200:
+                s["analyst_count"] = int(n_analysts)
+            inst = info.get("heldPercentInstitutions")
+            if isinstance(inst, (int, float)) and 0 <= inst <= 1.5:
+                s["inst_ownership"] = inst
+            ins_o = info.get("heldPercentInsiders")
+            if isinstance(ins_o, (int, float)) and 0 <= ins_o <= 1.0:
+                s["insider_ownership"] = ins_o
+
             # Earnings date (next expected). yfinance exposes this under several keys
             # depending on data availability: earningsTimestamp (single), or a list at
             # earningsDate, or a range start/end. Take the first valid one.
@@ -4434,6 +4446,31 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     elapsed = time.time() - t0
     print(f"news: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s ({skipped} cached < {max_age_hours}h).")
     return fetched
+
+
+def compute_neglect_score(stocks):
+    """Peter Lynch neglect signal: under-followed names tend to have asymmetric
+    upside when something good happens because Wall Street isn't watching. Composite
+    of three normalized 0-to-1 components, each scoring "more neglected" higher:
+      - analyst coverage:  1 - min(analyst_count, 30) / 30
+      - institutional %:   1 - min(inst_ownership, 0.50) / 0.50
+      - news mentions 7d:  1 - min(news_count_7d, 20) / 20
+    Score in [0, 1]; >0.7 is genuinely off-the-radar; <0.3 is heavily covered.
+    Skips a component when its input is missing rather than penalizing it."""
+    scored = 0
+    for s in stocks:
+        parts = []
+        if isinstance(s.get("analyst_count"), (int, float)):
+            parts.append(1 - min(s["analyst_count"], 30) / 30)
+        if isinstance(s.get("inst_ownership"), (int, float)):
+            parts.append(1 - min(s["inst_ownership"], 0.50) / 0.50)
+        if isinstance(s.get("news_count_7d"), (int, float)):
+            parts.append(1 - min(s["news_count_7d"], 20) / 20)
+        if parts:
+            s["neglect_score"] = sum(parts) / len(parts)
+            scored += 1
+    print(f"neglect_score: computed for {scored} tickers.")
+    return scored
 
 
 def aggregate_news_sentiment(stocks):
@@ -4946,6 +4983,7 @@ def get_or_generate_stocks_universe():
     schema_ok = (
         any(s.get("op_margin_history") for s in cached_stocks)
         and any((s.get("benford") or {}).get("mad") is not None for s in cached_stocks)
+        and any(s.get("analyst_count") is not None for s in cached_stocks)
     )
     if last_known and last_known.get("iso_week") == week_key and schema_ok:
         try:
@@ -4958,6 +4996,7 @@ def get_or_generate_stocks_universe():
                 cached_list = last_known.get("stocks") or []
                 enrich_with_news(cached_list)
                 aggregate_news_sentiment(cached_list)
+                compute_neglect_score(cached_list)
                 enrich_with_prices(cached_list)
                 return last_known
         except Exception:
@@ -4988,6 +5027,8 @@ def get_or_generate_stocks_universe():
         "benford",
         # News-derived sentiment aggregates
         "news_lm_avg", "news_vader_avg", "news_count_7d",
+        # Neglect inputs + composite (Lynch)
+        "analyst_count", "inst_ownership", "insider_ownership", "neglect_score",
         # Per-row freshness + earnings calendar
         "last_updated", "earnings_date",
     )
@@ -5047,6 +5088,10 @@ def get_or_generate_stocks_universe():
     # Aggregate per-ticker LM/VADER scores into the universe so the Overlays
     # filters can run client-side without loading every news file.
     aggregate_news_sentiment(stocks)
+
+    # Lynch-style neglect score: needs analyst_count + inst_ownership + news_count_7d
+    # which are all set by this point in the pipeline.
+    compute_neglect_score(stocks)
 
     # Per-ticker daily price history (1y) for the chart card. 24h cache, bulk
     # download via yf.download in batches so we hit Yahoo once per ~200 tickers.
@@ -5379,6 +5424,12 @@ FILTER_PANEL = [
         {"label": "Accruals Ratio",        "key": "accruals_ratio",     "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
         {"label": "Gross Margin",          "key": "gross_margin",       "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
         {"label": "Operating Margin",      "key": "operating_margin",   "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
+    ]},
+    {"title": "Neglect (Lynch)", "open": False, "rows": [
+        {"label": "Neglect Score",         "key": "neglect_score",      "type": "ratio", "placeholder_min": "min (e.g. 0.6)",   "placeholder_max": "max"},
+        {"label": "Analyst Count",         "key": "analyst_count",      "type": "int",   "placeholder_min": "min",              "placeholder_max": "max (e.g. 5)"},
+        {"label": "Institutional Ownership", "key": "inst_ownership",   "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max % (e.g. 30)"},
+        {"label": "Insider Ownership",     "key": "insider_ownership",  "type": "pct",   "placeholder_min": "min % (e.g. 5)",   "placeholder_max": "max %"},
     ]},
 ]
 
