@@ -1763,6 +1763,23 @@ h1.hero-title {
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
+/* News card per ticker (lazy-loaded on row expand) */
+.nws-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.nws-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
+.nws-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
+.nws-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+@media (max-width:780px) { .nws-grid { grid-template-columns:1fr; } }
+.nws-col { display:flex; flex-direction:column; }
+.nws-col-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:8px; }
+.nws-count { font-family:'DM Mono',monospace; font-size:9px; color:var(--apt-rose); letter-spacing:1px; }
+.nws-item { display:block; padding:10px 0; border-top:1px solid var(--border); transition:padding-left .12s; text-decoration:none; }
+.nws-item:first-of-type { border-top:none; padding-top:4px; }
+.nws-item:hover { padding-left:6px; }
+.nws-title { font-size:13px; line-height:1.4; color:var(--text-1); }
+.nws-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; margin-top:5px; }
+.nws-item:hover .nws-title { color:var(--apt-rose); }
+.nws-empty { padding:14px 0; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-5); text-transform:uppercase; text-align:center; }
+
 /* Stocks page sidebar layout: filters left, table right */
 .stk-wrap { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; margin-top:6px; }
 .stk-sidebar { position:sticky; top:80px; max-height:calc(100vh - 96px); overflow-y:auto; padding:18px 18px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
@@ -2358,7 +2375,66 @@ STOCKS_JS_TEMPLATE = """
     }).join('');
     const scoreCard = buildScoreBreakdown(s);
     const benfordCard = buildBenfordCard(s);
-    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + benfordCard + '</div>';
+    // News card is a placeholder; populated lazily on expand via fetchNewsFor.
+    const newsCard = '<div class="nws-card" id="nws-' + escapeHtml(s.ticker) + '">'
+      + '<div class="nws-h">News <span class="nws-loading">loading…</span></div>'
+      + '</div>';
+    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + newsCard + benfordCard + '</div>';
+  }
+
+  // ── News: lazy fetch per ticker ─────────────────────────────────
+  const newsCache = {};
+
+  function fetchNewsFor(ticker) {
+    if (newsCache[ticker]) {
+      renderNews(ticker, newsCache[ticker]);
+      return;
+    }
+    fetch('./news/' + encodeURIComponent(ticker) + '.json', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : [])
+      .then(items => {
+        newsCache[ticker] = Array.isArray(items) ? items : [];
+        renderNews(ticker, newsCache[ticker]);
+      })
+      .catch(() => renderNews(ticker, []));
+  }
+
+  function renderNews(ticker, items) {
+    const el = document.getElementById('nws-' + ticker);
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<div class="nws-h">News</div>'
+        + '<div class="nws-empty">No recent news pulled for this ticker. The next morning workflow run will retry.</div>';
+      return;
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const DAY = 24 * 3600;
+    const today = items.filter(i => i.ts && (now - i.ts) < DAY);
+    const week  = items.filter(i => i.ts && (now - i.ts) >= DAY && (now - i.ts) < 7 * DAY);
+    const month = items.filter(i => i.ts && (now - i.ts) >= 7 * DAY && (now - i.ts) < 31 * DAY);
+
+    function bucketHTML(label, bucket) {
+      if (!bucket.length) {
+        return '<div class="nws-col"><div class="nws-col-h">' + label + '</div>'
+          + '<div class="nws-empty">—</div></div>';
+      }
+      const links = bucket.slice(0, 6).map(i =>
+        '<a class="nws-item" href="' + escapeHtml(i.link) + '" target="_blank" rel="noopener">'
+        + '<div class="nws-title">' + escapeHtml(i.title) + '</div>'
+        + '<div class="nws-meta">' + escapeHtml(i.source || '') + '</div>'
+        + '</a>'
+      ).join('');
+      return '<div class="nws-col"><div class="nws-col-h">' + label
+        + ' <span class="nws-count">' + bucket.length + '</span></div>'
+        + links + '</div>';
+    }
+
+    el.innerHTML = '<div class="nws-h">News</div>'
+      + '<div class="nws-grid">'
+      + bucketHTML('Today',       today)
+      + bucketHTML('Last 7 days', week)
+      + bucketHTML('Last month',  month)
+      + '</div>';
   }
 
   let expanded = new Set();
@@ -2413,14 +2489,17 @@ STOCKS_JS_TEMPLATE = """
     listEl.innerHTML = rows;
   }
 
-  // Click on a row toggles the expand state
+  // Click on a row toggles the expand state, and on first expand kicks off
+  // the lazy news fetch for that ticker.
   listEl.addEventListener('click', e => {
     const row = e.target.closest('.stk-row');
     if (!row) return;
     const t = row.dataset.ticker;
     if (!t) return;
-    if (expanded.has(t)) expanded.delete(t); else expanded.add(t);
+    const wasOpen = expanded.has(t);
+    if (wasOpen) expanded.delete(t); else expanded.add(t);
     render();
+    if (!wasOpen) fetchNewsFor(t);
   });
 
   searchEl.addEventListener('input', () => {
@@ -3132,6 +3211,103 @@ def enrich_with_yfinance(stocks, max_workers=10):
     return enriched
 
 
+# ── Per-ticker news (Google News RSS, lazy-loaded by the page) ──────────────
+
+NEWS_DIR = DOCS_DIR / "news"
+
+
+def fetch_company_news(ticker, name="", max_items=15):
+    """Pull recent news for a ticker from Google News RSS. Returns list of
+    {title, source, link, ts (unix int)}. Empty list on any failure."""
+    import urllib.parse as _up
+    if not ticker:
+        return []
+    # Build query: bias toward financial coverage, include company name as fallback.
+    clean_name = (name or "").strip()
+    for suffix in [", Inc.", " Inc.", " Inc", ", Ltd.", " Ltd.", " Ltd",
+                   " Corporation", " Corp.", " Corp", " Holdings", " Co.",
+                   " Group", " Plc", " plc"]:
+        clean_name = clean_name.replace(suffix, "")
+    clean_name = clean_name.strip().rstrip(".")
+    if clean_name and clean_name.upper() != ticker and len(clean_name) > 2:
+        query = f'"{ticker}" OR "{clean_name}"'
+    else:
+        query = f'"{ticker}" stock'
+    url = f"https://news.google.com/rss/search?q={_up.quote(query)}&hl=en-US&gl=US&ceid=US:en"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Apterreon-IntelBrief/1.0"})
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            xml_data = resp.read().decode("utf-8", errors="replace")
+        root = ET.fromstring(xml_data)
+    except Exception:
+        return []
+    items = []
+    for item in root.findall(".//item")[:max_items * 2]:
+        title = (item.findtext("title") or "").strip()
+        pub_date = (item.findtext("pubDate") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        source = (item.findtext("source") or "").strip()
+        if not title or not link:
+            continue
+        parsed = parse_rss_date(pub_date)
+        ts = int(parsed.timestamp()) if parsed else 0
+        items.append({
+            "title": title[:200],
+            "source": source[:60],
+            "link": link,
+            "ts": ts,
+        })
+        if len(items) >= max_items:
+            break
+    return items
+
+
+def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
+    """For each stock, write news items to docs/news/{TICKER}.json. Skips tickers
+    whose existing file is younger than max_age_hours (so midday + evening workflow
+    runs reuse morning's news without re-hitting Google). Returns count fetched."""
+    if not stocks:
+        return 0
+    NEWS_DIR.mkdir(parents=True, exist_ok=True)
+    now_ts = time.time()
+
+    def needs_fetch(ticker):
+        f = NEWS_DIR / f"{ticker}.json"
+        if not f.exists():
+            return True
+        return (now_ts - f.stat().st_mtime) / 3600 > max_age_hours
+
+    todo = [s for s in stocks if needs_fetch(s["ticker"])]
+    skipped = len(stocks) - len(todo)
+    if not todo:
+        print(f"news: all {len(stocks)} ticker files within {max_age_hours}h, skipping fetch.")
+        return 0
+
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    def process(s):
+        try:
+            items = fetch_company_news(s["ticker"], s.get("name", ""))
+            (NEWS_DIR / f"{s['ticker']}.json").write_text(
+                json.dumps(items, separators=(",", ":")), encoding="utf-8"
+            )
+            return s["ticker"], len(items)
+        except Exception:
+            return s["ticker"], 0
+
+    fetched = 0
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = [ex.submit(process, s) for s in todo]
+        for f in as_completed(futures):
+            sym, n = f.result()
+            if n > 0:
+                fetched += 1
+    elapsed = time.time() - t0
+    print(f"news: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s ({skipped} cached < {max_age_hours}h).")
+    return fetched
+
+
 # ── SEC EDGAR (free, official) for quarterly-trend factors ──────────────────
 
 EDGAR_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
@@ -3522,6 +3698,11 @@ def get_or_generate_stocks_universe():
         if cik_map:
             edgar_count = enrich_with_edgar(stocks, cik_map)
 
+    # Per-ticker news fetched once a day (12h cache) so midday/evening workflow
+    # runs reuse morning's pull. Writes one small JSON per ticker, lazy-loaded
+    # by the page on row expand.
+    news_count = enrich_with_news(stocks)
+
     total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
     total_with_price = sum(1 for s in stocks if s.get("price"))
     total_with_edgar = sum(1 for s in stocks if s.get("edgar_updated"))
@@ -3542,7 +3723,7 @@ def get_or_generate_stocks_universe():
     pct_cap = (total_with_cap / len(stocks) * 100) if stocks else 0
     pct_price = (total_with_price / len(stocks) * 100) if stocks else 0
     pct_edgar = (total_with_edgar / len(stocks) * 100) if stocks else 0
-    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
+    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
     return result
 
 
