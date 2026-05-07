@@ -1787,6 +1787,16 @@ h1.hero-title {
 .nws-item:hover .nws-title { color:var(--apt-rose); }
 .nws-empty { padding:14px 0; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-5); text-transform:uppercase; text-align:center; }
 
+/* Per-bucket sentiment header (Loughran-McDonald + VADER) */
+.nws-sent-row { display:flex; gap:14px; padding:8px 10px; margin-bottom:8px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:6px; align-items:center; }
+.nws-sent-cell { display:flex; align-items:baseline; gap:6px; flex:1; }
+.nws-sent-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }
+.nws-sent-val { font-family:'DM Mono',monospace; font-size:12px; font-weight:600; }
+.nws-sent-pos { color:#34D27A; }
+.nws-sent-neg { color:var(--apt-red); }
+.nws-sent-neutral { color:var(--text-2); }
+.nws-sent-na { color:var(--text-5); }
+
 /* Stocks page top row: search + Index/Sector chips full-width above the wrap */
 .stk-toprow { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:14px 16px; margin-bottom:14px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; }
 .stk-toprow > .lib-search { flex:1 1 280px; min-width:220px; }
@@ -2466,9 +2476,35 @@ STOCKS_JS_TEMPLATE = """
     const week  = items.filter(i => i.ts && (now - i.ts) >= DAY && (now - i.ts) < 7 * DAY);
     const month = items.filter(i => i.ts && (now - i.ts) >= 7 * DAY && (now - i.ts) < 31 * DAY);
 
+    function avgScore(bucket, key) {
+      const vals = bucket.map(i => i[key]).filter(v => typeof v === 'number');
+      if (!vals.length) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+    function fmtSent(v) {
+      if (v == null) return '—';
+      const s = v >= 0 ? '+' : '';
+      return s + v.toFixed(2);
+    }
+    function sentClass(v) {
+      if (v == null) return 'nws-sent-na';
+      if (v <= -0.10) return 'nws-sent-neg';
+      if (v >= 0.10) return 'nws-sent-pos';
+      return 'nws-sent-neutral';
+    }
+    function sentimentRow(bucket) {
+      const lm = avgScore(bucket, 'lm');
+      const vd = avgScore(bucket, 'vader');
+      return '<div class="nws-sent-row">'
+        + '<div class="nws-sent-cell"><span class="nws-sent-label">LM</span> <span class="nws-sent-val ' + sentClass(lm) + '">' + fmtSent(lm) + '</span></div>'
+        + '<div class="nws-sent-cell"><span class="nws-sent-label">VADER</span> <span class="nws-sent-val ' + sentClass(vd) + '">' + fmtSent(vd) + '</span></div>'
+      + '</div>';
+    }
+
     function bucketHTML(label, bucket) {
       if (!bucket.length) {
         return '<div class="nws-col"><div class="nws-col-h">' + label + '</div>'
+          + sentimentRow(bucket)
           + '<div class="nws-empty">—</div></div>';
       }
       const links = bucket.slice(0, 6).map(i =>
@@ -2479,6 +2515,7 @@ STOCKS_JS_TEMPLATE = """
       ).join('');
       return '<div class="nws-col"><div class="nws-col-h">' + label
         + ' <span class="nws-count">' + bucket.length + '</span></div>'
+        + sentimentRow(bucket)
         + links + '</div>';
     }
 
@@ -3264,6 +3301,141 @@ def enrich_with_yfinance(stocks, max_workers=10):
     return enriched
 
 
+# ── News sentiment: Loughran-McDonald financial dict + VADER ────────────────
+
+# Curated subset of the McDonald Master Dictionary's positive and negative word
+# lists. Not exhaustive, but covers the high-frequency financial vocabulary that
+# shows up in news headlines. Source: Loughran & McDonald (2011) "When is a
+# Liability not a Liability? Textual Analysis, Dictionaries, and 10-Ks."
+LM_POSITIVE = frozenset("""
+able achieve achieved achievement achievements advance advancement advances
+advantage advantageous advantages benefit benefits beneficial best better
+boost boosted boosts breakthrough breakthroughs collaborate collaborated
+collaboration collaborations confident confidence delight delighted deliver
+delivered delivers despite distinction distinctions distinctive dynamic
+easily easy effective efficient efficiently empower empowered enable enabled
+encouraging enhance enhanced enhancement enhancements enjoy enjoyed enjoying
+exceeding exceed exceeded exceptional excellence excellent exclusive
+favorable favorably gain gained gains good greatest highest improve improved
+improvement improvements improving impressive innovate innovated innovation
+innovations innovative invent invented invention inventions leadership
+leading lucrative meritorious opportunities opportunity outperform outperformed
+outperforming positive positively praise praised premier proactively
+proficient profitability profitable profitably progress prosperity prosperous
+prove proven receptive record records reliable resilient reward rewarded
+rewarding satisfaction satisfactory smooth solid stability stable strength
+strengthen strengthened strengthening strengths strong stronger strongest
+succeed succeeded successes successful successfully surpass surpassed
+transparency tremendous unmatched upbeat upturn unprecedented victory wins
+winner winning won worthy
+""".split())
+
+LM_NEGATIVE = frozenset("""
+abandon abandoned abandonment abandoning abnormal abnormally abolish abolished
+abrupt abruptly absence accident accidental accidents accusation accusations
+accuse accused accuses accusing acquittal acquitted adverse adversely against
+allege alleged allegedly allegation allegations alleging anomalies anomaly
+antitrust apologize apologized apologizes argue argued aware bad badly
+bankrupt bankruptcies bankruptcy barred barrier barriers below blame
+blamed blames bottlenecks breach breached breaches breaching break broken
+burden burdens cancel canceled canceling cancellation cancellations cancels
+challenge challenged challenges challenging chaos circumvent claim claimed
+claims closed closure closures collapse collapsed collusion complaint
+complaints complicated complication complications concealed concern
+concerned concerns concerning conflict conflicts confusing confusion
+contradict contradicted contradicting contradiction contraction contractions
+controversies controversy convict convicted conviction crime criminal
+criminals criminally crisis critical criticism criticisms criticize criticized
+criticizes cut cuts cutting damage damaged damages danger dangers default
+defaulted defaulting defaults defective defects deficiencies deficiency
+deficit deficits delay delayed delays demolish demolished demolishing
+demote demoted denial denials denied denies deny denying deplete depleted
+deteriorate deteriorated deteriorates deteriorating deterioration detrimental
+diminish diminished dire disappear disappeared disappoint disappointed
+disappointing disappointment disappointments disapproval disapprove
+disapproved disaster disasters disastrous discontinue discontinued
+discontinuing discrepancies discrepancy disgorge disgorged disgorgement
+dispute disputed disputes disrupt disrupted disrupting disruption
+disruptions doubt doubtful doubts down downgrade downgraded downsize
+downsized downturn drag dropped drought erode eroded erosion error errors
+exaggerate exaggerated excessive excessively exposed exposure failed
+failure failures fall fallen falling false falsely fault faults fear
+fears felony felonies fictitious fired flaw flawed flaws forced fraud
+fraudulent fraudulently halt halted harm harmed harmful harshly hazardous
+hindered hindrance hostile hurt illegal illegality illegally illicit
+impair impaired impairment impairments impede impeded improper improperly
+inadequate inadequately inappropriate incomplete incompetence incorrect
+incorrectly indictment indictments inefficient inefficiency injunction
+injunctions inquiry insolvency insolvent investigation investigations
+irregular irregularities irregularity lacking lawsuit lawsuits liability
+liabilities lien liens limitation limitations litigation litigations
+lockup loss losses lost manipulate manipulated manipulating manipulation
+mediocre mismanage mismanaged mismanagement misrepresent misrepresentation
+miss missed missing mistake mistakes negative negatively neglect neglected
+nonperformance nonperforming objection objections obstacle obstacles
+obstruct obstructed obstruction omission omit omitted oppose opposed
+opposes opposition outage outages overstate overstated overstatement
+panic peril perils penalize penalized penalties penalty plead pleaded
+plummet plummeted plunge plunged poor poorly possibility postpone
+postponed postponement precluded predatory prejudice prejudiced
+prevent prevented prevents probe probes problem problems prosecute
+prosecuted prosecution prosecutions question questionable questioned
+recall recalled recalls reduce reduced reduces reduction reductions
+reject rejected rejection reluctant remediate remediation reorganization
+restate restated restatement restatements restrict restricted restriction
+restrictions restructure restructured restructuring revoke revoked
+risk risks risky sanction sanctions scandal scrap scrapped seize seized
+serious seriously settle settled settlement settlements shortage shortages
+shortfall shrink shrinking shut shutdown sluggish slow slowdown slower
+strain strains stress stressed strict struggle struggled struggling
+subpoena subpoenaed subpoenas suffer suffered suffering suit suspended
+terminated termination terror terrorism threat threaten threatened
+threatening threats tragedy trouble troubled troubles unable unattractive
+uncollectible undercut undercutting underestimate underestimated underperform
+underperformed underperforming undermine undermined undue unethical
+unexpected unfair unfavorable unfavorably unforeseen unfounded unjust
+unlawful unlawfully unprofitable unsafe unsatisfactory unstable unsuccessful
+unsuccessfully untimely vandalism verdict violate violated violates violating
+violation violations volatile volatility vulnerability vulnerable warn
+warned warning warnings weak weaken weakened weakening weaker weakness
+weaknesses worse worst worried worry worsen worsened worsening wrong
+wrongdoing wrongful wrongly
+""".split())
+
+
+def compute_lm_score(text):
+    """Loughran-McDonald financial sentiment polarity. Returns float in [-1, +1]:
+    (positive_count - negative_count) / (positive_count + negative_count). 0 if
+    no LM words found."""
+    if not text:
+        return 0.0
+    words = re.findall(r"[a-z]+", text.lower())
+    pos = sum(1 for w in words if w in LM_POSITIVE)
+    neg = sum(1 for w in words if w in LM_NEGATIVE)
+    total = pos + neg
+    if total == 0:
+        return 0.0
+    return round((pos - neg) / total, 3)
+
+
+_vader_analyzer = None
+def compute_vader_score(text):
+    """VADER compound score in [-1, +1]. Lazy-imports the analyzer on first use."""
+    global _vader_analyzer
+    if _vader_analyzer is None:
+        try:
+            from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+            _vader_analyzer = SentimentIntensityAnalyzer()
+        except Exception:
+            return 0.0
+    if not text:
+        return 0.0
+    try:
+        return round(_vader_analyzer.polarity_scores(text)["compound"], 3)
+    except Exception:
+        return 0.0
+
+
 # ── Per-ticker news (Google News RSS, lazy-loaded by the page) ──────────────
 
 NEWS_DIR = DOCS_DIR / "news"
@@ -3304,11 +3476,14 @@ def fetch_company_news(ticker, name="", max_items=15):
             continue
         parsed = parse_rss_date(pub_date)
         ts = int(parsed.timestamp()) if parsed else 0
+        clean_title = title[:200]
         items.append({
-            "title": title[:200],
+            "title": clean_title,
             "source": source[:60],
             "link": link,
             "ts": ts,
+            "lm": compute_lm_score(clean_title),
+            "vader": compute_vader_score(clean_title),
         })
         if len(items) >= max_items:
             break
@@ -3343,6 +3518,14 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     def needs_fetch(ticker):
         f = NEWS_DIR / _news_filename(ticker)
         if not f.exists():
+            return True
+        # Schema bump: if cached items lack the new sentiment fields, force refresh
+        # regardless of age. Old files get upgraded on the next morning workflow run.
+        try:
+            cached = json.loads(f.read_text(encoding="utf-8"))
+            if isinstance(cached, list) and cached and "vader" not in cached[0]:
+                return True
+        except Exception:
             return True
         return (now_ts - f.stat().st_mtime) / 3600 > max_age_hours
 

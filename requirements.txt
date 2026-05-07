@@ -1,3 +1,8 @@
 # yfinance powers the live financial enrichment on the Stocks page
 # (market cap, price, 1d %, P/E). Free, no API key, scrapes Yahoo.
 yfinance>=0.2.40
+
+# vaderSentiment scores each news headline. Pure Python, ~50KB, no NLTK required.
+# Loughran-McDonald financial sentiment is computed in lambda_function.py against
+# an embedded curated subset of the LM Master Dictionary (no extra dep).
+vaderSentiment>=3.3.2
