@@ -217,6 +217,9 @@ h1.hero-title {
 .edition-empty { padding:32px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px dashed var(--border); border-radius:14px; }
 
 .lib { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.lib.lib-wide { padding-top:36px; padding-bottom:24px; max-width:1480px; }
+.lib.lib-wide .lib-h { margin-bottom:10px; }
+.lib.lib-wide .lib-h h2 { font-size:32px; }
 .lib.lib-wide { max-width:min(1640px, 96vw); }
 .lib-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }
 .lib-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
@@ -349,9 +352,12 @@ h1.hero-title {
   .stk-filter-quicks { grid-column:1 / -1; margin-top:4px; }
 }
 
-.stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow-y:auto; max-height:calc(100vh - 220px); }
+.stk-table::-webkit-scrollbar { width:8px; }
+.stk-table::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:4px; }
+.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
+.stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \2193'; color:var(--apt-rose); margin-left:4px; }
@@ -463,12 +469,12 @@ h1.hero-title {
 .nws-sent-na { color:var(--text-5); }
 
 /* Stocks page top row: search + Index/Sector chips full-width above the wrap */
-.stk-toprow { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:14px 16px; margin-bottom:14px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; }
+.stk-toprow { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 16px; margin-bottom:12px; background:rgba(17,18,26,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; position:sticky; top:90px; z-index:4; }
 .stk-toprow > .lib-search { flex:1 1 280px; min-width:220px; }
 
 /* Stocks page sidebar layout: filters left, table right */
 .stk-wrap { display:grid; grid-template-columns:300px 1fr; gap:20px; align-items:start; margin-top:6px; }
-.stk-sidebar { position:sticky; top:80px; max-height:calc(100vh - 96px); overflow-y:auto; padding:18px 18px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
+.stk-sidebar { position:sticky; top:210px; max-height:calc(100vh - 230px); overflow-y:auto; padding:18px 18px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
 .stk-sidebar::-webkit-scrollbar { width:6px; }
 .stk-sidebar::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
 .stk-sidebar-h { display:flex; align-items:baseline; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:0.04em; color:var(--text-1); text-transform:uppercase; }
@@ -655,7 +661,7 @@ h1.hero-title {
     <div class="edition-time">12:15 PM ET</div>
     <a class="edition-link" href="./briefs/2026-05-06-midday.html">Open full brief &rarr;</a>
   </div>
-  <p class="edition-edge">Anthropic's SpaceX compute deal and Meta's robotics acquisition signal that AI infrastructure is bifurcating into software licensing (commoditizing) and hardware-locked capital intensity (moat-building). Firms without dedicated compute or physical deployment play are facing margin compression and will rationalize to API dependency or exit. Simultaneously, US debt hitting GDP parity forces fiscal guardrails or inflation, which erodes real returns in software/cloud and favors hard assets and compute hardware makers.</p>
+  <p class="edition-edge">Anthropic-SpaceX compute partnership and Meta's robotics acquisition both signal capital reallocation toward infrastructure scarcity and embodied systems: AI winners are no longer primarily software plays but platforms with leverage over compute, energy, and physical deployment. This reshapes venture and growth equity valuations away from pure model capability toward companies controlling the underlying stack.</p>
   <div class="section-grid">
     <article class="sec-card">
       <div class="sc-head">
@@ -664,9 +670,9 @@ h1.hero-title {
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Breaking News</div>
         </div>
-        <div class="sc-count">03</div>
+        <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMihwJBVV95cUxQbzJRdi1zSjF2al93UWRiTHZuSVhhZnZVb3FWMnItSi1INElmMk9yRW1TV2lDMEJfZEF6c0FEcTBBLVgzNnBrdXhYY01EamE1OWJiN0htdi0xaUxnVDlEWGtsT1J4ZlZfV3pDSDZLUWNDUkZ1QTJtd2pPUXR2OGxvUDlRck1FNDRsR1kxLVJyV2V2MmhhMTRYZ2FHRzBxMTNrc1Zsb21UQ2ZCRlItbFpJS2pmbG5KYWM4ckdXQkpSOFFCdGo3bFlHVXNsT0Q0QmxYRXJvMTMtTjVMajQxa0RNdm5UNHpNd1IwX281T1AtUVZCeVp4Z1dWdFRRdlBqTkRNV1ZDR1pkYw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">45-year-old dead in officer-involved shooting in Cass County</div><div class="sc-item-source">WSBT</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPeXp0U2xsR2xVeVF1ZUdnT0xZZU5NMEZaUW9YVTZXSFRCUGZnN3hEUHhpcTF6NUJfWlB6RmQwdWw2Y3F1a0xXMzl4eWlGSVpxOWdEM3RxNlU4eEtmZEppQ0hsSXBMQ1JhTWZhZDRUQlFPOF9mNnZxbUNHWTYyX3RKcFV6My1jckx5N0MzRDlFczE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Savannah Guthrie Leaves 'Today' Show During Live Broadcast</div><div class="sc-item-source">The Daily Beast</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFBKeXNsem9YaGtKSkZwd2hoZFR2aVFBUUJHc2FjVk51X2Mycm9walVTTjI3dzlPcDNMMVpRck5uYVBWZjdFU2tSTVZKbDR0aHpyQlRWVjluUnVzY3VvLU5uSms5UQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Lutnick Grilled by House Oversight Committee Over Epstein Ties</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPeXp0U2xsR2xVeVF1ZUdnT0xZZU5NMEZaUW9YVTZXSFRCUGZnN3hEUHhpcTF6NUJfWlB6RmQwdWw2Y3F1a0xXMzl4eWlGSVpxOWdEM3RxNlU4eEtmZEppQ0hsSXBMQ1JhTWZhZDRUQlFPOF9mNnZxbUNHWTYyX3RKcFV6My1jckx5N0MzRDlFczE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Savannah Guthrie Leaves 'Today' Show During Live Broadcast</div><div class="sc-item-source">The Daily Beast</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -677,7 +683,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1wWEhiVDJwLU5DM0pFRHpidnVaZk54NFZsMGV6aHZROXlfY3BZRlBMbWlVaGxORnVncEh4UHI2cUpEN04tV2l0RGI0T0w1NTlod3ZBb0YtZDRCYjg0dEtyVm1kVkl1cFlt0gFcQVVfeXFMTmtaeDlqZUtBWUJyZS1BVm13QXk5LVEtNnBNZTQ5R2ljSHpubW1zSHFmc0hJekJROEVaYVNDR3RGenBDbEE4ZVBxOHl3S21lMG1hNjBWOTNqbGNfeG0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US borrowing exceeds GDP: What does it mean for the economy?</div><div class="sc-item-source">Modern Ghana</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPY2FNYnpBdVQyOVJBTTNudHQ0UW5lNkJJNUJocHpZbmQ5T2pTOUVxS2hHWksyT1pBVHFkZ3E0ME1rZXBjVWc0cXR5WnB6SXpPa05aWHRkNkZiZVF4Y3VpRjlNcEYyWlo5eExKTjlzYXVnbHNzUFNYU0dpME1hUG1XcExNeTg5S3BieDZwRjRuY0d3dnprZ3NzOHJfVWJna2s?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Economic Sentiment Rises Following GDP Growth Despite Mounting Inflation</div><div class="sc-item-source">CivicScience</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1wWEhiVDJwLU5DM0pFRHpidnVaZk54NFZsMGV6aHZROXlfY3BZRlBMbWlVaGxORnVncEh4UHI2cUpEN04tV2l0RGI0T0w1NTlod3ZBb0YtZDRCYjg0dEtyVm1kVkl1cFlt0gFcQVVfeXFMTmtaeDlqZUtBWUJyZS1BVm13QXk5LVEtNnBNZTQ5R2ljSHpubW1zSHFmc0hJekJROEVaYVNDR3RGenBDbEE4ZVBxOHl3S21lMG1hNjBWOTNqbGNfeG0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US Borrowing Exceeds GDP: Structural Debt Crisis Signals</div><div class="sc-item-source">Modern Ghana</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPY2FNYnpBdVQyOVJBTTNudHQ0UW5lNkJJNUJocHpZbmQ5T2pTOUVxS2hHWksyT1pBVHFkZ3E0ME1rZXBjVWc0cXR5WnB6SXpPa05aWHRkNkZiZVF4Y3VpRjlNcEYyWlo5eExKTjlzYXVnbHNzUFNYU0dpME1hUG1XcExNeTg5S3BieDZwRjRuY0d3dnprZ3NzOHJfVWJna2s?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Economic Sentiment Rises Despite Persistent Inflation Pressures</div><div class="sc-item-source">CivicScience</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -688,7 +694,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE1CNWNlaFRIYkV6Q25DcFBCc2tDN2xFbnk3RE5PLWNRQkhwejlBdi1Sc3FUak9JVkFqdGVNT3dKWEY3YVZWV19MSWI4Y1FjVTBtMVFHR3Q5TjBYUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Brazil's President Lula to discuss economy and security with Trump at White House</div><div class="sc-item-source">BBC</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiwgFBVV95cUxOR2RtM2QzRXQ0cWtMaUtzdTJvbjgyM3JlRnlXTk9VWEJZZDEwVVVjZ0xkd1QzZEk1WjBtQ2xUcVdnSldScGhjRVRIYmduckRxWl84TVBDOTM1UTNsQlRBTWNSMEhnQUVrcjZCbVFUb01yNDJpSHBURWZtaW9MUjhKeG1mZWtFaUZKQ3hlbm9Ka0FFc05QR29rZVVoTVVIS1FTZ0tPdXo5eUdpbjBYdVdDSXFwQVk3elBUX091WEdXX3FyZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump Administration Reverses Strait of Hormuz Plan After Ally Backlash</div><div class="sc-item-source">NBC News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE1CNWNlaFRIYkV6Q25DcFBCc2tDN2xFbnk3RE5PLWNRQkhwejlBdi1Sc3FUak9JVkFqdGVNT3dKWEY3YVZWV19MSWI4Y1FjVTBtMVFHR3Q5TjBYUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Brazil's Lula Meets Trump on Economy and Security</div><div class="sc-item-source">BBC</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -699,7 +705,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times, Ars Technica</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic Secures Computing Deal with SpaceX to Scale AI Training</div><div class="sc-item-source">The Business Times, Ars Technica</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUBZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Enters Physical AI via Robotics Startup Acquisition</div><div class="sc-item-source">THE Journal</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -710,7 +716,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMickFVX3lxTE0teG4taGFicEdTNkxPUGF0Vmd1LVJpejdZUmJwZ0hfZ2pSV2NFZ19kLXhOcDJKQXVyRk1qNi1id0E1LXZsS1Q0dENmRlB6RngzWVFfNDdia3RCajg3SFlIMHJRYTNCV3J3djBKTnlmVlVuZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Iran War Updates: Tehran and U.S. Offer Conflicting Messages on State of Negotiations</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxOOWRzdlNYRnJndmpPLXFNZ2JoZUlkSkxCY2JBQXZBS3ZkNGV3dkt0aGkyY0JjWThDTDA1RUh3b3J3Tm1WcnFiYjVrUXZUZG5PTVBRcWR6T3o5RmlXVGhlVjJ6QnlCTUNhNWdLcDNxYy1CcGJNMTU4Y28tbVVqY0REdndfdkdOUG5SRkpsWVpmTTFpaEE2RGtlOXNkS2hDOUJQbTdDa0tWek9zU3ZGeDJabXptSUw3dzBadEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. and China Pursue Guardrails to Stop AI Rivalry From Spiraling Into Crisis</div><div class="sc-item-source">WSJ</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxOOWRzdlNYRnJndmpPLXFNZ2JoZUlkSkxCY2JBQXZBS3ZkNGV3dkt0aGkyY0JjWThDTDA1RUh3b3J3Tm1WcnFiYjVrUXZUZG5PTVBRcWR6T3o5RmlXVGhlVjJ6QnlCTUNhNWdLcDNxYy1CcGJNMTU4Y28tbVVqY0REdndfdkdOUG5SRkpsWVpmTTFpaEE2RGtlOXNkS2hDOUJQbTdDa0tWek9zU3ZGeDJabXptSUw3dzBadEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. and China Establish AI Guardrails to Prevent Escalation</div><div class="sc-item-source">WSJ</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMickFVX3lxTE0teG4taGFicEdTNkxPUGF0Vmd1LVJpejdZUmJwZ0hfZ2pSV2NFZ19kLXhOcDJKQXVyRk1qNi1id0E1LXZsS1Q0dENmRlB6RngzWVFfNDdia3RCajg3SFlIMHJRYTNCV3J3djBKTnlmVlVuZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Iran Negotiations Stall Amid Conflicting U.S. and Tehran Messages</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -721,7 +727,7 @@ h1.hero-title {
         </div>
         <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNcVNOWTFuSFhkYWlxMDFJUWJNRUFXTmJUbkdGMUdFSG5UbzFCYmRDcjFkYjdHdlVwYzc0ci1GZDlrTlE3eFRHYUxlMGhMQWNQVlFJci1qdlBIMjJzZVN2TUJjNlVfSmkzbkExRkpMODV6aF9OcU1aWkhHdExhY2lTWWZaZk53MmgwM3dWNHk5eE1aZDdOemJBdUZ2UUZCMThGY29tRXpVWEdoUmRfRWVHYkFkRzRVM244bzdMU19QLWtUV0Q4aFE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NBA playoff TV schedule tonight, where to watch games, stream, times</div><div class="sc-item-source">Milwaukee Journal Sentinel</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizwFBVV95cUxOb25lbXhVd3lRUTQwMEpDU3IwMmV6N2ZSalp5UjhjLWlnTGhGXzRQa3lzbzhWbDNnRm1wbjRRcE1WYnJsNVVpWk5QenZhMTNSYXpGTjBGcUlEUFF0Umh2THJUR1RXVm5ZQ1ZkNjQ0Ym5WRWVOWWFfb0x3azNuZ1c0eE81V19zTV9RcHZyU0d3RURkY3RtVVI5UEMyejBZcmF3YTROeThjQVhPdFJUeVlDaXE5UUZyZkVQNDQ1TEZmMktGVjhDVGVrQWNuRHlteXM?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NBA Playoff Game 2: Timberwolves vs. Spurs Tonight</div><div class="sc-item-source">The Arizona Republic</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -730,9 +736,9 @@ h1.hero-title {
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Boston</div>
         </div>
-        <div class="sc-count">01</div>
+        <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxNNjZyMEJydkNsY0Rpc3JwdVhlT3B5V0dNOXdqUVpHTDdvSVJxMTkydTBwMW1KeEpjZl9LaFlxMEw2VjhxTGVpUEZWLXlpaVh5dUM1Q3dCaWttY21fSFhWV1YtYmpISjMyZGo2ckcxVHdOaS1TM3c3MnJoM0VSVTVHVGlHbUxWWVIxVEHSAZIBQVVfeXFMT24xZXV6MWVIVkpISTZ6QnlvbUZzRzNpZk9xT0ZLUU0yY0x0cGVfQS1YUnltS0UwZWtVdFdSTmtEeENBZTdwZERFcVRsSUwxSXlTUzA0dTVDdE05YnJPTXJfYkpPQmpfNHhuS3ZWNnBtVjhlc0N4bjJ2bHJiZEJ4NGRpTFU2WXlLLUtoUHY1QUZmZUE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">As the penny starts going extinct, how do Mass. businesses round prices right?</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxOTkF3MUhnMmYzSHpXWW9iNVlBQUg2cUpKb0VNclNhQWJ4Z21UclZHYXczSmttMjNtWGtTbTc1MHc3Y1YxUTIwcDVxV1pJM3pDT1hMelVURllYdXR1ZW10VGZub0dZenlBNEJIZ2hfWlJRbTZuSnUyUjBYOVd2YmlSQ00tZzNQRnNlc1E?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Massachusetts State Trooper Killed in Line-of-Duty Crash</div><div class="sc-item-source">WCVB, Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxNNjZyMEJydkNsY0Rpc3JwdVhlT3B5V0dNOXdqUVpHTDdvSVJxMTkydTBwMW1KeEpjZl9LaFlxMEw2VjhxTGVpUEZWLXlpaVh5dUM1Q3dCaWttY21fSFhWV1YtYmpISjMyZGo2ckcxVHdOaS1TM3c3MnJoM0VSVTVHVGlHbUxWWVIxVEHSAZIBQVVfeXFMT24xZXV6MWVIVkpISTZ6QnlvbUZzRzNpZk9xT0ZLUU0yY0x0cGVfQS1YUnltS0UwZWtVdFdSTmtEeENBZTdwZERFcVRsSUwxSXlTUzA0dTVDdE05YnJPTXJfYkpPQmpfNHhuS3ZWNnBtVjhlc0N4bjJ2bHJiZEJ4NGRpTFU2WXlLLUtoUHY1QUZmZUE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Massachusetts Adapts Pricing Strategies as Penny Reaches Extinction</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article></div>
 </div>
 
