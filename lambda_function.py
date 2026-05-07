@@ -4612,10 +4612,13 @@ def get_or_generate_stocks_universe():
 
     # EDGAR enrichment: weekly cadence (heavy: ~3 min for 1500 tickers).
     # Skip if any cached ticker has edgar_updated stamped within this ISO week.
+    # Schema bump: if no cached stock has op_margin_history yet, force a re-run
+    # so newly-added EDGAR-derived fields populate without waiting a week.
     should_run_edgar = True
     if last_known and last_known.get("stocks"):
         recent_edgar = next((s for s in last_known["stocks"] if s.get("edgar_updated")), None)
-        if recent_edgar:
+        has_op_margin_history = any(s.get("op_margin_history") for s in last_known["stocks"])
+        if recent_edgar and has_op_margin_history:
             try:
                 edgar_dt = datetime.fromisoformat(recent_edgar["edgar_updated"]).date()
                 edgar_iso_year, edgar_iso_week, _ = edgar_dt.isocalendar()
@@ -4624,6 +4627,8 @@ def get_or_generate_stocks_universe():
                     print(f"EDGAR: cache stamped {recent_edgar['edgar_updated']} (this week), skipping refresh.")
             except Exception:
                 pass
+        elif recent_edgar and not has_op_margin_history:
+            print("EDGAR: schema bump detected (op_margin_history missing), forcing re-run.")
     edgar_count = 0
     if should_run_edgar:
         cik_map = fetch_edgar_ticker_cik_map()
