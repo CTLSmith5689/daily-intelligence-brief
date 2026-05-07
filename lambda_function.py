@@ -4800,7 +4800,14 @@ def fetch_edgar_ticker_cik_map():
 
 
 def fetch_edgar_company_facts(cik):
-    """Fetch full XBRL facts for one CIK. Returns the 'facts' dict or None."""
+    """Fetch full XBRL facts for one CIK. Returns the 'facts' dict or None.
+    Routes through _sec_throttle (defined later in the file) so that EDGAR and
+    Insider Form 4 share one rate-limit budget against SEC."""
+    try:
+        _sec_throttle()
+    except NameError:
+        # Throttle helper isn't defined yet during module import; fall through.
+        pass
     try:
         url = EDGAR_FACTS_URL.format(cik=int(cik))
         req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/json"})
@@ -5061,17 +5068,36 @@ EDGAR_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 # Form 4 XML document fetched at:
 # https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_dashes}/{primary_doc}
 _INSIDER_LOOKBACK_DAYS = 90
-_INSIDER_MAX_DOCS_PER_TICKER = 12  # cap per-ticker fetches to keep workflow under 20 min
+_INSIDER_MAX_DOCS_PER_TICKER = 8   # cap per-ticker fetches to keep workflow under 30 min
+_INSIDER_TOP_N_BY_MARKET_CAP = 600  # only fetch insider data for the largest N tickers
+                                     # (small caps Form 4 is noisier and not worth the latency)
+
+# Shared SEC rate limiter. SEC's documented limit is 10 req/sec/IP. We aim for
+# ~8 to leave headroom. All threads call _sec_throttle() before each request so
+# the cumulative rate stays compliant regardless of worker count.
+import threading as _threading
+_sec_lock = _threading.Lock()
+_sec_last_req_ts = [0.0]
+_SEC_MIN_INTERVAL = 1.0 / 8.0  # 125 ms between requests across all threads
+
+def _sec_throttle():
+    with _sec_lock:
+        now = time.time()
+        gap = _sec_last_req_ts[0] + _SEC_MIN_INTERVAL - now
+        if gap > 0:
+            time.sleep(gap)
+        _sec_last_req_ts[0] = time.time()
 
 
 def _fetch_recent_form4_filings(cik):
     """Read /submissions/CIK{cik}.json and return a list of recent Form 4
     filings within the lookback window. Each entry is
     {accession, filing_date, primary_doc}. Returns [] on failure."""
+    _sec_throttle()
     try:
         url = EDGAR_SUBMISSIONS_URL.format(cik=int(cik))
         req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/json"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except Exception:
         return []
@@ -5106,6 +5132,7 @@ def _parse_form4_xml(cik, accession, primary_doc):
     table for v1 (options/restricted units add noise to the buy/sell signal).
     Note: SEC's primaryDocument path often points to the XSL-rendered HTML
     view (xslF345X06/wk-form4_*.xml). Strip that prefix to get raw XML."""
+    _sec_throttle()
     try:
         acc_no_dashes = (accession or "").replace("-", "")
         # Drop the XSL stylesheet prefix when present so we get raw XML.
@@ -5114,7 +5141,7 @@ def _parse_form4_xml(cik, accession, primary_doc):
             doc_raw = doc_raw.rsplit("/", 1)[-1]
         url = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc_no_dashes}/{doc_raw}"
         req = urllib.request.Request(url, headers={"User-Agent": EDGAR_USER_AGENT, "Accept": "application/xml"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:
             xml_bytes = resp.read()
     except Exception:
         return []
@@ -5226,16 +5253,21 @@ def compute_insider_signal(transactions):
     }
 
 
-def enrich_with_insider(stocks, ticker_cik_map, max_workers=8):
+def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
     """For each ticker with a CIK, fetch recent Form 4 filings and aggregate the
-    Seyhun signal. ~17 min worst case for 2941 tickers (1 submissions request +
-    avg 3-4 Form 4 XML fetches per active ticker, 8 threads, SEC 10 req/sec)."""
+    Seyhun signal. SEC enforces a strict 10 req/sec/IP limit; we throttle via
+    _sec_throttle() to ~8 req/sec. To keep the workflow under the timeout, we
+    only fetch insider data for the top _INSIDER_TOP_N_BY_MARKET_CAP tickers by
+    market cap (small-cap Form 4 is noisier and has thinner coverage anyway)."""
     if not stocks or not ticker_cik_map:
         print("Insider enrichment: no stocks or empty CIK map, skipping.")
         return 0
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    by_ticker = {s["ticker"]: s for s in stocks}
+    # Largest-cap subset only. Stocks without a market_cap go to the back.
+    cap_sorted = sorted(stocks, key=lambda s: -(s.get("market_cap") or 0))
+    target = cap_sorted[:_INSIDER_TOP_N_BY_MARKET_CAP]
+    by_ticker = {s["ticker"]: s for s in target}
     matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
     matched = [(t, cik) for t, cik in matched if cik]
     today_str = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
@@ -5244,27 +5276,33 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=8):
         sym, cik = item
         try:
             txs = fetch_insider_form4(cik)
-        except Exception:
-            return sym, {}
-        return sym, compute_insider_signal(txs)
+            return sym, compute_insider_signal(txs), len(txs), None
+        except Exception as e:
+            return sym, {}, 0, str(e)
 
     enriched = 0
+    no_activity = 0
+    errors = 0
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, item) for item in matched]
         for f in as_completed(futures):
-            sym, signal = f.result()
+            sym, signal, n_tx, err = f.result()
             s = by_ticker.get(sym)
             if not s:
                 continue
             # Always stamp insider_updated even when signal is empty, so we know
             # we tried this ticker (avoids re-fetching on every workflow run).
             s["insider_updated"] = today_str
-            if signal:
+            if err:
+                errors += 1
+            elif signal:
                 s.update(signal)
                 enriched += 1
+            else:
+                no_activity += 1
     elapsed = time.time() - t0
-    print(f"Insider Form 4 enrichment: signals for {enriched}/{len(matched)} tickers in {elapsed:.1f}s.")
+    print(f"Insider Form 4 enrichment: signals for {enriched}/{len(matched)} tickers ({no_activity} no activity, {errors} errors) in {elapsed:.1f}s.")
     return enriched
 
 
