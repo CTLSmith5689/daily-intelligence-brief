@@ -1658,12 +1658,12 @@ h1.hero-title {
 }
 
 .stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-.stk-head { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
+.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.45); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \\2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \\2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:80px 1fr 200px 100px 80px 70px; gap:14px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
+.stk-row { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
 .stk-row:hover { background:rgba(22,23,31,0.6); }
 .stk-ticker { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
@@ -1674,6 +1674,8 @@ h1.hero-title {
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+.stk-date { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-3); text-align:right; padding-top:3px; }
+.stk-date-dim { color:var(--text-4); }
 .stk-row { cursor:pointer; }
 .stk-row .stk-ticker { transition:color .15s; }
 .stk-row:hover .stk-ticker { color:#FFB347; }
@@ -1716,6 +1718,8 @@ h1.hero-title {
   .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
   .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
   .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
+  .stk-th[data-sort="earnings_date"], .stk-row .stk-date:not(.stk-date-dim) { display:none; }
+  .stk-th[data-sort="last_updated"], .stk-row .stk-date.stk-date-dim { display:none; }
   .stk-detail { padding:12px 14px 18px; }
 }
 
@@ -2011,6 +2015,14 @@ STOCKS_JS_TEMPLATE = """
     if (n == null || isNaN(n)) return '—';
     return Number(n).toFixed(d == null ? 0 : d);
   }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso + 'T12:00:00Z');
+      if (isNaN(d.getTime())) return '—';
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' }).toUpperCase();
+    } catch (e) { return '—'; }
+  }
   function fmtPctRaw(n, d) {
     // Decimal fraction (0.083) -> "8.3%". For factor values stored as decimals.
     if (n == null || isNaN(n)) return '—';
@@ -2220,6 +2232,8 @@ STOCKS_JS_TEMPLATE = """
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
         + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
         + '<div class="stk-pe">'+fmtNum(s.pe, 1)+'</div>'
+        + '<div class="stk-date">'+fmtDate(s.earnings_date)+'</div>'
+        + '<div class="stk-date stk-date-dim">'+fmtDate(s.last_updated)+'</div>'
       + '</div>'
       + detailHtml;
     }).join('');
@@ -2862,8 +2876,39 @@ def enrich_with_yfinance(stocks, max_workers=10):
             if gm is not None and -2 < gm < 2:
                 s["gross_margin"] = gm
 
+            # Earnings date (next expected). yfinance exposes this under several keys
+            # depending on data availability: earningsTimestamp (single), or a list at
+            # earningsDate, or a range start/end. Take the first valid one.
+            ed_iso = None
+            for ts_key in ("earningsTimestamp", "earningsTimestampStart", "earningsCallTimestampStart"):
+                ts = info.get(ts_key)
+                if ts and isinstance(ts, (int, float)) and ts > 0:
+                    try:
+                        ed = datetime.fromtimestamp(ts, tz=timezone.utc).date()
+                        delta = (ed - datetime.now(tz=timezone.utc).date()).days
+                        # Sanity: within ~2 years past or future
+                        if -730 < delta < 730:
+                            ed_iso = ed.isoformat()
+                            break
+                    except Exception:
+                        continue
+            if not ed_iso:
+                ed_list = info.get("earningsDate")
+                if isinstance(ed_list, list) and ed_list:
+                    raw = ed_list[0]
+                    if isinstance(raw, (int, float)) and raw > 0:
+                        try:
+                            ed = datetime.fromtimestamp(raw, tz=timezone.utc).date()
+                            ed_iso = ed.isoformat()
+                        except Exception:
+                            pass
+            if ed_iso:
+                s["earnings_date"] = ed_iso
+
             if cap or price:
                 enriched += 1
+                # Per-row freshness stamp: this run successfully fetched yfinance data.
+                s["last_updated"] = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
 
     elapsed = time.time() - t0
     print(f"yfinance: enriched {enriched}/{len(tickers)} tickers in {elapsed:.1f}s ({max_workers} threads).")
@@ -3159,6 +3204,8 @@ def get_or_generate_stocks_universe():
         # EDGAR-derived (refreshed weekly)
         "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy",
         "earnings_consistency", "op_margin_stability", "edgar_updated",
+        # Per-row freshness + earnings calendar
+        "last_updated", "earnings_date",
     )
     carried_forward = 0
     if last_known and last_known.get("stocks"):
@@ -3611,6 +3658,8 @@ def generate_stocks_page(universe):
       <div class="stk-th desc" data-sort="market_cap">Mkt Cap</div>
       <div class="stk-th" data-sort="change_pct">1d %</div>
       <div class="stk-th" data-sort="pe">P/E</div>
+      <div class="stk-th" data-sort="earnings_date">Earnings</div>
+      <div class="stk-th" data-sort="last_updated">Updated</div>
     </div>
     <div id="stk-list"></div>
   </div>
