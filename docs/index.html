@@ -414,10 +414,17 @@ h1.hero-title {
 .bf-row { display:grid; grid-template-columns:24px 1fr 60px 70px; align-items:center; gap:14px; padding:5px 0; }
 .bf-d { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--text-2); text-align:center; }
 .bf-bar { position:relative; height:8px; background:rgba(255,255,255,0.04); border-radius:3px; }
-.bf-bar-fill { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg, rgba(255,122,133,0.55), rgba(255,31,61,0.85)); border-radius:3px; }
+.bf-bar-fill { position:absolute; left:0; top:0; bottom:0; border-radius:3px; transition:background .2s; }
 .bf-marker { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--text-2); opacity:0.65; }
-.bf-obs { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; font-weight:500; }
+.bf-obs { font-family:'DM Mono',monospace; font-size:12px; text-align:right; font-weight:500; transition:color .2s; }
 .bf-exp { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); }
+/* Per-row deviation severity: green if within 10% of expected, amber 10-25%, red >25% */
+.bf-row-close .bf-bar-fill    { background:linear-gradient(90deg, rgba(52,210,122,0.45), rgba(52,210,122,0.85)); }
+.bf-row-close .bf-obs         { color:#34D27A; }
+.bf-row-moderate .bf-bar-fill { background:linear-gradient(90deg, rgba(255,179,71,0.45), rgba(255,179,71,0.90)); }
+.bf-row-moderate .bf-obs      { color:#FFB347; }
+.bf-row-far .bf-bar-fill      { background:linear-gradient(90deg, rgba(255,122,133,0.55), rgba(255,31,61,0.95)); }
+.bf-row-far .bf-obs           { color:var(--apt-red); }
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
@@ -496,12 +503,12 @@ h1.hero-title {
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">373</div>
+        <div class="fs-val">374</div>
         <div class="fs-delta">across 28 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">208</div>
+        <div class="fs-val">209</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
