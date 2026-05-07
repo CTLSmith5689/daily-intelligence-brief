@@ -1813,6 +1813,32 @@ h1.hero-title {
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
+/* Signals row: Neglect (Lynch) + Insider Movement (Seyhun) */
+.sg-row-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+@media (max-width:780px) { .sg-row-grid { grid-template-columns:1fr; } }
+.sg-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; border-left-width:3px; border-left-color:var(--apt-rose); }
+.sg-card-insider { border-left-color:#9B8CFF; }
+.sg-card-stub { opacity:0.7; }
+.sg-h { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.sg-h-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text-1); letter-spacing:0.02em; }
+.sg-h-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; font-weight:400; margin-left:6px; }
+.sg-score-badge { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 9px; border-radius:999px; text-transform:uppercase; }
+.sg-score-badge.sg-pos { color:#34D27A; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.25); }
+.sg-score-badge.sg-neg { color:var(--apt-rose); background:rgba(255,57,77,0.10); border:1px solid rgba(255,57,77,0.25); }
+.sg-score-badge.sg-neutral { color:var(--text-2); background:rgba(255,255,255,0.04); border:1px solid var(--border); }
+.sg-score-badge.sg-na { color:var(--text-4); background:transparent; border:1px dashed var(--border); }
+.sg-rows { display:flex; flex-direction:column; gap:8px; }
+.sg-row { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; font-size:12px; padding:4px 0; }
+.sg-row-stub { color:var(--text-5); }
+.sg-label { color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+.sg-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; text-align:right; min-width:80px; }
+.sg-bar { display:inline-flex; gap:2px; align-items:center; }
+.sg-bar-cell { display:inline-block; width:6px; height:8px; border-radius:1px; background:var(--border); }
+.sg-bar-cell-on { background:var(--apt-rose); }
+.sg-card-insider .sg-bar-cell-on { background:#9B8CFF; }
+.sg-bar-empty { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-5); }
+.sg-foot { margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); font-size:10px; line-height:1.5; color:var(--text-4); }
+
 /* Chart card per ticker (price + op margin, lazy-loaded on expand) */
 .ch-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
 .ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
@@ -2624,11 +2650,94 @@ STOCKS_JS_TEMPLATE = """
     const chartCard = buildChartCard(s);
     // Methodology panel: empty placeholder. Populated when a card header is clicked.
     const metaPanel = '<div class="fp-meta-panel" id="fp-meta-' + escapeHtml(s.ticker) + '" data-ticker="' + escapeHtml(s.ticker) + '" hidden></div>';
+    const signalsRow = buildSignalsRow(s);
     // News card is a placeholder; populated lazily on expand via fetchNewsFor.
     const newsCard = '<div class="nws-card" id="nws-' + escapeHtml(s.ticker) + '">'
       + '<div class="nws-h">News <span class="nws-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + newsCard + benfordCard + '</div>';
+    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
+  }
+
+  // ── Signals row: Neglect (Lynch) on the left, Insider Movement (Seyhun) on the right ──
+
+  function neglectLabel(score) {
+    if (score == null) return { text: 'N/A', cls: 'sg-na' };
+    if (score >= 0.65) return { text: 'NEGLECTED', cls: 'sg-pos' };
+    if (score >= 0.40) return { text: 'AVERAGE',   cls: 'sg-neutral' };
+    return                       { text: 'CROWDED',   cls: 'sg-neg' };
+  }
+
+  function fmtMiniBar(componentScore) {
+    // 0..1 fill, rendered with 10 cells.
+    if (componentScore == null) return '<span class="sg-bar sg-bar-empty">—</span>';
+    const filled = Math.round(componentScore * 10);
+    let bar = '<span class="sg-bar">';
+    for (let i = 0; i < 10; i++) {
+      bar += '<span class="sg-bar-cell' + (i < filled ? ' sg-bar-cell-on' : '') + '"></span>';
+    }
+    bar += '</span>';
+    return bar;
+  }
+
+  function buildSignalsRow(s) {
+    // ── Neglect (Lynch) ──
+    const score = s.neglect_score;
+    const lab = neglectLabel(score);
+    // Recompute the three component sub-scores for display (so we can show a bar
+    // per input). Same formulas as compute_neglect_score on the backend.
+    const aRaw = s.analyst_count;
+    const iRaw = s.inst_ownership;
+    const nRaw = s.news_count_7d;
+    const aSub = (aRaw != null) ? (1 - Math.min(aRaw, 30) / 30) : null;
+    const iSub = (iRaw != null) ? (1 - Math.min(iRaw, 0.5) / 0.5) : null;
+    const nSub = (nRaw != null) ? (1 - Math.min(nRaw, 20) / 20) : null;
+    const neglectCard =
+        '<div class="sg-card sg-card-neglect">'
+      + '<div class="sg-h">'
+      +   '<span class="sg-h-title">Neglect <span class="sg-h-eyebrow">Peter Lynch</span></span>'
+      +   '<span class="sg-score-badge ' + lab.cls + '">'
+      +     (score != null ? score.toFixed(2) : '—') + ' &middot; ' + lab.text
+      +   '</span>'
+      + '</div>'
+      + '<div class="sg-rows">'
+      +   '<div class="sg-row">'
+      +     '<span class="sg-label">Analyst Coverage</span>'
+      +     '<span class="sg-val">' + (aRaw != null ? aRaw + ' analysts' : '—') + '</span>'
+      +     fmtMiniBar(aSub)
+      +   '</div>'
+      +   '<div class="sg-row">'
+      +     '<span class="sg-label">Institutional Holdings</span>'
+      +     '<span class="sg-val">' + (iRaw != null ? (iRaw * 100).toFixed(0) + '%' : '—') + '</span>'
+      +     fmtMiniBar(iSub)
+      +   '</div>'
+      +   '<div class="sg-row">'
+      +     '<span class="sg-label">News Headlines (7d)</span>'
+      +     '<span class="sg-val">' + (nRaw != null ? nRaw : '—') + '</span>'
+      +     fmtMiniBar(nSub)
+      +   '</div>'
+      + '</div>'
+      + '<div class="sg-foot">Composite of three normalized 0-to-1 components. Higher means less Wall Street attention. Bars show how much each input contributes to the score.</div>'
+      + '</div>';
+
+    // ── Insider Movement (Seyhun) ── placeholder until SEC Form 4 fetcher lands.
+    const insiderCard =
+        '<div class="sg-card sg-card-insider sg-card-stub">'
+      + '<div class="sg-h">'
+      +   '<span class="sg-h-title">Insider Movement <span class="sg-h-eyebrow">Nejat Seyhun</span></span>'
+      +   '<span class="sg-score-badge sg-na">SOON</span>'
+      + '</div>'
+      + '<div class="sg-rows">'
+      +   '<div class="sg-row sg-row-stub"><span class="sg-label">Net Insider Buying (90d)</span><span class="sg-val">&mdash;</span></div>'
+      +   '<div class="sg-row sg-row-stub"><span class="sg-label">Distinct Buyers (90d)</span><span class="sg-val">&mdash;</span></div>'
+      +   '<div class="sg-row sg-row-stub"><span class="sg-label">Cluster Signal</span><span class="sg-val">&mdash;</span></div>'
+      +   (s.insider_ownership != null
+          ? '<div class="sg-row"><span class="sg-label">Insider Ownership (yfinance)</span><span class="sg-val">' + (s.insider_ownership * 100).toFixed(1) + '%</span></div>'
+          : '')
+      + '</div>'
+      + '<div class="sg-foot">SEC Form 4 fetcher coming in the next release. Will surface open-market insider purchases (Seyhun: cluster buying is the strongest signal).</div>'
+      + '</div>';
+
+    return '<div class="sg-row-grid">' + neglectCard + insiderCard + '</div>';
   }
 
   // Track which dimension's metadata is currently shown per ticker (or null).
