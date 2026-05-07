@@ -5,10 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0A0A0F">
 <link rel="manifest" href="manifest.json">
 <title>Today's Briefs, Apterreon</title>
+<script>
+// Apply persisted theme before stylesheet renders to avoid a flash.
+(function(){
+  try {
+    var t = localStorage.getItem('apt-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 
@@ -18,32 +27,63 @@
   --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
   --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
   --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
+  /* Theme-tunable surface tints (used by topnav, cards, table). Dark default. */
+  --surface-1:var(--surface-1); --surface-2:var(--surface-2); --surface-3:var(--surface-3);
+  --grid-line:rgba(255,255,255,0.06); --chart-axis:rgba(255,255,255,0.45); --chart-value:rgba(255,255,255,0.85);
+  --plexus-opacity:0.55;
+  --bg-glow-1:rgba(255,31,61,0.10); --bg-glow-2:rgba(204,0,40,0.07); --bg-glow-3:rgba(255,122,133,0.04);
 }
+:root[data-theme="light"] {
+  --bg-base:#F4F1EA; --bg-1:#FFFFFF; --bg-2:#EDE9DF;
+  --border:rgba(20,18,14,0.10); --border-bright:rgba(20,18,14,0.22);
+  /* Brand reds stay; soften apt-rose for light backgrounds */
+  --apt-red:#D6172E; --apt-red-deep:#A10921; --apt-rose:#C84453; --apt-amber:#C77A18;
+  --text-1:#1A1410; --text-2:#2F2A23; --text-3:#5C5446; --text-4:#857B6A; --text-5:#B4AB99;
+  --surface-1:rgba(255,255,255,0.78); --surface-2:rgba(255,255,255,0.92); --surface-3:rgba(244,241,234,0.96);
+  --grid-line:rgba(20,18,14,0.08); --chart-axis:rgba(20,18,14,0.55); --chart-value:rgba(20,18,14,0.85);
+  --plexus-opacity:0.18;
+  --bg-glow-1:rgba(214,23,46,0.05); --bg-glow-2:rgba(161,9,33,0.04); --bg-glow-3:rgba(200,68,83,0.03);
+}
+/* Light-mode element-level fixups for spots that still use raw rgba() and would
+   otherwise look washed out on a light background. */
+:root[data-theme="light"] .stk-views-input,
+:root[data-theme="light"] .stk-filter-input,
+:root[data-theme="light"] .stk-filter-select,
+:root[data-theme="light"] .stk-views-chip { background:#FFFFFF; }
+:root[data-theme="light"] .stk-row:hover { background:rgba(20,18,14,0.05); }
+:root[data-theme="light"] .stk-th:hover { color:var(--text-1); }
+:root[data-theme="light"] .stk-views-del:hover { background:rgba(214,23,46,0.08); }
+:root[data-theme="light"] .nws-sent-row, :root[data-theme="light"] .nws-item:hover { background:rgba(20,18,14,0.04); }
+:root[data-theme="light"] .empty-state { color:var(--text-3); }
 html { background:var(--bg-base); color:var(--text-1); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
 body { min-height:100vh; overflow-x:hidden; }
 ::-webkit-scrollbar { width:6px; }
 ::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
 a { color:inherit; text-decoration:none; }
 
-#plexus { position:fixed; inset:0; z-index:0; opacity:0.55; }
+#plexus { position:fixed; inset:0; z-index:0; opacity:var(--plexus-opacity); }
 body::before {
   content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
   background:
-    radial-gradient(800px 600px at 15% 20%, rgba(255,31,61,0.10), transparent 60%),
-    radial-gradient(900px 700px at 85% 80%, rgba(204,0,40,0.07), transparent 60%),
-    radial-gradient(1200px 800px at 50% 40%, rgba(255,122,133,0.04), transparent 70%);
+    radial-gradient(800px 600px at 15% 20%, var(--bg-glow-1), transparent 60%),
+    radial-gradient(900px 700px at 85% 80%, var(--bg-glow-2), transparent 60%),
+    radial-gradient(1200px 800px at 50% 40%, var(--bg-glow-3), transparent 70%);
 }
 body::after {
   content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
   background-image:radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
   background-size:3px 3px; opacity:0.5; mix-blend-mode:overlay;
 }
+:root[data-theme="light"] body::after {
+  background-image:radial-gradient(rgba(20,18,14,0.04) 1px, transparent 1px);
+  mix-blend-mode:multiply; opacity:0.4;
+}
 .topnav, .hero, .featured, .features, .feed, .lib, .footer, .destinations, .picks, .editions { position:relative; z-index:3; }
 
 .topnav {
   position:sticky; top:16px; max-width:1200px; margin:16px auto 0; padding:10px 14px 10px 18px;
   display:flex; align-items:center; gap:14px;
-  background:rgba(17,18,26,0.55);
+  background:var(--surface-1);
   backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%);
   border:1px solid var(--border); border-radius:18px;
 }
@@ -55,10 +95,14 @@ body::after {
 .pulse-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; box-shadow:0 0 12px rgba(52,210,122,0.7); animation:pulse 1.8s ease-out infinite; }
 @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(52,210,122,0.55);} 70%{box-shadow:0 0 0 10px rgba(52,210,122,0);} 100%{box-shadow:0 0 0 0 rgba(52,210,122,0);} }
 
-.nav { margin-left:auto; display:flex; gap:4px; }
+.nav { margin-left:auto; display:flex; gap:4px; align-items:center; }
 .nav a { padding:8px 14px; font-size:13px; font-weight:500; color:var(--text-3); border-radius:10px; transition:all .2s; }
 .nav a:hover { color:var(--text-1); background:rgba(255,255,255,0.04); }
 .nav a.active { color:var(--text-1); background:rgba(255,31,61,0.10); }
+.theme-toggle { margin-left:8px; padding:6px 10px; font-size:14px; line-height:1; color:var(--text-3); background:transparent; border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:color .15s, border-color .15s, background .15s; }
+.theme-toggle:hover { color:var(--text-1); border-color:var(--border-bright); background:rgba(255,255,255,0.04); }
+:root[data-theme="light"] .theme-toggle:hover { background:rgba(20,18,14,0.05); }
+.theme-toggle-icon { display:inline-block; }
 
 .hero { max-width:1200px; margin:0 auto; padding:96px 24px 48px; }
 .eyebrow {
@@ -213,7 +257,7 @@ h1.hero-title {
 .edition-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; color:var(--text-1); }
 .edition-time { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
 .edition-link { margin-left:auto; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--apt-rose); text-transform:uppercase; }
-.edition-edge { font-size:16px; line-height:1.65; color:var(--text-2); margin-bottom:24px; padding:18px 22px; background:rgba(17,18,26,0.55); border-left:3px solid var(--apt-red); border-radius:8px; }
+.edition-edge { font-size:16px; line-height:1.65; color:var(--text-2); margin-bottom:24px; padding:18px 22px; background:var(--surface-1); border-left:3px solid var(--apt-red); border-radius:8px; }
 .edition-empty { padding:32px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px dashed var(--border); border-radius:14px; }
 
 .lib { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
@@ -225,7 +269,7 @@ h1.hero-title {
 .lib-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
 .lib-h .lib-count { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }
 
-.lib-controls { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }
+.lib-controls { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:var(--surface-1); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }
 .lib-search { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }
 .lib-search:focus-within { border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }
 .lib-search .icon { color:var(--text-3); font-size:16px; }
@@ -248,7 +292,7 @@ h1.hero-title {
 
 .lib-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
 .lib-item {
-  background:rgba(17,18,26,0.85); padding:18px 22px;
+  background:var(--surface-2); padding:18px 22px;
   display:grid; grid-template-columns:120px 1fr auto; gap:18px; align-items:center;
   transition:background .15s;
 }
@@ -352,10 +396,10 @@ h1.hero-title {
   .stk-filter-quicks { grid-column:1 / -1; margin-top:4px; }
 }
 
-.stk-table { background:rgba(17,18,26,0.55); border:1px solid var(--border); border-radius:14px; overflow-y:auto; max-height:calc(100vh - 220px); }
+.stk-table { background:var(--surface-1); border:1px solid var(--border); border-radius:14px; overflow-y:auto; max-height:calc(100vh - 220px); }
 .stk-table::-webkit-scrollbar { width:8px; }
 .stk-table::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:4px; }
-.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; position:sticky; top:0; z-index:3; }
+.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--surface-3); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
@@ -388,7 +432,7 @@ h1.hero-title {
 @keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
 /* Score breakdown card (sits above the 4 factor cards) */
-.sb-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; }
+.sb-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; }
 .sb-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .sb-h-sub { font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:none; font-style:italic; opacity:0.8; }
 .sb-row { display:grid; grid-template-columns:90px 1fr 60px; align-items:center; gap:14px; padding:5px 0; }
@@ -410,7 +454,7 @@ h1.hero-title {
 .sb-comp-na { color:var(--text-5); }
 
 /* Benford's Law card (sits below the 4 factor cards in the expand panel) */
-.bf-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.bf-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
 .bf-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 @media (max-width:780px) { .bf-grid { grid-template-columns:1fr; } }
 .bf-sub { display:flex; flex-direction:column; }
@@ -442,7 +486,7 @@ h1.hero-title {
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
 /* Chart card per ticker (price + op margin, lazy-loaded on expand) */
-.ch-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.ch-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
 .ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
 .ch-h-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
 .ch-tabs { display:flex; gap:4px; flex-wrap:wrap; }
@@ -461,7 +505,7 @@ h1.hero-title {
 .ch-canvas { width:100%; height:160px; display:block; }
 
 /* News card per ticker (lazy-loaded on row expand) */
-.nws-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.nws-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
 .nws-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .nws-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
 .nws-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
@@ -488,12 +532,12 @@ h1.hero-title {
 .nws-sent-na { color:var(--text-5); }
 
 /* Stocks page top row: search + Index/Sector chips full-width above the wrap */
-.stk-toprow { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 16px; margin-bottom:12px; background:rgba(17,18,26,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; position:sticky; top:90px; z-index:4; }
+.stk-toprow { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 16px; margin-bottom:12px; background:var(--surface-2); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; position:sticky; top:90px; z-index:4; }
 .stk-toprow > .lib-search { flex:1 1 280px; min-width:220px; }
 
 /* Stocks page sidebar layout: filters left, table right */
 .stk-wrap { display:grid; grid-template-columns:300px 1fr; gap:20px; align-items:start; margin-top:6px; }
-.stk-sidebar { position:sticky; top:210px; max-height:calc(100vh - 230px); overflow-y:auto; padding:18px 18px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
+.stk-sidebar { position:sticky; top:210px; max-height:calc(100vh - 230px); overflow-y:auto; padding:18px 18px; background:var(--surface-1); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
 .stk-sidebar::-webkit-scrollbar { width:6px; }
 .stk-sidebar::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
 .stk-sidebar-h { display:flex; align-items:baseline; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:0.04em; color:var(--text-1); text-transform:uppercase; }
@@ -564,7 +608,7 @@ body.page-stocks .footer { display:none; }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
 @media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
-.fp-card { padding:14px 16px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.fp-card { padding:14px 16px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
 .fp-card-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
 .fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
 .fp-card-toggle:hover { color:var(--apt-rose); }
@@ -574,7 +618,7 @@ body.page-stocks .footer { display:none; }
 
 /* Standalone methodology card. Slides in below the 4 factor cards when one is clicked. */
 .fp-meta-panel { margin-top:14px; }
-.fp-meta-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; border-left-width:3px; }
+.fp-meta-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; border-left-width:3px; }
 .fp-meta-growth   { border-left-color:#34D27A; }
 .fp-meta-value    { border-left-color:#9B8CFF; }
 .fp-meta-momentum { border-left-color:#FFB347; }
@@ -639,6 +683,7 @@ body.page-stocks .footer { display:none; }
     <a href="./today.html" class="active">Today</a>
     <a href="./stories.html">Stories</a>
     <a href="./stocks.html">Stocks</a>
+    <button type="button" id="apt-theme-toggle" class="theme-toggle" aria-label="Toggle light/dark theme" title="Toggle light/dark"><span class="theme-toggle-icon">&#9788;</span></button>
   </div>
 </nav>
 
@@ -655,7 +700,7 @@ body.page-stocks .footer { display:none; }
     <div class="edition-time">12:15 PM ET</div>
     <a class="edition-link" href="./briefs/2026-05-07-midday.html">Open full brief &rarr;</a>
   </div>
-  <p class="edition-edge">Geopolitical risk (Iran tensions, crypto reserve adoption) combines with AI infrastructure partnerships (SpaceX-Anthropic) and execution-gap closing (Celonis) to create a bifurcated market: equity upside gated by energy/political shocks, but underlying capex and automation cycles accelerate for those positioned in applied AI and cloud-adjacent verticals. The penny elimination story is a micro signal of the larger digitization pressure: friction layers erode, fintech winners compound, and cash convenience no longer justifies regulatory overhead.</p>
+  <p class="edition-edge">Bitcoin strategic reserve announcement removes regulatory tail risk precisely when energy scarcity is driving oil prices higher, creating synchronized dual tailwinds for hard assets that derisks portfolio crowding into tech while Anthropic's SpaceX compute deal signals infrastructure, not NVIDIA chips, is now the actual LLM scaling constraint.</p>
   <div class="section-grid">
     <article class="sec-card">
       <div class="sc-head">
@@ -666,7 +711,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiTkFVX3lxTFBjd2FNeE1Sa2h0UTJYOTVVaE5nRmM2WXh6Q0VtN1EwRHU4V0VsaVV3UlVjNTlqT1RMWkdwa0hONTBabkVjbWdHRjZ1TWxPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Ukraine News Today: Breaking Updates & Live Coverage - May 7, 2026</div><div class="sc-item-source">Kyiv Post</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxQa3FTQXlLUjAxYnRjWl9Iak13Q25sV3Q2UDFsaTE3cGwyb2p3Zjh6Q3hoU3VMNi0zcF9xT1FjblV6WExpcUhNU21uUVYtX1hHcFdGeGphQVM1a2cxRmowbm4yMDFDVTExZEM0YmY4TGtFTXFUX1pLVkRVSEh5bXhZeHRlbXVSczQ3akg4?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Video. Latest news bulletin | May 7th, 2026 – Morning</div><div class="sc-item-source">Euronews.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiTkFVX3lxTFBjd2FNeE1Sa2h0UTJYOTVVaE5nRmM2WXh6Q0VtN1EwRHU4V0VsaVV3UlVjNTlqT1RMWkdwa0hONTBabkVjbWdHRjZ1TWxPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Ukraine News Today: Breaking Updates & Live Coverage - May 7, 2026 from Kyiv Post</div><div class="sc-item-source">Kyiv Post</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -675,9 +720,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Finance & Markets</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPY2FNYnpBdVQyOVJBTTNudHQ0UW5lNkJJNUJocHpZbmQ5T2pTOUVxS2hHWksyT1pBVHFkZ3E0ME1rZXBjVWc0cXR5WnB6SXpPa05aWHRkNkZiZVF4Y3VpRjlNcEYyWlo5eExKTjlzYXVnbHNzUFNYU0dpME1hUG1XcExNeTg5S3BieDZwRjRuY0d3dnprZ3NzOHJfVWJna2s?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Economic Sentiment Rises Following GDP Growth Despite Mounting Inflation</div><div class="sc-item-source">CivicScience</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPY2FNYnpBdVQyOVJBTTNudHQ0UW5lNkJJNUJocHpZbmQ5T2pTOUVxS2hHWksyT1pBVHFkZ3E0ME1rZXBjVWc0cXR5WnB6SXpPa05aWHRkNkZiZVF4Y3VpRjlNcEYyWlo5eExKTjlzYXVnbHNzUFNYU0dpME1hUG1XcExNeTg5S3BieDZwRjRuY0d3dnprZ3NzOHJfVWJna2s?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Economic Sentiment Rises Following GDP Growth Despite Mounting Inflation</div><div class="sc-item-source">CivicScience</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -688,7 +733,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxOZFd1STh1VXgxODRwb3IxZTlhRlJoeEt5czFjaERsZ1l2VUJvVlN5UGNzSnJFeW4tQ1lXNTF3S2pzUkRNcnJkdExfQldjSkFRQl9JNU9OV1dHNkI5bkVCY1hYaEdVeXR5UXMzQkhValhWSC1ZSjN1RzNDZjdaQnI5Snd6OG5BcU40T2c?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Rep. Gabe Evans defends Trump's decision to launch Iran War</div><div class="sc-item-source">Colorado Public Radio</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC Press Release</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -699,7 +744,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3gFBVV95cUxNcFNEV2pweG1sSGRyNU5MVE1EQlpfR1hVV2M0U1pJc2l2TzRWRG1SWEpMNk1CdHZVQm5OZHhoZU9HNWI0RTd2cmxIT2tYNEREZXhQMkZHWXpKajVDNEgtVEltaVBHWWhHWXB2X2Jkb1EzSHAzc1FYS00yVF9uaHE1UFg0c1dQei1RVXNEUGM1YzNrR2hQNFVybzBlOHV4eVlFbWJQN2dTZ1gzUDRFU3E0NThZcWJ0elk0aTVXWWtQNVhrVW40bTRFeWpkZlAwZTF0UEFqN0daR0VheFdRT3c?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Celonis and Microsoft Agent 365 alliance target AI 'pilot purgatory'</div><div class="sc-item-source">iTWire</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi2gFBVV95cUxPc0RaQnlrVmJ5OGVyR0dlMFgtZTQyaU14b3NpeUNpTDhsSDJMTTRFS2ZIYzdMZTc0emJscGpvMnpLVlNsaTBtNlZlMEwwYTh5NDdmTW9zLWNiQXZ6cDhleGhIaWZNVktSaGIyd05iSk9WRW4tR29hV1lONlpEYkJQZUpBTUlHVFp1bzIzQlBsUTJicFJCenpNSEdJLTdoSkE1WHFGQTg2eThIRjF3bjNUN3kwNTBZUnVGdUQxZjNNUEZDODJkbWhUR19wM1lPcnBpUnRrY1pMMEVYUdIB3wFBVV95cUxOc2ZuclI5QjM4VjlGUDhwUWVRcWdDSzc2eXFRQndYUV9UYnBOcTRLVTZ5eFNRcjBPQjVBemlvMUFpRWlZVk55OWxCMUhHUzVOQzY5M21KWmsxRy0xaV9XaGY5ZTZDdGJUYUpIaGl0UmQ4NUp0UEd0Z0V6R294RGhjODZRWW1xbkpNd1lkSzgxWV9nVUprcEFWSmx4X3pTLVNSa0xHR3Y4aGNsTVY1WHdHemJhS1BDOXBuQmFGbnp4aHI3OXJHNzd0N2tScW9iVk1Kem5heGZJeE96T0ZUXzhn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US Supreme Court rejects Apple's stay request in Epic Games lawsuit</div><div class="sc-item-source">Business Standard</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -710,7 +755,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxOOWRzdlNYRnJndmpPLXFNZ2JoZUlkSkxCY2JBQXZBS3ZkNGV3dkt0aGkyY0JjWThDTDA1RUh3b3J3Tm1WcnFiYjVrUXZUZG5PTVBRcWR6T3o5RmlXVGhlVjJ6QnlCTUNhNWdLcDNxYy1CcGJNMTU4Y28tbVVqY0REdndfdkdOUG5SRkpsWVpmTTFpaEE2RGtlOXNkS2hDOUJQbTdDa0tWek9zU3ZGeDJabXptSUw3dzBadEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. and China Pursue Guardrails to Stop AI Rivalry From Spiraling Into Crisis</div><div class="sc-item-source">WSJ</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiekFVX3lxTE5LMVF5bGxTYnNVMkNVVzhrWFRnQ0pHVjFVb2lod01hTFU2clN6dmFoMUR4QVNnMUdOQWRTZmQ2UUtndzQySDlaa3oybnpDcERrQ3NvSnhadWR5WkRvTW5yb3ZiVkVqWUN1YXhkUW85MXZ5OXdsUmhtWk13?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">War and Energy Shortages Boost China's Influence in Asia</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -721,7 +766,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMisgFBVV95cUxOdFZYSGNBUzFoN2hNTk9xRVZ4OHc0dFFLcDZkaVdYWDBtTFd0R19ZZUFUZjRpU2Y2MEpDUnhPNDQzUkYtb2lBYngwWFU4YnU3b2poUjg2bGVyWU9UR01YZWY3eldXQ0lBRDNfM280WDZ4NW95UHRFcGdSTHdEU0NNc2JockdiUWpoNDVXOGdxVWstVkIzVi1jTThyNm1UalBha1Z4b29pUkVSaXhpTnhmUVpR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Justin Herbert seemingly makes cameo in Madison Beer music video tease</div><div class="sc-item-source">ESPN</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMilwFBVV95cUxPOVBaZ1llcWMzTmx1OHFFUnNLOGxEYmlaRVJTbVRIU1F0d21OWnlkcTc0QkliaEJHY2hWMlBjYW1qbDEzMHYzaC1OWHR6TWl6Tl9GXzdqd2RSekQ3N3JWMnIxZWNSQm1wNHZoUENQQVRMOHBjaU5FaGthYlNfb2twU2w2SGJnOV93SXpQMnZxeVV0UldEaGFr?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Pete Alonso helps power Orioles past Marlins</div><div class="sc-item-source">Southern Sports Today</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -730,9 +775,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Boston</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxOTkF3MUhnMmYzSHpXWW9iNVlBQUg2cUpKb0VNclNhQWJ4Z21UclZHYXczSmttMjNtWGtTbTc1MHc3Y1YxUTIwcDVxV1pJM3pDT1hMelVURllYdXR1ZW10VGZub0dZenlBNEJIZ2hfWlJRbTZuSnUyUjBYOVd2YmlSQ00tZzNQRnNlc1E?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Mass. State Trooper killed in line-of-duty crash with wrong-way driver</div><div class="sc-item-source">WCVB, Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxNNjZyMEJydkNsY0Rpc3JwdVhlT3B5V0dNOXdqUVpHTDdvSVJxMTkydTBwMW1KeEpjZl9LaFlxMEw2VjhxTGVpUEZWLXlpaVh5dVM1Q3dCaWttY21fSFhWV1YtYmpISjMyZGo2ckcxVHdOaS1TM3c3MnJoM0VSVTVHVGlHbUxWWVIxVEHSAZIBQVVfeXFMT24xZXV6MWVIVkpISTZ6QnlvbUZzRzNpZk9xT0ZLUU0yY0x0cGVfQS1YUnltS0UwZWtVdFdSTmtEeENBZTdwZERFcVRsSUwxSXlTUzA0dTVDdE05YnJPTXJfYkpPQmpfNHhuS3ZWNnBtVjhlc0N4bjJ2bHJiZEJ4NGRpTFU2WXlLLUtoUHY1QUZmZUE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">As the penny starts going extinct, Massachusetts businesses confront price rounding</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiigFBVV95cUxNNjZyMEJydkNsY0Rpc3JwdVhlT3B5V0dNOXdqUVpHTDdvSVJxMTkydTBwMW1KeEpjZl9LaFlxMEw2VjhxTGVpUEZWLXlpaVh5dUM1Q3dCaWttY21fSFhWV1YtYmpISjMyZGo2ckcxVHdOaS1TM3c3MnJoM0VSVTVHVGlHbUxWWVIxVEHSAZIBQVVfeXFMT24xZXV6MWVIVkpISTZ6QnlvbUZzRzNpZk9xT0ZLUU0yY0x0cGVfQS1YUnltS0UwZWtVdFdSTmtEeENBZTdwZERFcVRsSUwxSXlTUzA0dTVDdE05YnJPTXJfYkpPQmpfNHhuS3ZWNnBtVjhlc0N4bjJ2bHJiZEJ4NGRpTFU2WXlLLUtoUHY1QUZmZUE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">As the penny starts going extinct, how do Mass. businesses round prices right?</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article></div>
 </div>
 
@@ -821,6 +866,29 @@ body.page-stocks .footer { display:none; }
     requestAnimationFrame(draw);
   }
   addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
+})();
+
+// Theme toggle. Persists to localStorage; the head pre-script applied any
+// saved value before stylesheets rendered to avoid a flash.
+(function(){
+  const root = document.documentElement;
+  const btn = document.getElementById('apt-theme-toggle');
+  function syncIcon() {
+    const t = root.getAttribute('data-theme') || 'dark';
+    const ic = btn && btn.querySelector('.theme-toggle-icon');
+    if (ic) ic.innerHTML = t === 'light' ? '&#9790;' : '&#9788;';  // moon : sun
+  }
+  syncIcon();
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const next = (root.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('apt-theme', next); } catch(e) {}
+      syncIcon();
+      // Re-render any open charts (they cache colors at draw time).
+      if (window.__aptRedrawCharts) window.__aptRedrawCharts();
+    });
+  }
 })();
 
 
