@@ -1552,6 +1552,7 @@ h1.hero-title {
 .edition-empty { padding:32px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; background:rgba(17,18,26,0.5); border:1px dashed var(--border); border-radius:14px; }
 
 .lib { max-width:1200px; margin:0 auto; padding:96px 24px 64px; }
+.lib.lib-wide { max-width:min(1640px, 96vw); }
 .lib-h { display:flex; justify-content:space-between; align-items:end; margin-bottom:18px; flex-wrap:wrap; gap:14px; }
 .lib-h h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:42px; letter-spacing:-0.02em; line-height:1.1; }
 .lib-h .lib-count { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }
@@ -1739,6 +1740,12 @@ h1.hero-title {
 
 /* Benford's Law card (sits below the 4 factor cards in the expand panel) */
 .bf-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.bf-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+@media (max-width:780px) { .bf-grid { grid-template-columns:1fr; } }
+.bf-sub { display:flex; flex-direction:column; }
+.bf-sub-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.bf-sub-meta { font-family:'DM Mono',monospace; font-size:9px; color:var(--text-4); margin-left:auto; letter-spacing:1px; text-transform:none; }
+.bf-sub-meta sup { font-size:7px; vertical-align:super; }
 .bf-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
 .bf-fit { font-size:9px; font-weight:600; padding:2px 8px; border-radius:4px; letter-spacing:1.5px; }
 .bf-fit-good { color:#34D27A; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.25); }
@@ -1746,7 +1753,7 @@ h1.hero-title {
 .bf-fit-poor { color:var(--apt-red); background:rgba(255,31,61,0.10); border:1px solid rgba(255,31,61,0.25); }
 .bf-meta { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); margin-left:auto; letter-spacing:1px; text-transform:none; }
 .bf-meta sup { font-size:8px; vertical-align:super; }
-.bf-row { display:grid; grid-template-columns:24px 1fr 60px 70px; align-items:center; gap:14px; padding:5px 0; }
+.bf-row { display:grid; grid-template-columns:20px 1fr 52px 48px; align-items:center; gap:10px; padding:4px 0; }
 .bf-d { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--text-2); text-align:center; }
 .bf-bar { position:relative; height:8px; background:rgba(255,255,255,0.04); border-radius:3px; }
 .bf-bar-fill { position:absolute; left:0; top:0; bottom:0; border-radius:3px; transition:background .2s; }
@@ -1780,8 +1787,12 @@ h1.hero-title {
 .nws-item:hover .nws-title { color:var(--apt-rose); }
 .nws-empty { padding:14px 0; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-5); text-transform:uppercase; text-align:center; }
 
+/* Stocks page top row: search + Index/Sector chips full-width above the wrap */
+.stk-toprow { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:14px 16px; margin-bottom:14px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; }
+.stk-toprow > .lib-search { flex:1 1 280px; min-width:220px; }
+
 /* Stocks page sidebar layout: filters left, table right */
-.stk-wrap { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; margin-top:6px; }
+.stk-wrap { display:grid; grid-template-columns:300px 1fr; gap:20px; align-items:start; margin-top:6px; }
 .stk-sidebar { position:sticky; top:80px; max-height:calc(100vh - 96px); overflow-y:auto; padding:18px 18px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
 .stk-sidebar::-webkit-scrollbar { width:6px; }
 .stk-sidebar::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
@@ -2327,40 +2338,74 @@ STOCKS_JS_TEMPLATE = """
     if (!b || !b.observed) {
       return '<div class="bf-card"><div class="bf-h">Benford\\'s Law <span class="bf-meta">no data</span></div><div class="bf-empty">Not enough EDGAR facts for this company to fit Benford reliably (need 30+ USD-denominated values).</div></div>';
     }
-    const expected = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6];
-    const fitClass = 'bf-fit-' + b.fit;
-    const fitLabel = String(b.fit).toUpperCase() + ' FIT';
+    const EXP_D1 = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6];
+    // Second-digit Benford expected percentages (digits 0-9)
+    const EXP_D2 = [12.0, 11.4, 10.9, 10.4, 10.0, 9.7, 9.3, 9.0, 8.8, 8.5];
+
     function benfordSeverity(obs, exp) {
-      // Relative deviation from expected. Color thresholds match a typical visual
-      // intuition for "close enough" vs "noticeably off" vs "really off".
       const relDev = Math.abs(obs - exp) / exp;
-      if (relDev < 0.10) return 'close';     // within ±10% of expected
-      if (relDev < 0.25) return 'moderate';  // ±10-25%
-      return 'far';                          // > ±25%
+      if (relDev < 0.10) return 'close';
+      if (relDev < 0.25) return 'moderate';
+      return 'far';
     }
-    const rows = b.observed.map((obs, i) => {
-      const exp = expected[i];
-      // Scale bars to a max of 35% so the largest digit (~30%) is well-shaped.
-      const obsW = Math.min(100, obs / 35 * 100);
-      const expPos = Math.min(100, exp / 35 * 100);
-      const sev = benfordSeverity(obs, exp);
-      return '<div class="bf-row bf-row-' + sev + '">'
-        + '<span class="bf-d">' + (i + 1) + '</span>'
-        + '<div class="bf-bar">'
-        +   '<div class="bf-bar-fill" style="width:' + obsW.toFixed(1) + '%"></div>'
-        +   '<div class="bf-marker" style="left:' + expPos.toFixed(1) + '%" title="Benford expected ' + exp.toFixed(1) + '%"></div>'
+
+    function buildSubcard(title, fitLabel, fitClass, chi, n, observed, expected, startDigit, scale) {
+      const rows = observed.map((obs, i) => {
+        const exp = expected[i];
+        const obsW = Math.min(100, obs / scale * 100);
+        const expPos = Math.min(100, exp / scale * 100);
+        const sev = benfordSeverity(obs, exp);
+        return '<div class="bf-row bf-row-' + sev + '">'
+          + '<span class="bf-d">' + (startDigit + i) + '</span>'
+          + '<div class="bf-bar">'
+          +   '<div class="bf-bar-fill" style="width:' + obsW.toFixed(1) + '%"></div>'
+          +   '<div class="bf-marker" style="left:' + expPos.toFixed(1) + '%" title="Benford expected ' + exp.toFixed(1) + '%"></div>'
+          + '</div>'
+          + '<span class="bf-obs">' + obs.toFixed(1) + '%</span>'
+          + '<span class="bf-exp">' + exp.toFixed(1) + '%</span>'
+        + '</div>';
+      }).join('');
+      return '<div class="bf-sub">'
+        + '<div class="bf-sub-h">' + title
+        +   ' <span class="bf-fit ' + fitClass + '">' + fitLabel + '</span>'
+        +   ' <span class="bf-sub-meta">&chi;<sup>2</sup> ' + chi + '  &middot;  n=' + n.toLocaleString() + '</span>'
         + '</div>'
-        + '<span class="bf-obs">' + obs.toFixed(1) + '%</span>'
-        + '<span class="bf-exp">vs ' + exp.toFixed(1) + '%</span>'
+        + rows
       + '</div>';
-    }).join('');
+    }
+
+    const d1Card = buildSubcard(
+      'First Digit',
+      String(b.fit).toUpperCase() + ' FIT',
+      'bf-fit-' + b.fit,
+      b.chi_sq,
+      b.n,
+      b.observed,
+      EXP_D1,
+      1,
+      35
+    );
+    let d2Card;
+    if (b.observed_d2) {
+      d2Card = buildSubcard(
+        'Second Digit',
+        String(b.fit_d2).toUpperCase() + ' FIT',
+        'bf-fit-' + b.fit_d2,
+        b.chi_sq_d2,
+        b.n_d2,
+        b.observed_d2,
+        EXP_D2,
+        0,
+        14
+      );
+    } else {
+      d2Card = '<div class="bf-sub"><div class="bf-sub-h">Second Digit <span class="bf-sub-meta">insufficient data</span></div><div class="bf-empty">Need values &ge; 10 with at least 30 samples.</div></div>';
+    }
+
     return '<div class="bf-card">'
-      + '<div class="bf-h">Benford\\'s Law'
-      +   ' <span class="bf-fit ' + fitClass + '">' + fitLabel + '</span>'
-      +   ' <span class="bf-meta">&chi;<sup>2</sup> ' + b.chi_sq + '  &middot;  n=' + b.n.toLocaleString() + '</span>'
-      + '</div>'
-      + rows
-      + '<div class="bf-foot">First-digit frequency of every USD value reported in this company\\'s XBRL filings, compared to the Benford distribution. Marker shows the Benford-expected percentage. A poor fit can flag reporting anomalies but is not by itself evidence of irregularity.</div>'
+      + '<div class="bf-h">Benford\\'s Law</div>'
+      + '<div class="bf-grid">' + d1Card + d2Card + '</div>'
+      + '<div class="bf-foot">Digit-frequency of every USD value reported in this company\\'s XBRL filings, compared to the Benford distribution. Vertical marker shows the expected percentage; bar shows observed. Second-digit Benford is harder to game than first-digit because most manipulators only fudge the leading digit. A poor fit can flag reporting anomalies but is not by itself evidence of irregularity.</div>'
     + '</div>';
   }
 
@@ -2385,12 +2430,20 @@ STOCKS_JS_TEMPLATE = """
   // ── News: lazy fetch per ticker ─────────────────────────────────
   const newsCache = {};
 
+  // Mirror the Python sanitizer so JS hits the same on-disk filename when the
+  // ticker collides with a Windows reserved device name (CON, PRN, AUX, etc).
+  const WIN_RESERVED = new Set(['CON','PRN','AUX','NUL','COM1','COM2','COM3','COM4','COM5','COM6','COM7','COM8','COM9','LPT1','LPT2','LPT3','LPT4','LPT5','LPT6','LPT7','LPT8','LPT9']);
+  function newsFilename(ticker) {
+    const t = (ticker || '').toUpperCase();
+    return WIN_RESERVED.has(t) ? '_' + t + '.json' : t + '.json';
+  }
+
   function fetchNewsFor(ticker) {
     if (newsCache[ticker]) {
       renderNews(ticker, newsCache[ticker]);
       return;
     }
-    fetch('./news/' + encodeURIComponent(ticker) + '.json', { cache: 'no-store' })
+    fetch('./news/' + encodeURIComponent(newsFilename(ticker)), { cache: 'no-store' })
       .then(r => r.ok ? r.json() : [])
       .then(items => {
         newsCache[ticker] = Array.isArray(items) ? items : [];
@@ -3262,6 +3315,22 @@ def fetch_company_news(ticker, name="", max_items=15):
     return items
 
 
+# Windows reserves these device-name filenames in any directory. Renaming the
+# JSON file with a "_" prefix avoids tripping git checkout on Windows hosts.
+_WIN_RESERVED = {"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
+                 "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4",
+                 "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}
+
+
+def _news_filename(ticker):
+    """Return the on-disk filename for a ticker's news JSON. Prefixes with '_'
+    when the ticker collides with a Windows reserved device name (e.g. CON)."""
+    base = ticker.upper()
+    if base in _WIN_RESERVED:
+        return f"_{base}.json"
+    return f"{base}.json"
+
+
 def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     """For each stock, write news items to docs/news/{TICKER}.json. Skips tickers
     whose existing file is younger than max_age_hours (so midday + evening workflow
@@ -3272,7 +3341,7 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     now_ts = time.time()
 
     def needs_fetch(ticker):
-        f = NEWS_DIR / f"{ticker}.json"
+        f = NEWS_DIR / _news_filename(ticker)
         if not f.exists():
             return True
         return (now_ts - f.stat().st_mtime) / 3600 > max_age_hours
@@ -3288,7 +3357,7 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     def process(s):
         try:
             items = fetch_company_news(s["ticker"], s.get("name", ""))
-            (NEWS_DIR / f"{s['ticker']}.json").write_text(
+            (NEWS_DIR / _news_filename(s["ticker"])).write_text(
                 json.dumps(items, separators=(",", ":")), encoding="utf-8"
             )
             return s["ticker"], len(items)
@@ -3407,15 +3476,24 @@ def _extract_quarterly_series(facts, concept_keys, max_periods=12):
 
 def compute_benford(facts):
     """Compute Benford's law fit across all USD-denominated XBRL values for a company.
-    Returns dict with keys: observed (list of 9 percentages), chi_sq (float, df=8),
-    n (sample size), fit ('good'/'fair'/'poor'). Returns None if n < 30.
 
-    Critical chi-squared values at df=8: 13.36 (p=.10), 15.51 (p=.05), 20.09 (p=.01)."""
+    Returns dict with both first-digit and second-digit distributions:
+      observed (1st-digit, 9 values), chi_sq, n, fit
+      observed_d2 (2nd-digit, 10 values), chi_sq_d2, n_d2, fit_d2 (when n_d2 >= 30)
+
+    Critical chi-squared values for the fit verdict:
+      df=8 (1st digit): 13.36 (p=.10), 15.51 (p=.05), 20.09 (p=.01)
+      df=9 (2nd digit): 14.68 (p=.10), 16.92 (p=.05), 21.67 (p=.01)
+
+    Second-digit Benford is harder to game: most manipulators only fudge first
+    digits to look natural, leaving the second digit to leak the truth."""
     import math as _math
     if not facts:
         return None
-    digits = [0] * 10  # index 1..9 used; 0 is parking
-    n = 0
+    digits_d1 = [0] * 10  # index 1..9 used
+    digits_d2 = [0] * 10  # index 0..9 used
+    n_d1 = 0
+    n_d2 = 0
     us_gaap = facts.get("us-gaap", {})
     for concept, data in us_gaap.items():
         units = data.get("units", {})
@@ -3431,31 +3509,57 @@ def compute_benford(facts):
             if abs_val < 1:
                 continue
             try:
-                # Leading non-zero digit via scientific exponent.
                 exp = int(_math.floor(_math.log10(abs_val)))
                 leading = int(abs_val / (10 ** exp))
                 if 1 <= leading <= 9:
-                    digits[leading] += 1
-                    n += 1
+                    digits_d1[leading] += 1
+                    n_d1 += 1
+                    # Second digit only meaningful if value >= 10 (has at least 2 digits)
+                    if abs_val >= 10:
+                        second = int(abs_val / (10 ** (exp - 1))) % 10
+                        if 0 <= second <= 9:
+                            digits_d2[second] += 1
+                            n_d2 += 1
             except Exception:
                 continue
-    if n < 30:
+    if n_d1 < 30:
         return None
-    observed = [round(digits[d] / n * 100, 1) for d in range(1, 10)]
-    expected = [_math.log10(1 + 1 / d) * 100 for d in range(1, 10)]
-    chi_sq = sum((observed[i] - expected[i]) ** 2 / expected[i] for i in range(9))
-    if chi_sq < 13.36:
+    observed_d1 = [round(digits_d1[d] / n_d1 * 100, 1) for d in range(1, 10)]
+    expected_d1 = [_math.log10(1 + 1 / d) * 100 for d in range(1, 10)]
+    chi_sq_d1 = sum((observed_d1[i] - expected_d1[i]) ** 2 / expected_d1[i] for i in range(9))
+    if chi_sq_d1 < 13.36:
         fit = "good"
-    elif chi_sq < 20.09:
+    elif chi_sq_d1 < 20.09:
         fit = "fair"
     else:
         fit = "poor"
-    return {
-        "observed": observed,
-        "chi_sq": round(chi_sq, 1),
-        "n": n,
+    result = {
+        "observed": observed_d1,
+        "chi_sq": round(chi_sq_d1, 1),
+        "n": n_d1,
         "fit": fit,
     }
+    if n_d2 >= 30:
+        observed_d2 = [round(digits_d2[d] / n_d2 * 100, 1) for d in range(0, 10)]
+        # Expected second-digit Benford: P(d2=d) = sum_{k=1..9} log10(1 + 1/(10k+d))
+        expected_d2 = [
+            sum(_math.log10(1 + 1 / (10 * k + d)) for k in range(1, 10)) * 100
+            for d in range(0, 10)
+        ]
+        chi_sq_d2 = sum(
+            (observed_d2[i] - expected_d2[i]) ** 2 / expected_d2[i] for i in range(10)
+        )
+        if chi_sq_d2 < 14.68:
+            fit_d2 = "good"
+        elif chi_sq_d2 < 21.67:
+            fit_d2 = "fair"
+        else:
+            fit_d2 = "poor"
+        result["observed_d2"] = observed_d2
+        result["chi_sq_d2"] = round(chi_sq_d2, 1)
+        result["n_d2"] = n_d2
+        result["fit_d2"] = fit_d2
+    return result
 
 
 def compute_edgar_factors(facts):
@@ -4019,32 +4123,34 @@ def generate_stocks_page(universe):
     meta_line = f"Updated for {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
 
     body = f"""
-<section class="lib">
+<section class="lib lib-wide">
   <div class="lib-h">
     <h2>Stocks.</h2>
     <span class="lib-count" id="stk-count">{len(stocks)} stocks</span>
   </div>
-  <p class="lib-sub">{len(stocks)} US-listed names from S&amp;P 500, S&amp;P 400 Mid Cap, and S&amp;P 600 Small Cap. {enrich_note}Filter on the left, click any row for the factor breakdown. Refreshed weekly. Not investment advice.</p>
+  <p class="lib-sub">{len(stocks)} US-listed names from S&amp;P 500, S&amp;P 400 Mid Cap, and S&amp;P 600 Small Cap. {enrich_note}Click any row for the factor breakdown. Refreshed weekly. Not investment advice.</p>
+  <div class="stk-toprow">
+    <label class="lib-search">
+      <span class="icon">&#8981;</span>
+      <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
+      <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
+    </label>
+    <div class="lib-chips" id="stk-index-chips">
+      <span class="lib-chip-label">Index</span>
+      <span class="lib-chip active" data-index="">All</span>
+    </div>
+    <div class="lib-chips" id="stk-sector-chips">
+      <span class="lib-chip-label">Sector</span>
+      <span class="lib-chip active" data-sector="">All</span>
+    </div>
+  </div>
   <div class="stk-wrap">
     <aside class="stk-sidebar">
       <div class="stk-sidebar-h">
-        <span>Filters</span>
+        <span>Advanced</span>
         <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset</button>
       </div>
       <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
-      <label class="lib-search">
-        <span class="icon">&#8981;</span>
-        <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
-        <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
-      </label>
-      <div class="lib-chips" id="stk-index-chips">
-        <span class="lib-chip-label">Index</span>
-        <span class="lib-chip active" data-index="">All</span>
-      </div>
-      <div class="lib-chips" id="stk-sector-chips">
-        <span class="lib-chip-label">Sector</span>
-        <span class="lib-chip active" data-sector="">All</span>
-      </div>
     <div class="stk-filter-panel" id="stk-filter-panel">
       <div class="stk-filter-cols">
         <div class="stk-filter-col">
