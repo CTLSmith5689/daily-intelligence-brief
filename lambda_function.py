@@ -1837,8 +1837,29 @@ h1.hero-title {
 /* Sidebar overrides for the existing filter HTML (drop toggle, always-visible panel, single-column inner stacking) */
 .stk-sidebar .stk-filter-panel { display:flex; flex-direction:column; gap:8px; margin-top:0; padding:0; background:transparent; border:0; border-radius:0; }
 .stk-sidebar .stk-filter-cols { display:flex; flex-direction:column; gap:14px; }
-.stk-sidebar .stk-filter-col-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; padding-bottom:8px; margin-bottom:4px; border-bottom:1px solid var(--border); display:block; }
-.stk-sidebar .stk-filter-col-sub { display:none; }
+.stk-sidebar .stk-filter-col-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; padding:8px 0; margin-bottom:6px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none; user-select:none; }
+.stk-sidebar .stk-filter-col-h::-webkit-details-marker { display:none; }
+.stk-sidebar .stk-filter-col-h:hover { color:var(--text-1); }
+.stk-section-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease; }
+.stk-sidebar details[open] > .stk-filter-col-h .stk-section-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.stk-sidebar .stk-filter-col-sub { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; padding:2px 0 6px 0; display:block; }
+.stk-sidebar .stk-filter-select { width:100%; padding:5px 6px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; }
+.stk-sidebar .stk-filter-select:focus { outline:none; border-color:var(--apt-rose); }
+
+/* Saved Views */
+.stk-views { padding:10px 0 12px 0; border-bottom:1px solid var(--border); margin-bottom:4px; }
+.stk-views-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:8px; }
+.stk-views-row { display:flex; gap:6px; margin-bottom:8px; }
+.stk-views-input { flex:1; min-width:0; padding:5px 8px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; }
+.stk-views-input:focus { outline:none; border-color:var(--apt-rose); }
+.stk-views-list { display:flex; flex-wrap:wrap; gap:4px; }
+.stk-views-empty { font-size:9px; color:var(--text-5); font-style:italic; }
+.stk-views-chip { display:inline-flex; align-items:stretch; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+.stk-views-chip:hover { border-color:var(--apt-rose); }
+.stk-views-load { padding:4px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-2); background:transparent; border:0; cursor:pointer; text-transform:uppercase; }
+.stk-views-load:hover { color:var(--text-1); }
+.stk-views-del { padding:4px 8px; font-size:11px; line-height:1; color:var(--text-4); background:transparent; border:0; border-left:1px solid var(--border); cursor:pointer; }
+.stk-views-del:hover { color:var(--apt-red); background:rgba(255,57,77,0.08); }
 .stk-sidebar .stk-filter-row { display:grid; grid-template-columns:1fr 1fr; column-gap:6px; row-gap:4px; padding:5px 0; align-items:center; }
 .stk-sidebar .stk-filter-row > .stk-filter-label { grid-column:1 / -1; font-size:9px; }
 .stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="min"] { grid-column:1; }
@@ -2178,6 +2199,9 @@ STOCKS_JS_TEMPLATE = """
     return c;
   }
 
+  // Benford 1st-digit fit gate (Overlays section). Categorical, not a range.
+  let benfordFilter = '';
+
   function passesFilters(s) {
     if (onlyEnriched && s.market_cap == null) return false;
     for (const [field, range] of Object.entries(filters)) {
@@ -2188,6 +2212,12 @@ STOCKS_JS_TEMPLATE = """
       if (range.max != null) {
         if (v == null || v > range.max) return false;
       }
+    }
+    if (benfordFilter) {
+      const fit = (s.benford && s.benford.fit) || '';
+      if (benfordFilter === 'good'  && fit !== 'good') return false;
+      if (benfordFilter === 'fair'  && fit !== 'fair' && fit !== 'good') return false;
+      if (benfordFilter === 'poor'  && fit !== 'poor') return false;
     }
     return true;
   }
@@ -3143,6 +3173,9 @@ STOCKS_JS_TEMPLATE = """
       for (const k of Object.keys(filters)) delete filters[k];
       onlyEnriched = false;
       if (onlyEnrichedEl) onlyEnrichedEl.checked = false;
+      benfordFilter = '';
+      const benSel = document.getElementById('stk-benford-fit');
+      if (benSel) benSel.value = '';
       document.querySelectorAll('.stk-filter-input').forEach(i => i.value = '');
       document.querySelectorAll('.stk-quick').forEach(b => b.classList.remove('active'));
       // Also reset weights to balanced
@@ -3192,6 +3225,140 @@ STOCKS_JS_TEMPLATE = """
       render();
     });
   });
+
+  // ── Benford 1st-digit fit overlay filter ────────────────────────
+  const benfordSelect = document.getElementById('stk-benford-fit');
+  if (benfordSelect) {
+    benfordSelect.addEventListener('change', () => {
+      benfordFilter = benfordSelect.value;
+      syncFilterCount();
+      render();
+    });
+  }
+
+  // ── Saved Views (localStorage) ──────────────────────────────────
+  const SAVED_VIEWS_KEY = 'apt-stocks-saved-views-v1';
+  const viewsListEl = document.getElementById('stk-views-list');
+  const viewsInputEl = document.getElementById('stk-views-input');
+  const viewsSaveBtn = document.getElementById('stk-views-save');
+
+  function loadSavedViews() {
+    try { return JSON.parse(localStorage.getItem(SAVED_VIEWS_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function persistSavedViews(views) {
+    try { localStorage.setItem(SAVED_VIEWS_KEY, JSON.stringify(views)); } catch (e) {}
+  }
+  function captureCurrentView() {
+    return {
+      query, activeSector, activeIndex,
+      filters: JSON.parse(JSON.stringify(filters)),
+      onlyEnriched, benfordFilter,
+      weights: { Growth: weights.Growth, Value: weights.Value, Momentum: weights.Momentum, Quality: weights.Quality },
+      sortKey, sortDir,
+    };
+  }
+  function applyView(v) {
+    if (!v) return;
+    // Search
+    query = v.query || '';
+    if (searchEl) { searchEl.value = query; clearEl.hidden = !query; }
+    // Sector + Index chips
+    activeSector = v.activeSector || '';
+    activeIndex = v.activeIndex || '';
+    sectorChipsEl && sectorChipsEl.querySelectorAll('.lib-chip').forEach(c =>
+      c.classList.toggle('active', (c.dataset.sector || '') === activeSector));
+    indexChipsEl && indexChipsEl.querySelectorAll('.lib-chip').forEach(c =>
+      c.classList.toggle('active', (c.dataset.index || '') === activeIndex));
+    // Range filters
+    for (const k of Object.keys(filters)) delete filters[k];
+    Object.assign(filters, v.filters || {});
+    document.querySelectorAll('.stk-filter-input').forEach(inp => {
+      const f = inp.dataset.filter, b = inp.dataset.bound;
+      const range = filters[f];
+      const dataVal = range ? range[b] : null;
+      if (dataVal == null) { inp.value = ''; return; }
+      // Convert back from data units to display units for percent fields
+      if (PCT_FIELDS.has(f)) inp.value = (dataVal * 100).toString();
+      else if (CAP_FIELDS.has(f)) {
+        if (dataVal >= 1e9) inp.value = (dataVal / 1e9) + 'B';
+        else if (dataVal >= 1e6) inp.value = (dataVal / 1e6) + 'M';
+        else inp.value = String(dataVal);
+      } else inp.value = String(dataVal);
+    });
+    // Toggles + select
+    onlyEnriched = !!v.onlyEnriched;
+    if (onlyEnrichedEl) onlyEnrichedEl.checked = onlyEnriched;
+    benfordFilter = v.benfordFilter || '';
+    if (benfordSelect) benfordSelect.value = benfordFilter;
+    // Weights
+    if (v.weights) {
+      ['Growth','Value','Momentum','Quality'].forEach(d => {
+        const w = (v.weights[d] != null) ? v.weights[d] : 1;
+        weights[d] = w;
+        const sl = document.querySelector('.stk-weight-slider[data-weight="' + d + '"]');
+        if (sl) sl.value = String(w);
+        const lbl = document.getElementById('stk-w-' + d);
+        if (lbl) lbl.innerHTML = w.toFixed(1) + '&times;';
+      });
+    }
+    // Sort
+    if (v.sortKey) sortKey = v.sortKey;
+    if (typeof v.sortDir === 'number') sortDir = v.sortDir;
+    document.querySelectorAll('.stk-th').forEach(th => {
+      th.classList.remove('asc', 'desc');
+      if (th.dataset.sort === sortKey) th.classList.add(sortDir > 0 ? 'asc' : 'desc');
+    });
+    syncFilterCount();
+    render();
+  }
+  function renderSavedViews() {
+    if (!viewsListEl) return;
+    const views = loadSavedViews();
+    if (!views.length) {
+      viewsListEl.innerHTML = '<span class="stk-views-empty">No saved views yet. Set up filters then save.</span>';
+      return;
+    }
+    viewsListEl.innerHTML = views.map((v, i) =>
+      '<span class="stk-views-chip" data-idx="' + i + '">'
+      + '<button type="button" class="stk-views-load" data-idx="' + i + '">' + escapeHtml(v.name || 'unnamed') + '</button>'
+      + '<button type="button" class="stk-views-del" data-idx="' + i + '" title="Delete">&times;</button>'
+      + '</span>'
+    ).join('');
+  }
+  if (viewsSaveBtn && viewsInputEl) {
+    viewsSaveBtn.addEventListener('click', () => {
+      const name = (viewsInputEl.value || '').trim();
+      if (!name) { viewsInputEl.focus(); return; }
+      const views = loadSavedViews();
+      // Replace by name if it already exists
+      const existing = views.findIndex(v => v.name === name);
+      const view = Object.assign({ name }, captureCurrentView());
+      if (existing >= 0) views[existing] = view;
+      else views.push(view);
+      persistSavedViews(views);
+      viewsInputEl.value = '';
+      renderSavedViews();
+    });
+    viewsInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') viewsSaveBtn.click(); });
+  }
+  if (viewsListEl) {
+    viewsListEl.addEventListener('click', e => {
+      const loadBtn = e.target.closest('.stk-views-load');
+      const delBtn  = e.target.closest('.stk-views-del');
+      if (loadBtn) {
+        const idx = parseInt(loadBtn.dataset.idx, 10);
+        const views = loadSavedViews();
+        if (views[idx]) applyView(views[idx]);
+      } else if (delBtn) {
+        const idx = parseInt(delBtn.dataset.idx, 10);
+        const views = loadSavedViews();
+        views.splice(idx, 1);
+        persistSavedViews(views);
+        renderSavedViews();
+      }
+    });
+  }
+  renderSavedViews();
 
   render();
 })();
@@ -4098,6 +4265,40 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     return fetched
 
 
+def aggregate_news_sentiment(stocks):
+    """Read each ticker's news file and stamp aggregate LM/VADER scores onto the
+    stock dict so the Overlays filters can run client-side without lazy-loading
+    every ticker's news. Aggregates across the last 7 days (most actionable
+    window). Cheap: filesystem only, no network."""
+    if not stocks:
+        return 0
+    now_ts = time.time()
+    week_secs = 7 * 24 * 3600
+    stamped = 0
+    for s in stocks:
+        f = NEWS_DIR / _news_filename(s["ticker"])
+        if not f.exists():
+            continue
+        try:
+            items = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(items, list):
+            continue
+        recent = [i for i in items if isinstance(i, dict) and i.get("ts") and (now_ts - i["ts"]) < week_secs]
+        lm_vals = [i["lm"] for i in recent if isinstance(i.get("lm"), (int, float))]
+        vd_vals = [i["vader"] for i in recent if isinstance(i.get("vader"), (int, float))]
+        if lm_vals:
+            s["news_lm_avg"] = sum(lm_vals) / len(lm_vals)
+        if vd_vals:
+            s["news_vader_avg"] = sum(vd_vals) / len(vd_vals)
+        s["news_count_7d"] = len(recent)
+        if lm_vals or vd_vals:
+            stamped += 1
+    print(f"news_sentiment: aggregated for {stamped} tickers.")
+    return stamped
+
+
 # ── Per-ticker price history (yfinance bulk download, 1y daily) ─────────────
 
 PRICES_DIR = DOCS_DIR / "prices"
@@ -4565,8 +4766,10 @@ def get_or_generate_stocks_universe():
                 print(f"stocks_universe: using cache from {age_hours:.1f}h ago.")
                 # News + prices have their own per-file caches; these calls are
                 # no-ops for tickers already cached and just fill any holes.
-                enrich_with_news(last_known.get("stocks") or [])
-                enrich_with_prices(last_known.get("stocks") or [])
+                cached_list = last_known.get("stocks") or []
+                enrich_with_news(cached_list)
+                aggregate_news_sentiment(cached_list)
+                enrich_with_prices(cached_list)
                 return last_known
         except Exception:
             pass
@@ -4594,6 +4797,8 @@ def get_or_generate_stocks_universe():
         "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy",
         "earnings_consistency", "op_margin_stability", "op_margin_history", "edgar_updated",
         "benford",
+        # News-derived sentiment aggregates
+        "news_lm_avg", "news_vader_avg", "news_count_7d",
         # Per-row freshness + earnings calendar
         "last_updated", "earnings_date",
     )
@@ -4645,6 +4850,10 @@ def get_or_generate_stocks_universe():
     # runs reuse morning's pull. Writes one small JSON per ticker, lazy-loaded
     # by the page on row expand.
     news_count = enrich_with_news(stocks)
+
+    # Aggregate per-ticker LM/VADER scores into the universe so the Overlays
+    # filters can run client-side without loading every news file.
+    aggregate_news_sentiment(stocks)
 
     # Per-ticker daily price history (1y) for the chart card. 24h cache, bulk
     # download via yf.download in batches so we hit Yahoo once per ~200 tickers.
@@ -4989,10 +5198,20 @@ def generate_stocks_page(universe):
         <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset</button>
       </div>
       <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
+
+      <div class="stk-views" id="stk-views">
+        <div class="stk-views-h">Saved Views</div>
+        <div class="stk-views-row">
+          <input type="text" class="stk-views-input" id="stk-views-input" placeholder="Name this view..." maxlength="40">
+          <button type="button" class="stk-quick" id="stk-views-save">Save</button>
+        </div>
+        <div class="stk-views-list" id="stk-views-list"></div>
+      </div>
+
     <div class="stk-filter-panel" id="stk-filter-panel">
       <div class="stk-filter-cols">
-        <div class="stk-filter-col">
-          <div class="stk-filter-col-h">Characteristics</div>
+        <details class="stk-filter-col stk-section" open>
+          <summary class="stk-filter-col-h">Characteristics<span class="stk-section-caret">&#9656;</span></summary>
           <div class="stk-filter-row">
             <span class="stk-filter-label">Market Cap</span>
             <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min (e.g. 300M)">
@@ -5054,10 +5273,11 @@ def generate_stocks_page(universe):
               <span>Hide stocks without live market cap data</span>
             </label>
           </div>
-        </div>
+        </details>
 
-        <div class="stk-filter-col">
-          <div class="stk-filter-col-h">Dimension Weights <span class="stk-filter-col-sub">how much each factor group counts in the Score</span></div>
+        <details class="stk-filter-col stk-section" open>
+          <summary class="stk-filter-col-h">Dimension Tilts<span class="stk-section-caret">&#9656;</span></summary>
+          <div class="stk-filter-col-sub">how much each factor group counts in the Score</div>
           <div class="stk-weight-row">
             <span class="stk-weight-label">Growth</span>
             <input type="range" class="stk-weight-slider" data-weight="Growth" min="0" max="2" step="0.1" value="1">
@@ -5086,7 +5306,43 @@ def generate_stocks_page(universe):
             <button type="button" class="stk-quick" data-preset="quality">Quality tilt</button>
             <button type="button" class="stk-quick" data-preset="momentum">Momentum tilt</button>
           </div>
-        </div>
+        </details>
+
+        <details class="stk-filter-col stk-section">
+          <summary class="stk-filter-col-h">Overlays<span class="stk-section-caret">&#9656;</span></summary>
+          <div class="stk-filter-col-sub">sentiment + accounting fingerprints from news and XBRL</div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">LM (financial sentiment, 7d)</span>
+            <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="min" placeholder="min (e.g. 0.10)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="max" placeholder="max">
+            <span class="stk-filter-hint">range -1 to +1</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">VADER (general sentiment, 7d)</span>
+            <input type="text" class="stk-filter-input" data-filter="news_vader_avg" data-bound="min" placeholder="min (e.g. 0.10)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="news_vader_avg" data-bound="max" placeholder="max">
+            <span class="stk-filter-hint">range -1 to +1</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Min news headlines (7d)</span>
+            <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="min" placeholder="e.g. 3">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="max" placeholder="">
+            <span class="stk-filter-hint">filters thinly-covered names</span>
+          </div>
+          <div class="stk-filter-row stk-filter-row-toggle">
+            <label class="stk-filter-label">Benford fit (1st digit)</label>
+            <select class="stk-filter-select" id="stk-benford-fit">
+              <option value="">Any</option>
+              <option value="good">Good only</option>
+              <option value="fair">Fair or better</option>
+              <option value="poor">Poor only</option>
+            </select>
+            <span class="stk-filter-hint">forensic accounting overlay</span>
+          </div>
+        </details>
       </div>
     </div>
     </aside>
