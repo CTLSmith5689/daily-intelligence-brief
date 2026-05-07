@@ -526,6 +526,24 @@ body.page-stocks .footer { display:none; }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
 .fp-card { padding:14px 16px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
 .fp-card-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
+.fp-card-toggle:hover { color:var(--apt-rose); }
+.fp-card-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease, color .15s; }
+.fp-card.fp-card-open .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.fp-meta { display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); }
+.fp-card.fp-card-open .fp-meta { display:block; }
+.fp-meta-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fp-meta-table { width:100%; border-collapse:collapse; font-size:11px; }
+.fp-meta-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; text-align:left; padding:4px 8px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
+.fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; line-height:1.4; }
+.fp-meta-table tr:last-child td { border-bottom:0; }
+.fp-meta-label { color:var(--text-1); font-weight:500; white-space:nowrap; }
+.fp-meta-src { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-3); white-space:nowrap; }
+.fp-meta-src[data-src="edgar"] { color:#67B7FF; }
+.fp-meta-src[data-src="yfinance"] { color:#9B8CFF; }
+.fp-meta-src[data-src="derived"] { color:var(--text-3); }
+.fp-meta-asof { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-3); white-space:nowrap; }
+.fp-meta-method { color:var(--text-2); font-size:11px; }
 .fp-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; font-size:12px; }
 .fp-label { color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
 .fp-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; }
@@ -960,49 +978,65 @@ body.page-stocks .footer { display:none; }
   // Factor groups for the expand panel: 5/5/5/5 layout matching Dark Matter playbook.
   // Sources: yfinance for Tier-1/2 fields, SEC EDGAR for the 5 quarterly-trend fields
   // (Revenue Acceleration, Gross Margin Trend, FCF Growth YoY, Earnings Consistency,
-  // Op Margin Stability).
+  // Op Margin Stability). Each row carries source + methodology metadata so the card
+  // can reveal where each number comes from.
   const FACTOR_GROUPS = [
     {
       title: 'Growth',
       rows: [
-        ['Revenue Growth YoY', 'revenue_growth_yoy', 'pct'],
-        ['EPS Growth YoY (GAAP)', 'eps_growth_yoy', 'pct'],
-        ['Revenue Acceleration', 'revenue_acceleration', 'pct'],
-        ['Gross Margin Trend', 'gross_margin_trend', 'pct'],
-        ['FCF Growth YoY', 'fcf_growth_yoy', 'pct'],
+        { label: 'Revenue Growth YoY',   key: 'revenue_growth_yoy',   type: 'pct',   source: 'yfinance', method: 'TTM revenue vs prior TTM. Yahoo .info["revenueGrowth"].' },
+        { label: 'EPS Growth YoY (GAAP)', key: 'eps_growth_yoy',      type: 'pct',   source: 'yfinance', method: 'TTM EPS vs prior TTM. Yahoo .info["earningsGrowth"].' },
+        { label: 'Revenue Acceleration', key: 'revenue_acceleration', type: 'pct',   source: 'edgar',    method: 'Change in YoY growth quarter-over-quarter. (Q[n] vs Q[n-4]) growth minus (Q[n-1] vs Q[n-5]) growth, from XBRL Revenues.' },
+        { label: 'Gross Margin Trend',   key: 'gross_margin_trend',   type: 'pct',   source: 'edgar',    method: 'Current quarter (GrossProfit / Revenues) minus same quarter prior year. Reflects most recent 10-Q.' },
+        { label: 'FCF Growth YoY',       key: 'fcf_growth_yoy',       type: 'pct',   source: 'edgar',    method: 'TTM free cash flow current vs prior TTM. FCF = NetCashProvidedByOperatingActivities minus CapEx, summed over last 4 quarters.' },
       ],
     },
     {
       title: 'Value',
       rows: [
-        ['P/E (Trailing)', 'pe', 'ratio'],
-        ['EV/EBITDA', 'ev_ebitda', 'ratio'],
-        ['EV/Revenue', 'ev_revenue', 'ratio'],
-        ['Price/Book', 'price_book', 'ratio'],
-        ['FCF Yield', 'fcf_yield', 'pct'],
+        { label: 'P/E (Trailing)', key: 'pe',         type: 'ratio', source: 'yfinance', method: 'Price / TTM EPS. Yahoo .info["trailingPE"].' },
+        { label: 'EV/EBITDA',      key: 'ev_ebitda',  type: 'ratio', source: 'yfinance', method: 'Enterprise value / TTM EBITDA. Yahoo .info["enterpriseToEbitda"].' },
+        { label: 'EV/Revenue',     key: 'ev_revenue', type: 'ratio', source: 'yfinance', method: 'Enterprise value / TTM revenue. Yahoo .info["enterpriseToRevenue"].' },
+        { label: 'Price/Book',     key: 'price_book', type: 'ratio', source: 'yfinance', method: 'Price / book value per share. Yahoo .info["priceToBook"].' },
+        { label: 'FCF Yield',      key: 'fcf_yield',  type: 'pct',   source: 'yfinance', method: 'TTM free cash flow / market cap. Computed from Yahoo .info["freeCashflow"] and marketCap.' },
       ],
     },
     {
       title: 'Momentum',
       rows: [
-        ['12-2 Month Return', 'return_12_2', 'pct'],
-        ['1-Month Return', 'return_1m', 'pct'],
-        ['52W High Proximity', 'high52w_proximity', 'pct'],
-        ['Rel Strength vs S&P', 'rel_strength_sp500', 'pct'],
-        ['Volume Trend', 'volume_trend', 'pct'],
+        { label: '12-2 Month Return',   key: 'return_12_2',        type: 'pct', source: 'yfinance', method: 'Trailing 12-month return excluding the most recent month (classic Jegadeesh-Titman momentum).' },
+        { label: '1-Month Return',      key: 'return_1m',          type: 'pct', source: 'yfinance', method: 'Last 30 calendar days price change.' },
+        { label: '52W High Proximity',  key: 'high52w_proximity',  type: 'pct', source: 'derived',  method: '(Price minus 52W high) / 52W high. Always less than or equal to zero.' },
+        { label: 'Rel Strength vs S&P', key: 'rel_strength_sp500', type: 'pct', source: 'derived',  method: 'Stock 12-2 return minus SPY 12-2 return.' },
+        { label: 'Volume Trend',        key: 'volume_trend',       type: 'pct', source: 'derived',  method: 'Recent average volume divided by longer-term average volume, minus 1.' },
       ],
     },
     {
       title: 'Quality',
       rows: [
-        ['ROE (TTM)', 'roe_ttm', 'pct'],
-        ['Earnings Consistency', 'earnings_consistency', 'ratio'],
-        ['Net Debt/EBITDA', 'net_debt_ebitda', 'ratio'],
-        ['Op Margin Stability', 'op_margin_stability', 'ratio'],
-        ['Accruals Ratio', 'accruals_ratio', 'pct'],
+        { label: 'ROE (TTM)',           key: 'roe_ttm',             type: 'pct',   source: 'yfinance', method: 'TTM net income / shareholders equity. Yahoo .info["returnOnEquity"].' },
+        { label: 'Earnings Consistency', key: 'earnings_consistency', type: 'ratio', source: 'edgar',   method: '1 / (1 + coefficient of variation) of last 8 quarters EPS. Range 0 to 1, higher means steadier.' },
+        { label: 'Net Debt/EBITDA',     key: 'net_debt_ebitda',     type: 'ratio', source: 'yfinance', method: '(Total debt minus cash) / TTM EBITDA. Lower is better; negative means net cash.' },
+        { label: 'Op Margin Stability', key: 'op_margin_stability', type: 'ratio', source: 'edgar',    method: 'Standard deviation of quarterly operating margins over last 8 quarters. Lower means more stable.' },
+        { label: 'Accruals Ratio',      key: 'accruals_ratio',      type: 'pct',   source: 'yfinance', method: '(Net income minus CFO) / total assets. High accruals can flag earnings of lower quality.' },
       ],
     },
   ];
+
+  const SOURCE_LABEL = {
+    yfinance: 'Yahoo Finance (yfinance)',
+    edgar:    'SEC EDGAR XBRL',
+    derived:  'Computed from Yahoo + reference price series',
+  };
+
+  // Decide which "as of" timestamp to surface for a given row's source. yfinance
+  // and derived fields share the row last_updated; EDGAR fields use edgar_updated
+  // (refreshed weekly). Honest about field-level vintage even though we don't yet
+  // stamp every individual field independently.
+  function fieldAsOf(s, source) {
+    if (source === 'edgar') return s.edgar_updated || null;
+    return s.last_updated || null;
+  }
 
   function fmtFactor(val, type) {
     if (type === 'pct') return fmtPctRaw(val, 2);
@@ -1211,12 +1245,32 @@ body.page-stocks .footer { display:none; }
 
   function buildDetail(s) {
     const groups = FACTOR_GROUPS.map(g => {
-      const items = g.rows.map(([label, key, type]) => {
-        const val = s[key];
+      const items = g.rows.map(r => {
+        const val = s[r.key];
         const cls = (val == null || isNaN(val)) ? 'fp-row fp-row-na' : 'fp-row';
-        return '<div class="'+cls+'"><span class="fp-label">'+escapeHtml(label)+'</span><span class="fp-val">'+fmtFactor(val, type)+'</span></div>';
+        return '<div class="'+cls+'"><span class="fp-label">'+escapeHtml(r.label)+'</span><span class="fp-val">'+fmtFactor(val, r.type)+'</span></div>';
       }).join('');
-      return '<div class="fp-card"><div class="fp-card-h">'+g.title+'</div>'+items+'</div>';
+      const metaRows = g.rows.map(r => {
+        const asOf = fieldAsOf(s, r.source);
+        const asOfTxt = asOf ? fmtDateMDY(asOf) : 'n/a';
+        return '<tr><td class="fp-meta-label">'+escapeHtml(r.label)+'</td>'
+          +    '<td class="fp-meta-src" data-src="'+r.source+'">'+escapeHtml(SOURCE_LABEL[r.source] || r.source)+'</td>'
+          +    '<td class="fp-meta-asof">'+asOfTxt+'</td>'
+          +    '<td class="fp-meta-method">'+escapeHtml(r.method)+'</td></tr>';
+      }).join('');
+      const meta = '<div class="fp-meta">'
+        + '<div class="fp-meta-h">How these are sourced and calculated</div>'
+        + '<table class="fp-meta-table"><thead><tr>'
+        +   '<th>Metric</th><th>Source</th><th>As of</th><th>Method</th>'
+        + '</tr></thead><tbody>' + metaRows + '</tbody></table>'
+        + '</div>';
+      return '<div class="fp-card"><button type="button" class="fp-card-h fp-card-toggle" aria-expanded="false">'
+        + '<span>'+g.title+'</span>'
+        + '<span class="fp-card-caret">&#9656;</span>'
+        + '</button>'
+        + items
+        + meta
+        + '</div>';
     }).join('');
     const scoreCard = buildScoreBreakdown(s);
     const benfordCard = buildBenfordCard(s);
@@ -1369,9 +1423,18 @@ body.page-stocks .footer { display:none; }
     listEl.innerHTML = rows;
   }
 
-  // Click on a row toggles the expand state, and on first expand kicks off
-  // the lazy news fetch for that ticker.
+  // Card-level toggles inside the expanded panel reveal source + methodology.
+  // Handled before the row-toggle handler so they don't collapse the whole row.
   listEl.addEventListener('click', e => {
+    const cardToggle = e.target.closest('.fp-card-toggle');
+    if (cardToggle) {
+      const card = cardToggle.closest('.fp-card');
+      if (card) {
+        const isOpen = card.classList.toggle('fp-card-open');
+        cardToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+      return;
+    }
     const row = e.target.closest('.stk-row');
     if (!row) return;
     const t = row.dataset.ticker;

@@ -526,6 +526,24 @@ body.page-stocks .footer { display:none; }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
 .fp-card { padding:14px 16px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
 .fp-card-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
+.fp-card-toggle:hover { color:var(--apt-rose); }
+.fp-card-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease, color .15s; }
+.fp-card.fp-card-open .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.fp-meta { display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); }
+.fp-card.fp-card-open .fp-meta { display:block; }
+.fp-meta-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fp-meta-table { width:100%; border-collapse:collapse; font-size:11px; }
+.fp-meta-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; text-align:left; padding:4px 8px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
+.fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; line-height:1.4; }
+.fp-meta-table tr:last-child td { border-bottom:0; }
+.fp-meta-label { color:var(--text-1); font-weight:500; white-space:nowrap; }
+.fp-meta-src { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-3); white-space:nowrap; }
+.fp-meta-src[data-src="edgar"] { color:#67B7FF; }
+.fp-meta-src[data-src="yfinance"] { color:#9B8CFF; }
+.fp-meta-src[data-src="derived"] { color:var(--text-3); }
+.fp-meta-asof { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-3); white-space:nowrap; }
+.fp-meta-method { color:var(--text-2); font-size:11px; }
 .fp-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; font-size:12px; }
 .fp-label { color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
 .fp-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; }
@@ -575,7 +593,7 @@ body.page-stocks .footer { display:none; }
 
 
 <section class="hero">
-  <div class="eyebrow"><span class="live-dot"></span>Live, Evening edition, May 06, 2026</div>
+  <div class="eyebrow"><span class="live-dot"></span>Live, Midday edition, May 07, 2026</div>
   <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
   <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a filterable universe of US-listed stocks.</p>
   <div class="hero-actions">
@@ -592,17 +610,17 @@ body.page-stocks .footer { display:none; }
       <span>Past 10 brief days</span>
     </div>
     <div class="feat-kicker">Snapshot</div>
-    <ul class="snapshot-list"><li>Middle East de-escalation erased geopolitical risk premium across energy and equities simultaneously, compressing Fed pause duration while bifurcating labor markets between large firms and small businesses, threatening margin expansion narratives essential to justify current equity multiples.</li><li>China operationalized advanced manufacturing dominance and AI funding scale as US capital redirected toward domestic political consensus-building, creating irreversible tech supply chain bifurcation that disadvantages Western frontier labs competing without durable lock-in advantages.</li><li>Capital rotation toward tokenized RWAs and private credit discipline signals synchronized de-risking by allocators avoiding US policy uncertainty and concentrated equity bets, while labor organizing around military AI embedment raises compliance costs for defense contractors.</li></ul>
-    <div class="themes-list"><span class="theme-pill">Geopolitical risk premium collapse and energy repricing</span><span class="theme-pill">US-China tech decoupling and supply chain bifurcation</span><span class="theme-pill">Labor market fragmentation and margin compression dynamics</span><span class="theme-pill">Capital flight from equity concentration into alternatives</span><span class="theme-pill">AI consolidation favoring regulated incumbents over frontier labs</span></div>
+    <ul class="snapshot-list"><li>Anthropic-SpaceX compute consolidation locks AI infrastructure into vertically integrated systems, compressing arbitrage windows for distributed competitors and establishing a managed duopoly favoring first-movers with capital access.</li><li>Bifurcated capital allocation emerges: mega-cap tech commands billion-dollar rounds on narrative while allocators rotate toward Asia private credit and tokenized RWAs seeking de-risked yield amid recession warnings.</li><li>US-China tech decoupling and labor organizing around military AI eliminate traditional margin cushions, forcing re-rating of industrial and financial services names while energy supply disruptions collide with equity valuations priced for growth.</li></ul>
+    <div class="themes-list"><span class="theme-pill">Infrastructure consolidation and compute scarcity</span><span class="theme-pill">Capital rotation toward alternative assets and Asia</span><span class="theme-pill">Geopolitical bifurcation and supply chain fragmentation</span><span class="theme-pill">Labor organizing constraining defense tech compliance</span><span class="theme-pill">Stagflationary compression of consumer discretionary demand</span></div>
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">373</div>
-        <div class="fs-delta">across 28 briefs</div>
+        <div class="fs-val">386</div>
+        <div class="fs-delta">across 29 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">210</div>
+        <div class="fs-val">213</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
