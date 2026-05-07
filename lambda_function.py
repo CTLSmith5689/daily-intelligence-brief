@@ -1620,10 +1620,27 @@ h1.hero-title {
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
+.stk-row { cursor:pointer; }
+.stk-row .stk-ticker { transition:color .15s; }
+.stk-row:hover .stk-ticker { color:#FFB347; }
+
+/* Expand-on-click factor panel */
+.stk-detail { padding:14px 22px 22px; background:rgba(10,10,15,0.6); border-top:1px solid var(--border); animation:fpFadeIn .25s ease-out; }
+@keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
+@media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
+@media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
+.fp-card { padding:14px 16px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.fp-card-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.fp-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; font-size:12px; }
+.fp-label { color:var(--text-3); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+.fp-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; }
+.fp-row-na .fp-val { color:var(--text-5); }
 @media (max-width:780px) {
   .stk-head, .stk-row { grid-template-columns:55px 1fr 70px 60px; gap:8px; padding:12px 14px; }
   .stk-th[data-sort="sector"], .stk-row .stk-sector { display:none; }
   .stk-th[data-sort="pe"], .stk-row .stk-pe { display:none; }
+  .stk-detail { padding:12px 14px 18px; }
 }
 
 .footer { max-width:1200px; margin:64px auto 0; padding:32px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
@@ -1851,6 +1868,77 @@ STOCKS_JS_TEMPLATE = """
     if (n == null || isNaN(n)) return '—';
     return Number(n).toFixed(d == null ? 0 : d);
   }
+  function fmtPctRaw(n, d) {
+    // Decimal fraction (0.083) -> "8.3%". For factor values stored as decimals.
+    if (n == null || isNaN(n)) return '—';
+    return (Number(n) * 100).toFixed(d == null ? 1 : d) + '%';
+  }
+  function fmtRatio(n, d) {
+    // Already a ratio (e.g. P/B 1.1). Just round.
+    if (n == null || isNaN(n)) return '—';
+    return Number(n).toFixed(d == null ? 2 : d);
+  }
+
+  // Factor groups for the expand panel, mirrored from Dark Matter playbook
+  const FACTOR_GROUPS = [
+    {
+      title: 'Growth',
+      rows: [
+        ['Revenue Growth YoY', 'revenue_growth_yoy', 'pct'],
+        ['EPS Growth YoY (GAAP)', 'eps_growth_yoy', 'pct'],
+        ['Gross Margin', 'gross_margin', 'pct'],
+      ],
+    },
+    {
+      title: 'Value',
+      rows: [
+        ['P/E (Trailing)', 'pe', 'ratio'],
+        ['EV/EBITDA', 'ev_ebitda', 'ratio'],
+        ['EV/Revenue', 'ev_revenue', 'ratio'],
+        ['Price/Book', 'price_book', 'ratio'],
+        ['FCF Yield', 'fcf_yield', 'pct'],
+      ],
+    },
+    {
+      title: 'Momentum',
+      rows: [
+        ['52W High Proximity', 'high52w_proximity', 'pct'],
+        ['1-Month Return', 'return_1m', 'pct'],
+        ['12-2 Month Return', 'return_12_2', 'pct'],
+        ['Rel Strength vs S&P', 'rel_strength_sp500', 'pct'],
+        ['Volume Trend', 'volume_trend', 'pct'],
+      ],
+    },
+    {
+      title: 'Quality',
+      rows: [
+        ['ROE (TTM)', 'roe_ttm', 'pct'],
+        ['Operating Margin', 'operating_margin', 'pct'],
+        ['Net Debt/EBITDA', 'net_debt_ebitda', 'ratio'],
+        ['Accruals Ratio', 'accruals_ratio', 'pct'],
+      ],
+    },
+  ];
+
+  function fmtFactor(val, type) {
+    if (type === 'pct') return fmtPctRaw(val, 2);
+    if (type === 'ratio') return fmtRatio(val, 2);
+    return fmtNum(val, 2);
+  }
+
+  function buildDetail(s) {
+    const groups = FACTOR_GROUPS.map(g => {
+      const items = g.rows.map(([label, key, type]) => {
+        const val = s[key];
+        const cls = (val == null || isNaN(val)) ? 'fp-row fp-row-na' : 'fp-row';
+        return '<div class="'+cls+'"><span class="fp-label">'+escapeHtml(label)+'</span><span class="fp-val">'+fmtFactor(val, type)+'</span></div>';
+      }).join('');
+      return '<div class="fp-card"><div class="fp-card-h">'+g.title+'</div>'+items+'</div>';
+    }).join('');
+    return '<div class="stk-detail"><div class="fp-grid">'+groups+'</div></div>';
+  }
+
+  let expanded = new Set();
 
   function render() {
     const q = query.toLowerCase();
@@ -1877,17 +1965,31 @@ STOCKS_JS_TEMPLATE = """
     }
     const rows = filtered.slice(0, 1500).map(s => {
       const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
-      return '<div class="stk-row">'
-        + '<div class="stk-ticker">'+escapeHtml(s.ticker||'')+'</div>'
+      const isOpen = expanded.has(s.ticker);
+      const arrow = isOpen ? '▾' : '▸';
+      const detailHtml = isOpen ? buildDetail(s) : '';
+      return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
+        + '<div class="stk-ticker">'+arrow+' '+escapeHtml(s.ticker||'')+'</div>'
         + '<div class="stk-name">'+escapeHtml(s.name||'')+'<div class="stk-sub">'+escapeHtml(s.sub_industry||'')+'</div></div>'
         + '<div class="stk-sector">'+escapeHtml(s.sector||'')+'</div>'
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
         + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
         + '<div class="stk-pe">'+fmtNum(s.pe, 1)+'</div>'
-      + '</div>';
+      + '</div>'
+      + detailHtml;
     }).join('');
     listEl.innerHTML = rows;
   }
+
+  // Click on a row toggles the expand state
+  listEl.addEventListener('click', e => {
+    const row = e.target.closest('.stk-row');
+    if (!row) return;
+    const t = row.dataset.ticker;
+    if (!t) return;
+    if (expanded.has(t)) expanded.delete(t); else expanded.add(t);
+    render();
+  });
 
   searchEl.addEventListener('input', () => {
     query = searchEl.value.trim();
@@ -2332,6 +2434,7 @@ def enrich_with_yfinance(stocks, max_workers=10):
             s = by_ticker.get(sym)
             if not s:
                 continue
+            # ── Core fields ─────────────────────────────
             cap = info.get("marketCap")
             price = info.get("currentPrice") or info.get("regularMarketPrice")
             chg = info.get("regularMarketChangePercent")
@@ -2342,19 +2445,89 @@ def enrich_with_yfinance(stocks, max_workers=10):
             if price is not None and 0 < price < 1e6:
                 s["price"] = price
             if chg is not None:
-                # yfinance returns change as decimal fraction (0.0083) for most tickers,
-                # but occasionally returns full percent (0.83). Heuristic: magnitudes < 1
-                # are assumed decimal and multiplied by 100.
                 pct = chg if abs(chg) > 1 else chg * 100
-                # Plausibility clamp: real single-day moves > 20% are very rare.
-                # Anything beyond is almost always stale/bad data from yfinance's
-                # previousClose field. Drop rather than mislead.
                 if abs(pct) <= 20:
                     s["change_pct"] = pct
             if pe is not None and -500 < pe < 1000:
                 s["pe"] = pe
             if vol is not None and vol > 0:
                 s["volume"] = vol
+
+            # ── Growth factors ──────────────────────────
+            rev_g = info.get("revenueGrowth")
+            if rev_g is not None and abs(rev_g) < 5:
+                s["revenue_growth_yoy"] = rev_g
+            eps_g = info.get("earningsGrowth")
+            if eps_g is not None and abs(eps_g) < 10:
+                s["eps_growth_yoy"] = eps_g
+
+            # ── Value factors ───────────────────────────
+            ev_eb = info.get("enterpriseToEbitda")
+            if ev_eb is not None and abs(ev_eb) < 200:
+                s["ev_ebitda"] = ev_eb
+            ev_rev = info.get("enterpriseToRevenue")
+            if ev_rev is not None and 0 < ev_rev < 100:
+                s["ev_revenue"] = ev_rev
+            pb = info.get("priceToBook")
+            if pb is not None and 0 < pb < 100:
+                s["price_book"] = pb
+            fcf = info.get("freeCashflow")
+            if fcf is not None and cap and cap > 0:
+                fcf_yield = fcf / cap
+                if -1 < fcf_yield < 1:
+                    s["fcf_yield"] = fcf_yield
+
+            # ── Momentum factors ────────────────────────
+            high52 = info.get("fiftyTwoWeekHigh")
+            if price and high52 and high52 > 0:
+                s["high52w_proximity"] = (price - high52) / high52
+            ma50 = info.get("fiftyDayAverage")
+            if price and ma50 and ma50 > 0:
+                ret_1m = (price - ma50) / ma50
+                if abs(ret_1m) < 2:
+                    s["return_1m"] = ret_1m
+            chg52 = info.get("52WeekChange")
+            if chg52 is not None and abs(chg52) < 10:
+                s["return_52w"] = chg52
+                if "return_1m" in s:
+                    s["return_12_2"] = chg52 - s["return_1m"]
+            sp_chg52 = info.get("SandP52WeekChange")
+            if chg52 is not None and sp_chg52 is not None:
+                rel = chg52 - sp_chg52
+                if abs(rel) < 5:
+                    s["rel_strength_sp500"] = rel
+            v10 = info.get("averageDailyVolume10Day") or info.get("averageVolume10days")
+            v3m = info.get("averageVolume")
+            if v10 and v3m and v3m > 0:
+                vt = v10 / v3m - 1
+                if abs(vt) < 10:
+                    s["volume_trend"] = vt
+
+            # ── Quality factors ─────────────────────────
+            roe = info.get("returnOnEquity")
+            if roe is not None and -3 < roe < 3:
+                s["roe_ttm"] = roe
+            debt = info.get("totalDebt") or 0
+            tcash = info.get("totalCash") or 0
+            ebitda = info.get("ebitda")
+            if ebitda is not None and ebitda != 0:
+                nde = (debt - tcash) / ebitda
+                if -20 < nde < 50:
+                    s["net_debt_ebitda"] = nde
+            ni = info.get("netIncomeToCommon")
+            cfo = info.get("operatingCashflow")
+            ta = info.get("totalAssets")
+            if ni is not None and cfo is not None and ta and ta > 0:
+                ar = (ni - cfo) / ta
+                if -1 < ar < 1:
+                    s["accruals_ratio"] = ar
+            op_m = info.get("operatingMargins")
+            if op_m is not None and -2 < op_m < 2:
+                s["operating_margin"] = op_m
+            gm = info.get("grossMargins")
+            if gm is not None and -2 < gm < 2:
+                s["gross_margin"] = gm
+
             if cap or price:
                 enriched += 1
 
@@ -2405,8 +2578,17 @@ def get_or_generate_stocks_universe():
         return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
 
     # Merge static enrichment fields from previous cache as a fallback layer.
-    # We carry forward market_cap and pe (slow-changing), but NOT price/change_pct/volume
-    # because those go stale within hours. Better to show "—" than yesterday's price.
+    # Slow-changing fields are carried forward; volatile intraday fields (price,
+    # change_pct, volume) are NOT, to avoid showing yesterday's number as today's.
+    CARRY_FIELDS = (
+        "market_cap", "pe", "sector", "sub_industry",
+        "revenue_growth_yoy", "eps_growth_yoy",
+        "ev_ebitda", "ev_revenue", "price_book", "fcf_yield",
+        "high52w_proximity", "return_1m", "return_52w", "return_12_2",
+        "rel_strength_sp500", "volume_trend",
+        "roe_ttm", "net_debt_ebitda", "accruals_ratio",
+        "operating_margin", "gross_margin",
+    )
     carried_forward = 0
     if last_known and last_known.get("stocks"):
         prev_by_ticker = {s["ticker"]: s for s in last_known["stocks"]}
@@ -2414,13 +2596,13 @@ def get_or_generate_stocks_universe():
             prev = prev_by_ticker.get(s["ticker"])
             if not prev:
                 continue
-            for field in ("market_cap", "pe", "sector", "sub_industry"):
+            for field in CARRY_FIELDS:
                 if prev.get(field) is not None and s.get(field) is None:
                     s[field] = prev[field]
             if prev.get("market_cap"):
                 carried_forward += 1
     if carried_forward:
-        print(f"stocks_universe: carried forward {carried_forward} market_cap entries from previous cache.")
+        print(f"stocks_universe: carried forward enrichment for {carried_forward} tickers from previous cache.")
 
     # Fresh yfinance pass overwrites carried-forward data where successful and adds
     # the intraday fields (price, change_pct, volume).
