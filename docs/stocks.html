@@ -917,6 +917,17 @@ h1.hero-title {
       return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' }).toUpperCase();
     } catch (e) { return '—'; }
   }
+  function fmtDateMDY(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso + 'T12:00:00Z');
+      if (isNaN(d.getTime())) return '—';
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+      const yy = String(d.getUTCFullYear()).slice(-2);
+      return mm + '/' + dd + '/' + yy;
+    } catch (e) { return '—'; }
+  }
   function fmtPctRaw(n, d) {
     // Decimal fraction (0.083) -> "8.3%". For factor values stored as decimals.
     if (n == null || isNaN(n)) return '—';
@@ -1319,7 +1330,7 @@ h1.hero-title {
       listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
       return;
     }
-    const rows = filtered.slice(0, 1500).map(s => {
+    const rows = filtered.slice(0, 5000).map(s => {
       const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
       const isOpen = expanded.has(s.ticker);
       const arrow = isOpen ? '▾' : '▸';
@@ -1332,7 +1343,7 @@ h1.hero-title {
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
         + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
         + '<div class="stk-score '+scoreClass(composite)+'">'+fmtScore(composite)+'</div>'
-        + '<div class="stk-date">'+fmtDate(s.earnings_date)+'</div>'
+        + '<div class="stk-date">'+fmtDateMDY(s.earnings_date)+'</div>'
         + '<div class="stk-date stk-date-dim">'+fmtDate(s.last_updated)+'</div>'
       + '</div>'
       + detailHtml;
