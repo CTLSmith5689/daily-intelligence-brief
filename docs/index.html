@@ -377,6 +377,8 @@ h1.hero-title {
 .stk-filter-input::placeholder { color:var(--text-5); }
 .stk-filter-sep { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); text-align:center; }
 .stk-filter-hint { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.stk-filter-stat { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.5px; color:var(--text-4); text-transform:none; font-style:italic; }
+.stk-filter-stat-empty { color:var(--text-5); }
 .stk-filter-quicks { display:flex; gap:5px; flex-wrap:wrap; }
 .stk-quick {
   padding:5px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.2px;
@@ -577,6 +579,7 @@ h1.hero-title {
 .stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="max"] { grid-column:2; }
 .stk-sidebar .stk-filter-row > .stk-filter-sep { display:none; }
 .stk-sidebar .stk-filter-row > .stk-filter-hint { grid-column:1 / -1; font-size:8px; }
+.stk-sidebar .stk-filter-row > .stk-filter-stat { grid-column:1 / -1; font-size:9px; padding-top:2px; }
 .stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
 .stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
 .stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
@@ -711,12 +714,12 @@ body.page-stocks .footer { display:none; }
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">385</div>
+        <div class="fs-val">384</div>
         <div class="fs-delta">across 29 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">212</div>
+        <div class="fs-val">213</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">

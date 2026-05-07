@@ -377,6 +377,8 @@ h1.hero-title {
 .stk-filter-input::placeholder { color:var(--text-5); }
 .stk-filter-sep { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); text-align:center; }
 .stk-filter-hint { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.stk-filter-stat { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.5px; color:var(--text-4); text-transform:none; font-style:italic; }
+.stk-filter-stat-empty { color:var(--text-5); }
 .stk-filter-quicks { display:flex; gap:5px; flex-wrap:wrap; }
 .stk-quick {
   padding:5px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.2px;
@@ -577,6 +579,7 @@ h1.hero-title {
 .stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="max"] { grid-column:2; }
 .stk-sidebar .stk-filter-row > .stk-filter-sep { display:none; }
 .stk-sidebar .stk-filter-row > .stk-filter-hint { grid-column:1 / -1; font-size:8px; }
+.stk-sidebar .stk-filter-row > .stk-filter-stat { grid-column:1 / -1; font-size:9px; padding-top:2px; }
 .stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
 .stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
 .stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
@@ -700,7 +703,7 @@ body.page-stocks .footer { display:none; }
     <div class="edition-time">12:15 PM ET</div>
     <a class="edition-link" href="./briefs/2026-05-07-midday.html">Open full brief &rarr;</a>
   </div>
-  <p class="edition-edge">Bitcoin strategic reserve announcement removes regulatory tail risk precisely when energy scarcity is driving oil prices higher, creating synchronized dual tailwinds for hard assets that derisks portfolio crowding into tech while Anthropic's SpaceX compute deal signals infrastructure, not NVIDIA chips, is now the actual LLM scaling constraint.</p>
+  <p class="edition-edge">State BTC reserve adoption combined with vertical compute-infrastructure integration in AI (SpaceX-Anthropic) and U.S.-China guardrailing signals stabilization of previously tail-risk sectors: crypto moves from speculative to reserve hedge, AI competitive moats harden through supply control rather than capability, and geopolitical energy leverage (China-Asia ties plus Strait of Hormuz risk premium) creates a three-way arbitrage between commodity hedges, regional capital flows, and Western asset inflation persisting longer than consensus expects.</p>
   <div class="section-grid">
     <article class="sec-card">
       <div class="sc-head">
@@ -709,9 +712,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Breaking News</div>
         </div>
-        <div class="sc-count">03</div>
+        <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxQa3FTQXlLUjAxYnRjWl9Iak13Q25sV3Q2UDFsaTE3cGwyb2p3Zjh6Q3hoU3VMNi0zcF9xT1FjblV6WExpcUhNU21uUVYtX1hHcFdGeGphQVM1a2cxRmowbm4yMDFDVTExZEM0YmY4TGtFTXFUX1pLVkRVSEh5bXhZeHRlbXVSczQ3akg4?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Video. Latest news bulletin | May 7th, 2026 – Morning</div><div class="sc-item-source">Euronews.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiTkFVX3lxTFBjd2FNeE1Sa2h0UTJYOTVVaE5nRmM2WXh6Q0VtN1EwRHU4V0VsaVV3UlVjNTlqT1RMWkdwa0hONTBabkVjbWdHRjZ1TWxPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Ukraine News Today: Breaking Updates & Live Coverage - May 7, 2026 from Kyiv Post</div><div class="sc-item-source">Kyiv Post</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxQa3FTQXlLUjAxYnRjWl9Jak13Q25sV3Q2UDFsaTE3cGwyb2p3Zjh6Q3hoU3VMNi0zcF9xT1FjblV6WExpcUhNU21uUVYtX1hHcFdGeGphQVM1a2cxRmowbm4yMDFDVTExZEM0YmY4TGtFTXFUX1pLVkRVSEh5bXhZeHRlbXVSczQ3akg4?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Video. Latest news bulletin | May 7th, 2026 – Morning</div><div class="sc-item-source">Euronews.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiTkFVX3lxTFBjd2FNeE1Sa2h0UTJYOTVVaE5nRmM2WXh6Q0VtN1EwRHU4V0VsaVV3UlVjNTlqT1RMWkdwa0hONTBabkVjbWdHRjZ1TWxPZw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Ukraine News Today: Breaking Updates & Live Coverage - May 7, 2026</div><div class="sc-item-source">Kyiv Post</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -731,9 +734,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Politics & Policy</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC Press Release</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -744,7 +747,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi2gFBVV95cUxPc0RaQnlrVmJ5OGVyR0dlMFgtZTQyaU14b3NpeUNpTDhsSDJMTTRFS2ZIYzdMZTc0emJscGpvMnpLVlNsaTBtNlZlMEwwYTh5NDdmTW9zLWNiQXZ6cDhleGhIaWZNVktSaGIyd05iSk9WRW4tR29hV1lONlpEYkJQZUpBTUlHVFp1bzIzQlBsUTJicFJCenpNSEdJLTdoSkE1WHFGQTg2eThIRjF3bjNUN3kwNTBZUnVGdUQxZjNNUEZDODJkbWhUR19wM1lPcnBpUnRrY1pMMEVYUdIB3wFBVV95cUxOc2ZuclI5QjM4VjlGUDhwUWVRcWdDSzc2eXFRQndYUV9UYnBOcTRLVTZ5eFNRcjBPQjVBemlvMUFpRWlZVk55OWxCMUhHUzVOQzY5M21KWmsxRy0xaV9XaGY5ZTZDdGJUYUpIaGl0UmQ4NUp0UEd0Z0V6R294RGhjODZRWW1xbkpNd1lkSzgxWV9nVUprcEFWSmx4X3pTLVNSa0xHR3Y4aGNsTVY1WHdHemJhS1BDOXBuQmFGbnp4aHI3OXJHNzd0N2tScW9iVk1Kem5heGZJeE96T0ZUXzhn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US Supreme Court rejects Apple's stay request in Epic Games lawsuit</div><div class="sc-item-source">Business Standard</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi3gFBVV95cUxNcFNEV2pweG1sSGRyNU5MVE1EQlpfR1hVV2M0U1pJc2l2TzRWRG1SWEpMNk1CdHZVQm5OZHhoZU9HNWI0RTd2cmxIT2tYNEREZXhQMkZHWXpKajVDNEgtVEltaVBHWWhHWXB2X2Jkb1EzSHAzc1FYS00yVF9uaHE1UFg0c1dQei1RVXNEUGM1YzNrR2hQNFVybzBlOHV4eVlFbWJQN2dTZ1gzUDRFU3E0NThZcWJ0elk0aTVXWWtQNVhrVW40bTRFeWpkZlAwZTF0UEFqN0daR0VheFdRT3c?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Celonis, Microsoft Agent 365 alliance targets AI 'pilot purgatory' with Process Intelligence</div><div class="sc-item-source">iTWire</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -753,9 +756,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">International</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">03</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiekFVX3lxTE5LMVF5bGxTYnNVMkNVVzhrWFRnQ0pHVjFVb2lod01hTFU2clN6dmFoMUR4QVNnMUdOQWRTZmQ2UUtndzQySDlaa3oybnpDcERrQ3NvSnhadWR5WkRvTW5yb3ZiVkVqWUN1YXhkUW85MXZ5OXdsUmhtWk13?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">War and Energy Shortages Boost China's Influence in Asia</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiekFVX3lxTE5LMVF5bGxTYnNVMkNVVzhrWFRnQ0pHVjFVb2lod01hTFU2clN6dmFoMURIEyUEFjZ0RWh3TmwxVndXR3RaVnpGWGExQkxXRmhZTVVGSFlrZHBkVEZYTWpSV2FqaEdSRFY0VGtSdVFVRkhNRkE/oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">War and Energy Shortages Boost China's Influence in Asia</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -766,7 +769,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMilwFBVV95cUxPOVBaZ1llcWMzTmx1OHFFUnNLOGxEYmlaRVJTbVRIU1F0d21OWnlkcTc0QkliaEJHY2hWMlBjYW1qbDEzMHYzaC1OWHR6TWl6Tl9GXzdqd2RSekQ3N3JWMnIxZWNSQm1wNHZoUENQQVRMOHBjaU5FaGthYlNfb2twU2w2SGJnOV93SXpQMnZxeVV0UldEaGFr?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Pete Alonso helps power Orioles past Marlins</div><div class="sc-item-source">Southern Sports Today</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiekFVX3lxTE5EMUNjOWFLRGJKVkJ3cjJrQS1kd1cxc2xHS2h3TWRFZzdjVEl5R1lVdGhWRk94Vjljd2s4V2RCalZiekY4RDZteFdrN0lnekFWeGFRM0N5Qmh1bU50dUY2R1hJTDQyb0FFS0hiZGJmS29yRC1CNV9CWDBR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">What NBA playoff games are on today?</div><div class="sc-item-source">NBC Sports</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">

@@ -377,6 +377,8 @@ h1.hero-title {
 .stk-filter-input::placeholder { color:var(--text-5); }
 .stk-filter-sep { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); text-align:center; }
 .stk-filter-hint { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.stk-filter-stat { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.5px; color:var(--text-4); text-transform:none; font-style:italic; }
+.stk-filter-stat-empty { color:var(--text-5); }
 .stk-filter-quicks { display:flex; gap:5px; flex-wrap:wrap; }
 .stk-quick {
   padding:5px 10px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.2px;
@@ -577,6 +579,7 @@ h1.hero-title {
 .stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="max"] { grid-column:2; }
 .stk-sidebar .stk-filter-row > .stk-filter-sep { display:none; }
 .stk-sidebar .stk-filter-row > .stk-filter-hint { grid-column:1 / -1; font-size:8px; }
+.stk-sidebar .stk-filter-row > .stk-filter-stat { grid-column:1 / -1; font-size:9px; padding-top:2px; }
 .stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
 .stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
 .stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
@@ -727,70 +730,11 @@ body.page-stocks .footer { display:none; }
 
     <div class="stk-filter-panel" id="stk-filter-panel">
       <div class="stk-filter-cols">
-        <details class="stk-filter-col stk-section" open>
-          <summary class="stk-filter-col-h">Characteristics<span class="stk-section-caret">&#9656;</span></summary>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Market Cap</span>
-            <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min (e.g. 300M)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="max (e.g. 10B)">
-            <span class="stk-filter-quicks">
-              <button type="button" class="stk-quick" data-tier="micro">Micro</button>
-              <button type="button" class="stk-quick" data-tier="small">Small</button>
-              <button type="button" class="stk-quick" data-tier="mid">Mid</button>
-              <button type="button" class="stk-quick" data-tier="large">Large</button>
-              <button type="button" class="stk-quick" data-tier="mega">Mega</button>
-            </span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">P/E (Trailing)</span>
-            <input type="text" class="stk-filter-input" data-filter="pe" data-bound="min" placeholder="min">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max (e.g. 30)">
-            <span class="stk-filter-hint">absolute multiple</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Revenue Growth YoY</span>
-            <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min % (e.g. 10)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max %">
-            <span class="stk-filter-hint">as percent</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">52W High Proximity</span>
-            <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min % (e.g. -30)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max % (e.g. -5)">
-            <span class="stk-filter-hint">always &le; 0</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">ROE (TTM)</span>
-            <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min % (e.g. 15)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max %">
-            <span class="stk-filter-hint">as percent</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">FCF Yield</span>
-            <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min % (e.g. 5)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max %">
-            <span class="stk-filter-hint">as percent</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Net Debt/EBITDA</span>
-            <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min (e.g. -1)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max (e.g. 3)">
-            <span class="stk-filter-hint">ratio</span>
-          </div>
-          <div class="stk-filter-row stk-filter-row-toggle">
-            <label class="stk-filter-checkbox">
-              <input type="checkbox" id="stk-only-enriched">
-              <span>Hide stocks without live market cap data</span>
-            </label>
-          </div>
-        </details>
+        <details class="stk-filter-col stk-section" open><summary class="stk-filter-col-h">Universe<span class="stk-section-caret">&#9656;</span></summary><div class="stk-filter-row"><span class="stk-filter-label">Market Cap</span><input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min (e.g. 300M)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="max (e.g. 10B)"><span class="stk-filter-quicks"><button type="button" class="stk-quick" data-tier="micro">Micro</button><button type="button" class="stk-quick" data-tier="small">Small</button><button type="button" class="stk-quick" data-tier="mid">Mid</button><button type="button" class="stk-quick" data-tier="large">Large</button><button type="button" class="stk-quick" data-tier="mega">Mega</button></span><span class="stk-filter-stat" data-stat-for="market_cap" data-stat-type="cap">computing range...</span></div><div class="stk-filter-row stk-filter-row-toggle"><label class="stk-filter-checkbox"><input type="checkbox" id="stk-only-enriched"><span>Hide stocks without live market cap data</span></label></div></details>
+<details class="stk-filter-col stk-section"><summary class="stk-filter-col-h">Growth<span class="stk-section-caret">&#9656;</span></summary><div class="stk-filter-row"><span class="stk-filter-label">Revenue Growth YoY</span><input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min % (e.g. 10)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="revenue_growth_yoy" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">EPS Growth YoY</span><input type="text" class="stk-filter-input" data-filter="eps_growth_yoy" data-bound="min" placeholder="min % (e.g. 5)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="eps_growth_yoy" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="eps_growth_yoy" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Revenue Acceleration</span><input type="text" class="stk-filter-input" data-filter="revenue_acceleration" data-bound="min" placeholder="min % (e.g. 0)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="revenue_acceleration" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="revenue_acceleration" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Gross Margin Trend</span><input type="text" class="stk-filter-input" data-filter="gross_margin_trend" data-bound="min" placeholder="min % (e.g. 0)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="gross_margin_trend" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="gross_margin_trend" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">FCF Growth YoY</span><input type="text" class="stk-filter-input" data-filter="fcf_growth_yoy" data-bound="min" placeholder="min % (e.g. 0)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="fcf_growth_yoy" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="fcf_growth_yoy" data-stat-type="pct">computing range...</span></div></details>
+<details class="stk-filter-col stk-section"><summary class="stk-filter-col-h">Value<span class="stk-section-caret">&#9656;</span></summary><div class="stk-filter-row"><span class="stk-filter-label">P/E (Trailing)</span><input type="text" class="stk-filter-input" data-filter="pe" data-bound="min" placeholder="min"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max (e.g. 30)"><span class="stk-filter-stat" data-stat-for="pe" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">EV/EBITDA</span><input type="text" class="stk-filter-input" data-filter="ev_ebitda" data-bound="min" placeholder="min"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="ev_ebitda" data-bound="max" placeholder="max (e.g. 20)"><span class="stk-filter-stat" data-stat-for="ev_ebitda" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">EV/Revenue</span><input type="text" class="stk-filter-input" data-filter="ev_revenue" data-bound="min" placeholder="min"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="ev_revenue" data-bound="max" placeholder="max (e.g. 8)"><span class="stk-filter-stat" data-stat-for="ev_revenue" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Price/Book</span><input type="text" class="stk-filter-input" data-filter="price_book" data-bound="min" placeholder="min"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="price_book" data-bound="max" placeholder="max (e.g. 5)"><span class="stk-filter-stat" data-stat-for="price_book" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">FCF Yield</span><input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min % (e.g. 5)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="fcf_yield" data-stat-type="pct">computing range...</span></div></details>
+<details class="stk-filter-col stk-section"><summary class="stk-filter-col-h">Momentum<span class="stk-section-caret">&#9656;</span></summary><div class="stk-filter-row"><span class="stk-filter-label">12-2 Month Return</span><input type="text" class="stk-filter-input" data-filter="return_12_2" data-bound="min" placeholder="min % (e.g. 10)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="return_12_2" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="return_12_2" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">1-Month Return</span><input type="text" class="stk-filter-input" data-filter="return_1m" data-bound="min" placeholder="min %"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="return_1m" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="return_1m" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">52W High Proximity</span><input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min % (e.g. -30)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max % (e.g. -5)"><span class="stk-filter-stat" data-stat-for="high52w_proximity" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Rel Strength vs S&P</span><input type="text" class="stk-filter-input" data-filter="rel_strength_sp500" data-bound="min" placeholder="min %"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="rel_strength_sp500" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="rel_strength_sp500" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Volume Trend</span><input type="text" class="stk-filter-input" data-filter="volume_trend" data-bound="min" placeholder="min %"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="volume_trend" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="volume_trend" data-stat-type="pct">computing range...</span></div></details>
+<details class="stk-filter-col stk-section"><summary class="stk-filter-col-h">Quality<span class="stk-section-caret">&#9656;</span></summary><div class="stk-filter-row"><span class="stk-filter-label">ROE (TTM)</span><input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min % (e.g. 15)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="roe_ttm" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Earnings Consistency</span><input type="text" class="stk-filter-input" data-filter="earnings_consistency" data-bound="min" placeholder="min (0 to 1)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="earnings_consistency" data-bound="max" placeholder="max"><span class="stk-filter-stat" data-stat-for="earnings_consistency" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Net Debt/EBITDA</span><input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min (e.g. -1)"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max (e.g. 3)"><span class="stk-filter-stat" data-stat-for="net_debt_ebitda" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Op Margin Stability</span><input type="text" class="stk-filter-input" data-filter="op_margin_stability" data-bound="min" placeholder="min"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="op_margin_stability" data-bound="max" placeholder="max (e.g. 0.05)"><span class="stk-filter-stat" data-stat-for="op_margin_stability" data-stat-type="ratio">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Accruals Ratio</span><input type="text" class="stk-filter-input" data-filter="accruals_ratio" data-bound="min" placeholder="min %"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="accruals_ratio" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="accruals_ratio" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Gross Margin</span><input type="text" class="stk-filter-input" data-filter="gross_margin" data-bound="min" placeholder="min %"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="gross_margin" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="gross_margin" data-stat-type="pct">computing range...</span></div><div class="stk-filter-row"><span class="stk-filter-label">Operating Margin</span><input type="text" class="stk-filter-input" data-filter="operating_margin" data-bound="min" placeholder="min %"><span class="stk-filter-sep">to</span><input type="text" class="stk-filter-input" data-filter="operating_margin" data-bound="max" placeholder="max %"><span class="stk-filter-stat" data-stat-for="operating_margin" data-stat-type="pct">computing range...</span></div></details>
 
         <details class="stk-filter-col stk-section" open>
           <summary class="stk-filter-col-h">Dimension Tilts<span class="stk-section-caret">&#9656;</span></summary>
@@ -833,21 +777,21 @@ body.page-stocks .footer { display:none; }
             <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="min" placeholder="min (e.g. 0.10)">
             <span class="stk-filter-sep">to</span>
             <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="max" placeholder="max">
-            <span class="stk-filter-hint">range -1 to +1</span>
+            <span class="stk-filter-stat" data-stat-for="news_lm_avg" data-stat-type="score">computing range...</span>
           </div>
           <div class="stk-filter-row">
             <span class="stk-filter-label">VADER (general sentiment, 7d)</span>
             <input type="text" class="stk-filter-input" data-filter="news_vader_avg" data-bound="min" placeholder="min (e.g. 0.10)">
             <span class="stk-filter-sep">to</span>
             <input type="text" class="stk-filter-input" data-filter="news_vader_avg" data-bound="max" placeholder="max">
-            <span class="stk-filter-hint">range -1 to +1</span>
+            <span class="stk-filter-stat" data-stat-for="news_vader_avg" data-stat-type="score">computing range...</span>
           </div>
           <div class="stk-filter-row">
             <span class="stk-filter-label">Min news headlines (7d)</span>
             <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="min" placeholder="e.g. 3">
             <span class="stk-filter-sep">to</span>
             <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="max" placeholder="">
-            <span class="stk-filter-hint">filters thinly-covered names</span>
+            <span class="stk-filter-stat" data-stat-for="news_count_7d" data-stat-type="int">computing range...</span>
           </div>
           <div class="stk-filter-row stk-filter-row-toggle">
             <label class="stk-filter-label">Benford fit (1st digit)</label>
@@ -2291,6 +2235,50 @@ body.page-stocks .footer { display:none; }
     });
   }
   renderSavedViews();
+
+  // ── Universe range hints under each filter input ───────────────
+  // For each .stk-filter-stat slot, compute min / max / count of the named
+  // field across the universe and render a small "Universe: X to Y across N
+  // names" line so users know what values exist before they type.
+  function fmtCapShort(v) {
+    if (v == null || !isFinite(v)) return '—';
+    const a = Math.abs(v);
+    if (a >= 1e12) return (v / 1e12).toFixed(1) + 'T';
+    if (a >= 1e9)  return (v / 1e9).toFixed(1)  + 'B';
+    if (a >= 1e6)  return (v / 1e6).toFixed(1)  + 'M';
+    if (a >= 1e3)  return (v / 1e3).toFixed(0)  + 'K';
+    return v.toFixed(0);
+  }
+  function fmtStatVal(v, type) {
+    if (v == null || !isFinite(v)) return '—';
+    if (type === 'pct')   return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+    if (type === 'cap')   return '$' + fmtCapShort(v);
+    if (type === 'score') return (v >= 0 ? '+' : '') + v.toFixed(2);
+    if (type === 'int')   return String(Math.round(v));
+    return v.toFixed(2);
+  }
+  function populateRangeStats() {
+    const slots = document.querySelectorAll('.stk-filter-stat[data-stat-for]');
+    slots.forEach(el => {
+      const field = el.dataset.statFor;
+      const type  = el.dataset.statType || 'ratio';
+      let mn = Infinity, mx = -Infinity, n = 0;
+      for (const s of ALL) {
+        const v = s[field];
+        if (v == null || !isFinite(v)) continue;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+        n += 1;
+      }
+      if (n === 0) {
+        el.textContent = 'no data yet';
+        el.classList.add('stk-filter-stat-empty');
+        return;
+      }
+      el.textContent = 'Universe: ' + fmtStatVal(mn, type) + ' to ' + fmtStatVal(mx, type) + ' across ' + n.toLocaleString() + ' names';
+    });
+  }
+  populateRangeStats();
 
   render();
 })();
