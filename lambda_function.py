@@ -2156,6 +2156,17 @@ STOCKS_JS_TEMPLATE = """
       return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' }).toUpperCase();
     } catch (e) { return '—'; }
   }
+  function fmtDateMDY(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso + 'T12:00:00Z');
+      if (isNaN(d.getTime())) return '—';
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+      const yy = String(d.getUTCFullYear()).slice(-2);
+      return mm + '/' + dd + '/' + yy;
+    } catch (e) { return '—'; }
+  }
   function fmtPctRaw(n, d) {
     // Decimal fraction (0.083) -> "8.3%". For factor values stored as decimals.
     if (n == null || isNaN(n)) return '—';
@@ -2558,7 +2569,7 @@ STOCKS_JS_TEMPLATE = """
       listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
       return;
     }
-    const rows = filtered.slice(0, 1500).map(s => {
+    const rows = filtered.slice(0, 5000).map(s => {
       const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
       const isOpen = expanded.has(s.ticker);
       const arrow = isOpen ? '▾' : '▸';
@@ -2571,7 +2582,7 @@ STOCKS_JS_TEMPLATE = """
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
         + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
         + '<div class="stk-score '+scoreClass(composite)+'">'+fmtScore(composite)+'</div>'
-        + '<div class="stk-date">'+fmtDate(s.earnings_date)+'</div>'
+        + '<div class="stk-date">'+fmtDateMDY(s.earnings_date)+'</div>'
         + '<div class="stk-date stk-date-dim">'+fmtDate(s.last_updated)+'</div>'
       + '</div>'
       + detailHtml;
@@ -3126,6 +3137,113 @@ def fetch_all_wiki_universes():
             out.append(r)
             kept += 1
         print(f"Wikipedia {src['label']}: parsed {len(rows)} rows, kept {kept} new tickers (total now {len(out)}).")
+    return out
+
+
+# ── iShares ETF holdings (Russell 1000/2000) ───────────────────────────────
+
+ISHARES_SOURCES = [
+    {
+        "url": "https://www.ishares.com/us/products/239707/ishares-russell-1000-etf/1467271812596.ajax?fileType=csv&fileName=IWB_holdings&dataType=fund",
+        "label": "Russell 1000",
+    },
+    {
+        "url": "https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/1467271812596.ajax?fileType=csv&fileName=IWM_holdings&dataType=fund",
+        "label": "Russell 2000",
+    },
+]
+
+
+def fetch_ishares_holdings(url, label):
+    """Download and parse an iShares ETF holdings CSV. The CSV has ~9 lines of
+    header metadata before the actual table; we scan for the row that starts with
+    'Ticker,'. Returns list of {ticker, name, sector, sub_industry} for equity
+    holdings. Empty list on any failure."""
+    import csv as _csv
+    from io import StringIO
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Apterreon-IntelBrief/1.0 (research aggregator; ctlsmith@me.com)",
+            "Accept": "text/csv,application/octet-stream,*/*",
+        })
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"iShares fetch failed for {label}: {e}")
+        return []
+
+    lines = raw.splitlines()
+    header_idx = None
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("Ticker,"):
+            header_idx = i
+            break
+    if header_idx is None:
+        print(f"iShares parse failed for {label}: no Ticker header row.")
+        return []
+
+    body = "\n".join(lines[header_idx:])
+    reader = _csv.DictReader(StringIO(body))
+    out = []
+    for row in reader:
+        ticker = (row.get("Ticker") or "").strip().upper()
+        if not ticker or len(ticker) > 8 or not re.match(r"^[A-Z][A-Z0-9.\-]*$", ticker):
+            continue
+        asset_class = (row.get("Asset Class") or "").strip()
+        if asset_class and asset_class.lower() != "equity":
+            continue
+        name = (row.get("Name") or "").strip()
+        sector = (row.get("Sector") or "").strip()
+        if name:
+            out.append({
+                "ticker": ticker,
+                "name": name,
+                "sector": sector,
+                "sub_industry": "",
+            })
+    return out
+
+
+def fetch_all_universes():
+    """Build the full deduplicated stock universe from Wikipedia (S&P 500/400/600)
+    plus iShares (Russell 1000/2000). S&P sources go first because their sector
+    classification is cleaner, then Russell fills in everything else.
+    First-occurrence-by-ticker wins."""
+    seen = set()
+    out = []
+
+    for src in WIKIPEDIA_INDEX_SOURCES:
+        rows = fetch_wikipedia_constituents(
+            src["url"],
+            ticker_col=src["ticker_col"],
+            name_col=src["name_col"],
+            sector_col=src["sector_col"],
+            sub_col=src["sub_col"],
+        )
+        kept = 0
+        for r in rows:
+            t = r["ticker"]
+            if t in seen:
+                continue
+            seen.add(t)
+            r["index"] = src["label"]
+            out.append(r)
+            kept += 1
+        print(f"Wikipedia {src['label']}: parsed {len(rows)} rows, kept {kept} new tickers (total now {len(out)}).")
+
+    for src in ISHARES_SOURCES:
+        rows = fetch_ishares_holdings(src["url"], src["label"])
+        kept = 0
+        for r in rows:
+            t = r["ticker"]
+            if t in seen:
+                continue
+            seen.add(t)
+            r["index"] = src["label"]
+            out.append(r)
+            kept += 1
+        print(f"iShares {src['label']}: parsed {len(rows)} rows, kept {kept} new tickers (total now {len(out)}).")
+
     return out
 
 
@@ -3926,10 +4044,10 @@ def get_or_generate_stocks_universe():
         except Exception:
             pass
 
-    # Build fresh universe from Wikipedia
-    stocks = fetch_all_wiki_universes()
+    # Build fresh universe from Wikipedia (S&P 500/400/600) + iShares (Russell 1000/2000)
+    stocks = fetch_all_universes()
     if not stocks:
-        print("stocks_universe: Wikipedia returned nothing, falling back to last cache.")
+        print("stocks_universe: Wikipedia + iShares returned nothing, falling back to last cache.")
         return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
 
     # Merge static enrichment fields from previous cache as a fallback layer.
