@@ -1749,10 +1749,17 @@ h1.hero-title {
 .bf-row { display:grid; grid-template-columns:24px 1fr 60px 70px; align-items:center; gap:14px; padding:5px 0; }
 .bf-d { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--text-2); text-align:center; }
 .bf-bar { position:relative; height:8px; background:rgba(255,255,255,0.04); border-radius:3px; }
-.bf-bar-fill { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg, rgba(255,122,133,0.55), rgba(255,31,61,0.85)); border-radius:3px; }
+.bf-bar-fill { position:absolute; left:0; top:0; bottom:0; border-radius:3px; transition:background .2s; }
 .bf-marker { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--text-2); opacity:0.65; }
-.bf-obs { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; font-weight:500; }
+.bf-obs { font-family:'DM Mono',monospace; font-size:12px; text-align:right; font-weight:500; transition:color .2s; }
 .bf-exp { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); }
+/* Per-row deviation severity: green if within 10% of expected, amber 10-25%, red >25% */
+.bf-row-close .bf-bar-fill    { background:linear-gradient(90deg, rgba(52,210,122,0.45), rgba(52,210,122,0.85)); }
+.bf-row-close .bf-obs         { color:#34D27A; }
+.bf-row-moderate .bf-bar-fill { background:linear-gradient(90deg, rgba(255,179,71,0.45), rgba(255,179,71,0.90)); }
+.bf-row-moderate .bf-obs      { color:#FFB347; }
+.bf-row-far .bf-bar-fill      { background:linear-gradient(90deg, rgba(255,122,133,0.55), rgba(255,31,61,0.95)); }
+.bf-row-far .bf-obs           { color:var(--apt-red); }
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
@@ -2268,12 +2275,21 @@ STOCKS_JS_TEMPLATE = """
     const expected = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6];
     const fitClass = 'bf-fit-' + b.fit;
     const fitLabel = String(b.fit).toUpperCase() + ' FIT';
+    function benfordSeverity(obs, exp) {
+      // Relative deviation from expected. Color thresholds match a typical visual
+      // intuition for "close enough" vs "noticeably off" vs "really off".
+      const relDev = Math.abs(obs - exp) / exp;
+      if (relDev < 0.10) return 'close';     // within ±10% of expected
+      if (relDev < 0.25) return 'moderate';  // ±10-25%
+      return 'far';                          // > ±25%
+    }
     const rows = b.observed.map((obs, i) => {
       const exp = expected[i];
       // Scale bars to a max of 35% so the largest digit (~30%) is well-shaped.
       const obsW = Math.min(100, obs / 35 * 100);
       const expPos = Math.min(100, exp / 35 * 100);
-      return '<div class="bf-row">'
+      const sev = benfordSeverity(obs, exp);
+      return '<div class="bf-row bf-row-' + sev + '">'
         + '<span class="bf-d">' + (i + 1) + '</span>'
         + '<div class="bf-bar">'
         +   '<div class="bf-bar-fill" style="width:' + obsW.toFixed(1) + '%"></div>'
