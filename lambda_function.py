@@ -1881,10 +1881,21 @@ body.page-stocks .footer { display:none; }
 .fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
 .fp-card-toggle:hover { color:var(--apt-rose); }
 .fp-card-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease, color .15s; }
-.fp-card.fp-card-open .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
-.fp-meta { display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); }
-.fp-card.fp-card-open .fp-meta { display:block; }
-.fp-meta-h { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-bottom:8px; }
+.fp-card.fp-card-active .fp-card-caret { transform:rotate(90deg); color:var(--apt-rose); }
+.fp-card.fp-card-active { border-color:var(--apt-rose); box-shadow:0 0 0 1px rgba(255,57,77,0.18); }
+
+/* Standalone methodology card. Slides in below the 4 factor cards when one is clicked. */
+.fp-meta-panel { margin-top:14px; }
+.fp-meta-card { padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; border-left-width:3px; }
+.fp-meta-growth   { border-left-color:#34D27A; }
+.fp-meta-value    { border-left-color:#9B8CFF; }
+.fp-meta-momentum { border-left-color:#FFB347; }
+.fp-meta-quality  { border-left-color:#67B7FF; }
+.fp-meta-card-h { display:flex; align-items:baseline; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.fp-meta-card-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; }
+.fp-meta-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text-1); letter-spacing:0.02em; flex:1; }
+.fp-meta-card-close { background:transparent; border:0; color:var(--text-3); font-size:18px; line-height:1; cursor:pointer; padding:0 4px; transition:color .15s; }
+.fp-meta-card-close:hover { color:var(--apt-rose); }
 .fp-meta-table { width:100%; border-collapse:collapse; font-size:11px; }
 .fp-meta-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; text-align:left; padding:4px 8px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
 .fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; line-height:1.4; }
@@ -2506,36 +2517,77 @@ STOCKS_JS_TEMPLATE = """
         const cls = (val == null || isNaN(val)) ? 'fp-row fp-row-na' : 'fp-row';
         return '<div class="'+cls+'"><span class="fp-label">'+escapeHtml(r.label)+'</span><span class="fp-val">'+fmtFactor(val, r.type)+'</span></div>';
       }).join('');
-      const metaRows = g.rows.map(r => {
-        const asOf = fieldAsOf(s, r.source);
-        const asOfTxt = asOf ? fmtDateMDY(asOf) : 'n/a';
-        return '<tr><td class="fp-meta-label">'+escapeHtml(r.label)+'</td>'
-          +    '<td class="fp-meta-src" data-src="'+r.source+'">'+escapeHtml(SOURCE_LABEL[r.source] || r.source)+'</td>'
-          +    '<td class="fp-meta-asof">'+asOfTxt+'</td>'
-          +    '<td class="fp-meta-method">'+escapeHtml(r.method)+'</td></tr>';
-      }).join('');
-      const meta = '<div class="fp-meta">'
-        + '<div class="fp-meta-h">How these are sourced and calculated</div>'
-        + '<table class="fp-meta-table"><thead><tr>'
-        +   '<th>Metric</th><th>Source</th><th>As of</th><th>Method</th>'
-        + '</tr></thead><tbody>' + metaRows + '</tbody></table>'
-        + '</div>';
-      return '<div class="fp-card"><button type="button" class="fp-card-h fp-card-toggle" aria-expanded="false">'
-        + '<span>'+g.title+'</span>'
-        + '<span class="fp-card-caret">&#9656;</span>'
+      return '<div class="fp-card" data-dim="'+g.title+'">'
+        + '<button type="button" class="fp-card-h fp-card-toggle" data-dim="'+g.title+'" aria-expanded="false">'
+        +   '<span>'+g.title+'</span>'
+        +   '<span class="fp-card-caret">&#9656;</span>'
         + '</button>'
         + items
-        + meta
         + '</div>';
     }).join('');
     const scoreCard = buildScoreBreakdown(s);
     const benfordCard = buildBenfordCard(s);
     const chartCard = buildChartCard(s);
+    // Methodology panel: empty placeholder. Populated when a card header is clicked.
+    const metaPanel = '<div class="fp-meta-panel" id="fp-meta-' + escapeHtml(s.ticker) + '" data-ticker="' + escapeHtml(s.ticker) + '" hidden></div>';
     // News card is a placeholder; populated lazily on expand via fetchNewsFor.
     const newsCard = '<div class="nws-card" id="nws-' + escapeHtml(s.ticker) + '">'
       + '<div class="nws-h">News <span class="nws-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + chartCard + newsCard + benfordCard + '</div>';
+    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + newsCard + benfordCard + '</div>';
+  }
+
+  // Track which dimension's metadata is currently shown per ticker (or null).
+  const metaOpenByTicker = {};
+
+  function buildMetaPanelHTML(s, dimTitle) {
+    const group = FACTOR_GROUPS.find(g => g.title === dimTitle);
+    if (!group) return '';
+    const rows = group.rows.map(r => {
+      const asOf = fieldAsOf(s, r.source);
+      const asOfTxt = asOf ? fmtDateMDY(asOf) : 'n/a';
+      return '<tr>'
+        + '<td class="fp-meta-label">'+escapeHtml(r.label)+'</td>'
+        + '<td class="fp-meta-src" data-src="'+r.source+'">'+escapeHtml(SOURCE_LABEL[r.source] || r.source)+'</td>'
+        + '<td class="fp-meta-asof">'+asOfTxt+'</td>'
+        + '<td class="fp-meta-method">'+escapeHtml(r.method)+'</td>'
+        + '</tr>';
+    }).join('');
+    return '<div class="fp-meta-card fp-meta-' + dimTitle.toLowerCase() + '">'
+      + '<div class="fp-meta-card-h">'
+      +   '<span class="fp-meta-card-eyebrow">Methodology</span>'
+      +   '<span class="fp-meta-card-title">' + escapeHtml(dimTitle) + ' factors, sources and as-of dates</span>'
+      +   '<button type="button" class="fp-meta-card-close" aria-label="Close">&times;</button>'
+      + '</div>'
+      + '<table class="fp-meta-table"><thead><tr>'
+      +   '<th>Metric</th><th>Source</th><th>As of</th><th>Method</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>'
+      + '</div>';
+  }
+
+  function renderMetaPanelFor(ticker) {
+    const panel = document.getElementById('fp-meta-' + ticker);
+    if (!panel) return;
+    const stock = ALL.find(s => s.ticker === ticker);
+    if (!stock) return;
+    const open = metaOpenByTicker[ticker];
+    // Update card header active state to reflect what's open.
+    const detail = panel.closest('.stk-detail');
+    if (detail) {
+      detail.querySelectorAll('.fp-card').forEach(card => {
+        card.classList.toggle('fp-card-active', card.dataset.dim === open);
+      });
+      detail.querySelectorAll('.fp-card-toggle').forEach(btn => {
+        btn.setAttribute('aria-expanded', btn.dataset.dim === open ? 'true' : 'false');
+      });
+    }
+    if (!open) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+      return;
+    }
+    panel.hidden = false;
+    panel.innerHTML = buildMetaPanelHTML(stock, open);
   }
 
   // ── Chart card: price history + operating margin history ─────────────
@@ -2904,28 +2956,44 @@ STOCKS_JS_TEMPLATE = """
       + detailHtml;
     }).join('');
     listEl.innerHTML = rows;
-    // After the DOM is rebuilt, redraw any charts whose row is currently open.
-    // Defer one frame so the canvases have measurable widths.
+    // After the DOM is rebuilt, redraw charts and re-open methodology panels
+    // for any expanded ticker. Defer one frame so canvases have measurable widths.
     if (expanded.size) {
       requestAnimationFrame(() => {
         expanded.forEach(t => {
           if (priceCache[t] !== undefined) renderChartsFor(t);
           else fetchPricesFor(t);
+          if (metaOpenByTicker[t]) renderMetaPanelFor(t);
         });
       });
     }
   }
 
-  // Card-level toggles inside the expanded panel reveal source + methodology.
-  // Chart time-range tabs and card toggles are handled before the row-toggle
-  // handler so they don't collapse the whole row.
+  // Card-level toggles inside the expanded panel reveal source + methodology
+  // in a single methodology card sandwiched between the 4 factor cards and
+  // the charts. Chart time-range tabs and methodology card toggles are
+  // handled before the row-toggle handler so they don't collapse the whole row.
   listEl.addEventListener('click', e => {
+    const closeBtn = e.target.closest('.fp-meta-card-close');
+    if (closeBtn) {
+      const detail = closeBtn.closest('.stk-detail');
+      const panel = detail && detail.querySelector('.fp-meta-panel');
+      const ticker = panel && panel.dataset.ticker;
+      if (ticker) {
+        metaOpenByTicker[ticker] = null;
+        renderMetaPanelFor(ticker);
+      }
+      return;
+    }
     const cardToggle = e.target.closest('.fp-card-toggle');
     if (cardToggle) {
-      const card = cardToggle.closest('.fp-card');
-      if (card) {
-        const isOpen = card.classList.toggle('fp-card-open');
-        cardToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      const dim = cardToggle.dataset.dim;
+      const detail = cardToggle.closest('.stk-detail');
+      const panel = detail && detail.querySelector('.fp-meta-panel');
+      const ticker = panel && panel.dataset.ticker;
+      if (ticker && dim) {
+        metaOpenByTicker[ticker] = (metaOpenByTicker[ticker] === dim) ? null : dim;
+        renderMetaPanelFor(ticker);
       }
       return;
     }
