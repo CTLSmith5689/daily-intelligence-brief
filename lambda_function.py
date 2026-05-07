@@ -1787,7 +1787,9 @@ h1.hero-title {
 .ch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 @media (max-width:780px) { .ch-grid { grid-template-columns:1fr; } }
 .ch-pane { display:flex; flex-direction:column; }
-.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.ch-pane-h-left { display:inline-flex; align-items:baseline; gap:10px; }
+.ch-pane-price { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--text-1); letter-spacing:0; }
 .ch-pane-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
 .ch-pane-meta.ch-pos { color:#34D27A; }
 .ch-pane-meta.ch-neg { color:var(--apt-red); }
@@ -2643,7 +2645,12 @@ STOCKS_JS_TEMPLATE = """
       + '<div class="ch-h"><span class="ch-h-title">Charts</span><div class="ch-tabs">' + tabs + '</div></div>'
       + '<div class="ch-grid">'
       +   '<div class="ch-pane">'
-      +     '<div class="ch-pane-h">Price <span class="ch-pane-meta" id="ch-price-meta-' + escapeHtml(s.ticker) + '">loading…</span></div>'
+      +     '<div class="ch-pane-h">'
+      +       '<span class="ch-pane-h-left">Price'
+      +         '<span class="ch-pane-price" id="ch-price-now-' + escapeHtml(s.ticker) + '">' + (s.price != null ? '$' + Number(s.price).toFixed(2) : '—') + '</span>'
+      +       '</span>'
+      +       '<span class="ch-pane-meta" id="ch-price-meta-' + escapeHtml(s.ticker) + '">loading…</span>'
+      +     '</div>'
       +     '<canvas class="ch-canvas" id="ch-price-' + escapeHtml(s.ticker) + '"></canvas>'
       +   '</div>'
       +   '<div class="ch-pane">'
@@ -2768,17 +2775,22 @@ STOCKS_JS_TEMPLATE = """
       ctx.fillText('No XBRL data for this range.', 8, cssH / 2);
       return;
     }
-    const padL = 36, padR = 8, padT = 8, padB = 26;
+    // Top padding leaves room for the value label that sits above each bar.
+    const padL = 36, padR = 12, padT = 18, padB = 26;
     const w = cssW - padL - padR;
     const h = cssH - padT - padB;
     const vals = series.map(s => s[1]);
     let minV = Math.min(0, Math.min.apply(null, vals));
     let maxV = Math.max(0, Math.max.apply(null, vals));
-    if (minV === maxV) maxV = minV + 0.01;
+    // Add ~10% headroom so the bar top + label don't touch the chart top.
+    const range0 = maxV - minV;
+    if (range0 < 0.005) { maxV += 0.005; minV -= 0.005; }
+    else { maxV += range0 * 0.1; minV -= range0 * 0.05; }
     const span = maxV - minV;
     const yZero = padT + h - ((0 - minV) / span) * h;
     const slot = w / series.length;
-    const barW = Math.max(8, slot * 0.6);
+    // Cap bar width so a single-quarter view doesn't span the whole pane.
+    const barW = Math.min(56, Math.max(8, slot * 0.55));
     // Y-axis labels
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
     ctx.font = '9px "DM Mono", monospace';
@@ -2798,11 +2810,19 @@ STOCKS_JS_TEMPLATE = """
       const barH = Math.abs(yv - yZero);
       ctx.fillStyle = p[1] >= 0 ? posColor : negColor;
       ctx.fillRect(cx - barW / 2, top, barW, Math.max(1, barH));
-      // Value above the bar
-      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      // Value label: above the bar normally; if it would clip the top of the
+      // chart, render inside the bar with contrasting text.
       ctx.font = '9px "DM Mono", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText((p[1] * 100).toFixed(1) + '%', cx, top - 3);
+      const labelText = (p[1] * 100).toFixed(1) + '%';
+      const labelY = top - 4;
+      if (labelY < padT + 4) {
+        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+        ctx.fillText(labelText, cx, top + 11);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillText(labelText, cx, labelY);
+      }
       // Date label
       ctx.fillStyle = 'rgba(255,255,255,0.45)';
       ctx.fillText(p[0].slice(2, 7).replace('-', '/'), cx, padT + h + 14);
@@ -2819,10 +2839,25 @@ STOCKS_JS_TEMPLATE = """
     // Price pane
     const priceCanvas = document.getElementById('ch-price-' + ticker);
     const priceMeta   = document.getElementById('ch-price-meta-' + ticker);
+    const priceNowEl  = document.getElementById('ch-price-now-' + ticker);
     const closes = priceCache[ticker];
     if (priceCanvas && closes !== undefined) {
       const slice = rangeSlicePrices(closes, range);
       drawLineChart(priceCanvas, slice, v => '$' + v.toFixed(0), '#FFB347');
+      // Surface the latest close from the price file. Falls back to .price
+      // (yfinance live) when the file is empty.
+      if (priceNowEl) {
+        let shown = null, asOf = null;
+        if (closes && closes.length) {
+          shown = closes[closes.length - 1][1];
+          asOf  = closes[closes.length - 1][0];
+        } else if (stock.price != null) {
+          shown = stock.price;
+        }
+        priceNowEl.textContent = shown != null
+          ? '$' + Number(shown).toFixed(2) + (asOf ? ' as of ' + asOf : '')
+          : '—';
+      }
       if (priceMeta) {
         if (slice.length) {
           const first = slice[0][1], last = slice[slice.length - 1][1];
