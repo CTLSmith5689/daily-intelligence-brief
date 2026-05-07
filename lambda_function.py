@@ -1776,6 +1776,23 @@ h1.hero-title {
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
+/* Chart card per ticker (price + op margin, lazy-loaded on expand) */
+.ch-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.ch-h-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.ch-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+.ch-tab { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-3); background:transparent; border:1px solid var(--border); border-radius:999px; padding:4px 10px; cursor:pointer; text-transform:uppercase; transition:color .15s, border-color .15s, background .15s; }
+.ch-tab:hover { color:var(--text-1); border-color:var(--border-bright); }
+.ch-tab.active { color:var(--text-1); background:var(--apt-rose); border-color:var(--apt-rose); }
+.ch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:780px) { .ch-grid { grid-template-columns:1fr; } }
+.ch-pane { display:flex; flex-direction:column; }
+.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.ch-pane-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.ch-pane-meta.ch-pos { color:#34D27A; }
+.ch-pane-meta.ch-neg { color:var(--apt-red); }
+.ch-canvas { width:100%; height:160px; display:block; }
+
 /* News card per ticker (lazy-loaded on row expand) */
 .nws-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
 .nws-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
@@ -2513,11 +2530,238 @@ STOCKS_JS_TEMPLATE = """
     }).join('');
     const scoreCard = buildScoreBreakdown(s);
     const benfordCard = buildBenfordCard(s);
+    const chartCard = buildChartCard(s);
     // News card is a placeholder; populated lazily on expand via fetchNewsFor.
     const newsCard = '<div class="nws-card" id="nws-' + escapeHtml(s.ticker) + '">'
       + '<div class="nws-h">News <span class="nws-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + newsCard + benfordCard + '</div>';
+    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + chartCard + newsCard + benfordCard + '</div>';
+  }
+
+  // ── Chart card: price history + operating margin history ─────────────
+  // Time-range buttons filter the visible window. Op margin is quarterly
+  // so anything finer than QTD just shows the latest quarter.
+  const CHART_RANGES = [
+    { id: 'd',   label: 'Day',   priceDays: 2,   qtrCount: 1 },
+    { id: 'w',   label: 'Week',  priceDays: 5,   qtrCount: 1 },
+    { id: 'm',   label: 'Month', priceDays: 22,  qtrCount: 1 },
+    { id: 'qtd', label: 'QTD',   priceDays: 'qtd', qtrCount: 1 },
+    { id: 'ytd', label: 'YTD',   priceDays: 'ytd', qtrCount: 4 },
+    { id: '2q',  label: '2 QTR', priceDays: 126, qtrCount: 2 },
+    { id: '3q',  label: '3 QTR', priceDays: 189, qtrCount: 3 },
+    { id: '4q',  label: '4 QTR', priceDays: 252, qtrCount: 4 },
+  ];
+  const DEFAULT_RANGE = 'm';
+
+  function buildChartCard(s) {
+    const tabs = CHART_RANGES.map(r =>
+      '<button type="button" class="ch-tab' + (r.id === DEFAULT_RANGE ? ' active' : '') + '" data-range="' + r.id + '">' + r.label + '</button>'
+    ).join('');
+    return '<div class="ch-card" id="ch-' + escapeHtml(s.ticker) + '" data-ticker="' + escapeHtml(s.ticker) + '" data-range="' + DEFAULT_RANGE + '">'
+      + '<div class="ch-h"><span class="ch-h-title">Charts</span><div class="ch-tabs">' + tabs + '</div></div>'
+      + '<div class="ch-grid">'
+      +   '<div class="ch-pane">'
+      +     '<div class="ch-pane-h">Price <span class="ch-pane-meta" id="ch-price-meta-' + escapeHtml(s.ticker) + '">loading…</span></div>'
+      +     '<canvas class="ch-canvas" id="ch-price-' + escapeHtml(s.ticker) + '"></canvas>'
+      +   '</div>'
+      +   '<div class="ch-pane">'
+      +     '<div class="ch-pane-h">Operating Margin <span class="ch-pane-meta" id="ch-opm-meta-' + escapeHtml(s.ticker) + '">' + (s.op_margin_history && s.op_margin_history.length ? 'EDGAR XBRL' : 'no XBRL data') + '</span></div>'
+      +     '<canvas class="ch-canvas" id="ch-opm-' + escapeHtml(s.ticker) + '"></canvas>'
+      +   '</div>'
+      + '</div>'
+      + '</div>';
+  }
+
+  // Lazy-loaded price series cache, keyed by ticker.
+  const priceCache = {};
+
+  function fetchPricesFor(ticker) {
+    if (priceCache[ticker]) {
+      renderChartsFor(ticker);
+      return;
+    }
+    fetch('./prices/' + encodeURIComponent(newsFilename(ticker)), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(payload => {
+        priceCache[ticker] = (payload && Array.isArray(payload.closes)) ? payload.closes : [];
+        renderChartsFor(ticker);
+      })
+      .catch(() => { priceCache[ticker] = []; renderChartsFor(ticker); });
+  }
+
+  function rangeSlicePrices(closes, rangeId) {
+    if (!closes.length) return [];
+    const cfg = CHART_RANGES.find(r => r.id === rangeId) || CHART_RANGES[2];
+    if (cfg.priceDays === 'ytd') {
+      const yr = new Date().getUTCFullYear();
+      return closes.filter(c => c[0].slice(0, 4) === String(yr));
+    }
+    if (cfg.priceDays === 'qtd') {
+      const now = new Date();
+      const qStart = new Date(Date.UTC(now.getUTCFullYear(), Math.floor(now.getUTCMonth() / 3) * 3, 1));
+      const cutoff = qStart.toISOString().slice(0, 10);
+      return closes.filter(c => c[0] >= cutoff);
+    }
+    return closes.slice(-cfg.priceDays);
+  }
+
+  function rangeSliceMargins(history, rangeId) {
+    if (!history || !history.length) return [];
+    const cfg = CHART_RANGES.find(r => r.id === rangeId) || CHART_RANGES[2];
+    return history.slice(0, cfg.qtrCount).reverse();
+  }
+
+  function drawLineChart(canvas, series, labelFmt, lineColor) {
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth;
+    const cssH = canvas.clientHeight || 140;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+    if (!series.length) {
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.font = '11px "DM Mono", monospace';
+      ctx.fillText('No data in this range.', 8, cssH / 2);
+      return;
+    }
+    const padL = 36, padR = 8, padT = 8, padB = 18;
+    const w = cssW - padL - padR;
+    const h = cssH - padT - padB;
+    const vals = series.map(s => s[1]);
+    let minV = Math.min.apply(null, vals);
+    let maxV = Math.max.apply(null, vals);
+    if (minV === maxV) { minV -= 1; maxV += 1; }
+    const span = maxV - minV;
+    const x = i => padL + (series.length === 1 ? w / 2 : (i / (series.length - 1)) * w);
+    const y = v => padT + h - ((v - minV) / span) * h;
+    // Grid lines (3 horizontal)
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 3; i++) {
+      const yy = padT + (i / 3) * h;
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + w, yy); ctx.stroke();
+    }
+    // Y-axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '9px "DM Mono", monospace';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 3; i++) {
+      const v = maxV - (i / 3) * span;
+      ctx.fillText(labelFmt(v), padL - 4, padT + (i / 3) * h + 3);
+    }
+    // X-axis labels (first + last)
+    ctx.textAlign = 'left';
+    ctx.fillText(series[0][0], padL, padT + h + 12);
+    ctx.textAlign = 'right';
+    ctx.fillText(series[series.length - 1][0], padL + w, padT + h + 12);
+    // Area + line
+    ctx.beginPath();
+    ctx.moveTo(x(0), y(series[0][1]));
+    for (let i = 1; i < series.length; i++) ctx.lineTo(x(i), y(series[i][1]));
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Last value dot
+    const lastIdx = series.length - 1;
+    ctx.fillStyle = lineColor;
+    ctx.beginPath();
+    ctx.arc(x(lastIdx), y(series[lastIdx][1]), 2.5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  function drawBarChart(canvas, series, labelFmt, posColor, negColor) {
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth;
+    const cssH = canvas.clientHeight || 140;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+    if (!series.length) {
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.font = '11px "DM Mono", monospace';
+      ctx.fillText('No XBRL data for this range.', 8, cssH / 2);
+      return;
+    }
+    const padL = 36, padR = 8, padT = 8, padB = 26;
+    const w = cssW - padL - padR;
+    const h = cssH - padT - padB;
+    const vals = series.map(s => s[1]);
+    let minV = Math.min(0, Math.min.apply(null, vals));
+    let maxV = Math.max(0, Math.max.apply(null, vals));
+    if (minV === maxV) maxV = minV + 0.01;
+    const span = maxV - minV;
+    const yZero = padT + h - ((0 - minV) / span) * h;
+    const slot = w / series.length;
+    const barW = Math.max(8, slot * 0.6);
+    // Y-axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '9px "DM Mono", monospace';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 3; i++) {
+      const v = maxV - (i / 3) * span;
+      const yy = padT + (i / 3) * h;
+      ctx.fillText(labelFmt(v), padL - 4, yy + 3);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + w, yy); ctx.stroke();
+    }
+    // Bars
+    series.forEach((p, i) => {
+      const cx = padL + slot * i + slot / 2;
+      const yv = padT + h - ((p[1] - minV) / span) * h;
+      const top = Math.min(yv, yZero);
+      const barH = Math.abs(yv - yZero);
+      ctx.fillStyle = p[1] >= 0 ? posColor : negColor;
+      ctx.fillRect(cx - barW / 2, top, barW, Math.max(1, barH));
+      // Value above the bar
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText((p[1] * 100).toFixed(1) + '%', cx, top - 3);
+      // Date label
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.fillText(p[0].slice(2, 7).replace('-', '/'), cx, padT + h + 14);
+    });
+  }
+
+  function renderChartsFor(ticker) {
+    const card = document.getElementById('ch-' + ticker);
+    if (!card) return;
+    const range = card.dataset.range || DEFAULT_RANGE;
+    const stock = ALL.find(s => s.ticker === ticker);
+    if (!stock) return;
+
+    // Price pane
+    const priceCanvas = document.getElementById('ch-price-' + ticker);
+    const priceMeta   = document.getElementById('ch-price-meta-' + ticker);
+    const closes = priceCache[ticker];
+    if (priceCanvas && closes !== undefined) {
+      const slice = rangeSlicePrices(closes, range);
+      drawLineChart(priceCanvas, slice, v => '$' + v.toFixed(0), '#FFB347');
+      if (priceMeta) {
+        if (slice.length) {
+          const first = slice[0][1], last = slice[slice.length - 1][1];
+          const chg = ((last - first) / first) * 100;
+          const sign = chg >= 0 ? '+' : '';
+          priceMeta.textContent = sign + chg.toFixed(2) + '% over window';
+          priceMeta.className = 'ch-pane-meta ' + (chg >= 0 ? 'ch-pos' : 'ch-neg');
+        } else {
+          priceMeta.textContent = closes && closes.length ? 'no prices in this window' : 'no price file';
+          priceMeta.className = 'ch-pane-meta';
+        }
+      }
+    }
+
+    // Op margin pane
+    const opmCanvas = document.getElementById('ch-opm-' + ticker);
+    if (opmCanvas) {
+      const margins = rangeSliceMargins(stock.op_margin_history, range);
+      const series = margins.map(m => [m.end, m.margin]);
+      drawBarChart(opmCanvas, series, v => (v * 100).toFixed(0) + '%', '#34D27A', '#E84B4B');
+    }
   }
 
   // ── News: lazy fetch per ticker ─────────────────────────────────
@@ -2660,10 +2904,21 @@ STOCKS_JS_TEMPLATE = """
       + detailHtml;
     }).join('');
     listEl.innerHTML = rows;
+    // After the DOM is rebuilt, redraw any charts whose row is currently open.
+    // Defer one frame so the canvases have measurable widths.
+    if (expanded.size) {
+      requestAnimationFrame(() => {
+        expanded.forEach(t => {
+          if (priceCache[t] !== undefined) renderChartsFor(t);
+          else fetchPricesFor(t);
+        });
+      });
+    }
   }
 
   // Card-level toggles inside the expanded panel reveal source + methodology.
-  // Handled before the row-toggle handler so they don't collapse the whole row.
+  // Chart time-range tabs and card toggles are handled before the row-toggle
+  // handler so they don't collapse the whole row.
   listEl.addEventListener('click', e => {
     const cardToggle = e.target.closest('.fp-card-toggle');
     if (cardToggle) {
@@ -2674,6 +2929,18 @@ STOCKS_JS_TEMPLATE = """
       }
       return;
     }
+    const chTab = e.target.closest('.ch-tab');
+    if (chTab) {
+      const card = chTab.closest('.ch-card');
+      if (card) {
+        const ticker = card.dataset.ticker;
+        const range = chTab.dataset.range;
+        card.dataset.range = range;
+        card.querySelectorAll('.ch-tab').forEach(t => t.classList.toggle('active', t === chTab));
+        renderChartsFor(ticker);
+      }
+      return;
+    }
     const row = e.target.closest('.stk-row');
     if (!row) return;
     const t = row.dataset.ticker;
@@ -2681,7 +2948,11 @@ STOCKS_JS_TEMPLATE = """
     const wasOpen = expanded.has(t);
     if (wasOpen) expanded.delete(t); else expanded.add(t);
     render();
-    if (!wasOpen) fetchNewsFor(t);
+    if (!wasOpen) {
+      fetchNewsFor(t);
+      // Defer to next frame so the canvas elements exist in the DOM.
+      requestAnimationFrame(() => fetchPricesFor(t));
+    }
   });
 
   searchEl.addEventListener('input', () => {
@@ -3759,6 +4030,102 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     return fetched
 
 
+# ── Per-ticker price history (yfinance bulk download, 1y daily) ─────────────
+
+PRICES_DIR = DOCS_DIR / "prices"
+
+
+def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
+    """Fetch ~1y daily closes per ticker via yf.download bulk endpoint and write
+    docs/prices/{TICKER}.json. The bulk endpoint is dramatically faster than
+    per-ticker .history() (one HTTP per batch instead of one per ticker), and is
+    much friendlier to Yahoo's rate limiter. 24h cache per file so the midday/
+    evening runs are no-ops. Stored shape: {"updated": iso, "closes": [[date, close], ...]}.
+    Skipped silently if yfinance is missing."""
+    if not stocks:
+        return 0
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("prices: yfinance not installed, skipping.")
+        return 0
+    PRICES_DIR.mkdir(parents=True, exist_ok=True)
+    now_ts = time.time()
+
+    def needs_fetch(ticker):
+        f = PRICES_DIR / _news_filename(ticker)
+        if not f.exists():
+            return True
+        return (now_ts - f.stat().st_mtime) / 3600 > max_age_hours
+
+    todo = [s for s in stocks if needs_fetch(s["ticker"])]
+    skipped = len(stocks) - len(todo)
+    if not todo:
+        print(f"prices: all {len(stocks)} ticker files within {max_age_hours}h, skipping fetch.")
+        return 0
+
+    fetched = 0
+    t0 = time.time()
+    # Yahoo uses '-' for class shares (BRK-B); Wikipedia uses '.' (BRK.B). Translate.
+    sym_map = {s["ticker"].replace(".", "-"): s["ticker"] for s in todo}
+    yf_syms = list(sym_map.keys())
+
+    for i in range(0, len(yf_syms), batch_size):
+        chunk = yf_syms[i:i + batch_size]
+        try:
+            df = yf.download(
+                tickers=" ".join(chunk),
+                period="1y",
+                interval="1d",
+                group_by="ticker",
+                auto_adjust=True,
+                threads=True,
+                progress=False,
+            )
+        except Exception as e:
+            print(f"prices: bulk download failed for batch {i//batch_size + 1}: {e}")
+            continue
+        if df is None or df.empty:
+            continue
+        for yf_sym in chunk:
+            try:
+                if len(chunk) == 1:
+                    series = df["Close"] if "Close" in df.columns else None
+                elif yf_sym in df.columns.get_level_values(0):
+                    series = df[yf_sym]["Close"] if "Close" in df[yf_sym].columns else None
+                else:
+                    series = None
+                if series is None or series.empty:
+                    continue
+                closes = []
+                for idx, val in series.dropna().items():
+                    try:
+                        date_str = idx.strftime("%Y-%m-%d")
+                        v = float(val)
+                        if v > 0 and v < 1e6:
+                            closes.append([date_str, round(v, 4)])
+                    except Exception:
+                        continue
+                if not closes:
+                    continue
+                ticker = sym_map[yf_sym]
+                payload = {
+                    "ticker": ticker,
+                    "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    "closes": closes,
+                }
+                (PRICES_DIR / _news_filename(ticker)).write_text(
+                    json.dumps(payload, separators=(",", ":")), encoding="utf-8"
+                )
+                fetched += 1
+            except Exception:
+                continue
+
+    elapsed = time.time() - t0
+    print(f"prices: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s ({skipped} cached < {max_age_hours}h).")
+    return fetched
+
+
 # ── SEC EDGAR (free, official) for quarterly-trend factors ──────────────────
 
 EDGAR_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
@@ -4021,15 +4388,21 @@ def compute_edgar_factors(facts):
                     out["earnings_consistency"] = 1 / (1 + cv)
 
     # Op Margin Stability: stddev of quarterly operating margins (lower = more stable).
-    # We report raw stddev so users see the dispersion directly; smaller is better.
+    # Also emit op_margin_history for the chart card. We report raw stddev so users see
+    # the dispersion directly; smaller is better.
     if revenues and op_inc:
         rev_by_end = {r["end"]: r["val"] for r in revenues if r.get("val")}
         op_by_end = {r["end"]: r["val"] for r in op_inc if r.get("val") is not None}
         common = sorted(set(rev_by_end) & set(op_by_end), reverse=True)
-        margins = []
-        for d in common[:8]:
+        history = []
+        for d in common[:12]:
             if rev_by_end[d] > 0:
-                margins.append(op_by_end[d] / rev_by_end[d])
+                m = op_by_end[d] / rev_by_end[d]
+                if -2 < m < 2:
+                    history.append({"end": d, "margin": m})
+        if history:
+            out["op_margin_history"] = history
+        margins = [h["margin"] for h in history[:8]]
         if len(margins) >= 4:
             mean_m = sum(margins) / len(margins)
             variance = sum((m - mean_m) ** 2 for m in margins) / len(margins)
@@ -4118,9 +4491,10 @@ def get_or_generate_stocks_universe():
             age_hours = (now - last_dt).total_seconds() / 3600
             if age_hours < 4:
                 print(f"stocks_universe: using cache from {age_hours:.1f}h ago.")
-                # News has its own 12h per-file cache; this call is a no-op for
-                # tickers already cached and just fills any holes.
+                # News + prices have their own per-file caches; these calls are
+                # no-ops for tickers already cached and just fill any holes.
                 enrich_with_news(last_known.get("stocks") or [])
+                enrich_with_prices(last_known.get("stocks") or [])
                 return last_known
         except Exception:
             pass
@@ -4144,7 +4518,7 @@ def get_or_generate_stocks_universe():
         "operating_margin", "gross_margin",
         # EDGAR-derived (refreshed weekly)
         "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy",
-        "earnings_consistency", "op_margin_stability", "edgar_updated",
+        "earnings_consistency", "op_margin_stability", "op_margin_history", "edgar_updated",
         "benford",
         # Per-row freshness + earnings calendar
         "last_updated", "earnings_date",
@@ -4192,6 +4566,10 @@ def get_or_generate_stocks_universe():
     # runs reuse morning's pull. Writes one small JSON per ticker, lazy-loaded
     # by the page on row expand.
     news_count = enrich_with_news(stocks)
+
+    # Per-ticker daily price history (1y) for the chart card. 24h cache, bulk
+    # download via yf.download in batches so we hit Yahoo once per ~200 tickers.
+    price_count = enrich_with_prices(stocks)
 
     total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
     total_with_price = sum(1 for s in stocks if s.get("price"))
