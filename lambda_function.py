@@ -4128,7 +4128,6 @@ def generate_stocks_page(universe):
     <h2>Stocks.</h2>
     <span class="lib-count" id="stk-count">{len(stocks)} stocks</span>
   </div>
-  <p class="lib-sub">{len(stocks)} US-listed names from S&amp;P 500, S&amp;P 400 Mid Cap, and S&amp;P 600 Small Cap. {enrich_note}Click any row for the factor breakdown. Refreshed weekly. Not investment advice.</p>
   <div class="stk-toprow">
     <label class="lib-search">
       <span class="icon">&#8981;</span>
