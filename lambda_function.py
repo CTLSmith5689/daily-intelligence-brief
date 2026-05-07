@@ -1934,6 +1934,16 @@ h1.hero-title {
 .stk-sidebar .stk-filter-row > .stk-filter-stat { grid-column:1 / -1; font-size:9px; padding-top:2px; }
 .stk-overlay-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:10px 0 4px 0; margin-top:4px; border-top:1px dashed var(--border); }
 .stk-overlay-sub:first-of-type { border-top:0; padding-top:6px; margin-top:0; }
+
+/* Data Hygiene section: collapsible, sits above Saved Views */
+.stk-hygiene { padding:0 0 10px 0; margin-bottom:6px; border-bottom:1px solid var(--border); }
+.stk-hygiene > summary.stk-filter-col-h { padding:8px 0 8px 0; }
+.stk-cov-row { display:grid; grid-template-columns:1fr 56px auto; align-items:center; gap:8px; padding:4px 0; }
+.stk-cov-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-2); text-transform:uppercase; }
+.stk-cov-input { padding:4px 6px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; text-align:center; }
+:root[data-theme="light"] .stk-cov-input { background:#FFFFFF; }
+.stk-cov-input:focus { outline:none; border-color:var(--apt-rose); }
+.stk-cov-of { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); }
 .stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
 .stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
 .stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
@@ -2288,11 +2298,32 @@ STOCKS_JS_TEMPLATE = """
       if (f.max != null) c++;
     }
     if (onlyEnriched) c++;
+    if (typeof benfordFilter !== 'undefined' && benfordFilter) c++;
+    if (typeof coverageMin !== 'undefined') {
+      for (const dim of ['Growth','Value','Momentum','Quality']) {
+        if (coverageMin[dim] > 0) c++;
+      }
+    }
     return c;
   }
 
   // Benford 1st-digit fit gate (Overlays section). Categorical, not a range.
   let benfordFilter = '';
+
+  // Data Hygiene: minimum non-null factor count required per dimension.
+  // 0 = no filter; up to 5 = require all five factors in that dimension to be present.
+  const coverageMin = { Growth: 0, Value: 0, Momentum: 0, Quality: 0 };
+
+  function dimensionCoverage(s, dim) {
+    // Counts non-null, finite values across the SCORE_GROUPS fields for this dimension.
+    const fields = (SCORE_GROUPS[dim] && SCORE_GROUPS[dim].fields) || [];
+    let n = 0;
+    for (const f of fields) {
+      const v = s[f];
+      if (v != null && isFinite(v)) n += 1;
+    }
+    return n;
+  }
 
   function passesFilters(s) {
     if (onlyEnriched && s.market_cap == null) return false;
@@ -2310,6 +2341,9 @@ STOCKS_JS_TEMPLATE = """
       if (benfordFilter === 'good'  && fit !== 'good') return false;
       if (benfordFilter === 'fair'  && fit !== 'fair' && fit !== 'good') return false;
       if (benfordFilter === 'poor'  && fit !== 'poor') return false;
+    }
+    for (const dim of ['Growth', 'Value', 'Momentum', 'Quality']) {
+      if (coverageMin[dim] > 0 && dimensionCoverage(s, dim) < coverageMin[dim]) return false;
     }
     return true;
   }
@@ -3443,6 +3477,8 @@ STOCKS_JS_TEMPLATE = """
       benfordFilter = '';
       const benSel = document.getElementById('stk-benford-fit');
       if (benSel) benSel.value = '';
+      ['Growth','Value','Momentum','Quality'].forEach(dim => { coverageMin[dim] = 0; });
+      document.querySelectorAll('.stk-cov-input').forEach(inp => { inp.value = '0'; });
       document.querySelectorAll('.stk-filter-input').forEach(i => i.value = '');
       document.querySelectorAll('.stk-quick').forEach(b => b.classList.remove('active'));
       // Also reset weights to balanced
@@ -3503,6 +3539,19 @@ STOCKS_JS_TEMPLATE = """
     });
   }
 
+  // ── Data Hygiene: per-dimension factor coverage thresholds ───────
+  document.querySelectorAll('.stk-cov-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const dim = inp.dataset.cov;
+      let v = parseInt(inp.value, 10);
+      if (!isFinite(v) || v < 0) v = 0;
+      if (v > 5) v = 5;
+      coverageMin[dim] = v;
+      syncFilterCount();
+      render();
+    });
+  });
+
   // ── Saved Views (localStorage) ──────────────────────────────────
   const SAVED_VIEWS_KEY = 'apt-stocks-saved-views-v1';
   const viewsListEl = document.getElementById('stk-views-list');
@@ -3521,6 +3570,7 @@ STOCKS_JS_TEMPLATE = """
       filters: JSON.parse(JSON.stringify(filters)),
       onlyEnriched, benfordFilter,
       weights: { Growth: weights.Growth, Value: weights.Value, Momentum: weights.Momentum, Quality: weights.Quality },
+      coverageMin: { Growth: coverageMin.Growth, Value: coverageMin.Value, Momentum: coverageMin.Momentum, Quality: coverageMin.Quality },
       sortKey, sortDir,
     };
   }
@@ -3557,6 +3607,13 @@ STOCKS_JS_TEMPLATE = """
     if (onlyEnrichedEl) onlyEnrichedEl.checked = onlyEnriched;
     benfordFilter = v.benfordFilter || '';
     if (benfordSelect) benfordSelect.value = benfordFilter;
+    // Coverage thresholds (Data Hygiene)
+    ['Growth','Value','Momentum','Quality'].forEach(d => {
+      const c = (v.coverageMin && v.coverageMin[d] != null) ? v.coverageMin[d] : 0;
+      coverageMin[d] = c;
+      const inp = document.querySelector('.stk-cov-input[data-cov="' + d + '"]');
+      if (inp) inp.value = String(c);
+    });
     // Weights
     if (v.weights) {
       ['Growth','Value','Momentum','Quality'].forEach(d => {
@@ -5832,7 +5889,7 @@ def generate_stories(briefs):
 FILTER_PANEL = [
     {"title": "Universe",        "open": True,  "rows": [
         {"label": "Market Cap",            "key": "market_cap",         "type": "cap",   "placeholder_min": "min (e.g. 300M)", "placeholder_max": "max (e.g. 10B)", "tier_chips": True},
-    ], "include_only_enriched": True},
+    ]},
     {"title": "Growth",          "open": False, "rows": [
         {"label": "Revenue Growth YoY",    "key": "revenue_growth_yoy", "type": "pct",   "placeholder_min": "min % (e.g. 10)",  "placeholder_max": "max %"},
         {"label": "EPS Growth YoY",        "key": "eps_growth_yoy",     "type": "pct",   "placeholder_min": "min % (e.g. 5)",   "placeholder_max": "max %"},
@@ -5967,6 +6024,39 @@ def generate_stocks_page(universe):
         <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset</button>
       </div>
       <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
+
+      <details class="stk-hygiene stk-section" open>
+        <summary class="stk-filter-col-h">Data Hygiene<span class="stk-section-caret">&#9656;</span></summary>
+        <div class="stk-filter-col-sub">require fresh data and minimum factor coverage</div>
+        <div class="stk-filter-row stk-filter-row-toggle">
+          <label class="stk-filter-checkbox">
+            <input type="checkbox" id="stk-only-enriched">
+            <span>Hide stocks without live market cap data</span>
+          </label>
+        </div>
+        <div class="stk-overlay-sub">Min Factor Coverage</div>
+        <div class="stk-cov-row">
+          <span class="stk-cov-label">Growth</span>
+          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Growth">
+          <span class="stk-cov-of">/ 5</span>
+        </div>
+        <div class="stk-cov-row">
+          <span class="stk-cov-label">Value</span>
+          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Value">
+          <span class="stk-cov-of">/ 5</span>
+        </div>
+        <div class="stk-cov-row">
+          <span class="stk-cov-label">Momentum</span>
+          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Momentum">
+          <span class="stk-cov-of">/ 5</span>
+        </div>
+        <div class="stk-cov-row">
+          <span class="stk-cov-label">Quality</span>
+          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Quality">
+          <span class="stk-cov-of">/ 5</span>
+        </div>
+        <div class="stk-filter-stat" style="grid-column:auto">Higher = stricter. 0 = no filter.</div>
+      </details>
 
       <div class="stk-views" id="stk-views">
         <div class="stk-views-h">Saved Views</div>
