@@ -608,6 +608,16 @@ h1.hero-title {
 .stk-sidebar .stk-filter-row > .stk-filter-stat { grid-column:1 / -1; font-size:9px; padding-top:2px; }
 .stk-overlay-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:10px 0 4px 0; margin-top:4px; border-top:1px dashed var(--border); }
 .stk-overlay-sub:first-of-type { border-top:0; padding-top:6px; margin-top:0; }
+
+/* Data Hygiene section: collapsible, sits above Saved Views */
+.stk-hygiene { padding:0 0 10px 0; margin-bottom:6px; border-bottom:1px solid var(--border); }
+.stk-hygiene > summary.stk-filter-col-h { padding:8px 0 8px 0; }
+.stk-cov-row { display:grid; grid-template-columns:1fr 56px auto; align-items:center; gap:8px; padding:4px 0; }
+.stk-cov-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-2); text-transform:uppercase; }
+.stk-cov-input { padding:4px 6px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; text-align:center; }
+:root[data-theme="light"] .stk-cov-input { background:#FFFFFF; }
+.stk-cov-input:focus { outline:none; border-color:var(--apt-rose); }
+.stk-cov-of { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-4); }
 .stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
 .stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
 .stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
@@ -742,12 +752,12 @@ body.page-stocks .footer { display:none; }
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">384</div>
+        <div class="fs-val">383</div>
         <div class="fs-delta">across 29 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">214</div>
+        <div class="fs-val">215</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
