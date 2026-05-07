@@ -452,7 +452,9 @@ h1.hero-title {
 .ch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 @media (max-width:780px) { .ch-grid { grid-template-columns:1fr; } }
 .ch-pane { display:flex; flex-direction:column; }
-.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.ch-pane-h-left { display:inline-flex; align-items:baseline; gap:10px; }
+.ch-pane-price { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--text-1); letter-spacing:0; }
 .ch-pane-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
 .ch-pane-meta.ch-pos { color:#34D27A; }
 .ch-pane-meta.ch-neg { color:var(--apt-red); }
@@ -664,12 +666,12 @@ body.page-stocks .footer { display:none; }
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">386</div>
+        <div class="fs-val">387</div>
         <div class="fs-delta">across 29 briefs</div>
       </div>
       <div class="feat-stat">
         <div class="fs-label">Sources</div>
-        <div class="fs-val">212</div>
+        <div class="fs-val">214</div>
         <div class="fs-delta" style="color:var(--text-4)">unique publications</div>
       </div>
       <div class="feat-stat">
