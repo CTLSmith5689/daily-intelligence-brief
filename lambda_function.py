@@ -4553,7 +4553,11 @@ def get_or_generate_stocks_universe():
     # Short-circuit: if cache is very fresh (< 4h) and same week, skip the heavy
     # refresh. News still gets a chance to fetch on its own 12h cadence so a
     # fresh-deploy after a recent run doesn't have to wait until tomorrow morning.
-    if last_known and last_known.get("iso_week") == week_key:
+    # Schema bump: any cached stock lacking op_margin_history forces a full
+    # rebuild even if the 4h cache window says we could short-circuit.
+    cached_stocks = (last_known or {}).get("stocks") or []
+    schema_ok = any(s.get("op_margin_history") for s in cached_stocks)
+    if last_known and last_known.get("iso_week") == week_key and schema_ok:
         try:
             last_dt = datetime.fromisoformat(last_known.get("generated_at", ""))
             age_hours = (now - last_dt).total_seconds() / 3600
@@ -4566,6 +4570,8 @@ def get_or_generate_stocks_universe():
                 return last_known
         except Exception:
             pass
+    elif last_known and not schema_ok:
+        print("stocks_universe: schema bump (op_margin_history missing), bypassing 4h cache.")
 
     # Build fresh universe from Wikipedia (S&P 500/400/600) + iShares (Russell 1000/2000)
     stocks = fetch_all_universes()
