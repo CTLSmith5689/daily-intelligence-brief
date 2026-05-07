@@ -1932,6 +1932,8 @@ h1.hero-title {
 .stk-sidebar .stk-filter-row > .stk-filter-sep { display:none; }
 .stk-sidebar .stk-filter-row > .stk-filter-hint { grid-column:1 / -1; font-size:8px; }
 .stk-sidebar .stk-filter-row > .stk-filter-stat { grid-column:1 / -1; font-size:9px; padding-top:2px; }
+.stk-overlay-sub { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:10px 0 4px 0; margin-top:4px; border-top:1px dashed var(--border); }
+.stk-overlay-sub:first-of-type { border-top:0; padding-top:6px; margin-top:0; }
 .stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
 .stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
 .stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
@@ -5861,18 +5863,6 @@ FILTER_PANEL = [
         {"label": "Gross Margin",          "key": "gross_margin",       "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
         {"label": "Operating Margin",      "key": "operating_margin",   "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
     ]},
-    {"title": "Neglect (Lynch)", "open": False, "rows": [
-        {"label": "Neglect Score",         "key": "neglect_score",      "type": "ratio", "placeholder_min": "min (e.g. 0.6)",   "placeholder_max": "max"},
-        {"label": "Analyst Count",         "key": "analyst_count",      "type": "int",   "placeholder_min": "min",              "placeholder_max": "max (e.g. 5)"},
-        {"label": "Institutional Ownership", "key": "inst_ownership",   "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max % (e.g. 30)"},
-        {"label": "Insider Ownership",     "key": "insider_ownership",  "type": "pct",   "placeholder_min": "min % (e.g. 5)",   "placeholder_max": "max %"},
-    ]},
-    {"title": "Insider (Seyhun)", "open": False, "rows": [
-        {"label": "Net Buying USD (90d)",  "key": "insider_net_buy_90d", "type": "cap",  "placeholder_min": "min (e.g. 1M)",    "placeholder_max": "max"},
-        {"label": "Distinct Buyers (90d)", "key": "insider_buyer_count_90d", "type": "int", "placeholder_min": "min (e.g. 2)",  "placeholder_max": "max"},
-        {"label": "Cluster Score",         "key": "insider_cluster_score", "type": "ratio", "placeholder_min": "min (e.g. 0.6)", "placeholder_max": "max"},
-        {"label": "Cluster (max 30d)",     "key": "insider_cluster_max_30d", "type": "int", "placeholder_min": "min (e.g. 3)",  "placeholder_max": "max"},
-    ]},
 ]
 
 
@@ -6026,7 +6016,9 @@ def generate_stocks_page(universe):
 
         <details class="stk-filter-col stk-section">
           <summary class="stk-filter-col-h">Overlays<span class="stk-section-caret">&#9656;</span></summary>
-          <div class="stk-filter-col-sub">sentiment + accounting fingerprints from news and XBRL</div>
+          <div class="stk-filter-col-sub">sentiment, neglect, insider, and accounting fingerprints</div>
+
+          <div class="stk-overlay-sub">News Sentiment</div>
           <div class="stk-filter-row">
             <span class="stk-filter-label">LM (financial sentiment, 7d)</span>
             <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="min" placeholder="min (e.g. 0.10)">
@@ -6048,6 +6040,68 @@ def generate_stocks_page(universe):
             <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="max" placeholder="">
             <span class="stk-filter-stat" data-stat-for="news_count_7d" data-stat-type="int">computing range...</span>
           </div>
+
+          <div class="stk-overlay-sub">Neglect (Lynch)</div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Neglect Score</span>
+            <input type="text" class="stk-filter-input" data-filter="neglect_score" data-bound="min" placeholder="min (e.g. 0.6)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="neglect_score" data-bound="max" placeholder="max">
+            <span class="stk-filter-stat" data-stat-for="neglect_score" data-stat-type="ratio">computing range...</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Analyst Count</span>
+            <input type="text" class="stk-filter-input" data-filter="analyst_count" data-bound="min" placeholder="min">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="analyst_count" data-bound="max" placeholder="max (e.g. 5)">
+            <span class="stk-filter-stat" data-stat-for="analyst_count" data-stat-type="int">computing range...</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Institutional Ownership</span>
+            <input type="text" class="stk-filter-input" data-filter="inst_ownership" data-bound="min" placeholder="min %">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="inst_ownership" data-bound="max" placeholder="max % (e.g. 30)">
+            <span class="stk-filter-stat" data-stat-for="inst_ownership" data-stat-type="pct">computing range...</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Insider Ownership</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_ownership" data-bound="min" placeholder="min % (e.g. 5)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_ownership" data-bound="max" placeholder="max %">
+            <span class="stk-filter-stat" data-stat-for="insider_ownership" data-stat-type="pct">computing range...</span>
+          </div>
+
+          <div class="stk-overlay-sub">Insider (Seyhun)</div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Net Buying USD (90d)</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_net_buy_90d" data-bound="min" placeholder="min (e.g. 1M)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_net_buy_90d" data-bound="max" placeholder="max">
+            <span class="stk-filter-stat" data-stat-for="insider_net_buy_90d" data-stat-type="cap">computing range...</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Distinct Buyers (90d)</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_buyer_count_90d" data-bound="min" placeholder="min (e.g. 2)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_buyer_count_90d" data-bound="max" placeholder="max">
+            <span class="stk-filter-stat" data-stat-for="insider_buyer_count_90d" data-stat-type="int">computing range...</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Cluster Score</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_cluster_score" data-bound="min" placeholder="min (e.g. 0.6)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_cluster_score" data-bound="max" placeholder="max">
+            <span class="stk-filter-stat" data-stat-for="insider_cluster_score" data-stat-type="ratio">computing range...</span>
+          </div>
+          <div class="stk-filter-row">
+            <span class="stk-filter-label">Cluster (max 30d)</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_cluster_max_30d" data-bound="min" placeholder="min (e.g. 3)">
+            <span class="stk-filter-sep">to</span>
+            <input type="text" class="stk-filter-input" data-filter="insider_cluster_max_30d" data-bound="max" placeholder="max">
+            <span class="stk-filter-stat" data-stat-for="insider_cluster_max_30d" data-stat-type="int">computing range...</span>
+          </div>
+
+          <div class="stk-overlay-sub">Forensic</div>
           <div class="stk-filter-row stk-filter-row-toggle">
             <label class="stk-filter-label">Benford fit (1st digit)</label>
             <select class="stk-filter-select" id="stk-benford-fit">
