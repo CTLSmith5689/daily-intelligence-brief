@@ -1762,6 +1762,44 @@ h1.hero-title {
 .bf-row-far .bf-obs           { color:var(--apt-red); }
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
+
+/* Stocks page sidebar layout: filters left, table right */
+.stk-wrap { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; margin-top:6px; }
+.stk-sidebar { position:sticky; top:80px; max-height:calc(100vh - 96px); overflow-y:auto; padding:18px 18px; background:rgba(17,18,26,0.55); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; gap:14px; }
+.stk-sidebar::-webkit-scrollbar { width:6px; }
+.stk-sidebar::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:3px; }
+.stk-sidebar-h { display:flex; align-items:baseline; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:0.04em; color:var(--text-1); text-transform:uppercase; }
+.stk-sidebar-h .stk-filter-reset { padding:0; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-3); background:transparent; border:none; cursor:pointer; text-transform:uppercase; }
+.stk-sidebar-h .stk-filter-reset:hover { color:var(--apt-rose); }
+.stk-main { min-width:0; }
+
+/* Sidebar overrides for the existing filter HTML (drop toggle, always-visible panel, single-column inner stacking) */
+.stk-sidebar .stk-filter-panel { display:flex; flex-direction:column; gap:8px; margin-top:0; padding:0; background:transparent; border:0; border-radius:0; }
+.stk-sidebar .stk-filter-cols { display:flex; flex-direction:column; gap:14px; }
+.stk-sidebar .stk-filter-col-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; padding-bottom:8px; margin-bottom:4px; border-bottom:1px solid var(--border); display:block; }
+.stk-sidebar .stk-filter-col-sub { display:none; }
+.stk-sidebar .stk-filter-row { display:grid; grid-template-columns:1fr 1fr; column-gap:6px; row-gap:4px; padding:5px 0; align-items:center; }
+.stk-sidebar .stk-filter-row > .stk-filter-label { grid-column:1 / -1; font-size:9px; }
+.stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="min"] { grid-column:1; }
+.stk-sidebar .stk-filter-row > input.stk-filter-input[data-bound="max"] { grid-column:2; }
+.stk-sidebar .stk-filter-row > .stk-filter-sep { display:none; }
+.stk-sidebar .stk-filter-row > .stk-filter-hint { grid-column:1 / -1; font-size:8px; }
+.stk-sidebar .stk-filter-row > .stk-filter-quicks { grid-column:1 / -1; margin-top:2px; }
+.stk-sidebar .stk-quick { padding:4px 7px; font-size:9px; }
+.stk-sidebar .stk-weight-row { grid-template-columns:62px 1fr 38px; column-gap:8px; }
+.stk-sidebar .stk-weight-label { font-size:10px; }
+.stk-sidebar .stk-weight-val { font-size:11px; }
+.stk-sidebar .lib-chip { padding:5px 10px; font-size:9px; }
+.stk-sidebar .lib-chip-label { font-size:8px; }
+.stk-sidebar .lib-chips { gap:4px; }
+.stk-sidebar .stk-weight-presets { padding-top:8px; margin-top:4px; }
+.stk-sidebar .stk-weight-presets-label { font-size:8px; }
+.stk-filter-toggle-count { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:2px 0; }
+
+@media (max-width:1080px) {
+  .stk-wrap { grid-template-columns:1fr; }
+  .stk-sidebar { position:static; max-height:none; overflow:visible; }
+}
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
 @media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
@@ -3801,30 +3839,28 @@ def generate_stocks_page(universe):
     <h2>Stocks.</h2>
     <span class="lib-count" id="stk-count">{len(stocks)} stocks</span>
   </div>
-  <p class="lib-sub">{len(stocks)} US-listed names from S&amp;P 500, S&amp;P 400 Mid Cap, and S&amp;P 600 Small Cap. {enrich_note}Filter by index or sector, search by ticker or name. Refreshed weekly. Not investment advice.</p>
-  <div class="lib-controls">
-    <label class="lib-search">
-      <span class="icon">&#8981;</span>
-      <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
-      <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
-    </label>
-    <div class="lib-chips" id="stk-index-chips">
-      <span class="lib-chip-label">Index</span>
-      <span class="lib-chip active" data-index="">All</span>
-    </div>
-    <div class="lib-chips" id="stk-sector-chips">
-      <span class="lib-chip-label">Sector</span>
-      <span class="lib-chip active" data-sector="">All</span>
-    </div>
-    <div class="stk-filter-bar">
-      <button type="button" class="stk-filter-toggle" id="stk-filter-toggle" aria-expanded="false">
-        <span class="stk-filter-toggle-label">Advanced filters</span>
-        <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
-        <span class="stk-filter-toggle-arrow">&rsaquo;</span>
-      </button>
-      <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset filters</button>
-    </div>
-    <div class="stk-filter-panel" id="stk-filter-panel" hidden>
+  <p class="lib-sub">{len(stocks)} US-listed names from S&amp;P 500, S&amp;P 400 Mid Cap, and S&amp;P 600 Small Cap. {enrich_note}Filter on the left, click any row for the factor breakdown. Refreshed weekly. Not investment advice.</p>
+  <div class="stk-wrap">
+    <aside class="stk-sidebar">
+      <div class="stk-sidebar-h">
+        <span>Filters</span>
+        <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset</button>
+      </div>
+      <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
+      <label class="lib-search">
+        <span class="icon">&#8981;</span>
+        <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
+        <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
+      </label>
+      <div class="lib-chips" id="stk-index-chips">
+        <span class="lib-chip-label">Index</span>
+        <span class="lib-chip active" data-index="">All</span>
+      </div>
+      <div class="lib-chips" id="stk-sector-chips">
+        <span class="lib-chip-label">Sector</span>
+        <span class="lib-chip active" data-sector="">All</span>
+      </div>
+    <div class="stk-filter-panel" id="stk-filter-panel">
       <div class="stk-filter-cols">
         <div class="stk-filter-col">
           <div class="stk-filter-col-h">Characteristics</div>
@@ -3924,8 +3960,9 @@ def generate_stocks_page(universe):
         </div>
       </div>
     </div>
-  </div>
-  <div class="stk-table">
+    </aside>
+    <main class="stk-main">
+    <div class="stk-table">
     <div class="stk-head">
       <div class="stk-th" data-sort="ticker">Ticker</div>
       <div class="stk-th" data-sort="name">Name</div>
@@ -3939,6 +3976,8 @@ def generate_stocks_page(universe):
     <div id="stk-list"></div>
   </div>
   <div class="picks-meta" style="margin-top:18px">{meta_line}</div>
+    </main>
+  </div>
 </section>
 """
     stocks_js = (STOCKS_JS_TEMPLATE
