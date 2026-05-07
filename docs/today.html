@@ -441,6 +441,23 @@ h1.hero-title {
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
+/* Chart card per ticker (price + op margin, lazy-loaded on expand) */
+.ch-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.ch-h-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.ch-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+.ch-tab { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-3); background:transparent; border:1px solid var(--border); border-radius:999px; padding:4px 10px; cursor:pointer; text-transform:uppercase; transition:color .15s, border-color .15s, background .15s; }
+.ch-tab:hover { color:var(--text-1); border-color:var(--border-bright); }
+.ch-tab.active { color:var(--text-1); background:var(--apt-rose); border-color:var(--apt-rose); }
+.ch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:780px) { .ch-grid { grid-template-columns:1fr; } }
+.ch-pane { display:flex; flex-direction:column; }
+.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.ch-pane-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.ch-pane-meta.ch-pos { color:#34D27A; }
+.ch-pane-meta.ch-neg { color:var(--apt-red); }
+.ch-canvas { width:100%; height:160px; display:block; }
+
 /* News card per ticker (lazy-loaded on row expand) */
 .nws-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
 .nws-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
@@ -604,7 +621,7 @@ body.page-stocks .footer { display:none; }
     <div class="edition-time">12:15 PM ET</div>
     <a class="edition-link" href="./briefs/2026-05-07-midday.html">Open full brief &rarr;</a>
   </div>
-  <p class="edition-edge">Anthropic's SpaceX compute partnership signals infrastructure consolidation favoring frontier labs over distributed competitors, while simultaneous US-China AI guardrails create a managed duopoly that locks first-movers into compute access, compressing arbitrage windows for next-generation model development outside vertically integrated systems.</p>
+  <p class="edition-edge">US debt-to-GDP crossing 100 percent while Federal Reserve maintains neutral rates creates timing asymmetry: fiscal consolidation pressures will eventually force either inflation or austerity, both destructive to long-duration assets, yet the Bitcoin reserve announcement signals regime shift toward currency debasement as preferred solution, compressing arbitrage windows for traditional macro hedges while opening structural demand for hard assets and sovereign wealth reallocation.</p>
   <div class="section-grid">
     <article class="sec-card">
       <div class="sc-head">
@@ -624,9 +641,9 @@ body.page-stocks .footer { display:none; }
           <div class="sc-eyebrow">Section</div>
           <div class="sc-title">Finance & Markets</div>
         </div>
-        <div class="sc-count">02</div>
+        <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1wWEhiVDJwLU5DM0pFRHpidnVaZk54NFZsMGV6aHZROXlfY3BZRlBMbWlVaGxORnVncEh4UHI2cUpEN04tV2l0RGI0T0w1NTlod3ZBb0YtZDRCYjg0dEtyVm1kVkl1cFlt0gFcQVVfeXFMTmtaeDlqZUtBWUJyZS1BVm13QXk5LVEtNnBNZTQ5R2ljSHpubW1zSHFmc0hJekJROEVaYVNDR3RGenBDbEE4ZVBxOHl3S21lMG1hNjBWOTNqbGNfeG0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US borrowing exceeds GDP: What does it mean for the economy?</div><div class="sc-item-source">Modern Ghana</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPY2FNYnpBdVQyOVJBTTNudHQ0UW5lNkJJNUJocHpZbmQ5T2pTOUVxS2hHWksyT1pBVHFkZ3E0ME1rZXBjVWc0cXR5WnB6SXpPa05aWHRkNkZiZVF4Y3VpRjlNcEYyWlo5eExKTjlzYXVnbHNzUFNYU0dpME1hUG1XcExNeTg5S3BieDZwRjRuY0d3dnprZ3NzOHJfVWJna2s?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Economic Sentiment Rises Following GDP Growth Despite Mounting Inflation</div><div class="sc-item-source">CivicScience</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1wWEhiVDJwLU5DM0pFRHpidnVaZk54NFZsMGV6aHZROXlfY3BZRlBMbWlVaGxORnVncEh4UHI2cUpEN04tV2l0RGI0T0w1NTlod3ZBb0YtZDRCYjg0dEtyVm1kVkl1cFlt0gFcQVVfeXFMTmtaeDlqZUtBWUJyZS1BVm13QXk5LVEtNnBNZTQ5R2ljSHpubW1zSHFmc0hJekJROEVaYVNDR3RGenBDbEE4ZVBxOHl3S21lMG1hNjBWOTNqbGNfeG0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US borrowing exceeds GDP: What does it mean for the economy?</div><div class="sc-item-source">Modern Ghana</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -637,7 +654,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiowFBVV95cUxORDljTFFBTk1aRUVpVGpueXdJdVVsb1g2Z1VPRnRveXl0ampsTUJidERlYzloVUYwdE9zT0JyZzZLZXFfRjlvYmF1MXFPSGFXeU9hU094ZXlRTHFyVGk1NGQ2MHItY25pbThzWmF0TjlaTmtpN3lVMlJqb3JVQ0IwVFZuSjlJQVJRNUhZVWZMR1JHSTBNT2VnQmRjTndGM2tZbGNV?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">White House official reveals new details on Bitcoin reserve</div><div class="sc-item-source">thestreet.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE1CNWNlaFRIYkV6Q25DcFBCc2tDN2xFbnk3RE5PLWNRQkhwejlBdi1Sc3FUak9JVkFqdGVNT3dKWEY3YVZWV19MSWI4Y1FjVTBtMVFHR3Q5TjBYUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Brazil's President Lula to discuss economy and security with Trump at White House</div><div class="sc-item-source">BBC</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE5MNUQwWmN5Ukd5TW4tWWpfSW41elNER29FUE9tV0pnbFRTenhLemZsZlZmUDhqNHc2NnpPTWZTMnJORE9nU2RqVA?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">US to Unveil Bitcoin Strategic Reserve Plan Within Weeks, White House Advisor Confirms</div><div class="sc-item-source">MEXC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://www.sec.gov/newsroom/press-releases/2026-44-sec-charges-21-individuals-alleged-wide-reaching-insider-trading-scheme" target="_blank" rel="noopener"><div><div class="sc-item-headline">SEC Charges 21 Individuals with Alleged Wide-Reaching Insider Trading Scheme</div><div class="sc-item-source">SEC Press</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -648,7 +665,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SQUE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times, Ars Technica</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQS0h3QXRGb3A5TWoxRldmaHhRM0M1ZDMwRVJtcWFZOW05WXpTLXNnSEVpeUhsMmc4OHdRMm9Nc1c0MlNfNXN6eEt5VFcxSmk4ZUJZX09aWk14QlRMMV85enNRVjlyQkdZbDFVTFVrZEN2bjlFZ1FNLVpXX2hhT21LUndfbFpLejJGWm84TzdiOFVFQml1dHUwSE5KVl91MWN5MnYxaGpWUV9BS1liUEFoeTNyQVNrVkU?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Meta Pushes into Physical AI with Acquisition of Robotics AI Startup</div><div class="sc-item-source">THE Journal: Technological Horizons in Education</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMipgFBVV95cUxOQ09SUVE2RFVZQVFLbHFMZ2k0YnNvdnVyMzlHc2JKb2RvUUJfd29lYjk0U2tvV196ZzMxdW5fRjFhdktscTlzbEFWSXBDZ0U3eWR3THNLOVRXMDRqTnNWLUF6Q3MyaUF4el9YeVE4RHdFSnc5MW9WTkdHeVNjOHcwcTlScXRGQ1NERHQ3cmV3N3pkR1N6Y3dEOFpnbzJwNVFuM2FPSTNn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic signs computing deal with SpaceX to meet AI demand</div><div class="sc-item-source">The Business Times</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -659,7 +676,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">02</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxOOWRzdlNYRnJndmpPLXFNZ2JoZUlkSkxCY2JBQXZBS3ZkNGV3dkt0aGkyY0JjWThDTDA1RUh3b3J3Tm1WcnFiYjVrUXZUZG5PTVBRcWR6T3o5RmlXVGhlVjJ6QnlCTUNhNWdLcDNxYy1CcGJNMTU4Y28tbVVqY0REdndfdkdOUG5SRkpsWVpmTTFpaEE2RGtlOXNkS2hDOUJQbTdDa0tWek9zU3ZGeDJabXptSUw3dzBadEE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">U.S. and China Pursue Guardrails to Stop AI Rivalry From Spiraling Into Crisis</div><div class="sc-item-source">WSJ</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiwAFBVV95cUxNSzhHLVJGNWlkNWFuNXdTZGE5R0pPMXJoeWF4S1RubVgxVlJic3lOWl96TDh0RElhZHc0V3oyZEhRSHdydHo0SHo2a2oyaXQ1QUFqbk85S3VsR25IUlMyZ1pEbDZVVHQ3eVJSdzNiQVJ2aWF2Y0lfN2ZiYXktNHd0ZGZWOFRsR1ctaTRLQXhKWnUxVzNZVlZLYWJOcFpSN3dUOGl3eFpfU2RsLUtTMFRGcjNFSW1US3RPRjNhWWV6NXY?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil prices rise about $1 as investors weigh Middle East peace prospects</div><div class="sc-item-source">Reuters, CNBC</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxOc3llbWp3WFFObWpJUjU4WTdiSDNLVXJCLUtMZXp4bnc0TG52b0t6RFhMT0lYWUdtUVFhM2dLeW91Z0NCVHhmeW12MVhRV3VIWDFxN3hGV213ZlJmVkYyRGVMVGdzV2RUbzN4aXRaSVQ5QUNPWlNxOUNOY1M2Nzl4ZkQzRmR4RVhIbkQyaWpqMTBHN2wwY214UmYyVHhkUdIBowFBVV95cUxQand4U0xBYnMtVEhTS1RRc0hTMTNodHdBRE9BMUhuR1JmczEzT3hjSWdkeExzX2FlX3lsQTk0T3VhVjh6bk5HVnA4LXhMOVdydXlPTENDZDFYcHE4QkU3TFFEd0hpbE1NaWk5SFU5WkpWdVJhQWJkd3VTWmQwMzl2czFZWUN5M01pWkVrcjd0VFh6ZGh6TmJ4M0JMNENGQmVUblI0?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil rises as U.S.-Iran tensions keep traders focused on Strait of Hormuz risks</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMisgFBVV95cUxPUGlaTXJXbVVvTVFfMGZOa1BjZ1B5QTQwNXY3VWxWaGNMV2VNZ2FwakJhalFuaTh5Tm12UkJXQlNGY1pGV2Z3Nk1DaHlDTGpsWGlpTldCalZGcXFyLV83WjlpcmNsdHo5dmNFZEZOam0zMFNIb00wcWZ5cUhNbDRUWnZCNkxtVmJZd3lBckg4ZlBpSzdSenJSUmVBeHVXUVNsM1B1YktuMVN3SlRIcUdBQzRB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">China Asks Banks to Pause New Loans to US-Sanctioned Refiners</div><div class="sc-item-source">Bloomberg.com</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -670,7 +687,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNcVNOWTFuSFhkYWlxMDFJUWJNRUFXTmJUbkdGMUdFSG5UbzFCYmRDcjFkYjdHdlVwYzc0ci1GZDlrTlE3eFRHYUxlMGhMQWNQVlFJci1qdlBIMjJzZVN2TUJjNlVfSmkzbkExRkpMODV6aF9OcU1aWkhHdExhY2lTWWZaZk53MmgwM3dWNHk5eE1aZDdOemJBdUZ2UUZCMThGY29tRXpVWEdoUmRfRWVHYkFkRzRVM240bzdMU19QLWtUV0Q4aFE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NBA playoff TV schedule tonight, where to watch games, stream, times</div><div class="sc-item-source">Milwaukee Journal Sentinel</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNcVNOWTFuSFhkYWlxMDFJUWJNRUFXTmJUbkdGMUdFSG5UbzFCYmRDcjFkYjdHdlVwYzc0ci1GZDlrTlE3eFRHYUxlMGhMQWNQVlFJci1qdlBIMjJzZVN2TUJjNlVfSmkzbkExRkpMODV6aF9OcU1aWkhHdExhY2lTWWZaZk53MmgwM3dWNHk5eE1aZDdOemJBdUZ2UUZCMThGY29tRXpVWEdoUmRfRWVHYkFkRzRVM244bzdMU19QLWtUV0Q4aFE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NBA playoff TV schedule tonight, where to watch games, stream, times</div><div class="sc-item-source">Milwaukee Journal Sentinel</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article>
     <article class="sec-card">
       <div class="sc-head">
@@ -681,7 +698,7 @@ body.page-stocks .footer { display:none; }
         </div>
         <div class="sc-count">01</div>
       </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizgFBVV95cUxPR3lSdTkzcW5NSThqVzVka2VoaDg0RldrS2ozWjhtV0tMMXRCSzJhdjhGNVFrRkU4S2VJZWdhRmNzN3RRWEk0b0xxRnNQOVdtcGJRaXhzNkR1RndPZVVlMnptVEttMFdaRHlqX21wdW1qNGVkNmxEWVBhV3J1cmRDZThvSHZ2a0lIMjVhZnQybF9mUkp3eHhJYXQ5QVBiSjhMbVZOLXZxR1BTUmFlZUs3OWlwM0o2OTVCcGN0S3drNXZsMFZWdFR0enl4S2tmQdIB4gFBVV95cUxNUER4ME1UVUQyTURkc0RtdHFvMUQ5bS1rQURkUVUxWGY1ZjQwM3ZxYmcyQjFvQkk2SDE1eEtwODZpSFVEV3VZdy1ZeksyWEdkV1pWN3lQenVDaHlpdVFYbUNka1pHTkxtWjl6ZlI5bm1sa1JPSUFUSlBTcXQ4U2FCYmc2aENCUE5felZBVTEtdXY1andOMXExakFfVFNvYVBLbkRSa2R1d1pDZDY2VDRhaUFLQm8xeWxoUG9LMUNUQkZHMDZfSzNGWG9waEhZN3dUTXl1SGxWSm9LX0JNMUNtZ093?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">What we know about Mass. State Trooper who was killed in the line-of-duty</div><div class="sc-item-source">Boston 25 News, WCVB</div></div><span class="sc-arrow">&rarr;</span></a></div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMizgFBVV95cUxPR3lSdTkzcW5NSThqVzVka2VoaDg0RldrS2ozWjhtV0tMMXRCSzJhdjhGNVFrRkU4S2VJZWdhRmNzN3RRWEk0b0xxRnNQOVdtcGJRaXhzNkR1RndPZVVlMnptVEttMFdaRHlqX21wdW1qNGVkNmxEWVBhV3J1cmRDZThvSHZ2a0lIMjVhZnQybF9mUkp3eHhJYXQ5QVBiSjhMbVZOLXZxR1BTUmFlZUs3OWlwM0o2OTVCcGN0S3drNXZsMFZWdFR0enl4S2tmQdIB4gFBVV95cUxNUER4ME1UVUQyTURkc0RtdHFvMUQ5bS1rQURkUVUxWGY1ZjQwM3ZxYmcyQjFvQkk2SDE1eEtwODZpSFVEV3VZdy1ZeksyWEdkV1pWN3lQenVDaHlpdVFYbUNka1pHTkxtWjl6ZlI5bm1sa1JPSUFUSlBTcXQ4U2FCYmc2aENCUE5felZBVTEtdXY1andOMXExakFfVFNvYVBLbkRSa2R1d1pDZDY2VDRhaUFLQm8xeWxoUG9LMUNUQkZHMDZfSzNGWG9waEhZN3dUTXl1SGxWSm9LX0JNMUNtZ093?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">What we know about Mass. State Trooper who was killed in the line-of-duty</div><div class="sc-item-source">Boston 25 News</div></div><span class="sc-arrow">&rarr;</span></a></div>
     </article></div>
 </div>
 

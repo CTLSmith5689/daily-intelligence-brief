@@ -441,6 +441,23 @@ h1.hero-title {
 .bf-foot { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; color:var(--text-4); line-height:1.5; }
 .bf-empty { padding:18px; text-align:center; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-4); text-transform:uppercase; }
 
+/* Chart card per ticker (price + op margin, lazy-loaded on expand) */
+.ch-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
+.ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.ch-h-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
+.ch-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+.ch-tab { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-3); background:transparent; border:1px solid var(--border); border-radius:999px; padding:4px 10px; cursor:pointer; text-transform:uppercase; transition:color .15s, border-color .15s, background .15s; }
+.ch-tab:hover { color:var(--text-1); border-color:var(--border-bright); }
+.ch-tab.active { color:var(--text-1); background:var(--apt-rose); border-color:var(--apt-rose); }
+.ch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:780px) { .ch-grid { grid-template-columns:1fr; } }
+.ch-pane { display:flex; flex-direction:column; }
+.ch-pane-h { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.02em; color:var(--text-2); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.ch-pane-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
+.ch-pane-meta.ch-pos { color:#34D27A; }
+.ch-pane-meta.ch-neg { color:var(--apt-red); }
+.ch-canvas { width:100%; height:160px; display:block; }
+
 /* News card per ticker (lazy-loaded on row expand) */
 .nws-card { margin-top:14px; padding:16px 18px; background:rgba(17,18,26,0.85); border:1px solid var(--border); border-radius:10px; }
 .nws-h { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
@@ -615,7 +632,7 @@ body.page-stocks .footer { display:none; }
     <div class="feat-grid">
       <div class="feat-stat">
         <div class="fs-label">Stories synthesized</div>
-        <div class="fs-val">386</div>
+        <div class="fs-val">385</div>
         <div class="fs-delta">across 29 briefs</div>
       </div>
       <div class="feat-stat">
