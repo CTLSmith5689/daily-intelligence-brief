@@ -9,6 +9,7 @@ import os
 import re
 import ssl
 import json
+import math
 import smtplib
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -68,7 +69,31 @@ BRIEFS_DIR = DOCS_DIR / "briefs"
 STATE_DIR = REPO_ROOT / "state"
 for _d in (BRIEFS_DIR, DOCS_DIR, STATE_DIR):
     _d.mkdir(parents=True, exist_ok=True)
-RETENTION_DAYS = 30
+# The archive is the point of the Pages site, so nothing is pruned. This was
+# already the de-facto behavior: retention used to key off file mtime, and
+# actions/checkout resets mtimes on every CI run, so no brief ever aged out.
+# Now that s3_cleanup_old_briefs reads the real date from the filename, a 30-day
+# window would have deleted the entire back catalogue on the next run.
+RETENTION_DAYS = 36500
+
+
+def _age_hours_from_iso(value):
+    """Hours since an ISO-8601 timestamp, or None if missing/unparseable.
+
+    Freshness must come from data written into the file, never from the file's
+    mtime: actions/checkout stamps every checked-out file with the checkout time,
+    so under CI an mtime-based cache looks permanently fresh and never refreshes.
+    That bug silently froze docs/news and docs/prices from 2026-05-08 onward."""
+    if not value:
+        return None
+    try:
+        ts = datetime.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        return None
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - ts).total_seconds() / 3600
+
 
 RSS_FEEDS = {
     # ── Google News topic searches (broad net) ──────────────────────────────
@@ -92,7 +117,10 @@ RSS_FEEDS = {
     "WSJ Markets": "https://news.google.com/rss/search?q=when:24h+allinurl:wsj.com+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
     "FT Markets": "https://news.google.com/rss/search?q=when:24h+allinurl:ft.com+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
     # Institutional / Pensions
-    "P&I": "https://www.pionline.com/pf/feed/rss/pionline/news",
+    # pionline.com's own feed now returns a hard 403 to every user agent, from
+    # both CI and residential IPs. Google News still indexes them, so reach the
+    # same publisher through the proxy used by the topic searches above.
+    "P&I": "https://news.google.com/rss/search?q=site:pionline.com+when:2d&hl=en-US&gl=US&ceid=US:en",
     # Policy & Regulation
     "Fed Releases": "https://www.federalreserve.gov/feeds/press_all.xml",
     "SEC Press": "https://www.sec.gov/news/pressreleases.rss",
@@ -179,55 +207,57 @@ def fetch_market_data():
         except Exception as e:
             print(f"Alpha Vantage error for {ticker}: {e}")
 
-    # Money market yields: scrape Fidelity fund pages for SPAXX and FZFXX
-    # Falls back to federal funds rate if scrape fails
+    # Money market 7-day yields for SPAXX and FZFXX.
+    #
+    # These used to be regex-scraped from fundresearch.fidelity.com. That page is
+    # now a JavaScript shell: the served HTML contains no yield and no percentage
+    # at all, so every pattern failed on every run and the brief quietly showed the
+    # federal funds rate instead. yfinance is already a dependency, and Yahoo
+    # classifies both funds as MONEYMARKET with a yield field, so use that.
     mm_funds = [
-        ("SPAXX", "SPAXX 7d Yield", "https://fundresearch.fidelity.com/mutual-funds/summary/31617H102"),
-        ("FZFXX", "FZFXX 7d Yield", "https://fundresearch.fidelity.com/mutual-funds/summary/316341304"),
+        ("SPAXX", "SPAXX 7d Yield"),
+        ("FZFXX", "FZFXX 7d Yield"),
     ]
     mm_success = False
-    for mm_ticker, mm_label, mm_url in mm_funds:
-        try:
-            req = urllib.request.Request(mm_url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml",
-            })
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                html = resp.read().decode("utf-8")
+    try:
+        import yfinance as yf
+    except ImportError:
+        yf = None
+        print("Money market yields: yfinance not installed, falling back to fed funds.")
 
-            # Fidelity pages typically show 7-day yield in a pattern like:
-            # "7-Day Yield" followed by a percentage value
-            # Try multiple patterns to find the 7-day yield
-            patterns = [
-                r'7[- ]?[Dd]ay\s+[Yy]ield[^0-9]*?(\d+\.\d+)\s*%',
-                r'seven[- ]?day\s+yield[^0-9]*?(\d+\.\d+)\s*%',
-                r'7-Day Yield.*?(\d+\.\d+)%',
-                r'"sevenDayYield"\s*:\s*"?(\d+\.\d+)',
-                r'7-Day Yield<.*?(\d+\.\d+)\s*%',
-            ]
-            yield_val = None
-            for pattern in patterns:
-                match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
-                if match:
-                    yield_val = match.group(1)
-                    break
-
-            if yield_val:
+    if yf is not None:
+        for mm_ticker, mm_label in mm_funds:
+            try:
+                info = yf.Ticker(mm_ticker).info or {}
+                raw_yield = None
+                for key in ("sevenDayYield", "yield", "annualYield"):
+                    if info.get(key) is not None:
+                        raw_yield = info[key]
+                        break
+                if raw_yield is None:
+                    print(f"Money market yields: no yield field for {mm_ticker}.")
+                    continue
+                val = float(raw_yield)
+                # Yahoo reports fund yields as a fraction (0.0412) on some records
+                # and as a percent (4.12) on others. Normalize to percent.
+                if val < 0.5:
+                    val *= 100
+                if not (0 < val < 25):
+                    print(f"Money market yields: implausible yield {val} for {mm_ticker}, ignoring.")
+                    continue
                 quotes.append({
                     "ticker": mm_ticker,
                     "label": mm_label,
-                    "price": f"{float(yield_val):.2f}%",
+                    "price": f"{val:.2f}%",
                     "change_pct": "0",
                     "is_yield": True,
                 })
                 mm_success = True
-                print(f"Fidelity scrape success for {mm_ticker}: {yield_val}%")
-            else:
-                print(f"Fidelity scrape: could not find 7-day yield in HTML for {mm_ticker}")
-        except Exception as e:
-            print(f"Fidelity scrape error for {mm_ticker}: {e}")
+                print(f"Money market yield for {mm_ticker}: {val:.2f}%")
+            except Exception as e:
+                print(f"Money market yield error for {mm_ticker}: {e}")
 
-    # Fallback: federal funds rate if Fidelity scrape failed for both
+    # Fallback: federal funds rate if the money-market yields were unavailable
     if not mm_success:
         time.sleep(1.5)  # Rate limit spacing
         try:
@@ -242,7 +272,9 @@ def fetch_market_data():
                 if current_rate:
                     quotes.append({
                         "ticker": "FFR",
-                        "label": "MM Yield (avg)",
+                        # Labeled for what it is. This is the fed funds rate standing
+                        # in for the money-market yields, not an average of them.
+                        "label": "Fed Funds Rate",
                         "price": f"{float(current_rate):.2f}%",
                         "change_pct": "0",
                         "is_yield": True,
@@ -1256,8 +1288,15 @@ def s3_cleanup_old_briefs():
         key = f"briefs/{path.name}"
         if key in pinned:
             continue
-        mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
-        if mtime < cutoff:
+        # Date comes from the filename ("2026-04-25-morning"), not the mtime:
+        # under CI every file is as old as the checkout, which made this a no-op,
+        # and run locally it would instead delete the entire archive at once.
+        stem_date = path.stem.rsplit("-", 1)[0]
+        try:
+            brief_date = datetime.strptime(stem_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue  # unrecognized name: never delete something we cannot date
+        if brief_date < cutoff:
             path.unlink()
             sidecar = path.with_suffix(".json")
             if sidecar.exists():
@@ -4110,16 +4149,18 @@ def fetch_all_wiki_universes():
 
 # ── iShares ETF holdings (Russell 1000/2000) ───────────────────────────────
 
-ISHARES_SOURCES = [
-    {
-        "url": "https://www.ishares.com/us/products/239707/ishares-russell-1000-etf/1467271812596.ajax?fileType=csv&fileName=IWB_holdings&dataType=fund",
-        "label": "Russell 1000",
-    },
-    {
-        "url": "https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/1467271812596.ajax?fileType=csv&fileName=IWM_holdings&dataType=fund",
-        "label": "Russell 2000",
-    },
-]
+# Disabled 2026-09-03. The .ajax holdings endpoint still answers 200 with
+# Content-Type: text/csv, but the body is the HTML product page: iShares now
+# gates the download behind client-side JS. Verified dead with a browser user
+# agent, a Referer, and a full cookie-jar session handshake. Because the response
+# looks superficially fine, the old failure surfaced only as a confusing
+# "parsed 0 rows" line for two months.
+#
+# The universe still gets ~1,500 names from the S&P 500/400/600 Wikipedia
+# sources, so this costs small-cap breadth, not correctness. Restore by putting
+# a working CSV URL back in this list; fetch_ishares_holdings is unchanged and
+# now reports the real reason when a body is not CSV.
+ISHARES_SOURCES = []
 
 
 def fetch_ishares_holdings(url, label):
@@ -4147,7 +4188,13 @@ def fetch_ishares_holdings(url, label):
             header_idx = i
             break
     if header_idx is None:
-        print(f"iShares parse failed for {label}: no Ticker header row.")
+        # Distinguish "the CSV changed shape" from "this is not a CSV at all",
+        # which is what an interstitial or product page looks like here.
+        head = " ".join(raw.lstrip()[:200].split())
+        if head[:1] == "<":
+            print(f"iShares parse failed for {label}: server returned HTML, not CSV. First bytes: {head[:80]!r}")
+        else:
+            print(f"iShares parse failed for {label}: no Ticker header row. First bytes: {head[:80]!r}")
         return []
 
     body = "\n".join(lines[header_idx:])
@@ -4173,10 +4220,13 @@ def fetch_ishares_holdings(url, label):
 
 
 def fetch_all_universes():
-    """Build the full deduplicated stock universe from Wikipedia (S&P 500/400/600)
-    plus iShares (Russell 1000/2000). S&P sources go first because their sector
-    classification is cleaner, then Russell fills in everything else.
-    First-occurrence-by-ticker wins."""
+    """Build the full deduplicated stock universe from Wikipedia (S&P 500/400/600),
+    plus any working ISHARES_SOURCES. S&P sources go first because their sector
+    classification is cleaner, then the ETF holdings fill in everything else.
+    First-occurrence-by-ticker wins.
+
+    ISHARES_SOURCES is currently empty (see the note there), so in practice the
+    universe is S&P-only at roughly 1,500 names."""
     seen = set()
     out = []
 
@@ -4217,6 +4267,47 @@ def fetch_all_universes():
 
 # ── yfinance enrichment (free, no API key, parallel) ───────────────────────
 
+# Every field below is compared against numeric bounds downstream. Yahoo does not
+# guarantee the type: the same key can come back as a float, as a numeric string
+# ("12.4"), as "Infinity"/"NaN", or as a non-numeric placeholder. A single str
+# reaching one of those comparisons raises TypeError and kills the whole run, so
+# the payload is normalized once on arrival instead of guarding ~40 call sites.
+YF_NUMERIC_KEYS = frozenset({
+    "marketCap", "currentPrice", "regularMarketPrice", "regularMarketChangePercent",
+    "trailingPE", "regularMarketVolume", "averageVolume", "revenueGrowth",
+    "earningsGrowth", "enterpriseToEbitda", "enterpriseToRevenue", "priceToBook",
+    "freeCashflow", "fiftyTwoWeekHigh", "fiftyDayAverage", "52WeekChange",
+    "SandP52WeekChange", "averageDailyVolume10Day", "averageVolume10days",
+    "returnOnEquity", "totalDebt", "totalCash", "ebitda", "netIncomeToCommon",
+    "operatingCashflow", "totalAssets", "operatingMargins", "grossMargins",
+    "numberOfAnalystOpinions", "heldPercentInstitutions", "heldPercentInsiders",
+    "earningsTimestamp", "earningsTimestampStart", "earningsCallTimestampStart",
+})
+
+
+def _coerce_yf_numerics(info):
+    """Return a copy of a yfinance `info` dict with every known-numeric key forced
+    to a finite float, or None where the value is missing or uninterpretable.
+    Booleans are treated as absent: Yahoo uses False as a 'no data' marker on
+    numeric fields, and bool is an int subclass that would otherwise slip through."""
+    out = dict(info)
+    for key in YF_NUMERIC_KEYS:
+        if key not in out:
+            continue
+        val = out[key]
+        if val is None or isinstance(val, bool):
+            out[key] = None
+            continue
+        if not isinstance(val, (int, float)):
+            try:
+                val = float(str(val).replace(",", "").strip())
+            except (TypeError, ValueError):
+                out[key] = None
+                continue
+        out[key] = val if math.isfinite(val) else None
+    return out
+
+
 def enrich_with_yfinance(stocks, max_workers=10):
     """Enrich stock dicts in place with live data from Yahoo Finance via yfinance:
     price, market_cap, change_pct, pe, volume. Threaded for speed (~45s for 1500
@@ -4244,6 +4335,7 @@ def enrich_with_yfinance(stocks, max_workers=10):
             return sym, None
 
     enriched = 0
+    skipped = 0
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(fetch_one, s) for s in tickers]
@@ -4254,147 +4346,160 @@ def enrich_with_yfinance(stocks, max_workers=10):
             s = by_ticker.get(sym)
             if not s:
                 continue
-            # ── Core fields ─────────────────────────────
-            cap = info.get("marketCap")
-            price = info.get("currentPrice") or info.get("regularMarketPrice")
-            chg = info.get("regularMarketChangePercent")
-            pe = info.get("trailingPE")
-            vol = info.get("regularMarketVolume") or info.get("averageVolume")
-            if cap is not None and 0 < cap < 1e14:
-                s["market_cap"] = cap
-            if price is not None and 0 < price < 1e6:
-                s["price"] = price
-            if chg is not None:
-                pct = chg if abs(chg) > 1 else chg * 100
-                if abs(pct) <= 20:
-                    s["change_pct"] = pct
-            if pe is not None and -500 < pe < 1000:
-                s["pe"] = pe
-            if vol is not None and vol > 0:
-                s["volume"] = vol
+            try:
+                info = _coerce_yf_numerics(info)
+            except Exception:
+                skipped += 1
+                continue
+            try:
+                # ── Core fields ─────────────────────────────
+                cap = info.get("marketCap")
+                price = info.get("currentPrice") or info.get("regularMarketPrice")
+                chg = info.get("regularMarketChangePercent")
+                pe = info.get("trailingPE")
+                vol = info.get("regularMarketVolume") or info.get("averageVolume")
+                if cap is not None and 0 < cap < 1e14:
+                    s["market_cap"] = cap
+                if price is not None and 0 < price < 1e6:
+                    s["price"] = price
+                if chg is not None:
+                    pct = chg if abs(chg) > 1 else chg * 100
+                    if abs(pct) <= 20:
+                        s["change_pct"] = pct
+                if pe is not None and -500 < pe < 1000:
+                    s["pe"] = pe
+                if vol is not None and vol > 0:
+                    s["volume"] = vol
 
-            # ── Growth factors ──────────────────────────
-            rev_g = info.get("revenueGrowth")
-            if rev_g is not None and abs(rev_g) < 5:
-                s["revenue_growth_yoy"] = rev_g
-            eps_g = info.get("earningsGrowth")
-            if eps_g is not None and abs(eps_g) < 10:
-                s["eps_growth_yoy"] = eps_g
+                # ── Growth factors ──────────────────────────
+                rev_g = info.get("revenueGrowth")
+                if rev_g is not None and abs(rev_g) < 5:
+                    s["revenue_growth_yoy"] = rev_g
+                eps_g = info.get("earningsGrowth")
+                if eps_g is not None and abs(eps_g) < 10:
+                    s["eps_growth_yoy"] = eps_g
 
-            # ── Value factors ───────────────────────────
-            ev_eb = info.get("enterpriseToEbitda")
-            if ev_eb is not None and abs(ev_eb) < 200:
-                s["ev_ebitda"] = ev_eb
-            ev_rev = info.get("enterpriseToRevenue")
-            if ev_rev is not None and 0 < ev_rev < 100:
-                s["ev_revenue"] = ev_rev
-            pb = info.get("priceToBook")
-            if pb is not None and 0 < pb < 100:
-                s["price_book"] = pb
-            fcf = info.get("freeCashflow")
-            if fcf is not None and cap and cap > 0:
-                fcf_yield = fcf / cap
-                if -1 < fcf_yield < 1:
-                    s["fcf_yield"] = fcf_yield
+                # ── Value factors ───────────────────────────
+                ev_eb = info.get("enterpriseToEbitda")
+                if ev_eb is not None and abs(ev_eb) < 200:
+                    s["ev_ebitda"] = ev_eb
+                ev_rev = info.get("enterpriseToRevenue")
+                if ev_rev is not None and 0 < ev_rev < 100:
+                    s["ev_revenue"] = ev_rev
+                pb = info.get("priceToBook")
+                if pb is not None and 0 < pb < 100:
+                    s["price_book"] = pb
+                fcf = info.get("freeCashflow")
+                if fcf is not None and cap and cap > 0:
+                    fcf_yield = fcf / cap
+                    if -1 < fcf_yield < 1:
+                        s["fcf_yield"] = fcf_yield
 
-            # ── Momentum factors ────────────────────────
-            high52 = info.get("fiftyTwoWeekHigh")
-            if price and high52 and high52 > 0:
-                s["high52w_proximity"] = (price - high52) / high52
-            ma50 = info.get("fiftyDayAverage")
-            if price and ma50 and ma50 > 0:
-                ret_1m = (price - ma50) / ma50
-                if abs(ret_1m) < 2:
-                    s["return_1m"] = ret_1m
-            chg52 = info.get("52WeekChange")
-            if chg52 is not None and abs(chg52) < 10:
-                s["return_52w"] = chg52
-                if "return_1m" in s:
-                    s["return_12_2"] = chg52 - s["return_1m"]
-            sp_chg52 = info.get("SandP52WeekChange")
-            if chg52 is not None and sp_chg52 is not None:
-                rel = chg52 - sp_chg52
-                if abs(rel) < 5:
-                    s["rel_strength_sp500"] = rel
-            v10 = info.get("averageDailyVolume10Day") or info.get("averageVolume10days")
-            v3m = info.get("averageVolume")
-            if v10 and v3m and v3m > 0:
-                vt = v10 / v3m - 1
-                if abs(vt) < 10:
-                    s["volume_trend"] = vt
+                # ── Momentum factors ────────────────────────
+                high52 = info.get("fiftyTwoWeekHigh")
+                if price and high52 and high52 > 0:
+                    s["high52w_proximity"] = (price - high52) / high52
+                ma50 = info.get("fiftyDayAverage")
+                if price and ma50 and ma50 > 0:
+                    ret_1m = (price - ma50) / ma50
+                    if abs(ret_1m) < 2:
+                        s["return_1m"] = ret_1m
+                chg52 = info.get("52WeekChange")
+                if chg52 is not None and abs(chg52) < 10:
+                    s["return_52w"] = chg52
+                    if "return_1m" in s:
+                        s["return_12_2"] = chg52 - s["return_1m"]
+                sp_chg52 = info.get("SandP52WeekChange")
+                if chg52 is not None and sp_chg52 is not None:
+                    rel = chg52 - sp_chg52
+                    if abs(rel) < 5:
+                        s["rel_strength_sp500"] = rel
+                v10 = info.get("averageDailyVolume10Day") or info.get("averageVolume10days")
+                v3m = info.get("averageVolume")
+                if v10 and v3m and v3m > 0:
+                    vt = v10 / v3m - 1
+                    if abs(vt) < 10:
+                        s["volume_trend"] = vt
 
-            # ── Quality factors ─────────────────────────
-            roe = info.get("returnOnEquity")
-            if roe is not None and -3 < roe < 3:
-                s["roe_ttm"] = roe
-            debt = info.get("totalDebt") or 0
-            tcash = info.get("totalCash") or 0
-            ebitda = info.get("ebitda")
-            if ebitda is not None and ebitda != 0:
-                nde = (debt - tcash) / ebitda
-                if -20 < nde < 50:
-                    s["net_debt_ebitda"] = nde
-            ni = info.get("netIncomeToCommon")
-            cfo = info.get("operatingCashflow")
-            ta = info.get("totalAssets")
-            if ni is not None and cfo is not None and ta and ta > 0:
-                ar = (ni - cfo) / ta
-                if -1 < ar < 1:
-                    s["accruals_ratio"] = ar
-            op_m = info.get("operatingMargins")
-            if op_m is not None and -2 < op_m < 2:
-                s["operating_margin"] = op_m
-            gm = info.get("grossMargins")
-            if gm is not None and -2 < gm < 2:
-                s["gross_margin"] = gm
+                # ── Quality factors ─────────────────────────
+                roe = info.get("returnOnEquity")
+                if roe is not None and -3 < roe < 3:
+                    s["roe_ttm"] = roe
+                debt = info.get("totalDebt") or 0
+                tcash = info.get("totalCash") or 0
+                ebitda = info.get("ebitda")
+                if ebitda is not None and ebitda != 0:
+                    nde = (debt - tcash) / ebitda
+                    if -20 < nde < 50:
+                        s["net_debt_ebitda"] = nde
+                ni = info.get("netIncomeToCommon")
+                cfo = info.get("operatingCashflow")
+                ta = info.get("totalAssets")
+                if ni is not None and cfo is not None and ta and ta > 0:
+                    ar = (ni - cfo) / ta
+                    if -1 < ar < 1:
+                        s["accruals_ratio"] = ar
+                op_m = info.get("operatingMargins")
+                if op_m is not None and -2 < op_m < 2:
+                    s["operating_margin"] = op_m
+                gm = info.get("grossMargins")
+                if gm is not None and -2 < gm < 2:
+                    s["gross_margin"] = gm
 
-            # ── Neglect inputs (Peter Lynch thesis: under-followed names) ──
-            n_analysts = info.get("numberOfAnalystOpinions")
-            if isinstance(n_analysts, (int, float)) and 0 <= n_analysts < 200:
-                s["analyst_count"] = int(n_analysts)
-            inst = info.get("heldPercentInstitutions")
-            if isinstance(inst, (int, float)) and 0 <= inst <= 1.5:
-                s["inst_ownership"] = inst
-            ins_o = info.get("heldPercentInsiders")
-            if isinstance(ins_o, (int, float)) and 0 <= ins_o <= 1.0:
-                s["insider_ownership"] = ins_o
+                # ── Neglect inputs (Peter Lynch thesis: under-followed names) ──
+                n_analysts = info.get("numberOfAnalystOpinions")
+                if isinstance(n_analysts, (int, float)) and 0 <= n_analysts < 200:
+                    s["analyst_count"] = int(n_analysts)
+                inst = info.get("heldPercentInstitutions")
+                if isinstance(inst, (int, float)) and 0 <= inst <= 1.5:
+                    s["inst_ownership"] = inst
+                ins_o = info.get("heldPercentInsiders")
+                if isinstance(ins_o, (int, float)) and 0 <= ins_o <= 1.0:
+                    s["insider_ownership"] = ins_o
 
-            # Earnings date (next expected). yfinance exposes this under several keys
-            # depending on data availability: earningsTimestamp (single), or a list at
-            # earningsDate, or a range start/end. Take the first valid one.
-            ed_iso = None
-            for ts_key in ("earningsTimestamp", "earningsTimestampStart", "earningsCallTimestampStart"):
-                ts = info.get(ts_key)
-                if ts and isinstance(ts, (int, float)) and ts > 0:
-                    try:
-                        ed = datetime.fromtimestamp(ts, tz=timezone.utc).date()
-                        delta = (ed - datetime.now(tz=timezone.utc).date()).days
-                        # Sanity: within ~2 years past or future
-                        if -730 < delta < 730:
-                            ed_iso = ed.isoformat()
-                            break
-                    except Exception:
-                        continue
-            if not ed_iso:
-                ed_list = info.get("earningsDate")
-                if isinstance(ed_list, list) and ed_list:
-                    raw = ed_list[0]
-                    if isinstance(raw, (int, float)) and raw > 0:
+                # Earnings date (next expected). yfinance exposes this under several keys
+                # depending on data availability: earningsTimestamp (single), or a list at
+                # earningsDate, or a range start/end. Take the first valid one.
+                ed_iso = None
+                for ts_key in ("earningsTimestamp", "earningsTimestampStart", "earningsCallTimestampStart"):
+                    ts = info.get(ts_key)
+                    if ts and isinstance(ts, (int, float)) and ts > 0:
                         try:
-                            ed = datetime.fromtimestamp(raw, tz=timezone.utc).date()
-                            ed_iso = ed.isoformat()
+                            ed = datetime.fromtimestamp(ts, tz=timezone.utc).date()
+                            delta = (ed - datetime.now(tz=timezone.utc).date()).days
+                            # Sanity: within ~2 years past or future
+                            if -730 < delta < 730:
+                                ed_iso = ed.isoformat()
+                                break
                         except Exception:
-                            pass
-            if ed_iso:
-                s["earnings_date"] = ed_iso
+                            continue
+                if not ed_iso:
+                    ed_list = info.get("earningsDate")
+                    if isinstance(ed_list, list) and ed_list:
+                        raw = ed_list[0]
+                        if isinstance(raw, (int, float)) and raw > 0:
+                            try:
+                                ed = datetime.fromtimestamp(raw, tz=timezone.utc).date()
+                                ed_iso = ed.isoformat()
+                            except Exception:
+                                pass
+                if ed_iso:
+                    s["earnings_date"] = ed_iso
 
-            if cap or price:
-                enriched += 1
-                # Per-row freshness stamp: this run successfully fetched yfinance data.
-                s["last_updated"] = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+                if cap or price:
+                    enriched += 1
+                    # Per-row freshness stamp: this run successfully fetched yfinance data.
+                    s["last_updated"] = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+            except Exception as exc:
+                # A single unexpected payload shape must not take down the run:
+                # the brief has already been emailed by this point.
+                skipped += 1
+                if skipped <= 5:
+                    print(f"yfinance: skipped {sym} ({type(exc).__name__}: {exc})")
 
     elapsed = time.time() - t0
-    print(f"yfinance: enriched {enriched}/{len(tickers)} tickers in {elapsed:.1f}s ({max_workers} threads).")
+    suffix = f", {skipped} skipped on bad payloads" if skipped else ""
+    print(f"yfinance: enriched {enriched}/{len(tickers)} tickers in {elapsed:.1f}s ({max_workers} threads){suffix}.")
     return enriched
 
 
@@ -4537,6 +4642,28 @@ def compute_vader_score(text):
 
 NEWS_DIR = DOCS_DIR / "news"
 
+# Per-ticker news files are a bare JSON list with no room for a file-level
+# timestamp, and the stocks page reads that shape directly, so freshness is
+# tracked in a sidecar manifest instead of by mtime (which CI resets) or by
+# reformatting ~2,900 files. Maps TICKER -> ISO-8601 of last successful fetch.
+NEWS_FETCH_LOG = STATE_DIR / "news_fetch_log.json"
+
+
+def _load_news_fetch_log():
+    try:
+        data = json.loads(NEWS_FETCH_LOG.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _save_news_fetch_log(log):
+    try:
+        NEWS_FETCH_LOG.write_text(json.dumps(log, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+    except Exception as exc:
+        # A lost manifest only costs a redundant refetch next run, never correctness.
+        print(f"news: could not write fetch log ({type(exc).__name__}: {exc}).")
+
 
 def fetch_company_news(ticker, name="", max_items=15):
     """Pull recent news for a ticker from Google News RSS. Returns list of
@@ -4605,12 +4732,13 @@ def _news_filename(ticker):
 
 def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     """For each stock, write news items to docs/news/{TICKER}.json. Skips tickers
-    whose existing file is younger than max_age_hours (so midday + evening workflow
-    runs reuse morning's news without re-hitting Google). Returns count fetched."""
+    fetched within max_age_hours per state/news_fetch_log.json (so midday + evening
+    workflow runs reuse morning's news without re-hitting Google). Returns count
+    fetched."""
     if not stocks:
         return 0
     NEWS_DIR.mkdir(parents=True, exist_ok=True)
-    now_ts = time.time()
+    fetch_log = _load_news_fetch_log()
 
     def needs_fetch(ticker):
         f = NEWS_DIR / _news_filename(ticker)
@@ -4624,7 +4752,8 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
                 return True
         except Exception:
             return True
-        return (now_ts - f.stat().st_mtime) / 3600 > max_age_hours
+        age = _age_hours_from_iso(fetch_log.get(ticker.upper()))
+        return age is None or age > max_age_hours
 
     todo = [s for s in stocks if needs_fetch(s["ticker"])]
     skipped = len(stocks) - len(todo)
@@ -4646,12 +4775,17 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
 
     fetched = 0
     t0 = time.time()
+    stamp = datetime.now(timezone.utc).isoformat()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, s) for s in todo]
         for f in as_completed(futures):
             sym, n = f.result()
             if n > 0:
                 fetched += 1
+                # Stamped on the main thread as results arrive, so the manifest
+                # needs no lock and only ever records genuine successes.
+                fetch_log[sym.upper()] = stamp
+    _save_news_fetch_log(fetch_log)
     elapsed = time.time() - t0
     print(f"news: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s ({skipped} cached < {max_age_hours}h).")
     return fetched
@@ -4742,7 +4876,13 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
         f = PRICES_DIR / _news_filename(ticker)
         if not f.exists():
             return True
-        return (now_ts - f.stat().st_mtime) / 3600 > max_age_hours
+        # Freshness comes from the "updated" field the writer stores in the file,
+        # not from the mtime, which CI resets on every checkout.
+        try:
+            age = _age_hours_from_iso(json.loads(f.read_text(encoding="utf-8")).get("updated"))
+        except Exception:
+            return True
+        return age is None or age > max_age_hours
 
     todo = [s for s in stocks if needs_fetch(s["ticker"])]
     skipped = len(stocks) - len(todo)

@@ -23,11 +23,11 @@ concurrency:
 jobs:
   brief:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60   # first run of a new ISO week does a full universe rebuild (~20+ min)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.14'
 
@@ -80,3 +80,31 @@ jobs:
           done
           echo "Failed to push after 5 attempts."
           exit 1
+
+      # Between 2026-05-09 and 2026-07-07 this job failed 78 times without anyone
+      # noticing: the brief email is sent before the archive step, so a late crash
+      # still delivered mail and the breakage stayed invisible. Alert on failure.
+      - name: Alert on failure
+        if: failure()
+        env:
+          APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
+          RECIPIENTS: ${{ vars.RECIPIENTS }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EDITION: ${{ steps.pick.outputs.edition }}
+        run: |
+          python - <<'PY'
+          import os
+          from lambda_function import send_email
+
+          edition = os.environ.get("EDITION") or "unknown"
+          run_url = os.environ["RUN_URL"]
+          send_email(
+              f"apterreon-brief FAILED ({edition})",
+              "<h2>The brief workflow failed.</h2>"
+              f"<p>Edition: <b>{edition}</b></p>"
+              f'<p><a href="{run_url}">Open the failed run</a></p>'
+              "<p>The email for this edition may still have been sent: the archive "
+              "and site rebuild run after delivery.</p>",
+          )
+          print("Failure alert sent.")
+          PY

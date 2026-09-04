@@ -1,0 +1,54 @@
+## Keeps the scheduled brief alive.
+##
+## GitHub disables a repository's scheduled workflows after 60 days with no
+## repository activity. On 2026-07-07 that is exactly what happened here: the
+## last human commit was 2026-05-07 and apterreon-brief went to
+## disabled_inactivity 61 days later, silently ending the briefs.
+##
+## The brief's own daily archive commits did NOT reset that timer, because
+## pushes made with the built-in GITHUB_TOKEN do not count as repository
+## activity. A push authenticated with a user PAT does, so this job makes one
+## empty commit a month with KEEPALIVE_TOKEN.
+##
+## This is the only guard against that failure mode: a disabled workflow never
+## runs, so it can never send the failure alert that brief.yml would otherwise
+## send. Nothing else notices.
+##
+## Setup (one time):
+##   1. Create a fine-grained PAT scoped to this repo with Contents: Read and write.
+##   2. Add it as repository secret KEEPALIVE_TOKEN.
+## If the secret is absent or expired, the job fails loudly rather than
+## pretending to have kept anything alive.
+
+name: keepalive
+
+on:
+  schedule:
+    - cron: '17 4 1 * *'   # 04:17 UTC on the 1st of each month
+  workflow_dispatch:
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.KEEPALIVE_TOKEN }}
+
+      - name: Push an empty commit
+        run: |
+          if [ -z "${{ secrets.KEEPALIVE_TOKEN }}" ]; then
+            echo "KEEPALIVE_TOKEN is not set. The 60-day inactivity timer is NOT being reset."
+            echo "Create a fine-grained PAT (Contents: Read and write) and add it as KEEPALIVE_TOKEN."
+            exit 1
+          fi
+          git config user.name "apterreon-keepalive"
+          git config user.email "ctlsmith@me.com"
+          git commit --allow-empty -m "keepalive: reset the 60-day Actions inactivity timer"
+          git push
+          echo "Pushed. Scheduled workflows stay enabled for another 60 days."
