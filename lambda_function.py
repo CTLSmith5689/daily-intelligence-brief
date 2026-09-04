@@ -110,7 +110,7 @@ HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", 
 FUNDAMENTAL_SKIP_FIELDS = {"benford", "op_margin_history"}
 # Leading columns, in this order; every other scalar field follows alphabetically.
 FUNDAMENTAL_LEAD = ["date", "ticker", "name", "sector", "sub_industry", "index",
-                    "price", "change_pct", "market_cap", "pe", "volume"]
+                    "in_index", "price", "change_pct", "market_cap", "pe", "volume"]
 
 
 def _csv_num(value):
@@ -152,6 +152,47 @@ def _csv_header(path):
             return next(csv.reader(fh), None)
     except Exception:
         return None
+
+
+def _atomic_write_csv(path, columns, rows):
+    """Write a CSV via a temp file and an atomic replace.
+
+    Both callers rewrite a whole file in place. A plain open('w') truncates first,
+    so a process killed mid-write (this job has a 60-minute timeout and runs
+    unattended) would leave a half-written file, destroying a month of collected
+    rows. os.replace is atomic on the same filesystem, so the original survives
+    intact until the new file is complete."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with tmp.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=columns, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
+    os.replace(tmp, path)
+
+
+def _widen_csv_schema(path, columns):
+    """Rewrite a CSV with extra columns appended, preserving existing rows.
+
+    The schema grows when a new field is added to the pipeline. csv.DictWriter is
+    configured with extrasaction="ignore", so without this a new column would be
+    dropped for the rest of the month with no error at all: the file would simply
+    never gain the field, and nothing would say so. Existing rows get an empty
+    value for the new columns, which is honest (that data was not collected then).
+    Returns the merged column list."""
+    existing = _csv_header(path)
+    if existing is None:
+        return columns
+    missing = [c for c in columns if c not in existing]
+    if not missing:
+        return existing
+    merged = list(existing) + missing
+    with path.open(encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    _atomic_write_csv(path, merged, [{c: r.get(c, "") for c in merged} for r in rows])
+    print(f"csv: widened {path.name} with {len(missing)} new column(s): {', '.join(missing)} "
+          f"({len(rows)} existing rows back-filled empty).")
+    return merged
 
 
 def record_quotes(quotes, observed_at):
@@ -216,27 +257,26 @@ def record_fundamentals(stocks, date_iso):
     if not stocks:
         return 0
     path = FUNDAMENTALS_CSV_DIR / f"{date_iso[:7]}.csv"
-    header = _csv_header(path)
-    if header:
-        if path.exists():
-            try:
-                with path.open(encoding="utf-8", newline="") as fh:
-                    if any(r.get("date") == date_iso for r in csv.DictReader(fh)):
-                        print(f"csv: fundamentals for {date_iso} already recorded, skipping.")
-                        return 0
-            except Exception as exc:
-                print(f"csv: could not scan {path.name} ({exc}); skipping to avoid duplicates.")
-                return 0
-        columns = header
-    else:
-        found = set()
-        for s in stocks:
-            found.update(k for k, v in s.items()
-                         if k not in FUNDAMENTAL_SKIP_FIELDS and not isinstance(v, (dict, list)))
-        if any(isinstance(s.get("benford"), dict) for s in stocks):
-            found.add("benford_mad")   # the one nested value worth flattening
-        rest = sorted(found - set(FUNDAMENTAL_LEAD))
-        columns = FUNDAMENTAL_LEAD + rest
+    if path.exists():
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                if any(r.get("date") == date_iso for r in csv.DictReader(fh)):
+                    print(f"csv: fundamentals for {date_iso} already recorded, skipping.")
+                    return 0
+        except Exception as exc:
+            print(f"csv: could not scan {path.name} ({exc}); skipping to avoid duplicates.")
+            return 0
+
+    # Schema this run would produce, from the data actually present.
+    found = set()
+    for s in stocks:
+        found.update(k for k, v in s.items()
+                     if k not in FUNDAMENTAL_SKIP_FIELDS and not isinstance(v, (dict, list)))
+    if any(isinstance(s.get("benford"), dict) for s in stocks):
+        found.add("benford_mad")   # the one nested value worth flattening
+    rest = sorted(found - set(FUNDAMENTAL_LEAD))
+    # Widen an existing file rather than silently dropping fields it lacks.
+    columns = _widen_csv_schema(path, FUNDAMENTAL_LEAD + rest)
 
     rows = []
     for s in stocks:
@@ -254,6 +294,117 @@ def record_fundamentals(stocks, date_iso):
     n = _append_csv(path, columns, rows)
     print(f"csv: appended {n} fundamentals rows for {date_iso} to data/fundamentals/{path.name}.")
     return n
+
+
+TICKERS_CSV = DATA_DIR / "tickers.csv"
+TICKER_COLUMNS = ["ticker", "name", "sector", "sub_industry", "index",
+                  "first_seen", "last_seen_in_index", "status", "dropped_on"]
+
+# How long to keep collecting data for a ticker after it leaves every index.
+# The registry row is kept forever; this only bounds how long we keep paying to
+# fetch prices for it. ~13 months so a full year of post-removal history exists.
+RETAIN_DROPPED_DAYS = 400
+
+
+def load_ticker_registry():
+    """Every ticker ever seen, keyed by symbol. Missing file yields {}."""
+    if not TICKERS_CSV.exists():
+        return {}
+    try:
+        with TICKERS_CSV.open(encoding="utf-8", newline="") as fh:
+            return {r["ticker"]: dict(r) for r in csv.DictReader(fh) if r.get("ticker")}
+    except Exception as exc:
+        print(f"registry: could not read {TICKERS_CSV.name} ({exc}); starting empty.")
+        return {}
+
+
+def update_ticker_registry(current, today, previously_known=None):
+    """Reconcile today's index membership against the registry.
+
+    Index membership changes constantly: names get added, acquired, delisted, or
+    demoted out of the S&P indices. Rebuilding the universe from scratch each day
+    means a dropped name simply stops appearing, which silently bakes survivorship
+    bias into the panel: you would only ever see the companies that made it, and a
+    backtest over that data would quietly overstate returns.
+
+    So the registry is append-only. Nothing is ever removed from it, and a ticker
+    that leaves the index is marked dropped with the date it left, rather than
+    deleted. Returns (registry, added, dropped, retained)."""
+    registry = load_ticker_registry()
+    current_by_ticker = {s["ticker"]: s for s in current}
+
+    # Bootstrap: on the first run the registry file does not exist yet, so it
+    # would learn only about names currently in an index. Anything that had
+    # already left before the registry existed would be invisible: never
+    # registered, never retained, silently absent from the panel. Seed those from
+    # the previous universe cache so they enter as dropped rather than vanishing.
+    for s in (previously_known or []):
+        ticker = s.get("ticker")
+        if not ticker or ticker in registry or ticker in current_by_ticker:
+            continue
+        registry[ticker] = {
+            "ticker": ticker,
+            "name": s.get("name", ""),
+            "sector": s.get("sector", ""),
+            "sub_industry": s.get("sub_industry", ""),
+            "index": s.get("index", ""),
+            # Unknown when it first appeared; its last refresh is the best proxy.
+            "first_seen": s.get("last_updated") or today,
+            "last_seen_in_index": s.get("last_updated") or today,
+            "status": "active",   # reconciled to dropped by the loop below
+            "dropped_on": "",
+        }
+
+    added = []
+    for ticker, s in current_by_ticker.items():
+        row = registry.get(ticker)
+        if row is None:
+            added.append(ticker)
+            row = {"ticker": ticker, "first_seen": today}
+            registry[ticker] = row
+        row.update({
+            "name": s.get("name") or row.get("name", ""),
+            "sector": s.get("sector") or row.get("sector", ""),
+            "sub_industry": s.get("sub_industry") or row.get("sub_industry", ""),
+            "index": s.get("index") or row.get("index", ""),
+            "last_seen_in_index": today,
+            "status": "active",
+            "dropped_on": "",
+        })
+
+    dropped, retained = [], []
+    for ticker, row in registry.items():
+        if ticker in current_by_ticker:
+            continue
+        if row.get("status") != "dropped":
+            # First run where this name is absent from every index.
+            row["status"] = "dropped"
+            row["dropped_on"] = row.get("last_seen_in_index") or today
+            dropped.append(ticker)
+        if _days_between(row.get("dropped_on"), today) <= RETAIN_DROPPED_DAYS:
+            retained.append(ticker)
+
+    return registry, added, dropped, retained
+
+
+def _days_between(start_iso, end_iso):
+    """Whole days from start to end, or a large number if unparseable."""
+    try:
+        a = datetime.strptime(start_iso, "%Y-%m-%d")
+        b = datetime.strptime(end_iso, "%Y-%m-%d")
+        return (b - a).days
+    except (TypeError, ValueError):
+        return 10 ** 6
+
+
+def save_ticker_registry(registry):
+    """Rewritten in full each run: small (a few thousand rows) and always sorted,
+    so the git diff shows exactly which names entered or left."""
+    rows = [{c: r.get(c, "") for c in TICKER_COLUMNS}
+            for r in sorted(registry.values(), key=lambda r: r["ticker"])]
+    _atomic_write_csv(TICKERS_CSV, TICKER_COLUMNS, rows)
+    active = sum(1 for r in rows if r.get("status") == "active")
+    print(f"registry: {len(rows)} tickers known ({active} active, {len(rows) - active} dropped).")
 
 
 def _age_hours_from_iso(value):
@@ -5523,6 +5674,66 @@ def get_or_generate_stocks_universe():
         print("stocks_universe: Wikipedia + iShares returned nothing, falling back to last cache.")
         return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
 
+    # A PARTIAL scrape is more dangerous than a total one, because it looks fine.
+    # fetch_wikipedia_constituents returns [] on a timeout, an HTTP error or a table
+    # layout change, and fetch_all_universes just concatenates whatever it gets. If
+    # one of the three S&P pages fails, ~600 live constituents go missing, the
+    # reconciliation below marks every one of them dropped, and in_index=0 is written
+    # into the append-only panel. The registry self-heals the next day; the panel
+    # never does, because record_fundamentals refuses to rewrite an existing date.
+    # The row count is unchanged on such a day (false drops are re-added as
+    # retained), so only this check catches it. Real single-day index turnover is
+    # a fraction of a percent; anything past 10% is a scrape failure by definition.
+    prior_active = sum(1 for r in load_ticker_registry().values()
+                       if r.get("status") == "active")
+    if prior_active and len(stocks) < 0.9 * prior_active:
+        print(f"stocks_universe: ABORT, scrape returned {len(stocks)} tickers vs "
+              f"{prior_active} active yesterday ({len(stocks) / prior_active:.0%}). "
+              f"Treating as a source failure, not {prior_active - len(stocks)} delistings. "
+              f"Keeping yesterday's universe; the registry and in_index are untouched.")
+        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
+
+    # Reconcile against the permanent registry and mark who is currently indexed.
+    registry, added, dropped, retained = update_ticker_registry(
+        stocks, date_key, previously_known=(last_known or {}).get("stocks") or [])
+    for s in stocks:
+        s["in_index"] = 1
+    if added:
+        print(f"registry: {len(added)} new tickers: {', '.join(sorted(added)[:12])}"
+              + (" ..." if len(added) > 12 else ""))
+    if dropped:
+        print(f"registry: {len(dropped)} left the index: {', '.join(sorted(dropped)[:12])}"
+              + (" ..." if len(dropped) > 12 else ""))
+
+    # Keep collecting recently-dropped names. Without this the panel would only
+    # ever contain survivors, and any return computed over it would be overstated.
+    # They carry in_index=0 so consumers can filter, and their last known static
+    # fields come from the registry since the index scrape no longer supplies them.
+    current_tickers = {s["ticker"] for s in stocks}
+    revived = 0
+    for ticker in retained:
+        if ticker in current_tickers:
+            continue
+        reg_row = registry.get(ticker, {})
+        # Seed ONLY the static identity fields. Everything else is left absent so
+        # the CARRY_FIELDS merge below fills it from the previous cache, which
+        # deliberately excludes price, change_pct and volume. Copying the whole
+        # prior record here would smuggle yesterday's price into a row stamped
+        # with today's date, which is precisely the staleness the merge avoids.
+        stocks.append({
+            "ticker": ticker,
+            "name": reg_row.get("name", ""),
+            "sector": reg_row.get("sector", ""),
+            "sub_industry": reg_row.get("sub_industry", ""),
+            "index": reg_row.get("index", ""),
+            "in_index": 0,
+        })
+        revived += 1
+    if revived:
+        print(f"registry: still collecting {revived} dropped tickers "
+              f"(within {RETAIN_DROPPED_DAYS} days of removal).")
+    save_ticker_registry(registry)
+
     # Merge static enrichment fields from previous cache as a fallback layer.
     # Slow-changing fields are carried forward; volatile intraday fields (price,
     # change_pct, volume) are NOT, to avoid showing yesterday's number as today's.
@@ -5542,6 +5753,8 @@ def get_or_generate_stocks_universe():
         "news_lm_avg", "news_vader_avg", "news_count_7d",
         # Neglect inputs + composite (Lynch)
         "analyst_count", "inst_ownership", "insider_ownership", "neglect_score",
+        # Index membership: 1 currently indexed, 0 retained after removal
+        "in_index",
         # Insider Form 4 signals (Seyhun, refreshed weekly)
         "insider_net_buy_90d", "insider_buyer_count_90d", "insider_seller_count_90d",
         "insider_cluster_max_30d", "insider_cluster_score", "insider_tx_count_90d",
@@ -6404,7 +6617,20 @@ def lambda_handler(event, context):
     # 5. Fundamentals panel: one row per ticker per day.
     universe = get_or_generate_stocks_universe()
     stocks = (universe or {}).get("stocks") or []
-    record_fundamentals(stocks, date_iso)
+
+    # Only record a panel row on days the market actually traded. The daily run
+    # fires after the close, so a Saturday run would stamp Friday's closing prices
+    # with Saturday's date, and Sunday would do it again: three identical rows for
+    # one trading day, which silently corrupts any return, volatility or drawdown
+    # computed over the panel.
+    #
+    # Weekends only. Exchange holidays still slip through, since detecting them
+    # needs a market calendar this project does not carry; those rows repeat the
+    # prior close but are identifiable via the last_updated column.
+    if now_et.weekday() >= 5:
+        print(f"fundamentals: {date_iso} is a weekend, no trading day to record.")
+    else:
+        record_fundamentals(stocks, date_iso)
 
     # 6. Publish the snapshot page and rebuild the site.
     title = f"Daily Brief · {date_str}"

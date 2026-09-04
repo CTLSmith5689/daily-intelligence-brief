@@ -5,10 +5,18 @@ name: apterreon-brief
 # and finishes in well under a minute. The daily run additionally refreshes the
 # ~2,900-ticker fundamentals panel and rebuilds the site, which rewrites a ~325KB
 # index.html; doing that hourly would bloat the repo for no new information.
+#
+# Both crons run at :23, never on the hour. GitHub's own docs warn that scheduled
+# runs are delayed under load and that "high load times include the start of every
+# hour"; the first :00 run this schedule ever had did not fire within 20 minutes.
+#
+# The daily run is at 22:23 UTC, deliberately AFTER the US close in both EDT
+# (18:23 ET) and EST (17:23 ET). Running it pre-open, as it first did, would have
+# stamped each row with today's date while the prices in it were yesterday's close.
 on:
   schedule:
-    - cron: '0 11 * * *'           # 07:00 ET, daily: full refresh + site rebuild
-    - cron: '0 0-10,12-23 * * *'    # every other hour: record only
+    - cron: '23 22 * * *'            # 18:23 ET (EDT) / 17:23 ET (EST), after the close
+    - cron: '23 0-21,23 * * *'       # every other hour: record only
   workflow_dispatch:
     inputs:
       mode:
@@ -41,7 +49,7 @@ jobs:
         id: pick
         run: |
           case "${{ github.event.schedule }}" in
-            "0 11 * * *") MODE=daily  ;;
+            "23 22 * * *") MODE=daily  ;;
             "")           MODE="${{ github.event.inputs.mode || 'daily' }}" ;;
             *)            MODE=record ;;
           esac

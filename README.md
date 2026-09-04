@@ -16,7 +16,8 @@ view rebuilt from scratch each day and safe to regard as disposable.
 |---|---|---|
 | `data/quotes.csv` | hourly | one row per quote per observation |
 | `data/headlines/YYYY-MM.csv` | hourly | one row per article, deduped on link |
-| `data/fundamentals/YYYY-MM.csv` | daily | one row per ticker per day, ~50 columns |
+| `data/fundamentals/YYYY-MM.csv` | trading days | one row per ticker per day, ~50 columns |
+| `data/tickers.csv` | daily | every ticker ever seen, with first/last seen and status |
 
 `headlines` dedupes on link across the month, so `first_seen` is genuinely the
 first time the pipeline saw an article, not the most recent hour it was still on
@@ -31,6 +32,33 @@ which removes binary-float noise like `0.22199999999999998`.
 import pandas as pd, glob
 df = pd.concat(pd.read_csv(f) for f in glob.glob("data/fundamentals/*.csv"))
 ```
+
+### Survivorship bias
+
+Index membership churns: names get acquired, delisted, or demoted out of the S&P
+indices. The universe is rebuilt from Wikipedia each day, so a removed ticker would
+simply stop appearing, and a panel containing only the survivors overstates returns.
+
+`data/tickers.csv` is therefore append-only. Nothing is ever deleted from it. A
+ticker that leaves is marked `status=dropped` with the `dropped_on` date, and is
+*still collected* for `RETAIN_DROPPED_DAYS` (400) afterwards so its post-removal
+history exists. Those rows carry `in_index=0`; current members carry `in_index=1`.
+
+```python
+panel = pd.read_csv("data/fundamentals/2026-09.csv")
+indexed_only = panel[panel.in_index == 1]   # opt IN to survivorship bias, knowingly
+```
+
+Rows are only written on days the market traded. The daily run fires after the
+close, so without that guard a weekend run would stamp Friday's closing prices with
+Saturday's date. Exchange holidays are not detected and will repeat the prior
+close; `last_updated` identifies them.
+
+### Schema changes
+
+Adding a field appends a column to the current month's CSV and back-fills existing
+rows as empty, rather than silently dropping it (`csv.DictWriter` is configured with
+`extrasaction="ignore"`, so a new field would otherwise vanish with no error).
 
 ### Refresh cadence is deliberately split
 
@@ -53,13 +81,18 @@ a problem.
 
 | Cron | Mode | What it does |
 |---|---|---|
-| `0 11 * * *` | `daily` | Record, refresh fundamentals, rebuild the site |
-| `0 0-10,12-23 * * *` | `record` | Quotes + headlines to CSV only |
+| `23 22 * * *` | `daily` | Record, refresh fundamentals, rebuild the site |
+| `23 0-21,23 * * *` | `record` | Quotes + headlines to CSV only |
 
-The hourly and daily crons deliberately do not overlap at 11:00. The daily run
-also records, so nothing is missed.
+Both run at `:23`, never on the hour. GitHub's docs warn that scheduled runs are
+delayed under load and that high load includes the start of every hour; the first
+`:00` run this schedule had did not fire at all.
 
-Actions cron is best-effort and can run 5 to 15 minutes late under load.
+The daily run is at 22:23 UTC deliberately: that is after the US close in both EDT
+(18:23 ET) and EST (17:23 ET), so a row dated today contains today's close. It
+previously ran pre-open, which stamped today's date on yesterday's prices.
+
+Actions cron is best-effort and can still run late.
 
 ## Required GitHub config
 
