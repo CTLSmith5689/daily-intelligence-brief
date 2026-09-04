@@ -9,6 +9,7 @@ import os
 import re
 import ssl
 import csv
+import io
 import json
 import math
 import smtplib
@@ -279,7 +280,14 @@ def record_fundamentals(stocks, date_iso):
     columns = _widen_csv_schema(path, FUNDAMENTAL_LEAD + rest)
 
     rows = []
+    skipped_empty = 0
     for s in stocks:
+        # Broadening the universe to every US listing brings in thousands of names
+        # yfinance has no data for. A row with neither a price nor a market cap
+        # carries no information, so record nothing rather than a line of commas.
+        if s.get("price") is None and s.get("market_cap") is None:
+            skipped_empty += 1
+            continue
         row = {"date": date_iso}
         for k, v in s.items():
             if k in FUNDAMENTAL_SKIP_FIELDS or isinstance(v, (dict, list)):
@@ -292,7 +300,9 @@ def record_fundamentals(stocks, date_iso):
         rows.append(row)
 
     n = _append_csv(path, columns, rows)
-    print(f"csv: appended {n} fundamentals rows for {date_iso} to data/fundamentals/{path.name}.")
+    empty_note = f", {skipped_empty} skipped with no price or market cap" if skipped_empty else ""
+    print(f"csv: appended {n} fundamentals rows for {date_iso} "
+          f"to data/fundamentals/{path.name}{empty_note}.")
     return n
 
 
@@ -4265,6 +4275,119 @@ def fetch_ishares_holdings(url, label):
     return out
 
 
+# -- NASDAQ Trader symbol directory ----------------------------------------
+#
+# Replaces the dead iShares Russell feed as the source of small-cap breadth. These
+# are plain pipe-delimited text files regenerated once per business day: no API key,
+# no quota, and verified to serve identical bytes to five different user agents
+# including an empty one, so unlike iShares there is no browser gating to rot.
+#
+# They carry no sector column; enrich_with_yfinance supplies that. S&P sources are
+# merged FIRST in fetch_all_universes so their cleaner GICS classification wins on
+# any overlapping ticker, and these only fill in what the indices do not cover.
+NASDAQ_TRADER_SOURCES = [
+    {"url": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt", "kind": "nasdaq"},
+    {"url": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt", "kind": "other"},
+]
+
+# Security-type tells, used to keep operating companies and drop everything else.
+_NT_BAD_NAME = re.compile(
+    r"\b(warrant|unit|right|preferred|depositary|debenture|note|"
+    r"beneficial interest|etn|when[- ]issued|contingent value)\b", re.I)
+_NT_SUFFIX_CODES = set("WRULPZQ")   # 5th char of a 5-char Nasdaq symbol
+_NT_FUND_VENUES = {"P", "Z"}        # NYSE Arca, Cboe BZX: fund listing venues
+_NT_BAD_FIN_STATUS = {"D", "E", "H", "Q"}  # deficient / delinquent / bankrupt
+_NT_EXCHANGES = {"N": "NYSE", "A": "NYSE American", "P": "NYSE Arca", "Z": "Cboe BZX"}
+
+
+def _nt_reject(symbol, name, is_etf, is_test, nextshares, exchange_code, fin_status):
+    """Why this row is not an operating-company common stock, or None to keep it."""
+    if is_test == "Y":
+        return "test issue"
+    if is_etf == "Y":
+        return "ETF"
+    if nextshares == "Y":
+        return "NextShares fund"
+    if exchange_code in _NT_FUND_VENUES:
+        return "fund listing venue"
+    if "$" in symbol or "." in symbol:
+        return "class/preferred suffix"
+    if len(symbol) == 5 and symbol[4] in _NT_SUFFIX_CODES:
+        return "security-type suffix"
+    if fin_status in _NT_BAD_FIN_STATUS:
+        return "financial status"
+    if _NT_BAD_NAME.search(name or ""):
+        return "non-common-stock name"
+    if not re.fullmatch(r"[A-Z]{1,5}", symbol or ""):
+        return "non-alphabetic symbol"
+    return None
+
+
+def fetch_nasdaq_trader_listings():
+    """US-listed operating-company common stock from the NASDAQ Trader directory."""
+    out, seen, rejected = [], set(), {}
+    for source in NASDAQ_TRADER_SOURCES:
+        try:
+            req = urllib.request.Request(source["url"], headers={
+                "User-Agent": EDGAR_USER_AGENT,
+                "Accept": "text/plain,*/*",
+            })
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                text = resp.read().decode("utf-8", errors="replace")
+        except Exception as exc:
+            print(f"nasdaqtrader: fetch failed for {source['kind']}: {exc}")
+            continue
+
+        # nasdaqtrader.com answers 200 with an HTML page on a bad path, which is
+        # exactly how the iShares feed failed silently for two months.
+        if text.lstrip()[:1] == "<":
+            head = " ".join(text.lstrip()[:120].split())
+            print(f"nasdaqtrader: {source['kind']} returned HTML, not data: {head!r}")
+            continue
+
+        # The final line is a "File Creation Time:" trailer, not a record.
+        lines = [ln for ln in text.splitlines()
+                 if ln and not ln.startswith("File Creation Time")]
+        if len(lines) < 100:
+            print(f"nasdaqtrader: {source['kind']} only {len(lines)} lines, ignoring.")
+            continue
+
+        kept = 0
+        for row in csv.DictReader(io.StringIO("\n".join(lines)), delimiter="|"):
+            if source["kind"] == "nasdaq":
+                symbol = (row.get("Symbol") or "").strip()
+                venue = "Nasdaq"
+                reason = _nt_reject(symbol, row.get("Security Name"), row.get("ETF"),
+                                    row.get("Test Issue"), row.get("NextShares"),
+                                    "", row.get("Financial Status"))
+            else:
+                symbol = (row.get("ACT Symbol") or "").strip()
+                exchange_code = (row.get("Exchange") or "").strip()
+                venue = _NT_EXCHANGES.get(exchange_code, exchange_code or "Other")
+                reason = _nt_reject(symbol, row.get("Security Name"), row.get("ETF"),
+                                    row.get("Test Issue"), "", exchange_code, "")
+            if reason:
+                rejected[reason] = rejected.get(reason, 0) + 1
+                continue
+            if symbol in seen:
+                continue
+            seen.add(symbol)
+            out.append({
+                "ticker": symbol,
+                "name": (row.get("Security Name") or "").strip(),
+                "sector": "",        # not in these files; yfinance fills it in
+                "sub_industry": "",
+                "index": venue,
+            })
+            kept += 1
+        print(f"nasdaqtrader {source['kind']}: kept {kept} of {len(lines) - 1} rows.")
+
+    if rejected:
+        summary = ", ".join(f"{k} {v}" for k, v in sorted(rejected.items(), key=lambda x: -x[1]))
+        print(f"nasdaqtrader: filtered out {sum(rejected.values())} non-operating rows ({summary}).")
+    return out
+
+
 def fetch_all_universes():
     """Build the full deduplicated stock universe from Wikipedia (S&P 500/400/600),
     plus any working ISHARES_SOURCES. S&P sources go first because their sector
@@ -4294,6 +4417,20 @@ def fetch_all_universes():
             out.append(r)
             kept += 1
         print(f"Wikipedia {src['label']}: parsed {len(rows)} rows, kept {kept} new tickers (total now {len(out)}).")
+
+    # Broad US listings last: they have no sector, so anything already claimed by
+    # an S&P index keeps its GICS classification and only genuinely new small caps
+    # are added here.
+    nt_rows = fetch_nasdaq_trader_listings()
+    nt_kept = 0
+    for r in nt_rows:
+        if r["ticker"] in seen:
+            continue
+        seen.add(r["ticker"])
+        out.append(r)
+        nt_kept += 1
+    if nt_rows:
+        print(f"nasdaqtrader: added {nt_kept} tickers not in any S&P index (total now {len(out)}).")
 
     for src in ISHARES_SOURCES:
         rows = fetch_ishares_holdings(src["url"], src["label"])
@@ -4432,6 +4569,20 @@ def enrich_with_yfinance(stocks, max_workers=6):
                     s["pe"] = pe
                 if vol is not None and vol > 0:
                     s["volume"] = vol
+
+                # -- Classification --------------------------
+                # The NASDAQ Trader directory carries no sector, so for every
+                # non-S&P name this is the only place classification comes from.
+                # Sector drives the peer-relative factor z-scores on the stocks
+                # page, so a blank one silently drops the row out of those stats.
+                if not s.get("sector"):
+                    sector_name = info.get("sector")
+                    if isinstance(sector_name, str) and sector_name.strip():
+                        s["sector"] = sector_name.strip()
+                if not s.get("sub_industry"):
+                    industry_name = info.get("industry")
+                    if isinstance(industry_name, str) and industry_name.strip():
+                        s["sub_industry"] = industry_name.strip()
 
                 # ── Growth factors ──────────────────────────
                 rev_g = info.get("revenueGrowth")

@@ -60,6 +60,30 @@ Adding a field appends a column to the current month's CSV and back-fills existi
 rows as empty, rather than silently dropping it (`csv.DictWriter` is configured with
 `extrasaction="ignore"`, so a new field would otherwise vanish with no error).
 
+### Universe
+
+~5,300 US-listed operating companies, from two sources merged in this order:
+
+1. **Wikipedia** S&P 500/400/600 (~1,500). First, because their GICS sector
+   classification is cleaner and should win on any overlapping ticker.
+2. **NASDAQ Trader symbol directory** (~3,800 more). Plain pipe-delimited files,
+   no API key, no quota, regenerated each business day. ETFs, warrants, units,
+   rights, preferreds, test issues and financially deficient listings are filtered
+   out; only operating-company common stock is kept.
+
+These files carry no sector, so `enrich_with_yfinance` supplies it for the non-S&P
+names. This replaced an iShares Russell holdings feed that died: it began answering
+HTTP 200 with `Content-Type: text/csv` and an HTML body, which went unnoticed for
+two months. Both sources now assert the body is not HTML before parsing.
+
+A partial scrape is more dangerous than a total one, because it looks fine. If one
+source fails, the universe shrinks and every missing name would be marked as having
+left the index. The build therefore aborts to the previous day's cache if the scrape
+returns under 90% of the previously-active count.
+
+Rows with neither a price nor a market cap are not written. Broadening to every US
+listing brings in many names yfinance has nothing for, and a line of commas is noise.
+
 ### Refresh cadence is deliberately split
 
 Different sources move at different speeds, so they are gated separately:
@@ -73,7 +97,8 @@ Different sources move at different speeds, so they are gated separately:
 
 ### Growth
 
-Roughly 240 MB/year, almost entirely `fundamentals`. Worth revisiting (compression,
+Roughly 500-700 MB/year at the current ~5,300-ticker universe, almost entirely
+`fundamentals`. Worth revisiting (compression,
 or splitting static ticker metadata into its own reference table) before it becomes
 a problem.
 
