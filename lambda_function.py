@@ -2433,9 +2433,21 @@ STORIES_JS_TEMPLATE = """
 
 STOCKS_JS_TEMPLATE = """
 (function() {
-  const ALL = __STOCKS_JSON__;
+  // The universe is fetched rather than inlined. Inlined, it made stocks.html
+  // 5.8 MB of which ~93% was data the parser had to chew through before first
+  // paint, on every load, uncacheable separately from the markup.
+  let ALL = [];
   const SECTORS = __SECTORS_JSON__;
   const INDEXES = __INDEXES_JSON__;
+  const DATA_URL = __DATA_URL__;
+  // Order of the positional `pct` array on each stock, matching SCORE_FIELDS in
+  // lambda_function.py. Index into it rather than looking up by name.
+  const PCT_ORDER = __PCT_FIELDS_JSON__;
+  const pctOf = (s, field) => {
+    if (!s.pct) return null;
+    const i = PCT_ORDER.indexOf(field);
+    return i < 0 ? null : s.pct[i];
+  };
   const listEl = document.getElementById('stk-list');
   const searchEl = document.getElementById('stk-search');
   const clearEl = document.getElementById('stk-clear');
@@ -2698,7 +2710,8 @@ STOCKS_JS_TEMPLATE = """
 
   // Pre-compute per-sector mean and stddev for every scoring field at init.
   // ~12 sectors x ~20 fields = 240 stats objects, computed once. Fast.
-  const PEER_STATS = (function() {
+  let PEER_STATS = {};
+  function buildPeerStats() {
     const stats = {};
     const allFields = new Set();
     for (const g of Object.values(SCORE_GROUPS)) {
@@ -2725,7 +2738,7 @@ STOCKS_JS_TEMPLATE = """
       }
     }
     return stats;
-  })();
+  }
 
   function scoreDimension(s, groupKey) {
     const sector = s.sector || 'Unknown';
@@ -3947,9 +3960,31 @@ STOCKS_JS_TEMPLATE = """
       el.textContent = 'Universe: ' + fmtStatVal(mn, type) + ' to ' + fmtStatVal(mx, type) + ' across ' + n.toLocaleString() + ' names';
     });
   }
-  populateRangeStats();
+  function boot(data) {
+    ALL = Array.isArray(data) ? data : [];
+    PEER_STATS = buildPeerStats();
+    populateRangeStats();
+    render();
+  }
 
-  render();
+  if (listEl) {
+    listEl.innerHTML = '<div class="empty-state">Loading the universe...</div>';
+  }
+  fetch(DATA_URL, { cache: 'no-cache' })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(boot)
+    .catch(function(err) {
+      // Say what happened. A silently empty screener looks like "no matches",
+      // which is a very different claim from "the data failed to load".
+      console.error('stocks: could not load ' + DATA_URL, err);
+      if (listEl) {
+        listEl.innerHTML = '<div class="empty-state">Could not load the stock universe (' +
+          String(err.message || err) + '). Reload to retry.</div>';
+      }
+    });
 })();
 """
 
@@ -5979,7 +6014,12 @@ def compute_peer_scores(stocks):
         s["q"] = dim_scores["Quality"]
         present = sum(1 for d in dim_scores.values() if d is not None)
         s["dims_present"] = present
-        s["pct"] = pct
+        # Positional, in SCORE_FIELDS order, not a dict. Twenty full field names
+        # repeated across 5,336 stocks cost 0.72 MB in key strings alone, which
+        # was 80% of what this map weighed in the payload.
+        s["pct"] = [pct.get(f) for f in SCORE_FIELDS]
+        if not any(v is not None for v in s["pct"]):
+            s["pct"] = None
         # Only stocks measured on enough dimensions get a rankable score. The rest
         # keep their dimension values for display but are not ranked against them.
         s["scorable"] = 1 if present >= MIN_DIMENSIONS_FOR_COMPOSITE else 0
@@ -6654,7 +6694,25 @@ def generate_stocks_page(universe):
             seen_idx.add(idx)
             indexes.append(idx)
 
-    stocks_json = json.dumps(stocks, separators=(",", ":"))
+    # Trim before writing: drop nulls and empty strings (absent keys read the
+    # same to the client) and round floats, which otherwise carry ~12 digits of
+    # binary noise apiece. Together these take the payload from 4.64 MB to 3.3 MB
+    # before gzip, and GitHub Pages serves it gzipped at ~0.6 MB.
+    def _trim(stock):
+        out = {}
+        for k, v in stock.items():
+            if v is None or v == "":
+                continue
+            out[k] = round(v, 4) if isinstance(v, float) else v
+        return out
+
+    data_path = DOCS_DIR / "stocks-data.json"
+    data_path.write_text(
+        json.dumps([_trim(s) for s in stocks], separators=(",", ":")),
+        encoding="utf-8")
+    print(f"stocks: wrote {data_path.name} "
+          f"({data_path.stat().st_size / 1024 / 1024:.2f} MB, {len(stocks)} tickers).")
+    stocks_json = json.dumps("stocks-data.json")
     sectors_json = json.dumps(sectors)
     indexes_json = json.dumps(indexes)
 
@@ -6892,7 +6950,8 @@ def generate_stocks_page(universe):
 </section>
 """
     stocks_js = (STOCKS_JS_TEMPLATE
-                 .replace("__STOCKS_JSON__", stocks_json)
+                 .replace("__DATA_URL__", stocks_json)
+                 .replace("__PCT_FIELDS_JSON__", json.dumps(SCORE_FIELDS))
                  .replace("__SECTORS_JSON__", sectors_json)
                  .replace("__INDEXES_JSON__", indexes_json))
     html = render_page("Stocks, Apterreon", body, active_nav="stocks", extra_scripts=stocks_js)
