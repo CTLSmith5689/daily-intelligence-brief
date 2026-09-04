@@ -1947,6 +1947,7 @@ h1.hero-title {
 }
 .stk-filter-input:focus { border-color:var(--apt-red); box-shadow:0 0 0 2px rgba(255,31,61,0.10); }
 .stk-filter-input::placeholder { color:var(--text-5); }
+.stk-filter-input.stk-bad { border-bottom-color:var(--apt-red); color:var(--apt-red); }
 .stk-filter-sep { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); text-align:center; }
 .stk-filter-hint { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; }
 .stk-filter-stat { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.5px; color:var(--text-4); text-transform:none; font-style:italic; }
@@ -2782,6 +2783,10 @@ STOCKS_JS_TEMPLATE = """
   function parseFilterInput(raw, field) {
     if (raw == null) return null;
     let s = String(raw).trim().toUpperCase();
+    // Thousands separators, spaces and a leading currency symbol are all things
+    // a reader types, and parseFloat stops dead at the first of them. The field
+    // suggests "10,000" itself, so refusing to read it back was indefensible.
+    s = s.replace(/[$, ]/g, '');
     if (!s) return null;
     let mult = 1;
     if (s.endsWith('T'))      { mult = 1e12; s = s.slice(0, -1); }
@@ -3834,6 +3839,10 @@ STOCKS_JS_TEMPLATE = """
   // tall viewport or a short result set fills in one pass. The guard stops a
   // pathological layout from looping forever.
   function fillWindow() {
+    // A hidden .stk-table has no client rects, so the runway test below would
+    // read bottom = 0 forever and paint the entire universe into a list that is
+    // not on screen. Nothing to fill until it can measure itself.
+    if (!listEl.getClientRects().length) return;
     let guard = 0, grew = false;
     while (shownCount < windowRows.length && guard++ < 60) {
       if (listEl.getBoundingClientRect().bottom > window.innerHeight + EXTEND_MARGIN) break;
@@ -3885,8 +3894,17 @@ STOCKS_JS_TEMPLATE = """
     }
     windowRows = filtered;
     shownCount = 0;
+    // Emptying the list collapses the document, and the first layout read in
+    // fillWindow makes the browser clamp the scroll offset to the top. Put the
+    // reader back where they were, then refill: the restored offset may sit
+    // below what one page of rows covers.
+    const keepY = window.scrollY;
     listEl.innerHTML = '';
     fillWindow();
+    if (keepY && window.scrollY !== keepY) {
+      window.scrollTo({ top: keepY, behavior: 'instant' });
+      fillWindow();
+    }
     redrawExpanded();
     // The chart and the radar read the same filtered set, so they have to be
     // redrawn when it changes. Without this they kept whatever they were
@@ -3973,20 +3991,31 @@ STOCKS_JS_TEMPLATE = """
     indexChipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
     render();
   });
-  document.querySelectorAll('.stk-th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      const k = th.dataset.sort;
-      if (sortKey === k) {
-        sortDir = -sortDir;
-      } else {
-        sortKey = k;
-        // String columns: ascending. Numeric / score / date: descending (best/most recent first).
-        sortDir = (k === 'ticker' || k === 'name' || k === 'sector') ? 1 : -1;
-      }
-      document.querySelectorAll('.stk-th').forEach(h => h.classList.remove('asc','desc'));
-      th.classList.add(sortDir > 0 ? 'asc' : 'desc');
-      render();
+  // The pill row and the column headers are two controls over one piece of
+  // state. They each used to write it and repaint only themselves, so they
+  // disagreed the moment either was touched, and disagreed on first paint.
+  function syncSortControls() {
+    document.querySelectorAll('.stk-th').forEach(function(h) {
+      h.classList.remove('asc', 'desc');
     });
+    const th = document.querySelector('.stk-th[data-sort="' + sortKey + '"]');
+    if (th) th.classList.add(sortDir > 0 ? 'asc' : 'desc');
+    document.querySelectorAll('.stk-sort').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.sortby === sortKey);
+    });
+  }
+
+  function setSort(key) {
+    if (sortKey === key) sortDir = -sortDir;
+    // String columns ascending; numbers, scores and dates descending, so the
+    // first click always shows the most interesting end first.
+    else { sortKey = key; sortDir = (key === 'ticker' || key === 'name' || key === 'sector') ? 1 : -1; }
+    syncSortControls();
+    render();
+  }
+
+  document.querySelectorAll('.stk-th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => setSort(th.dataset.sort));
   });
 
   // ── Advanced filter panel ───────────────────────────────────────
@@ -4021,7 +4050,12 @@ STOCKS_JS_TEMPLATE = """
       if (!badge) return;
       let n = 0;
       grp.querySelectorAll('.stk-filter-input').forEach(function(inp) {
-        if (String(inp.value || '').trim() !== '') n++;
+        // Count what actually filters, and mark what does not, so a value the
+        // parser rejected cannot masquerade as an applied bound.
+        const rawV = String(inp.value || '').trim();
+        const okV = rawV !== '' && parseFilterInput(rawV, inp.dataset.filter) != null;
+        inp.classList.toggle('stk-bad', rawV !== '' && !okV);
+        if (okV) n++;
       });
       badge.textContent = n ? String(n) : '';
     });
@@ -4224,13 +4258,14 @@ STOCKS_JS_TEMPLATE = """
       const dataVal = range ? range[b] : null;
       if (dataVal == null) { inp.value = ''; return; }
       // Convert back from data units to display units for percent fields
-      if (PCT_FIELDS.has(f)) inp.value = (dataVal * 100).toString();
-      else if (CAP_FIELDS.has(f)) {
-        // Millions, bare, matching what the field asks for. Writing "300M"
-        // here would read as 300 million millions against a label saying $M.
-        const m = dataVal / 1e6;
-        inp.value = String(Math.round(m * 1000) / 1000);
-      } else inp.value = String(dataVal);
+      // toPrecision(12) collapses the binary noise a round-trip through
+      // decimal introduces (7.000000000000001 back to 7) without quantising a
+      // value the reader actually typed.
+      if (PCT_FIELDS.has(f)) inp.value = String(Number((dataVal * 100).toPrecision(12)));
+      // Millions, bare, matching what the field asks for. Writing "300M" here
+      // would read as 300 million millions against a label saying $M.
+      else if (CAP_FIELDS.has(f)) inp.value = String(Number((dataVal / 1e6).toPrecision(12)));
+      else inp.value = String(dataVal);
     });
     // Toggles + select
     onlyEnriched = !!v.onlyEnriched;
@@ -4768,7 +4803,7 @@ STOCKS_JS_TEMPLATE = """
     for (const s of rows) {
       const x = cfg.gx(s), y = cfg.gy(s);
       if (x == null || y == null || !isFinite(x) || !isFinite(y)) continue;
-      pts.push({ s: s, x: x, y: y });
+      pts.push({ s: cfg.row ? cfg.row(s) : s, x: x, y: y });
     }
     if (cfg.title) {
       ctx.fillStyle = dim;
@@ -4964,23 +4999,29 @@ STOCKS_JS_TEMPLATE = """
     // company on the left as on the right.
     const capMax = Math.max.apply(null, rows.map(function(s) { return s.market_cap || 0; })) || 1;
     const halfW = Math.floor(w / 2);
-    let n = 0;
+    // Each panel drops the rows missing its own two factors, so they plot
+    // different counts. Report the larger, and say which, rather than silently
+    // reporting whichever happened to be drawn last.
+    const counts = [];
     PAIR_PANELS.forEach(function(cfg, i) {
       const box = { x: i * halfW, y: 0, w: halfW, h: h };
-      n = drawPanel(ctx, rows, box, {
+      counts.push(drawPanel(ctx, rows, box, {
         gx: function(s) { return s[cfg.x]; },
         gy: function(s) { return s[cfg.y]; },
         xl: cfg.xl, yl: cfg.yl, title: cfg.title,
         symmetric: true, capMax: capMax, pad: 40,
-      }, ink, line, dim, chartHit);
+      }, ink, line, dim, chartHit));
     });
+    const n = Math.max.apply(null, counts);
     // A hairline between the two, so they read as two charts and not one wide
     // one with a gap in the middle.
     ctx.strokeStyle = line; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(halfW, 18); ctx.lineTo(halfW, h - 18); ctx.stroke();
     if (foot) {
-      foot.textContent = n.toLocaleString() + ' plotted of ' +
-        currentFiltered().length.toLocaleString() + ' matching \u00b7 ' +
+      foot.textContent = (counts[0] === counts[1]
+          ? n.toLocaleString() + ' plotted'
+          : counts[0].toLocaleString() + ' left, ' + counts[1].toLocaleString() + ' right') +
+        ' of ' + currentFiltered().length.toLocaleString() + ' matching \u00b7 ' +
         'only companies scored on 3 of 4 dimensions can be placed \u00b7 ' +
         (n > DENSITY_ABOVE
           ? 'shaded by how many companies fall in each cell, largest 70 drawn on top'
@@ -5038,11 +5079,12 @@ STOCKS_JS_TEMPLATE = """
     drawPanel(ctx, pts, { x: 0, y: 0, w: w, h: h }, {
       gx: function(p) { return p.x; },
       gy: function(p) { return p.y; },
+      // These rows are already {s, x, y} wrappers, so hand drawPanel the stock
+      // inside. Unwrapping after the fact fixed the hit targets but left every
+      // dot sized off an undefined market cap, which is to say all the same size.
+      row: function(p) { return p.s; },
       symmetric: !!lens.compass,
     }, ink, line, dim, chartHit);
-    // drawPanel wraps each row in {s}, but here the rows already are those
-    // wrappers, so unwrap what it pushed.
-    for (const hit of chartHit) hit.s = hit.s.s;
     document.getElementById('stk-chart-foot').textContent =
       pts.length.toLocaleString() + ' plotted of ' + currentFiltered().length.toLocaleString() +
       ' matching' + (lens.compass ? ' \u00b7 only companies scored on 3 of 4 dimensions can be placed' : '') +
@@ -5077,7 +5119,7 @@ STOCKS_JS_TEMPLATE = """
         if (spin) startSpin(); else stopSpin();
       });
     }
-    el.querySelectorAll('.stk-lens').forEach(function(b) {
+    el.querySelectorAll('.stk-lens[data-lens]').forEach(function(b) {
       b.addEventListener('click', function() {
         lens = LENSES.find(function(l) { return l.key === b.dataset.lens; }) || LENSES[0];
         renderLenses();
@@ -5164,6 +5206,9 @@ STOCKS_JS_TEMPLATE = """
     if (list) list.hidden = (v !== 'list');
     if (radar) radar.hidden = (v !== 'radar');
     if (chart) chart.hidden = (v !== 'chart');
+    // render() may have run while the list was hidden, which empties it and
+    // leaves shownCount at 0. Paint it now that it has a box to measure.
+    if (v === 'list') { fillWindow(); redrawExpanded(); }
     if (v === 'chart') { renderLenses(); drawChart(); startSpin(); }
     else stopSpin();
     document.querySelectorAll('.stk-view-btn').forEach(function(b) {
@@ -5187,17 +5232,9 @@ STOCKS_JS_TEMPLATE = """
   })();
 
   document.querySelectorAll('.stk-sort').forEach(function(b) {
-    b.addEventListener('click', function() {
-      const key = b.dataset.sortby;
-      // Clicking the active control flips direction, matching the column headers.
-      if (sortKey === key) { sortDir = -sortDir; }
-      else { sortKey = key; sortDir = (key === 'ticker') ? 1 : -1; }
-      document.querySelectorAll('.stk-sort').forEach(function(x) {
-        x.classList.toggle('active', x.dataset.sortby === key);
-      });
-      render();
-    });
+    b.addEventListener('click', function() { setSort(b.dataset.sortby); });
   });
+  syncSortControls();
 
   // The headline count is spelled out, which is the design's whole tone: a
   // number you read rather than parse. Only up to the tens of thousands, which
@@ -5315,8 +5352,11 @@ STOCKS_JS_TEMPLATE = """
     if (!ticker) return;
     // Picking is what puts a company on the radar, and it switches to that view
     // so the result of the click is visible rather than filed away behind a tab.
-    if (radarAdd(ticker)) setView('radar');
-    else renderRadar();
+    // Navigate on every pick, new or not. A ticker already on the radar is the
+    // one the reader is asking to see, and staying put while clearing the box
+    // made the click read as broken.
+    radarAdd(ticker);
+    setView('radar');
     if (searchEl) searchEl.value = '';
     if (clearEl) clearEl.hidden = true;
     query = '';
@@ -7352,8 +7392,19 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
         y, w, _ = d.isocalendar()
         return y == iso_year and w == iso_week
 
+    # A field added after the last run cannot wait for the ISO week to turn:
+    # the tickers that would carry it are exactly the ones already stamped.
+    # accruals_ratio sat at 0 of 5,336 for precisely this reason, which left
+    # Quality scoring on 4 of its 5 inputs for every company in the universe.
+    schema_gap = [f for f in ("accruals_ratio", "op_margin_history")
+                  if not any(s.get(f) is not None for s in stocks)]
+    if schema_gap:
+        print(f"EDGAR: {', '.join(schema_gap)} missing across the whole cache, "
+              f"ignoring the weekly stamp and refetching everything.")
+
     total_matched = len(matched)
-    matched = [(t, cik) for t, cik in matched if not is_fresh(t)]
+    if not schema_gap:
+        matched = [(t, cik) for t, cik in matched if not is_fresh(t)]
     if total_matched != len(matched):
         print(f"EDGAR: {total_matched - len(matched)} tickers already stamped this week, "
               f"{len(matched)} to fetch.")
