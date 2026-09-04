@@ -2058,6 +2058,13 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
   text-transform:uppercase; background:none; border:none; cursor:pointer; color:var(--text-4);
   border-bottom:1px solid transparent; padding:0 0 2px; margin-left:4px; }
 .stk-focus-clear:hover { color:var(--apt-red); border-bottom-color:var(--apt-red); }
+.stk-axis { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--text-1); background:var(--bg-base); border:none;
+  border-bottom:1px solid var(--text-1); padding:2px 2px 3px; cursor:pointer; max-width:180px; }
+.stk-axis:focus { outline:none; border-bottom-color:var(--apt-red); }
+.stk-axis-op { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--text-4); }
+.stk-axis-sep { width:1px; height:15px; background:var(--border-bright); margin:0 3px; }
 .stk-lenses { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
 .stk-lens { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
   padding:5px 10px; cursor:pointer; border:1px solid var(--border-bright); background:transparent; color:var(--text-3); }
@@ -4789,27 +4796,86 @@ STOCKS_JS_TEMPLATE = """
   // -- Chart ---------------------------------------------------------------
   // Canvas, not SVG: an unfiltered view is 5,336 points, and that many DOM
   // nodes costs far more than it buys when each one is a 3px dot.
-  const LENSES = [
-    { key:'pairs', label:'Four factors', pairs:true,
-      blurb:'All four factors, two plots, every one of them on a position axis. Left is the compounder view: earning well and still growing. Right is the value view: cheap and already moving. Nothing is projected or collapsed, so nothing is hiding behind anything.' },
-    { key:'gvmq', label:'GVMQ', compass:true,
-      tl:'Momentum', tr:'Growth', bl:'Value', br:'Quality',
-      blurb:'Each corner is one factor. A company sits in the direction of the factors it scores best on, and the further from the centre, the more lopsided the profile.' },
-    { key:'compounders', label:'Compounders', x:'q', y:'g',
-      tl:'', tr:'High growth + high quality', bl:'Weak on both', br:'',
-      xl:'Quality', yl:'Growth',
-      blurb:'Quality against growth. Top right is the compounder quadrant: earning well and still growing.' },
-    { key:'valmo', label:'Value / momentum', x:'v', y:'m',
-      tl:'', tr:'Cheap and moving', bl:'Expensive and falling', br:'',
-      xl:'Value', yl:'Momentum',
-      blurb:'Cheapness against price momentum. Top right is cheap and already re-rating; bottom left is the value trap corner.' },
-    { key:'sentiment', label:'Sentiment', x:'news_vader_avg', y:'m', raw:true,
-      xl:'News tone', yl:'Momentum',
-      blurb:'Seven days of headline tone against price momentum. Bottom right is the corner worth looking at: coverage has turned positive and the price has not moved yet. Tone is VADER over headlines, which reads plain sentiment well and sarcasm badly, so treat it as a hint rather than a finding.' },
-    { key:'neglect', label:'Neglect', x:'neglect_score', y:'q', raw:true,
-      xl:'Neglect', yl:'Quality',
-      blurb:'Under-followed names that still score on quality. Further right means less analyst, institutional and news coverage.' },
+  // Everything worth plotting, grouped the way the rail groups its filters.
+  // log marks quantities that span orders of magnitude and are meaningless on a
+  // linear axis: market cap runs from millions to trillions in one column.
+  const AXIS_FIELDS = [
+    { k:'__score__',          label:'Composite score',      g:'Score' },
+    { k:'g',                  label:'Growth score',         g:'Score' },
+    { k:'v',                  label:'Value score',          g:'Score' },
+    { k:'m',                  label:'Momentum score',       g:'Score' },
+    { k:'q',                  label:'Quality score',        g:'Score' },
+
+    { k:'market_cap',         label:'Market cap',           g:'Size',  log:true },
+    { k:'price',              label:'Price',                g:'Size',  log:true },
+    { k:'volume',             label:'Volume',               g:'Size',  log:true },
+    { k:'change_pct',         label:'1 day move',           g:'Size' },
+
+    { k:'pe',                 label:'P/E trailing',         g:'Value' },
+    { k:'ev_ebitda',          label:'EV/EBITDA',            g:'Value' },
+    { k:'ev_revenue',         label:'EV/Revenue',           g:'Value' },
+    { k:'price_book',         label:'Price/Book',           g:'Value' },
+    { k:'fcf_yield',          label:'FCF yield',            g:'Value' },
+
+    { k:'revenue_growth_yoy', label:'Revenue growth YoY',   g:'Growth' },
+    { k:'eps_growth_yoy',     label:'EPS growth YoY',       g:'Growth' },
+    { k:'revenue_acceleration', label:'Revenue acceleration', g:'Growth' },
+    { k:'fcf_growth_yoy',     label:'FCF growth YoY',       g:'Growth' },
+
+    { k:'roe_ttm',            label:'ROE (TTM)',            g:'Quality' },
+    { k:'gross_margin',       label:'Gross margin',         g:'Quality' },
+    { k:'operating_margin',   label:'Operating margin',     g:'Quality' },
+    { k:'net_debt_ebitda',    label:'Net debt/EBITDA',      g:'Quality' },
+    { k:'earnings_consistency', label:'Earnings consistency', g:'Quality' },
+    { k:'accruals_ratio',     label:'Accruals ratio',       g:'Quality' },
+
+    { k:'return_12_2',        label:'12-2 return',          g:'Momentum' },
+    { k:'return_1m',          label:'1 month return',       g:'Momentum' },
+    { k:'return_52w',         label:'52 week return',       g:'Momentum' },
+    { k:'high52w_proximity',  label:'52w high proximity',   g:'Momentum' },
+    { k:'rel_strength_sp500', label:'Rel strength vs S&P',  g:'Momentum' },
+    { k:'volume_trend',       label:'Volume trend',         g:'Momentum' },
+
+    { k:'neglect_score',      label:'Neglect',              g:'Coverage' },
+    { k:'analyst_count',      label:'Analyst count',        g:'Coverage' },
+    { k:'inst_ownership',     label:'Institutional %',      g:'Coverage' },
+    { k:'insider_ownership',  label:'Insider %',            g:'Coverage' },
+    { k:'news_count_7d',      label:'News volume 7d',       g:'Coverage' },
+    { k:'news_vader_avg',     label:'Headline tone',        g:'Coverage' },
   ];
+  const AXIS_BY_KEY = {};
+  for (const f of AXIS_FIELDS) AXIS_BY_KEY[f.k] = f;
+
+  // One-click starting points, which is all the old lenses ever were.
+  const PRESETS = [
+    { label:'Compounders',      x:'q',              y:'g',  c:'' },
+    { label:'Cheap and moving', x:'v',              y:'m',  c:'' },
+    { label:'Sentiment',        x:'news_vader_avg', y:'m',  c:'' },
+    { label:'Neglect',          x:'neglect_score',  y:'q',  c:'market_cap' },
+    { label:'Size vs score',    x:'market_cap',     y:'__score__', c:'neglect_score' },
+  ];
+
+  let axisX = 'q', axisY = 'g', axisC = '';
+  let pairsMode = false;
+
+  function axisLabel(k) {
+    const f = AXIS_BY_KEY[k];
+    return f ? f.label : k;
+  }
+
+  // A log axis needs a positive value, so non-positive readings drop out rather
+  // than being clamped into a lie about where they sit.
+  function axisValue(s, k) {
+    const v = (k === '__score__') ? computeComposite(s) : s[k];
+    if (v == null || !isFinite(v)) return null;
+    const f = AXIS_BY_KEY[k];
+    if (f && f.log) return v > 0 ? Math.log10(v) : null;
+    return v;
+  }
+
+  // Kept only so the paired two-panel view stays reachable; it is a different
+  // shape of chart, not another pair of axes.
+  const LENSES = [{ key:'free' }];
   let lens = LENSES[0];
 
   // ---- 3D factor space -------------------------------------------------
@@ -4876,33 +4942,16 @@ STOCKS_JS_TEMPLATE = """
   function chartPoints() {
     const out = [];
     for (const s of currentFiltered()) {
-      let x, y;
-      if (lens.tetra) { continue; }
-      if (lens.pairs) {
+      // The paired view is a different shape of chart: two panels, each
+      // deriving its own pair of coordinates, so it takes whole rows.
+      if (pairsMode) {
         if (!s.scorable) continue;
         out.push({ s: s });
         continue;
       }
-      if (lens.tetra) {
-        if (!s.scorable) continue;
-        out.push({ s: s, p: tetraPos(s) });
-        continue;
-      }
-      if (lens.compass) {
-        // Vector sum of the four dimension scores, one per corner. A balanced
-        // company lands near the middle; a lopsided one is flung toward whatever
-        // it is strongest on.
-        if (!s.scorable) continue;
-        const g = s.g || 0, v = s.v || 0, m = s.m || 0, q = s.q || 0;
-        x = (g + q) - (v + m);
-        y = (g + m) - (v + q);
-      } else if (lens.raw) {
-        x = s[lens.x]; y = s[lens.y];
-      } else {
-        x = s[lens.x]; y = s[lens.y];
-      }
-      if (x == null || y == null || !isFinite(x) || !isFinite(y)) continue;
-      out.push({ s: s, x: x, y: y });
+      const x = axisValue(s, axisX), y = axisValue(s, axisY);
+      if (x == null || y == null) continue;
+      out.push({ s: s, x: x, y: y, c: axisC ? axisValue(s, axisC) : undefined });
     }
     return out;
   }
@@ -4949,6 +4998,31 @@ STOCKS_JS_TEMPLATE = """
     ctx.globalAlpha = 1;
   }
 
+  // Colour runs cool to warm across the plotted range, by rank rather than by
+  // value, so one outlier cannot flatten everyone else into a single shade.
+  function colourRamp(t) {
+    const stops = [[46,111,142], [122,150,140], [196,166,96], [200,110,60], [190,60,45]];
+    const p = Math.max(0, Math.min(0.999, t)) * (stops.length - 1);
+    const i = Math.floor(p), f = p - i;
+    const a = stops[i], b = stops[Math.min(i + 1, stops.length - 1)];
+    return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * f) + ',' +
+                    Math.round(a[1] + (b[1] - a[1]) * f) + ',' +
+                    Math.round(a[2] + (b[2] - a[2]) * f) + ')';
+  }
+
+  function rankColours(proj) {
+    const vals = proj.map(function(p) { return p.c; })
+                     .filter(function(v) { return v != null && isFinite(v); })
+                     .sort(function(a, b) { return a - b; });
+    if (vals.length < 2) return null;
+    return function(v) {
+      if (v == null || !isFinite(v)) return null;
+      let lo = 0, hi = vals.length;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (vals[mid] <= v) lo = mid + 1; else hi = mid; }
+      return colourRamp(lo / vals.length);
+    };
+  }
+
   function paintCloud(ctx, proj, ink, hits, capMaxIn) {
     if (!proj.length) return;
     const capMax = capMaxIn ||
@@ -4957,12 +5031,17 @@ STOCKS_JS_TEMPLATE = """
     // Keyed on what is drawn, not on the list: a focus that this lens cannot
     // place would otherwise dim everything to highlight nothing.
     const ctxDim = focusDrawn(proj) ? 0.45 : 1;
+    // A colour field is information the density shading cannot carry, so when
+    // one is chosen the cloud goes back to dots whatever its size.
+    const colourOf = proj.length && proj[0].c !== undefined ? rankColours(proj) : null;
 
-    if (proj.length <= DENSITY_ABOVE) {
+    if (colourOf || proj.length <= DENSITY_ABOVE) {
       for (const q of proj) {
         const r = 2 + Math.sqrt((q.s.market_cap || 0) / capMax) * 9;
+        const col = colourOf ? colourOf(q.c) : null;
         ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = ink; ctx.globalAlpha = 0.30 * ctxDim; ctx.fill();
+        ctx.fillStyle = col || ink;
+        ctx.globalAlpha = (col ? 0.55 : 0.30) * ctxDim; ctx.fill();
         hits.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
       }
       ctx.globalAlpha = 1;
@@ -5012,7 +5091,7 @@ STOCKS_JS_TEMPLATE = """
     for (const s of rows) {
       const x = cfg.gx(s), y = cfg.gy(s);
       if (x == null || y == null || !isFinite(x) || !isFinite(y)) continue;
-      pts.push({ s: cfg.row ? cfg.row(s) : s, x: x, y: y });
+      pts.push({ s: cfg.row ? cfg.row(s) : s, x: x, y: y, c: cfg.gc ? cfg.gc(s) : undefined });
     }
     if (cfg.title) {
       ctx.fillStyle = dim;
@@ -5046,7 +5125,7 @@ STOCKS_JS_TEMPLATE = """
     ctx.stroke();
 
     paintCloud(ctx, pts.map(function(p) {
-      return { x: sx(p.x), y: sy(p.y), s: p.s };
+      return { x: sx(p.x), y: sy(p.y), s: p.s, c: p.c };
     }), ink, hits, cfg.capMax);
 
     // Axis names sit on the axes they describe, not in the corners, so a panel
@@ -5265,7 +5344,7 @@ STOCKS_JS_TEMPLATE = """
   function drawChart() {
     const cv = document.getElementById('stk-chart-canvas');
     if (!cv) return;
-    if (lens.pairs) { drawPairs(cv); return; }
+    if (pairsMode) { drawPairs(cv); return; }
     const pts = chartPoints();
     const dpr = window.devicePixelRatio || 1;
     const w = cv.clientWidth, h = cv.clientHeight;
@@ -5294,42 +5373,86 @@ STOCKS_JS_TEMPLATE = """
       // inside. Unwrapping after the fact fixed the hit targets but left every
       // dot sized off an undefined market cap, which is to say all the same size.
       row: function(p) { return p.s; },
-      symmetric: !!lens.compass,
+      gc: function(p) { return p.c; },
+      xl: axisLabel(axisX), yl: axisLabel(axisY),
     }, ink, line, dim, chartHit);
     document.getElementById('stk-chart-foot').textContent =
       pts.length.toLocaleString() + ' plotted of ' + currentFiltered().length.toLocaleString() +
-      ' matching' + (lens.compass ? ' \u00b7 only companies scored on 3 of 4 dimensions can be placed' : '') +
-      (pts.length > DENSITY_ABOVE
-        ? ' \u00b7 shaded by how many companies fall in each cell, largest 70 drawn on top'
-        : ' \u00b7 dot size: market cap');
-    const q = lens.compass
-      ? { tl: lens.tl, tr: lens.tr, bl: lens.bl, br: lens.br }
-      : { tl: '', tr: (lens.yl || '') + ' high', bl: (lens.xl || '') + ' low', br: (lens.xl || '') + ' high' };
-    const plot = cv.parentElement;
-    if (plot) [['tl', q.tl], ['tr', q.tr], ['bl', q.bl], ['br', q.br]].forEach(function(pair) {
-      const el = plot.querySelector('.ax.' + pair[0]);
-      if (el) el.textContent = pair[1] || '';
-    });
+      ' matching \u00b7 dot size: market cap' +
+      (axisC ? ' \u00b7 colour: ' + axisLabel(axisC).toLowerCase() + ', cool to warm by rank'
+             : (pts.length > DENSITY_ABOVE
+                ? ' \u00b7 shaded by how many companies fall in each cell, largest 70 on top'
+                : '')) +
+      (((AXIS_BY_KEY[axisX] || {}).log || (AXIS_BY_KEY[axisY] || {}).log)
+        ? ' \u00b7 log scale where the range demands it' : '');
+  }
+
+  function axisOptions(sel) {
+    let out = '', group = '';
+    for (const f of AXIS_FIELDS) {
+      if (f.g !== group) {
+        if (group) out += '</optgroup>';
+        group = f.g;
+        out += '<optgroup label="' + escapeHtml(group) + '">';
+      }
+      out += '<option value="' + f.k + '"' + (f.k === sel ? ' selected' : '') + '>' +
+             escapeHtml(f.label) + '</option>';
+    }
+    return out + (group ? '</optgroup>' : '');
   }
 
   function renderLenses() {
     const el = document.getElementById('stk-lenses');
     if (!el) return;
-    el.innerHTML = '<span class="lib-chip-label">View</span>' + LENSES.map(function(l) {
-      return '<button type="button" class="stk-lens' + (l.key === lens.key ? ' active' : '') +
-             '" data-lens="' + l.key + '">' + escapeHtml(l.label) + '</button>';
-    }).join('');
-    el.querySelectorAll('.stk-lens[data-lens]').forEach(function(b) {
+    el.innerHTML =
+      '<span class="lib-chip-label">Plot</span>' +
+      '<select class="stk-axis" id="stk-axis-y" aria-label="Vertical axis">' + axisOptions(axisY) + '</select>' +
+      '<span class="stk-axis-op">against</span>' +
+      '<select class="stk-axis" id="stk-axis-x" aria-label="Horizontal axis">' + axisOptions(axisX) + '</select>' +
+      '<span class="stk-axis-op">colour by</span>' +
+      '<select class="stk-axis" id="stk-axis-c" aria-label="Colour">' +
+        '<option value=""' + (axisC ? '' : ' selected') + '>nothing</option>' +
+        axisOptions(axisC) + '</select>' +
+      '<span class="stk-axis-sep"></span>' +
+      PRESETS.map(function(p, i) {
+        const on = !pairsMode && p.x === axisX && p.y === axisY && (p.c || '') === axisC;
+        return '<button type="button" class="stk-lens' + (on ? ' active' : '') +
+               '" data-preset="' + i + '">' + escapeHtml(p.label) + '</button>';
+      }).join('') +
+      '<button type="button" class="stk-lens' + (pairsMode ? ' active' : '') +
+      '" data-pairs="1">Four factors</button>';
+
+    const bind = function(id, set) {
+      const s = document.getElementById(id);
+      if (s) s.addEventListener('change', function() { set(s.value); pairsMode = false; redrawAxes(); });
+    };
+    bind('stk-axis-y', function(v) { axisY = v; });
+    bind('stk-axis-x', function(v) { axisX = v; });
+    bind('stk-axis-c', function(v) { axisC = v; });
+
+    el.querySelectorAll('[data-preset]').forEach(function(b) {
       b.addEventListener('click', function() {
-        lens = LENSES.find(function(l) { return l.key === b.dataset.lens; }) || LENSES[0];
-        renderLenses();
-        document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
-        const cv = document.getElementById('stk-chart-canvas');
-        tetraInvalidate();
-        drawChart();
+        const p = PRESETS[Number(b.dataset.preset)];
+        axisX = p.x; axisY = p.y; axisC = p.c || ''; pairsMode = false;
+        redrawAxes();
       });
     });
-    document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
+    const pb = el.querySelector('[data-pairs]');
+    if (pb) pb.addEventListener('click', function() { pairsMode = true; redrawAxes(); });
+
+    const blurb = document.getElementById('stk-chart-blurb');
+    if (blurb) {
+      blurb.textContent = pairsMode
+        ? 'All four factors, two plots, every one on a position axis. Left is the compounder view, right is the value view.'
+        : axisLabel(axisY) + ' against ' + axisLabel(axisX) +
+          (axisC ? ', coloured by ' + axisLabel(axisC).toLowerCase() : '') +
+          '. Dot size is market cap throughout.';
+    }
+  }
+
+  function redrawAxes() {
+    renderLenses();
+    drawChart();
   }
 
   (function wireMapSpin() {
