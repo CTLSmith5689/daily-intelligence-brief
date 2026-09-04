@@ -423,6 +423,18 @@ h1.hero-title {
   border:1px solid var(--text-1); padding:6px 9px; font-family:'Space Mono',monospace; font-size:10px;
   line-height:1.5; white-space:nowrap; z-index:5; }
 .stk-chart-foot { font-size:11px; color:var(--text-4); margin:10px 2px 0; }
+.stk-masthead { display:flex; align-items:baseline; gap:14px; padding:0 0 14px; }
+.stk-mast-name { font-family:'Instrument Serif',Georgia,serif; font-size:27px; line-height:1; color:var(--text-1); }
+.stk-mast-sub { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--text-4); }
+.stk-sortrow { display:flex; align-items:center; gap:14px; padding:14px 4px 2px;
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; }
+.stk-sortlab { font-size:9px; letter-spacing:2px; color:var(--text-4); }
+.stk-sort { background:none; border:none; padding:0 0 2px; cursor:pointer; color:var(--text-4);
+  font-family:inherit; font-size:inherit; letter-spacing:inherit; text-transform:inherit;
+  border-bottom:1px solid transparent; }
+.stk-sort.active { color:var(--text-1); border-bottom-color:var(--apt-red); }
+.stk-score { font-family:'Instrument Serif',Georgia,serif; font-size:24px; line-height:1; text-align:right; letter-spacing:0; }
 .stk-views-switch { display:flex; border:1px solid var(--border-bright); flex-shrink:0; }
 .stk-view-btn { padding:7px 15px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
   text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
@@ -493,7 +505,7 @@ body.page-stocks .lib-h { display:none; }
 .stk-pct.stk-pos { color:#34D27A; }
 .stk-pct.stk-neg { color:var(--apt-red); }
 .stk-pe { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-3); text-align:right; padding-top:1px; }
-.stk-score { font-family:'Space Mono',monospace; font-size:13px; font-weight:600; text-align:right; padding-top:1px; letter-spacing:0.02em; }
+
 .stk-score-pos { color:#34D27A; }
 .stk-score-neg { color:var(--apt-red); }
 .stk-score-neutral { color:var(--text-2); }
@@ -809,6 +821,10 @@ body.page-stocks .footer { display:none; }
     <h2>Stocks.</h2>
     <span class="lib-count" id="stk-count">5336 stocks</span>
   </div>
+  <div class="stk-masthead">
+    <span class="stk-mast-name">The Screen</span>
+    <span class="stk-mast-sub">Every US listing, ranked four ways at once</span>
+  </div>
   <div class="stk-toprow">
     <div class="stk-views-switch" id="stk-view-switch">
       <button type="button" class="stk-view-btn active" data-view="list">List</button>
@@ -1024,6 +1040,13 @@ body.page-stocks .footer { display:none; }
     </aside>
     <main class="stk-main">
     <div class="stk-table">
+    <div class="stk-sortrow">
+      <span class="stk-sortlab">Sort</span>
+      <button type="button" class="stk-sort active" data-sortby="__score__">Score</button>
+      <button type="button" class="stk-sort" data-sortby="change_pct">Move</button>
+      <button type="button" class="stk-sort" data-sortby="market_cap">Size</button>
+      <button type="button" class="stk-sort" data-sortby="ticker">A&ndash;Z</button>
+    </div>
     <div class="stk-head">
       <div class="stk-th"></div>
       <div class="stk-th" data-sort="ticker">Company</div>
@@ -2248,7 +2271,7 @@ body.page-stocks .footer { display:none; }
       listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
       return;
     }
-    const rows = filtered.slice(0, 5000).map(s => {
+    const rows = filtered.slice(0, 5000).map((s, idx) => {
       const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
       const isOpen = expanded.has(s.ticker);
       const arrow = isOpen ? '▾' : '▸';
@@ -2266,7 +2289,7 @@ body.page-stocks .footer { display:none; }
                (z >= 0 ? 'up' : 'dn') + '" style="' + style + '"></em></i><b>' + p[0] + '</b></span>';
       }).join('');
       return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
-        + '<div class="stk-rank">'+arrow+'</div>'
+        + '<div class="stk-rank">'+String(idx + 1).padStart(2, '0')+'</div>'
         + '<div class="stk-id"><span class="stk-tk">'+escapeHtml(s.ticker||'')+'</span>'
           + '<span class="stk-nm">'+escapeHtml(s.name||'')+'</span></div>'
         + '<div class="stk-sector">'+escapeHtml(s.sector||'')+'</div>'
@@ -2995,6 +3018,19 @@ body.page-stocks .footer { display:none; }
   }
   document.querySelectorAll('.stk-view-btn').forEach(function(b) {
     b.addEventListener('click', function() { setView(b.dataset.view); });
+  });
+
+  document.querySelectorAll('.stk-sort').forEach(function(b) {
+    b.addEventListener('click', function() {
+      const key = b.dataset.sortby;
+      // Clicking the active control flips direction, matching the column headers.
+      if (sortKey === key) { sortDir = -sortDir; }
+      else { sortKey = key; sortDir = (key === 'ticker') ? 1 : -1; }
+      document.querySelectorAll('.stk-sort').forEach(function(x) {
+        x.classList.toggle('active', x.dataset.sortby === key);
+      });
+      render();
+    });
   });
 
   function boot(data) {
