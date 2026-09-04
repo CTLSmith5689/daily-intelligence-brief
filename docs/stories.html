@@ -561,13 +561,28 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
 .scr-tool { position:sticky; top:56px; z-index:50; background:var(--bg-base); display:flex;
   align-items:center; gap:16px; height:53px; padding:0 32px;
   border-bottom:1px solid var(--text-1); }
-.scr-find { display:flex; align-items:center; gap:9px; flex:1 1 0; min-width:104px;
+.scr-find { position:relative; display:flex; align-items:center; gap:9px; flex:1 1 0; min-width:104px;
   max-width:290px; border-bottom:1px solid var(--text-1); padding-bottom:4px; }
 .scr-find .ic { color:var(--text-4); font-size:12px; }
 .scr-find input { flex:1; min-width:0; background:transparent; border:none; outline:none;
   font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); }
 .scr-find .clear-btn { background:none; border:none; cursor:pointer; color:var(--text-4);
   font-size:15px; line-height:1; }
+.scr-ac { position:absolute; top:100%; left:0; right:0; z-index:80; margin-top:5px;
+  background:var(--bg-base); border:1px solid var(--text-1); max-height:292px; overflow-y:auto;
+  box-shadow:0 8px 26px rgba(0,0,0,0.14); }
+.scr-ac-item { display:flex; align-items:baseline; gap:10px; padding:8px 12px; cursor:pointer;
+  border-bottom:1px solid var(--border); }
+.scr-ac-item:last-child { border-bottom:none; }
+.scr-ac-item.on { background:var(--bg-1); }
+.scr-ac-tk { flex-shrink:0; min-width:54px; font-family:'Space Mono',monospace; font-size:11px;
+  letter-spacing:0.5px; color:var(--text-1); }
+.scr-ac-nm { flex:1; min-width:0; font-size:12px; color:var(--text-3); overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; }
+.scr-ac-tag { flex-shrink:0; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--text-4); }
+.scr-ac-item.on .scr-ac-tag { color:var(--apt-red); }
+.scr-ac-none { padding:10px 12px; font-size:12px; color:var(--text-4); }
 .scr-count { margin-left:auto; flex-shrink:0; white-space:nowrap;
   font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); }
 .scr-pane { padding:0 32px 30px; }
