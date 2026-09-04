@@ -1,54 +1,99 @@
-## Keeps the scheduled brief alive.
+## Warns before GitHub's 60-day inactivity disable.
 ##
 ## GitHub disables a repository's scheduled workflows after 60 days with no
-## repository activity. On 2026-07-07 that is exactly what happened here: the
-## last human commit was 2026-05-07 and apterreon-brief went to
-## disabled_inactivity 61 days later, silently ending the briefs.
+## repository activity. On 2026-07-07 that is exactly what killed this project:
+## the last human commit was 2026-05-07 and the schedule went to
+## disabled_inactivity 61 days later. The brief's own daily commits did NOT reset
+## the timer, because pushes made with the built-in GITHUB_TOKEN do not count.
 ##
-## The brief's own daily archive commits did NOT reset that timer, because
-## pushes made with the built-in GITHUB_TOKEN do not count as repository
-## activity. A push authenticated with a user PAT does, so this job makes one
-## empty commit a month with KEEPALIVE_TOKEN.
+## The obvious fix is a PAT that pushes an empty commit monthly. This does not do
+## that, deliberately: a long-lived write credential sitting in repo secrets is a
+## standing liability, and it only exists to fake activity the owner could supply
+## with one real commit. So instead this warns while there is still time to act.
 ##
-## This is the only guard against that failure mode: a disabled workflow never
-## runs, so it can never send the failure alert that brief.yml would otherwise
-## send. Nothing else notices.
+## It needs no new secret. It reuses the SMTP password already here for failure
+## alerts, and reads history with the built-in token.
 ##
-## Setup (one time):
-##   1. Create a fine-grained PAT scoped to this repo with Contents: Read and write.
-##   2. Add it as repository secret KEEPALIVE_TOKEN.
-## If the secret is absent or expired, the job fails loudly rather than
-## pretending to have kept anything alive.
+## This workflow is itself a scheduled workflow, so it is subject to the same
+## disable. It runs on the 1st of the month, which means it fires at least once
+## inside any 60-day window and warns with roughly two weeks to spare.
 
-name: keepalive
+name: keepalive-check
 
 on:
   schedule:
-    - cron: '17 4 1 * *'   # 04:17 UTC on the 1st of each month
+    - cron: '0 12 1 * *'   # 12:00 UTC on the 1st of each month
   workflow_dispatch:
 
-concurrency:
-  group: keepalive
-  cancel-in-progress: false
+permissions:
+  contents: read
 
 jobs:
-  keepalive:
+  check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
         with:
-          token: ${{ secrets.KEEPALIVE_TOKEN }}
+          fetch-depth: 0   # need real history to find the last human commit
 
-      - name: Push an empty commit
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Warn if the inactivity clock is running down
+        env:
+          APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
+          RECIPIENTS: ${{ vars.RECIPIENTS }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
         run: |
-          if [ -z "${{ secrets.KEEPALIVE_TOKEN }}" ]; then
-            echo "KEEPALIVE_TOKEN is not set. The 60-day inactivity timer is NOT being reset."
-            echo "Create a fine-grained PAT (Contents: Read and write) and add it as KEEPALIVE_TOKEN."
-            exit 1
-          fi
-          git config user.name "apterreon-keepalive"
-          git config user.email "ctlsmith@me.com"
-          git commit --allow-empty -m "keepalive: reset the 60-day Actions inactivity timer"
-          git push
-          echo "Pushed. Scheduled workflows stay enabled for another 60 days."
+          python - <<'PY'
+          import subprocess, datetime, os, sys
+
+          # Commits pushed by the workflow itself do not count as repository
+          # activity, so find the newest commit that is not the bot's.
+          BOT = "actions@users.noreply.github.com"
+          WARN_AFTER_DAYS = 40
+          DISABLE_AT_DAYS = 60
+
+          log = subprocess.run(["git", "log", "--format=%cI|%ae"],
+                               capture_output=True, text=True, check=True).stdout
+
+          last = None
+          for line in log.splitlines():
+              when, _, email = line.partition("|")
+              if email.strip().lower() != BOT:
+                  last = (when, email.strip())
+                  break
+
+          if not last:
+              print("No non-bot commit found in history; nothing to compare against.")
+              sys.exit(0)
+
+          when, email = last
+          age = (datetime.datetime.now(datetime.timezone.utc)
+                 - datetime.datetime.fromisoformat(when)).days
+          print(f"Last human commit: {when} by {email} ({age} days ago)")
+
+          if age < WARN_AFTER_DAYS:
+              print(f"Under the {WARN_AFTER_DAYS}-day threshold, no warning needed.")
+              sys.exit(0)
+
+          left = DISABLE_AT_DAYS - age
+          repo = os.environ["REPO_URL"]
+          from lambda_function import send_email
+          send_email(
+              f"apterreon-brief: schedule stops in ~{left} days",
+              "<h2>Push any commit to keep the pipeline running.</h2>"
+              f"<p>The last commit that was not from the workflow bot was "
+              f"<b>{age} days ago</b> ({when}).</p>"
+              "<p>GitHub disables scheduled workflows after 60 days with no human "
+              "repository activity. The pipeline's own commits do not reset that "
+              "timer, so without a real commit the hourly and daily runs will stop "
+              "silently, exactly as they did on 2026-07-07.</p>"
+              "<p>Any commit resets the clock. An empty one is enough:</p>"
+              "<pre>git commit --allow-empty -m keepalive &amp;&amp; git push</pre>"
+              f'<p><a href="{repo}">{repo}</a></p>',
+          )
+          print(f"Warning sent: {age} days since the last human commit.")
+          PY

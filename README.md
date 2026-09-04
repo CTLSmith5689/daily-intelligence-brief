@@ -67,7 +67,6 @@ Actions cron is best-effort and can run 5 to 15 minutes late under load.
 
 - `ALPHAVANTAGE_API_KEY` (index quotes and the fed funds fallback)
 - `APTERREON_ICLOUD_APP_PASSWORD` (used *only* to email failure alerts)
-- `KEEPALIVE_TOKEN` (fine-grained PAT, Contents: read and write, for `keepalive.yml`)
 
 **Variables:**
 
@@ -79,11 +78,23 @@ noticing, because it emailed *before* the step that crashed.
 
 ## Keepalive
 
-`keepalive.yml` pushes an empty commit monthly. GitHub disables scheduled
-workflows after 60 days without repository activity, and commits pushed by the
-workflow's own `GITHUB_TOKEN` do **not** reset that timer. This is what silently
-killed the project on 2026-07-07. A disabled workflow never runs, so it can never
-send a failure alert either; the keepalive is the only guard.
+GitHub disables scheduled workflows after 60 days without repository activity,
+and commits pushed by the workflow's own `GITHUB_TOKEN` do **not** reset that
+timer. This is what silently killed the project on 2026-07-07.
+
+`keepalive-check.yml` runs on the 1st of each month, finds the newest commit that
+is not the bot's, and emails a warning once that is over 40 days old. It needs no
+new secret and holds no write credential: a long-lived PAT existing purely to
+fake activity is a standing liability, and one real commit does the same job.
+
+Any commit resets the clock:
+
+```sh
+git commit --allow-empty -m keepalive && git push
+```
+
+If you ignore the warning for 20 days, the schedule stops. That is the tradeoff
+for not keeping a write token around.
 
 ## Manual run
 
