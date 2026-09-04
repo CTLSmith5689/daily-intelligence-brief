@@ -4098,7 +4098,7 @@ STOCKS_JS_TEMPLATE = """
   // ── Saved Views (localStorage) ──────────────────────────────────
   const SAVED_VIEWS_KEY = 'apt-stocks-saved-views-v1';
   const viewsListEl = document.getElementById('stk-views-list');
-  const viewsInputEl = document.getElementById('stk-views-input');
+  const viewsInputEl = document.getElementById('stk-views-name');
   const viewsSaveBtn = document.getElementById('stk-views-save');
 
   function loadSavedViews() {
@@ -6573,6 +6573,28 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
     by_ticker = {s["ticker"]: s for s in target}
     matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
     matched = [(t, cik) for t, cik in matched if cik]
+
+    # Freshness is decided per ticker, the same way enrich_with_edgar decides it.
+    # The caller's gate used to sample one cached record and skip the pass for
+    # everybody, so a ticker that entered the top 600 after the last run could
+    # never get its first pull: the names already stamped kept the gate closed.
+    ins_year, ins_week, _ = datetime.now(EASTERN).isocalendar()
+
+    def _insider_is_fresh(sym):
+        stamp = (by_ticker.get(sym) or {}).get("insider_updated")
+        if not stamp:
+            return False
+        try:
+            y, w, _ = datetime.strptime(stamp, "%Y-%m-%d").date().isocalendar()
+        except (TypeError, ValueError):
+            return False
+        return y == ins_year and w == ins_week
+
+    total_matched = len(matched)
+    matched = [(t, cik) for t, cik in matched if not _insider_is_fresh(t)]
+    if total_matched != len(matched):
+        print(f"Insider: {total_matched - len(matched)} of {total_matched} already stamped "
+              f"this week, {len(matched)} to fetch.")
     today_str = datetime.now(EASTERN).strftime("%Y-%m-%d")
 
     def process(item):
@@ -6876,7 +6898,11 @@ def get_or_generate_stocks_universe():
     stocks = fetch_all_universes()
     if not stocks:
         print("stocks_universe: Wikipedia + iShares returned nothing, falling back to last cache.")
-        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
+        # Tag the fallback so the caller can tell a real scrape from a repeat of
+        # yesterday. Its prices are the prior session's and must not be written
+        # into the panel under today's date.
+        return {**(last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}),
+                "stale": True}
 
     # A PARTIAL scrape is more dangerous than a total one, because it looks fine.
     # fetch_wikipedia_constituents returns [] on a timeout, an HTTP error or a table
@@ -6895,7 +6921,11 @@ def get_or_generate_stocks_universe():
               f"{prior_active} active yesterday ({len(stocks) / prior_active:.0%}). "
               f"Treating as a source failure, not {prior_active - len(stocks)} delistings. "
               f"Keeping yesterday's universe; the registry and in_index are untouched.")
-        return last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}
+        # Tag the fallback so the caller can tell a real scrape from a repeat of
+        # yesterday. Its prices are the prior session's and must not be written
+        # into the panel under today's date.
+        return {**(last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}),
+                "stale": True}
 
     # Reconcile against the permanent registry and mark who is currently indexed.
     registry, added, dropped, retained = update_ticker_registry(
@@ -7036,23 +7066,31 @@ def get_or_generate_stocks_universe():
     # Insider Form 4 enrichment: weekly cadence, gated like EDGAR. Heavy: ~12-15 min
     # for 2941 tickers. Schema bump triggers a re-run when insider_updated is missing
     # across the cached universe.
-    should_run_insider = True
-    if last_known and last_known.get("stocks"):
-        recent_insider = next((s for s in last_known["stocks"] if s.get("insider_updated")), None)
-        has_real_signal = any(s.get("insider_tx_count_90d") for s in last_known["stocks"])
-        if recent_insider and has_real_signal:
-            try:
-                insider_dt = datetime.fromisoformat(recent_insider["insider_updated"]).date()
-                in_iso_year, in_iso_week, _ = insider_dt.isocalendar()
-                if in_iso_year == iso_year and in_iso_week == iso_week:
-                    should_run_insider = False
-                    print(f"Insider: cache stamped {recent_insider['insider_updated']} (this week), skipping refresh.")
-            except Exception:
-                pass
-        elif recent_insider and not has_real_signal:
-            print("Insider: previous run produced 0 signals, forcing re-run (likely a parser fix).")
-        else:
-            print("Insider: schema bump detected (insider_updated missing), forcing re-run.")
+    # enrich_with_insider now decides freshness per ticker, so the only question
+    # here is whether anything in the top 600 is stale at all. Counting rather
+    # than sampling: the old check looked at the FIRST stock carrying a stamp and
+    # skipped the pass on that basis, which is how names that entered the top 600
+    # after the previous run were never pulled even once.
+    def _insider_is_current(stock):
+        stamp = stock.get("insider_updated")
+        if not stamp:
+            return False
+        try:
+            y, w, _ = datetime.strptime(stamp, "%Y-%m-%d").date().isocalendar()
+        except (TypeError, ValueError):
+            return False
+        return y == iso_year and w == iso_week
+
+    top_n = sorted(stocks, key=lambda s: -(s.get("market_cap") or 0))[:_INSIDER_TOP_N_BY_MARKET_CAP]
+    insider_stale = sum(1 for s in top_n if not _insider_is_current(s))
+    has_real_signal = any(s.get("insider_tx_count_90d") for s in stocks)
+    should_run_insider = insider_stale > 0 or not has_real_signal
+    if not should_run_insider:
+        print("Insider: every ticker in the top 600 stamped this week, skipping.")
+    elif not has_real_signal:
+        print("Insider: previous run produced 0 signals, forcing re-run (likely a parser fix).")
+    else:
+        print(f"Insider: {insider_stale} of {len(top_n)} tickers need a pull.")
     insider_count = 0
     if should_run_insider:
         if cik_map is None:
@@ -7088,6 +7126,9 @@ def get_or_generate_stocks_universe():
         "iso_week": week_key,
         "date": date_key,
         "generated_at": now.isoformat(),
+        # Set explicitly so the caller never has to infer freshness from a
+        # missing key. Only this path builds a universe from a live scrape.
+        "stale": False,
         "source": "wikipedia + yfinance + edgar",
         "enriched": bool(total_with_cap),
         "fresh_this_run": fresh_count,
@@ -7412,54 +7453,6 @@ FILTER_PANEL = [
 ]
 
 
-def render_filter_panel_sections():
-    """Emit the filter <details> sections for the stocks page sidebar from the
-    FILTER_PANEL config. Each row gets a stat hint slot that JS populates with
-    the universe's actual range at init time."""
-    sections = []
-    for sec in FILTER_PANEL:
-        rows_html = []
-        for r in sec["rows"]:
-            tier_html = ""
-            if r.get("tier_chips"):
-                tier_html = (
-                    '<span class="stk-filter-quicks">'
-                    '<button type="button" class="stk-quick" data-tier="micro">Micro</button>'
-                    '<button type="button" class="stk-quick" data-tier="small">Small</button>'
-                    '<button type="button" class="stk-quick" data-tier="mid">Mid</button>'
-                    '<button type="button" class="stk-quick" data-tier="large">Large</button>'
-                    '<button type="button" class="stk-quick" data-tier="mega">Mega</button>'
-                    '</span>'
-                )
-            rows_html.append(
-                f'<div class="stk-filter-row">'
-                f'<span class="stk-filter-label">{r["label"]}</span>'
-                f'<input type="text" class="stk-filter-input" data-filter="{r["key"]}" data-bound="min" placeholder="{r["placeholder_min"]}">'
-                f'<span class="stk-filter-sep">to</span>'
-                f'<input type="text" class="stk-filter-input" data-filter="{r["key"]}" data-bound="max" placeholder="{r["placeholder_max"]}">'
-                f'{tier_html}'
-                f'<span class="stk-filter-stat" data-stat-for="{r["key"]}" data-stat-type="{r["type"]}">computing range...</span>'
-                f'</div>'
-            )
-        if sec.get("include_only_enriched"):
-            rows_html.append(
-                '<div class="stk-filter-row stk-filter-row-toggle">'
-                '<label class="stk-filter-checkbox">'
-                '<input type="checkbox" id="stk-only-enriched">'
-                '<span>Hide stocks without live market cap data</span>'
-                '</label>'
-                '</div>'
-            )
-        open_attr = " open" if sec.get("open") else ""
-        sections.append(
-            f'<details class="stk-filter-col stk-section"{open_attr}>'
-            f'<summary class="stk-filter-col-h">{sec["title"]}<span class="stk-section-caret">&#9656;</span></summary>'
-            + "".join(rows_html)
-            + '</details>'
-        )
-    return "\n".join(sections)
-
-
 def render_screener_page(title, body_html, extra_scripts=""):
     """Full-bleed shell for the screener, transcribed from the design.
 
@@ -7540,7 +7533,6 @@ def generate_stocks_page(universe):
 
     enrich_note = "Live price, market cap, 1d %, and P/E from Yahoo Finance. " if enriched else ""
     meta_line = f"Updated {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
-    factor_sections_html = render_filter_panel_sections()
 
     # ---- The screener rail, built from FILTER_PANEL ----------------------
     # Structure and every style value are transcribed from the design file
@@ -7844,6 +7836,15 @@ def lambda_handler(event, context):
     # prior close but are identifiable via the last_updated column.
     if now_et.weekday() >= 5:
         print(f"fundamentals: {date_iso} is a weekend, no trading day to record.")
+    elif (universe or {}).get("stale"):
+        # The universe fell back to cache, either because every source returned
+        # nothing or because the partial-scrape ABORT fired. Its prices are the
+        # prior session's. Writing them under today's date would append a
+        # permanent flat day that record_fundamentals can never correct. Today
+        # having no panel row is recoverable; today having a wrong one is not.
+        print(f"fundamentals: universe is a cached fallback, not a live scrape for "
+              f"{date_iso}; skipping the panel rather than recording stale prices "
+              f"under today's date.")
     else:
         record_fundamentals(stocks, date_iso)
 
