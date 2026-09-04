@@ -22,6 +22,7 @@ from email import encoders
 from datetime import datetime, timezone, timedelta
 
 import time
+import random
 from pathlib import Path
 
 # ── Config ──────────────────────────────────────────────────────────────────
@@ -4189,7 +4190,7 @@ def _coerce_yf_numerics(info):
     return out
 
 
-def enrich_with_yfinance(stocks, max_workers=10):
+def enrich_with_yfinance(stocks, max_workers=6):
     """Enrich stock dicts in place with live data from Yahoo Finance via yfinance:
     price, market_cap, change_pct, pe, volume. Threaded for speed (~45s for 1500
     tickers with 10 workers under good conditions). Returns count of fields newly
@@ -4207,13 +4208,29 @@ def enrich_with_yfinance(stocks, max_workers=10):
     by_ticker = {s["ticker"]: s for s in stocks}
     tickers = list(by_ticker.keys())
 
-    def fetch_one(sym):
+    def fetch_one(sym, attempts=3):
+        """Fetch one ticker's info, retrying through Yahoo's rate limiter.
+
+        Yahoo throttles hard on a universe this size: a single-pass run returned
+        usable data for only 55% of 1,506 tickers and finished in 18 seconds,
+        which is the signature of most requests being rejected rather than
+        answered. A throttled response comes back as an empty or priceless dict
+        rather than an exception, so retry on that too, with jittered backoff so
+        the threads do not march in lockstep."""
         # Yahoo uses '-' for class shares (BRK-B); Wikipedia uses '.' (BRK.B). Translate.
         yf_sym = sym.replace(".", "-")
-        try:
-            return sym, yf.Ticker(yf_sym).info
-        except Exception:
-            return sym, None
+        for attempt in range(attempts):
+            try:
+                info = yf.Ticker(yf_sym).info
+                if info and (info.get("marketCap") is not None
+                             or info.get("currentPrice") is not None
+                             or info.get("regularMarketPrice") is not None):
+                    return sym, info
+            except Exception:
+                pass
+            if attempt < attempts - 1:
+                time.sleep(1.5 * (attempt + 1) + random.random())
+        return sym, None
 
     enriched = 0
     skipped = 0
