@@ -1814,7 +1814,7 @@ h1.hero-title {
 .lib-h .lib-count { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); border-radius:999px; }
 
 .lib-controls { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; padding:20px; background:var(--surface-1); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; }
-.lib-search { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:12px; transition:all .15s; }
+.lib-search { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--bg-1); border:1px solid var(--border); border-radius:12px; transition:all .15s; }
 .lib-search:focus-within { border-color:var(--apt-red); box-shadow:0 0 0 3px rgba(255,31,61,0.10); }
 .lib-search .icon { color:var(--text-3); font-size:16px; }
 .lib-search input { flex:1; background:transparent; border:none; outline:none; font-family:'Space Mono',monospace; font-size:14px; color:var(--text-1); }
@@ -1881,7 +1881,7 @@ h1.hero-title {
 }
 .stk-filter-reset:hover { color:var(--apt-rose); }
 
-.stk-filter-panel { display:flex; flex-direction:column; gap:10px; margin-top:6px; padding:14px 16px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:12px; }
+.stk-filter-panel { display:flex; flex-direction:column; gap:10px; margin-top:6px; padding:14px 16px; background:var(--bg-1); border:1px solid var(--border); border-radius:12px; }
 .stk-filter-cols { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 @media (max-width:980px) { .stk-filter-cols { grid-template-columns:1fr; gap:18px; } }
 .stk-filter-col { display:flex; flex-direction:column; gap:8px; }
@@ -1913,7 +1913,7 @@ h1.hero-title {
 .stk-filter-label { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; }
 .stk-filter-input {
   padding:7px 10px; font-family:'Space Mono',monospace; font-size:12px;
-  color:var(--text-1); background:rgba(10,10,15,0.6);
+  color:var(--text-1); background:var(--bg-1);
   border:1px solid var(--border); border-radius:8px; outline:none;
   transition:border-color .15s, box-shadow .15s; width:100%;
 }
@@ -2168,18 +2168,18 @@ body.page-stocks .lib-h { display:none; }
 .stk-row:hover .stk-ticker { color:#FFB347; }
 
 /* Expand-on-click factor panel */
-.stk-detail { padding:14px 22px 22px; background:rgba(10,10,15,0.6); border-top:1px solid var(--border); animation:fpFadeIn .25s ease-out; }
+.stk-detail { padding:16px 0 22px 20px; background:transparent; border-top:1px solid var(--border); border-bottom:1px solid var(--border); border-left:2px solid var(--apt-red); animation:fpFadeIn .25s ease-out; }
 @keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
 /* Score breakdown card (sits above the 4 factor cards) */
-.sb-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; }
+.sb-card { padding:16px 18px; background:transparent; border:1px solid var(--border);  margin-bottom:14px; }
 .sb-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .sb-h-sub { font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:none; font-style:italic; opacity:0.8; }
 .sb-row { display:grid; grid-template-columns:90px 1fr 60px; align-items:center; gap:14px; padding:5px 0; }
 .sb-label { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--text-2); text-transform:capitalize; }
-.sb-bar { position:relative; height:6px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
-.sb-bar-axis { position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18); z-index:2; }
-.sb-bar-fill { position:absolute; top:0; bottom:0; border-radius:2px; z-index:1; transition:width .25s ease-out; }
+.sb-bar { position:relative; height:6px; background:var(--border);  overflow:hidden; }
+.sb-bar-axis { position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--border); z-index:2; }
+.sb-bar-fill { position:absolute; top:0; bottom:0;  z-index:1; transition:width .25s ease-out; }
 .sb-bar-fill.sb-pos { background:linear-gradient(90deg, rgba(52,210,122,0.4), rgba(52,210,122,0.85)); }
 .sb-bar-fill.sb-neg { background:linear-gradient(270deg, rgba(255,31,61,0.4), rgba(255,31,61,0.85)); }
 .sb-val { font-family:'Space Mono',monospace; font-size:12px; text-align:right; font-weight:500; }
@@ -2194,7 +2194,7 @@ body.page-stocks .lib-h { display:none; }
 .sb-comp-na { color:var(--text-5); }
 
 /* Benford's Law card (sits below the 4 factor cards in the expand panel) */
-.bf-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+.bf-card { margin-top:14px; padding:16px 18px; background:transparent; border:1px solid var(--border);  }
 .bf-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 @media (max-width:780px) { .bf-grid { grid-template-columns:1fr; } }
 .bf-sub { display:flex; flex-direction:column; }
@@ -2202,7 +2202,7 @@ body.page-stocks .lib-h { display:none; }
 .bf-sub-meta { font-family:'Space Mono',monospace; font-size:9px; color:var(--text-4); margin-left:auto; letter-spacing:1px; text-transform:none; }
 .bf-sub-meta sup { font-size:7px; vertical-align:super; }
 .bf-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-.bf-fit { font-size:9px; font-weight:600; padding:2px 8px; border-radius:4px; letter-spacing:1.5px; }
+.bf-fit { font-size:9px; font-weight:600; padding:2px 8px;  letter-spacing:1.5px; }
 .bf-fit-good { color:#34D27A; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.25); }
 .bf-fit-fair { color:#FFB347; background:rgba(255,179,71,0.10); border:1px solid rgba(255,179,71,0.25); }
 .bf-fit-poor { color:var(--apt-red); background:rgba(255,31,61,0.10); border:1px solid rgba(255,31,61,0.25); }
@@ -2210,8 +2210,8 @@ body.page-stocks .lib-h { display:none; }
 .bf-meta sup { font-size:8px; vertical-align:super; }
 .bf-row { display:grid; grid-template-columns:20px 1fr 52px 48px; align-items:center; gap:10px; padding:4px 0; }
 .bf-d { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--text-2); text-align:center; }
-.bf-bar { position:relative; height:8px; background:rgba(255,255,255,0.04); border-radius:3px; }
-.bf-bar-fill { position:absolute; left:0; top:0; bottom:0; border-radius:3px; transition:background .2s; }
+.bf-bar { position:relative; height:8px; background:var(--border);  }
+.bf-bar-fill { position:absolute; left:0; top:0; bottom:0;  transition:background .2s; }
 .bf-marker { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--text-2); opacity:0.65; }
 .bf-obs { font-family:'Space Mono',monospace; font-size:12px; text-align:right; font-weight:500; transition:color .2s; }
 .bf-exp { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); }
@@ -2228,16 +2228,16 @@ body.page-stocks .lib-h { display:none; }
 /* Signals row: Neglect (Lynch) + Insider Movement (Seyhun) */
 .sg-row-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
 @media (max-width:780px) { .sg-row-grid { grid-template-columns:1fr; } }
-.sg-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; border-left-width:3px; border-left-color:var(--apt-rose); }
+.sg-card { padding:16px 18px; background:transparent; border:1px solid var(--border);  border-left-width:3px; border-left-color:var(--apt-rose); }
 .sg-card-insider { border-left-color:#9B8CFF; }
 .sg-card-stub { opacity:0.7; }
 .sg-h { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
 .sg-h-title { font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--text-1); letter-spacing:0.02em; }
 .sg-h-eyebrow { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; font-weight:400; margin-left:6px; }
-.sg-score-badge { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 9px; border-radius:999px; text-transform:uppercase; }
+.sg-score-badge { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 9px;  text-transform:uppercase; }
 .sg-score-badge.sg-pos { color:#34D27A; background:rgba(52,210,122,0.10); border:1px solid rgba(52,210,122,0.25); }
 .sg-score-badge.sg-neg { color:var(--apt-rose); background:rgba(255,57,77,0.10); border:1px solid rgba(255,57,77,0.25); }
-.sg-score-badge.sg-neutral { color:var(--text-2); background:rgba(255,255,255,0.04); border:1px solid var(--border); }
+.sg-score-badge.sg-neutral { color:var(--text-2); background:var(--border); border:1px solid var(--border); }
 .sg-score-badge.sg-na { color:var(--text-4); background:transparent; border:1px dashed var(--border); }
 .sg-rows { display:flex; flex-direction:column; gap:8px; }
 .sg-row { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; font-size:12px; padding:4px 0; }
@@ -2245,18 +2245,18 @@ body.page-stocks .lib-h { display:none; }
 .sg-label { color:var(--text-3); font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
 .sg-val { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); font-weight:500; text-align:right; min-width:80px; }
 .sg-bar { display:inline-flex; gap:2px; align-items:center; }
-.sg-bar-cell { display:inline-block; width:6px; height:8px; border-radius:1px; background:var(--border); }
+.sg-bar-cell { display:inline-block; width:6px; height:8px;  background:var(--border); }
 .sg-bar-cell-on { background:var(--apt-rose); }
 .sg-card-insider .sg-bar-cell-on { background:#9B8CFF; }
 .sg-bar-empty { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-5); }
 .sg-foot { margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); font-size:10px; line-height:1.5; color:var(--text-4); }
 
 /* Chart card per ticker (price + op margin, lazy-loaded on expand) */
-.ch-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+.ch-card { margin-top:14px; padding:16px 18px; background:transparent; border:1px solid var(--border);  }
 .ch-h { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
 .ch-h-title { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; }
 .ch-tabs { display:flex; gap:4px; flex-wrap:wrap; }
-.ch-tab { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-3); background:transparent; border:1px solid var(--border); border-radius:999px; padding:4px 10px; cursor:pointer; text-transform:uppercase; transition:color .15s, border-color .15s, background .15s; }
+.ch-tab { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-3); background:transparent; border:1px solid var(--border);  padding:4px 10px; cursor:pointer; text-transform:uppercase; transition:color .15s, border-color .15s, background .15s; }
 .ch-tab:hover { color:var(--text-1); border-color:var(--border-bright); }
 .ch-tab.active { color:var(--text-1); background:var(--apt-rose); border-color:var(--apt-rose); }
 .ch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -2271,7 +2271,7 @@ body.page-stocks .lib-h { display:none; }
 .ch-canvas { width:100%; height:160px; display:block; }
 
 /* News card per ticker (lazy-loaded on row expand) */
-.nws-card { margin-top:14px; padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+.nws-card { margin-top:14px; padding:16px 18px; background:transparent; border:1px solid var(--border);  }
 .nws-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .nws-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
 .nws-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
@@ -2288,7 +2288,7 @@ body.page-stocks .lib-h { display:none; }
 .nws-empty { padding:14px 0; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-5); text-transform:uppercase; text-align:center; }
 
 /* Per-bucket sentiment header (Loughran-McDonald + VADER) */
-.nws-sent-row { display:flex; gap:14px; padding:8px 10px; margin-bottom:8px; background:rgba(10,10,15,0.5); border:1px solid var(--border); border-radius:6px; align-items:center; }
+.nws-sent-row { display:flex; gap:14px; padding:8px 10px; margin-bottom:8px; background:var(--bg-1); border:1px solid var(--border);  align-items:center; }
 .nws-sent-cell { display:flex; align-items:baseline; gap:6px; flex:1; }
 .nws-sent-label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; }
 .nws-sent-val { font-family:'Space Mono',monospace; font-size:12px; font-weight:600; }
@@ -2320,18 +2320,18 @@ body.page-stocks .lib-h { display:none; }
 .stk-section-caret { font-size:10px; color:var(--text-4); transition:transform .18s ease; }
 .stk-sidebar details[open] > .stk-filter-col-h .stk-section-caret { transform:rotate(90deg); color:var(--apt-rose); }
 .stk-sidebar .stk-filter-col-sub { font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; padding:2px 0 6px 0; display:block; }
-.stk-sidebar .stk-filter-select { width:100%; padding:5px 6px; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; }
+.stk-sidebar .stk-filter-select { width:100%; padding:5px 6px; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-1); background:var(--bg-1); border:1px solid var(--border); border-radius:6px; }
 .stk-sidebar .stk-filter-select:focus { outline:none; border-color:var(--apt-rose); }
 
 /* Saved Views */
 .stk-views { padding:10px 0 12px 0; border-bottom:1px solid var(--border); margin-bottom:4px; }
 .stk-views-h { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:8px; }
 .stk-views-row { display:flex; gap:6px; margin-bottom:8px; }
-.stk-views-input { flex:1; min-width:0; padding:5px 8px; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; }
+.stk-views-input { flex:1; min-width:0; padding:5px 8px; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-1); background:var(--bg-1); border:1px solid var(--border); border-radius:6px; }
 .stk-views-input:focus { outline:none; border-color:var(--apt-rose); }
 .stk-views-list { display:flex; flex-wrap:wrap; gap:4px; }
 .stk-views-empty { font-size:9px; color:var(--text-5); font-style:italic; }
-.stk-views-chip { display:inline-flex; align-items:stretch; background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+.stk-views-chip { display:inline-flex; align-items:stretch; background:var(--bg-1); border:1px solid var(--border); border-radius:999px; overflow:hidden; }
 .stk-views-chip:hover { border-color:var(--apt-rose); }
 .stk-views-load { padding:4px 10px; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-2); background:transparent; border:0; cursor:pointer; text-transform:uppercase; }
 .stk-views-load:hover { color:var(--text-1); }
@@ -2352,7 +2352,7 @@ body.page-stocks .lib-h { display:none; }
 .stk-hygiene > summary.stk-filter-col-h { padding:8px 0 8px 0; }
 .stk-cov-row { display:grid; grid-template-columns:1fr 56px auto; align-items:center; gap:8px; padding:4px 0; }
 .stk-cov-label { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-2); text-transform:uppercase; }
-.stk-cov-input { padding:4px 6px; font-family:'Space Mono',monospace; font-size:11px; color:var(--text-1); background:rgba(10,10,15,0.6); border:1px solid var(--border); border-radius:6px; text-align:center; }
+.stk-cov-input { padding:4px 6px; font-family:'Space Mono',monospace; font-size:11px; color:var(--text-1); background:var(--bg-1); border:1px solid var(--border); border-radius:6px; text-align:center; }
 :root[data-theme="light"] .stk-cov-input { background:#FFFFFF; }
 .stk-cov-input:focus { outline:none; border-color:var(--apt-rose); }
 .stk-cov-of { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); }
@@ -2387,7 +2387,7 @@ body.page-stocks .footer { display:none; }
 .fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
 @media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
-.fp-card { padding:14px 16px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+.fp-card { padding:14px 16px; background:transparent; border:1px solid var(--border);  }
 .fp-card-h { font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
 .fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
 .fp-card-toggle:hover { color:var(--apt-rose); }
@@ -2397,7 +2397,7 @@ body.page-stocks .footer { display:none; }
 
 /* Standalone methodology card. Slides in below the 4 factor cards when one is clicked. */
 .fp-meta-panel { margin-top:14px; }
-.fp-meta-card { padding:16px 18px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; border-left-width:3px; }
+.fp-meta-card { padding:16px 18px; background:transparent; border:1px solid var(--border);  border-left-width:3px; }
 .fp-meta-growth   { border-left-color:#34D27A; }
 .fp-meta-value    { border-left-color:#9B8CFF; }
 .fp-meta-momentum { border-left-color:#FFB347; }
@@ -2409,7 +2409,7 @@ body.page-stocks .footer { display:none; }
 .fp-meta-card-close:hover { color:var(--apt-rose); }
 .fp-meta-table { width:100%; border-collapse:collapse; font-size:11px; }
 .fp-meta-table th { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-4); text-transform:uppercase; text-align:left; padding:4px 8px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
-.fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; line-height:1.4; }
+.fp-meta-table td { padding:6px 8px 6px 0; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.4; }
 .fp-meta-table tr:last-child td { border-bottom:0; }
 .fp-meta-label { color:var(--text-1); font-weight:500; white-space:nowrap; }
 .fp-meta-src { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-3); white-space:nowrap; }
@@ -6444,6 +6444,30 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
     matched = [(t, cik) for t, cik in matched if cik]
 
     today_str = datetime.now(EASTERN).strftime("%Y-%m-%d")
+    iso_year, iso_week, _ = datetime.now(EASTERN).isocalendar()
+
+    # Freshness is decided per ticker, not for the run as a whole. The caller
+    # used to skip the entire pass whenever ANY cached stock carried a stamp
+    # from this week, which meant that when the universe grew from 1,506 to
+    # 5,336 the 3,830 new names inherited a "done" flag they had no part in:
+    # every one of them showed no XBRL data, and would have kept showing none
+    # for as long as the older names kept the weekly gate satisfied.
+    def is_fresh(sym):
+        stamp = (by_ticker.get(sym) or {}).get("edgar_updated")
+        if not stamp:
+            return False
+        try:
+            d = datetime.strptime(stamp, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            return False
+        y, w, _ = d.isocalendar()
+        return y == iso_year and w == iso_week
+
+    total_matched = len(matched)
+    matched = [(t, cik) for t, cik in matched if not is_fresh(t)]
+    if total_matched != len(matched):
+        print(f"EDGAR: {total_matched - len(matched)} tickers already stamped this week, "
+              f"{len(matched)} to fetch.")
 
     def process(item):
         sym, cik = item
@@ -6799,25 +6823,29 @@ def get_or_generate_stocks_universe():
     # Skip if any cached ticker has edgar_updated stamped within this ISO week.
     # Schema bump: if no cached stock has op_margin_history yet, force a re-run
     # so newly-added EDGAR-derived fields populate without waiting a week.
-    should_run_edgar = True
-    if last_known and last_known.get("stocks"):
-        recent_edgar = next((s for s in last_known["stocks"] if s.get("edgar_updated")), None)
-        has_op_margin_history = any(s.get("op_margin_history") for s in last_known["stocks"])
-        has_benford_mad = any((s.get("benford") or {}).get("mad") is not None for s in last_known["stocks"])
-        if recent_edgar and has_op_margin_history and has_benford_mad:
-            try:
-                edgar_dt = datetime.fromisoformat(recent_edgar["edgar_updated"]).date()
-                edgar_iso_year, edgar_iso_week, _ = edgar_dt.isocalendar()
-                if edgar_iso_year == iso_year and edgar_iso_week == iso_week:
-                    should_run_edgar = False
-                    print(f"EDGAR: cache stamped {recent_edgar['edgar_updated']} (this week), skipping refresh.")
-            except Exception:
-                pass
-        elif recent_edgar and (not has_op_margin_history or not has_benford_mad):
-            missing = []
-            if not has_op_margin_history: missing.append("op_margin_history")
-            if not has_benford_mad: missing.append("benford.mad")
-            print(f"EDGAR: schema bump detected ({', '.join(missing)} missing), forcing re-run.")
+    # enrich_with_edgar now decides freshness per ticker, so the only question
+    # here is whether anything is stale at all. Counting rather than sampling:
+    # the previous check looked at the FIRST stock carrying a stamp and skipped
+    # the whole pass on that basis, which is how 3,830 newly added tickers ended
+    # up with no XBRL data at all.
+    def _edgar_is_current(stock):
+        stamp = stock.get("edgar_updated")
+        if not stamp:
+            return False
+        try:
+            y, w, _ = datetime.strptime(stamp, "%Y-%m-%d").date().isocalendar()
+        except (TypeError, ValueError):
+            return False
+        return y == iso_year and w == iso_week
+
+    stale = sum(1 for s in stocks if not _edgar_is_current(s))
+    has_op_margin_history = any(s.get("op_margin_history") for s in stocks)
+    has_benford_mad = any((s.get("benford") or {}).get("mad") is not None for s in stocks)
+    should_run_edgar = stale > 0 or not has_op_margin_history or not has_benford_mad
+    if not should_run_edgar:
+        print("EDGAR: every ticker stamped this week, skipping.")
+    else:
+        print(f"EDGAR: {stale} of {len(stocks)} tickers need a pull.")
     edgar_count = 0
     cik_map = None
     if should_run_edgar:
