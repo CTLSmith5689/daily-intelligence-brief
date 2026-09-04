@@ -34,7 +34,20 @@ RECIPIENT_EMAIL = os.environ.get("RECIPIENTS", SMTP_USER)
 SMTP_SERVER = "smtp.mail.me.com"
 SMTP_PORT = 587
 
-ET_OFFSET = timedelta(hours=-4)  # EDT
+# Eastern time, DST-aware. This was a hardcoded timedelta(hours=-4), which is
+# EDT only: from early November it would label EST instants as -04:00 and roll
+# the calendar day over an hour early, putting late-night rows on the wrong date
+# and, at a month boundary, in the wrong monthly CSV.
+try:
+    from zoneinfo import ZoneInfo
+    EASTERN = ZoneInfo("America/New_York")
+except Exception:  # pragma: no cover - Windows without the tzdata package
+    EASTERN = timezone(timedelta(hours=-4))
+    print("WARNING: no IANA tz database; falling back to a fixed EDT offset. "
+          "Dates will be an hour early during EST. Run: pip install tzdata")
+
+# Retained so anything still importing it keeps working.
+ET_OFFSET = timedelta(hours=-4)
 
 # ── Brand: Apterreon ─────────────────────────────────────────────────────────
 APT_RED        = "#CC0000"  # bright red, leads, accent
@@ -3866,7 +3879,7 @@ def get_or_generate_recent_trends(briefs):
     """Formerly a daily Claude call summarizing the last ~10 days into bullets and
     themes. The project no longer uses an LLM, and there is no non-LLM way to
     synthesize prose, so this returns empty and generate_home omits the block."""
-    return {"date": datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d"),
+    return {"date": datetime.now(EASTERN).strftime("%Y-%m-%d"),
             "snapshot": [], "themes": []}
 
 
@@ -4387,7 +4400,7 @@ def enrich_with_yfinance(stocks, max_workers=6):
                 if cap or price:
                     enriched += 1
                     # Per-row freshness stamp: this run successfully fetched yfinance data.
-                    s["last_updated"] = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+                    s["last_updated"] = datetime.now(EASTERN).strftime("%Y-%m-%d")
             except Exception as exc:
                 # A single unexpected payload shape must not take down the run:
                 # the brief has already been emailed by this point.
@@ -5366,7 +5379,7 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
     by_ticker = {s["ticker"]: s for s in target}
     matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
     matched = [(t, cik) for t, cik in matched if cik]
-    today_str = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+    today_str = datetime.now(EASTERN).strftime("%Y-%m-%d")
 
     def process(item):
         sym, cik = item
@@ -5416,7 +5429,7 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
     matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
     matched = [(t, cik) for t, cik in matched if cik]
 
-    today_str = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
+    today_str = datetime.now(EASTERN).strftime("%Y-%m-%d")
 
     def process(item):
         sym, cik = item
@@ -5459,7 +5472,7 @@ def get_or_generate_stocks_universe():
     previous static enrichment (market_cap, pe) as a fallback layer, then attempt a
     fresh yfinance pass. Yahoo rate-limits aggressively so a single run rarely covers
     100% of 1500 names; subsequent runs accumulate coverage."""
-    now = datetime.now(timezone(ET_OFFSET))
+    now = datetime.now(EASTERN)
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
     date_key = now.strftime("%Y-%m-%d")
@@ -5658,7 +5671,7 @@ def get_or_generate_stocks_universe():
 # ── Per-page generators ─────────────────────────────────────────────────────
 
 def _hero_eyebrow_text(briefs):
-    now_et = datetime.now(timezone(ET_OFFSET))
+    now_et = datetime.now(EASTERN)
     today_str = now_et.strftime("%Y-%m-%d")
     latest = briefs[0] if briefs else None
     latest_date = (latest or {}).get("date", today_str)
@@ -5779,7 +5792,7 @@ def generate_home(briefs, recent_trends):
 
 def generate_today(briefs):
     """Write docs/today.html: today's editions (morning/midday/evening) with section grid each."""
-    now_et = datetime.now(timezone(ET_OFFSET))
+    now_et = datetime.now(EASTERN)
     today_iso = now_et.strftime("%Y-%m-%d")
     pretty_today = now_et.strftime("%A, %B %d, %Y")
 
@@ -6355,7 +6368,7 @@ def lambda_handler(event, context):
     if mode not in ("record", "daily"):
         return {"status": "error", "error": f"unknown mode {mode!r}"}
 
-    now_et = datetime.now(timezone(ET_OFFSET))
+    now_et = datetime.now(EASTERN)
     observed_at = now_et.isoformat(timespec="seconds")
     date_iso = now_et.strftime("%Y-%m-%d")
     date_str = now_et.strftime("%A, %B %d")

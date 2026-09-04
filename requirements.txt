@@ -6,3 +6,8 @@ yfinance>=0.2.40
 # Loughran-McDonald financial sentiment is computed in lambda_function.py against
 # an embedded curated subset of the LM Master Dictionary (no extra dep).
 vaderSentiment>=3.3.2
+
+# Guarantees the IANA timezone database for zoneinfo. Linux runners ship one
+# system-wide, but this removes the fallback path entirely (and makes local
+# Windows runs correct, where Python has no system tz database).
+tzdata
