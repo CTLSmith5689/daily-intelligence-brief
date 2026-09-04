@@ -2657,7 +2657,7 @@ STOCKS_JS_TEMPLATE = """
         { label: 'Earnings Consistency', key: 'earnings_consistency', type: 'ratio', source: 'edgar',   method: '1 / (1 + coefficient of variation) of last 8 quarters EPS. Range 0 to 1, higher means steadier.' },
         { label: 'Net Debt/EBITDA',     key: 'net_debt_ebitda',     type: 'ratio', source: 'yfinance', method: '(Total debt minus cash) / TTM EBITDA. Lower is better; negative means net cash.' },
         { label: 'Op Margin Stability', key: 'op_margin_stability', type: 'ratio', source: 'edgar',    method: 'Standard deviation of quarterly operating margins over last 8 quarters. Lower means more stable.' },
-        { label: 'Accruals Ratio',      key: 'accruals_ratio',      type: 'pct',   source: 'yfinance', method: '(Net income minus CFO) / total assets. High accruals can flag earnings of lower quality.' },
+        { label: 'Accruals Ratio',      key: 'accruals_ratio',      type: 'pct',   source: 'edgar',    method: 'Sloan accruals: (TTM net income minus TTM operating cash flow) / average total assets, from XBRL. High accruals mean earnings are not backed by cash.' },
       ],
     },
   ];
@@ -4685,13 +4685,9 @@ def enrich_with_yfinance(stocks, max_workers=6):
                     nde = (debt - tcash) / ebitda
                     if -20 < nde < 50:
                         s["net_debt_ebitda"] = nde
-                ni = info.get("netIncomeToCommon")
-                cfo = info.get("operatingCashflow")
-                ta = info.get("totalAssets")
-                if ni is not None and cfo is not None and ta and ta > 0:
-                    ar = (ni - cfo) / ta
-                    if -1 < ar < 1:
-                        s["accruals_ratio"] = ar
+                # accruals_ratio is computed from EDGAR in compute_edgar_factors.
+                # It used to be derived here from info["totalAssets"], which
+                # yfinance does not expose, so it was never once populated.
                 op_m = info.get("operatingMargins")
                 if op_m is not None and -2 < op_m < 2:
                     s["operating_margin"] = op_m
@@ -5229,6 +5225,11 @@ EDGAR_CONCEPT_FALLBACKS = {
         "PaymentsToAcquireProductiveAssets",
     ],
     "eps_basic": ["EarningsPerShareBasic"],
+    "net_income": ["NetIncomeLoss", "ProfitLoss",
+                   "NetIncomeLossAvailableToCommonStockholdersBasic"],
+    # Balance-sheet total assets. Instant fact, not a duration: see
+    # _extract_instant_series for why it needs its own extractor.
+    "total_assets": ["Assets"],
 }
 
 
@@ -5305,6 +5306,36 @@ def _extract_quarterly_series(facts, concept_keys, max_periods=12):
         sorted_periods = sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
         if sorted_periods:
             return sorted_periods[:max_periods]
+    return []
+
+
+def _extract_instant_series(facts, concept_keys, max_periods=12):
+    """Extract point-in-time (balance-sheet) values for the first matching concept.
+
+    Balance-sheet facts are instants, not durations: they carry an `end` and no
+    `start`, so _extract_quarterly_series drops every one of them at its
+    `if not start or not end` guard. That is exactly why accruals_ratio sat at 0%
+    coverage across the whole universe. Returns [{end, val}] most-recent-first."""
+    us_gaap = facts.get("us-gaap", {})
+    for concept in concept_keys:
+        if concept not in us_gaap:
+            continue
+        records = us_gaap[concept].get("units", {}).get("USD") or []
+        if not records:
+            continue
+        by_end = {}
+        for r in records:
+            if r.get("form") not in ("10-Q", "10-Q/A", "10-K", "10-K/A"):
+                continue
+            end, val = r.get("end", ""), r.get("val")
+            if not end or val is None:
+                continue
+            existing = by_end.get(end)
+            if not existing or r.get("filed", "") > existing.get("filed", ""):
+                by_end[end] = {"end": end, "val": val, "filed": r.get("filed", "")}
+        periods = sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
+        if periods:
+            return periods[:max_periods]
     return []
 
 
@@ -5423,8 +5454,34 @@ def compute_edgar_factors(facts):
     cfo = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["cfo"])
     capex = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["capex"])
     eps = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["eps_basic"])
+    net_income = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["net_income"])
+    assets = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["total_assets"])
 
     out = {}
+
+    # Accruals ratio (Sloan 1996): (TTM net income - TTM operating cash flow)
+    # / average total assets. High accruals mean earnings are not backed by cash,
+    # which predicts weak future returns, so it is inverted in SCORE_GROUPS.
+    #
+    # Sourced from EDGAR rather than yfinance deliberately. The previous
+    # implementation read totalAssets off yfinance's .info, which does not expose
+    # it (it lives on the balance sheet), so the guard never passed and this
+    # factor was silently 0% covered across all 5,336 tickers, quietly making
+    # Quality a four-field dimension instead of five.
+    if len(net_income) >= 4 and len(cfo) >= 4 and assets:
+        try:
+            ttm_ni = sum(r["val"] for r in net_income[:4])
+            ttm_cfo = sum(r["val"] for r in cfo[:4])
+            # Average with the year-ago balance where available; a single balance
+            # date would let one acquisition swing the denominator.
+            recent = [r["val"] for r in assets[:5] if r["val"]]
+            avg_assets = (recent[0] + recent[4]) / 2 if len(recent) >= 5 else recent[0]
+            if avg_assets and avg_assets > 0:
+                ratio = (ttm_ni - ttm_cfo) / avg_assets
+                if -1 < ratio < 1:
+                    out["accruals_ratio"] = ratio
+        except (TypeError, ValueError, IndexError, ZeroDivisionError):
+            pass
 
     # Revenue Acceleration: ΔYoY growth quarter-over-quarter
     # = (Q[n] vs Q[n-4]) growth - (Q[n-1] vs Q[n-5]) growth
