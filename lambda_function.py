@@ -1945,6 +1945,25 @@ h1.hero-title {
 .stk-table { background:var(--surface-1); border:1px solid var(--border); border-radius:14px; overflow-y:auto; max-height:calc(100vh - 220px); }
 .stk-table::-webkit-scrollbar { width:8px; }
 .stk-table::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:4px; }
+/* An author display rule outranks the UA [hidden] rule, so these panels would
+   stay visible when switched away from. Re-assert it for the view containers. */
+.stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden] { display:none !important; }
+.stk-chart { display:block; }
+.stk-lenses { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.stk-lens { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  padding:5px 10px; cursor:pointer; border:1px solid var(--border-bright); background:transparent; color:var(--text-3); }
+.stk-lens.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
+.stk-chart-blurb { font-size:12px; color:var(--text-3); line-height:1.6; margin:0 0 12px; max-width:70ch; }
+.stk-chart-plot { position:relative; border:1px solid var(--border); background:var(--surface-1); }
+.stk-chart-plot canvas { display:block; width:100%; height:520px; }
+.stk-chart-plot .ax { position:absolute; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--text-3); pointer-events:none; }
+.stk-chart-plot .tl { top:12px; left:14px; } .stk-chart-plot .tr { top:12px; right:14px; }
+.stk-chart-plot .bl { bottom:12px; left:14px; } .stk-chart-plot .br { bottom:12px; right:14px; }
+.stk-chart-tip { position:absolute; pointer-events:none; background:var(--bg-base); color:var(--text-1);
+  border:1px solid var(--text-1); padding:6px 9px; font-family:'Space Mono',monospace; font-size:10px;
+  line-height:1.5; white-space:nowrap; z-index:5; }
+.stk-chart-foot { font-size:11px; color:var(--text-4); margin:10px 2px 0; }
 .stk-views-switch { display:flex; border:1px solid var(--border-bright); flex-shrink:0; }
 .stk-view-btn { padding:7px 15px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
   text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
@@ -3497,15 +3516,20 @@ STOCKS_JS_TEMPLATE = """
     });
   };
 
-  function render() {
+  // Shared so the chart plots exactly what the list shows: one filter, three views.
+  function currentFiltered() {
     const q = query.toLowerCase();
-    let filtered = ALL.filter(s => {
+    return ALL.filter(s => {
       if (activeSector && s.sector !== activeSector) return false;
       if (activeIndex && s.index !== activeIndex) return false;
       if (!passesFilters(s)) return false;
       if (!q) return true;
       return ((s.ticker||'')+' '+(s.name||'')+' '+(s.sector||'')+' '+(s.sub_industry||'')).toLowerCase().includes(q);
     });
+  }
+
+  function render() {
+    let filtered = currentFiltered();
     filtered.sort((a, b) => {
       let av, bv;
       if (sortKey === '__score__') {
@@ -4099,11 +4123,161 @@ STOCKS_JS_TEMPLATE = """
     }).join('');
   }
 
+  // -- Chart ---------------------------------------------------------------
+  // Canvas, not SVG: an unfiltered view is 5,336 points, and that many DOM
+  // nodes costs far more than it buys when each one is a 3px dot.
+  const LENSES = [
+    { key:'gvmq', label:'GVMQ', compass:true,
+      tl:'Momentum', tr:'Growth', bl:'Value', br:'Quality',
+      blurb:'Each corner is one factor. A company sits in the direction of the factors it scores best on, and the further from the centre, the more lopsided the profile.' },
+    { key:'compounders', label:'Compounders', x:'q', y:'g',
+      tl:'', tr:'High growth + high quality', bl:'Weak on both', br:'',
+      xl:'Quality', yl:'Growth',
+      blurb:'Quality against growth. Top right is the compounder quadrant: earning well and still growing.' },
+    { key:'valmo', label:'Value / momentum', x:'v', y:'m',
+      tl:'', tr:'Cheap and moving', bl:'Expensive and falling', br:'',
+      xl:'Value', yl:'Momentum',
+      blurb:'Cheapness against price momentum. Top right is cheap and already re-rating; bottom left is the value trap corner.' },
+    { key:'neglect', label:'Neglect', x:'neglect_score', y:'q', raw:true,
+      xl:'Neglect', yl:'Quality',
+      blurb:'Under-followed names that still score on quality. Further right means less analyst, institutional and news coverage.' },
+  ];
+  let lens = LENSES[0];
+
+  function chartPoints() {
+    const out = [];
+    for (const s of currentFiltered()) {
+      let x, y;
+      if (lens.compass) {
+        // Vector sum of the four dimension scores, one per corner. A balanced
+        // company lands near the middle; a lopsided one is flung toward whatever
+        // it is strongest on.
+        if (!s.scorable) continue;
+        const g = s.g || 0, v = s.v || 0, m = s.m || 0, q = s.q || 0;
+        x = (g + q) - (v + m);
+        y = (g + m) - (v + q);
+      } else if (lens.raw) {
+        x = s[lens.x]; y = s[lens.y];
+      } else {
+        x = s[lens.x]; y = s[lens.y];
+      }
+      if (x == null || y == null || !isFinite(x) || !isFinite(y)) continue;
+      out.push({ s: s, x: x, y: y });
+    }
+    return out;
+  }
+
+  let chartHit = [];
+  function drawChart() {
+    const cv = document.getElementById('stk-chart-canvas');
+    if (!cv) return;
+    const pts = chartPoints();
+    const dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const css = getComputedStyle(document.documentElement);
+    const ink = css.getPropertyValue('--text-1').trim() || '#17140F';
+    const line = css.getPropertyValue('--border').trim() || 'rgba(0,0,0,.1)';
+    const pad = 46;
+    if (!pts.length) {
+      ctx.fillStyle = css.getPropertyValue('--text-4').trim() || '#888';
+      ctx.font = "12px 'Space Mono', monospace";
+      ctx.fillText('No companies have both inputs for this lens.', pad, h / 2);
+      chartHit = [];
+      document.getElementById('stk-chart-foot').textContent = '0 plotted';
+      return;
+    }
+    let xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+    let x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    let y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    if (lens.compass) { const m = Math.max(Math.abs(x0),Math.abs(x1),Math.abs(y0),Math.abs(y1)) || 1;
+                        x0 = -m; x1 = m; y0 = -m; y1 = m; }
+    if (x1 === x0) { x1 = x0 + 1; } if (y1 === y0) { y1 = y0 + 1; }
+    const sx = v => pad + (v - x0) / (x1 - x0) * (w - pad * 2);
+    const sy = v => h - pad - (v - y0) / (y1 - y0) * (h - pad * 2);
+    // Quadrant crosshair through the origin, or the midpoint for raw lenses.
+    const cx = lens.compass ? sx(0) : sx((x0 + x1) / 2);
+    const cy = lens.compass ? sy(0) : sy((y0 + y1) / 2);
+    ctx.strokeStyle = line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, pad*0.4); ctx.lineTo(cx, h-pad*0.4);
+    ctx.moveTo(pad*0.4, cy); ctx.lineTo(w-pad*0.4, cy); ctx.stroke();
+    // Dot area carries market cap, so the eye weights big companies more.
+    const caps = pts.map(p => p.s.market_cap || 0);
+    const capMax = Math.max.apply(null, caps) || 1;
+    chartHit = [];
+    for (const p of pts) {
+      const px = sx(p.x), py = sy(p.y);
+      const cap = p.s.market_cap || 0;
+      const r = 2 + Math.sqrt(cap / capMax) * 9;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fillStyle = ink; ctx.globalAlpha = 0.30; ctx.fill();
+      ctx.globalAlpha = 1;
+      chartHit.push({ x: px, y: py, r: Math.max(r, 4), s: p.s });
+    }
+    document.getElementById('stk-chart-foot').textContent =
+      pts.length.toLocaleString() + ' plotted of ' + currentFiltered().length.toLocaleString() +
+      ' matching' + (lens.compass ? ' \u00b7 only companies scored on 3 of 4 dimensions can be placed' : '') +
+      ' \u00b7 dot size: market cap';
+    const q = lens.compass
+      ? { tl: lens.tl, tr: lens.tr, bl: lens.bl, br: lens.br }
+      : { tl: '', tr: (lens.yl || '') + ' high', bl: (lens.xl || '') + ' low', br: (lens.xl || '') + ' high' };
+    const plot = cv.parentElement;
+    plot.querySelector('.tl').textContent = q.tl || '';
+    plot.querySelector('.tr').textContent = q.tr || '';
+    plot.querySelector('.bl').textContent = q.bl || '';
+    plot.querySelector('.br').textContent = q.br || '';
+  }
+
+  function renderLenses() {
+    const el = document.getElementById('stk-lenses');
+    if (!el) return;
+    el.innerHTML = '<span class="lib-chip-label">View</span>' + LENSES.map(function(l) {
+      return '<button type="button" class="stk-lens' + (l.key === lens.key ? ' active' : '') +
+             '" data-lens="' + l.key + '">' + escapeHtml(l.label) + '</button>';
+    }).join('');
+    el.querySelectorAll('.stk-lens').forEach(function(b) {
+      b.addEventListener('click', function() {
+        lens = LENSES.find(function(l) { return l.key === b.dataset.lens; }) || LENSES[0];
+        renderLenses();
+        document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
+        drawChart();
+      });
+    });
+    document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
+  }
+
+  (function wireChartTip() {
+    const cv = document.getElementById('stk-chart-canvas');
+    const tip = document.getElementById('stk-chart-tip');
+    if (!cv || !tip) return;
+    cv.addEventListener('mousemove', function(e) {
+      const b = cv.getBoundingClientRect();
+      const mx = e.clientX - b.left, my = e.clientY - b.top;
+      let best = null, bd = 1e9;
+      for (const h of chartHit) {
+        const d = (h.x - mx) * (h.x - mx) + (h.y - my) * (h.y - my);
+        if (d < bd && d < (h.r + 6) * (h.r + 6)) { bd = d; best = h; }
+      }
+      if (!best) { tip.hidden = true; return; }
+      tip.hidden = false;
+      tip.style.left = Math.min(b.width - 170, best.x + 10) + 'px';
+      tip.style.top = Math.max(0, best.y - 34) + 'px';
+      tip.innerHTML = escapeHtml(best.s.ticker) + '<br>' + escapeHtml(best.s.name || '');
+    });
+    cv.addEventListener('mouseleave', function() { tip.hidden = true; });
+  })();
+
   function setView(v) {
     const list = document.querySelector('.stk-table');
     const radar = document.getElementById('stk-radar');
+    const chart = document.getElementById('stk-chart');
     if (list) list.hidden = (v !== 'list');
     if (radar) radar.hidden = (v !== 'radar');
+    if (chart) chart.hidden = (v !== 'chart');
+    if (v === 'chart') { renderLenses(); drawChart(); }
     document.querySelectorAll('.stk-view-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.view === v);
     });
@@ -6891,6 +7065,7 @@ def generate_stocks_page(universe):
     <div class="stk-views-switch" id="stk-view-switch">
       <button type="button" class="stk-view-btn active" data-view="list">List</button>
       <button type="button" class="stk-view-btn" data-view="radar">Radar</button>
+      <button type="button" class="stk-view-btn" data-view="chart">Chart</button>
     </div>
     <label class="lib-search">
       <span class="icon">&#8981;</span>
@@ -7108,6 +7283,17 @@ def generate_stocks_page(universe):
       <div class="stk-th" data-sort="last_updated">Updated</div>
     </div>
     <div id="stk-list"></div>
+  </div>
+  <div id="stk-chart" class="stk-chart" hidden>
+    <div class="stk-lenses" id="stk-lenses"></div>
+    <p class="stk-chart-blurb" id="stk-chart-blurb"></p>
+    <div class="stk-chart-plot">
+      <span class="ax tl"></span><span class="ax tr"></span>
+      <span class="ax bl"></span><span class="ax br"></span>
+      <canvas id="stk-chart-canvas"></canvas>
+      <div class="stk-chart-tip" id="stk-chart-tip" hidden></div>
+    </div>
+    <p class="stk-chart-foot" id="stk-chart-foot"></p>
   </div>
   <div id="stk-radar" class="stk-radar" hidden>
     <div class="stk-radar-plot">
