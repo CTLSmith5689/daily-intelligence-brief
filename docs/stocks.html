@@ -396,7 +396,7 @@ h1.hero-title {
   .stk-filter-quicks { grid-column:1 / -1; margin-top:4px; }
 }
 
-.stk-table { background:var(--surface-1); border:1px solid var(--border); border-radius:14px; overflow-y:auto; max-height:calc(100vh - 220px); }
+.stk-table { background:transparent; border:none; }
 .stk-table::-webkit-scrollbar { width:8px; }
 .stk-table::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:4px; }
 /* An author display rule outranks the UA [hidden] rule, so these panels would
@@ -575,7 +575,7 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
 @media (max-width:900px) {
   .scr-body { display:block; }
   .scr-rail { width:auto; border-right:none; border-bottom:1px solid var(--text-1); }
-  .scr-rail-in { position:static; max-height:none; }
+  .scr-rail-in { position:static; max-height:none; overflow-y:visible; }
   .scr-top, .scr-tool, .scr-pane, .scr-foot { padding-left:16px; padding-right:16px; }
 }
 /* The screener chassis. The design is flat: 1px rules, no rounded cards, no
@@ -854,25 +854,15 @@ body.page-stocks .lib-h { display:none; }
 .stk-sidebar .stk-weight-presets-label { font-size:8px; }
 .stk-filter-toggle-count { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:2px 0; }
 
-/* The screener shell scrolls the page, not an inner pane, so it must opt out of
-   the viewport lock below. That lock and the table's own overflow were written
-   for the previous layout, where the body was pinned to 100vh and only the list
-   moved; left in place they simply stop the new page scrolling at all. */
-body.page-stocks.scr-page { overflow:visible; height:auto; }
-body.scr-page .stk-table { overflow:visible; max-height:none; border:none; background:transparent; }
+/* The screener scrolls the page itself. The block that used to live here pinned
+   the body to 100vh with overflow:hidden so that only an inner pane moved, and
+   styled a chassis (.lib-wide, .stk-wrap, .stk-sidebar, .stk-toprow, .stk-main)
+   that the design port removed. All of it is deleted rather than overridden:
+   an overridden viewport lock is one equal-specificity rule away from coming
+   back, and when it does the page stops responding to the wheel while still
+   answering scrollTop, which is close to undebuggable from the outside. */
+body.page-stocks .picks-meta, body.page-stocks .footer { display:none; }
 body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar */
-
-/* Stocks page: lock the page to the viewport so only the list scrolls. */
-body.page-stocks { overflow:hidden; height:100vh; }
-body.page-stocks .lib.lib-wide { height:calc(100vh - 90px); padding-top:18px; padding-bottom:14px; display:flex; flex-direction:column; min-height:0; }
-body.page-stocks .lib.lib-wide .lib-h { flex-shrink:0; }
-body.page-stocks .stk-toprow { position:static; flex-shrink:0; margin-bottom:10px; }
-body.page-stocks .stk-wrap { flex:1 1 auto; min-height:0; margin-top:0; align-items:stretch; }
-body.page-stocks .stk-sidebar { position:static; top:auto; max-height:none; height:100%; }
-body.page-stocks .stk-main { display:flex; flex-direction:column; min-height:0; height:100%; }
-body.page-stocks .stk-table { flex:1 1 auto; min-height:0; max-height:none; }
-body.page-stocks .picks-meta { display:none; }
-body.page-stocks .footer { display:none; }
 
 @media (max-width:1080px) {
   .stk-wrap { grid-template-columns:1fr; }
