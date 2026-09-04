@@ -4873,10 +4873,6 @@ STOCKS_JS_TEMPLATE = """
     return v;
   }
 
-  // Kept only so the paired two-panel view stays reachable; it is a different
-  // shape of chart, not another pair of axes.
-  const LENSES = [{ key:'free' }];
-  let lens = LENSES[0];
 
   // ---- 3D factor space -------------------------------------------------
   // A regular tetrahedron centred on the origin. The four unit vectors sum to
@@ -5360,7 +5356,8 @@ STOCKS_JS_TEMPLATE = """
     if (!pts.length) {
       ctx.fillStyle = dim;
       ctx.font = "12px 'Space Mono', monospace";
-      ctx.fillText('No companies have both inputs for this lens.', 46, h / 2);
+      ctx.fillText('No company has both ' + axisLabel(axisY).toLowerCase() +
+        ' and ' + axisLabel(axisX).toLowerCase() + '.', 46, h / 2);
       document.getElementById('stk-chart-foot').textContent = '0 plotted';
       return;
     }
