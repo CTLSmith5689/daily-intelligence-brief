@@ -2040,6 +2040,67 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-radar-bar i { position:absolute; inset:0 auto 0 0; background:var(--apt-red); display:block; }
 .stk-radar-val { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-2); text-align:right; }
 .stk-radar-val.na { color:var(--text-5); }
+/* -- Screener shell, transcribed from the design ------------------------- */
+body.scr-page { margin:0; background:var(--bg-base); color:var(--text-1);
+  font-family:'Space Grotesk',system-ui,sans-serif; }
+body.scr-page::before, body.scr-page::after { display:none !important; }
+.scr { min-height:100vh; background:var(--bg-base); color:var(--text-1); }
+.scr-top { position:sticky; top:0; z-index:60; display:flex; align-items:center;
+  justify-content:space-between; gap:24px; height:56px; padding:0 32px;
+  border-bottom:1px solid var(--text-1); background:var(--bg-base); }
+.scr-brand { display:flex; align-items:baseline; gap:14px; }
+.scr-mark { font-family:'Instrument Serif',Georgia,serif; font-size:23px; letter-spacing:-0.3px; }
+.scr-sub { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--text-3); }
+.scr-nav { display:flex; align-items:center; gap:24px; font-family:'Space Mono',monospace;
+  font-size:11px; letter-spacing:1.5px; text-transform:uppercase; }
+.scr-nav a { color:var(--text-3); text-decoration:none; }
+.scr-nav a:hover { color:var(--text-1); }
+.scr-nav a.on { color:var(--text-1); border-bottom:2px solid var(--apt-red); padding-bottom:2px; }
+.scr-body { display:flex; align-items:flex-start; }
+.scr-rail { width:282px; flex-shrink:0; border-right:1px solid var(--text-1);
+  background:var(--bg-1); align-self:stretch; }
+.scr-rail-in { position:sticky; top:56px; max-height:calc(100vh - 56px); overflow-y:auto; }
+.scr-rail-h { position:sticky; top:0; z-index:2; background:var(--bg-1); display:flex;
+  align-items:center; justify-content:space-between; height:53px; padding:0 20px;
+  border-bottom:1px solid var(--text-1); font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:2.5px; text-transform:uppercase; }
+.scr-reset { font-size:9px; letter-spacing:1.5px; color:var(--text-3); cursor:pointer; }
+.scr-reset:hover { color:var(--apt-red); }
+.scr-rail-lab { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2.5px;
+  text-transform:uppercase; margin-bottom:11px; }
+.stk-rg { border-bottom:1px solid var(--border); }
+.stk-rg > summary { list-style:none; }
+.stk-rg > summary::-webkit-details-marker { display:none; }
+.stk-rg > summary:hover { background:var(--bg-base); }
+.scr-check { display:flex; align-items:flex-start; gap:9px; margin-bottom:9px; cursor:pointer;
+  font-size:12px; line-height:1.4; color:var(--text-2); }
+.scr-saved > div { display:flex; justify-content:space-between; gap:10px; padding:6px 0;
+  border-bottom:1px solid var(--border); font-size:12px; cursor:pointer; color:var(--text-2); }
+.scr-saveline { display:flex; gap:6px; margin-top:10px; }
+.scr-main { flex:1; min-width:0; }
+.scr-tool { position:sticky; top:56px; z-index:50; background:var(--bg-base); display:flex;
+  align-items:center; gap:16px; height:53px; padding:0 32px;
+  border-bottom:1px solid var(--text-1); }
+.scr-find { display:flex; align-items:center; gap:9px; flex:1 1 0; min-width:104px;
+  max-width:290px; border-bottom:1px solid var(--text-1); padding-bottom:4px; }
+.scr-find .ic { color:var(--text-4); font-size:12px; }
+.scr-find input { flex:1; min-width:0; background:transparent; border:none; outline:none;
+  font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); }
+.scr-find .clear-btn { background:none; border:none; cursor:pointer; color:var(--text-4);
+  font-size:15px; line-height:1; }
+.scr-count { margin-left:auto; flex-shrink:0; white-space:nowrap;
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); }
+.scr-pane { padding:0 32px 30px; }
+.scr-foot { border-top:1px solid var(--text-1); padding:20px 32px; display:flex;
+  justify-content:space-between; gap:16px; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1.5px; color:var(--text-4); }
+@media (max-width:900px) {
+  .scr-body { display:block; }
+  .scr-rail { width:auto; border-right:none; border-bottom:1px solid var(--text-1); }
+  .scr-rail-in { position:static; max-height:none; }
+  .scr-top, .scr-tool, .scr-pane, .scr-foot { padding-left:16px; padding-right:16px; }
+}
 /* The screener chassis. The design is flat: 1px rules, no rounded cards, no
    fills behind the toolbar, and the ticker set in a serif at reading size so
    the eye lands on the company before the numbers. */
@@ -7191,6 +7252,45 @@ def render_filter_panel_sections():
     return "\n".join(sections)
 
 
+def render_screener_page(title, body_html, extra_scripts=""):
+    """Full-bleed shell for the screener, transcribed from the design.
+
+    Deliberately not render_page: that wrapper centres content in an article
+    column with its own topnav and footer, and the design's screener is edge to
+    edge with its own header. Keeps the same <head> so the theme boot, fonts and
+    stylesheet stay identical across pages."""
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#EDE8DC">
+<link rel="manifest" href="manifest.json">
+<title>{title}</title>
+<script>
+(function(){{
+  try {{
+    var t = localStorage.getItem('apt-theme-v2');
+    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+  }} catch (e) {{}}
+}})();
+</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+{SITE_CSS}
+</style>
+</head>
+<body class="page-stocks scr-page">
+{body_html}
+<script>
+{extra_scripts}
+</script>
+</body>
+</html>"""
+
+
 def generate_stocks_page(universe):
     """Write docs/stocks.html: filterable table of US stocks scraped from Wikipedia
     (S&P 500/400/600), optionally enriched with live FMP quote data."""
@@ -7234,305 +7334,170 @@ def generate_stocks_page(universe):
     meta_line = f"Updated {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
     factor_sections_html = render_filter_panel_sections()
 
+    # ---- The screener rail, built from FILTER_PANEL ----------------------
+    # Structure and every style value are transcribed from the design file
+    # (Screener Creative.dc.html, the 953-line cream variant), with its sc-for
+    # loops expanded here and its {{ }} bindings filled from real data. The JS
+    # hook ids are preserved so the existing filter, sort and expand behaviour
+    # keeps working against the new markup.
+    rail = []
+    for sec in FILTER_PANEL:
+        fields = []
+        for row in sec["rows"]:
+            fields.append(
+                f'''<div style="margin-bottom:11px">
+  <div style="font-family:\'Space Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">{row["label"]}</div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <input class="stk-filter-input" data-filter="{row["key"]}" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <span style="color:var(--text-4);font-size:10px">to</span>
+    <input class="stk-filter-input" data-filter="{row["key"]}" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+  </div>
+</div>''')
+        opened = " open" if sec.get("open") else ""
+        rail.append(
+            f'''<details class="stk-rg"{opened}>
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;list-style:none">
+    <span style="font-family:\'Space Mono\',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase">{sec["title"]}</span>
+    <span style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--apt-red)" data-setcount="{sec["title"]}"></span>
+  </summary>
+  <div style="padding:2px 20px 15px">{"".join(fields)}</div>
+</details>''')
+    rail_html = "".join(rail)
+
+    index_chips = '<span class="lib-chip active" data-index="">All</span>'
+    sector_chips = '<span class="lib-chip active" data-sector="">All</span>'
+
     body = f"""
-<section class="lib lib-wide">
-  <div class="stk-hero" id="stk-hero" hidden>
-    <div class="stk-hero-l">
-      <h1 class="stk-hero-num" id="stk-hero-num">&nbsp;</h1>
-      <p class="stk-hero-blurb">Every US listing, ranked four ways at once. Growth, value,
-      momentum and quality, each scored against sector peers rather than the whole market,
-      because a cheap utility and a cheap chipmaker are not the same animal.</p>
+<div class="scr">
+  <div class="scr-top">
+    <div class="scr-brand">
+      <span class="scr-mark">Apterreon</span>
+      <span class="scr-sub">The Screen</span>
     </div>
-    <div class="stk-hero-r">
-      <p class="stk-hero-q">Show me
-        <button type="button" class="stk-q" data-q="cap">any size</button> companies that look
-        <button type="button" class="stk-q" data-q="value">cheap</button>, in
-        <button type="button" class="stk-q" data-q="sector">any sector</button>, that Wall Street is
-        <button type="button" class="stk-q" data-q="neglect">ignoring</button>.</p>
-      <div class="stk-hero-stats">
-        <div><span class="n" id="stk-stat-match">&mdash;</span><span class="k">Match</span></div>
-        <div><span class="n hot" id="stk-stat-scored">&mdash;</span><span class="k">Scored</span></div>
-        <div><span class="n" id="stk-stat-median">&mdash;</span><span class="k">Median score</span></div>
-      </div>
+    <div class="scr-nav">
+      <a href="./index.html">Home</a>
+      <a href="./today.html">Today</a>
+      <a href="./stories.html">Stories</a>
+      <a href="./stocks.html" class="on">Stocks</a>
+      <button type="button" id="apt-theme-toggle" class="theme-toggle" aria-label="Toggle light/dark theme" title="Toggle light/dark"><span class="theme-toggle-icon">&#9788;</span></button>
     </div>
   </div>
-  <div class="stk-masthead">
-    <span class="stk-mast-name">The Screen</span>
-    <span class="stk-mast-sub">Every US listing, ranked four ways at once</span>
-  </div>
-  <div class="stk-toprow">
-    <div class="stk-views-switch" id="stk-view-switch">
-      <button type="button" class="stk-view-btn active" data-view="list">List</button>
-      <button type="button" class="stk-view-btn" data-view="radar">Radar</button>
-      <button type="button" class="stk-view-btn" data-view="chart">Chart</button>
-    </div>
-    <label class="lib-search">
-      <span class="icon">&#8981;</span>
-      <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
-      <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
-    </label>
-    <span class="stk-result" id="stk-count"></span>
-    <button type="button" class="stk-about" id="stk-about-btn" aria-expanded="false">About</button>
-  </div>
-  <div class="stk-wrap">
-    <aside class="stk-sidebar">
-      <div class="stk-sidebar-h">
-        <span>Advanced</span>
-        <button type="button" class="stk-filter-reset" id="stk-filter-reset" hidden>Reset</button>
-      </div>
-      <span class="stk-filter-toggle-count" id="stk-filter-count" hidden></span>
 
-      <details class="stk-hygiene stk-section" open>
-        <summary class="stk-filter-col-h">Data Hygiene<span class="stk-section-caret">&#9656;</span></summary>
-        <div class="stk-filter-col-sub">require fresh data and minimum factor coverage</div>
-        <div class="stk-filter-row stk-filter-row-toggle">
-          <label class="stk-filter-checkbox">
-            <input type="checkbox" id="stk-only-enriched">
-            <span>Hide stocks without live market cap data</span>
-          </label>
+  <div class="scr-body">
+    <aside class="scr-rail">
+      <div class="scr-rail-in">
+        <div class="scr-rail-h">
+          <span>Refine</span>
+          <span id="stk-reset" class="scr-reset">Reset</span>
         </div>
-        <div class="stk-overlay-sub">Min Factor Coverage</div>
-        <div class="stk-cov-row">
-          <span class="stk-cov-label">Growth</span>
-          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Growth">
-          <span class="stk-cov-of">/ 5</span>
-        </div>
-        <div class="stk-cov-row">
-          <span class="stk-cov-label">Value</span>
-          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Value">
-          <span class="stk-cov-of">/ 5</span>
-        </div>
-        <div class="stk-cov-row">
-          <span class="stk-cov-label">Momentum</span>
-          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Momentum">
-          <span class="stk-cov-of">/ 5</span>
-        </div>
-        <div class="stk-cov-row">
-          <span class="stk-cov-label">Quality</span>
-          <input type="number" min="0" max="5" value="0" class="stk-cov-input" data-cov="Quality">
-          <span class="stk-cov-of">/ 5</span>
-        </div>
-        <div class="stk-filter-stat" style="grid-column:auto">Higher = stricter. 0 = no filter.</div>
-      </details>
-
-      <div class="stk-views" id="stk-views">
-        <div class="stk-views-h">Saved Views</div>
-        <div class="stk-views-row">
-          <input type="text" class="stk-views-input" id="stk-views-input" placeholder="Name this view..." maxlength="40">
-          <button type="button" class="stk-quick" id="stk-views-save">Save</button>
-        </div>
-        <div class="stk-views-list" id="stk-views-list"></div>
-      </div>
-
-      <div class="stk-railgroup">
-        <div class="stk-railhead">Index</div>
-        <div class="lib-chips" id="stk-index-chips">
-          <span class="lib-chip active" data-index="">All</span>
-        </div>
-      </div>
-      <div class="stk-railgroup">
-        <div class="stk-railhead">Sector</div>
-        <div class="lib-chips" id="stk-sector-chips">
-          <span class="lib-chip active" data-sector="">All</span>
-        </div>
-      </div>
-    <div class="stk-filter-panel" id="stk-filter-panel">
-      <div class="stk-filter-cols">
-        {factor_sections_html}
-
-        <details class="stk-filter-col stk-section" open>
-          <summary class="stk-filter-col-h">Dimension Tilts<span class="stk-section-caret">&#9656;</span></summary>
-          <div class="stk-filter-col-sub">how much each factor group counts in the Score</div>
-          <div class="stk-weight-row">
-            <span class="stk-weight-label">Growth</span>
-            <input type="range" class="stk-weight-slider" data-weight="Growth" min="0" max="2" step="0.1" value="1">
-            <span class="stk-weight-val" id="stk-w-Growth">1.0&times;</span>
-          </div>
-          <div class="stk-weight-row">
-            <span class="stk-weight-label">Value</span>
-            <input type="range" class="stk-weight-slider" data-weight="Value" min="0" max="2" step="0.1" value="1">
-            <span class="stk-weight-val" id="stk-w-Value">1.0&times;</span>
-          </div>
-          <div class="stk-weight-row">
-            <span class="stk-weight-label">Momentum</span>
-            <input type="range" class="stk-weight-slider" data-weight="Momentum" min="0" max="2" step="0.1" value="1">
-            <span class="stk-weight-val" id="stk-w-Momentum">1.0&times;</span>
-          </div>
-          <div class="stk-weight-row">
-            <span class="stk-weight-label">Quality</span>
-            <input type="range" class="stk-weight-slider" data-weight="Quality" min="0" max="2" step="0.1" value="1">
-            <span class="stk-weight-val" id="stk-w-Quality">1.0&times;</span>
-          </div>
-          <div class="stk-weight-presets">
-            <span class="stk-weight-presets-label">Presets</span>
-            <button type="button" class="stk-quick" data-preset="balanced">Balanced</button>
-            <button type="button" class="stk-quick" data-preset="value">Value tilt</button>
-            <button type="button" class="stk-quick" data-preset="growth">Growth tilt</button>
-            <button type="button" class="stk-quick" data-preset="quality">Quality tilt</button>
-            <button type="button" class="stk-quick" data-preset="momentum">Momentum tilt</button>
-          </div>
+        <details class="stk-rg" open>
+          <summary style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;list-style:none">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase">Index</span>
+          </summary>
+          <div style="padding:2px 20px 15px" class="lib-chips" id="stk-index-chips">{index_chips}</div>
         </details>
-
-        <details class="stk-filter-col stk-section">
-          <summary class="stk-filter-col-h">Overlays<span class="stk-section-caret">&#9656;</span></summary>
-          <div class="stk-filter-col-sub">sentiment, neglect, insider, and accounting fingerprints</div>
-
-          <div class="stk-overlay-sub">News Sentiment</div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">LM (financial sentiment, 7d)</span>
-            <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="min" placeholder="min (e.g. 0.10)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="news_lm_avg" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="news_lm_avg" data-stat-type="score">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">VADER (general sentiment, 7d)</span>
-            <input type="text" class="stk-filter-input" data-filter="news_vader_avg" data-bound="min" placeholder="min (e.g. 0.10)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="news_vader_avg" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="news_vader_avg" data-stat-type="score">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Min news headlines (7d)</span>
-            <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="min" placeholder="e.g. 3">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="news_count_7d" data-bound="max" placeholder="">
-            <span class="stk-filter-stat" data-stat-for="news_count_7d" data-stat-type="int">computing range...</span>
-          </div>
-
-          <div class="stk-overlay-sub">Neglect (Lynch)</div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Neglect Score</span>
-            <input type="text" class="stk-filter-input" data-filter="neglect_score" data-bound="min" placeholder="min (e.g. 0.6)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="neglect_score" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="neglect_score" data-stat-type="ratio">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Analyst Count</span>
-            <input type="text" class="stk-filter-input" data-filter="analyst_count" data-bound="min" placeholder="min">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="analyst_count" data-bound="max" placeholder="max (e.g. 5)">
-            <span class="stk-filter-stat" data-stat-for="analyst_count" data-stat-type="int">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Institutional Ownership</span>
-            <input type="text" class="stk-filter-input" data-filter="inst_ownership" data-bound="min" placeholder="min %">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="inst_ownership" data-bound="max" placeholder="max % (e.g. 30)">
-            <span class="stk-filter-stat" data-stat-for="inst_ownership" data-stat-type="pct">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Insider Ownership</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_ownership" data-bound="min" placeholder="min % (e.g. 5)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_ownership" data-bound="max" placeholder="max %">
-            <span class="stk-filter-stat" data-stat-for="insider_ownership" data-stat-type="pct">computing range...</span>
-          </div>
-
-          <div class="stk-overlay-sub">Insider (Seyhun)</div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Net Buying USD (90d)</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_net_buy_90d" data-bound="min" placeholder="min (e.g. 1M)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_net_buy_90d" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="insider_net_buy_90d" data-stat-type="cap">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Distinct Buyers (90d)</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_buyer_count_90d" data-bound="min" placeholder="min (e.g. 2)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_buyer_count_90d" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="insider_buyer_count_90d" data-stat-type="int">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Cluster Score</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_cluster_score" data-bound="min" placeholder="min (e.g. 0.6)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_cluster_score" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="insider_cluster_score" data-stat-type="ratio">computing range...</span>
-          </div>
-          <div class="stk-filter-row">
-            <span class="stk-filter-label">Cluster (max 30d)</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_cluster_max_30d" data-bound="min" placeholder="min (e.g. 3)">
-            <span class="stk-filter-sep">to</span>
-            <input type="text" class="stk-filter-input" data-filter="insider_cluster_max_30d" data-bound="max" placeholder="max">
-            <span class="stk-filter-stat" data-stat-for="insider_cluster_max_30d" data-stat-type="int">computing range...</span>
-          </div>
-
-          <div class="stk-overlay-sub">Forensic</div>
-          <div class="stk-filter-row stk-filter-row-toggle">
-            <label class="stk-filter-label">Benford fit (1st digit)</label>
-            <select class="stk-filter-select" id="stk-benford-fit">
-              <option value="">Any</option>
-              <option value="good">Good only</option>
-              <option value="fair">Fair or better</option>
-              <option value="poor">Poor only</option>
-            </select>
-            <span class="stk-filter-hint">forensic accounting overlay</span>
-          </div>
+        <details class="stk-rg">
+          <summary style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;list-style:none">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase">Sector</span>
+          </summary>
+          <div style="padding:2px 20px 15px" class="lib-chips" id="stk-sector-chips">{sector_chips}</div>
         </details>
+        <div id="stk-filter-panel">{rail_html}</div>
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
+          <div class="scr-rail-lab">Hygiene</div>
+          <label class="scr-check"><input type="checkbox" id="stk-only-enriched"><span>Require live market cap data</span></label>
+        </div>
+        <div style="padding:14px 20px 24px">
+          <div class="scr-rail-lab">Saved</div>
+          <div id="stk-views-list" class="scr-saved"></div>
+          <div class="scr-saveline">
+            <input type="text" id="stk-views-name" class="stk-views-input" placeholder="Name this view...">
+            <button type="button" id="stk-views-save" class="stk-views-save">Save</button>
+          </div>
+        </div>
       </div>
-    </div>
     </aside>
-    <main class="stk-main">
-    <div class="stk-table">
-    <div class="stk-sortrow">
-      <span class="stk-sortlab">Sort</span>
-      <button type="button" class="stk-sort active" data-sortby="__score__">Score</button>
-      <button type="button" class="stk-sort" data-sortby="change_pct">Move</button>
-      <button type="button" class="stk-sort" data-sortby="market_cap">Size</button>
-      <button type="button" class="stk-sort" data-sortby="ticker">A&ndash;Z</button>
-    </div>
-    <div class="stk-head">
-      <div class="stk-th"></div>
-      <div class="stk-th" data-sort="ticker">Company</div>
-      <div class="stk-th" data-sort="sector">Sector</div>
-      <div class="stk-th desc" data-sort="market_cap">Cap</div>
-      <div class="stk-th" data-sort="change_pct">1D</div>
-      <div class="stk-th">G &middot; V &middot; M &middot; Q</div>
-      <div class="stk-th" data-sort="__score__">Score</div>
-      <div class="stk-th" data-sort="earnings_date">Earnings</div>
-    </div>
-    <div id="stk-list"></div>
-  </div>
-  <div id="stk-chart" class="stk-chart" hidden>
-    <div class="stk-lenses" id="stk-lenses"></div>
-    <p class="stk-chart-blurb" id="stk-chart-blurb"></p>
-    <div class="stk-chart-plot">
-      <span class="ax tl"></span><span class="ax tr"></span>
-      <span class="ax bl"></span><span class="ax br"></span>
-      <canvas id="stk-chart-canvas"></canvas>
-      <div class="stk-chart-tip" id="stk-chart-tip" hidden></div>
-    </div>
-    <p class="stk-chart-foot" id="stk-chart-foot"></p>
-  </div>
-  <div id="stk-radar" class="stk-radar" hidden>
-    <div class="stk-radar-plot">
-      <div class="stk-radar-quads">
-        <span class="q tl">Momentum</span><span class="q tr">Growth</span>
-        <span class="q bl">Value</span><span class="q br">Quality</span>
+
+    <main class="scr-main">
+      <div class="scr-tool">
+        <div class="stk-views-switch" id="stk-view-switch">
+          <button type="button" class="stk-view-btn" data-view="chart">Chart</button>
+          <button type="button" class="stk-view-btn" data-view="radar">Radar</button>
+          <button type="button" class="stk-view-btn active" data-view="list">List</button>
+        </div>
+        <label class="scr-find">
+          <span class="ic">&#9906;</span>
+          <input type="search" id="stk-search" placeholder="Name a ticker to pin it" autocomplete="off" spellcheck="false">
+          <button type="button" class="clear-btn" id="stk-clear" hidden>&times;</button>
+        </label>
+        <span class="scr-count" id="stk-count"></span>
       </div>
-      <svg id="stk-radar-svg" viewBox="0 0 620 620" role="img" aria-label="Factor radar"></svg>
-      <p class="stk-radar-note" id="stk-radar-note"></p>
-    </div>
-    <aside class="stk-radar-side">
-      <h3 id="stk-radar-title">Pick a company</h3>
-      <p class="stk-radar-hint" id="stk-radar-hint">Search a ticker above, or open a row in List view, to plot it against its sector.</p>
-      <div id="stk-radar-breakdown"></div>
-    </aside>
-  </div>
-  <div class="picks-meta" style="margin-top:18px">{meta_line}</div>
+
+      <div class="scr-pane">
+        <div id="stk-chart" class="stk-chart" hidden>
+          <div class="stk-lenses" id="stk-lenses"></div>
+          <p class="stk-chart-blurb" id="stk-chart-blurb"></p>
+          <div class="stk-chart-plot">
+            <span class="ax tl"></span><span class="ax tr"></span>
+            <span class="ax bl"></span><span class="ax br"></span>
+            <canvas id="stk-chart-canvas"></canvas>
+            <div class="stk-chart-tip" id="stk-chart-tip" hidden></div>
+          </div>
+          <p class="stk-chart-foot" id="stk-chart-foot"></p>
+        </div>
+
+        <div id="stk-radar" class="stk-radar" hidden>
+          <div class="stk-radar-plot">
+            <div class="stk-radar-quads">
+              <span class="q tl">Momentum</span><span class="q tr">Growth</span>
+              <span class="q bl">Value</span><span class="q br">Quality</span>
+            </div>
+            <svg id="stk-radar-svg" viewBox="0 0 620 620" role="img" aria-label="Factor radar"></svg>
+            <p class="stk-radar-note" id="stk-radar-note"></p>
+          </div>
+          <aside class="stk-radar-side">
+            <h3 id="stk-radar-title">Pick a company</h3>
+            <p class="stk-radar-hint" id="stk-radar-hint">Name a ticker above to plot it against its sector.</p>
+            <div id="stk-radar-breakdown"></div>
+          </aside>
+        </div>
+
+        <div class="stk-table">
+          <div class="stk-sortrow">
+            <span class="stk-sortlab">Sort</span>
+            <button type="button" class="stk-sort active" data-sortby="__score__">Score</button>
+            <button type="button" class="stk-sort" data-sortby="change_pct">Move</button>
+            <button type="button" class="stk-sort" data-sortby="market_cap">Size</button>
+            <button type="button" class="stk-sort" data-sortby="ticker">A&ndash;Z</button>
+          </div>
+          <div class="stk-head">
+            <div class="stk-th"></div>
+            <div class="stk-th" data-sort="ticker">Company</div>
+            <div class="stk-th" data-sort="sector">Sector</div>
+            <div class="stk-th desc" data-sort="market_cap">Cap</div>
+            <div class="stk-th" data-sort="change_pct">1D</div>
+            <div class="stk-th">G &middot; V &middot; M &middot; Q</div>
+            <div class="stk-th" data-sort="__score__">Score</div>
+            <div class="stk-th" data-sort="earnings_date">Earnings</div>
+          </div>
+          <div id="stk-list"></div>
+        </div>
+      </div>
+
+      <div class="scr-foot">
+        <span>Apterreon &middot; Explore what&rsquo;s out there.</span>
+        <span>{meta_line}</span>
+      </div>
     </main>
   </div>
-</section>
+</div>
 """
     stocks_js = (STOCKS_JS_TEMPLATE
                  .replace("__DATA_URL__", stocks_json)
                  .replace("__PCT_FIELDS_JSON__", json.dumps(SCORE_FIELDS))
                  .replace("__SECTORS_JSON__", sectors_json)
                  .replace("__INDEXES_JSON__", indexes_json))
-    html = render_page("Stocks, Apterreon", body, active_nav="stocks", extra_scripts=stocks_js)
+    html = render_screener_page("Stocks, Apterreon", body, extra_scripts=stocks_js)
     (DOCS_DIR / "stocks.html").write_text(html, encoding="utf-8")
 
 

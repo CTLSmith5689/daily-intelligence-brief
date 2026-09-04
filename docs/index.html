@@ -502,6 +502,67 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-radar-bar i { position:absolute; inset:0 auto 0 0; background:var(--apt-red); display:block; }
 .stk-radar-val { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-2); text-align:right; }
 .stk-radar-val.na { color:var(--text-5); }
+/* -- Screener shell, transcribed from the design ------------------------- */
+body.scr-page { margin:0; background:var(--bg-base); color:var(--text-1);
+  font-family:'Space Grotesk',system-ui,sans-serif; }
+body.scr-page::before, body.scr-page::after { display:none !important; }
+.scr { min-height:100vh; background:var(--bg-base); color:var(--text-1); }
+.scr-top { position:sticky; top:0; z-index:60; display:flex; align-items:center;
+  justify-content:space-between; gap:24px; height:56px; padding:0 32px;
+  border-bottom:1px solid var(--text-1); background:var(--bg-base); }
+.scr-brand { display:flex; align-items:baseline; gap:14px; }
+.scr-mark { font-family:'Instrument Serif',Georgia,serif; font-size:23px; letter-spacing:-0.3px; }
+.scr-sub { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--text-3); }
+.scr-nav { display:flex; align-items:center; gap:24px; font-family:'Space Mono',monospace;
+  font-size:11px; letter-spacing:1.5px; text-transform:uppercase; }
+.scr-nav a { color:var(--text-3); text-decoration:none; }
+.scr-nav a:hover { color:var(--text-1); }
+.scr-nav a.on { color:var(--text-1); border-bottom:2px solid var(--apt-red); padding-bottom:2px; }
+.scr-body { display:flex; align-items:flex-start; }
+.scr-rail { width:282px; flex-shrink:0; border-right:1px solid var(--text-1);
+  background:var(--bg-1); align-self:stretch; }
+.scr-rail-in { position:sticky; top:56px; max-height:calc(100vh - 56px); overflow-y:auto; }
+.scr-rail-h { position:sticky; top:0; z-index:2; background:var(--bg-1); display:flex;
+  align-items:center; justify-content:space-between; height:53px; padding:0 20px;
+  border-bottom:1px solid var(--text-1); font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:2.5px; text-transform:uppercase; }
+.scr-reset { font-size:9px; letter-spacing:1.5px; color:var(--text-3); cursor:pointer; }
+.scr-reset:hover { color:var(--apt-red); }
+.scr-rail-lab { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2.5px;
+  text-transform:uppercase; margin-bottom:11px; }
+.stk-rg { border-bottom:1px solid var(--border); }
+.stk-rg > summary { list-style:none; }
+.stk-rg > summary::-webkit-details-marker { display:none; }
+.stk-rg > summary:hover { background:var(--bg-base); }
+.scr-check { display:flex; align-items:flex-start; gap:9px; margin-bottom:9px; cursor:pointer;
+  font-size:12px; line-height:1.4; color:var(--text-2); }
+.scr-saved > div { display:flex; justify-content:space-between; gap:10px; padding:6px 0;
+  border-bottom:1px solid var(--border); font-size:12px; cursor:pointer; color:var(--text-2); }
+.scr-saveline { display:flex; gap:6px; margin-top:10px; }
+.scr-main { flex:1; min-width:0; }
+.scr-tool { position:sticky; top:56px; z-index:50; background:var(--bg-base); display:flex;
+  align-items:center; gap:16px; height:53px; padding:0 32px;
+  border-bottom:1px solid var(--text-1); }
+.scr-find { display:flex; align-items:center; gap:9px; flex:1 1 0; min-width:104px;
+  max-width:290px; border-bottom:1px solid var(--text-1); padding-bottom:4px; }
+.scr-find .ic { color:var(--text-4); font-size:12px; }
+.scr-find input { flex:1; min-width:0; background:transparent; border:none; outline:none;
+  font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); }
+.scr-find .clear-btn { background:none; border:none; cursor:pointer; color:var(--text-4);
+  font-size:15px; line-height:1; }
+.scr-count { margin-left:auto; flex-shrink:0; white-space:nowrap;
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); }
+.scr-pane { padding:0 32px 30px; }
+.scr-foot { border-top:1px solid var(--text-1); padding:20px 32px; display:flex;
+  justify-content:space-between; gap:16px; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1.5px; color:var(--text-4); }
+@media (max-width:900px) {
+  .scr-body { display:block; }
+  .scr-rail { width:auto; border-right:none; border-bottom:1px solid var(--text-1); }
+  .scr-rail-in { position:static; max-height:none; }
+  .scr-top, .scr-tool, .scr-pane, .scr-foot { padding-left:16px; padding-right:16px; }
+}
 /* The screener chassis. The design is flat: 1px rules, no rounded cards, no
    fills behind the toolbar, and the ticker set in a serif at reading size so
    the eye lands on the company before the numbers. */
