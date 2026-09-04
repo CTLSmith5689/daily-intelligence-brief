@@ -2123,6 +2123,14 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
 .scr-saved > div { display:flex; justify-content:space-between; gap:10px; padding:6px 0;
   border-bottom:1px solid var(--border); font-size:12px; cursor:pointer; color:var(--text-2); }
 .scr-saveline { display:flex; gap:6px; margin-top:10px; }
+.scr-cov { margin-top:13px; }
+.scr-cov-h { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:8px; }
+.scr-cov-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 10px; }
+.scr-cov-grid label { display:flex; align-items:center; justify-content:space-between; gap:6px;
+  font-size:11px; color:var(--text-2); }
+.scr-cov-grid input { width:42px; }
+.scr-cov-note { font-size:11px; line-height:1.5; color:var(--text-4); margin:9px 0 0; }
 .scr-main { flex:1; min-width:0; }
 .scr-tool { position:sticky; top:56px; z-index:50; background:var(--bg-base); display:flex;
   align-items:center; gap:16px; height:53px; padding:0 32px;
@@ -3861,6 +3869,13 @@ STOCKS_JS_TEMPLATE = """
       : String(filtered.length) + ' of ' + String(ALL.length) + ' stocks';
     if (filtered.length === 0) {
       listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
+      // The chart and the radar have to be told about an empty result too. This
+      // returned early, so at the one moment the reader most needs to see that
+      // nothing matched, both kept drawing the last set that did.
+      windowRows = []; shownCount = 0;
+      tetraInvalidate();
+      if (currentView === 'chart') drawChart();
+      else if (currentView === 'radar') renderRadar();
       return;
     }
     windowRows = filtered;
@@ -4533,6 +4548,8 @@ STOCKS_JS_TEMPLATE = """
   // Canvas, not SVG: an unfiltered view is 5,336 points, and that many DOM
   // nodes costs far more than it buys when each one is a 3px dot.
   const LENSES = [
+    { key:'pairs', label:'Four factors', pairs:true,
+      blurb:'All four factors, two plots, every one of them on a position axis. Left is the compounder view: earning well and still growing. Right is the value view: cheap and already moving. Nothing is projected or collapsed, so nothing is hiding behind anything.' },
     { key:'gvmq3d', label:'GVMQ 3D', tetra:true,
       blurb:'All four factors at once. Each corner of the tetrahedron is one factor, and a company sits in the direction of the ones it scores on, so two profiles that look identical on a flat chart separate here. Drag to turn it.' },
     { key:'gvmq', label:'GVMQ', compass:true,
@@ -4617,6 +4634,11 @@ STOCKS_JS_TEMPLATE = """
     const out = [];
     for (const s of currentFiltered()) {
       let x, y;
+      if (lens.pairs) {
+        if (!s.scorable) continue;
+        out.push({ s: s });
+        continue;
+      }
       if (lens.tetra) {
         if (!s.scorable) continue;
         out.push({ s: s, p: tetraPos(s) });
@@ -4642,6 +4664,129 @@ STOCKS_JS_TEMPLATE = """
   }
 
   let chartHit = [];
+
+  const DENSITY_ABOVE = 420;   // beyond this, dots stop resolving into anything
+  const CELL = 13;
+
+  // proj is [{x, y, s}] in canvas pixels. Hits are pushed for every point even
+  // in density mode, so hovering still names the nearest company rather than
+  // only the ones drawn on top.
+  function paintCloud(ctx, proj, ink, hits, capMaxIn) {
+    if (!proj.length) return;
+    const capMax = capMaxIn ||
+      Math.max.apply(null, proj.map(function(p) { return p.s.market_cap || 0; })) || 1;
+
+    if (proj.length <= DENSITY_ABOVE) {
+      for (const q of proj) {
+        const r = 2 + Math.sqrt((q.s.market_cap || 0) / capMax) * 9;
+        ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = ink; ctx.globalAlpha = 0.30; ctx.fill();
+        hits.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
+      }
+      ctx.globalAlpha = 1;
+      return;
+    }
+
+    const bins = new Map();
+    for (const q of proj) {
+      const cxi = Math.floor(q.x / CELL), cyi = Math.floor(q.y / CELL);
+      const key = cxi + ':' + cyi;
+      let b = bins.get(key);
+      if (!b) { b = { n: 0, x: cxi * CELL, y: cyi * CELL }; bins.set(key, b); }
+      b.n++;
+      hits.push({ x: q.x, y: q.y, r: 5, s: q.s });
+    }
+    let maxN = 0;
+    bins.forEach(function(b) { if (b.n > maxN) maxN = b.n; });
+    // Square root, not linear: a couple of very dense cells in the middle would
+    // otherwise flatten every sparser cell to the same near-invisible tint, and
+    // the sparse tail is where the interesting companies are.
+    ctx.fillStyle = ink;
+    bins.forEach(function(b) {
+      ctx.globalAlpha = 0.06 + Math.sqrt(b.n / maxN) * 0.60;
+      ctx.fillRect(b.x, b.y, CELL - 1, CELL - 1);
+    });
+    ctx.globalAlpha = 1;
+
+    // The biggest names back on top, so the shading has landmarks in it.
+    const top = proj.slice().sort(function(a, b) {
+      return (b.s.market_cap || 0) - (a.s.market_cap || 0);
+    }).slice(0, 70);
+    for (const q of top) {
+      const r = 2.5 + Math.sqrt((q.s.market_cap || 0) / capMax) * 7;
+      ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = ink; ctx.globalAlpha = 0.62; ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // One 2D panel inside an arbitrary box, so the single-lens view and the
+  // paired view can share every line of it.
+  function drawPanel(ctx, rows, box, cfg, ink, line, dim, hits) {
+    const pad = cfg.pad == null ? 46 : cfg.pad;
+    const pts = [];
+    for (const s of rows) {
+      const x = cfg.gx(s), y = cfg.gy(s);
+      if (x == null || y == null || !isFinite(x) || !isFinite(y)) continue;
+      pts.push({ s: s, x: x, y: y });
+    }
+    if (cfg.title) {
+      ctx.fillStyle = dim;
+      ctx.font = "10px 'Space Mono', monospace";
+      ctx.fillText(cfg.title.toUpperCase(), box.x + pad, box.y + 16);
+    }
+    if (!pts.length) {
+      ctx.fillStyle = dim;
+      ctx.font = "12px 'Space Mono', monospace";
+      ctx.fillText('Nothing to plot here.', box.x + pad, box.y + box.h / 2);
+      return 0;
+    }
+    let x0 = Math.min.apply(null, pts.map(function(p) { return p.x; }));
+    let x1 = Math.max.apply(null, pts.map(function(p) { return p.x; }));
+    let y0 = Math.min.apply(null, pts.map(function(p) { return p.y; }));
+    let y1 = Math.max.apply(null, pts.map(function(p) { return p.y; }));
+    if (cfg.symmetric) {
+      const m = Math.max(Math.abs(x0), Math.abs(x1), Math.abs(y0), Math.abs(y1)) || 1;
+      x0 = -m; x1 = m; y0 = -m; y1 = m;
+    }
+    if (x1 === x0) x1 = x0 + 1;
+    if (y1 === y0) y1 = y0 + 1;
+    const sx = function(v) { return box.x + pad + (v - x0) / (x1 - x0) * (box.w - pad * 2); };
+    const sy = function(v) { return box.y + box.h - pad - (v - y0) / (y1 - y0) * (box.h - pad * 2); };
+    const cx = cfg.symmetric ? sx(0) : sx((x0 + x1) / 2);
+    const cy = cfg.symmetric ? sy(0) : sy((y0 + y1) / 2);
+    ctx.strokeStyle = line; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx, box.y + pad * 0.4); ctx.lineTo(cx, box.y + box.h - pad * 0.4);
+    ctx.moveTo(box.x + pad * 0.4, cy); ctx.lineTo(box.x + box.w - pad * 0.4, cy);
+    ctx.stroke();
+
+    paintCloud(ctx, pts.map(function(p) {
+      return { x: sx(p.x), y: sy(p.y), s: p.s };
+    }), ink, hits, cfg.capMax);
+
+    // Axis names sit on the axes they describe, not in the corners, so a panel
+    // half the width of the plot is still self-explanatory.
+    if (cfg.xl || cfg.yl) {
+      ctx.fillStyle = dim;
+      ctx.font = "9px 'Space Mono', monospace";
+      if (cfg.xl) {
+        ctx.textAlign = 'right';
+        ctx.fillText(cfg.xl.toUpperCase() + ' \u2192', box.x + box.w - pad, box.y + box.h - pad * 0.45);
+        ctx.textAlign = 'start';
+      }
+      if (cfg.yl) {
+        ctx.save();
+        ctx.translate(box.x + pad * 0.55, box.y + pad);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'left';
+        ctx.fillText('\u2190 ' + cfg.yl.toUpperCase(), 0, 0);
+        ctx.restore();
+        ctx.textAlign = 'start';
+      }
+    }
+    return pts.length;
+  }
 
   function drawTetra(cv, pts, ref) {
     const dpr = window.devicePixelRatio || 1;
@@ -4749,9 +4894,69 @@ STOCKS_JS_TEMPLATE = """
     }
   }
 
+  const PAIR_PANELS = [
+    { x:'q', y:'g', xl:'Quality', yl:'Growth',   title:'Compounders' },
+    { x:'v', y:'m', xl:'Value',   yl:'Momentum', title:'Cheap and moving' },
+  ];
+
+  function drawPairs(cv) {
+    const rows = chartPoints().map(function(p) { return p.s; });
+    const dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const css = getComputedStyle(document.documentElement);
+    const ink = css.getPropertyValue('--text-1').trim() || '#17140F';
+    const line = css.getPropertyValue('--border').trim() || 'rgba(0,0,0,.1)';
+    const dim = css.getPropertyValue('--text-4').trim() || '#888';
+    chartHit = [];
+    const foot = document.getElementById('stk-chart-foot');
+    if (!rows.length) {
+      ctx.fillStyle = dim;
+      ctx.font = "12px 'Space Mono', monospace";
+      ctx.fillText('No companies are scored on enough dimensions to place.', 46, h / 2);
+      if (foot) foot.textContent = '0 plotted';
+      return;
+    }
+    // One cap scale across both panels, so a dot the same size means the same
+    // company on the left as on the right.
+    const capMax = Math.max.apply(null, rows.map(function(s) { return s.market_cap || 0; })) || 1;
+    const halfW = Math.floor(w / 2);
+    let n = 0;
+    PAIR_PANELS.forEach(function(cfg, i) {
+      const box = { x: i * halfW, y: 0, w: halfW, h: h };
+      n = drawPanel(ctx, rows, box, {
+        gx: function(s) { return s[cfg.x]; },
+        gy: function(s) { return s[cfg.y]; },
+        xl: cfg.xl, yl: cfg.yl, title: cfg.title,
+        symmetric: true, capMax: capMax, pad: 40,
+      }, ink, line, dim, chartHit);
+    });
+    // A hairline between the two, so they read as two charts and not one wide
+    // one with a gap in the middle.
+    ctx.strokeStyle = line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(halfW, 18); ctx.lineTo(halfW, h - 18); ctx.stroke();
+    if (foot) {
+      foot.textContent = n.toLocaleString() + ' plotted of ' +
+        currentFiltered().length.toLocaleString() + ' matching \u00b7 ' +
+        'only companies scored on 3 of 4 dimensions can be placed \u00b7 ' +
+        (n > DENSITY_ABOVE
+          ? 'shaded by how many companies fall in each cell, largest 70 drawn on top'
+          : 'dot size: market cap');
+    }
+    const plot = cv.parentElement;
+    if (plot) ['tl','tr','bl','br'].forEach(function(c) {
+      const el = plot.querySelector('.ax.' + c);
+      if (el) el.textContent = '';
+    });
+  }
+
   function drawChart() {
     const cv = document.getElementById('stk-chart-canvas');
     if (!cv) return;
+    if (lens.pairs) { drawPairs(cv); return; }
     if (lens.tetra) {
       if (tetraPts === null) {
         tetraPts = chartPoints();
@@ -4779,54 +4984,39 @@ STOCKS_JS_TEMPLATE = """
     const css = getComputedStyle(document.documentElement);
     const ink = css.getPropertyValue('--text-1').trim() || '#17140F';
     const line = css.getPropertyValue('--border').trim() || 'rgba(0,0,0,.1)';
-    const pad = 46;
+    const dim = css.getPropertyValue('--text-4').trim() || '#888';
+    chartHit = [];
     if (!pts.length) {
-      ctx.fillStyle = css.getPropertyValue('--text-4').trim() || '#888';
+      ctx.fillStyle = dim;
       ctx.font = "12px 'Space Mono', monospace";
-      ctx.fillText('No companies have both inputs for this lens.', pad, h / 2);
-      chartHit = [];
+      ctx.fillText('No companies have both inputs for this lens.', 46, h / 2);
       document.getElementById('stk-chart-foot').textContent = '0 plotted';
       return;
     }
-    let xs = pts.map(p => p.x), ys = pts.map(p => p.y);
-    let x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
-    let y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
-    if (lens.compass) { const m = Math.max(Math.abs(x0),Math.abs(x1),Math.abs(y0),Math.abs(y1)) || 1;
-                        x0 = -m; x1 = m; y0 = -m; y1 = m; }
-    if (x1 === x0) { x1 = x0 + 1; } if (y1 === y0) { y1 = y0 + 1; }
-    const sx = v => pad + (v - x0) / (x1 - x0) * (w - pad * 2);
-    const sy = v => h - pad - (v - y0) / (y1 - y0) * (h - pad * 2);
-    // Quadrant crosshair through the origin, or the midpoint for raw lenses.
-    const cx = lens.compass ? sx(0) : sx((x0 + x1) / 2);
-    const cy = lens.compass ? sy(0) : sy((y0 + y1) / 2);
-    ctx.strokeStyle = line; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(cx, pad*0.4); ctx.lineTo(cx, h-pad*0.4);
-    ctx.moveTo(pad*0.4, cy); ctx.lineTo(w-pad*0.4, cy); ctx.stroke();
-    // Dot area carries market cap, so the eye weights big companies more.
-    const caps = pts.map(p => p.s.market_cap || 0);
-    const capMax = Math.max.apply(null, caps) || 1;
-    chartHit = [];
-    for (const p of pts) {
-      const px = sx(p.x), py = sy(p.y);
-      const cap = p.s.market_cap || 0;
-      const r = 2 + Math.sqrt(cap / capMax) * 9;
-      ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
-      ctx.fillStyle = ink; ctx.globalAlpha = 0.30; ctx.fill();
-      ctx.globalAlpha = 1;
-      chartHit.push({ x: px, y: py, r: Math.max(r, 4), s: p.s });
-    }
+    // The points are already projected for this lens, so the panel just reads
+    // them back off; the shared renderer is what brings the density work here.
+    drawPanel(ctx, pts, { x: 0, y: 0, w: w, h: h }, {
+      gx: function(p) { return p.x; },
+      gy: function(p) { return p.y; },
+      symmetric: !!lens.compass,
+    }, ink, line, dim, chartHit);
+    // drawPanel wraps each row in {s}, but here the rows already are those
+    // wrappers, so unwrap what it pushed.
+    for (const hit of chartHit) hit.s = hit.s.s;
     document.getElementById('stk-chart-foot').textContent =
       pts.length.toLocaleString() + ' plotted of ' + currentFiltered().length.toLocaleString() +
       ' matching' + (lens.compass ? ' \u00b7 only companies scored on 3 of 4 dimensions can be placed' : '') +
-      ' \u00b7 dot size: market cap';
+      (pts.length > DENSITY_ABOVE
+        ? ' \u00b7 shaded by how many companies fall in each cell, largest 70 drawn on top'
+        : ' \u00b7 dot size: market cap');
     const q = lens.compass
       ? { tl: lens.tl, tr: lens.tr, bl: lens.bl, br: lens.br }
       : { tl: '', tr: (lens.yl || '') + ' high', bl: (lens.xl || '') + ' low', br: (lens.xl || '') + ' high' };
     const plot = cv.parentElement;
-    plot.querySelector('.tl').textContent = q.tl || '';
-    plot.querySelector('.tr').textContent = q.tr || '';
-    plot.querySelector('.bl').textContent = q.bl || '';
-    plot.querySelector('.br').textContent = q.br || '';
+    if (plot) [['tl', q.tl], ['tr', q.tr], ['bl', q.bl], ['br', q.br]].forEach(function(pair) {
+      const el = plot.querySelector('.ax.' + pair[0]);
+      if (el) el.textContent = pair[1] || '';
+    });
   }
 
   function renderLenses() {
@@ -8062,6 +8252,17 @@ def generate_stocks_page(universe):
         <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
           <div class="scr-rail-lab">Hygiene</div>
           <label class="scr-check"><input type="checkbox" id="stk-only-enriched"><span>Require live market cap data</span></label>
+          <div class="scr-cov">
+            <div class="scr-cov-h">Minimum datapoints per factor</div>
+            <div class="scr-cov-grid">
+              <label><span>Growth</span><input type="number" class="stk-cov-input" data-cov="Growth" min="0" max="5" value="0"></label>
+              <label><span>Value</span><input type="number" class="stk-cov-input" data-cov="Value" min="0" max="5" value="0"></label>
+              <label><span>Momentum</span><input type="number" class="stk-cov-input" data-cov="Momentum" min="0" max="5" value="0"></label>
+              <label><span>Quality</span><input type="number" class="stk-cov-input" data-cov="Quality" min="0" max="5" value="0"></label>
+            </div>
+            <p class="scr-cov-note">Each factor is built from 5 inputs. Raise these to drop
+            companies whose score rests on one or two numbers.</p>
+          </div>
         </div>
         <div style="padding:14px 20px 24px">
           <div class="scr-rail-lab">Saved</div>

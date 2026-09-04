@@ -557,6 +557,14 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
 .scr-saved > div { display:flex; justify-content:space-between; gap:10px; padding:6px 0;
   border-bottom:1px solid var(--border); font-size:12px; cursor:pointer; color:var(--text-2); }
 .scr-saveline { display:flex; gap:6px; margin-top:10px; }
+.scr-cov { margin-top:13px; }
+.scr-cov-h { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:8px; }
+.scr-cov-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 10px; }
+.scr-cov-grid label { display:flex; align-items:center; justify-content:space-between; gap:6px;
+  font-size:11px; color:var(--text-2); }
+.scr-cov-grid input { width:42px; }
+.scr-cov-note { font-size:11px; line-height:1.5; color:var(--text-4); margin:9px 0 0; }
 .scr-main { flex:1; min-width:0; }
 .scr-tool { position:sticky; top:56px; z-index:50; background:var(--bg-base); display:flex;
   align-items:center; gap:16px; height:53px; padding:0 32px;
