@@ -8,6 +8,7 @@ Sends via iCloud SMTP. Triggered by EventBridge rules at 7 AM, 12:15 PM, and 4:4
 import os
 import re
 import ssl
+import collections
 import csv
 import io
 import json
@@ -5862,6 +5863,138 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
 
 # ── Stocks universe (weekly cached) ─────────────────────────────────────────
 
+# -- Peer scoring: sector z-scores and percentile ranks ---------------------
+#
+# Computed here rather than in the browser. The page used to build these stats at
+# load time; at 5,336 tickers x 20 fields that is a large accumulation before the
+# first paint, and it has to be redone on every reload.
+#
+# The four dimension scores are emitted, NOT the composite. The composite is a
+# weighted mean and the page has sliders for those weights, so it stays on the
+# client where four multiplications are free.
+
+# Mirrors SCORE_GROUPS in STOCKS_JS_TEMPLATE. Fields where a LOWER raw value is
+# better are inverted so that, everywhere downstream, higher always means better.
+SCORE_GROUPS_PY = {
+    "Growth":   {"fields": ["revenue_growth_yoy", "eps_growth_yoy", "revenue_acceleration",
+                            "gross_margin_trend", "fcf_growth_yoy"], "invert": []},
+    "Value":    {"fields": ["pe", "ev_ebitda", "ev_revenue", "price_book", "fcf_yield"],
+                 "invert": ["pe", "ev_ebitda", "ev_revenue", "price_book"]},
+    "Momentum": {"fields": ["return_12_2", "return_1m", "high52w_proximity",
+                            "rel_strength_sp500", "volume_trend"], "invert": []},
+    "Quality":  {"fields": ["roe_ttm", "earnings_consistency", "net_debt_ebitda",
+                            "op_margin_stability", "accruals_ratio"],
+                 "invert": ["net_debt_ebitda", "op_margin_stability", "accruals_ratio"]},
+}
+SCORE_FIELDS = [f for g in SCORE_GROUPS_PY.values() for f in g["fields"]]
+INVERTED_FIELDS = {f for g in SCORE_GROUPS_PY.values() for f in g["invert"]}
+
+# A percentile needs a cohort large enough to mean something. With 20 peers the
+# finest distinction expressible is 5 points; below that a "73rd percentile"
+# claims precision the sample cannot support.
+MIN_COHORT_FOR_PERCENTILE = 20
+# A dimension needs enough of its five inputs present to be called a score.
+MIN_FIELDS_PER_DIMENSION = 2
+# And a composite needs enough dimensions, or a stock rated on Growth alone would
+# be ranked against one rated on all four as though they were the same claim.
+MIN_DIMENSIONS_FOR_COMPOSITE = 3
+
+
+def _finite(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def compute_peer_scores(stocks):
+    """Stamp g/v/m/q dimension scores and per-field sector percentiles onto each stock.
+
+    Sets, per stock: g, v, m, q (sector z-scores, None when under-covered),
+    dims_present (0-4), and pct (a dict of field -> 0-100 percentile rank).
+    Returns a summary dict for logging."""
+    # Cohort values per sector per field, non-null only.
+    cohorts = {}
+    for s in stocks:
+        sector = s.get("sector")
+        if not sector:
+            continue          # no sector means no peers; scored as unknown below
+        bucket = cohorts.setdefault(sector, {})
+        for f in SCORE_FIELDS:
+            v = s.get(f)
+            if _finite(v):
+                bucket.setdefault(f, []).append(v)
+
+    # Mean/stddev for z-scores, and a sorted copy for percentile ranks.
+    stats = {}
+    for sector, fields in cohorts.items():
+        st = stats.setdefault(sector, {})
+        for f, vals in fields.items():
+            n = len(vals)
+            mean = sum(vals) / n
+            var = sum((v - mean) ** 2 for v in vals) / n
+            st[f] = {"n": n, "mean": mean, "sd": var ** 0.5, "sorted": sorted(vals)}
+
+    def percentile_of(sorted_vals, v):
+        """Fraction of the cohort at or below v, as 0-100."""
+        lo, hi = 0, len(sorted_vals)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if sorted_vals[mid] <= v:
+                lo = mid + 1
+            else:
+                hi = mid
+        return round(lo / len(sorted_vals) * 100)
+
+    scored = collections.Counter()
+    pct_emitted = 0
+    for s in stocks:
+        sector_stats = stats.get(s.get("sector") or "", {})
+        pct = {}
+        dim_scores = {}
+        for dim, group in SCORE_GROUPS_PY.items():
+            zs = []
+            for f in group["fields"]:
+                v = s.get(f)
+                st = sector_stats.get(f)
+                if not _finite(v) or not st:
+                    continue
+                if st["n"] >= MIN_COHORT_FOR_PERCENTILE:
+                    p = percentile_of(st["sorted"], v)
+                    # Invert so that a high percentile always reads as "better",
+                    # matching the direction of the z-scores and the radar.
+                    pct[f] = (100 - p) if f in INVERTED_FIELDS else p
+                    pct_emitted += 1
+                if st["sd"] and st["n"] >= 5:
+                    z = (v - st["mean"]) / st["sd"]
+                    if f in group["invert"]:
+                        z = -z
+                    zs.append(max(-3.0, min(3.0, z)))
+            dim_scores[dim] = round(sum(zs) / len(zs), 4) if len(zs) >= MIN_FIELDS_PER_DIMENSION else None
+
+        s["g"] = dim_scores["Growth"]
+        s["v"] = dim_scores["Value"]
+        s["m"] = dim_scores["Momentum"]
+        s["q"] = dim_scores["Quality"]
+        present = sum(1 for d in dim_scores.values() if d is not None)
+        s["dims_present"] = present
+        s["pct"] = pct
+        # Only stocks measured on enough dimensions get a rankable score. The rest
+        # keep their dimension values for display but are not ranked against them.
+        s["scorable"] = 1 if present >= MIN_DIMENSIONS_FOR_COMPOSITE else 0
+        scored[present] += 1
+
+    summary = {
+        "sectors": len(stats),
+        "dims_distribution": dict(sorted(scored.items())),
+        "scorable": sum(v for k, v in scored.items() if k >= MIN_DIMENSIONS_FOR_COMPOSITE),
+        "percentiles_emitted": pct_emitted,
+    }
+    print(f"scoring: {summary['sectors']} sector cohorts; "
+          f"{summary['scorable']}/{len(stocks)} stocks scorable "
+          f"(>= {MIN_DIMENSIONS_FOR_COMPOSITE} of 4 dimensions); "
+          f"dimension counts {summary['dims_distribution']}; "
+          f"{pct_emitted:,} percentile ranks emitted.")
+    return summary
+
+
 def get_or_generate_stocks_universe():
     """Cached US stocks universe scraped from Wikipedia (S&P 500/400/600), enriched
     with live quote data from Yahoo Finance via yfinance.
@@ -6112,6 +6245,9 @@ def get_or_generate_stocks_universe():
     # Lynch-style neglect score: needs analyst_count + inst_ownership + news_count_7d
     # which are all set by this point in the pipeline.
     compute_neglect_score(stocks)
+
+    # Peer scoring last: it reads every factor the steps above populate.
+    compute_peer_scores(stocks)
 
     # Per-ticker daily price history (1y) for the chart card. 24h cache, bulk
     # download via yf.download in batches so we hit Yahoo once per ~200 tickers.
