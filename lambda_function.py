@@ -1947,7 +1947,7 @@ h1.hero-title {
 .stk-table::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:4px; }
 /* An author display rule outranks the UA [hidden] rule, so these panels would
    stay visible when switched away from. Re-assert it for the view containers. */
-.stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden] { display:none !important; }
+.stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden], .stk-hero[hidden] { display:none !important; }
 .stk-chart { display:block; }
 .stk-lenses { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
 .stk-lens { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
@@ -1964,6 +1964,17 @@ h1.hero-title {
   border:1px solid var(--text-1); padding:6px 9px; font-family:'Space Mono',monospace; font-size:10px;
   line-height:1.5; white-space:nowrap; z-index:5; }
 .stk-chart-foot { font-size:11px; color:var(--text-4); margin:10px 2px 0; }
+.stk-result { margin-left:auto; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1.5px; color:var(--text-4); white-space:nowrap; }
+.stk-about { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  text-transform:uppercase; background:none; border:none; cursor:pointer; color:var(--text-4);
+  border-bottom:1px solid transparent; padding:0 0 2px; }
+.stk-about:hover, .stk-about[aria-expanded="true"] { color:var(--text-1); border-bottom-color:var(--apt-red); }
+.stk-railgroup { padding:11px 0; border-bottom:1px solid var(--border); }
+.stk-railhead { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2.5px;
+  text-transform:uppercase; color:var(--text-4); margin-bottom:8px; }
+body.page-stocks .stk-railgroup .lib-chips { flex-wrap:wrap; gap:4px; }
+body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; letter-spacing:1px; }
 .stk-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0;
   border-bottom:1px solid var(--text-1); margin-bottom:0; }
 .stk-hero-l { padding:26px 34px 30px 0; }
@@ -1990,7 +2001,7 @@ h1.hero-title {
   .stk-hero-r { padding-left:0; border-left:none; border-top:1px solid var(--text-1); }
   .stk-hero-num { font-size:40px; }
 }
-.stk-masthead { display:flex; align-items:baseline; gap:14px; padding:0 0 14px; }
+.stk-masthead { display:flex; align-items:baseline; gap:12px; padding:0 0 10px; }
 .stk-mast-name { font-family:'Instrument Serif',Georgia,serif; font-size:27px; line-height:1; color:var(--text-1); }
 .stk-mast-sub { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
   text-transform:uppercase; color:var(--text-4); }
@@ -2001,7 +2012,7 @@ h1.hero-title {
   font-family:inherit; font-size:inherit; letter-spacing:inherit; text-transform:inherit;
   border-bottom:1px solid transparent; }
 .stk-sort.active { color:var(--text-1); border-bottom-color:var(--apt-red); }
-.stk-score { font-family:'Instrument Serif',Georgia,serif; font-size:24px; line-height:1; text-align:right; letter-spacing:0; }
+.stk-score { font-family:'Instrument Serif',Georgia,serif; font-size:21px; line-height:1; text-align:right; letter-spacing:0; }
 .stk-views-switch { display:flex; border:1px solid var(--border-bright); flex-shrink:0; }
 .stk-view-btn { padding:7px 15px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
   text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
@@ -2046,8 +2057,8 @@ body.page-stocks .stk-sidebar-h { font-family:'Space Mono',monospace; font-size:
   text-transform:uppercase; color:var(--text-1); border-bottom:1px solid var(--text-1); padding-bottom:8px; }
 body.page-stocks .stk-views-switch { border-color:var(--text-1); }
 body.page-stocks .lib-h { display:none; }
-.stk-toprow { display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-  padding:0 0 12px; border-bottom:1px solid var(--text-1); background:transparent; }
+.stk-toprow { display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
+  padding:0 0 9px; border-bottom:1px solid var(--text-1); background:transparent; }
 .stk-toprow .lib-search { flex:1 1 260px; max-width:340px; background:transparent;
   border:none; border-bottom:1px solid var(--border-bright); border-radius:0; padding:3px 0; }
 .stk-toprow .lib-chips { gap:5px; }
@@ -2056,7 +2067,7 @@ body.page-stocks .lib-h { display:none; }
 .stk-row:hover { background:var(--surface-1); }
 .stk-rank { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-4); }
 .stk-id { display:flex; align-items:baseline; gap:9px; min-width:0; }
-.stk-tk { font-family:'Instrument Serif',Georgia,serif; font-size:21px; line-height:1.1; color:var(--text-1); }
+.stk-tk { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.1; color:var(--text-1); }
 .stk-nm { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden;
   text-overflow:ellipsis; min-width:0; }
 .stk-factors { display:flex; gap:5px; align-items:center; padding-left:12px; }
@@ -2067,13 +2078,13 @@ body.page-stocks .lib-h { display:none; }
 .stk-f-t em.dn { background:var(--text-4); }
 .stk-f b { display:block; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px;
   color:var(--text-5); font-weight:400; margin-top:3px; }
-.stk-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,1fr) 78px 72px minmax(0,1.1fr) 86px 78px; gap:12px; padding:11px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
+.stk-head { display:grid; grid-template-columns:26px minmax(0,1.6fr) minmax(0,0.9fr) 74px 68px minmax(0,1fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \\2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \\2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,1fr) 78px 72px minmax(0,1.1fr) 86px 78px; gap:12px; padding:13px 4px; cursor:pointer; align-items:center; }
+.stk-row { display:grid; grid-template-columns:26px minmax(0,1.6fr) minmax(0,0.9fr) 74px 68px minmax(0,1fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
 .stk-row:hover { background:rgba(22,23,31,0.6); }
 .stk-ticker { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
@@ -4376,6 +4387,17 @@ STOCKS_JS_TEMPLATE = """
   document.querySelectorAll('.stk-view-btn').forEach(function(b) {
     b.addEventListener('click', function() { setView(b.dataset.view); });
   });
+
+  (function wireAbout() {
+    const btn = document.getElementById('stk-about-btn');
+    const hero = document.getElementById('stk-hero');
+    if (!btn || !hero) return;
+    btn.addEventListener('click', function() {
+      const open = hero.hidden;
+      hero.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  })();
 
   document.querySelectorAll('.stk-sort').forEach(function(b) {
     b.addEventListener('click', function() {
@@ -7214,11 +7236,7 @@ def generate_stocks_page(universe):
 
     body = f"""
 <section class="lib lib-wide">
-  <div class="lib-h">
-    <h2>Stocks.</h2>
-    <span class="lib-count" id="stk-count">{len(stocks)} stocks</span>
-  </div>
-  <div class="stk-hero">
+  <div class="stk-hero" id="stk-hero" hidden>
     <div class="stk-hero-l">
       <h1 class="stk-hero-num" id="stk-hero-num">&nbsp;</h1>
       <p class="stk-hero-blurb">Every US listing, ranked four ways at once. Growth, value,
@@ -7253,14 +7271,8 @@ def generate_stocks_page(universe):
       <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
       <button type="button" class="clear-btn" id="stk-clear" hidden>Clear</button>
     </label>
-    <div class="lib-chips" id="stk-index-chips">
-      <span class="lib-chip-label">Index</span>
-      <span class="lib-chip active" data-index="">All</span>
-    </div>
-    <div class="lib-chips" id="stk-sector-chips">
-      <span class="lib-chip-label">Sector</span>
-      <span class="lib-chip active" data-sector="">All</span>
-    </div>
+    <span class="stk-result" id="stk-count"></span>
+    <button type="button" class="stk-about" id="stk-about-btn" aria-expanded="false">About</button>
   </div>
   <div class="stk-wrap">
     <aside class="stk-sidebar">
@@ -7312,6 +7324,18 @@ def generate_stocks_page(universe):
         <div class="stk-views-list" id="stk-views-list"></div>
       </div>
 
+      <div class="stk-railgroup">
+        <div class="stk-railhead">Index</div>
+        <div class="lib-chips" id="stk-index-chips">
+          <span class="lib-chip active" data-index="">All</span>
+        </div>
+      </div>
+      <div class="stk-railgroup">
+        <div class="stk-railhead">Sector</div>
+        <div class="lib-chips" id="stk-sector-chips">
+          <span class="lib-chip active" data-sector="">All</span>
+        </div>
+      </div>
     <div class="stk-filter-panel" id="stk-filter-panel">
       <div class="stk-filter-cols">
         {factor_sections_html}
