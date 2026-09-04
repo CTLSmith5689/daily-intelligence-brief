@@ -511,11 +511,28 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
 .stk-view-btn + .stk-view-btn { border-left:1px solid var(--border-bright); }
 .stk-view-btn.active { background:var(--text-1); color:var(--bg-base); }
-.stk-radar { display:grid; grid-template-columns:minmax(0,720px) 320px; gap:0 24px;
+.stk-map { display:flex; flex-direction:column; min-width:0; }
+.stk-map-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  padding:0 0 9px; margin-bottom:11px; border-bottom:1px solid var(--text-1);
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.stk-map-hint { font-size:9px; letter-spacing:1.2px; color:var(--text-4); text-transform:none; }
+.stk-map-spin { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  text-transform:uppercase; background:none; border:1px solid var(--border-bright); cursor:pointer;
+  color:var(--text-3); padding:2px 7px; margin-left:9px; }
+.stk-map-spin.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
+.stk-map-plot { position:relative; flex:1; min-height:420px;
+  border:1px solid var(--border); background:var(--surface-1); }
+.stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
+.stk-map-foot { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
+  color:var(--text-4); margin:9px 0 0; }
+.stk-radar { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr) 296px;
+  grid-template-rows:auto auto; align-items:start; gap:0 22px;
   align-items:start; justify-content:start; }
-.stk-radar > .stk-radar-plot { grid-column:1; grid-row:1; }
+.stk-radar > .stk-map { grid-column:1; grid-row:1 / span 2; }
+.stk-radar > .stk-radar-plot { grid-column:2; grid-row:1; }
+.stk-radar > .stk-radar-note { grid-column:2; grid-row:2; }
 .stk-radar > .stk-radar-note { grid-column:1; grid-row:2; max-width:720px; }
-.stk-radar > .stk-radar-side { grid-column:2; grid-row:1 / span 2; }
+.stk-radar > .stk-radar-side { grid-column:3; grid-row:1 / span 2; }
 .stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1);
   padding:14px; max-width:720px; }
 .stk-radar-plot svg { width:100%; height:auto; display:block; }
@@ -523,7 +540,8 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   letter-spacing:2px; text-transform:uppercase; color:var(--text-3); }
 .stk-radar-quads .tl { top:14px; left:16px; } .stk-radar-quads .tr { top:14px; right:16px; }
 .stk-radar-quads .bl { bottom:14px; left:16px; } .stk-radar-quads .br { bottom:14px; right:16px; }
-.stk-radar-note { font-size:11px; color:var(--text-4); line-height:1.6; margin:10px 2px 0; }
+.stk-radar-note { font-size:11px; color:var(--text-4);
+  line-height:1.6; margin:10px 2px 0; }
 .stk-cmps { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; }
 .stk-cmp { display:inline-flex; align-items:center; gap:6px; padding:3px 6px 3px 7px;
   border:1px solid var(--border-bright); font-family:'Space Mono',monospace; font-size:10px;
@@ -640,6 +658,13 @@ a.scr-brand { text-decoration:none; color:inherit; }
 .scr-foot { border-top:1px solid var(--text-1); padding:20px 32px; display:flex;
   justify-content:space-between; gap:16px; font-family:'Space Mono',monospace; font-size:10px;
   letter-spacing:1.5px; color:var(--text-4); }
+@media (max-width:1200px) {
+  .stk-radar { grid-template-columns:1fr; grid-template-rows:auto; }
+  .stk-radar > .stk-map, .stk-radar > .stk-radar-plot,
+  .stk-radar > .stk-radar-note, .stk-radar > .stk-radar-side {
+    grid-column:1; grid-row:auto; }
+  .stk-map { margin-bottom:26px; }
+}
 @media (max-width:900px) {
   .scr-body { display:block; }
   .scr-rail { width:auto; border-right:none; border-bottom:1px solid var(--text-1); }
@@ -1270,6 +1295,15 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
         </div>
 
         <div id="stk-radar" class="stk-radar" hidden>
+          <div class="stk-map">
+            <div class="stk-map-h">
+              <span>Factor map</span>
+              <span class="stk-map-hint">Click to focus &middot; ctrl-click to add &middot; drag to turn
+                <button type="button" class="stk-map-spin" id="stk-spin">Spin</button></span>
+            </div>
+            <div class="stk-map-plot"><canvas id="stk-map-canvas"></canvas></div>
+            <p class="stk-map-foot" id="stk-map-foot"></p>
+          </div>
           <div class="stk-radar-plot">
             <div class="stk-radar-quads">
               <span class="q tl">Momentum</span><span class="q tr">Growth</span>
@@ -2546,7 +2580,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     tetraInvalidate();
     renderFocusBar();
     if (currentView === 'chart') drawChart();
-    else if (currentView === 'radar') renderRadar();
+    else if (currentView === 'radar') { drawMap(); renderRadar(); }
   }
 
   // Card-level toggles inside the expanded panel reveal source + methodology
@@ -3108,8 +3142,8 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       }
     }
     renderFocusBar();
-    drawChart();
-    if (currentView === 'radar') renderRadar();
+    if (currentView === 'chart') drawChart();
+    else if (currentView === 'radar') { drawMap(); renderRadar(); }
   }
 
   function renderFocusBar() {
@@ -3348,8 +3382,6 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   const LENSES = [
     { key:'pairs', label:'Four factors', pairs:true,
       blurb:'All four factors, two plots, every one of them on a position axis. Left is the compounder view: earning well and still growing. Right is the value view: cheap and already moving. Nothing is projected or collapsed, so nothing is hiding behind anything.' },
-    { key:'gvmq3d', label:'GVMQ 3D', tetra:true,
-      blurb:'All four factors at once. Each corner of the tetrahedron is one factor, and a company sits in the direction of the ones it scores on, so two profiles that look identical on a flat chart separate here. Drag to turn it.' },
     { key:'gvmq', label:'GVMQ', compass:true,
       tl:'Momentum', tr:'Growth', bl:'Value', br:'Quality',
       blurb:'Each corner is one factor. A company sits in the direction of the factors it scores best on, and the further from the centre, the more lopsided the profile.' },
@@ -3418,12 +3450,12 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   }
 
   function startSpin() {
-    if (spinRAF || !spin || !lens.tetra || currentView !== 'chart') return;
+    if (spinRAF || !spin || currentView !== 'radar') return;
     spinRAF = requestAnimationFrame(function step() {
       spinRAF = null;
-      if (!spin || !lens.tetra || currentView !== 'chart') return;
+      if (!spin || currentView !== 'radar') return;
       yaw += 0.0030;
-      drawChart();
+      drawMap();
       spinRAF = requestAnimationFrame(step);
     });
   }
@@ -3435,6 +3467,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     const out = [];
     for (const s of currentFiltered()) {
       let x, y;
+      if (lens.tetra) { continue; }
       if (lens.pairs) {
         if (!s.scorable) continue;
         out.push({ s: s });
@@ -3629,7 +3662,38 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     return pts.length;
   }
 
-  function drawTetra(cv, pts, ref) {
+  let mapHit = [];
+
+  // The map is the radar's selection surface, so it keeps its own hit list and
+  // its own cache rather than borrowing the chart's.
+  function drawMap() {
+    const cv = document.getElementById('stk-map-canvas');
+    if (!cv || !cv.clientWidth) return;
+    if (tetraPts === null) {
+      tetraPts = ALL.filter(function(s) { return s.scorable; })
+                    .map(function(s) { return { s: s, p: tetraPos(s) }; });
+      tetraMatch = currentFiltered().length;
+      const ds = tetraPts.map(function(p) {
+        return Math.hypot(p.p[0], p.p[1], p.p[2]);
+      }).sort(function(a, b) { return a - b; });
+      const p97 = ds.length ? ds[Math.min(ds.length - 1, Math.floor(ds.length * 0.97))] : 1;
+      tetraRef = Math.max(p97, Math.sqrt(3));
+    }
+    // The map shows what the filters allow, like every other surface.
+    const allowed = new Set();
+    for (const s of currentFiltered()) allowed.add(s.ticker);
+    const pts = tetraPts.filter(function(p) { return allowed.has(p.s.ticker); });
+    mapHit = [];
+    drawTetra(cv, pts, tetraRef, mapHit);
+    const foot = document.getElementById('stk-map-foot');
+    if (foot) {
+      foot.textContent = pts.length.toLocaleString() + ' of ' +
+        tetraMatch.toLocaleString() + ' matching companies placed · ' +
+        'needs 3 of 4 dimensions · dot size: market cap';
+    }
+  }
+
+  function drawTetra(cv, pts, ref, hits) {
     const dpr = window.devicePixelRatio || 1;
     const w = cv.clientWidth, h = cv.clientHeight;
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
@@ -3640,13 +3704,10 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     const ink = css.getPropertyValue('--text-1').trim() || '#17140F';
     const line = css.getPropertyValue('--border-bright').trim() || 'rgba(0,0,0,.18)';
     const dim = css.getPropertyValue('--text-4').trim() || '#8A8272';
-    const foot = document.getElementById('stk-chart-foot');
     if (!pts.length) {
       ctx.fillStyle = dim;
-      ctx.font = "12px 'Space Mono', monospace";
-      ctx.fillText('No companies are scored on enough dimensions to place.', 46, h / 2);
-      chartHit = [];
-      if (foot) foot.textContent = '0 plotted';
+      ctx.font = "11px 'Space Mono', monospace";
+      ctx.fillText('Nothing here matches the current filters.', 24, h / 2);
       return;
     }
     // One scale for the whole cloud, fixed while it turns, so the shape you are
@@ -3689,7 +3750,6 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
 
     const capMax = Math.max.apply(null, pts.map(function(p) { return p.s.market_cap || 0; })) || 1;
     const tetraDim = focusDrawn(proj) ? 0.45 : 1;
-    chartHit = [];
     for (const q of proj) {
       const cap = q.s.market_cap || 0;
       const r = (2 + Math.sqrt(cap / capMax) * 9) * q.k;
@@ -3700,7 +3760,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       ctx.fillStyle = ink;
       ctx.globalAlpha = (0.14 + t * 0.30) * tetraDim;
       ctx.fill();
-      chartHit.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
+      hits.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
     }
     ctx.globalAlpha = 1;
     // After the cage and the cloud, so a selected company is never buried.
@@ -3725,19 +3785,6 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     }
     ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
 
-    if (foot) {
-      foot.textContent = pts.length.toLocaleString() + ' plotted of ' +
-        tetraMatch.toLocaleString() + ' matching · ' +
-        'only companies scored on 3 of 4 dimensions can be placed · ' +
-        'dot size: market cap · drag to turn';
-    }
-    const plot = cv.parentElement;
-    if (plot) {
-      ['tl','tr','bl','br'].forEach(function(c) {
-        const el = plot.querySelector('.ax.' + c);
-        if (el) el.textContent = '';
-      });
-    }
   }
 
   const PAIR_PANELS = [
@@ -3809,23 +3856,6 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     const cv = document.getElementById('stk-chart-canvas');
     if (!cv) return;
     if (lens.pairs) { drawPairs(cv); return; }
-    if (lens.tetra) {
-      if (tetraPts === null) {
-        tetraPts = chartPoints();
-        tetraMatch = currentFiltered().length;
-        const ds = tetraPts.map(function(p) {
-          return Math.hypot(p.p[0], p.p[1], p.p[2]);
-        }).sort(function(a, b) { return a - b; });
-        // The 97th percentile rather than the maximum. A handful of extreme
-        // profiles reach nearly twice the next-widest, and scaling to them
-        // shrinks the entire cloud to a smudge in the middle of the frame. The
-        // few that fall outside the cage are the point of the cage.
-        const p97 = ds.length ? ds[Math.min(ds.length - 1, Math.floor(ds.length * 0.97))] : 1;
-        tetraRef = Math.max(p97, Math.sqrt(3));
-      }
-      drawTetra(cv, tetraPts, tetraRef);
-      return;
-    }
     const pts = chartPoints();
     const dpr = window.devicePixelRatio || 1;
     const w = cv.clientWidth, h = cv.clientHeight;
@@ -3878,42 +3908,67 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     el.innerHTML = '<span class="lib-chip-label">View</span>' + LENSES.map(function(l) {
       return '<button type="button" class="stk-lens' + (l.key === lens.key ? ' active' : '') +
              '" data-lens="' + l.key + '">' + escapeHtml(l.label) + '</button>';
-    }).join('') + (lens.tetra && !REDUCED_MOTION
-      ? '<button type="button" class="stk-lens stk-spin' + (spin ? ' active' : '') +
-        '" id="stk-spin">Spin</button>'
-      : '');
-    const spinBtn = el.querySelector('#stk-spin');
-    if (spinBtn) {
-      spinBtn.addEventListener('click', function() {
-        spin = !spin;
-        spinBtn.classList.toggle('active', spin);
-        if (spin) startSpin(); else stopSpin();
-      });
-    }
+    }).join('');
     el.querySelectorAll('.stk-lens[data-lens]').forEach(function(b) {
       b.addEventListener('click', function() {
         lens = LENSES.find(function(l) { return l.key === b.dataset.lens; }) || LENSES[0];
         renderLenses();
         document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
         const cv = document.getElementById('stk-chart-canvas');
-        if (cv) cv.style.cursor = lens.tetra ? 'grab' : '';
         tetraInvalidate();
-        stopSpin();
         drawChart();
-        startSpin();
       });
     });
     document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
   }
 
+  (function wireMapSpin() {
+    const btn = document.getElementById('stk-spin');
+    if (!btn) return;
+    if (REDUCED_MOTION) { btn.hidden = true; return; }
+    btn.addEventListener('click', function() {
+      spin = !spin;
+      btn.classList.toggle('active', spin);
+      if (spin) startSpin(); else stopSpin();
+    });
+  })();
+
+  (function wireMapClick() {
+    const cv = document.getElementById('stk-map-canvas');
+    if (!cv) return;
+    cv.addEventListener('click', function(e) {
+      if (suppressNextClick) { suppressNextClick = false; return; }
+      const b = cv.getBoundingClientRect();
+      const mx = e.clientX - b.left, my = e.clientY - b.top;
+      let best = null, bd = 1e9;
+      for (const h of mapHit) {
+        const d = (h.x - mx) * (h.x - mx) + (h.y - my) * (h.y - my);
+        if (d < bd && d < (h.r + 7) * (h.r + 7)) { bd = d; best = h; }
+      }
+      if (!best) return;
+      focusToggle(best.s.ticker, e.ctrlKey || e.metaKey || e.shiftKey);
+    });
+    const tip = document.getElementById('stk-radar-note');
+    cv.addEventListener('mousemove', function(e) {
+      const b = cv.getBoundingClientRect();
+      const mx = e.clientX - b.left, my = e.clientY - b.top;
+      let best = null, bd = 1e9;
+      for (const h of mapHit) {
+        const d = (h.x - mx) * (h.x - mx) + (h.y - my) * (h.y - my);
+        if (d < bd && d < (h.r + 6) * (h.r + 6)) { bd = d; best = h; }
+      }
+      cv.style.cursor = best ? 'pointer' : 'grab';
+    });
+  })();
+
   (function wireTetraDrag() {
-    const cv = document.getElementById('stk-chart-canvas');
+    const cv = document.getElementById('stk-map-canvas');
     if (!cv) return;
     let dragging = false, lastX = 0, lastY = 0, startX = 0, startY = 0, moved = 0;
     cv.addEventListener('pointerdown', function(e) {
       // Primary button only: a right or middle drag should neither rotate the
       // shape nor arm a flag that the click after it will never clear.
-      if (!lens.tetra || e.button !== 0) return;
+      if (e.button !== 0) return;
       // Any press starts clean, so a stale arm from an abandoned gesture or an
       // earlier lens cannot swallow this selection.
       suppressNextClick = false;
@@ -3936,12 +3991,12 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       // Clamped so the cloud can never be turned past vertical, where the
       // vertex labels would invert and the shape stops being readable.
       pitch = Math.max(-1.35, Math.min(1.35, pitch + dy * 0.008));
-      drawChart();
+      drawMap();
     });
     function release(e) {
       if (!dragging) return;
       dragging = false;
-      cv.style.cursor = lens.tetra ? 'grab' : '';
+      cv.style.cursor = 'grab';
       try { cv.releasePointerCapture(e.pointerId); } catch (err) {}
       // A deliberate turn parks the shape where the reader put it. Spin, if it
       // was on, stays off until they ask for it again.
@@ -3957,7 +4012,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     // there would swallow the next real one.
     cv.addEventListener('pointercancel', function(e) {
       dragging = false;
-      cv.style.cursor = lens.tetra ? 'grab' : '';
+      cv.style.cursor = 'grab';
       try { cv.releasePointerCapture(e.pointerId); } catch (err) {}
     });
   })();
@@ -4012,12 +4067,12 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     // render() may have run while the list was hidden, which empties it and
     // leaves shownCount at 0. Paint it now that it has a box to measure.
     if (v === 'list') { fillWindow(); redrawExpanded(); }
-    if (v === 'chart') { renderLenses(); renderFocusBar(); drawChart(); startSpin(); }
-    else stopSpin();
+    if (v === 'chart') { renderLenses(); renderFocusBar(); drawChart(); }
+    if (v !== 'radar') stopSpin();
     document.querySelectorAll('.stk-view-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.view === v);
     });
-    if (v === 'radar') renderRadar();
+    if (v === 'radar') { renderRadar(); drawMap(); startSpin(); }
   }
   document.querySelectorAll('.stk-view-btn').forEach(function(b) {
     b.addEventListener('click', function() { setView(b.dataset.view); });
