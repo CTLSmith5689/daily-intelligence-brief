@@ -4388,6 +4388,46 @@ def fetch_nasdaq_trader_listings():
     return out
 
 
+# Yahoo uses its own sector taxonomy, not GICS, and the Wikipedia S&P scrapes use
+# GICS. Mixing them splits one sector into two cohorts under different names:
+# "Financials" (258 S&P names) alongside "Financial Services" (600 Yahoo names),
+# "Health Care" alongside "Healthcare", and so on. Every factor score in this
+# pipeline is a z-score against sector peers, so an unmapped taxonomy halves each
+# cohort and corrupts the scores on both sides of the split. Normalize to GICS.
+YF_SECTOR_TO_GICS = {
+    "financial services": "Financials",
+    "healthcare": "Health Care",
+    "technology": "Information Technology",
+    "consumer cyclical": "Consumer Discretionary",
+    "consumer defensive": "Consumer Staples",
+    "basic materials": "Materials",
+    # These already match GICS and are listed so the map doubles as the
+    # authoritative set of sector names the pipeline is allowed to emit.
+    "industrials": "Industrials",
+    "energy": "Energy",
+    "real estate": "Real Estate",
+    "utilities": "Utilities",
+    "communication services": "Communication Services",
+    "financials": "Financials",
+    "health care": "Health Care",
+    "information technology": "Information Technology",
+    "consumer discretionary": "Consumer Discretionary",
+    "consumer staples": "Consumer Staples",
+    "materials": "Materials",
+}
+
+
+def normalize_sector(value):
+    """Map a sector label to its GICS name, or "" if unrecognized.
+
+    An unknown label is dropped rather than passed through: a one-off spelling
+    would otherwise become its own peer cohort of one, and a cohort of one makes
+    every z-score in it exactly zero."""
+    if not value or not isinstance(value, str):
+        return ""
+    return YF_SECTOR_TO_GICS.get(value.strip().lower(), "")
+
+
 def fetch_all_universes():
     """Build the full deduplicated stock universe from Wikipedia (S&P 500/400/600),
     plus any working ISHARES_SOURCES. S&P sources go first because their sector
@@ -4576,9 +4616,9 @@ def enrich_with_yfinance(stocks, max_workers=6):
                 # Sector drives the peer-relative factor z-scores on the stocks
                 # page, so a blank one silently drops the row out of those stats.
                 if not s.get("sector"):
-                    sector_name = info.get("sector")
-                    if isinstance(sector_name, str) and sector_name.strip():
-                        s["sector"] = sector_name.strip()
+                    mapped = normalize_sector(info.get("sector"))
+                    if mapped:
+                        s["sector"] = mapped
                 if not s.get("sub_industry"):
                     industry_name = info.get("industry")
                     if isinstance(industry_name, str) and industry_name.strip():
@@ -5849,6 +5889,20 @@ def get_or_generate_stocks_universe():
         stocks, date_key, previously_known=(last_known or {}).get("stocks") or [])
     for s in stocks:
         s["in_index"] = 1
+
+    # Heal sector labels already carried forward from previous runs, which may
+    # predate the GICS mapping and would otherwise keep their Yahoo spelling
+    # forever via CARRY_FIELDS.
+    remapped = 0
+    for s in stocks:
+        current = s.get("sector")
+        if current:
+            mapped = normalize_sector(current)
+            if mapped != current:
+                s["sector"] = mapped
+                remapped += 1
+    if remapped:
+        print(f"sector: normalized {remapped} labels to GICS.")
     if added:
         print(f"registry: {len(added)} new tickers: {', '.join(sorted(added)[:12])}"
               + (" ..." if len(added) > 12 else ""))
