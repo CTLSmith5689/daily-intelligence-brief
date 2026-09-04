@@ -2045,7 +2045,10 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
 .stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden], .stk-hero[hidden] { display:none !important; }
 .stk-chart { display:block; }
 .stk-focus { display:flex; align-items:center; flex-wrap:nowrap; gap:7px; margin:0 0 12px;
-  height:24px; overflow:hidden; }
+  height:24px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+.stk-focus::-webkit-scrollbar { display:none; }
+.stk-cmp-out { opacity:0.45; }
+.stk-cmp-out i { filter:grayscale(1); }
 .stk-focus-hint { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.2px;
   text-transform:uppercase; color:var(--text-4); white-space:nowrap; overflow:hidden;
   text-overflow:ellipsis; }
@@ -3892,6 +3895,7 @@ STOCKS_JS_TEMPLATE = """
     // showing when the view was last opened, which reads as the filters simply
     // not applying to them.
     tetraInvalidate();
+    renderFocusBar();
     if (currentView === 'chart') drawChart();
     else if (currentView === 'radar') renderRadar();
   }
@@ -4418,6 +4422,15 @@ STOCKS_JS_TEMPLATE = """
   let radarTickers = [];
 
   function focusIndexOf(t) { return radarTickers.indexOf(t); }
+
+  // Canvas takes CSS colours but not CSS variables, and fails silently on the
+  // difference. Resolve against the root so the palette stays theme-aware
+  // rather than hardcoding a hex that would be wrong in one of the two themes.
+  function cssColor(c) {
+    if (!c || c.slice(0, 4) !== 'var(') return c;
+    const name = c.slice(4, -1).trim();
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#FF4A1C';
+  }
   function focusColor(t) {
     const i = focusIndexOf(t);
     return i < 0 ? null : RADAR_COLORS[i % RADAR_COLORS.length];
@@ -4459,12 +4472,20 @@ STOCKS_JS_TEMPLATE = """
     }
     const byTicker = {};
     for (const s of ALL) byTicker[s.ticker] = s;
+    // A filter can exclude something already focused. Dropping it silently
+    // would lose the reader's selection; drawing it as though nothing happened
+    // would explain neither the missing dot nor the surviving radar polygon.
+    const shown = new Set();
+    try { for (const s of currentFiltered()) shown.add(s.ticker); } catch (e) {}
     bar.hidden = false;
     bar.innerHTML =
       '<span class="stk-focus-lab">Focus</span>' +
       radarTickers.map(function(t, i) {
         const s = byTicker[t] || { ticker: t, name: '' };
-        return '<span class="stk-cmp" style="--cmp:' + RADAR_COLORS[i % RADAR_COLORS.length] + '">' +
+        const out = shown.size && !shown.has(t);
+        return '<span class="stk-cmp' + (out ? ' stk-cmp-out' : '') + '"' +
+          (out ? ' title="Outside the current filters"' : '') +
+          ' style="--cmp:' + RADAR_COLORS[i % RADAR_COLORS.length] + '">' +
           '<i></i>' + escapeHtml(s.ticker) +
           '<button type="button" class="stk-cmp-x" data-drop="' + escapeHtml(t) +
           '" aria-label="Remove ' + escapeHtml(t) + '">\u00d7</button></span>';
@@ -4566,6 +4587,10 @@ STOCKS_JS_TEMPLATE = """
       if (!btn) return;
       const t = btn.dataset.drop;
       radarTickers = radarTickers.filter(function(x) { return x !== t; });
+      // The bar is the legend for these colours. Leaving it stale named a
+      // company that was neither focused nor drawn, and shifted the key for
+      // everything below it.
+      renderFocusBar();
       renderRadar();
     });
   })();
@@ -4800,11 +4825,27 @@ STOCKS_JS_TEMPLATE = """
   // only the ones drawn on top.
   // Focused points, drawn on top of whatever cloud style was used, in their
   // focus colour with the ticker beside them.
+  // True only if something in the focus is actually plotted here.
+  function focusDrawn(proj) {
+    if (!radarTickers.length) return false;
+    for (const q of proj) if (focusIndexOf(q.s.ticker) >= 0) return true;
+    return false;
+  }
+
+  // Focused companies with no coordinates on the active lens, so the reader is
+  // told rather than left wondering why a selection has no highlight.
+  function focusMissing(proj) {
+    if (!radarTickers.length) return [];
+    const drawn = new Set();
+    for (const q of proj) if (focusIndexOf(q.s.ticker) >= 0) drawn.add(q.s.ticker);
+    return radarTickers.filter(function(t) { return !drawn.has(t); });
+  }
+
   function paintFocused(ctx, proj) {
     if (!radarTickers.length) return;
     ctx.font = "10px 'Space Mono', monospace";
     for (const q of proj) {
-      const col = focusColor(q.s.ticker);
+      const col = cssColor(focusColor(q.s.ticker));
       if (!col) continue;
       ctx.beginPath(); ctx.arc(q.x, q.y, 5.5, 0, Math.PI * 2);
       ctx.fillStyle = col; ctx.globalAlpha = 1; ctx.fill();
@@ -4820,8 +4861,10 @@ STOCKS_JS_TEMPLATE = """
     if (!proj.length) return;
     const capMax = capMaxIn ||
       Math.max.apply(null, proj.map(function(p) { return p.s.market_cap || 0; })) || 1;
-    // With a selection live the rest of the cloud is context, not the subject.
-    const ctxDim = radarTickers.length ? 0.45 : 1;
+    // With a selection actually visible here, the rest of the cloud is context.
+    // Keyed on what is drawn, not on the list: a focus that this lens cannot
+    // place would otherwise dim everything to highlight nothing.
+    const ctxDim = focusDrawn(proj) ? 0.45 : 1;
 
     if (proj.length <= DENSITY_ABOVE) {
       for (const q of proj) {
@@ -4996,6 +5039,7 @@ STOCKS_JS_TEMPLATE = """
     }).sort(function(a, b) { return a.z - b.z; });
 
     const capMax = Math.max.apply(null, pts.map(function(p) { return p.s.market_cap || 0; })) || 1;
+    const tetraDim = focusDrawn(proj) ? 0.45 : 1;
     chartHit = [];
     for (const q of proj) {
       const cap = q.s.market_cap || 0;
@@ -5005,7 +5049,7 @@ STOCKS_JS_TEMPLATE = """
       const t = Math.max(0, Math.min(1, (q.z + vertMax) / (vertMax * 2)));
       ctx.beginPath(); ctx.arc(q.x, q.y, Math.max(r, 1), 0, Math.PI * 2);
       ctx.fillStyle = ink;
-      ctx.globalAlpha = (0.14 + t * 0.30) * (radarTickers.length ? 0.45 : 1);
+      ctx.globalAlpha = (0.14 + t * 0.30) * tetraDim;
       ctx.fill();
       chartHit.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
     }
@@ -5216,11 +5260,16 @@ STOCKS_JS_TEMPLATE = """
   (function wireTetraDrag() {
     const cv = document.getElementById('stk-chart-canvas');
     if (!cv) return;
-    let dragging = false, lastX = 0, lastY = 0, moved = 0;
+    let dragging = false, lastX = 0, lastY = 0, startX = 0, startY = 0, moved = 0;
     cv.addEventListener('pointerdown', function(e) {
-      if (!lens.tetra) return;
+      // Primary button only: a right or middle drag should neither rotate the
+      // shape nor arm a flag that the click after it will never clear.
+      if (!lens.tetra || e.button !== 0) return;
+      // Any press starts clean, so a stale arm from an abandoned gesture or an
+      // earlier lens cannot swallow this selection.
+      suppressNextClick = false;
       dragging = true; moved = 0;
-      lastX = e.clientX; lastY = e.clientY;
+      startX = lastX = e.clientX; startY = lastY = e.clientY;
       stopSpin();
       cv.setPointerCapture(e.pointerId);
       cv.style.cursor = 'grabbing';
@@ -5229,7 +5278,11 @@ STOCKS_JS_TEMPLATE = """
       if (!dragging) return;
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       lastX = e.clientX; lastY = e.clientY;
-      moved += Math.abs(dx) + Math.abs(dy);
+      // Furthest the pointer ever got from where it was pressed, not how far
+      // it travelled. Path length punished a tremor that ended on the pixel it
+      // started on, while peak displacement still catches a turn that loops
+      // back to its origin.
+      moved = Math.max(moved, Math.hypot(e.clientX - startX, e.clientY - startY));
       yaw += dx * 0.008;
       // Clamped so the cloud can never be turned past vertical, where the
       // vertex labels would invert and the shape stops being readable.
@@ -5251,7 +5304,13 @@ STOCKS_JS_TEMPLATE = """
       } else if (spin) { startSpin(); }
     }
     cv.addEventListener('pointerup', release);
-    cv.addEventListener('pointercancel', release);
+    // A cancelled pointer never produces a click, so arming the suppression
+    // there would swallow the next real one.
+    cv.addEventListener('pointercancel', function(e) {
+      dragging = false;
+      cv.style.cursor = lens.tetra ? 'grab' : '';
+      try { cv.releasePointerCapture(e.pointerId); } catch (err) {}
+    });
   })();
 
   (function wireChartTip() {
@@ -5304,7 +5363,7 @@ STOCKS_JS_TEMPLATE = """
     // render() may have run while the list was hidden, which empties it and
     // leaves shownCount at 0. Paint it now that it has a box to measure.
     if (v === 'list') { fillWindow(); redrawExpanded(); }
-    if (v === 'chart') { renderLenses(); drawChart(); startSpin(); }
+    if (v === 'chart') { renderLenses(); renderFocusBar(); drawChart(); startSpin(); }
     else stopSpin();
     document.querySelectorAll('.stk-view-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.view === v);

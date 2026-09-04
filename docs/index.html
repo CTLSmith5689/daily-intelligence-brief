@@ -437,7 +437,10 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
 .stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden], .stk-hero[hidden] { display:none !important; }
 .stk-chart { display:block; }
 .stk-focus { display:flex; align-items:center; flex-wrap:nowrap; gap:7px; margin:0 0 12px;
-  height:24px; overflow:hidden; }
+  height:24px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+.stk-focus::-webkit-scrollbar { display:none; }
+.stk-cmp-out { opacity:0.45; }
+.stk-cmp-out i { filter:grayscale(1); }
 .stk-focus-hint { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.2px;
   text-transform:uppercase; color:var(--text-4); white-space:nowrap; overflow:hidden;
   text-overflow:ellipsis; }
