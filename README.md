@@ -3,9 +3,17 @@
 A data aggregation pipeline for US equities and finance/tech news. Runs on GitHub
 Actions, writes append-only CSVs, and publishes a browsable site to GitHub Pages.
 
-**No LLM, and no Anthropic API key.** This used to generate written analysis via
-Claude. That was removed on 2026-09-04: the project is now purely a recorder, and
-the analysis layer lives outside it (a Claude scheduled task reads the CSVs).
+**No LLM, and no AI API key.** That was removed on 2026-09-04 with the logic that 
+the data can be gathered here, and a scheduled agent on a personal plan with claude
+can pull the data to run whatever analysis you want from there.
+
+## Where the idea came from
+
+I have always wanted a window into the investment research analyst world; It is an area
+of finance that I have become more and more interested in, but I only have a basic 
+understanding of it. I built this tool primarily as a way to expose myself to the data and 
+information research analysts look at, with the ultimate goal of being able to understand more
+about the profession. 
 
 ## The data
 
