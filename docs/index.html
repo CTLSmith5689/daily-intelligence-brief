@@ -480,14 +480,31 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
 .stk-view-btn + .stk-view-btn { border-left:1px solid var(--border-bright); }
 .stk-view-btn.active { background:var(--text-1); color:var(--bg-base); }
-.stk-radar { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start; }
-.stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1); padding:14px; }
+.stk-radar { display:grid; grid-template-columns:minmax(0,720px) 320px; gap:0 24px;
+  align-items:start; justify-content:start; }
+.stk-radar > .stk-radar-plot { grid-column:1; grid-row:1; }
+.stk-radar > .stk-radar-note { grid-column:1; grid-row:2; max-width:720px; }
+.stk-radar > .stk-radar-side { grid-column:2; grid-row:1 / span 2; }
+.stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1);
+  padding:14px; max-width:720px; }
 .stk-radar-plot svg { width:100%; height:auto; display:block; }
 .stk-radar-quads .q { position:absolute; font-family:'Space Mono',monospace; font-size:10px;
   letter-spacing:2px; text-transform:uppercase; color:var(--text-3); }
 .stk-radar-quads .tl { top:14px; left:16px; } .stk-radar-quads .tr { top:14px; right:16px; }
 .stk-radar-quads .bl { bottom:14px; left:16px; } .stk-radar-quads .br { bottom:14px; right:16px; }
 .stk-radar-note { font-size:11px; color:var(--text-4); line-height:1.6; margin:10px 2px 0; }
+.stk-cmps { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; }
+.stk-cmp { display:inline-flex; align-items:center; gap:6px; padding:3px 6px 3px 7px;
+  border:1px solid var(--border-bright); font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1px; color:var(--text-1); }
+.stk-cmp i { width:7px; height:7px; background:var(--cmp); flex-shrink:0; }
+.stk-cmp-x { background:none; border:none; padding:0 0 0 2px; cursor:pointer; font-size:13px;
+  line-height:1; color:var(--text-4); }
+.stk-cmp-x:hover { color:var(--apt-red); }
+/* In compare mode the percentile bar gives up its column to the extra values. */
+.stk-radar-row.cmp { grid-template-columns:minmax(0,1fr) repeat(3, 34px); }
+.stk-radar-fam-h.cmp { display:grid; grid-template-columns:minmax(0,1fr) repeat(3, 34px);
+  align-items:baseline; }
 .stk-radar-side h3 { font-family:'Instrument Serif',Georgia,serif; font-size:26px; font-weight:400;
   color:var(--text-1); margin:0 0 4px; }
 .stk-radar-hint { font-size:11px; color:var(--text-4); line-height:1.6; margin:0 0 14px; }
@@ -554,6 +571,12 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
 .scr-count { margin-left:auto; flex-shrink:0; white-space:nowrap;
   font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); }
 .scr-pane { padding:0 32px 30px; }
+/* Ultrawide: the rail stays pinned left, the working area stops growing. Left
+   aligned rather than centred so the table keeps its edge against the rail. */
+@media (min-width:1700px) {
+  .scr-tool > *:last-child { margin-right:auto; }
+  .scr-tool, .scr-pane, .scr-foot { max-width:1660px; }
+}
 .scr-foot { border-top:1px solid var(--text-1); padding:20px 32px; display:flex;
   justify-content:space-between; gap:16px; font-family:'Space Mono',monospace; font-size:10px;
   letter-spacing:1.5px; color:var(--text-4); }
@@ -593,26 +616,35 @@ body.page-stocks .lib-h { display:none; }
 .stk-tk { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.1; color:var(--text-1); }
 .stk-nm { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden;
   text-overflow:ellipsis; min-width:0; }
-.stk-factors { display:flex; gap:5px; align-items:center; padding-left:12px; }
+.stk-factors { display:flex; gap:10px; align-items:center; padding-left:12px; }
+.stk-th-fac { display:flex; gap:10px; padding-left:12px; }
+.stk-th-fac > span { flex:1 1 0; min-width:0; text-align:center; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; }
 .stk-f { flex:1 1 0; min-width:0; display:block; text-align:center; }
-.stk-f-t { display:block; height:3px; background:var(--border-bright); position:relative; }
+.stk-f-t { display:block; height:5px; background:var(--border-bright); position:relative; }
+/* The midline: a bar grows right of it for a positive z and left for a negative
+   one, so zero is readable without a number. */
+.stk-f-t::after { content:''; position:absolute; left:50%; top:-2px; bottom:-2px; width:1px;
+  background:var(--border-bright); }
 .stk-f-t em { position:absolute; top:0; bottom:0; display:block; }
 .stk-f-t em.up { background:var(--apt-red); }
 .stk-f-t em.dn { background:var(--text-4); }
 .stk-f b { display:block; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px;
   color:var(--text-5); font-weight:400; margin-top:3px; }
-.stk-head { display:grid; grid-template-columns:26px minmax(0,1.6fr) minmax(0,0.9fr) 74px 68px minmax(0,1fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
+.stk-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.8fr) 74px 68px minmax(0,2.1fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:26px minmax(0,1.6fr) minmax(0,0.9fr) 74px 68px minmax(0,1fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
+.stk-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.8fr) 74px 68px minmax(0,2.1fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
 .stk-row:hover { background:rgba(22,23,31,0.6); }
 .stk-ticker { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
 .stk-name .stk-sub { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; font-weight:400; }
-.stk-sector { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; padding-top:1px; }
+.stk-sector { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px;
+  color:var(--text-3); text-transform:uppercase; padding-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .stk-cap { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; padding-top:1px; }
 .stk-pct { font-family:'Space Mono',monospace; font-size:12px; text-align:right; padding-top:1px; }
 .stk-pct.stk-pos { color:#34D27A; }
@@ -829,6 +861,14 @@ body.page-stocks .lib-h { display:none; }
 .stk-sidebar .stk-weight-presets { padding-top:8px; margin-top:4px; }
 .stk-sidebar .stk-weight-presets-label { font-size:8px; }
 .stk-filter-toggle-count { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:2px 0; }
+
+/* The screener shell scrolls the page, not an inner pane, so it must opt out of
+   the viewport lock below. That lock and the table's own overflow were written
+   for the previous layout, where the body was pinned to 100vh and only the list
+   moved; left in place they simply stop the new page scrolling at all. */
+body.page-stocks.scr-page { overflow:visible; height:auto; }
+body.scr-page .stk-table { overflow:visible; max-height:none; border:none; background:transparent; }
+body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar */
 
 /* Stocks page: lock the page to the viewport so only the list scrolls. */
 body.page-stocks { overflow:hidden; height:100vh; }

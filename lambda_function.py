@@ -2018,14 +2018,31 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
 .stk-view-btn + .stk-view-btn { border-left:1px solid var(--border-bright); }
 .stk-view-btn.active { background:var(--text-1); color:var(--bg-base); }
-.stk-radar { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start; }
-.stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1); padding:14px; }
+.stk-radar { display:grid; grid-template-columns:minmax(0,720px) 320px; gap:0 24px;
+  align-items:start; justify-content:start; }
+.stk-radar > .stk-radar-plot { grid-column:1; grid-row:1; }
+.stk-radar > .stk-radar-note { grid-column:1; grid-row:2; max-width:720px; }
+.stk-radar > .stk-radar-side { grid-column:2; grid-row:1 / span 2; }
+.stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1);
+  padding:14px; max-width:720px; }
 .stk-radar-plot svg { width:100%; height:auto; display:block; }
 .stk-radar-quads .q { position:absolute; font-family:'Space Mono',monospace; font-size:10px;
   letter-spacing:2px; text-transform:uppercase; color:var(--text-3); }
 .stk-radar-quads .tl { top:14px; left:16px; } .stk-radar-quads .tr { top:14px; right:16px; }
 .stk-radar-quads .bl { bottom:14px; left:16px; } .stk-radar-quads .br { bottom:14px; right:16px; }
 .stk-radar-note { font-size:11px; color:var(--text-4); line-height:1.6; margin:10px 2px 0; }
+.stk-cmps { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; }
+.stk-cmp { display:inline-flex; align-items:center; gap:6px; padding:3px 6px 3px 7px;
+  border:1px solid var(--border-bright); font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1px; color:var(--text-1); }
+.stk-cmp i { width:7px; height:7px; background:var(--cmp); flex-shrink:0; }
+.stk-cmp-x { background:none; border:none; padding:0 0 0 2px; cursor:pointer; font-size:13px;
+  line-height:1; color:var(--text-4); }
+.stk-cmp-x:hover { color:var(--apt-red); }
+/* In compare mode the percentile bar gives up its column to the extra values. */
+.stk-radar-row.cmp { grid-template-columns:minmax(0,1fr) repeat(3, 34px); }
+.stk-radar-fam-h.cmp { display:grid; grid-template-columns:minmax(0,1fr) repeat(3, 34px);
+  align-items:baseline; }
 .stk-radar-side h3 { font-family:'Instrument Serif',Georgia,serif; font-size:26px; font-weight:400;
   color:var(--text-1); margin:0 0 4px; }
 .stk-radar-hint { font-size:11px; color:var(--text-4); line-height:1.6; margin:0 0 14px; }
@@ -2092,6 +2109,12 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
 .scr-count { margin-left:auto; flex-shrink:0; white-space:nowrap;
   font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); }
 .scr-pane { padding:0 32px 30px; }
+/* Ultrawide: the rail stays pinned left, the working area stops growing. Left
+   aligned rather than centred so the table keeps its edge against the rail. */
+@media (min-width:1700px) {
+  .scr-tool > *:last-child { margin-right:auto; }
+  .scr-tool, .scr-pane, .scr-foot { max-width:1660px; }
+}
 .scr-foot { border-top:1px solid var(--text-1); padding:20px 32px; display:flex;
   justify-content:space-between; gap:16px; font-family:'Space Mono',monospace; font-size:10px;
   letter-spacing:1.5px; color:var(--text-4); }
@@ -2131,26 +2154,35 @@ body.page-stocks .lib-h { display:none; }
 .stk-tk { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.1; color:var(--text-1); }
 .stk-nm { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden;
   text-overflow:ellipsis; min-width:0; }
-.stk-factors { display:flex; gap:5px; align-items:center; padding-left:12px; }
+.stk-factors { display:flex; gap:10px; align-items:center; padding-left:12px; }
+.stk-th-fac { display:flex; gap:10px; padding-left:12px; }
+.stk-th-fac > span { flex:1 1 0; min-width:0; text-align:center; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; }
 .stk-f { flex:1 1 0; min-width:0; display:block; text-align:center; }
-.stk-f-t { display:block; height:3px; background:var(--border-bright); position:relative; }
+.stk-f-t { display:block; height:5px; background:var(--border-bright); position:relative; }
+/* The midline: a bar grows right of it for a positive z and left for a negative
+   one, so zero is readable without a number. */
+.stk-f-t::after { content:''; position:absolute; left:50%; top:-2px; bottom:-2px; width:1px;
+  background:var(--border-bright); }
 .stk-f-t em { position:absolute; top:0; bottom:0; display:block; }
 .stk-f-t em.up { background:var(--apt-red); }
 .stk-f-t em.dn { background:var(--text-4); }
 .stk-f b { display:block; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px;
   color:var(--text-5); font-weight:400; margin-top:3px; }
-.stk-head { display:grid; grid-template-columns:26px minmax(0,1.6fr) minmax(0,0.9fr) 74px 68px minmax(0,1fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
+.stk-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.8fr) 74px 68px minmax(0,2.1fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \\2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \\2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:26px minmax(0,1.6fr) minmax(0,0.9fr) 74px 68px minmax(0,1fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
+.stk-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.8fr) 74px 68px minmax(0,2.1fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
 .stk-row:hover { background:rgba(22,23,31,0.6); }
 .stk-ticker { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
 .stk-name .stk-sub { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--text-4); text-transform:uppercase; margin-top:4px; font-weight:400; }
-.stk-sector { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; padding-top:1px; }
+.stk-sector { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px;
+  color:var(--text-3); text-transform:uppercase; padding-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .stk-cap { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); text-align:right; padding-top:1px; }
 .stk-pct { font-family:'Space Mono',monospace; font-size:12px; text-align:right; padding-top:1px; }
 .stk-pct.stk-pos { color:#34D27A; }
@@ -2367,6 +2399,14 @@ body.page-stocks .lib-h { display:none; }
 .stk-sidebar .stk-weight-presets { padding-top:8px; margin-top:4px; }
 .stk-sidebar .stk-weight-presets-label { font-size:8px; }
 .stk-filter-toggle-count { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; color:var(--apt-rose); text-transform:uppercase; padding:2px 0; }
+
+/* The screener shell scrolls the page, not an inner pane, so it must opt out of
+   the viewport lock below. That lock and the table's own overflow were written
+   for the previous layout, where the body was pinned to 100vh and only the list
+   moved; left in place they simply stop the new page scrolling at all. */
+body.page-stocks.scr-page { overflow:visible; height:auto; }
+body.scr-page .stk-table { overflow:visible; max-height:none; border:none; background:transparent; }
+body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar */
 
 /* Stocks page: lock the page to the viewport so only the list scrolls. */
 body.page-stocks { overflow:hidden; height:100vh; }
@@ -3677,6 +3717,96 @@ STOCKS_JS_TEMPLATE = """
     });
   }
 
+  function rowHtml(s, idx) {
+      const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
+      const isOpen = expanded.has(s.ticker);
+      const arrow = isOpen ? '▾' : '▸';
+      const detailHtml = isOpen ? buildDetail(s) : '';
+      const composite = computeComposite(s);
+      // Four factor bars, centred on zero: a bar grows right of the midline for
+      // a positive z-score and left for a negative one, so the eye reads the
+      // shape of a company's profile without reading four numbers.
+      const bars = [['G', s.g], ['V', s.v], ['M', s.m], ['Q', s.q]].map(function(p) {
+        const z = p[1];
+        const t = p[0] === 'G' ? 'Growth' : p[0] === 'V' ? 'Value' : p[0] === 'M' ? 'Momentum' : 'Quality';
+        if (z == null) return '<span class="stk-f" title="' + t + ': no reading"><i class="stk-f-t"></i></span>';
+        const mag = Math.min(Math.abs(z) / 1.5, 1) * 50;
+        const style = z >= 0 ? 'left:50%;width:' + mag + '%' : 'right:50%;width:' + mag + '%';
+        return '<span class="stk-f" title="' + t + ': ' + z.toFixed(2) + '"><i class="stk-f-t"><em class="' +
+               (z >= 0 ? 'up' : 'dn') + '" style="' + style + '"></em></i></span>';
+      }).join('');
+      return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
+        + '<div class="stk-rank">'+String(idx + 1).padStart(2, '0')+'</div>'
+        + '<div class="stk-id"><span class="stk-tk">'+escapeHtml(s.ticker||'')+'</span>'
+          + '<span class="stk-nm">'+escapeHtml(s.name||'')+'</span></div>'
+        + '<div class="stk-sector" title="'+escapeHtml(s.sector||'')+'">'+escapeHtml(s.sector||'')+'</div>'
+        + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
+        + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
+        + '<div class="stk-factors">'+bars+'</div>'
+        + '<div class="stk-score '+scoreClass(composite)+'">'+fmtScore(composite)+'</div>'
+        + '<div class="stk-date">'+fmtDateMDY(s.earnings_date)+'</div>'
+      + '</div>'
+      + detailHtml;
+  }
+
+  // The universe is 5,000+ names. Painting every one produced a 200,000px
+  // document, which is past the size a compositing layer will paint correctly:
+  // layout stayed right while the screen went blank or drew shifted by a few
+  // hundred pixels. The old page hid this behind an inner overflow container
+  // that capped the painted area; now that the page itself scrolls, the DOM has
+  // to be the thing that stays small. Render a window and extend it on scroll.
+  const PAGE_ROWS = 120;
+  const EXTEND_MARGIN = 900;   // px of runway below the fold to keep filled
+  let windowRows = [];
+  let shownCount = 0;
+
+  function redrawExpanded() {
+    if (!expanded.size) return;
+    requestAnimationFrame(() => {
+      // Only redraw tickers the window has actually painted. An expanded row
+      // that sits beyond the rendered range has no canvas to draw into.
+      const painted = new Set(Array.from(listEl.querySelectorAll('.stk-row'))
+        .map(r => r.dataset.ticker));
+      expanded.forEach(t => {
+        if (!painted.has(t)) return;
+        if (priceCache[t] !== undefined) renderChartsFor(t);
+        else fetchPricesFor(t);
+        if (metaOpenByTicker[t]) renderMetaPanelFor(t);
+      });
+    });
+  }
+
+  function paintMore() {
+    const next = windowRows.slice(shownCount, shownCount + PAGE_ROWS);
+    if (!next.length) return false;
+    listEl.insertAdjacentHTML('beforeend',
+      next.map((s, i) => rowHtml(s, shownCount + i)).join(''));
+    shownCount += next.length;
+    return true;
+  }
+
+  // Keep painting while the bottom of the list sits inside the runway, so a
+  // tall viewport or a short result set fills in one pass. The guard stops a
+  // pathological layout from looping forever.
+  function fillWindow() {
+    let guard = 0, grew = false;
+    while (shownCount < windowRows.length && guard++ < 60) {
+      if (listEl.getBoundingClientRect().bottom > window.innerHeight + EXTEND_MARGIN) break;
+      if (!paintMore()) break;
+      grew = true;
+    }
+    if (grew) redrawExpanded();
+  }
+
+  let extendQueued = false;
+  function onScrollExtend() {
+    if (extendQueued || shownCount >= windowRows.length) return;
+    extendQueued = true;
+    requestAnimationFrame(() => { extendQueued = false; fillWindow(); });
+  }
+  window.addEventListener('scroll', onScrollExtend, { passive: true });
+  window.addEventListener('resize', onScrollExtend, { passive: true });
+
   function render() {
     let filtered = currentFiltered();
     filtered.sort((a, b) => {
@@ -3700,48 +3830,11 @@ STOCKS_JS_TEMPLATE = """
       listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
       return;
     }
-    const rows = filtered.slice(0, 5000).map((s, idx) => {
-      const chgClass = (s.change_pct != null && Number(s.change_pct) < 0) ? 'stk-neg' : 'stk-pos';
-      const isOpen = expanded.has(s.ticker);
-      const arrow = isOpen ? '▾' : '▸';
-      const detailHtml = isOpen ? buildDetail(s) : '';
-      const composite = computeComposite(s);
-      // Four factor bars, centred on zero: a bar grows right of the midline for
-      // a positive z-score and left for a negative one, so the eye reads the
-      // shape of a company's profile without reading four numbers.
-      const bars = [['G', s.g], ['V', s.v], ['M', s.m], ['Q', s.q]].map(function(p) {
-        const z = p[1];
-        if (z == null) return '<span class="stk-f"><i class="stk-f-t"></i><b>' + p[0] + '</b></span>';
-        const mag = Math.min(Math.abs(z) / 1.5, 1) * 50;
-        const style = z >= 0 ? 'left:50%;width:' + mag + '%' : 'right:50%;width:' + mag + '%';
-        return '<span class="stk-f"><i class="stk-f-t"><em class="' +
-               (z >= 0 ? 'up' : 'dn') + '" style="' + style + '"></em></i><b>' + p[0] + '</b></span>';
-      }).join('');
-      return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
-        + '<div class="stk-rank">'+String(idx + 1).padStart(2, '0')+'</div>'
-        + '<div class="stk-id"><span class="stk-tk">'+escapeHtml(s.ticker||'')+'</span>'
-          + '<span class="stk-nm">'+escapeHtml(s.name||'')+'</span></div>'
-        + '<div class="stk-sector">'+escapeHtml(s.sector||'')+'</div>'
-        + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
-        + '<div class="stk-pct '+chgClass+'">'+fmtPct(s.change_pct)+'</div>'
-        + '<div class="stk-factors">'+bars+'</div>'
-        + '<div class="stk-score '+scoreClass(composite)+'">'+fmtScore(composite)+'</div>'
-        + '<div class="stk-date">'+fmtDateMDY(s.earnings_date)+'</div>'
-      + '</div>'
-      + detailHtml;
-    }).join('');
-    listEl.innerHTML = rows;
-    // After the DOM is rebuilt, redraw charts and re-open methodology panels
-    // for any expanded ticker. Defer one frame so canvases have measurable widths.
-    if (expanded.size) {
-      requestAnimationFrame(() => {
-        expanded.forEach(t => {
-          if (priceCache[t] !== undefined) renderChartsFor(t);
-          else fetchPricesFor(t);
-          if (metaOpenByTicker[t]) renderMetaPanelFor(t);
-        });
-      });
-    }
+    windowRows = filtered;
+    shownCount = 0;
+    listEl.innerHTML = '';
+    fillWindow();
+    redrawExpanded();
   }
 
   // Card-level toggles inside the expanded panel reveal source + methodology
@@ -3840,19 +3933,36 @@ STOCKS_JS_TEMPLATE = """
   const filterPanel = document.getElementById('stk-filter-panel');
   const filterToggle = document.getElementById('stk-filter-toggle');
   const filterCountEl = document.getElementById('stk-filter-count');
-  const filterReset = document.getElementById('stk-filter-reset');
+  const filterReset = document.getElementById('stk-filter-reset')
+    || document.getElementById('stk-reset');
   const onlyEnrichedEl = document.getElementById('stk-only-enriched');
 
   function syncFilterCount() {
     const c = activeFilterCount();
-    if (c > 0) {
-      filterCountEl.hidden = false;
+    // The old single "(n active)" badge is gone; the design counts per section
+    // instead, in the red numeral beside each group heading. Both lookups stay
+    // null-tolerant so a future markup change degrades to a missing count
+    // rather than a dead filter panel.
+    if (filterCountEl) {
+      filterCountEl.hidden = c === 0;
       filterCountEl.textContent = '(' + c + ' active)';
-      filterReset.hidden = false;
-    } else {
-      filterCountEl.hidden = true;
-      filterReset.hidden = true;
     }
+    if (filterReset) filterReset.hidden = c === 0;
+    syncSectionCounts();
+  }
+
+  // Each rail group reports how many of its own bounds are set. Derived from
+  // the DOM rather than a server-side key map, so the two cannot drift.
+  function syncSectionCounts() {
+    document.querySelectorAll('.stk-rg').forEach(function(grp) {
+      const badge = grp.querySelector('[data-setcount]');
+      if (!badge) return;
+      let n = 0;
+      grp.querySelectorAll('.stk-filter-input').forEach(function(inp) {
+        if (String(inp.value || '').trim() !== '') n++;
+      });
+      badge.textContent = n ? String(n) : '';
+    });
   }
 
   if (filterToggle && filterPanel) {
@@ -4199,9 +4309,20 @@ STOCKS_JS_TEMPLATE = """
     .slice().sort(function(a,b){ return a.quad - b.quad; })
     .map(function(f){ return f.fields.map(function(k){ return { fam: f.name, key: k }; }); }));
 
-  let radarTicker = null;
+  // Up to three companies overlaid at once. More than three and the polygons
+  // stop being readable against each other, which is the whole point of the view.
+  const RADAR_MAX = 3;
+  const RADAR_COLORS = ['var(--apt-red)', '#2E6F8E', '#B4832B'];
+  let radarTickers = [];
 
-  function drawRadar(s) {
+  function radarAdd(t) {
+    if (!t || radarTickers.indexOf(t) !== -1) return false;
+    if (radarTickers.length >= RADAR_MAX) radarTickers.shift();
+    radarTickers.push(t);
+    return true;
+  }
+
+  function drawRadar(picks) {
     const svg = document.getElementById('stk-radar-svg');
     const note = document.getElementById('stk-radar-note');
     if (!svg) return;
@@ -4229,30 +4350,58 @@ STOCKS_JS_TEMPLATE = """
              '" dominant-baseline="middle" font-size="10" fill="var(--text-4)" ' +
              'font-family="var(--font-ui, inherit)">' + escapeHtml(SPOKE_LABELS[sp.key] || sp.key) + '</text>';
     });
-    // The company itself. Absent spokes break the path rather than being drawn
-    // as zero: "we have no reading" and "it scores nothing" are different claims.
-    const have = [];
-    SPOKES.forEach(function(sp, i) {
-      const v = pctOf(s, sp.key);
-      if (v != null) have.push({ i: i, p: at(i, Math.max(0.04, v / 100)) });
-    });
-    if (have.length >= 3) {
+    // One polygon per company. Absent spokes break the path rather than being
+    // drawn as zero: "we have no reading" and "it scores nothing" are different
+    // claims. Later picks draw on top, with fill opacity low enough that an
+    // overlap still reads as two shapes.
+    const counts = [];
+    picks.forEach(function(s, ci) {
+      const col = RADAR_COLORS[ci % RADAR_COLORS.length];
+      const have = [];
+      SPOKES.forEach(function(sp, i) {
+        const v = pctOf(s, sp.key);
+        if (v != null) have.push({ i: i, p: at(i, Math.max(0.04, v / 100)) });
+      });
+      counts.push({ ticker: s.ticker, n: have.length });
+      if (have.length < 3) return;
       const pts = have.map(function(h) { return h.p.map(Math.round).join(','); }).join(' ');
-      out += '<polygon points="' + pts + '" fill="var(--apt-red)" fill-opacity="0.18" ' +
-             'stroke="var(--apt-red)" stroke-width="2" stroke-linejoin="round"/>';
+      out += '<polygon points="' + pts + '" fill="' + col + '" fill-opacity="' +
+             (picks.length > 1 ? '0.10' : '0.18') + '" stroke="' + col +
+             '" stroke-width="2" stroke-linejoin="round"/>';
       have.forEach(function(h) {
         out += '<circle cx="' + Math.round(h.p[0]) + '" cy="' + Math.round(h.p[1]) +
-               '" r="2.5" fill="var(--apt-red)"/>';
+               '" r="2.5" fill="' + col + '"/>';
       });
-    }
+    });
     svg.innerHTML = out;
     if (note) {
-      note.textContent = have.length + ' of ' + n + ' inputs available. Each spoke is a percentile ' +
-        'against ' + (s.sector || 'sector') + ' peers; the dashed ring is the median. ' +
-        (have.length < n ? 'Gaps are inputs this company has no data for, not zero scores.' : '');
+      if (picks.length === 1) {
+        const s = picks[0], k = counts[0].n;
+        note.textContent = k + ' of ' + n + ' inputs available. Each spoke is a percentile ' +
+          'against ' + (s.sector || 'sector') + ' peers; the dashed ring is the median. ' +
+          (k < n ? 'Gaps are inputs this company has no data for, not zero scores.' : '');
+      } else {
+        note.textContent = 'Each spoke is a percentile against that company\u2019s own sector peers, ' +
+          'so the shapes are comparable even across sectors. Coverage: ' +
+          counts.map(function(c) { return c.ticker + ' ' + c.n + '/' + n; }).join(', ') + '.';
+      }
     }
-    return have.length;
+    return counts;
   }
+
+  // Chip removal is delegated: the chips are rebuilt on every render, so a
+  // listener bound to each one would leak.
+  (function wireRadarChips() {
+    const host = document.getElementById('stk-radar-chips');
+    if (!host) return;
+    host.addEventListener('click', function(e) {
+      const btn = e.target.closest('.stk-cmp-x');
+      if (!btn) return;
+      const t = btn.dataset.drop;
+      radarTickers = radarTickers.filter(function(x) { return x !== t; });
+      renderRadar();
+    });
+  })();
 
   function renderRadar() {
     const side = document.getElementById('stk-radar-breakdown');
@@ -4260,28 +4409,68 @@ STOCKS_JS_TEMPLATE = """
     const hint = document.getElementById('stk-radar-hint');
     const svg = document.getElementById('stk-radar-svg');
     if (!side) return;
-    const s = ALL.find(function(x) { return x.ticker === radarTicker; });
-    if (!s) {
+    const picks = radarTickers
+      .map(function(t) { return ALL.find(function(x) { return x.ticker === t; }); })
+      .filter(Boolean);
+    const chipsEl = document.getElementById('stk-radar-chips');
+
+    if (!picks.length) {
       if (svg) svg.innerHTML = '';
+      if (chipsEl) chipsEl.innerHTML = '';
       if (title) title.textContent = 'Pick a company';
-      if (hint) hint.textContent = 'Search a ticker above to plot it against its sector.';
+      if (hint) hint.textContent = 'Name a ticker above to plot it. Add up to ' + RADAR_MAX +
+        ' to compare them on the same rings.';
       side.innerHTML = '';
       return;
     }
-    if (title) title.textContent = s.ticker + ' against its sector';
-    if (hint) hint.textContent = (s.name || '') + (s.sector ? ' \u00b7 ' + s.sector : ' \u00b7 no sector, so no peer group');
-    drawRadar(s);
-    const famScore = { Growth: s.g, Value: s.v, Momentum: s.m, Quality: s.q };
-    side.innerHTML = RADAR_FAMS.map(function(f) {
-      const sc = famScore[f.name];
-      const rows = f.fields.map(function(k) {
-        const v = pctOf(s, k);
-        return '<div class="stk-radar-row"><span>' + escapeHtml(SPOKE_LABELS[k] || k) + '</span>' +
-          '<span class="stk-radar-bar"><i style="width:' + (v == null ? 0 : v) + '%"></i></span>' +
-          '<span class="stk-radar-val' + (v == null ? ' na' : '') + '">' + (v == null ? '\u2014' : v) + '</span></div>';
+
+    if (title) {
+      title.textContent = picks.length === 1
+        ? picks[0].ticker + ' against its sector'
+        : picks.map(function(s) { return s.ticker; }).join(' vs ');
+    }
+    if (hint) {
+      hint.textContent = picks.length === 1
+        ? (picks[0].name || '') + (picks[0].sector ? ' \u00b7 ' + picks[0].sector
+            : ' \u00b7 no sector, so no peer group')
+        : 'Add up to ' + RADAR_MAX + '. Each is ranked inside its own sector.';
+    }
+    if (chipsEl) {
+      chipsEl.innerHTML = picks.map(function(s, i) {
+        return '<span class="stk-cmp" style="--cmp:' + RADAR_COLORS[i % RADAR_COLORS.length] + '">' +
+          '<i></i>' + escapeHtml(s.ticker) +
+          '<button type="button" class="stk-cmp-x" data-drop="' + escapeHtml(s.ticker) +
+          '" aria-label="Remove ' + escapeHtml(s.ticker) + '">\u00d7</button></span>';
       }).join('');
-      return '<div class="stk-radar-fam"><div class="stk-radar-fam-h"><b>' + f.name + '</b>' +
-        '<span class="stk-radar-val">' + fmtScore(sc) + '</span></div>' + rows + '</div>';
+    }
+
+    drawRadar(picks);
+
+    // Breakdown: one value column per company, colour-keyed to its polygon. The
+    // percentile bar only earns its width when there is a single company.
+    const solo = picks.length === 1;
+    side.innerHTML = RADAR_FAMS.map(function(f) {
+      const famKey = { Growth: 'g', Value: 'v', Momentum: 'm', Quality: 'q' }[f.name];
+      const heads = picks.map(function(s, i) {
+        return '<span class="stk-radar-val" style="color:' +
+          RADAR_COLORS[i % RADAR_COLORS.length] + '">' + fmtScore(s[famKey]) + '</span>';
+      }).join('');
+      const rows = f.fields.map(function(k) {
+        const vals = picks.map(function(s, i) {
+          const v = pctOf(s, k);
+          return '<span class="stk-radar-val' + (v == null ? ' na' : '') + '"' +
+            (solo ? '' : ' style="color:' + RADAR_COLORS[i % RADAR_COLORS.length] + '"') + '>' +
+            (v == null ? '\u2014' : v) + '</span>';
+        }).join('');
+        const bar = solo
+          ? '<span class="stk-radar-bar"><i style="width:' +
+            (pctOf(picks[0], k) == null ? 0 : pctOf(picks[0], k)) + '%"></i></span>'
+          : '';
+        return '<div class="stk-radar-row' + (solo ? '' : ' cmp') + '">' +
+          '<span>' + escapeHtml(SPOKE_LABELS[k] || k) + '</span>' + bar + vals + '</div>';
+      }).join('');
+      return '<div class="stk-radar-fam"><div class="stk-radar-fam-h' + (solo ? '' : ' cmp') + '">' +
+        '<b>' + f.name + '</b>' + heads + '</div>' + rows + '</div>';
     }).join('');
   }
 
@@ -4528,10 +4717,12 @@ STOCKS_JS_TEMPLATE = """
     ALL = Array.isArray(data) ? data : [];
     // Typing an exact ticker also selects it for the radar.
     if (searchEl) {
+      // An exact ticker adds itself to the radar. Adding rather than replacing
+      // is what makes the search box a compare control instead of a picker.
       searchEl.addEventListener('input', function() {
         const q = (searchEl.value || '').trim().toUpperCase();
         const hit = ALL.find(function(x) { return x.ticker === q; });
-        if (hit) { radarTicker = hit.ticker; renderRadar(); }
+        if (hit && radarAdd(hit.ticker)) renderRadar();
       });
     }
     PEER_STATS = buildPeerStats();
@@ -7481,11 +7672,12 @@ def generate_stocks_page(universe):
               <span class="q bl">Value</span><span class="q br">Quality</span>
             </div>
             <svg id="stk-radar-svg" viewBox="0 0 620 620" role="img" aria-label="Factor radar"></svg>
-            <p class="stk-radar-note" id="stk-radar-note"></p>
           </div>
+          <p class="stk-radar-note" id="stk-radar-note"></p>
           <aside class="stk-radar-side">
             <h3 id="stk-radar-title">Pick a company</h3>
-            <p class="stk-radar-hint" id="stk-radar-hint">Name a ticker above to plot it against its sector.</p>
+            <p class="stk-radar-hint" id="stk-radar-hint">Name a ticker above to plot it. Add up to three to compare them on the same rings.</p>
+            <div class="stk-cmps" id="stk-radar-chips"></div>
             <div id="stk-radar-breakdown"></div>
           </aside>
         </div>
@@ -7504,7 +7696,9 @@ def generate_stocks_page(universe):
             <div class="stk-th" data-sort="sector">Sector</div>
             <div class="stk-th desc" data-sort="market_cap">Cap</div>
             <div class="stk-th" data-sort="change_pct">1D</div>
-            <div class="stk-th">G &middot; V &middot; M &middot; Q</div>
+            <div class="stk-th stk-th-fac">
+              <span>Growth</span><span>Value</span><span>Momentum</span><span>Quality</span>
+            </div>
             <div class="stk-th" data-sort="__score__">Score</div>
             <div class="stk-th" data-sort="earnings_date">Earnings</div>
           </div>
