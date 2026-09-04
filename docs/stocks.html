@@ -994,11 +994,11 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--apt-red)" data-setcount="Universe"></span>
   </summary>
   <div style="padding:2px 20px 15px"><div style="margin-bottom:11px">
-  <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Market Cap</div>
+  <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Market Cap ($M)</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="market_cap" data-bound="min" placeholder="300" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="market_cap" data-bound="max" placeholder="10,000" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div></div>
 </details><details class="stk-rg">
@@ -1009,37 +1009,37 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   <div style="padding:2px 20px 15px"><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Revenue Growth YoY</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="min" placeholder="min % (e.g. 10)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="revenue_growth_yoy" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">EPS Growth YoY</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="eps_growth_yoy" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="eps_growth_yoy" data-bound="min" placeholder="min % (e.g. 5)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="eps_growth_yoy" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="eps_growth_yoy" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Revenue Acceleration</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="revenue_acceleration" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="revenue_acceleration" data-bound="min" placeholder="min % (e.g. 0)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="revenue_acceleration" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="revenue_acceleration" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Gross Margin Trend</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="gross_margin_trend" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="gross_margin_trend" data-bound="min" placeholder="min % (e.g. 0)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="gross_margin_trend" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="gross_margin_trend" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">FCF Growth YoY</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="fcf_growth_yoy" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="fcf_growth_yoy" data-bound="min" placeholder="min % (e.g. 0)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="fcf_growth_yoy" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="fcf_growth_yoy" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div></div>
 </details><details class="stk-rg">
@@ -1052,35 +1052,35 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   <div style="display:flex;align-items:center;gap:7px">
     <input class="stk-filter-input" data-filter="pe" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="pe" data-bound="max" placeholder="max (e.g. 30)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">EV/EBITDA</div>
   <div style="display:flex;align-items:center;gap:7px">
     <input class="stk-filter-input" data-filter="ev_ebitda" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="ev_ebitda" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="ev_ebitda" data-bound="max" placeholder="max (e.g. 20)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">EV/Revenue</div>
   <div style="display:flex;align-items:center;gap:7px">
     <input class="stk-filter-input" data-filter="ev_revenue" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="ev_revenue" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="ev_revenue" data-bound="max" placeholder="max (e.g. 8)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Price/Book</div>
   <div style="display:flex;align-items:center;gap:7px">
     <input class="stk-filter-input" data-filter="price_book" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="price_book" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="price_book" data-bound="max" placeholder="max (e.g. 5)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">FCF Yield</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="fcf_yield" data-bound="min" placeholder="min % (e.g. 5)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="fcf_yield" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div></div>
 </details><details class="stk-rg">
@@ -1091,37 +1091,37 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   <div style="padding:2px 20px 15px"><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">12-2 Month Return</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="return_12_2" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="return_12_2" data-bound="min" placeholder="min % (e.g. 10)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="return_12_2" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="return_12_2" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">1-Month Return</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="return_1m" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="return_1m" data-bound="min" placeholder="min %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="return_1m" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="return_1m" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">52W High Proximity</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="high52w_proximity" data-bound="min" placeholder="min % (e.g. -30)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="high52w_proximity" data-bound="max" placeholder="max % (e.g. -5)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Rel Strength vs S&P</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="rel_strength_sp500" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="rel_strength_sp500" data-bound="min" placeholder="min %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="rel_strength_sp500" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="rel_strength_sp500" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Volume Trend</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="volume_trend" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="volume_trend" data-bound="min" placeholder="min %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="volume_trend" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="volume_trend" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div></div>
 </details><details class="stk-rg">
@@ -1132,51 +1132,51 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   <div style="padding:2px 20px 15px"><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">ROE (TTM)</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="roe_ttm" data-bound="min" placeholder="min % (e.g. 15)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="roe_ttm" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Earnings Consistency</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="earnings_consistency" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="earnings_consistency" data-bound="min" placeholder="min (0 to 1)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
     <input class="stk-filter-input" data-filter="earnings_consistency" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Net Debt/EBITDA</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="min" placeholder="min (e.g. -1)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="net_debt_ebitda" data-bound="max" placeholder="max (e.g. 3)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Op Margin Stability</div>
   <div style="display:flex;align-items:center;gap:7px">
     <input class="stk-filter-input" data-filter="op_margin_stability" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="op_margin_stability" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="op_margin_stability" data-bound="max" placeholder="max (e.g. 0.05)" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Accruals Ratio</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="accruals_ratio" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="accruals_ratio" data-bound="min" placeholder="min %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="accruals_ratio" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="accruals_ratio" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Gross Margin</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="gross_margin" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="gross_margin" data-bound="min" placeholder="min %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="gross_margin" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="gross_margin" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div><div style="margin-bottom:11px">
   <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">Operating Margin</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="operating_margin" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="operating_margin" data-bound="min" placeholder="min %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="operating_margin" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="operating_margin" data-bound="max" placeholder="max %" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div></div>
 </details></div>
@@ -1374,6 +1374,9 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     let val = n * mult;
     // For percent-coded fields, treat bare numbers as percent (10 -> 0.10)
     if (PCT_FIELDS.has(field) && mult === 1) val = val / 100;
+    // For money fields, a bare number is millions, which is the unit the labels
+    // now state. Anything carrying an explicit suffix already means what it says.
+    else if (CAP_FIELDS.has(field) && mult === 1) val = val * 1e6;
     return val;
   }
 
@@ -2803,9 +2806,10 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       // Convert back from data units to display units for percent fields
       if (PCT_FIELDS.has(f)) inp.value = (dataVal * 100).toString();
       else if (CAP_FIELDS.has(f)) {
-        if (dataVal >= 1e9) inp.value = (dataVal / 1e9) + 'B';
-        else if (dataVal >= 1e6) inp.value = (dataVal / 1e6) + 'M';
-        else inp.value = String(dataVal);
+        // Millions, bare, matching what the field asks for. Writing "300M"
+        // here would read as 300 million millions against a label saying $M.
+        const m = dataVal / 1e6;
+        inp.value = String(Math.round(m * 1000) / 1000);
       } else inp.value = String(dataVal);
     });
     // Toggles + select

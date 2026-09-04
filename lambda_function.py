@@ -2794,6 +2794,9 @@ STOCKS_JS_TEMPLATE = """
     let val = n * mult;
     // For percent-coded fields, treat bare numbers as percent (10 -> 0.10)
     if (PCT_FIELDS.has(field) && mult === 1) val = val / 100;
+    // For money fields, a bare number is millions, which is the unit the labels
+    // now state. Anything carrying an explicit suffix already means what it says.
+    else if (CAP_FIELDS.has(field) && mult === 1) val = val * 1e6;
     return val;
   }
 
@@ -4223,9 +4226,10 @@ STOCKS_JS_TEMPLATE = """
       // Convert back from data units to display units for percent fields
       if (PCT_FIELDS.has(f)) inp.value = (dataVal * 100).toString();
       else if (CAP_FIELDS.has(f)) {
-        if (dataVal >= 1e9) inp.value = (dataVal / 1e9) + 'B';
-        else if (dataVal >= 1e6) inp.value = (dataVal / 1e6) + 'M';
-        else inp.value = String(dataVal);
+        // Millions, bare, matching what the field asks for. Writing "300M"
+        // here would read as 300 million millions against a label saying $M.
+        const m = dataVal / 1e6;
+        inp.value = String(Math.round(m * 1000) / 1000);
       } else inp.value = String(dataVal);
     });
     // Toggles + select
@@ -8115,7 +8119,7 @@ def generate_stories(briefs):
 #   "int"   -> bare integers; counts
 FILTER_PANEL = [
     {"title": "Universe",        "open": True,  "rows": [
-        {"label": "Market Cap",            "key": "market_cap",         "type": "cap",   "placeholder_min": "min (e.g. 300M)", "placeholder_max": "max (e.g. 10B)", "tier_chips": True},
+        {"label": "Market Cap ($M)",       "key": "market_cap",         "type": "cap",   "placeholder_min": "300", "placeholder_max": "10,000", "tier_chips": True},
     ]},
     {"title": "Growth",          "open": False, "rows": [
         {"label": "Revenue Growth YoY",    "key": "revenue_growth_yoy", "type": "pct",   "placeholder_min": "min % (e.g. 10)",  "placeholder_max": "max %"},
@@ -8243,9 +8247,9 @@ def generate_stocks_page(universe):
                 f'''<div style="margin-bottom:11px">
   <div style="font-family:\'Space Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px">{row["label"]}</div>
   <div style="display:flex;align-items:center;gap:7px">
-    <input class="stk-filter-input" data-filter="{row["key"]}" data-bound="min" placeholder="min" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="{row["key"]}" data-bound="min" placeholder="{row.get("placeholder_min", "min")}" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
     <span style="color:var(--text-4);font-size:10px">to</span>
-    <input class="stk-filter-input" data-filter="{row["key"]}" data-bound="max" placeholder="max" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
+    <input class="stk-filter-input" data-filter="{row["key"]}" data-bound="max" placeholder="{row.get("placeholder_max", "max")}" style="width:100%;min-width:0;background:transparent;border:none;border-bottom:1px solid var(--border-bright);outline:none;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text-1);padding:2px 0">
   </div>
 </div>''')
         opened = " open" if sec.get("open") else ""
