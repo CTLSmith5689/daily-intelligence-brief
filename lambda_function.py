@@ -708,13 +708,17 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
 
     all_items = []
     stale_count = 0
+    per_feed = {}
     for category, url in RSS_FEEDS.items():
+        raw_items = 0
+        kept_here = 0
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "IntelBrief/1.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 xml_data = resp.read().decode("utf-8")
             root = ET.fromstring(xml_data)
             feed_items = _extract_feed_items(root)
+            raw_items = len(feed_items)
             fresh_count = 0
             for title, source, pub_date, link in feed_items:
                 if fresh_count >= max_per_feed:
@@ -740,10 +744,34 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
                     "link": link,
                 })
                 fresh_count += 1
+            kept_here = fresh_count
+            per_feed[category] = {"raw": raw_items, "kept": kept_here, "error": None}
         except Exception as e:
+            per_feed[category] = {"raw": 0, "kept": 0, "error": str(e)}
             print(f"RSS fetch error for {category}: {e}")
 
-    print(f"Recency filter: kept {len(all_items)} articles, dropped {stale_count} stale (>{max_age_hours}h old)")
+    live = sum(1 for r in per_feed.values() if r["kept"])
+    print(f"Recency filter: kept {len(all_items)} articles from {live}/{len(RSS_FEEDS)} feeds, "
+          f"dropped {stale_count} stale (>{max_age_hours}h old)")
+
+    # A feed that parses fine and yields nothing is the dangerous case: it looks
+    # exactly like a quiet news day. Name it so a persistent one is visible in
+    # the log rather than inferred from a total.
+    empty = sorted(c for c, r in per_feed.items() if not r["error"] and r["raw"] == 0)
+    all_stale = sorted(c for c, r in per_feed.items()
+                       if not r["error"] and r["raw"] > 0 and r["kept"] == 0)
+    broken = sorted(c for c, r in per_feed.items() if r["error"])
+    if empty:
+        print(f"RSS: {len(empty)} feed(s) parsed but returned no items at all: {', '.join(empty)}. "
+              f"A source answering 200 with an empty body looks identical to a quiet day here; "
+              f"if the same name persists across runs, treat it as dead.")
+    if all_stale:
+        print(f"RSS: {len(all_stale)} feed(s) returned only items older than {max_age_hours}h: "
+              f"{', '.join(all_stale)}.")
+    if broken:
+        print(f"RSS: {len(broken)} feed(s) failed outright: {', '.join(broken)}.")
+    if not all_items:
+        print("RSS: ALL feeds returned nothing. That is a pipeline failure, not a quiet news day.")
     return all_items
 
 
@@ -5824,7 +5852,12 @@ def _save_news_fetch_log(log):
 
 def fetch_company_news(ticker, name="", max_items=15):
     """Pull recent news for a ticker from Google News RSS. Returns list of
-    {title, source, link, ts (unix int)}. Empty list on any failure."""
+    {title, source, link, ts (unix int)}.
+
+    Returns None if the fetch itself failed, and [] if the fetch succeeded and
+    the company genuinely has no recent coverage. The caller must not persist
+    the first case: overwriting a good file with an empty one feeds a false zero
+    into news_count_7d and therefore into the neglect score."""
     import urllib.parse as _up
     if not ticker:
         return []
@@ -5846,7 +5879,7 @@ def fetch_company_news(ticker, name="", max_items=15):
             xml_data = resp.read().decode("utf-8", errors="replace")
         root = ET.fromstring(xml_data)
     except Exception:
-        return []
+        return None
     items = []
     for item in root.findall(".//item")[:max_items * 2]:
         title = (item.findtext("title") or "").strip()
@@ -5923,28 +5956,44 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     def process(s):
         try:
             items = fetch_company_news(s["ticker"], s.get("name", ""))
+            if items is None:
+                # Leave whatever is on disk alone. A stale file is a better
+                # answer than a file that says this company has no coverage.
+                return s["ticker"], 0, True
             (NEWS_DIR / _news_filename(s["ticker"])).write_text(
                 json.dumps(items, separators=(",", ":")), encoding="utf-8"
             )
-            return s["ticker"], len(items)
+            return s["ticker"], len(items), False
         except Exception:
-            return s["ticker"], 0
+            return s["ticker"], 0, True
 
     fetched = 0
+    news_errors = 0
+    empty_ok = 0
     t0 = time.time()
     stamp = datetime.now(timezone.utc).isoformat()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, s) for s in todo]
         for f in as_completed(futures):
-            sym, n = f.result()
+            sym, n, failed = f.result()
+            if failed:
+                news_errors += 1
+                continue
             if n > 0:
                 fetched += 1
                 # Stamped on the main thread as results arrive, so the manifest
                 # needs no lock and only ever records genuine successes.
                 fetch_log[sym.upper()] = stamp
+            else:
+                empty_ok += 1
     _save_news_fetch_log(fetch_log)
     elapsed = time.time() - t0
-    print(f"news: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s ({skipped} cached < {max_age_hours}h).")
+    print(f"news: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s "
+          f"({skipped} cached < {max_age_hours}h, {empty_ok} genuinely no coverage, "
+          f"{news_errors} fetch failures left untouched).")
+    if news_errors and news_errors > len(todo) * 0.5:
+        print(f"news: WARNING, {news_errors} of {len(todo)} fetches failed. "
+              f"Treat news_count_7d and the neglect score as unreliable for this run.")
     return fetched
 
 
@@ -6508,7 +6557,11 @@ def _sec_throttle():
 def _fetch_recent_form4_filings(cik):
     """Read /submissions/CIK{cik}.json and return a list of recent Form 4
     filings within the lookback window. Each entry is
-    {accession, filing_date, primary_doc}. Returns [] on failure."""
+    {accession, filing_date, primary_doc}.
+
+    Returns None if the submissions fetch failed, and [] if it succeeded and the
+    company simply has no Form 4 in the window. Collapsing the two is how an SEC
+    outage came to be logged as "no insider activity" for every ticker at once."""
     _sec_throttle()
     try:
         url = EDGAR_SUBMISSIONS_URL.format(cik=int(cik))
@@ -6516,7 +6569,7 @@ def _fetch_recent_form4_filings(cik):
         with urllib.request.urlopen(req, timeout=20) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except Exception:
-        return []
+        return None
     recent = (data.get("filings", {}) or {}).get("recent", {}) or {}
     forms = recent.get("form") or []
     accessions = recent.get("accessionNumber") or []
@@ -6607,8 +6660,13 @@ def _parse_form4_xml(cik, accession, primary_doc):
 def fetch_insider_form4(cik):
     """Top-level per-ticker Form 4 fetch. Returns list of normalized transactions
     over the last _INSIDER_LOOKBACK_DAYS, capped to _INSIDER_MAX_DOCS_PER_TICKER
-    most recent filings. Empty list on any failure or no Form 4 activity."""
+    most recent filings. Empty list when the company has no Form 4 activity.
+
+    Raises if the SEC fetch failed, so the caller counts it as an error rather
+    than as an absence of insider trading."""
     filings = _fetch_recent_form4_filings(cik)
+    if filings is None:
+        raise IOError(f"SEC submissions fetch failed for CIK {cik}")
     if not filings:
         return []
     txs = []
@@ -6740,7 +6798,18 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
             else:
                 no_activity += 1
     elapsed = time.time() - t0
-    print(f"Insider Form 4 enrichment: signals for {enriched}/{len(matched)} tickers ({no_activity} no activity, {errors} errors) in {elapsed:.1f}s.")
+    print(f"Insider Form 4 enrichment: signals for {enriched}/{len(matched)} tickers "
+          f"({no_activity} no activity, {errors} errors) in {elapsed:.1f}s.")
+    # Insider buying is sparse, but not this sparse. Across several hundred large
+    # caps some Form 4 activity is a near certainty in any 90-day window, so a
+    # universal blank is a broken parser or a blocked IP, not a quiet market.
+    if matched and enriched == 0:
+        print(f"Insider: WARNING, 0 of {len(matched)} tickers produced a signal. "
+              f"Across this many large caps that is a fetch or parse failure, "
+              f"not an absence of insider trading.")
+    elif errors and errors > len(matched) * 0.25:
+        print(f"Insider: WARNING, {errors} of {len(matched)} fetches failed; "
+              f"insider fields are incomplete for this run.")
     return enriched
 
 
@@ -7161,14 +7230,15 @@ def get_or_generate_stocks_universe():
             return False
         return y == iso_year and w == iso_week
 
+    # Reported, not gated. enrich_with_edgar stamps edgar_updated only on a
+    # successful fetch, so a ticker with no CIK or no companyfacts is never
+    # stamped and this count can never reach zero. The old skip branch was
+    # unreachable and its message claimed a decision the code never made. The
+    # per-ticker is_fresh check inside the pass is what actually saves the work.
     stale = sum(1 for s in stocks if not _edgar_is_current(s))
-    has_op_margin_history = any(s.get("op_margin_history") for s in stocks)
-    has_benford_mad = any((s.get("benford") or {}).get("mad") is not None for s in stocks)
-    should_run_edgar = stale > 0 or not has_op_margin_history or not has_benford_mad
-    if not should_run_edgar:
-        print("EDGAR: every ticker stamped this week, skipping.")
-    else:
-        print(f"EDGAR: {stale} of {len(stocks)} tickers need a pull.")
+    should_run_edgar = True
+    print(f"EDGAR: {stale} of {len(stocks)} tickers unstamped for this week; "
+          f"the pass filters per ticker.")
     edgar_count = 0
     cik_map = None
     if should_run_edgar:
@@ -7229,7 +7299,7 @@ def get_or_generate_stocks_universe():
 
     # Per-ticker daily price history (1y) for the chart card. 24h cache, bulk
     # download via yf.download in batches so we hit Yahoo once per ~200 tickers.
-    price_count = enrich_with_prices(stocks)
+    enrich_with_prices(stocks)
 
     total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
     total_with_price = sum(1 for s in stocks if s.get("price"))
@@ -7610,7 +7680,6 @@ def generate_stocks_page(universe):
     (S&P 500/400/600), optionally enriched with live FMP quote data."""
     stocks = universe.get("stocks", []) or []
     iso_week = universe.get("date") or universe.get("iso_week", "")
-    enriched = universe.get("enriched", False)
     source = universe.get("source", "wikipedia")
 
     sectors = sorted({(s.get("sector") or "").strip() for s in stocks if (s.get("sector") or "").strip()})
@@ -7644,7 +7713,6 @@ def generate_stocks_page(universe):
     sectors_json = json.dumps(sectors)
     indexes_json = json.dumps(indexes)
 
-    enrich_note = "Live price, market cap, 1d %, and P/E from Yahoo Finance. " if enriched else ""
     meta_line = f"Updated {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
 
     # ---- The screener rail, built from FILTER_PANEL ----------------------
