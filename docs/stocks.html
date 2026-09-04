@@ -13,9 +13,12 @@
 // Apply persisted theme before stylesheet renders to avoid a flash.
 (function(){
   try {
-    var t = localStorage.getItem('apt-theme');
-    // Light is the default: the screener design is a light design. An explicit
-    // stored choice still wins in both directions.
+    // The screener design is a light design, so light is the default. Anyone
+    // who used the site before the redesign has a stale 'dark' in storage from
+    // when dark WAS the default, and would otherwise land on a palette that was
+    // never tuned for it. Migrate once: the pre-redesign key is ignored, and a
+    // v2 key records only a deliberate choice made since.
+    var t = localStorage.getItem('apt-theme-v2');
     document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
   } catch (e) {}
 })();
@@ -423,6 +426,32 @@ h1.hero-title {
   border:1px solid var(--text-1); padding:6px 9px; font-family:'Space Mono',monospace; font-size:10px;
   line-height:1.5; white-space:nowrap; z-index:5; }
 .stk-chart-foot { font-size:11px; color:var(--text-4); margin:10px 2px 0; }
+.stk-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0;
+  border-bottom:1px solid var(--text-1); margin-bottom:0; }
+.stk-hero-l { padding:26px 34px 30px 0; }
+.stk-hero-r { padding:26px 0 30px 34px; border-left:1px solid var(--text-1); }
+.stk-hero-num { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:60px;
+  line-height:1.02; letter-spacing:-0.5px; color:var(--text-1); margin:0 0 16px; max-width:12ch; }
+.stk-hero-num .dot { color:var(--apt-red); }
+.stk-hero-blurb { font-size:13px; line-height:1.75; color:var(--text-3); margin:0; max-width:48ch; }
+.stk-hero-q { font-family:'Space Mono',monospace; font-size:12px; line-height:2.1;
+  color:var(--text-3); margin:0 0 30px; max-width:56ch; }
+.stk-q { font-family:inherit; font-size:inherit; background:none; border:none; padding:0 0 2px;
+  cursor:pointer; color:var(--text-1); border-bottom:2px solid var(--apt-red); }
+.stk-q:hover { color:var(--apt-red); }
+.stk-q.on { color:var(--apt-red); }
+.stk-hero-stats { display:flex; gap:40px; align-items:baseline; }
+.stk-hero-stats .n { display:block; font-family:'Instrument Serif',Georgia,serif; font-size:34px;
+  line-height:1; color:var(--text-1); }
+.stk-hero-stats .n.hot { color:var(--apt-red); }
+.stk-hero-stats .k { display:block; font-family:'Space Mono',monospace; font-size:9px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--text-4); margin-top:7px; }
+@media (max-width:900px) {
+  .stk-hero { grid-template-columns:1fr; }
+  .stk-hero-l { padding-right:0; }
+  .stk-hero-r { padding-left:0; border-left:none; border-top:1px solid var(--text-1); }
+  .stk-hero-num { font-size:40px; }
+}
 .stk-masthead { display:flex; align-items:baseline; gap:14px; padding:0 0 14px; }
 .stk-mast-name { font-family:'Instrument Serif',Georgia,serif; font-size:27px; line-height:1; color:var(--text-1); }
 .stk-mast-sub { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
@@ -466,6 +495,18 @@ h1.hero-title {
    fills behind the toolbar, and the ticker set in a serif at reading size so
    the eye lands on the company before the numbers. */
 body.page-stocks .lib.lib-wide { background:transparent; border:none; box-shadow:none; padding:0; }
+body.page-stocks .lib-search { background:transparent; border:none; border-bottom:1px solid var(--border-bright);
+  border-radius:0; box-shadow:none; }
+body.page-stocks .lib-chip { background:transparent; border:1px solid var(--border-bright); border-radius:0;
+  font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; padding:4px 9px; }
+body.page-stocks .lib-chip.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
+body.page-stocks .lib-chip-label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px;
+  color:var(--text-4); }
+body.page-stocks .stk-sidebar { background:transparent; border:none; border-right:1px solid var(--border-bright);
+  border-radius:0; box-shadow:none; padding-right:18px; }
+body.page-stocks .stk-sidebar-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2.5px;
+  text-transform:uppercase; color:var(--text-1); border-bottom:1px solid var(--text-1); padding-bottom:8px; }
+body.page-stocks .stk-views-switch { border-color:var(--text-1); }
 body.page-stocks .lib-h { display:none; }
 .stk-toprow { display:flex; align-items:center; gap:14px; flex-wrap:wrap;
   padding:0 0 12px; border-bottom:1px solid var(--text-1); background:transparent; }
@@ -820,6 +861,26 @@ body.page-stocks .footer { display:none; }
   <div class="lib-h">
     <h2>Stocks.</h2>
     <span class="lib-count" id="stk-count">5336 stocks</span>
+  </div>
+  <div class="stk-hero">
+    <div class="stk-hero-l">
+      <h1 class="stk-hero-num" id="stk-hero-num">&nbsp;</h1>
+      <p class="stk-hero-blurb">Every US listing, ranked four ways at once. Growth, value,
+      momentum and quality, each scored against sector peers rather than the whole market,
+      because a cheap utility and a cheap chipmaker are not the same animal.</p>
+    </div>
+    <div class="stk-hero-r">
+      <p class="stk-hero-q">Show me
+        <button type="button" class="stk-q" data-q="cap">any size</button> companies that look
+        <button type="button" class="stk-q" data-q="value">cheap</button>, in
+        <button type="button" class="stk-q" data-q="sector">any sector</button>, that Wall Street is
+        <button type="button" class="stk-q" data-q="neglect">ignoring</button>.</p>
+      <div class="stk-hero-stats">
+        <div><span class="n" id="stk-stat-match">&mdash;</span><span class="k">Match</span></div>
+        <div><span class="n hot" id="stk-stat-scored">&mdash;</span><span class="k">Scored</span></div>
+        <div><span class="n" id="stk-stat-median">&mdash;</span><span class="k">Median score</span></div>
+      </div>
+    </div>
   </div>
   <div class="stk-masthead">
     <span class="stk-mast-name">The Screen</span>
@@ -1190,7 +1251,7 @@ body.page-stocks .footer { display:none; }
     btn.addEventListener('click', () => {
       const next = (root.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
       root.setAttribute('data-theme', next);
-      try { localStorage.setItem('apt-theme', next); } catch(e) {}
+      try { localStorage.setItem('apt-theme-v2', next); } catch(e) {}
       syncIcon();
       // Re-render any open charts (they cache colors at draw time).
       if (window.__aptRedrawCharts) window.__aptRedrawCharts();
@@ -2244,6 +2305,7 @@ body.page-stocks .footer { display:none; }
       if (activeSector && s.sector !== activeSector) return false;
       if (activeIndex && s.index !== activeIndex) return false;
       if (!passesFilters(s)) return false;
+      if (queryValueCheap && !(s.v != null && s.v > 0)) return false;
       if (!q) return true;
       return ((s.ticker||'')+' '+(s.name||'')+' '+(s.sector||'')+' '+(s.sub_industry||'')).toLowerCase().includes(q);
     });
@@ -2264,6 +2326,7 @@ body.page-stocks .footer { display:none; }
       if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
       return (av - bv) * sortDir;
     });
+    renderHero(filtered);
     countEl.textContent = filtered.length === ALL.length
       ? String(ALL.length) + ' stocks'
       : String(filtered.length) + ' of ' + String(ALL.length) + ' stocks';
@@ -3029,6 +3092,57 @@ body.page-stocks .footer { display:none; }
       document.querySelectorAll('.stk-sort').forEach(function(x) {
         x.classList.toggle('active', x.dataset.sortby === key);
       });
+      render();
+    });
+  });
+
+  // The headline count is spelled out, which is the design's whole tone: a
+  // number you read rather than parse. Only up to the tens of thousands, which
+  // is far past any plausible universe size.
+  const ONES = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+    'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+  const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  function spell(n) {
+    if (n == null) return '';
+    if (n < 20) return ONES[n];
+    if (n < 100) return TENS[Math.floor(n/10)] + (n % 10 ? '-' + ONES[n % 10] : '');
+    if (n < 1000) return ONES[Math.floor(n/100)] + ' hundred' + (n % 100 ? ' ' + spell(n % 100) : '');
+    return spell(Math.floor(n/1000)) + ' thousand' + (n % 1000 ? ' ' + spell(n % 1000) : '');
+  }
+  function cap1(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+  function renderHero(filtered) {
+    const numEl = document.getElementById('stk-hero-num');
+    if (numEl) {
+      numEl.innerHTML = escapeHtml(cap1(spell(filtered.length))) + '<span class="dot">.</span>';
+    }
+    const scored = filtered.filter(function(s) { return s.scorable; });
+    const comps = scored.map(computeComposite).filter(function(v) { return v != null; }).sort(function(a,b){return a-b;});
+    const median = comps.length ? comps[Math.floor(comps.length / 2)] : null;
+    const set = function(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('stk-stat-match', filtered.length.toLocaleString());
+    set('stk-stat-scored', scored.length.toLocaleString());
+    set('stk-stat-median', median == null ? '—' : fmtScore(median));
+  }
+
+  // The query sentence is a real control, not decoration: each underlined term
+  // drives the same filter state the sidebar does.
+  const QUERY_TERMS = {
+    cap:     { off:'any size',   on:'large-cap',  apply(on) { filters['market_cap'] = on ? {min:1e10, max:null} : {min:null,max:null}; } },
+    value:   { off:'any price',  on:'cheap',      apply(on) { queryValueCheap = on; } },
+    sector:  { off:'any sector', on:'any sector', apply() {} },
+    neglect: { off:'anyone',     on:'ignoring',   apply(on) { filters['neglect_score'] = on ? {min:0.5, max:null} : {min:null,max:null}; } },
+  };
+  let queryValueCheap = false;
+  document.querySelectorAll('.stk-q').forEach(function(b) {
+    const term = QUERY_TERMS[b.dataset.q];
+    if (!term) return;
+    b.textContent = term.off;
+    b.addEventListener('click', function() {
+      const on = !b.classList.contains('on');
+      b.classList.toggle('on', on);
+      b.textContent = on ? term.on : term.off;
+      term.apply(on);
       render();
     });
   });

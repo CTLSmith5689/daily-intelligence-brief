@@ -13,9 +13,12 @@
 // Apply persisted theme before stylesheet renders to avoid a flash.
 (function(){
   try {
-    var t = localStorage.getItem('apt-theme');
-    // Light is the default: the screener design is a light design. An explicit
-    // stored choice still wins in both directions.
+    // The screener design is a light design, so light is the default. Anyone
+    // who used the site before the redesign has a stale 'dark' in storage from
+    // when dark WAS the default, and would otherwise land on a palette that was
+    // never tuned for it. Migrate once: the pre-redesign key is ignored, and a
+    // v2 key records only a deliberate choice made since.
+    var t = localStorage.getItem('apt-theme-v2');
     document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
   } catch (e) {}
 })();
@@ -423,6 +426,32 @@ h1.hero-title {
   border:1px solid var(--text-1); padding:6px 9px; font-family:'Space Mono',monospace; font-size:10px;
   line-height:1.5; white-space:nowrap; z-index:5; }
 .stk-chart-foot { font-size:11px; color:var(--text-4); margin:10px 2px 0; }
+.stk-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0;
+  border-bottom:1px solid var(--text-1); margin-bottom:0; }
+.stk-hero-l { padding:26px 34px 30px 0; }
+.stk-hero-r { padding:26px 0 30px 34px; border-left:1px solid var(--text-1); }
+.stk-hero-num { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:60px;
+  line-height:1.02; letter-spacing:-0.5px; color:var(--text-1); margin:0 0 16px; max-width:12ch; }
+.stk-hero-num .dot { color:var(--apt-red); }
+.stk-hero-blurb { font-size:13px; line-height:1.75; color:var(--text-3); margin:0; max-width:48ch; }
+.stk-hero-q { font-family:'Space Mono',monospace; font-size:12px; line-height:2.1;
+  color:var(--text-3); margin:0 0 30px; max-width:56ch; }
+.stk-q { font-family:inherit; font-size:inherit; background:none; border:none; padding:0 0 2px;
+  cursor:pointer; color:var(--text-1); border-bottom:2px solid var(--apt-red); }
+.stk-q:hover { color:var(--apt-red); }
+.stk-q.on { color:var(--apt-red); }
+.stk-hero-stats { display:flex; gap:40px; align-items:baseline; }
+.stk-hero-stats .n { display:block; font-family:'Instrument Serif',Georgia,serif; font-size:34px;
+  line-height:1; color:var(--text-1); }
+.stk-hero-stats .n.hot { color:var(--apt-red); }
+.stk-hero-stats .k { display:block; font-family:'Space Mono',monospace; font-size:9px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--text-4); margin-top:7px; }
+@media (max-width:900px) {
+  .stk-hero { grid-template-columns:1fr; }
+  .stk-hero-l { padding-right:0; }
+  .stk-hero-r { padding-left:0; border-left:none; border-top:1px solid var(--text-1); }
+  .stk-hero-num { font-size:40px; }
+}
 .stk-masthead { display:flex; align-items:baseline; gap:14px; padding:0 0 14px; }
 .stk-mast-name { font-family:'Instrument Serif',Georgia,serif; font-size:27px; line-height:1; color:var(--text-1); }
 .stk-mast-sub { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
@@ -466,6 +495,18 @@ h1.hero-title {
    fills behind the toolbar, and the ticker set in a serif at reading size so
    the eye lands on the company before the numbers. */
 body.page-stocks .lib.lib-wide { background:transparent; border:none; box-shadow:none; padding:0; }
+body.page-stocks .lib-search { background:transparent; border:none; border-bottom:1px solid var(--border-bright);
+  border-radius:0; box-shadow:none; }
+body.page-stocks .lib-chip { background:transparent; border:1px solid var(--border-bright); border-radius:0;
+  font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; padding:4px 9px; }
+body.page-stocks .lib-chip.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
+body.page-stocks .lib-chip-label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px;
+  color:var(--text-4); }
+body.page-stocks .stk-sidebar { background:transparent; border:none; border-right:1px solid var(--border-bright);
+  border-radius:0; box-shadow:none; padding-right:18px; }
+body.page-stocks .stk-sidebar-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2.5px;
+  text-transform:uppercase; color:var(--text-1); border-bottom:1px solid var(--text-1); padding-bottom:8px; }
+body.page-stocks .stk-views-switch { border-color:var(--text-1); }
 body.page-stocks .lib-h { display:none; }
 .stk-toprow { display:flex; align-items:center; gap:14px; flex-wrap:wrap;
   padding:0 0 12px; border-bottom:1px solid var(--text-1); background:transparent; }
@@ -1011,7 +1052,7 @@ body.page-stocks .footer { display:none; }
     btn.addEventListener('click', () => {
       const next = (root.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
       root.setAttribute('data-theme', next);
-      try { localStorage.setItem('apt-theme', next); } catch(e) {}
+      try { localStorage.setItem('apt-theme-v2', next); } catch(e) {}
       syncIcon();
       // Re-render any open charts (they cache colors at draw time).
       if (window.__aptRedrawCharts) window.__aptRedrawCharts();
