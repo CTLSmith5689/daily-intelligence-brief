@@ -704,6 +704,34 @@ def _extract_feed_items(root):
     return results
 
 
+# Scripts that do not appear in an English headline. Latin accents are absent
+# from this deliberately, so Nestle with an acute and Soderberg with an umlaut
+# both pass.
+_NON_LATIN_SCRIPTS = re.compile(
+    "[\u0400-\u04FF"      # Cyrillic
+    "\u0590-\u05FF"       # Hebrew
+    "\u0600-\u06FF"       # Arabic
+    "\u0700-\u074F"       # Syriac
+    "\u0900-\u097F"       # Devanagari
+    "\u0E00-\u0E7F"       # Thai
+    "\u3040-\u30FF"       # Hiragana and Katakana
+    "\u4E00-\u9FFF"       # CJK
+    "\uAC00-\uD7AF]"      # Hangul
+)
+
+
+def _is_english(*parts):
+    """True unless the text carries enough non-Latin script to be another language.
+
+    Google News formats a title as "Headline - Source", so a foreign outlet
+    shows up in the title even when the words are English. Three characters is
+    past the point where a stray symbol could trip it and well short of any real
+    foreign headline or masthead.
+    """
+    text = " ".join(p for p in parts if p)
+    return len(_NON_LATIN_SCRIPTS.findall(text)) < 3
+
+
 def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
     """Fetch headlines from all RSS feeds (RSS + Atom), filtered by recency."""
     now_utc = datetime.now(timezone.utc)
@@ -716,6 +744,7 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
     for category, url in RSS_FEEDS.items():
         raw_items = 0
         kept_here = 0
+        non_english = 0
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "IntelBrief/1.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
@@ -727,6 +756,11 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
             for title, source, pub_date, link in feed_items:
                 if fresh_count >= max_per_feed:
                     break
+
+                # English-language outlets only, whatever the feed hands back.
+                if not _is_english(title, source):
+                    non_english += 1
+                    continue
 
                 # Filter by recency, drop articles older than the cutoff
                 parsed_date = parse_rss_date(pub_date)
@@ -749,9 +783,10 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
                 })
                 fresh_count += 1
             kept_here = fresh_count
-            per_feed[category] = {"raw": raw_items, "kept": kept_here, "error": None}
+            per_feed[category] = {"raw": raw_items, "kept": kept_here,
+                                  "foreign": non_english, "error": None}
         except Exception as e:
-            per_feed[category] = {"raw": 0, "kept": 0, "error": str(e)}
+            per_feed[category] = {"raw": 0, "kept": 0, "foreign": 0, "error": str(e)}
             print(f"RSS fetch error for {category}: {e}")
 
     live = sum(1 for r in per_feed.values() if r["kept"])
@@ -774,6 +809,9 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
               f"{', '.join(all_stale)}.")
     if broken:
         print(f"RSS: {len(broken)} feed(s) failed outright: {', '.join(broken)}.")
+    foreign = sum(r.get("foreign", 0) for r in per_feed.values())
+    if foreign:
+        print(f"RSS: dropped {foreign} headline(s) from non-English sources.")
     if not all_items:
         print("RSS: ALL feeds returned nothing. That is a pipeline failure, not a quiet news day.")
     return all_items
@@ -1679,52 +1717,59 @@ body::after {
 :root[data-theme="light"] .theme-toggle:hover { background:rgba(20,18,14,0.05); }
 .theme-toggle-icon { display:inline-block; }
 
-.hero { max-width:1200px; margin:0 auto; padding:44px 0 34px; }
+.hero { max-width:1200px; margin:0 auto; padding:26px 0 20px;
+  display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:0 46px;
+  align-items:end; border-bottom:1px solid var(--text-1); }
+.hero-r { padding-bottom:4px; }
+@media (max-width:900px) {
+  .hero { grid-template-columns:1fr; gap:18px; padding:20px 0 16px; }
+  .hero-r { padding-bottom:0; }
+}
 .eyebrow {
-  display:inline-flex; align-items:center; gap:8px; padding:0 0 5px; border-radius:0;
-  background:none; border:none; border-bottom:1px solid var(--apt-red);
-  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2.5px; color:var(--text-3);
-  text-transform:uppercase; margin-bottom:26px;
+  display:inline-flex; align-items:center; gap:7px; padding:0; border-radius:0;
+  background:none; border:none;
+  font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2.5px; color:var(--text-4);
+  text-transform:uppercase; margin-bottom:10px;
 }
 .eyebrow .live-dot { width:6px; height:6px; border-radius:50%; background:#34D27A; }
 
 /* The masthead voice: one serif line, black on cream, no gradient fill. The
    gradient was tuned for a dark ground and read as washed-out pink on this one. */
 h1.hero-title {
-  font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:76px; line-height:1.0;
-  letter-spacing:-0.5px; margin-bottom:22px; max-width:15ch; color:var(--text-1);
+  font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:42px; line-height:1.05;
+  letter-spacing:-0.3px; margin:0; max-width:20ch; color:var(--text-1);
 }
 h1.hero-title em { font-style:italic; color:var(--apt-red); }
-@media (max-width:900px) { h1.hero-title { font-size:46px; max-width:none; } }
+@media (max-width:900px) { h1.hero-title { font-size:32px; max-width:none; } }
 @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
 
-.hero-sub { font-size:14px; line-height:1.75; color:var(--text-3); max-width:56ch;
-  margin-bottom:30px; font-weight:400; }
-.hero-actions { display:flex; gap:22px; flex-wrap:wrap; align-items:center; }
+.hero-sub { font-size:12.5px; line-height:1.65; color:var(--text-3); max-width:52ch;
+  margin:0 0 14px; font-weight:400; }
+.hero-actions { display:flex; gap:20px; flex-wrap:wrap; align-items:baseline; }
 /* A ruled word, matching the screener's controls. The gradient pill with a
    glow belonged to the dark design and was the loudest thing on the page. */
 .btn-primary {
   padding:0 0 3px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px;
+  white-space:nowrap;
   text-transform:uppercase; background:none; color:var(--text-1);
   border:none; border-bottom:2px solid var(--apt-red); border-radius:0; cursor:pointer;
   display:inline-flex; align-items:center; gap:8px; text-decoration:none; box-shadow:none;
 }
 .btn-primary:hover { color:var(--apt-red); }
 .btn-secondary {
-  padding:14px 24px; font-size:14px; font-weight:500;
-  background:rgba(255,255,255,0.04); color:var(--text-1);
-  border:1px solid var(--border-bright); border-radius:12px;
-  cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px;
-  text-decoration:none;
+  padding:0 0 3px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; background:none; color:var(--text-3);
+  border:none; border-bottom:1px solid var(--border-bright); border-radius:0;
+  cursor:pointer; display:inline-flex; align-items:center; gap:7px; text-decoration:none;
 }
-.btn-secondary:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.20); }
+.btn-secondary:hover { color:var(--text-1); border-bottom-color:var(--text-1); }
 
 .featured { max-width:1200px; margin:0 auto; padding:32px 24px 64px; }
 .featured-card {
   position:relative;
   background:var(--bg-1);
   border:1px solid var(--text-1); border-radius:0;
-  padding:34px; overflow:hidden;
+  padding:24px 26px; overflow:hidden;
 }
 /* The gradient border ring went with the dark design. A single hairline says
    the same thing here and does not fight the type. */
@@ -1781,9 +1826,9 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
 
 .features { max-width:1200px; margin:0 auto; padding:0 0 56px; }
 .features-h { display:flex; justify-content:space-between; align-items:baseline; gap:26px;
-  flex-wrap:wrap; margin:0 0 26px; padding:34px 0 14px; border-bottom:1px solid var(--text-1); }
-.features-h h2 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:42px;
-  letter-spacing:-0.3px; line-height:1.08; max-width:18ch; color:var(--text-1); }
+  flex-wrap:wrap; margin:0 0 20px; padding:26px 0 12px; border-bottom:1px solid var(--text-1); }
+.features-h h2 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:30px;
+  letter-spacing:-0.2px; line-height:1.08; max-width:18ch; color:var(--text-1); }
 .features-h p { font-size:13px; color:var(--text-3); line-height:1.7; max-width:44ch; margin:0; }
 
 .section-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }
@@ -1823,9 +1868,9 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
 
 .editions { max-width:1200px; margin:0 auto; padding:0 0 56px; }
 .editions-h { display:flex; justify-content:space-between; align-items:baseline; gap:26px;
-  flex-wrap:wrap; margin:0 0 30px; padding:34px 0 16px; border-bottom:1px solid var(--text-1); }
-.editions-h h2 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:46px;
-  letter-spacing:-0.4px; line-height:1.06; color:var(--text-1); max-width:16ch; }
+  flex-wrap:wrap; margin:0 0 22px; padding:26px 0 12px; border-bottom:1px solid var(--text-1); }
+.editions-h h2 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:32px;
+  letter-spacing:-0.2px; line-height:1.08; color:var(--text-1); max-width:22ch; }
 .editions-h p { font-size:13px; color:var(--text-3); line-height:1.7; max-width:44ch; margin:0; }
 .edition-block { margin-bottom:48px; }
 .edition-head { display:flex; align-items:baseline; gap:12px; margin-bottom:16px;
@@ -1848,9 +1893,9 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
 .lib.lib-wide .lib-h h2 { font-size:32px; }
 .lib.lib-wide { max-width:min(1640px, 96vw); }
 .lib-h { display:flex; justify-content:space-between; align-items:baseline; gap:14px;
-  flex-wrap:wrap; margin:0 0 20px; padding:34px 0 14px; border-bottom:1px solid var(--text-1); }
-.lib-h h2 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:44px;
-  letter-spacing:-0.3px; line-height:1.08; color:var(--text-1); }
+  flex-wrap:wrap; margin:0 0 16px; padding:26px 0 12px; border-bottom:1px solid var(--text-1); }
+.lib-h h2 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:32px;
+  letter-spacing:-0.2px; line-height:1.08; color:var(--text-1); }
 .lib-h .lib-count { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
   color:var(--text-4); text-transform:uppercase; padding:0; border:none; }
 
@@ -6398,6 +6443,9 @@ def fetch_company_news(ticker, name="", max_items=15):
         source = (item.findtext("source") or "").strip()
         if not title or not link:
             continue
+        # Same rule as the site feeds: a company's news should be readable.
+        if not _is_english(title, source):
+            continue
         parsed = parse_rss_date(pub_date)
         ts = int(parsed.timestamp()) if parsed else 0
         clean_title = title[:200]
@@ -7912,12 +7960,16 @@ def generate_home(briefs, recent_trends):
 
     body = f"""
 <section class="hero">
-  <div class="eyebrow"><span class="live-dot"></span>{eyebrow_text}</div>
-  <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
-  <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a filterable universe of US-listed stocks.</p>
-  <div class="hero-actions">
-    <a class="btn-primary" href="./today.html">Read today's briefs <span style="font-size:16px">&rarr;</span></a>
-    <a class="btn-secondary" href="./stories.html">Browse stories <span style="font-size:16px">&rarr;</span></a>
+  <div class="hero-l">
+    <div class="eyebrow"><span class="live-dot"></span>{eyebrow_text}</div>
+    <h1 class="hero-title">Regular Briefs and Curated&nbsp;Stories</h1>
+  </div>
+  <div class="hero-r">
+    <p class="hero-sub">Finance, Politics, Tech, and more. Apterreon's three-times-daily intelligence brief, plus a running story library and a filterable universe of US-listed stocks.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="./today.html">Read today's briefs &rarr;</a>
+      <a class="btn-secondary" href="./stories.html">Browse stories &rarr;</a>
+    </div>
   </div>
 </section>
 
