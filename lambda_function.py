@@ -453,10 +453,14 @@ RSS_FEEDS = {
     "Boston": "https://news.google.com/rss/search?q=Boston+Massachusetts+local+news&hl=en-US&gl=US&ceid=US:en",
     # ── Direct source feeds (reputable, guaranteed quality) ─────────────────
     # Finance & Markets
-    "Reuters Biz": "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com+business+OR+markets&hl=en-US&gl=US&ceid=US:en",
-    "Bloomberg": "https://news.google.com/rss/search?q=when:24h+allinurl:bloomberg.com+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
-    "WSJ Markets": "https://news.google.com/rss/search?q=when:24h+allinurl:wsj.com+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
-    "FT Markets": "https://news.google.com/rss/search?q=when:24h+allinurl:ft.com+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
+    # Publisher-scoped feeds use site:, never allinurl:. allinurl: is a Google
+    # Search operator that Google News RSS silently ignores, answering 200 with a
+    # valid but empty feed, so a query using it reads as a permanently quiet news
+    # day. These four sat at zero items for as long as they have existed.
+    "Reuters Biz": "https://news.google.com/rss/search?q=site:reuters.com+when:2d+business+OR+markets&hl=en-US&gl=US&ceid=US:en",
+    "Bloomberg": "https://news.google.com/rss/search?q=site:bloomberg.com+when:2d+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
+    "WSJ Markets": "https://news.google.com/rss/search?q=site:wsj.com+when:2d+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
+    "FT Markets": "https://news.google.com/rss/search?q=site:ft.com+when:2d+markets+OR+economy&hl=en-US&gl=US&ceid=US:en",
     # Institutional / Pensions
     # pionline.com's own feed now returns a hard 403 to every user agent, from
     # both CI and residential IPs. Google News still indexes them, so reach the
