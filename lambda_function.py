@@ -2044,6 +2044,17 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
    stay visible when switched away from. Re-assert it for the view containers. */
 .stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden], .stk-hero[hidden] { display:none !important; }
 .stk-chart { display:block; }
+.stk-focus { display:flex; align-items:center; flex-wrap:nowrap; gap:7px; margin:0 0 12px;
+  height:24px; overflow:hidden; }
+.stk-focus-hint { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.2px;
+  text-transform:uppercase; color:var(--text-4); white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; }
+.stk-focus-lab { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--text-4); margin-right:3px; }
+.stk-focus-clear { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  text-transform:uppercase; background:none; border:none; cursor:pointer; color:var(--text-4);
+  border-bottom:1px solid transparent; padding:0 0 2px; margin-left:4px; }
+.stk-focus-clear:hover { color:var(--apt-red); border-bottom-color:var(--apt-red); }
 .stk-lenses { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
 .stk-lens { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
   padding:5px 10px; cursor:pointer; border:1px solid var(--border-bright); background:transparent; color:var(--text-3); }
@@ -4397,15 +4408,68 @@ STOCKS_JS_TEMPLATE = """
 
   // Up to three companies overlaid at once. More than three and the polygons
   // stop being readable against each other, which is the whole point of the view.
-  const RADAR_MAX = 3;
-  const RADAR_COLORS = ['var(--apt-red)', '#2E6F8E', '#B4832B'];
+  const RADAR_MAX = 3;     // polygons the radar can overlay and stay readable
+  const FOCUS_MAX = 6;     // companies the focus can hold, one per distinct colour
+  const RADAR_COLORS = ['var(--apt-red)', '#2E6F8E', '#B4832B',
+                        '#4C7A5A', '#8A5A9B', '#A8562F'];
+  // The single selection. radarTickers keeps its name because every radar call
+  // site already reads it; it is the focus list now, and the radar takes the
+  // first RADAR_MAX of it.
   let radarTickers = [];
+
+  function focusIndexOf(t) { return radarTickers.indexOf(t); }
+  function focusColor(t) {
+    const i = focusIndexOf(t);
+    return i < 0 ? null : RADAR_COLORS[i % RADAR_COLORS.length];
+  }
 
   function radarAdd(t) {
     if (!t || radarTickers.indexOf(t) !== -1) return false;
-    if (radarTickers.length >= RADAR_MAX) radarTickers.shift();
+    if (radarTickers.length >= FOCUS_MAX) radarTickers.shift();
     radarTickers.push(t);
     return true;
+  }
+
+  // Plain click replaces the selection, the way clicking a row in any list
+  // does. A modifier extends it, and clicking a company already in the set
+  // removes it, so the same gesture undoes itself.
+  function focusToggle(t, additive) {
+    if (!t) return;
+    if (!additive) {
+      radarTickers = (radarTickers.length === 1 && radarTickers[0] === t) ? [] : [t];
+    } else {
+      const i = radarTickers.indexOf(t);
+      if (i >= 0) radarTickers.splice(i, 1);
+      else {
+        if (radarTickers.length >= FOCUS_MAX) radarTickers.shift();
+        radarTickers.push(t);
+      }
+    }
+    renderFocusBar();
+    drawChart();
+    if (currentView === 'radar') renderRadar();
+  }
+
+  function renderFocusBar() {
+    const bar = document.getElementById('stk-focus');
+    if (!bar) return;
+    if (!radarTickers.length) {
+      bar.innerHTML = '<span class="stk-focus-hint">Click a company to focus it, ctrl-click to add more</span>';
+      return;
+    }
+    const byTicker = {};
+    for (const s of ALL) byTicker[s.ticker] = s;
+    bar.hidden = false;
+    bar.innerHTML =
+      '<span class="stk-focus-lab">Focus</span>' +
+      radarTickers.map(function(t, i) {
+        const s = byTicker[t] || { ticker: t, name: '' };
+        return '<span class="stk-cmp" style="--cmp:' + RADAR_COLORS[i % RADAR_COLORS.length] + '">' +
+          '<i></i>' + escapeHtml(s.ticker) +
+          '<button type="button" class="stk-cmp-x" data-drop="' + escapeHtml(t) +
+          '" aria-label="Remove ' + escapeHtml(t) + '">\u00d7</button></span>';
+      }).join('') +
+      '<button type="button" class="stk-focus-clear" id="stk-focus-clear">Clear</button>';
   }
 
   function drawRadar(picks) {
@@ -4478,6 +4542,23 @@ STOCKS_JS_TEMPLATE = """
   // Chip removal is delegated: the chips are rebuilt on every render, so a
   // listener bound to each one would leak.
   (function wireRadarChips() {
+    const focusBar = document.getElementById('stk-focus');
+    if (focusBar && !focusBar.dataset.wired) {
+      focusBar.dataset.wired = '1';
+      focusBar.addEventListener('click', function(e) {
+        if (e.target.id === 'stk-focus-clear') {
+          radarTickers = [];
+          renderFocusBar(); drawChart();
+          if (currentView === 'radar') renderRadar();
+          return;
+        }
+        const x = e.target.closest('[data-drop]');
+        if (!x) return;
+        radarTickers = radarTickers.filter(function(t) { return t !== x.dataset.drop; });
+        renderFocusBar(); drawChart();
+        if (currentView === 'radar') renderRadar();
+      });
+    }
     const host = document.getElementById('stk-radar-chips');
     if (!host) return;
     host.addEventListener('click', function(e) {
@@ -4495,7 +4576,8 @@ STOCKS_JS_TEMPLATE = """
     const hint = document.getElementById('stk-radar-hint');
     const svg = document.getElementById('stk-radar-svg');
     if (!side) return;
-    const picks = radarTickers
+    // The focus can hold more than the radar can legibly overlay.
+    const picks = radarTickers.slice(0, RADAR_MAX)
       .map(function(t) { return ALL.find(function(x) { return x.ticker === t; }); })
       .filter(Boolean);
     const chipsEl = document.getElementById('stk-radar-chips');
@@ -4628,7 +4710,7 @@ STOCKS_JS_TEMPLATE = """
   const TETRA_LABEL = { g: 'Growth', v: 'Value', m: 'Momentum', q: 'Quality' };
   const TETRA_EDGES = [['g','v'],['g','m'],['g','q'],['v','m'],['v','q'],['m','q']];
   const RT3 = Math.sqrt(3);
-  let yaw = 0.62, pitch = -0.32, spinRAF = null;
+  let yaw = 0.62, pitch = -0.32, spinRAF = null, suppressNextClick = false;
   // Honour the OS setting rather than offering motion this reader has already
   // said they do not want.
   const REDUCED_MOTION = window.matchMedia &&
@@ -4716,19 +4798,40 @@ STOCKS_JS_TEMPLATE = """
   // proj is [{x, y, s}] in canvas pixels. Hits are pushed for every point even
   // in density mode, so hovering still names the nearest company rather than
   // only the ones drawn on top.
+  // Focused points, drawn on top of whatever cloud style was used, in their
+  // focus colour with the ticker beside them.
+  function paintFocused(ctx, proj) {
+    if (!radarTickers.length) return;
+    ctx.font = "10px 'Space Mono', monospace";
+    for (const q of proj) {
+      const col = focusColor(q.s.ticker);
+      if (!col) continue;
+      ctx.beginPath(); ctx.arc(q.x, q.y, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = col; ctx.globalAlpha = 1; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = col;
+      ctx.beginPath(); ctx.arc(q.x, q.y, 9, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = col;
+      ctx.fillText(q.s.ticker, q.x + 12, q.y + 3.5);
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function paintCloud(ctx, proj, ink, hits, capMaxIn) {
     if (!proj.length) return;
     const capMax = capMaxIn ||
       Math.max.apply(null, proj.map(function(p) { return p.s.market_cap || 0; })) || 1;
+    // With a selection live the rest of the cloud is context, not the subject.
+    const ctxDim = radarTickers.length ? 0.45 : 1;
 
     if (proj.length <= DENSITY_ABOVE) {
       for (const q of proj) {
         const r = 2 + Math.sqrt((q.s.market_cap || 0) / capMax) * 9;
         ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = ink; ctx.globalAlpha = 0.30; ctx.fill();
+        ctx.fillStyle = ink; ctx.globalAlpha = 0.30 * ctxDim; ctx.fill();
         hits.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
       }
       ctx.globalAlpha = 1;
+      paintFocused(ctx, proj);
       return;
     }
 
@@ -4748,7 +4851,7 @@ STOCKS_JS_TEMPLATE = """
     // the sparse tail is where the interesting companies are.
     ctx.fillStyle = ink;
     bins.forEach(function(b) {
-      ctx.globalAlpha = 0.06 + Math.sqrt(b.n / maxN) * 0.60;
+      ctx.globalAlpha = (0.06 + Math.sqrt(b.n / maxN) * 0.60) * ctxDim;
       ctx.fillRect(b.x, b.y, CELL - 1, CELL - 1);
     });
     ctx.globalAlpha = 1;
@@ -4760,9 +4863,10 @@ STOCKS_JS_TEMPLATE = """
     for (const q of top) {
       const r = 2.5 + Math.sqrt((q.s.market_cap || 0) / capMax) * 7;
       ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = ink; ctx.globalAlpha = 0.62; ctx.fill();
+      ctx.fillStyle = ink; ctx.globalAlpha = 0.62 * ctxDim; ctx.fill();
     }
     ctx.globalAlpha = 1;
+    paintFocused(ctx, proj);
   }
 
   // One 2D panel inside an arbitrary box, so the single-lens view and the
@@ -4900,10 +5004,14 @@ STOCKS_JS_TEMPLATE = """
       // overlapping pair, so it has to be visible without being loud.
       const t = Math.max(0, Math.min(1, (q.z + vertMax) / (vertMax * 2)));
       ctx.beginPath(); ctx.arc(q.x, q.y, Math.max(r, 1), 0, Math.PI * 2);
-      ctx.fillStyle = ink; ctx.globalAlpha = 0.14 + t * 0.30; ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.globalAlpha = (0.14 + t * 0.30) * (radarTickers.length ? 0.45 : 1);
+      ctx.fill();
       chartHit.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
     }
     ctx.globalAlpha = 1;
+    // After the cage and the cloud, so a selected company is never buried.
+    paintFocused(ctx, proj);
 
     // Vertex labels last, on top of everything.
     ctx.font = "10px 'Space Mono', monospace";
@@ -5136,6 +5244,7 @@ STOCKS_JS_TEMPLATE = """
       // A deliberate turn parks the shape where the reader put it. Spin, if it
       // was on, stays off until they ask for it again.
       if (moved >= 4) {
+        suppressNextClick = true;
         spin = false;
         const b = document.getElementById('stk-spin');
         if (b) b.classList.remove('active');
@@ -5164,6 +5273,22 @@ STOCKS_JS_TEMPLATE = """
       tip.innerHTML = escapeHtml(best.s.ticker) + '<br>' + escapeHtml(best.s.name || '');
     });
     cv.addEventListener('mouseleave', function() { tip.hidden = true; });
+
+    cv.addEventListener('click', function(e) {
+      // A rotation ends with a click event too. Ignore the one that follows a
+      // drag, or turning the 3D map would reselect whatever ended up under the
+      // cursor.
+      if (suppressNextClick) { suppressNextClick = false; return; }
+      const b = cv.getBoundingClientRect();
+      const mx = e.clientX - b.left, my = e.clientY - b.top;
+      let best = null, bd = 1e9;
+      for (const h of chartHit) {
+        const d = (h.x - mx) * (h.x - mx) + (h.y - my) * (h.y - my);
+        if (d < bd && d < (h.r + 7) * (h.r + 7)) { bd = d; best = h; }
+      }
+      if (!best) return;
+      focusToggle(best.s.ticker, e.ctrlKey || e.metaKey || e.shiftKey);
+    });
   })();
 
   let currentView = 'list';
@@ -5326,6 +5451,7 @@ STOCKS_JS_TEMPLATE = """
     // one the reader is asking to see, and staying put while clearing the box
     // made the click read as broken.
     radarAdd(ticker);
+    renderFocusBar();
     setView('radar');
     if (searchEl) searchEl.value = '';
     if (clearEl) clearEl.hidden = true;
@@ -8407,6 +8533,7 @@ def generate_stocks_page(universe):
         <div id="stk-chart" class="stk-chart" hidden>
           <div class="stk-lenses" id="stk-lenses"></div>
           <p class="stk-chart-blurb" id="stk-chart-blurb"></p>
+          <div class="stk-focus" id="stk-focus"></div>
           <div class="stk-chart-plot">
             <span class="ax tl"></span><span class="ax tr"></span>
             <span class="ax bl"></span><span class="ax br"></span>

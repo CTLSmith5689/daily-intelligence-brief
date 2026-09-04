@@ -436,6 +436,17 @@ h1.hero-title em { font-style:italic; color:var(--apt-red); }
    stay visible when switched away from. Re-assert it for the view containers. */
 .stk-chart[hidden], .stk-radar[hidden], .stk-table[hidden], .stk-hero[hidden] { display:none !important; }
 .stk-chart { display:block; }
+.stk-focus { display:flex; align-items:center; flex-wrap:nowrap; gap:7px; margin:0 0 12px;
+  height:24px; overflow:hidden; }
+.stk-focus-hint { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.2px;
+  text-transform:uppercase; color:var(--text-4); white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; }
+.stk-focus-lab { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--text-4); margin-right:3px; }
+.stk-focus-clear { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  text-transform:uppercase; background:none; border:none; cursor:pointer; color:var(--text-4);
+  border-bottom:1px solid transparent; padding:0 0 2px; margin-left:4px; }
+.stk-focus-clear:hover { color:var(--apt-red); border-bottom-color:var(--apt-red); }
 .stk-lenses { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
 .stk-lens { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
   padding:5px 10px; cursor:pointer; border:1px solid var(--border-bright); background:transparent; color:var(--text-3); }
