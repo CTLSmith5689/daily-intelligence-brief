@@ -527,30 +527,43 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-view-btn + .stk-view-btn { border-left:1px solid var(--border-bright); }
 .stk-view-btn.active { background:var(--text-1); color:var(--bg-base); }
 .stk-map { display:flex; flex-direction:column; min-width:0; }
-.stk-map-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px;
-  padding:0 0 9px; margin-bottom:11px; border-bottom:1px solid var(--text-1);
-  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
-.stk-map-hint { font-size:9px; letter-spacing:1.2px; color:var(--text-4); text-transform:none; }
+/* One band for all three columns, so their contents start on the same line.
+   Two rows: a label, and a line of detail under it. */
+.stk-col-h { display:flex; flex-direction:column; justify-content:flex-end; gap:4px;
+  height:52px; padding-bottom:9px; margin-bottom:12px;
+  border-bottom:1px solid var(--text-1); }
+.stk-col-h-1 { display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-1); }
+.stk-col-h-1 h3 { font-family:'Instrument Serif',Georgia,serif; font-size:20px; font-weight:400;
+  letter-spacing:-0.2px; text-transform:none; color:var(--text-1); margin:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.stk-col-h-2 { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.1px;
+  color:var(--text-4); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .stk-map-spin { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px;
   text-transform:uppercase; background:none; border:1px solid var(--border-bright); cursor:pointer;
   color:var(--text-3); padding:2px 7px; margin-left:9px; }
 .stk-map-spin.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
-.stk-map-plot { position:relative; flex:1; min-height:420px;
+/* One height for both plots, so the map and the rings end on the same line. */
+.stk-radar { --pane-h:432px; }
+.stk-map-plot { position:relative; height:var(--pane-h);
   border:1px solid var(--border); background:var(--surface-1); }
 .stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
 .stk-map-foot { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
   color:var(--text-4); margin:9px 0 0; }
 .stk-radar { display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
-  grid-template-rows:auto auto; align-items:start; gap:0 22px;
+  grid-template-rows:auto auto auto; align-items:start; gap:0 22px;
   align-items:start; justify-content:start; }
-.stk-radar > .stk-map { grid-column:1; grid-row:1 / span 2; }
-.stk-radar > .stk-radar-plot { grid-column:2; grid-row:1; }
-.stk-radar > .stk-radar-note { grid-column:2; grid-row:2; }
-.stk-radar > .stk-radar-note { grid-column:1; grid-row:2; max-width:720px; }
-.stk-radar > .stk-radar-side { grid-column:3; grid-row:1 / span 2; }
-.stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1);
+.stk-radar > .stk-map { grid-column:1; grid-row:1 / span 3; }
+.stk-radar > .stk-rings-h { grid-column:2; grid-row:1; }
+.stk-radar > .stk-radar-plot { grid-column:2; grid-row:2; }
+.stk-radar > .stk-radar-note { grid-column:2; grid-row:3; }
+.stk-radar > .stk-radar-side { grid-column:3; grid-row:1 / span 3; }
+.stk-radar-plot { position:relative; height:var(--pane-h); display:flex;
+  align-items:center; justify-content:center;
+  border:1px solid var(--border); background:var(--surface-1);
   padding:14px; max-width:720px; }
-.stk-radar-plot svg { width:100%; height:auto; display:block; }
+.stk-radar-plot svg { width:auto; height:100%; max-width:100%; display:block; }
 .stk-radar-quads .q { position:absolute; font-family:'Space Mono',monospace; font-size:10px;
   letter-spacing:2px; text-transform:uppercase; color:var(--text-3); }
 .stk-radar-quads .tl { top:14px; left:16px; } .stk-radar-quads .tr { top:14px; right:16px; }
@@ -572,7 +585,9 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-radar-side h3 { font-family:'Instrument Serif',Georgia,serif; font-size:26px; font-weight:400;
   color:var(--text-1); margin:0 0 4px; }
 .stk-radar-hint { font-size:11px; color:var(--text-4); line-height:1.6; margin:0 0 14px; }
-.stk-picklist { border-top:1px solid var(--text-1); max-height:min(72vh, 760px); overflow-y:auto; }
+.stk-radar-side .stk-cmps:empty { display:none; }
+.stk-picklist { border-top:1px solid var(--text-1); overflow-y:auto;
+  max-height:calc(var(--pane-h) + 30px); }
 .stk-pick-h { position:sticky; top:0; background:var(--bg-base); z-index:1;
   font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
   color:var(--text-4); padding:7px 2px 6px; border-bottom:1px solid var(--border); }
@@ -690,7 +705,7 @@ a.scr-brand { text-decoration:none; color:inherit; }
   letter-spacing:1.5px; color:var(--text-4); }
 @media (max-width:1200px) {
   .stk-radar { grid-template-columns:1fr; grid-template-rows:auto; }
-  .stk-radar > .stk-map, .stk-radar > .stk-radar-plot,
+  .stk-radar > .stk-map, .stk-radar > .stk-rings-h, .stk-radar > .stk-radar-plot,
   .stk-radar > .stk-radar-note, .stk-radar > .stk-radar-side {
     grid-column:1; grid-row:auto; }
   .stk-map { margin-bottom:26px; }
