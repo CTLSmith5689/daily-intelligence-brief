@@ -507,6 +507,8 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   text-transform:uppercase; font-weight:400; color:var(--text-2); }
 .stk-radar-row { display:grid; grid-template-columns:1fr 46px 26px; gap:8px; align-items:center;
   font-size:11px; color:var(--text-3); padding:2px 0; }
+.stk-radar-foot { font-size:10px; line-height:1.5; color:var(--text-4); margin:8px 0 0;
+  padding-top:7px; border-top:1px solid var(--border); }
 .stk-radar-bar { height:2px; background:var(--border-bright); position:relative; }
 .stk-radar-bar i { position:absolute; inset:0 auto 0 0; background:var(--apt-red); display:block; }
 .stk-radar-val { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-2); text-align:right; }
@@ -1296,7 +1298,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   const DATA_URL = "stocks-data.json";
   // Order of the positional `pct` array on each stock, matching SCORE_FIELDS in
   // lambda_function.py. Index into it rather than looking up by name.
-  const PCT_ORDER = ["revenue_growth_yoy", "eps_growth_yoy", "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy", "pe", "ev_ebitda", "ev_revenue", "price_book", "fcf_yield", "return_12_2", "return_1m", "high52w_proximity", "rel_strength_sp500", "volume_trend", "roe_ttm", "earnings_consistency", "net_debt_ebitda", "op_margin_stability", "accruals_ratio"];
+  const PCT_ORDER = ["revenue_growth_yoy", "eps_growth_yoy", "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy", "pe", "ev_ebitda", "ev_revenue", "price_book", "fcf_yield", "return_12_2", "return_1m", "high52w_proximity", "rel_strength_sp500", "volume_trend", "roe_ttm", "earnings_consistency", "net_debt_ebitda", "op_margin_stability", "accruals_ratio", "news_vader_avg", "news_lm_avg", "news_count_7d", "neglect_score"];
   const pctOf = (s, field) => {
     if (!s.pct) return null;
     const i = PCT_ORDER.indexOf(field);
@@ -2938,6 +2940,11 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   // the pipeline computes. The design this is ported from generated these
   // numbers by hashing the ticker, which produced a pleasing shape and meant
   // nothing; the shape here is only as complete as the data behind it.
+  const RADAR_EXTRA = [
+    { key: 'news_vader_avg',  label: 'Headline tone' },
+    { key: 'news_count_7d',   label: 'News volume 7d' },
+    { key: 'neglect_score',   label: 'Neglect' },
+  ];
   const RADAR_FAMS = [
     { name: 'Momentum', quad: 2, fields: ['return_12_2','return_1m','high52w_proximity','rel_strength_sp500','volume_trend'] },
     { name: 'Growth',   quad: 3, fields: ['revenue_growth_yoy','eps_growth_yoy','revenue_acceleration','gross_margin_trend','fcf_growth_yoy'] },
@@ -3121,7 +3128,33 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       }).join('');
       return '<div class="stk-radar-fam"><div class="stk-radar-fam-h' + (solo ? '' : ' cmp') + '">' +
         '<b>' + f.name + '</b>' + heads + '</div>' + rows + '</div>';
+    }).join('') + radarExtraBlock(picks, solo);
+  }
+
+  // Sentiment and coverage, ranked against sector peers like everything above,
+  // but kept in their own block rather than given a spoke. A fifth spoke would
+  // read as a fifth factor, and headline tone is not one: it is not in any
+  // dimension and not in the composite. Separating it says so without a
+  // footnote.
+  function radarExtraBlock(picks, solo) {
+    const rows = RADAR_EXTRA.map(function(x) {
+      const vals = picks.map(function(s, i) {
+        const v = pctOf(s, x.key);
+        return '<span class="stk-radar-val' + (v == null ? ' na' : '') + '"' +
+          (solo ? '' : ' style="color:' + RADAR_COLORS[i % RADAR_COLORS.length] + '"') + '>' +
+          (v == null ? '—' : v) + '</span>';
+      }).join('');
+      const p0 = pctOf(picks[0], x.key);
+      const bar = solo
+        ? '<span class="stk-radar-bar"><i style="width:' + (p0 == null ? 0 : p0) + '%"></i></span>'
+        : '';
+      return '<div class="stk-radar-row' + (solo ? '' : ' cmp') + '">' +
+        '<span>' + escapeHtml(x.label) + '</span>' + bar + vals + '</div>';
     }).join('');
+    return '<div class="stk-radar-fam"><div class="stk-radar-fam-h' + (solo ? '' : ' cmp') + '">' +
+      '<b>Coverage</b></div>' + rows +
+      '<p class="stk-radar-foot">Percentiles against sector peers, the same as above. ' +
+      'These are shown, not scored: none of them feeds a factor or the composite.</p></div>';
   }
 
   // -- Chart ---------------------------------------------------------------
@@ -3143,6 +3176,9 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       tl:'', tr:'Cheap and moving', bl:'Expensive and falling', br:'',
       xl:'Value', yl:'Momentum',
       blurb:'Cheapness against price momentum. Top right is cheap and already re-rating; bottom left is the value trap corner.' },
+    { key:'sentiment', label:'Sentiment', x:'news_vader_avg', y:'m', raw:true,
+      xl:'News tone', yl:'Momentum',
+      blurb:'Seven days of headline tone against price momentum. Bottom right is the corner worth looking at: coverage has turned positive and the price has not moved yet. Tone is VADER over headlines, which reads plain sentiment well and sarcasm badly, so treat it as a hint rather than a finding.' },
     { key:'neglect', label:'Neglect', x:'neglect_score', y:'q', raw:true,
       xl:'Neglect', yl:'Quality',
       blurb:'Under-followed names that still score on quality. Further right means less analyst, institutional and news coverage.' },

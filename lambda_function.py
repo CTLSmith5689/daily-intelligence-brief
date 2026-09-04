@@ -2081,6 +2081,8 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   text-transform:uppercase; font-weight:400; color:var(--text-2); }
 .stk-radar-row { display:grid; grid-template-columns:1fr 46px 26px; gap:8px; align-items:center;
   font-size:11px; color:var(--text-3); padding:2px 0; }
+.stk-radar-foot { font-size:10px; line-height:1.5; color:var(--text-4); margin:8px 0 0;
+  padding-top:7px; border-top:1px solid var(--border); }
 .stk-radar-bar { height:2px; background:var(--border-bright); position:relative; }
 .stk-radar-bar i { position:absolute; inset:0 auto 0 0; background:var(--apt-red); display:block; }
 .stk-radar-val { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-2); text-align:right; }
@@ -4358,6 +4360,11 @@ STOCKS_JS_TEMPLATE = """
   // the pipeline computes. The design this is ported from generated these
   // numbers by hashing the ticker, which produced a pleasing shape and meant
   // nothing; the shape here is only as complete as the data behind it.
+  const RADAR_EXTRA = [
+    { key: 'news_vader_avg',  label: 'Headline tone' },
+    { key: 'news_count_7d',   label: 'News volume 7d' },
+    { key: 'neglect_score',   label: 'Neglect' },
+  ];
   const RADAR_FAMS = [
     { name: 'Momentum', quad: 2, fields: ['return_12_2','return_1m','high52w_proximity','rel_strength_sp500','volume_trend'] },
     { name: 'Growth',   quad: 3, fields: ['revenue_growth_yoy','eps_growth_yoy','revenue_acceleration','gross_margin_trend','fcf_growth_yoy'] },
@@ -4541,7 +4548,33 @@ STOCKS_JS_TEMPLATE = """
       }).join('');
       return '<div class="stk-radar-fam"><div class="stk-radar-fam-h' + (solo ? '' : ' cmp') + '">' +
         '<b>' + f.name + '</b>' + heads + '</div>' + rows + '</div>';
+    }).join('') + radarExtraBlock(picks, solo);
+  }
+
+  // Sentiment and coverage, ranked against sector peers like everything above,
+  // but kept in their own block rather than given a spoke. A fifth spoke would
+  // read as a fifth factor, and headline tone is not one: it is not in any
+  // dimension and not in the composite. Separating it says so without a
+  // footnote.
+  function radarExtraBlock(picks, solo) {
+    const rows = RADAR_EXTRA.map(function(x) {
+      const vals = picks.map(function(s, i) {
+        const v = pctOf(s, x.key);
+        return '<span class="stk-radar-val' + (v == null ? ' na' : '') + '"' +
+          (solo ? '' : ' style="color:' + RADAR_COLORS[i % RADAR_COLORS.length] + '"') + '>' +
+          (v == null ? '—' : v) + '</span>';
+      }).join('');
+      const p0 = pctOf(picks[0], x.key);
+      const bar = solo
+        ? '<span class="stk-radar-bar"><i style="width:' + (p0 == null ? 0 : p0) + '%"></i></span>'
+        : '';
+      return '<div class="stk-radar-row' + (solo ? '' : ' cmp') + '">' +
+        '<span>' + escapeHtml(x.label) + '</span>' + bar + vals + '</div>';
     }).join('');
+    return '<div class="stk-radar-fam"><div class="stk-radar-fam-h' + (solo ? '' : ' cmp') + '">' +
+      '<b>Coverage</b></div>' + rows +
+      '<p class="stk-radar-foot">Percentiles against sector peers, the same as above. ' +
+      'These are shown, not scored: none of them feeds a factor or the composite.</p></div>';
   }
 
   // -- Chart ---------------------------------------------------------------
@@ -4563,6 +4596,9 @@ STOCKS_JS_TEMPLATE = """
       tl:'', tr:'Cheap and moving', bl:'Expensive and falling', br:'',
       xl:'Value', yl:'Momentum',
       blurb:'Cheapness against price momentum. Top right is cheap and already re-rating; bottom left is the value trap corner.' },
+    { key:'sentiment', label:'Sentiment', x:'news_vader_avg', y:'m', raw:true,
+      xl:'News tone', yl:'Momentum',
+      blurb:'Seven days of headline tone against price momentum. Bottom right is the corner worth looking at: coverage has turned positive and the price has not moved yet. Tone is VADER over headlines, which reads plain sentiment well and sarcasm badly, so treat it as a hint rather than a finding.' },
     { key:'neglect', label:'Neglect', x:'neglect_score', y:'q', raw:true,
       xl:'Neglect', yl:'Quality',
       blurb:'Under-followed names that still score on quality. Further right means less analyst, institutional and news coverage.' },
@@ -7374,6 +7410,11 @@ SCORE_GROUPS_PY = {
                  "invert": ["net_debt_ebitda", "op_margin_stability", "accruals_ratio"]},
 }
 SCORE_FIELDS = [f for g in SCORE_GROUPS_PY.values() for f in g["fields"]]
+
+# Ranked against sector peers and shown, but never summed into a dimension or
+# the composite. Order matters: it is appended to the positional pct array.
+DISPLAY_PCT_FIELDS = ["news_vader_avg", "news_lm_avg", "news_count_7d", "neglect_score"]
+PCT_ARRAY_FIELDS = SCORE_FIELDS + DISPLAY_PCT_FIELDS
 INVERTED_FIELDS = {f for g in SCORE_GROUPS_PY.values() for f in g["invert"]}
 
 # A percentile needs a cohort large enough to mean something. With 20 peers the
@@ -7404,7 +7445,7 @@ def compute_peer_scores(stocks):
         if not sector:
             continue          # no sector means no peers; scored as unknown below
         bucket = cohorts.setdefault(sector, {})
-        for f in SCORE_FIELDS:
+        for f in PCT_ARRAY_FIELDS:
             v = s.get(f)
             if _finite(v):
                 bucket.setdefault(f, []).append(v)
@@ -7465,7 +7506,15 @@ def compute_peer_scores(stocks):
         # Positional, in SCORE_FIELDS order, not a dict. Twenty full field names
         # repeated across 5,336 stocks cost 0.72 MB in key strings alone, which
         # was 80% of what this map weighed in the payload.
-        s["pct"] = [pct.get(f) for f in SCORE_FIELDS]
+        # The display fields are ranked here rather than inside the dimension
+        # loop above, so there is no path by which they can reach a z-score.
+        for f in DISPLAY_PCT_FIELDS:
+            v = s.get(f)
+            st = sector_stats.get(f)
+            if _finite(v) and st and st["n"] >= MIN_COHORT_FOR_PERCENTILE:
+                pct[f] = percentile_of(st["sorted"], v)
+                pct_emitted += 1
+        s["pct"] = [pct.get(f) for f in PCT_ARRAY_FIELDS]
         if not any(v is not None for v in s["pct"]):
             s["pct"] = None
         # Only stocks measured on enough dimensions get a rankable score. The rest
@@ -8357,7 +8406,7 @@ def generate_stocks_page(universe):
 """
     stocks_js = (STOCKS_JS_TEMPLATE
                  .replace("__DATA_URL__", stocks_json)
-                 .replace("__PCT_FIELDS_JSON__", json.dumps(SCORE_FIELDS))
+                 .replace("__PCT_FIELDS_JSON__", json.dumps(PCT_ARRAY_FIELDS))
                  .replace("__SECTORS_JSON__", sectors_json)
                  .replace("__INDEXES_JSON__", indexes_json))
     html = render_screener_page("Stocks, Apterreon", body, extra_scripts=stocks_js)
