@@ -1945,6 +1945,33 @@ h1.hero-title {
 .stk-table { background:var(--surface-1); border:1px solid var(--border); border-radius:14px; overflow-y:auto; max-height:calc(100vh - 220px); }
 .stk-table::-webkit-scrollbar { width:8px; }
 .stk-table::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:4px; }
+.stk-views-switch { display:flex; border:1px solid var(--border-bright); flex-shrink:0; }
+.stk-view-btn { padding:7px 15px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer; background:transparent; color:var(--text-3); border:none; }
+.stk-view-btn + .stk-view-btn { border-left:1px solid var(--border-bright); }
+.stk-view-btn.active { background:var(--text-1); color:var(--bg-base); }
+.stk-radar { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start; }
+.stk-radar-plot { position:relative; border:1px solid var(--border); background:var(--surface-1); padding:14px; }
+.stk-radar-plot svg { width:100%; height:auto; display:block; }
+.stk-radar-quads .q { position:absolute; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--text-3); }
+.stk-radar-quads .tl { top:14px; left:16px; } .stk-radar-quads .tr { top:14px; right:16px; }
+.stk-radar-quads .bl { bottom:14px; left:16px; } .stk-radar-quads .br { bottom:14px; right:16px; }
+.stk-radar-note { font-size:11px; color:var(--text-4); line-height:1.6; margin:10px 2px 0; }
+.stk-radar-side h3 { font-family:'Instrument Serif',Georgia,serif; font-size:26px; font-weight:400;
+  color:var(--text-1); margin:0 0 4px; }
+.stk-radar-hint { font-size:11px; color:var(--text-4); line-height:1.6; margin:0 0 14px; }
+.stk-radar-fam { margin-top:16px; }
+.stk-radar-fam-h { display:flex; justify-content:space-between; align-items:baseline;
+  border-bottom:1px solid var(--border-bright); padding-bottom:5px; margin-bottom:7px; }
+.stk-radar-fam-h b { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; font-weight:400; color:var(--text-2); }
+.stk-radar-row { display:grid; grid-template-columns:1fr 46px 26px; gap:8px; align-items:center;
+  font-size:11px; color:var(--text-3); padding:2px 0; }
+.stk-radar-bar { height:2px; background:var(--border-bright); position:relative; }
+.stk-radar-bar i { position:absolute; inset:0 auto 0 0; background:var(--apt-red); display:block; }
+.stk-radar-val { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-2); text-align:right; }
+.stk-radar-val.na { color:var(--text-5); }
 .stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--surface-3); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
@@ -3960,8 +3987,142 @@ STOCKS_JS_TEMPLATE = """
       el.textContent = 'Universe: ' + fmtStatVal(mn, type) + ' to ' + fmtStatVal(mx, type) + ' across ' + n.toLocaleString() + ' names';
     });
   }
+  // -- Radar ---------------------------------------------------------------
+  // Every spoke is a real percentile against sector peers, from the `pct` array
+  // the pipeline computes. The design this is ported from generated these
+  // numbers by hashing the ticker, which produced a pleasing shape and meant
+  // nothing; the shape here is only as complete as the data behind it.
+  const RADAR_FAMS = [
+    { name: 'Momentum', quad: 2, fields: ['return_12_2','return_1m','high52w_proximity','rel_strength_sp500','volume_trend'] },
+    { name: 'Growth',   quad: 3, fields: ['revenue_growth_yoy','eps_growth_yoy','revenue_acceleration','gross_margin_trend','fcf_growth_yoy'] },
+    { name: 'Quality',  quad: 0, fields: ['roe_ttm','earnings_consistency','net_debt_ebitda','op_margin_stability','accruals_ratio'] },
+    { name: 'Value',    quad: 1, fields: ['pe','ev_ebitda','ev_revenue','price_book','fcf_yield'] },
+  ];
+  const SPOKE_LABELS = {
+    return_12_2:'12-2 return', return_1m:'1-month return', high52w_proximity:'52w high proximity',
+    rel_strength_sp500:'Rel strength vs S&P', volume_trend:'Volume trend',
+    revenue_growth_yoy:'Revenue growth YoY', eps_growth_yoy:'EPS growth YoY',
+    revenue_acceleration:'Revenue acceleration', gross_margin_trend:'Gross margin trend',
+    fcf_growth_yoy:'FCF growth YoY', roe_ttm:'ROE (TTM)', earnings_consistency:'Earnings consistency',
+    net_debt_ebitda:'Net debt/EBITDA', op_margin_stability:'Op margin stability',
+    accruals_ratio:'Accruals ratio', pe:'P/E trailing', ev_ebitda:'EV/EBITDA',
+    ev_revenue:'EV/Revenue', price_book:'Price/Book', fcf_yield:'FCF yield',
+  };
+  // Spokes in drawing order: quadrant by quadrant, clockwise from the top.
+  const SPOKES = [].concat.apply([], RADAR_FAMS
+    .slice().sort(function(a,b){ return a.quad - b.quad; })
+    .map(function(f){ return f.fields.map(function(k){ return { fam: f.name, key: k }; }); }));
+
+  let radarTicker = null;
+
+  function drawRadar(s) {
+    const svg = document.getElementById('stk-radar-svg');
+    const note = document.getElementById('stk-radar-note');
+    if (!svg) return;
+    const CX = 310, CY = 310, R = 232;
+    const n = SPOKES.length;
+    const ang = function(i) { return (i / n) * Math.PI * 2 - Math.PI / 2; };
+    const at = function(i, frac) {
+      const a = ang(i), r = R * frac;
+      return [CX + Math.cos(a) * r, CY + Math.sin(a) * r];
+    };
+    let out = '';
+    // Rings at 25 / 50 / 75; the 50 ring is dashed because it is the median.
+    [0.25, 0.5, 0.75, 1].forEach(function(f) {
+      const pts = SPOKES.map(function(_, i) { return at(i, f).map(Math.round).join(','); }).join(' ');
+      out += '<polygon points="' + pts + '" fill="none" stroke="var(--border-bright)" stroke-width="1"' +
+             (f === 0.5 ? ' stroke-dasharray="3 4"' : ' opacity="0.5"') + '/>';
+    });
+    SPOKES.forEach(function(sp, i) {
+      const p = at(i, 1);
+      out += '<line x1="' + CX + '" y1="' + CY + '" x2="' + Math.round(p[0]) + '" y2="' + Math.round(p[1]) +
+             '" stroke="var(--border)" stroke-width="1"/>';
+      const lp = at(i, 1.1), a = ang(i);
+      const anchor = Math.abs(Math.cos(a)) < 0.25 ? 'middle' : (Math.cos(a) > 0 ? 'start' : 'end');
+      out += '<text x="' + Math.round(lp[0]) + '" y="' + Math.round(lp[1]) + '" text-anchor="' + anchor +
+             '" dominant-baseline="middle" font-size="10" fill="var(--text-4)" ' +
+             'font-family="var(--font-ui, inherit)">' + escapeHtml(SPOKE_LABELS[sp.key] || sp.key) + '</text>';
+    });
+    // The company itself. Absent spokes break the path rather than being drawn
+    // as zero: "we have no reading" and "it scores nothing" are different claims.
+    const have = [];
+    SPOKES.forEach(function(sp, i) {
+      const v = pctOf(s, sp.key);
+      if (v != null) have.push({ i: i, p: at(i, Math.max(0.04, v / 100)) });
+    });
+    if (have.length >= 3) {
+      const pts = have.map(function(h) { return h.p.map(Math.round).join(','); }).join(' ');
+      out += '<polygon points="' + pts + '" fill="var(--apt-red)" fill-opacity="0.18" ' +
+             'stroke="var(--apt-red)" stroke-width="2" stroke-linejoin="round"/>';
+      have.forEach(function(h) {
+        out += '<circle cx="' + Math.round(h.p[0]) + '" cy="' + Math.round(h.p[1]) +
+               '" r="2.5" fill="var(--apt-red)"/>';
+      });
+    }
+    svg.innerHTML = out;
+    if (note) {
+      note.textContent = have.length + ' of ' + n + ' inputs available. Each spoke is a percentile ' +
+        'against ' + (s.sector || 'sector') + ' peers; the dashed ring is the median. ' +
+        (have.length < n ? 'Gaps are inputs this company has no data for, not zero scores.' : '');
+    }
+    return have.length;
+  }
+
+  function renderRadar() {
+    const side = document.getElementById('stk-radar-breakdown');
+    const title = document.getElementById('stk-radar-title');
+    const hint = document.getElementById('stk-radar-hint');
+    const svg = document.getElementById('stk-radar-svg');
+    if (!side) return;
+    const s = ALL.find(function(x) { return x.ticker === radarTicker; });
+    if (!s) {
+      if (svg) svg.innerHTML = '';
+      if (title) title.textContent = 'Pick a company';
+      if (hint) hint.textContent = 'Search a ticker above to plot it against its sector.';
+      side.innerHTML = '';
+      return;
+    }
+    if (title) title.textContent = s.ticker + ' against its sector';
+    if (hint) hint.textContent = (s.name || '') + (s.sector ? ' \u00b7 ' + s.sector : ' \u00b7 no sector, so no peer group');
+    drawRadar(s);
+    const famScore = { Growth: s.g, Value: s.v, Momentum: s.m, Quality: s.q };
+    side.innerHTML = RADAR_FAMS.map(function(f) {
+      const sc = famScore[f.name];
+      const rows = f.fields.map(function(k) {
+        const v = pctOf(s, k);
+        return '<div class="stk-radar-row"><span>' + escapeHtml(SPOKE_LABELS[k] || k) + '</span>' +
+          '<span class="stk-radar-bar"><i style="width:' + (v == null ? 0 : v) + '%"></i></span>' +
+          '<span class="stk-radar-val' + (v == null ? ' na' : '') + '">' + (v == null ? '\u2014' : v) + '</span></div>';
+      }).join('');
+      return '<div class="stk-radar-fam"><div class="stk-radar-fam-h"><b>' + f.name + '</b>' +
+        '<span class="stk-radar-val">' + fmtScore(sc) + '</span></div>' + rows + '</div>';
+    }).join('');
+  }
+
+  function setView(v) {
+    const list = document.querySelector('.stk-table');
+    const radar = document.getElementById('stk-radar');
+    if (list) list.hidden = (v !== 'list');
+    if (radar) radar.hidden = (v !== 'radar');
+    document.querySelectorAll('.stk-view-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.view === v);
+    });
+    if (v === 'radar') renderRadar();
+  }
+  document.querySelectorAll('.stk-view-btn').forEach(function(b) {
+    b.addEventListener('click', function() { setView(b.dataset.view); });
+  });
+
   function boot(data) {
     ALL = Array.isArray(data) ? data : [];
+    // Typing an exact ticker also selects it for the radar.
+    if (searchEl) {
+      searchEl.addEventListener('input', function() {
+        const q = (searchEl.value || '').trim().toUpperCase();
+        const hit = ALL.find(function(x) { return x.ticker === q; });
+        if (hit) { radarTicker = hit.ticker; renderRadar(); }
+      });
+    }
     PEER_STATS = buildPeerStats();
     populateRangeStats();
     render();
@@ -6727,6 +6888,10 @@ def generate_stocks_page(universe):
     <span class="lib-count" id="stk-count">{len(stocks)} stocks</span>
   </div>
   <div class="stk-toprow">
+    <div class="stk-views-switch" id="stk-view-switch">
+      <button type="button" class="stk-view-btn active" data-view="list">List</button>
+      <button type="button" class="stk-view-btn" data-view="radar">Radar</button>
+    </div>
     <label class="lib-search">
       <span class="icon">&#8981;</span>
       <input type="search" id="stk-search" placeholder="Ticker or company name..." autocomplete="off" spellcheck="false">
@@ -6943,6 +7108,21 @@ def generate_stocks_page(universe):
       <div class="stk-th" data-sort="last_updated">Updated</div>
     </div>
     <div id="stk-list"></div>
+  </div>
+  <div id="stk-radar" class="stk-radar" hidden>
+    <div class="stk-radar-plot">
+      <div class="stk-radar-quads">
+        <span class="q tl">Momentum</span><span class="q tr">Growth</span>
+        <span class="q bl">Value</span><span class="q br">Quality</span>
+      </div>
+      <svg id="stk-radar-svg" viewBox="0 0 620 620" role="img" aria-label="Factor radar"></svg>
+      <p class="stk-radar-note" id="stk-radar-note"></p>
+    </div>
+    <aside class="stk-radar-side">
+      <h3 id="stk-radar-title">Pick a company</h3>
+      <p class="stk-radar-hint" id="stk-radar-hint">Search a ticker above, or open a row in List view, to plot it against its sector.</p>
+      <div id="stk-radar-breakdown"></div>
+    </aside>
   </div>
   <div class="picks-meta" style="margin-top:18px">{meta_line}</div>
     </main>
