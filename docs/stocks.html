@@ -2409,6 +2409,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   window.addEventListener('resize', onScrollExtend, { passive: true });
 
   function render() {
+    syncFilterCount();
     let filtered = currentFiltered();
     filtered.sort((a, b) => {
       let av, bv;
@@ -2436,6 +2437,13 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     listEl.innerHTML = '';
     fillWindow();
     redrawExpanded();
+    // The chart and the radar read the same filtered set, so they have to be
+    // redrawn when it changes. Without this they kept whatever they were
+    // showing when the view was last opened, which reads as the filters simply
+    // not applying to them.
+    tetraInvalidate();
+    if (currentView === 'chart') drawChart();
+    else if (currentView === 'radar') renderRadar();
   }
 
   // Card-level toggles inside the expanded panel reveal source + methodology
@@ -2548,7 +2556,9 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       filterCountEl.hidden = c === 0;
       filterCountEl.textContent = '(' + c + ' active)';
     }
-    if (filterReset) filterReset.hidden = c === 0;
+    if (filterReset) {
+      filterReset.hidden = c === 0 && !activeSector && !activeIndex && !query;
+    }
     syncSectionCounts();
   }
 
@@ -2642,6 +2652,19 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
         sl.value = '1';
         const lbl = document.getElementById('stk-w-' + sl.dataset.weight);
         if (lbl) lbl.innerHTML = '1.0&times;';
+      });
+      // The chips and the search are refinements too. Leaving them set made
+      // Reset look broken: the count moved but the universe did not.
+      activeSector = '';
+      activeIndex = '';
+      query = '';
+      if (searchEl) searchEl.value = '';
+      if (clearEl) clearEl.hidden = true;
+      document.querySelectorAll('#stk-sector-chips .lib-chip').forEach(function(c) {
+        c.classList.toggle('active', !c.dataset.sector);
+      });
+      document.querySelectorAll('#stk-index-chips .lib-chip').forEach(function(c) {
+        c.classList.toggle('active', !c.dataset.index);
       });
       syncFilterCount();
       render();
@@ -3079,6 +3102,8 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   // Canvas, not SVG: an unfiltered view is 5,336 points, and that many DOM
   // nodes costs far more than it buys when each one is a 3px dot.
   const LENSES = [
+    { key:'gvmq3d', label:'GVMQ 3D', tetra:true,
+      blurb:'All four factors at once. Each corner of the tetrahedron is one factor, and a company sits in the direction of the ones it scores on, so two profiles that look identical on a flat chart separate here. Drag to turn it.' },
     { key:'gvmq', label:'GVMQ', compass:true,
       tl:'Momentum', tr:'Growth', bl:'Value', br:'Quality',
       blurb:'Each corner is one factor. A company sits in the direction of the factors it scores best on, and the further from the centre, the more lopsided the profile.' },
@@ -3096,10 +3121,76 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   ];
   let lens = LENSES[0];
 
+  // ---- 3D factor space -------------------------------------------------
+  // A regular tetrahedron centred on the origin. The four unit vectors sum to
+  // zero, so a company that scores evenly across the factors lands in the
+  // middle and a lopsided one is pushed toward whichever vertices it earns.
+  const TETRA_V = {
+    g: [ 1,  1,  1],
+    v: [ 1, -1, -1],
+    m: [-1,  1, -1],
+    q: [-1, -1,  1],
+  };
+  const TETRA_ORDER = ['g', 'v', 'm', 'q'];
+  const TETRA_LABEL = { g: 'Growth', v: 'Value', m: 'Momentum', q: 'Quality' };
+  const TETRA_EDGES = [['g','v'],['g','m'],['g','q'],['v','m'],['v','q'],['m','q']];
+  const RT3 = Math.sqrt(3);
+  let yaw = 0.62, pitch = -0.32, spinRAF = null;
+  // Honour the OS setting rather than offering motion this reader has already
+  // said they do not want.
+  const REDUCED_MOTION = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let spin = false;
+  let tetraPts = null, tetraRef = 1, tetraMatch = 0;
+  function tetraInvalidate() { tetraPts = null; }
+
+  function tetraPos(s) {
+    const w = { g: s.g || 0, v: s.v || 0, m: s.m || 0, q: s.q || 0 };
+    let x = 0, y = 0, z = 0;
+    for (const k of TETRA_ORDER) {
+      const V = TETRA_V[k];
+      x += w[k] * V[0]; y += w[k] * V[1]; z += w[k] * V[2];
+    }
+    return [x / RT3, y / RT3, z / RT3];
+  }
+
+  // Yaw about the vertical, then pitch, then a weak perspective divide. The
+  // perspective is deliberately mild: enough that the near face reads as nearer,
+  // not so much that it distorts the cloud into saying something untrue.
+  function project3(p, w, h, scale) {
+    const cy = Math.cos(yaw), sy = Math.sin(yaw);
+    const cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const x1 = p[0] * cy + p[2] * sy;
+    const z1 = -p[0] * sy + p[2] * cy;
+    const y2 = p[1] * cp - z1 * sp;
+    const z2 = p[1] * sp + z1 * cp;
+    const d = 4.6, k = d / (d - z2 * 0.5);
+    return { x: w / 2 + x1 * scale * k, y: h / 2 - y2 * scale * k, z: z2, k: k };
+  }
+
+  function startSpin() {
+    if (spinRAF || !spin || !lens.tetra || currentView !== 'chart') return;
+    spinRAF = requestAnimationFrame(function step() {
+      spinRAF = null;
+      if (!spin || !lens.tetra || currentView !== 'chart') return;
+      yaw += 0.0030;
+      drawChart();
+      spinRAF = requestAnimationFrame(step);
+    });
+  }
+  function stopSpin() {
+    if (spinRAF) { cancelAnimationFrame(spinRAF); spinRAF = null; }
+  }
+
   function chartPoints() {
     const out = [];
     for (const s of currentFiltered()) {
       let x, y;
+      if (lens.tetra) {
+        if (!s.scorable) continue;
+        out.push({ s: s, p: tetraPos(s) });
+        continue;
+      }
       if (lens.compass) {
         // Vector sum of the four dimension scores, one per corner. A balanced
         // company lands near the middle; a lopsided one is flung toward whatever
@@ -3120,9 +3211,133 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   }
 
   let chartHit = [];
+
+  function drawTetra(cv, pts, ref) {
+    const dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const css = getComputedStyle(document.documentElement);
+    const ink = css.getPropertyValue('--text-1').trim() || '#17140F';
+    const line = css.getPropertyValue('--border-bright').trim() || 'rgba(0,0,0,.18)';
+    const dim = css.getPropertyValue('--text-4').trim() || '#8A8272';
+    const foot = document.getElementById('stk-chart-foot');
+    if (!pts.length) {
+      ctx.fillStyle = dim;
+      ctx.font = "12px 'Space Mono', monospace";
+      ctx.fillText('No companies are scored on enough dimensions to place.', 46, h / 2);
+      chartHit = [];
+      if (foot) foot.textContent = '0 plotted';
+      return;
+    }
+    // One scale for the whole cloud, fixed while it turns, so the shape you are
+    // looking at stays the same shape.
+    const vertMax = Math.sqrt(3);
+    const scale = (Math.min(w, h) / 2 - 34) / ref;
+
+    // The cage first, so the dots read as sitting inside it.
+    const vp = {};
+    for (const k of TETRA_ORDER) {
+      vp[k] = project3(TETRA_V[k].map(function(c) { return c / RT3 * vertMax; }), w, h, scale);
+    }
+    ctx.strokeStyle = ink; ctx.lineWidth = 1;
+    for (const e of TETRA_EDGES) {
+      const a = vp[e[0]], b = vp[e[1]];
+      // Edges running behind the cloud are dashed, the ones in front solid.
+      // Alpha alone did not carry the depth against 2,858 overlapping dots, and
+      // a frame of reference you cannot see is not one.
+      const behind = (a.z + b.z) / 2 < 0;
+      ctx.setLineDash(behind ? [3, 4] : []);
+      ctx.globalAlpha = behind ? 0.28 : 0.55;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+    // The origin, where a company that scores evenly on all four sits. Without
+    // it "near the middle" has nothing to be near.
+    const o = project3([0, 0, 0], w, h, scale);
+    ctx.strokeStyle = ink; ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.moveTo(o.x - 4, o.y); ctx.lineTo(o.x + 4, o.y);
+    ctx.moveTo(o.x, o.y - 4); ctx.lineTo(o.x, o.y + 4);
+    ctx.stroke(); ctx.globalAlpha = 1;
+
+    // Painter's algorithm: far dots first so near ones overlap them correctly.
+    const proj = pts.map(function(p) {
+      const q = project3(p.p, w, h, scale);
+      q.s = p.s; return q;
+    }).sort(function(a, b) { return a.z - b.z; });
+
+    const capMax = Math.max.apply(null, pts.map(function(p) { return p.s.market_cap || 0; })) || 1;
+    chartHit = [];
+    for (const q of proj) {
+      const cap = q.s.market_cap || 0;
+      const r = (2 + Math.sqrt(cap / capMax) * 9) * q.k;
+      // Near dots are more opaque. Depth is the only thing separating an
+      // overlapping pair, so it has to be visible without being loud.
+      const t = Math.max(0, Math.min(1, (q.z + vertMax) / (vertMax * 2)));
+      ctx.beginPath(); ctx.arc(q.x, q.y, Math.max(r, 1), 0, Math.PI * 2);
+      ctx.fillStyle = ink; ctx.globalAlpha = 0.14 + t * 0.30; ctx.fill();
+      chartHit.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
+    }
+    ctx.globalAlpha = 1;
+
+    // Vertex labels last, on top of everything.
+    ctx.font = "10px 'Space Mono', monospace";
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const k of TETRA_ORDER) {
+      const a = vp[k];
+      // Push the label along the ray from the centre, so it clears the cloud at
+      // any rotation instead of landing on top of it whenever a vertex points up.
+      let ox = a.x - w / 2, oy = a.y - h / 2;
+      const len = Math.hypot(ox, oy) || 1;
+      ox = ox / len * 15; oy = oy / len * 15;
+      ctx.fillStyle = a.z < 0 ? dim : ink;
+      ctx.fillText(TETRA_LABEL[k].toUpperCase(), a.x + ox, a.y + oy);
+      ctx.globalAlpha = a.z < 0 ? 0.4 : 1;
+      ctx.beginPath(); ctx.arc(a.x, a.y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+
+    if (foot) {
+      foot.textContent = pts.length.toLocaleString() + ' plotted of ' +
+        tetraMatch.toLocaleString() + ' matching · ' +
+        'only companies scored on 3 of 4 dimensions can be placed · ' +
+        'dot size: market cap · drag to turn';
+    }
+    const plot = cv.parentElement;
+    if (plot) {
+      ['tl','tr','bl','br'].forEach(function(c) {
+        const el = plot.querySelector('.ax.' + c);
+        if (el) el.textContent = '';
+      });
+    }
+  }
+
   function drawChart() {
     const cv = document.getElementById('stk-chart-canvas');
     if (!cv) return;
+    if (lens.tetra) {
+      if (tetraPts === null) {
+        tetraPts = chartPoints();
+        tetraMatch = currentFiltered().length;
+        const ds = tetraPts.map(function(p) {
+          return Math.hypot(p.p[0], p.p[1], p.p[2]);
+        }).sort(function(a, b) { return a - b; });
+        // The 97th percentile rather than the maximum. A handful of extreme
+        // profiles reach nearly twice the next-widest, and scaling to them
+        // shrinks the entire cloud to a smudge in the middle of the frame. The
+        // few that fall outside the cage are the point of the cage.
+        const p97 = ds.length ? ds[Math.min(ds.length - 1, Math.floor(ds.length * 0.97))] : 1;
+        tetraRef = Math.max(p97, Math.sqrt(3));
+      }
+      drawTetra(cv, tetraPts, tetraRef);
+      return;
+    }
     const pts = chartPoints();
     const dpr = window.devicePixelRatio || 1;
     const w = cv.clientWidth, h = cv.clientHeight;
@@ -3189,17 +3404,73 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     el.innerHTML = '<span class="lib-chip-label">View</span>' + LENSES.map(function(l) {
       return '<button type="button" class="stk-lens' + (l.key === lens.key ? ' active' : '') +
              '" data-lens="' + l.key + '">' + escapeHtml(l.label) + '</button>';
-    }).join('');
+    }).join('') + (lens.tetra && !REDUCED_MOTION
+      ? '<button type="button" class="stk-lens stk-spin' + (spin ? ' active' : '') +
+        '" id="stk-spin">Spin</button>'
+      : '');
+    const spinBtn = el.querySelector('#stk-spin');
+    if (spinBtn) {
+      spinBtn.addEventListener('click', function() {
+        spin = !spin;
+        spinBtn.classList.toggle('active', spin);
+        if (spin) startSpin(); else stopSpin();
+      });
+    }
     el.querySelectorAll('.stk-lens').forEach(function(b) {
       b.addEventListener('click', function() {
         lens = LENSES.find(function(l) { return l.key === b.dataset.lens; }) || LENSES[0];
         renderLenses();
         document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
+        const cv = document.getElementById('stk-chart-canvas');
+        if (cv) cv.style.cursor = lens.tetra ? 'grab' : '';
+        tetraInvalidate();
+        stopSpin();
         drawChart();
+        startSpin();
       });
     });
     document.getElementById('stk-chart-blurb').textContent = lens.blurb || '';
   }
+
+  (function wireTetraDrag() {
+    const cv = document.getElementById('stk-chart-canvas');
+    if (!cv) return;
+    let dragging = false, lastX = 0, lastY = 0, moved = 0;
+    cv.addEventListener('pointerdown', function(e) {
+      if (!lens.tetra) return;
+      dragging = true; moved = 0;
+      lastX = e.clientX; lastY = e.clientY;
+      stopSpin();
+      cv.setPointerCapture(e.pointerId);
+      cv.style.cursor = 'grabbing';
+    });
+    cv.addEventListener('pointermove', function(e) {
+      if (!dragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      moved += Math.abs(dx) + Math.abs(dy);
+      yaw += dx * 0.008;
+      // Clamped so the cloud can never be turned past vertical, where the
+      // vertex labels would invert and the shape stops being readable.
+      pitch = Math.max(-1.35, Math.min(1.35, pitch + dy * 0.008));
+      drawChart();
+    });
+    function release(e) {
+      if (!dragging) return;
+      dragging = false;
+      cv.style.cursor = lens.tetra ? 'grab' : '';
+      try { cv.releasePointerCapture(e.pointerId); } catch (err) {}
+      // A deliberate turn parks the shape where the reader put it. Spin, if it
+      // was on, stays off until they ask for it again.
+      if (moved >= 4) {
+        spin = false;
+        const b = document.getElementById('stk-spin');
+        if (b) b.classList.remove('active');
+      } else if (spin) { startSpin(); }
+    }
+    cv.addEventListener('pointerup', release);
+    cv.addEventListener('pointercancel', release);
+  })();
 
   (function wireChartTip() {
     const cv = document.getElementById('stk-chart-canvas');
@@ -3222,14 +3493,18 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     cv.addEventListener('mouseleave', function() { tip.hidden = true; });
   })();
 
+  let currentView = 'list';
+
   function setView(v) {
+    currentView = v;
     const list = document.querySelector('.stk-table');
     const radar = document.getElementById('stk-radar');
     const chart = document.getElementById('stk-chart');
     if (list) list.hidden = (v !== 'list');
     if (radar) radar.hidden = (v !== 'radar');
     if (chart) chart.hidden = (v !== 'chart');
-    if (v === 'chart') { renderLenses(); drawChart(); }
+    if (v === 'chart') { renderLenses(); drawChart(); startSpin(); }
+    else stopSpin();
     document.querySelectorAll('.stk-view-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.view === v);
     });
