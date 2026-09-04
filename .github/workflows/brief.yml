@@ -1,17 +1,21 @@
 name: apterreon-brief
 
+# Two cadences, because the cheap part and the expensive part move at different
+# speeds. The hourly "record" run appends quotes and new headlines to the CSVs
+# and finishes in well under a minute. The daily run additionally refreshes the
+# ~2,900-ticker fundamentals panel and rebuilds the site, which rewrites a ~325KB
+# index.html; doing that hourly would bloat the repo for no new information.
 on:
   schedule:
-    - cron: '0 11 * * *'    # morning  ~7am ET
-    - cron: '15 16 * * *'   # midday   ~12:15pm ET
-    - cron: '45 20 * * *'   # evening  ~4:45pm ET
+    - cron: '0 11 * * *'           # 07:00 ET, daily: full refresh + site rebuild
+    - cron: '0 0-10,12-23 * * *'    # every other hour: record only
   workflow_dispatch:
     inputs:
-      edition:
-        description: 'Which edition to generate'
+      mode:
+        description: 'record = quotes + headlines only; daily = full refresh'
         type: choice
-        options: [morning, midday, evening]
-        default: morning
+        options: [daily, record]
+        default: daily
 
 permissions:
   contents: write   # required to commit the archive back
@@ -23,7 +27,7 @@ concurrency:
 jobs:
   brief:
     runs-on: ubuntu-latest
-    timeout-minutes: 60   # first run of a new ISO week does a full universe rebuild (~20+ min)
+    timeout-minutes: 60   # the daily run rebuilds the whole universe (~20+ min)
     steps:
       - uses: actions/checkout@v5
 
@@ -33,29 +37,23 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Determine edition
+      - name: Determine mode
         id: pick
         run: |
           case "${{ github.event.schedule }}" in
-            "0 11 * * *")  EDITION=morning ;;
-            "15 16 * * *") EDITION=midday  ;;
-            "45 20 * * *") EDITION=evening ;;
-            *)             EDITION="${{ github.event.inputs.edition || 'morning' }}" ;;
+            "0 11 * * *") MODE=daily  ;;
+            "")           MODE="${{ github.event.inputs.mode || 'daily' }}" ;;
+            *)            MODE=record ;;
           esac
-          echo "edition=$EDITION" >> "$GITHUB_OUTPUT"
-          echo "Edition: $EDITION"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Mode: $MODE"
 
-      - name: Generate brief
+      - name: Gather
         env:
-          ANTHROPIC_API_KEY:          ${{ secrets.ANTHROPIC_API_KEY }}
-          ALPHAVANTAGE_API_KEY:       ${{ secrets.ALPHAVANTAGE_API_KEY }}
-          APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
-          APTERREON_MODEL:               ${{ vars.APTERREON_MODEL || 'claude-haiku-4-5-20251001' }}
-          APTERREON_READER_CONTEXT:      ${{ vars.APTERREON_READER_CONTEXT }}
-          RECIPIENTS:                 ${{ vars.RECIPIENTS }}
-        run: python lambda_function.py "${{ steps.pick.outputs.edition }}"
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+        run: python lambda_function.py "${{ steps.pick.outputs.mode }}"
 
-      - name: Commit archive
+      - name: Commit data
         run: |
           set +e
           git config user.name "apterreon-bot"
@@ -65,12 +63,12 @@ jobs:
             git fetch origin main
             git reset --soft origin/main
             git reset HEAD -- . >/dev/null 2>&1   # unstage anything pre-existing
-            git add docs/ state/
+            git add data/ docs/ state/
             if git diff --cached --quiet; then
               echo "No changes to commit (after sync)."
               exit 0
             fi
-            git commit -m "brief: $(date -u +%F) ${{ steps.pick.outputs.edition }}"
+            git commit -m "${{ steps.pick.outputs.mode }}: $(date -u +%FT%H:%M)Z"
             if git push; then
               echo "Pushed on attempt $i."
               exit 0
@@ -82,29 +80,27 @@ jobs:
           exit 1
 
       # Between 2026-05-09 and 2026-07-07 this job failed 78 times without anyone
-      # noticing: the brief email is sent before the archive step, so a late crash
-      # still delivered mail and the breakage stayed invisible. Alert on failure.
+      # noticing, because the brief email was sent before the step that crashed.
+      # Nothing emails on success any more, so this alert is the only signal.
       - name: Alert on failure
         if: failure()
         env:
           APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
           RECIPIENTS: ${{ vars.RECIPIENTS }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          EDITION: ${{ steps.pick.outputs.edition }}
+          MODE: ${{ steps.pick.outputs.mode }}
         run: |
           python - <<'PY'
           import os
           from lambda_function import send_email
 
-          edition = os.environ.get("EDITION") or "unknown"
+          mode = os.environ.get("MODE") or "unknown"
           run_url = os.environ["RUN_URL"]
           send_email(
-              f"apterreon-brief FAILED ({edition})",
-              "<h2>The brief workflow failed.</h2>"
-              f"<p>Edition: <b>{edition}</b></p>"
-              f'<p><a href="{run_url}">Open the failed run</a></p>'
-              "<p>The email for this edition may still have been sent: the archive "
-              "and site rebuild run after delivery.</p>",
+              f"apterreon-brief FAILED ({mode})",
+              "<h2>The data pipeline failed.</h2>"
+              f"<p>Mode: <b>{mode}</b></p>"
+              f'<p><a href="{run_url}">Open the failed run</a></p>',
           )
           print("Failure alert sent.")
           PY

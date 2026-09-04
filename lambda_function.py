@@ -8,6 +8,7 @@ Sends via iCloud SMTP. Triggered by EventBridge rules at 7 AM, 12:15 PM, and 4:4
 import os
 import re
 import ssl
+import csv
 import json
 import math
 import smtplib
@@ -32,7 +33,6 @@ RECIPIENT_EMAIL = os.environ.get("RECIPIENTS", SMTP_USER)
 SMTP_SERVER = "smtp.mail.me.com"
 SMTP_PORT = 587
 
-ANTHROPIC_MODEL = os.environ.get("APTERREON_MODEL", "claude-sonnet-4-6")
 ET_OFFSET = timedelta(hours=-4)  # EDT
 
 # ── Brand: Apterreon ─────────────────────────────────────────────────────────
@@ -75,6 +75,171 @@ for _d in (BRIEFS_DIR, DOCS_DIR, STATE_DIR):
 # Now that s3_cleanup_old_briefs reads the real date from the filename, a 30-day
 # window would have deleted the entire back catalogue on the next run.
 RETENTION_DAYS = 36500
+
+
+# ── CSV time series ─────────────────────────────────────────────────────────
+#
+# The JSON under docs/ is a snapshot: every run overwrites it, so the project had
+# no memory. These CSVs are the append-only record, and they are the actual
+# product now that the brief no longer writes analysis. Partitioned by month so
+# no single file grows without bound.
+DATA_DIR = REPO_ROOT / "data"
+QUOTES_CSV = DATA_DIR / "quotes.csv"
+HEADLINES_CSV_DIR = DATA_DIR / "headlines"
+FUNDAMENTALS_CSV_DIR = DATA_DIR / "fundamentals"
+
+QUOTE_COLUMNS = ["observed_at", "ticker", "label", "price", "change_pct", "is_yield"]
+HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", "title", "link"]
+
+# Nested values (benford is a dict, op_margin_history a list) have no sensible
+# CSV representation, so they are dropped rather than stringified.
+FUNDAMENTAL_SKIP_FIELDS = {"benford", "op_margin_history"}
+# Leading columns, in this order; every other scalar field follows alphabetically.
+FUNDAMENTAL_LEAD = ["date", "ticker", "name", "sector", "sub_industry", "index",
+                    "price", "change_pct", "market_cap", "pe", "volume"]
+
+
+def _csv_num(value):
+    """Trim binary-float noise before writing.
+
+    Yahoo-derived ratios serialize as 0.22199999999999998 where the real value is
+    0.222. Those trailing digits are meaningless and were roughly 60% of the file.
+    Whole numbers (market cap, volume) stay integers rather than becoming floats
+    or scientific notation."""
+    if isinstance(value, bool) or not isinstance(value, float):
+        return value
+    if not math.isfinite(value):
+        return ""
+    rounded = round(value, 6)
+    return int(rounded) if rounded == int(rounded) else rounded
+
+
+def _append_csv(path, columns, rows):
+    """Append rows, writing a header only when creating the file."""
+    if not rows:
+        return 0
+    path.parent.mkdir(parents=True, exist_ok=True)
+    is_new = not path.exists()
+    with path.open("a", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=columns, extrasaction="ignore")
+        if is_new:
+            writer.writeheader()
+        writer.writerows(rows)
+    return len(rows)
+
+
+def _csv_header(path):
+    """Existing header of a CSV, or None. Reused so a schema change mid-month
+    cannot shift columns out from under rows already written to that file."""
+    if not path.exists():
+        return None
+    try:
+        with path.open(encoding="utf-8", newline="") as fh:
+            return next(csv.reader(fh), None)
+    except Exception:
+        return None
+
+
+def record_quotes(quotes, observed_at):
+    """Append one row per quote. Called on every run, including hourly ones."""
+    rows = [{
+        "observed_at": observed_at,
+        "ticker": q.get("ticker", ""),
+        "label": q.get("label", ""),
+        # Stored bare so the column is numeric: the display strings carry $ and %.
+        "price": str(q.get("price", "")).replace("$", "").replace("%", "").strip(),
+        "change_pct": str(q.get("change_pct", "")).replace("%", "").strip(),
+        "is_yield": "1" if q.get("is_yield") else "0",
+    } for q in quotes]
+    n = _append_csv(QUOTES_CSV, QUOTE_COLUMNS, rows)
+    print(f"csv: appended {n} quote rows to data/{QUOTES_CSV.name}.")
+    return n
+
+
+def record_headlines(headlines, observed_at):
+    """Append headlines not already recorded this month.
+
+    Hourly runs re-see the same articles for hours, so dedupe on link against the
+    month file. first_seen is therefore genuinely the first time we saw it."""
+    path = HEADLINES_CSV_DIR / f"{observed_at[:7]}.csv"
+    seen = set()
+    if path.exists():
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                for row in csv.DictReader(fh):
+                    seen.add(row.get("link", ""))
+        except Exception as exc:
+            print(f"csv: could not read {path.name} for dedupe ({exc}); appending all.")
+    rows = []
+    for h in headlines:
+        link = h.get("link", "")
+        if not link or link in seen:
+            continue
+        seen.add(link)
+        # pub_date is the raw RSS string ("Wed, 03 Sep 2026 19:41:00 GMT");
+        # normalize to ISO so the column sorts and parses.
+        parsed = parse_rss_date(h.get("pub_date") or "")
+        rows.append({
+            "first_seen": observed_at,
+            "published": parsed.isoformat() if parsed else "",
+            "section": h.get("section", ""),
+            "category": h.get("category", ""),
+            "source": h.get("source", ""),
+            "title": h.get("title", ""),
+            "link": link,
+        })
+    n = _append_csv(path, HEADLINE_COLUMNS, rows)
+    print(f"csv: appended {n} new headlines to data/headlines/{path.name} "
+          f"({len(headlines) - n} already recorded).")
+    return n
+
+
+def record_fundamentals(stocks, date_iso):
+    """Append one row per ticker for the given date, at most once per day.
+
+    Re-running on a date already present is a no-op, so an hourly schedule cannot
+    duplicate rows. Column order is pinned to the file's existing header."""
+    if not stocks:
+        return 0
+    path = FUNDAMENTALS_CSV_DIR / f"{date_iso[:7]}.csv"
+    header = _csv_header(path)
+    if header:
+        if path.exists():
+            try:
+                with path.open(encoding="utf-8", newline="") as fh:
+                    if any(r.get("date") == date_iso for r in csv.DictReader(fh)):
+                        print(f"csv: fundamentals for {date_iso} already recorded, skipping.")
+                        return 0
+            except Exception as exc:
+                print(f"csv: could not scan {path.name} ({exc}); skipping to avoid duplicates.")
+                return 0
+        columns = header
+    else:
+        found = set()
+        for s in stocks:
+            found.update(k for k, v in s.items()
+                         if k not in FUNDAMENTAL_SKIP_FIELDS and not isinstance(v, (dict, list)))
+        if any(isinstance(s.get("benford"), dict) for s in stocks):
+            found.add("benford_mad")   # the one nested value worth flattening
+        rest = sorted(found - set(FUNDAMENTAL_LEAD))
+        columns = FUNDAMENTAL_LEAD + rest
+
+    rows = []
+    for s in stocks:
+        row = {"date": date_iso}
+        for k, v in s.items():
+            if k in FUNDAMENTAL_SKIP_FIELDS or isinstance(v, (dict, list)):
+                continue
+            row[k] = _csv_num(v)
+        # Flatten the one nested value worth keeping.
+        benford = s.get("benford")
+        if isinstance(benford, dict) and "benford_mad" in columns:
+            row["benford_mad"] = _csv_num(benford.get("mad"))
+        rows.append(row)
+
+    n = _append_csv(path, columns, rows)
+    print(f"csv: appended {n} fundamentals rows for {date_iso} to data/fundamentals/{path.name}.")
+    return n
 
 
 def _age_hours_from_iso(value):
@@ -406,136 +571,11 @@ def fetch_rss_headlines(max_per_feed=4, brief_type="morning"):
     return all_items
 
 
-# ── Claude API ──────────────────────────────────────────────────────────────
-
-# Pricing per million tokens. Updates automatically based on model env var.
-# Opus: $15/$75, Sonnet: $3/$15, Haiku: $0.80/$4
-MODEL_PRICING = {
-    "claude-opus-4-6": (15.00, 75.00),
-    "claude-sonnet-4-6": (3.00, 15.00),
-    "claude-haiku-4-5-20251001": (0.80, 4.00),
-}
-_default_pricing = (15.00, 75.00)  # Opus default
-INPUT_COST_PER_MTOK, OUTPUT_COST_PER_MTOK = MODEL_PRICING.get(ANTHROPIC_MODEL, _default_pricing)
-
-def call_claude(system_prompt, user_content):
-    """Call Anthropic Messages API. Returns (text, usage_dict)."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY not set")
-
-    payload = json.dumps({
-        "model": ANTHROPIC_MODEL,
-        "max_tokens": 32000,
-        "system": system_prompt,
-        "messages": [{"role": "user", "content": user_content}],
-    }).encode("utf-8")
-
-    req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
-        data=payload,
-        headers={
-            "Content-Type": "application/json",
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-        },
-        method="POST",
-    )
-
-    with urllib.request.urlopen(req, timeout=290) as resp:
-        result = json.loads(resp.read().decode("utf-8"))
-
-    text = result["content"][0]["text"]
-    usage = result.get("usage", {})
-    input_tokens = usage.get("input_tokens", 0)
-    output_tokens = usage.get("output_tokens", 0)
-
-    # Calculate cost for this call
-    input_cost = (input_tokens / 1_000_000) * INPUT_COST_PER_MTOK
-    output_cost = (output_tokens / 1_000_000) * OUTPUT_COST_PER_MTOK
-    total_cost = input_cost + output_cost
-
-    # Project monthly: 3 briefs/day * 30 days
-    monthly_projected = total_cost * 90
-
-    usage_info = {
-        "input_tokens": input_tokens,
-        "output_tokens": output_tokens,
-        "total_tokens": input_tokens + output_tokens,
-        "cost_this_call": round(total_cost, 4),
-        "cost_daily_projected": round(total_cost * 3, 4),
-        "cost_monthly_projected": round(monthly_projected, 2),
-    }
-
-    return text, usage_info
-
-
-# ── Brief Config ────────────────────────────────────────────────────────────
-
-READER_CONTEXT = os.environ.get("APTERREON_READER_CONTEXT", "A curious, analytically rigorous reader.")
-
 SECTION_NAMES = [s[0] for s in SECTIONS]
 
-ANALYSIS_PROMPT = """You are drafting an intelligence brief. The reader: {reader_context}
+# Headlines kept per feed per run.
+MAX_PER_FEED = 4
 
-You will receive headlines grouped by section. For EACH section, select the 2-3 most important stories:
-{section_list}
-
-Return ONLY valid JSON (no markdown fences, no preamble):
-{{
-  "sections": [
-    {{
-      "name": "EXACT section name from the list above",
-      "stories": [
-        {{
-          "headline": "Concise headline",
-          "summary": "What happened. 1 sentence.",
-          "insight": "Why it matters. 1 sentence. Be specific, not verbose.",
-          "source": "Publication name(s)",
-          "link": "URL from the input data, or empty string if unavailable"
-        }}
-      ]
-    }}
-  ],
-  "the_edge": "One cross-domain insight connecting dots most people miss. 1-2 sentences."
-}}
-
-RULES:
-- Include ALL sections in this exact order: {section_list}
-- For "Breaking News": include headline, source, and link ONLY. Set summary and insight to empty strings. These are raw headlines, no analysis needed.
-- For all other sections: 2-3 stories per section with full summary and insight.
-- CRITICAL: Every summary must be ONE sentence. Every insight must be ONE sentence. No exceptions.
-- NEVER use em dashes (the long dash character). Use periods, commas, or colons instead. Em dashes are an AI-writing tell and the brand voice forbids them.
-- Deduplicate similar headlines.
-- Output ONLY the JSON object. No commentary, no summary, no text before or after the JSON. Start with {{ and end with }}."""
-
-def get_brief_config(brief_type):
-    """Build brief config with current env vars (not import-time)."""
-    reader = os.environ.get("APTERREON_READER_CONTEXT", "A curious, analytically rigorous reader.")
-    section_list = ", ".join(SECTION_NAMES)
-    base_prompt = ANALYSIS_PROMPT.format(reader_context=reader, section_list=section_list)
-
-    configs = {
-        "morning": {
-            "subject_prefix": "Morning Brief",
-            "max_per_feed": 4,
-            "system_prompt": base_prompt,
-        },
-        "midday": {
-            "subject_prefix": "Midday Update",
-            "max_per_feed": 3,
-            "system_prompt": base_prompt + "\n\nThis is a MIDDAY DELTA UPDATE. Only genuine new developments since morning. 6-10 stories max. Shorter insights.",
-        },
-        "evening": {
-            "subject_prefix": "Evening Wrap",
-            "max_per_feed": 3,
-            "system_prompt": base_prompt + '\n\nThis is an EVENING WRAP. Pick the single most important story per section. Add a "tomorrow_watch" field (string) to the root JSON with 2-3 things to watch tomorrow.',
-        },
-    }
-    return configs.get(brief_type, configs["morning"])
-
-
-# ── Market Data Bar HTML ───────────────────────────────────────────────────
 
 def market_bar_email(quotes):
     """Market data row for the email preview (Apterreon)."""
@@ -575,44 +615,6 @@ def market_bar_interactive(quotes):
 
 # ── Email Preview ──────────────────────────────────────────────────────────
 
-def usage_banner_email(usage_info):
-    """API usage banner for the email (Apterreon)."""
-    if not usage_info:
-        return ""
-    cost = usage_info.get("cost_this_call", 0)
-    monthly = usage_info.get("cost_monthly_projected", 0)
-    tokens = usage_info.get("total_tokens", 0)
-
-    if monthly < 2:
-        bar_color = "#5599CC"  # singularity blue, calm
-        status = "LOW"
-    elif monthly < 5:
-        bar_color = "#888888"  # grey, neutral
-        status = "MODERATE"
-    else:
-        bar_color = "#CC0000"  # red, over budget
-        status = "HIGH"
-
-    budget = 10.0
-    pct = min(100, (monthly / budget) * 100)
-
-    return f"""<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;border-collapse:collapse">
-<tr><td style="padding:12px 16px;background:#070A0F;border:1px solid #1A2030">
-<table width="100%" cellpadding="0" cellspacing="0">
-<tr>
-<td style="font-size:9px;letter-spacing:3px;color:#9AA8B8;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">API Usage</td>
-<td style="text-align:right;font-size:9px;letter-spacing:3px;color:{bar_color};font-weight:700;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">{status}</td>
-</tr>
-<tr><td colspan="2" style="padding-top:8px">
-<div style="background:#111420;height:2px;overflow:hidden"><div style="background:{bar_color};width:{pct:.0f}%;height:2px"></div></div>
-</td></tr>
-<tr><td colspan="2" style="padding-top:8px;font-size:10px;color:#9AA8B8;font-family:'SF Mono',Menlo,Consolas,monospace">
-${cost:.4f} this brief &middot; {tokens:,} tokens &middot; ${monthly:.2f}/mo projected &middot; $10.00 budget
-</td></tr>
-</table>
-</td></tr></table>"""
-
-
 def build_email_preview(title, data, quotes, timestamp, usage_info=None, brief_url=None, site_url=None):
     """Email preview, Apterreon. Email-safe (inline styles, tables,
     system fonts only, no web fonts since most clients strip @import).
@@ -621,7 +623,7 @@ def build_email_preview(title, data, quotes, timestamp, usage_info=None, brief_u
     sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
     mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace"
 
-    usage_html = usage_banner_email(usage_info)
+    usage_html = ""
     market_html = market_bar_email(quotes)
     sections_html = ""
 
@@ -3859,142 +3861,21 @@ def render_page(title, body_html, active_nav="", extra_scripts=""):
 
 # ── Recent Trends: cached Claude generation across past brief days ──────────
 
-RECENT_TRENDS_PROMPT = """You are an analyst summarizing the past several days of an intelligence brief.
-
-You will receive a chronological list of brief synthesis lines and top headlines. Identify the dominant shifts, the recurring threads, and the structural narratives that emerged across the period.
-
-Return ONLY valid JSON (no markdown fences, no preamble):
-{
-  "snapshot": [
-    "Bullet 1: a single-sentence shift or narrative across the period. Specific. References actual events.",
-    "Bullet 2: a different shift or narrative.",
-    "Bullet 3: a third shift or narrative."
-  ],
-  "themes": ["short phrase", "short phrase", "..."]
-}
-
-RULES:
-- snapshot: EXACTLY 3 bullets. Each is one sentence, 20 to 35 words. No filler, no hedging. Each must stand alone (the reader scans these in 5 seconds).
-- themes: 3 to 5 short phrases, 4 to 8 words each, capturing recurring threads orthogonally to the snapshot bullets.
-- NEVER use em dashes (the long dash character). Use periods, commas, or colons instead.
-- Output ONLY the JSON object. No commentary."""
-
-
-def _parse_json_strict(text):
-    """Tolerant JSON parse: strip code fences, trim to outermost braces, drop em dashes, then loads."""
-    cleaned = text.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[-1]
-        if cleaned.endswith("```"):
-            cleaned = cleaned[:-3]
-    cleaned = cleaned.strip()
-    start = cleaned.find("{")
-    if start != -1:
-        depth = 0
-        end = len(cleaned)
-        for i in range(start, len(cleaned)):
-            if cleaned[i] == "{":
-                depth += 1
-            elif cleaned[i] == "}":
-                depth -= 1
-                if depth == 0:
-                    end = i + 1
-                    break
-        cleaned = cleaned[start:end]
-    cleaned = cleaned.replace(" — ", ", ").replace("—", ",")
-    return json.loads(cleaned)
-
-
 def get_or_generate_recent_trends(briefs):
-    """Daily-cached snapshot of the past ~10 calendar days of briefs as 3 scannable
-    bullets plus 3-5 recurring themes. Returns dict with 'date', 'snapshot' (list of
-    bullet strings), 'themes' (list of phrase strings). Falls back gracefully on
-    any error."""
-    today = datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d")
-    cache_path = STATE_DIR / "recent_trends.json"
-
-    if cache_path.exists():
-        try:
-            cached = json.loads(cache_path.read_text(encoding="utf-8"))
-            if cached.get("date") == today and cached.get("snapshot"):
-                return cached
-        except Exception as e:
-            print(f"recent_trends: cache read error: {e}")
-
-    # Fallback: derive bullets from the latest few the_edge synthesis lines
-    fallback_bullets = []
-    for b in briefs[:3]:
-        edge = (b.get("the_edge") or "").strip()
-        if edge:
-            fallback_bullets.append(edge)
-    if not fallback_bullets:
-        fallback_bullets = ["Recent trends will appear here once briefs accumulate."]
-    fallback = {"date": today, "snapshot": fallback_bullets[:3], "themes": []}
-
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("recent_trends: no API key, using fallback (latest the_edge bullets).")
-        return fallback
-
-    by_date = {}
-    for b in briefs:
-        d = b.get("date", "")
-        if d:
-            by_date.setdefault(d, []).append(b)
-    recent_dates = sorted(by_date.keys(), reverse=True)[:10]
-    if not recent_dates:
-        return fallback
-
-    lines = []
-    for d in recent_dates:
-        for b in by_date[d]:
-            ed = b.get("type", "")
-            edge = (b.get("the_edge") or "").strip()
-            lines.append(f"=== {d} {ed} ===")
-            if edge:
-                lines.append(f"Edge: {edge}")
-            for sec in b.get("sections", [])[:7]:
-                sec_name = sec.get("name", "")
-                for st in sec.get("stories", [])[:2]:
-                    h = (st.get("headline") or "").strip()
-                    if h:
-                        lines.append(f"- {sec_name}: {h}")
-            lines.append("")
-    user_input = "\n".join(lines)[:18000]
-
-    try:
-        text, usage = call_claude(RECENT_TRENDS_PROMPT, user_input)
-        parsed = _parse_json_strict(text)
-        snapshot_raw = parsed.get("snapshot") or []
-        if not isinstance(snapshot_raw, list):
-            snapshot_raw = []
-        snapshot = [str(b).strip().replace(" — ", ", ").replace("—", ",") for b in snapshot_raw if str(b).strip()][:3]
-        themes = parsed.get("themes") or []
-        if not isinstance(themes, list):
-            themes = []
-        themes = [str(t).strip() for t in themes if str(t).strip()][:5]
-        if not snapshot:
-            print("recent_trends: empty snapshot from Claude, using fallback.")
-            return fallback
-        result = {
-            "date": today,
-            "snapshot": snapshot,
-            "themes": themes,
-            "usage": usage,
-        }
-        cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        print(f"recent_trends: regenerated for {today} ({len(snapshot)} bullets, {len(themes)} themes, ${usage.get('cost_this_call', 0):.4f}).")
-        return result
-    except Exception as e:
-        print(f"recent_trends: generation failed: {e}")
-        return fallback
+    """Formerly a daily Claude call summarizing the last ~10 days into bullets and
+    themes. The project no longer uses an LLM, and there is no non-LLM way to
+    synthesize prose, so this returns empty and generate_home omits the block."""
+    return {"date": datetime.now(timezone(ET_OFFSET)).strftime("%Y-%m-%d"),
+            "snapshot": [], "themes": []}
 
 
-# ── Wikipedia constituent scraper ───────────────────────────────────────────
+# ── Wikipedia constituent scraper ───────────────────────────────────
 
 class _WikiTableParser(HTMLParser):
     """Extract rows from the first <table class="wikitable"> in the document.
     Rows are lists of cell text. Whitespace collapsed, tags stripped, footnote
     markers like [1] stripped."""
+
     def __init__(self):
         super().__init__()
         self.in_table = False
@@ -4870,7 +4751,6 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
         print("prices: yfinance not installed, skipping.")
         return 0
     PRICES_DIR.mkdir(parents=True, exist_ok=True)
-    now_ts = time.time()
 
     def needs_fetch(ticker):
         f = PRICES_DIR / _news_filename(ticker)
@@ -5565,6 +5445,7 @@ def get_or_generate_stocks_universe():
     now = datetime.now(timezone(ET_OFFSET))
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
+    date_key = now.strftime("%Y-%m-%d")
     cache_path = STATE_DIR / "stocks_universe.json"
 
     last_known = None
@@ -5588,24 +5469,23 @@ def get_or_generate_stocks_universe():
         # otherwise we're trusting a known-broken first run.
         and any(s.get("insider_tx_count_90d") for s in cached_stocks)
     )
-    if last_known and last_known.get("iso_week") == week_key and schema_ok:
-        try:
-            last_dt = datetime.fromisoformat(last_known.get("generated_at", ""))
-            age_hours = (now - last_dt).total_seconds() / 3600
-            if age_hours < 4:
-                print(f"stocks_universe: using cache from {age_hours:.1f}h ago.")
-                # News + prices have their own per-file caches; these calls are
-                # no-ops for tickers already cached and just fill any holes.
-                cached_list = last_known.get("stocks") or []
-                enrich_with_news(cached_list)
-                aggregate_news_sentiment(cached_list)
-                compute_neglect_score(cached_list)
-                enrich_with_prices(cached_list)
-                return last_known
-        except Exception:
-            pass
-    elif last_known and not schema_ok:
-        print("stocks_universe: schema bump (op_margin_history missing), bypassing 4h cache.")
+    # Refreshed daily, not weekly: the yfinance fields (price, market cap, P/E,
+    # momentum) genuinely move day to day, and the CSV panel wants real daily
+    # rows rather than one value repeated seven times. The expensive EDGAR and
+    # insider passes below keep their own ISO-week gates, so filings data is
+    # still pulled once a week.
+    if last_known and last_known.get("date") == date_key and schema_ok:
+        print(f"stocks_universe: already refreshed today ({date_key}), using cache.")
+        # News + prices have their own per-file caches; these calls are no-ops for
+        # tickers already cached and just fill any holes.
+        cached_list = last_known.get("stocks") or []
+        enrich_with_news(cached_list)
+        aggregate_news_sentiment(cached_list)
+        compute_neglect_score(cached_list)
+        enrich_with_prices(cached_list)
+        return last_known
+    if last_known and not schema_ok:
+        print("stocks_universe: schema bump, bypassing the daily cache.")
 
     # Build fresh universe from Wikipedia (S&P 500/400/600) + iShares (Russell 1000/2000)
     stocks = fetch_all_universes()
@@ -5738,6 +5618,7 @@ def get_or_generate_stocks_universe():
 
     result = {
         "iso_week": week_key,
+        "date": date_key,
         "generated_at": now.isoformat(),
         "source": "wikipedia + yfinance + edgar",
         "enriched": bool(total_with_cap),
@@ -5752,7 +5633,7 @@ def get_or_generate_stocks_universe():
     pct_cap = (total_with_cap / len(stocks) * 100) if stocks else 0
     pct_price = (total_with_price / len(stocks) * 100) if stocks else 0
     pct_edgar = (total_with_edgar / len(stocks) * 100) if stocks else 0
-    print(f"stocks_universe: regenerated for {week_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {insider_count} insider signals, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
+    print(f"stocks_universe: regenerated for {date_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {insider_count} insider signals, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
     return result
 
 
@@ -6115,7 +5996,7 @@ def generate_stocks_page(universe):
     """Write docs/stocks.html: filterable table of US stocks scraped from Wikipedia
     (S&P 500/400/600), optionally enriched with live FMP quote data."""
     stocks = universe.get("stocks", []) or []
-    iso_week = universe.get("iso_week", "")
+    iso_week = universe.get("date") or universe.get("iso_week", "")
     enriched = universe.get("enriched", False)
     source = universe.get("source", "wikipedia")
 
@@ -6133,7 +6014,7 @@ def generate_stocks_page(universe):
     indexes_json = json.dumps(indexes)
 
     enrich_note = "Live price, market cap, 1d %, and P/E from Yahoo Finance. " if enriched else ""
-    meta_line = f"Updated for {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
+    meta_line = f"Updated {iso_week} · Source: {source}" if iso_week else f"Source: {source}"
     factor_sections_html = render_filter_panel_sections()
 
     body = f"""
@@ -6410,6 +6291,27 @@ def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=Non
     generate_site(briefs)
 
 
+def build_sections_from_headlines(headlines):
+    """Group headlines into the site's section structure, without an LLM.
+
+    Returns the same shape the renderers already consume. summary, insight,
+    the_edge and tomorrow_watch stay empty: every template guards on truthiness
+    (`if edge_text:`, `if (edgeText)`), so those blocks are simply omitted rather
+    than rendering as empty panels."""
+    sections = []
+    for section_name, categories in SECTIONS:
+        stories = [{
+            "headline": h.get("title", ""),
+            "summary": "",
+            "insight": "",
+            "source": h.get("source", ""),
+            "link": h.get("link", ""),
+        } for h in headlines if h.get("category") in categories]
+        if stories:
+            sections.append({"name": section_name, "stories": stories})
+    return {"sections": sections, "the_edge": "", "tomorrow_watch": ""}
+
+
 # ── Lambda Handler ──────────────────────────────────────────────────────────
 
 def lambda_handler(event, context):
@@ -6423,148 +6325,70 @@ def lambda_handler(event, context):
             return {"pinned": new_state, "key": key}
         return {"error": "No key provided"}
 
-    brief_type = event.get("brief_type", "morning")
+    # Modes:
+    #   record  cheap, runs hourly. Quotes + headlines appended to the CSVs.
+    #   daily   record, plus the fundamentals panel, the snapshot page and the
+    #           site rebuild. Runs once a day.
+    # The split exists because docs/index.html is ~325KB and is rewritten in full
+    # on every site rebuild; doing that hourly would bloat the repo for nothing,
+    # while appending a few CSV rows hourly costs almost nothing.
+    mode = event.get("mode") or event.get("brief_type") or "daily"
+    if mode in ("morning", "midday", "evening"):
+        mode = "daily"          # legacy edition names still dispatch a daily run
+    if mode not in ("record", "daily"):
+        return {"status": "error", "error": f"unknown mode {mode!r}"}
 
     now_et = datetime.now(timezone(ET_OFFSET))
-    day_of_week = now_et.weekday()  # 0=Mon, 5=Sat, 6=Sun
-    is_weekend = day_of_week >= 5
-
-    # Weekends: only send the morning brief
-    if is_weekend and brief_type != "morning":
-        print(f"Weekend, skipping {brief_type} brief.")
-        return {"status": "skipped_weekend", "brief_type": brief_type}
-
-    # On weekends, relabel as "Weekend Brief"
-    config = get_brief_config(brief_type)
-    if is_weekend:
-        config["subject_prefix"] = "Weekend Brief"
-
+    observed_at = now_et.isoformat(timespec="seconds")
+    date_iso = now_et.strftime("%Y-%m-%d")
     date_str = now_et.strftime("%A, %B %d")
     timestamp = now_et.strftime("%I:%M %p ET")
 
-    # 1. Fetch market data
+    # 1. Market data
     print("Fetching market data...")
     quotes = fetch_market_data()
 
-    # 2. Fetch headlines
-    print(f"Fetching RSS headlines for {brief_type} brief...")
-    headlines = fetch_rss_headlines(max_per_feed=config["max_per_feed"], brief_type=brief_type)
+    # 2. Headlines
+    print(f"Fetching RSS headlines ({mode} run)...")
+    headlines = fetch_rss_headlines(max_per_feed=MAX_PER_FEED, brief_type="morning")
 
+    # 3. Record both to the append-only CSVs. This is the durable output; every
+    #    later step only rebuilds views over data already committed here.
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    n_quotes = record_quotes(quotes, observed_at)
+    n_heads = record_headlines(headlines, observed_at)
+
+    if mode == "record":
+        return {"status": "recorded", "mode": mode, "quotes": n_quotes,
+                "headlines_new": n_heads, "headlines_seen": len(headlines)}
+
+    # ── daily only ──────────────────────────────────────────────────────────
     if not headlines:
-        print("No headlines fetched. Sending fallback.")
-        subject = f"{config['subject_prefix']} \u00b7 {date_str}"
-        send_email(subject, "<p>No headlines could be retrieved. RSS feeds may be temporarily unavailable.</p>")
-        return {"status": "sent_fallback"}
+        print("No headlines fetched; publishing the page anyway from market data.")
 
-    # 3. Group headlines by section
-    headlines_text = f"Today is {date_str}. Brief type: {brief_type}.\n\n"
-    for section_name, categories in SECTIONS:
-        section_items = [h for h in headlines if h["category"] in categories]
-        if section_items:
-            headlines_text += f"=== {section_name} ===\n"
-            for h in section_items:
-                headlines_text += f"- {h['title']} (Source: {h['source']}, Category: {h['category']}, Link: {h['link']})\n"
-            headlines_text += "\n"
+    # 4. Group headlines into the section shape the renderers expect. This used
+    #    to be a Claude call; the project is pure aggregation now, so summary and
+    #    insight stay empty and the templates omit those blocks.
+    data = build_sections_from_headlines(headlines)
 
-    if quotes:
-        headlines_text += "=== Market Data ===\n"
-        for q in quotes:
-            headlines_text += f"- {q['label']} ({q['ticker']}): ${q['price']}, change: {q['change_pct']}%\n"
+    # 5. Fundamentals panel: one row per ticker per day.
+    universe = get_or_generate_stocks_universe()
+    stocks = (universe or {}).get("stocks") or []
+    record_fundamentals(stocks, date_iso)
 
-    # 4. Generate analysis
-    print(f"Calling Claude ({ANTHROPIC_MODEL}) for analysis...")
-    raw_response, usage_info = call_claude(config["system_prompt"], headlines_text)
+    # 6. Publish the snapshot page and rebuild the site.
+    title = f"Daily Brief · {date_str}"
+    interactive_html = build_interactive_html(title, data, quotes, timestamp)
+    s3_publish_brief("daily", now_et, interactive_html, data=data, quotes=quotes, timestamp=timestamp)
 
-    # Parse JSON:extract the object even if the model adds commentary or truncates.
-    cleaned = raw_response.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[-1]
-        if cleaned.endswith("```"):
-            cleaned = cleaned[:-3]
-    cleaned = cleaned.strip()
-
-    # Find the JSON object by matching braces. If depth never closes (truncation),
-    # take everything from the first { to the end so json.loads gives a useful error
-    #:not an empty string.
-    start = cleaned.find("{")
-    if start != -1:
-        depth = 0
-        end = len(cleaned)  # default: full remainder, not start (avoid empty slice on truncation)
-        for i in range(start, len(cleaned)):
-            if cleaned[i] == "{":
-                depth += 1
-            elif cleaned[i] == "}":
-                depth -= 1
-                if depth == 0:
-                    end = i + 1
-                    break
-        cleaned = cleaned[start:end]
-
-    # Brand voice forbids em dashes (AI-writing tell). Strip them defensively
-    # in case the model ignored the instruction in the prompt.
-    cleaned = cleaned.replace(" \u2014 ", ", ").replace("\u2014", ",")
-
-    data = None
-    try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        # Try one repair pass: close any unterminated string and balance braces/brackets.
-        repaired = cleaned
-        # If the last quote is unmatched, append a closing quote.
-        if repaired.count('"') % 2 == 1:
-            repaired += '"'
-        # Trim a trailing comma that often appears mid-truncation.
-        repaired = re.sub(r',\s*$', '', repaired)
-        # Balance brackets and braces (close in correct order using a stack walk).
-        stack = []
-        for ch in repaired:
-            if ch in '{[':
-                stack.append(ch)
-            elif ch == '}' and stack and stack[-1] == '{':
-                stack.pop()
-            elif ch == ']' and stack and stack[-1] == '[':
-                stack.pop()
-        for opener in reversed(stack):
-            repaired += '}' if opener == '{' else ']'
-        try:
-            data = json.loads(repaired)
-            print(f"JSON repaired after truncation (added {len(repaired) - len(cleaned)} chars).")
-        except json.JSONDecodeError as e2:
-            print(f"JSON parse error (unrecoverable): {e2}")
-            print(f"Raw[:1000]: {raw_response[:1000]}")
-            subject = f"{config['subject_prefix']}, {date_str}, Generation Error"
-            fallback = (
-                f"<div style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;"
-                f"max-width:600px;margin:0 auto;padding:32px 24px;background:#0D0F18;color:#E0E8F0'>"
-                f"<h1 style='font-size:18px;font-weight:700;margin:0 0 12px'>Brief generation failed</h1>"
-                f"<p style='font-size:13px;color:#7A8A9A;line-height:1.6;margin:0 0 16px'>"
-                f"The model response could not be parsed. The next scheduled brief will retry automatically."
-                f"</p>"
-                f"<p style='font-size:11px;color:#6A7888;margin:0'>Error: {e2}</p>"
-                f"</div>"
-            )
-            send_email(subject, fallback)
-            return {"status": "sent_fallback_parse_error", "error": str(e2)}
-
-    # 5. Build all views
-    title = f"{config['subject_prefix']} \u00b7 {date_str}"
-    site_url = os.environ.get("APTERREON_SITE_URL", "https://ctlsmith5689.github.io/daily-intelligence-brief")
-    date_iso_for_url = now_et.strftime("%Y-%m-%d")
-    brief_url = f"{site_url}/briefs/{date_iso_for_url}-{brief_type}.html"
-    email_html = build_email_preview(title, data, quotes, timestamp, usage_info, brief_url=brief_url, site_url=site_url)
-    interactive_html = build_interactive_html(title, data, quotes, timestamp, usage_info)
-
-    # 6. Send email (preview only, no attachment for minimal traceability)
-    send_email(title, email_html)
-
-    # 7. Publish brief HTML + JSON sidecar, regenerate site index
-    s3_publish_brief(brief_type, now_et, interactive_html, data=data, quotes=quotes, timestamp=timestamp)
-
-    return {"status": "sent", "brief_type": brief_type, "stories": len(headlines), "quotes": len(quotes), "usage": usage_info}
+    return {"status": "published", "mode": mode, "stories": len(headlines),
+            "quotes": len(quotes), "stocks": len(stocks)}
 
 
 if __name__ == "__main__":
     import sys
-    brief_type = sys.argv[1] if len(sys.argv) > 1 else "morning"
-    result = lambda_handler({"brief_type": brief_type}, None)
+    # "record" for the hourly run, "daily" for the full one. The old edition
+    # names (morning/midday/evening) still work and map to a daily run.
+    mode = sys.argv[1] if len(sys.argv) > 1 else "daily"
+    result = lambda_handler({"mode": mode}, None)
     print(json.dumps(result, indent=2))
