@@ -525,7 +525,7 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
 .stk-map-foot { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
   color:var(--text-4); margin:9px 0 0; }
-.stk-radar { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr) 296px;
+.stk-radar { display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
   grid-template-rows:auto auto; align-items:start; gap:0 22px;
   align-items:start; justify-content:start; }
 .stk-radar > .stk-map { grid-column:1; grid-row:1 / span 2; }
@@ -557,6 +557,21 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-radar-side h3 { font-family:'Instrument Serif',Georgia,serif; font-size:26px; font-weight:400;
   color:var(--text-1); margin:0 0 4px; }
 .stk-radar-hint { font-size:11px; color:var(--text-4); line-height:1.6; margin:0 0 14px; }
+.stk-picklist { border-top:1px solid var(--text-1); max-height:min(72vh, 760px); overflow-y:auto; }
+.stk-pick-h { position:sticky; top:0; background:var(--bg-base); z-index:1;
+  font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--text-4); padding:7px 2px 6px; border-bottom:1px solid var(--border); }
+.stk-pick { display:grid; grid-template-columns:52px minmax(0,1fr) 46px; gap:8px; align-items:baseline;
+  width:100%; text-align:left; padding:7px 2px; background:none; border:none;
+  border-bottom:1px solid var(--border); cursor:pointer; }
+.stk-pick:hover { background:var(--bg-1); }
+.stk-pick-tk { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.5px;
+  color:var(--text-1); }
+.stk-pick-nm { font-size:11px; color:var(--text-3); overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; }
+.stk-pick-sc { font-family:'Instrument Serif',Georgia,serif; font-size:14px; text-align:right; }
+.stk-pick-empty { padding:24px 2px; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1.5px; text-transform:uppercase; color:var(--text-4); }
 .stk-radar-fam { margin-top:16px; }
 .stk-radar-fam-h { display:flex; justify-content:space-between; align-items:baseline;
   border-bottom:1px solid var(--border-bright); padding-bottom:5px; margin-bottom:7px; }
@@ -1313,10 +1328,13 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
           </div>
           <p class="stk-radar-note" id="stk-radar-note"></p>
           <aside class="stk-radar-side">
-            <h3 id="stk-radar-title">Pick a company</h3>
-            <p class="stk-radar-hint" id="stk-radar-hint">Name a ticker above to plot it. Add up to three to compare them on the same rings.</p>
-            <div class="stk-cmps" id="stk-radar-chips"></div>
+            <div class="stk-side-h">
+              <h3 id="stk-radar-title">Pick a company</h3>
+              <p class="stk-radar-hint" id="stk-radar-hint">Name a ticker above to plot it. Add up to three to compare them on the same rings.</p>
+              <div class="stk-cmps" id="stk-radar-chips"></div>
+            </div>
             <div id="stk-radar-breakdown"></div>
+            <div id="stk-radar-picklist" class="stk-picklist" hidden></div>
           </aside>
         </div>
 
@@ -3290,15 +3308,21 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       .filter(Boolean);
     const chipsEl = document.getElementById('stk-radar-chips');
 
+    const listEl2 = document.getElementById('stk-radar-picklist');
     if (!picks.length) {
       if (svg) svg.innerHTML = '';
       if (chipsEl) chipsEl.innerHTML = '';
       if (title) title.textContent = 'Pick a company';
-      if (hint) hint.textContent = 'Search above and pick a company to plot it. Add up to ' + RADAR_MAX +
-        ' to compare them on the same rings.';
+      if (hint) hint.textContent = 'Click one on the map, or take one from here. '
+        + 'Up to ' + RADAR_MAX + ' compare on the same rings.';
       side.innerHTML = '';
+      renderPickList();
+      // The rings are still worth drawing empty: an outline says the shape a
+      // company will take, where a blank rectangle says nothing at all.
+      drawRadar([]);
       return;
     }
+    if (listEl2) { listEl2.hidden = true; listEl2.innerHTML = ''; }
 
     if (title) {
       title.textContent = picks.length === 1
@@ -3355,6 +3379,53 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   // read as a fifth factor, and headline tone is not one: it is not in any
   // dimension and not in the composite. Separating it says so without a
   // footnote.
+  // A compact version of the list view, scoped to the filters, so the third
+  // column is a way to choose rather than a paragraph telling you to choose
+  // somewhere else. Capped: this is a picker, not the list view.
+  const PICKLIST_MAX = 220;
+
+  function renderPickList() {
+    const el = document.getElementById('stk-radar-picklist');
+    if (!el) return;
+    let rows;
+    try { rows = currentFiltered(); } catch (e) { rows = []; }
+    rows = rows.slice().sort(function(a, b) {
+      const av = computeComposite(a), bv = computeComposite(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return bv - av;
+    });
+    const shown = rows.slice(0, PICKLIST_MAX);
+    if (!shown.length) {
+      el.hidden = false;
+      el.innerHTML = '<div class="stk-pick-empty">Nothing matches the current filters.</div>';
+      return;
+    }
+    el.hidden = false;
+    el.innerHTML =
+      '<div class="stk-pick-h">' + rows.length.toLocaleString() + ' matching' +
+      (rows.length > PICKLIST_MAX ? ', top ' + PICKLIST_MAX + ' by score' : '') + '</div>' +
+      shown.map(function(s) {
+        const c = computeComposite(s);
+        return '<button type="button" class="stk-pick" data-pick="' + escapeHtml(s.ticker) + '">' +
+          '<span class="stk-pick-tk">' + escapeHtml(s.ticker) + '</span>' +
+          '<span class="stk-pick-nm">' + escapeHtml(s.name || '') + '</span>' +
+          '<span class="stk-pick-sc ' + scoreClass(c) + '">' + fmtScore(c) + '</span>' +
+          '</button>';
+      }).join('');
+  }
+
+  (function wirePickList() {
+    const el = document.getElementById('stk-radar-picklist');
+    if (!el) return;
+    el.addEventListener('click', function(e) {
+      const b = e.target.closest('[data-pick]');
+      if (!b) return;
+      focusToggle(b.dataset.pick, e.ctrlKey || e.metaKey || e.shiftKey);
+    });
+  })();
+
   function radarExtraBlock(picks, solo) {
     const rows = RADAR_EXTRA.map(function(x) {
       const vals = picks.map(function(s, i) {
