@@ -450,13 +450,39 @@ h1.hero-title {
 .stk-radar-bar i { position:absolute; inset:0 auto 0 0; background:var(--apt-red); display:block; }
 .stk-radar-val { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-2); text-align:right; }
 .stk-radar-val.na { color:var(--text-5); }
-.stk-head { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--surface-3); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-3); text-transform:uppercase; position:sticky; top:0; z-index:3; }
+/* The screener chassis. The design is flat: 1px rules, no rounded cards, no
+   fills behind the toolbar, and the ticker set in a serif at reading size so
+   the eye lands on the company before the numbers. */
+body.page-stocks .lib.lib-wide { background:transparent; border:none; box-shadow:none; padding:0; }
+body.page-stocks .lib-h { display:none; }
+.stk-toprow { display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:0 0 12px; border-bottom:1px solid var(--text-1); background:transparent; }
+.stk-toprow .lib-search { flex:1 1 260px; max-width:340px; background:transparent;
+  border:none; border-bottom:1px solid var(--border-bright); border-radius:0; padding:3px 0; }
+.stk-toprow .lib-chips { gap:5px; }
+.stk-table { border:none; background:transparent; }
+.stk-row { border-bottom:1px solid var(--border); background:transparent; align-items:center; }
+.stk-row:hover { background:var(--surface-1); }
+.stk-rank { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-4); }
+.stk-id { display:flex; align-items:baseline; gap:9px; min-width:0; }
+.stk-tk { font-family:'Instrument Serif',Georgia,serif; font-size:21px; line-height:1.1; color:var(--text-1); }
+.stk-nm { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; min-width:0; }
+.stk-factors { display:flex; gap:5px; align-items:center; padding-left:12px; }
+.stk-f { flex:1 1 0; min-width:0; display:block; text-align:center; }
+.stk-f-t { display:block; height:3px; background:var(--border-bright); position:relative; }
+.stk-f-t em { position:absolute; top:0; bottom:0; display:block; }
+.stk-f-t em.up { background:var(--apt-red); }
+.stk-f-t em.dn { background:var(--text-4); }
+.stk-f b { display:block; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px;
+  color:var(--text-5); font-weight:400; margin-top:3px; }
+.stk-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,1fr) 78px 72px minmax(0,1.1fr) 86px 78px; gap:12px; padding:11px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:80px 1fr 180px 95px 75px 60px 70px 70px; gap:12px; padding:13px 22px; border-top:1px solid var(--border); align-items:start; transition:background .12s; }
+.stk-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,1fr) 78px 72px minmax(0,1.1fr) 86px 78px; gap:12px; padding:13px 4px; cursor:pointer; align-items:center; }
 .stk-row:hover { background:rgba(22,23,31,0.6); }
 .stk-ticker { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
