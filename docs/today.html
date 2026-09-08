@@ -545,7 +545,7 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   color:var(--text-3); padding:2px 7px; margin-left:9px; }
 .stk-map-spin.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
 /* One height for both plots, so the map and the rings end on the same line. */
-.stk-radar { --pane-h:432px; }
+.stk-radar { --pane-h:clamp(400px, calc(100vh - 290px), 780px); }
 .stk-map-plot { position:relative; height:var(--pane-h);
   border:1px solid var(--border); background:var(--surface-1); }
 .stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
@@ -1073,97 +1073,10 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
 
 <section class="editions">
   <div class="editions-h">
-    <h2>Today, Friday, September 04, 2026.</h2>
+    <h2>Today, Tuesday, September 08, 2026.</h2>
     <p>Each edition's top sections at a glance. Open the full brief for everything else.</p>
   </div>
-  
-<div class="edition-block">
-  <div class="edition-head">
-    <div class="edition-name">Daily</div>
-    <div class="edition-time"></div>
-    <a class="edition-link" href="./briefs/2026-09-04-daily.html">Open full brief &rarr;</a>
-  </div>
-  
-  <div class="section-grid">
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">01</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">Breaking News</div>
-        </div>
-        <div class="sc-count">04</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxPNDBMZGNIYWhpanV4ajRyXy1DMnNwUnhKNVFfWnlhcFB5WG5HdXAyb3FkSU83dTFGY0J4UG5IYXVFbndvZkdycHRBYV9rZ1Z3eHpjWUdteXdFRFd6VUhHYnNRbzVOS3g5LVAxcE1xUzJzTlNxSUMyVnRWaFpvc2ZFNWF5LVMzS3czeUxmTzBRTFFDOXJITWE2QktoRmxDQzZ4b2htbEFfelNrOVZBWWVnUzZDVmbSAbwBQVVfeXFMUFZJUHNxV3RPSk0xcDdXS2FKYVc1RzFJQ2VIZHNvcUFiRVhmN3BJMWtRWWNxS003ZzQzbC1oN29tRnpDcTduM0lzZnFuUkxndU1GTzVCU0tZRF95SkZTblJ3Y2VTdlAxM2xGR0JDRU5QZG5UODlWMjlaSXpKU29uRjZvLXhYaTNmZXJCOWNfdHk4REdnZkQ3cDIyLXpkSlc3UEkzcjA3QU5qZzBLT1hZNjFLMDVNWU44Z3pzRVI?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Live updates: Today's South Florida news - NBC 6 South Florida</div><div class="sc-item-source">NBC 6 South Florida</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMimAFBVV95cUxPcW9aSG1RVXh4Vlp6WlZMaWtmbTJBd3d0UUxlVXRPN2VkelpaR2x6LXZpT3NFQUZtSk94ekNCQU5ka2xJY2VXM0c1blE5Y1laTVNWWWpQS0tvbS1EQWhoQXE1bUhNQ1N3YlU0a3JndTFCS0cxellQLXlzZkpuTlZiZ0syVHV1Sml3SHhhbzh1clZXdTJTWXVmUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Not as hot today thanks to clouds, chance of a shower - KSAT</div><div class="sc-item-source">KSAT</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article>
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">02</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">Finance & Markets</div>
-        </div>
-        <div class="sc-count">09</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMingFBVV95cUxNa24yS19EZVc0b3FpNzZUR2NMTTRuTWdvbDA1U0RPaW5iZTdySHEyZGwtN0pyc0pCV0xINEx5dzhqLTlkc3Z6NlVsMC1yNm5YNTFkWE8wNVpReV95ZDdVZGNxNjlERU8tUmRvV0xSYnZFZWsyVlh4c2lpWjRxMEc5aDJaaUxpQUoyUHNiV3EyQjZXZEh1Q0lXbzRWYkZ3UQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Investors to pore over inflation data for signals on rate trajectory - WKZO</div><div class="sc-item-source">WKZO</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMi-gFBVV95cUxOTjBfM2dubnllaGE0bGh4U3pISFVaa25xLTEweERoQno3VWxyM2REMFJEUE16TTZKa3JwQ2RJNGF2Nm9vdVl1b2Y2U0Zaa3hzQ3I5Y3liSHJwV3BOV05JUXJUSmlLektkRDRSTERMamlLOXRTUEpHRnVySUJJZHhfa2N4dkdEZzhheHNkNVNMeTkyV2xqNDBiSF8tZXd2WUcwTjF1R01CQzNZOE1jeGxNeFdTOVIzS2NXVmQ4OXpVZ3pGTldNZk8taEtmUUJvWHRhYzg3cFI2UmtFS19SVU9hTjVBY0RMcmUxZVV2dl90d3BUUTM4Vktrdi1R?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Dow, S&P 500, Nasdaq Futures Tread Water As August Jobs Data Looms: TSLA, LULU, PL, CRDO Stocks In Focus - Stocktwits</div><div class="sc-item-source">Stocktwits</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article>
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">03</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">Politics & Policy</div>
-        </div>
-        <div class="sc-count">04</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMisAFBVV95cUxNSHZzYk9jZVV4RmttX3ZPUmZaTWVoa3dPSnotZ2RrYWFDTzVDN2VVVmdSY0t6NTZEYTliZ29zRC1iajhFZzk3bG5TdkRUS0N6cFpYQUxwQ2xrVjFlN1pvaDNRNWhub29aaGJYenhRbEFJWUNKc3hEdDd6bXFnY3lxa195OXhIR3BwS1JwcmdMM0lqZmxHU0hwNDR6T0s0MEpJVjJmOFdNR29YM0VtMHJ6Zw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Secret Service is getting the fortified White House that past presidents resisted - The Washington Post</div><div class="sc-item-source">The Washington Post</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMie0FVX3lxTE9oazk1N2d3OHZORG85VV9vWjhZNDUySkJPSjA5ZEZCTWhVMDBPT0l0N1Q1ODRMbGVMN2JqLVAtemgyUmV6RGhGZ2JVRVZxQUVRNnhPVFRoUmdsWkpmcUNJMlBCazNGNEVaU0pqWmpQVnFVMkswYl9ycmFfRQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Trump Gamified the Presidency Before the White House Arcade - Newsweek</div><div class="sc-item-source">Newsweek</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article>
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">04</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">AI & Technology</div>
-        </div>
-        <div class="sc-count">09</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitgFBVV95cUxNMngtb3YwenpRb09Hdnc3Z281VllYRnpERUpIQjBHMl9STUdIMVdVa01yb25YNHJSYW1MNWdtY3BSYU02SDBGUGU1bzF5MEZ0SzhRVF8tdHdKcXUwSHdveEwxcUp6Tm54clRHNUJtcjRQRXEtaUsyOEtSTUMxUWJKMkJRTllxRlk1Nkx0c2VjWEZ3ejRSUnFUc1BXYWRXVVhRSGxFbVJLbXcyRFI1bU9TRDZKQWFXQdIBuwFBVV95cUxPdGM3V19Jc0VmWFlCZjZtdjNZNlNMa3JPNFQ1dTlXR09CVDdVT08xcWZJUjJwT1Y3YjFjbWFjTXhiYTZaRGswMXN6LVozVmlad0NzdUFKelkwWGdKSWp2MXVGbEVZaThkWmp1TjYya19LUm9VSklPVlZoajAwM1UxcldrcFFvZ0ZVOXhmYkg3b09XdzNQSGozYXR4S2pTbFh0YkZUZ2w3eWFReVdSQ2VQcUlIVG4tNDRib05r?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">NVidia to Buy AI Startup Hacked by OpenAI in $12.9 Billion Deal - تسنیم</div><div class="sc-item-source">تسنیم</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMivwFBVV95cUxQSDlySGRQNGpxajlQbEZzVlhtZ05EZTFpaFliR0lKeE1RNlBNUzFyem9yZGtXNk9HbEFROS1YWVBIMlo5SGtjX0UxMjFJNk90WUlrR05WdGc1M083U2xLNlUwSUQzODBPSjVYUm5GU3paMndReWQxMEVxckVfTEJmcUVVMVI2ZWVsWVByVEpObjZVVjNKX2FPMWNLWkI1eHZVQTJ0a0VhM1J4ZUNOVkpjREMwVDdIT3ZzVjNKc0FCUQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Andreessen-Backed AI Startup Gimlet Is Now Valued at $3 Billion - Bloomberg.com</div><div class="sc-item-source">Bloomberg.com</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article>
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">05</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">International</div>
-        </div>
-        <div class="sc-count">09</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxNMm1SQzZ4MV9IWTdDWXlmSWhMTEo2eV9rZUxIN0tIVVk1VnVmVHdyd1dkU0NhdDVaOFVXZDZzZklGb0JVcDNsNWpJamhINXp2T05BY2gtRjFxRTNpNTZ3N2JBRmk3bmdSdjZNR0NGSE1mU3pZb055VVRCZXpiWjRuWDIxQ3Y0SDBvN1VrUEhWNFhuMEV6b2QyRy1QRmM5OGItRUh0QWpuQkM3WEx5ZTZNdW9fYmc?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Peter Zeihan, Geopolitical Strategist, to Join Dairy Forum 2027 as Keynote Speaker - Perishable News</div><div class="sc-item-source">Perishable News</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMioAFBVV95cUxQR1pYMkY1b0JRazV0em1LcWY3MGs1QUdHbWhnZkpaTDhpc2taOFU1NkgzUURyTjBGeWdwazRSb1ZjdldONmRPeG5PMlhwdDIzUlM2QmZXT0xtNkhuWGM1eUp0M2tiRmZ4cHI4cGRBY3lXSlZ5SFNwbDdlS05ZU1RYeGtkY1B1YnlSX1drUGtvTlFMQ2xNVDZVU2FzY2cwN2500gGmAUFVX3lxTE9fUWxYRnpIX0QzdWxGMmtFUTZSTmJ6cUdPQUdKUUxEaFlrOGxoVGowblZjbWdIa2lJM2g5Q2s5Zzg2S09ObDI4dHRqN3dIdWRudjd3MDIwenQ0Qjh1eFN6N3FzQ0VCd1M4Mmx1dzZiV090bWpXeWlwcUxETlF3ejdIU1k5c05YOEstMUdJRHBSNXo0NlNGZE45ZTdjaGxCaXFPZHR1eVE?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil prices set for weekly gain as US-Iran hostilities intensify - CNBC</div><div class="sc-item-source">CNBC</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article>
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">06</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">Culture & Sports</div>
-        </div>
-        <div class="sc-count">08</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMicEFVX3lxTFB1aWlJdEk0a0p2R3kzZTREUWNFbzFOQ1FsNVFnRlo0SGZXLXhNYzluaktkemFKc0NIay1ZQnAxRmZJcmRVcU5hclFlLUc1MnBsRkdlQm9iV0dfdFlsakhVeGEta2ttVjJiUkZhdFZJR24?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">You Can Bring Movies Back - The Bowdoin Orient</div><div class="sc-item-source">The Bowdoin Orient</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMilAFBVV95cUxOREJRYkczZEZHd01KR21aSzVKaUpHczREbDBSVkxYeS1UR1U1aWcyOV95NU5nXzg5WUZTQnM2RjE4eXU0TW83T2gzcF9IOGJhMXNLYnpJbkdMM1J2aTUtSDFkQzVPUGxJOEk1WlVwYU9jdTlVMWZfbHBheUpVY1Y2N3Z1VGhtRVc1RVlFTzVxT2s5TTRZ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">An Abstract, Artistic Music Album For Your Next Bible Study - Christianity Today</div><div class="sc-item-source">Christianity Today</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article>
-    <article class="sec-card">
-      <div class="sc-head">
-        <div class="sc-num">07</div>
-        <div class="sc-titles">
-          <div class="sc-eyebrow">Section</div>
-          <div class="sc-title">Boston</div>
-        </div>
-        <div class="sc-count">01</div>
-      </div>
-      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxNUU0tN3hvTlhLOXlHekxQcGk5eWFncmpQU1Fsbmk4bkd6SXNaMTVnWGQyUlBRc2dRZ2xwRlhzQUlWX2xCd256dUx2aUZuV05Uc2laaXU3SHBYc180MlEza1dVSjRfcUhiQ2RCSzFjaEhJZTVucEZmQlJ4TFZqa0F6M3NSRDhRcG1GVFBZV2ctTEVnUdIBmgFBVV95cUxPSEZDOE1rVEQtcUl5Tmd6dDl1VzBnMENTUEVzaU5uTzBEWk1HLU9YTHJnSVZvYmZ2WFdrVnBNT3lrdkxDNnBCdnVOT0NjdkpLY3JOOVA5N0FwWUZPYTlxR25LQk1YLUZLQ3NjalNJOG01bXpVQmV4eFdoZzVvZlhacTN2ZTNEVzJHMElqajdiLVE0YThIMzJFWUNB?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Encore workers prepared to go on strike today - NBC Boston</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a></div>
-    </article></div>
-</div>
-
+  <div class="edition-empty">Today’s brief has not generated yet. The next scheduled run will populate this view.</div>
 </section>
 
 </div>

@@ -2172,7 +2172,7 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   color:var(--text-3); padding:2px 7px; margin-left:9px; }
 .stk-map-spin.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
 /* One height for both plots, so the map and the rings end on the same line. */
-.stk-radar { --pane-h:432px; }
+.stk-radar { --pane-h:clamp(400px, calc(100vh - 290px), 780px); }
 .stk-map-plot { position:relative; height:var(--pane-h);
   border:1px solid var(--border); background:var(--surface-1); }
 .stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
