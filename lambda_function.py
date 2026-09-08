@@ -7545,6 +7545,11 @@ EDGAR_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 _INSIDER_LOOKBACK_DAYS = 90
 _INSIDER_MAX_DOCS_PER_TICKER = 8   # cap per-ticker fetches to keep workflow under 30 min
 _INSIDER_TOP_N_BY_MARKET_CAP = 600  # only fetch insider data for the largest N tickers
+# Ceiling on EDGAR fetches in one run. At roughly 7 per second against the
+# SEC's rate limit this is about 5 minutes of fetching, which leaves the rest
+# of the daily pass comfortable room inside the job timeout. Coverage builds
+# across runs rather than being attempted in one sweep that may never land.
+_EDGAR_MAX_FETCH_PER_RUN = 2000
                                      # (small caps Form 4 is noisier and not worth the latency)
 
 # Shared SEC rate limiter. SEC's documented limit is 10 req/sec/IP. We aim for
@@ -7868,11 +7873,24 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
               f"ignoring the weekly stamp and refetching everything.")
 
     total_matched = len(matched)
-    if not schema_gap:
+    if schema_gap:
+        # Tickers still missing the field that opened the gap go first, so each
+        # run closes part of it instead of every run redoing the same head of
+        # the list and never reaching the tail.
+        missing = schema_gap[0]
+        matched.sort(key=lambda tc: 0 if (by_ticker.get(tc[0]) or {}).get(missing) is None else 1)
+    else:
         matched = [(t, cik) for t, cik in matched if not is_fresh(t)]
-    if total_matched != len(matched):
-        print(f"EDGAR: {total_matched - len(matched)} tickers already stamped this week, "
-              f"{len(matched)} to fetch.")
+        if total_matched != len(matched):
+            print(f"EDGAR: {total_matched - len(matched)} tickers already stamped this week, "
+                  f"{len(matched)} to fetch.")
+
+    if len(matched) > _EDGAR_MAX_FETCH_PER_RUN:
+        print(f"EDGAR: {len(matched)} tickers to fetch, capping at "
+              f"{_EDGAR_MAX_FETCH_PER_RUN} for this run. The remainder follow on "
+              f"later runs; a sweep that overruns the job timeout commits nothing "
+              f"at all, so partial progress that lands beats a full pass that does not.")
+        matched = matched[:_EDGAR_MAX_FETCH_PER_RUN]
 
     def process(item):
         sym, cik = item
