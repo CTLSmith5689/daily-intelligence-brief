@@ -1,0 +1,10 @@
+# The panel CSVs are append-only. When two runs both append and one has to
+# rebase onto the other, the correct resolution is to keep both sets of lines,
+# not to pick a winner. Union does exactly that.
+#
+# This is safe because every writer already dedupes before appending:
+# record_fundamentals refuses a date that is present, record_headlines dedupes
+# on link, and record_quotes appends a fresh observed_at each time. So union
+# cannot produce a duplicate that the writers would not have produced anyway.
+data/**/*.csv merge=union
+data/*.csv    merge=union

@@ -61,27 +61,63 @@ jobs:
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
         run: python lambda_function.py "${{ steps.pick.outputs.mode }}"
 
+      # This step used to destroy the previous run's work every night.
+      #
+      # It did `git fetch` then `git reset --soft origin/main` then
+      # `git add data/ docs/ state/`. reset --soft moves HEAD to the remote tip
+      # WITHOUT touching the working tree, so `git add` then staged this run's
+      # tree, checked out before the other run landed, as the truth. Every file
+      # the other run had added was staged as a deletion. Last writer won by
+      # deleting, over 10,686 files.
+      #
+      # It reverted the daily run on five consecutive nights, typically about
+      # sixty seconds after it finished: the panel rows for 2026-09-04, -05, -07
+      # and -08, the ticker registry, state/news_fetch_log.json back to `{}`
+      # (which forced all 5,461 news files to refetch on every subsequent run),
+      # and the whole published site. Every one of those runs reported success.
+      #
+      # The order is now the safe one: commit our own work first against the
+      # tree we actually generated it from, and only reconcile if the push is
+      # rejected. A rebase replays our commit on top of theirs, so their work
+      # survives by construction rather than by luck. The append-only CSVs carry
+      # `merge=union` in .gitattributes, so concurrent appends keep both sides.
       - name: Commit data
         run: |
-          set +e
+          set -uo pipefail
           git config user.name "apterreon-bot"
           git config user.email "actions@users.noreply.github.com"
+          # .gitattributes asks for the union driver by name; define it.
+          git config merge.union.name "keep both sides of an append-only file"
+          git config merge.union.driver "git merge-file --union -L ours -L base -L theirs %A %O %B"
+
+          git add data/ docs/ state/
+          if git diff --cached --quiet; then
+            echo "Nothing generated this run, so nothing to commit."
+            exit 0
+          fi
+          git commit -m "${{ steps.pick.outputs.mode }}: $(date -u +%FT%H:%M)Z"
+
           for i in 1 2 3 4 5; do
-            # Sync to latest remote main, keep our generated working-tree changes.
-            git fetch origin main
-            git reset --soft origin/main
-            git reset HEAD -- . >/dev/null 2>&1   # unstage anything pre-existing
-            git add data/ docs/ state/
-            if git diff --cached --quiet; then
-              echo "No changes to commit (after sync)."
-              exit 0
-            fi
-            git commit -m "${{ steps.pick.outputs.mode }}: $(date -u +%FT%H:%M)Z"
             if git push; then
               echo "Pushed on attempt $i."
               exit 0
             fi
-            echo "Push attempt $i failed (concurrent push?). Resyncing and retrying in 3s..."
+            echo "Push rejected on attempt $i; another run landed first. Rebasing onto it."
+            git fetch origin main
+            if git rebase origin/main; then
+              continue
+            fi
+            # A conflict here is a regenerated artefact, not data: docs/ and
+            # state/ are rendered wholesale each run, so ours is the fresher
+            # render. The CSVs never reach this path because union resolves them.
+            echo "Rebase conflict; preferring this run's freshly generated artefacts."
+            git checkout --ours -- docs/ state/ 2>/dev/null || true
+            git add -A
+            if ! git -c core.editor=true rebase --continue; then
+              echo "Could not reconcile with the remote; aborting rather than overwriting it."
+              git rebase --abort || true
+              exit 1
+            fi
             sleep 3
           done
           echo "Failed to push after 5 attempts."
