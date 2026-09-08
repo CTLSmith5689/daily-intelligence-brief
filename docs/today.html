@@ -545,7 +545,7 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   color:var(--text-3); padding:2px 7px; margin-left:9px; }
 .stk-map-spin.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
 /* One height for both plots, so the map and the rings end on the same line. */
-.stk-radar { --pane-h:clamp(400px, calc(100vh - 290px), 780px); }
+.stk-radar { --pane-h:432px; }
 .stk-map-plot { position:relative; height:var(--pane-h);
   border:1px solid var(--border); background:var(--surface-1); }
 .stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
@@ -1076,7 +1076,94 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     <h2>Today, Tuesday, September 08, 2026.</h2>
     <p>Each edition's top sections at a glance. Open the full brief for everything else.</p>
   </div>
-  <div class="edition-empty">Today’s brief has not generated yet. The next scheduled run will populate this view.</div>
+  
+<div class="edition-block">
+  <div class="edition-head">
+    <div class="edition-name">Daily</div>
+    <div class="edition-time"></div>
+    <a class="edition-link" href="./briefs/2026-09-08-daily.html">Open full brief &rarr;</a>
+  </div>
+  
+  <div class="section-grid">
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">01</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Breaking News</div>
+        </div>
+        <div class="sc-count">04</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxNMjFUM1NiblY2enh0S3E5UEZUV0hXby1vNTM3T2twdTVlSEtZeDAyclZmR2dNWHlJdXpDUzVVWXRkWWRLUTZ2WnNYazlQSHRpSU5icjEtZXR0T3A4MW8ySjZCY1ZkNlZ4TGdWOVdseWZ2cXZ4V0lPWjFTV2JlUnVIQnZ0cHdCa3Z6Q05zZHlpUXZuM0dSQU9YV0RyWVF5dnkyRGF2NFczVktWM0lvUHF0dUgwc2ZlZ19VS0E?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Air traffic control issue disrupts flights at major UK airports - Reuters</div><div class="sc-item-source">Reuters</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE5vSkJyQXl1ZGlYRzNUZWRaWlBIRmJzOVQ4UnpTNnotdHhfdzFrVUQzdXNLSV9ZTm5JdWtWbi05REYxY01nUU5DVnowdGVfcG9fdll6cXc0cnYtc2hv?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Front page for Sept. 8, 26 - The Spokesman-Review</div><div class="sc-item-source">The Spokesman-Review</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">02</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Finance & Markets</div>
+        </div>
+        <div class="sc-count">29</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiggFBVV95cUxPeVhZcEJvZ3BfMlcxazNWZFlTdUdaN0RZUk16aGh4TndmTTRFMnVrejJnbHA3eTRONzRrOXNlZ2ZrRG1sQlB0dFJqMlVPNzRNVG1PT0RvaDF4bGM0WFhrR2U5dS16VWlnNlUtb2tpWXhHdGVmTW1VdGJWR3dGVFlja0ln?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Why Stocks Are Defying Gravity and What Could Bring Them Down - The New York Times</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMikgFBVV95cUxOVGFFZ1hzQVAxSmpBdWs3LU9MaDZDbGxPbDA0cW1zb2U5czVWanZNb3V4YlJpN1RlUm8tNEEyemJ2MHZXcjRxUVBzZnBEVjJNQ0VvRy1ZUXVTdUZDcE9kV2ZHckFBbE9QVjNrWVRZRnkwSnk4WmZxR1F1NV9WY2ZYLWw1Q1ZQYnhNS2hURlNEZXh5UQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">S&P 500 Sees Little Change In Final Week Of Summer 2026 (SPX) - Seeking Alpha</div><div class="sc-item-source">Seeking Alpha</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">03</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Politics & Policy</div>
+        </div>
+        <div class="sc-count">05</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMihAFBVV95cUxPVkZjNjF6NzNZZzVKSno5aU9fczRqYUx3TmZlQ0dOVVBIbnJ0cFVMNGtrczRNRDlMUkltZFdxbEhtRHA5cTRkTGtMREpDRzMzVC03VFRaRzJqT1VrbVJFLUdmMXVIaWl0TjYwaGh4aEdRMW50bVRzY2RmNi12aWZ2bEszOVM?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">As War Grinds On, Trump Relishes Renovation Projects - The New York Times</div><div class="sc-item-source">The New York Times</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiqgFBVV95cUxPWmxsVFhsZlFvTnNvSXd3bkloTTFrVjh2czBIdGN6elBYNEdONU1Tb0RYMUtzejJIWmdZa19XcHA1MXZXX2R2LVZ0NkhaYUM4aHBGSGtsckw0U1ZrVG55ajNaS0ZKaGlZYXI5TzAxUzV0Zk15dld2ay1EWmhVemdzT1VPdEp6VjlZWHZFYmYzVDgyWEh3RHhHXzJ1Q2J3QnE5ZndjamNvYUxydw?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">‘Very Hard to See How This Ends’ - Politico</div><div class="sc-item-source">Politico</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">04</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">AI & Technology</div>
+        </div>
+        <div class="sc-count">13</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMirwFBVV95cUxNX1ljLXNmeGJFRWE1ZXcyYXRvZlFTcjE1aUxEZTZUV2JJVDFReVhZYWlwUHBTckRjV18yOG5DQUVjcnJTQ2dqVTVfQVZDaTMxbnJXUGV2WDNzOWFZSGpNbHNJdURUWkQxNV9xQ2Y2aVFiX0lrUXZoMnlpclpISF81c3B1Sm5rRXNrTVcwd0E3aWNScWhmeHNZVjNOcXY4V19MX1Y4SDlvSjkteTVJWDU4?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">AI Startup Cognition Raises $2 Billion at a $48 Billion Value - Bloomberg.com</div><div class="sc-item-source">Bloomberg.com</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMisgFBVV95cUxOY0p2X3Y0TklNRzRoOHZ1eHRjc2RiYVJMc1ctYmV4eV81Rktfd003X05pR21DSGpsS2J2elpUNjB5bkRpOWhON0pPcVFQYW1oWmJvTWRTelRMVUw2S2Z0X3RCMGJINlJXczE0eGNlemozWlEyQ3I1VThNQVZqTWM1bTBPT3JPV0l1aHMtRWNEaVJKV0FVMHdodFhFbjRaMnBaNWNOdXpQcmhEWC1DcmJxc0dn?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Anthropic Abandons Proposed $6 Billion Acquisition of AI Startup Decart AI - citybiz</div><div class="sc-item-source">citybiz</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">05</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">International</div>
+        </div>
+        <div class="sc-count">08</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMi4gFBVV95cUxPYnExaGlxd1VwUWJRRHdGSjNqY3QzckNtaW1YQy1iMjV4M19PYXdBWEVVNXVYcFdvZGdValBJX2pNcGtISG1NQ3RsaDVzMEFFdjNmVHRfVkUyd2Q1RV95Z0pzZUd5Q21veFN1YzJDdmNDTno1RFdpSjE3TFk5RVVZY2VZRWhvY1gxWGV3a3RLWE16UmxfcEpBQk5TTWFyYnRHblpfNHNaeUoxVVpVV1pKemVWa2VXUnFrZ2llNTJNaG9CQ1JRUlhuVzVOUkZDeFNYNlZJY3ZXX1VlQjJ5T2RBOG53?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Oil prices approach $100 as Middle East conflict flares, Goldman sees potential upside to $120 - Yahoo Finance</div><div class="sc-item-source">Yahoo Finance</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNT2RnNWprQ01ScjN2Q05RSHRWdmRqVzh2U01LUVVPVmhiRDVYNER3anQxQlNWV24wS3RZR2ZqS1FxNnFKWFRqSmlYbnQwSFk1eU5Cbnh1SVpxbTZCWUwtelFqbFV6LTNLVHZZbGRaYTVucy1VT1JwNDZPM3gydkZRU2VCWHFoVnpTVU9ILXlfRHpKMnBsT3RJOUlkejRzT1FJa25YekFnMVl6dUJnbERxeXo1UnpOZTVaQ281aFJrbjFEWmN3T2c?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Iran-backed Houthis attack four Saudi cities in expansion of Middle East war, 73 hurt - Reuters</div><div class="sc-item-source">Reuters</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">06</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Culture & Sports</div>
+        </div>
+        <div class="sc-count">08</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMivgFBVV95cUxNZXNFRVNPMEJKMmNkd3puZmc5MVZ5V0xVbzFjcFhrcEtoZmNOTlBueU94aGFfN2RUVlhrQTJMS1YxUVBFTkJJU1JYV1MxWkVmUDNYdEtRYm56UXh4TVpVaTNmRXl0cjMxbWp0Q0hUd0s2aHBCUVRleUNSRG5lQTk4ZmJSTkhPcXNtUllZdWlfMjhVTDNSanlCVUZOWkZjM0JhZFoxdGhOdjhiSzFFVGRUV2RWakZxel9fVk1maWVR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Music Industry Career Fair & Community Expo returns Sept. 14 as part of Huntsville Music Month - huntsvilleal.gov</div><div class="sc-item-source">huntsvilleal.gov</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMiqwFBVV95cUxOT3ZBNU1GaFpXWmVvcHljOEIzRTNuQ2Q3TFY3M3VYS2kyWlNrTTBVWXBsbmpKRzFSNzc0cWlvTW0wSS1Ea1BsZWdwVEhkNjdldEhxNVhuZWFqYlFUeFozclljbzhLSTFNYVVMbEk0by1lM0FpMGRRbElHZlNoTEZmSDdocFROVFg1TkZPbW13Zzdvemc4aFdjSDBuekJSVFpNZFJJdzd5azFMaWM?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Retired Pastor Brings the Old Testament to Life Through Music and Poetry - Church of God Ministries</div><div class="sc-item-source">Church of God Ministries</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article>
+    <article class="sec-card">
+      <div class="sc-head">
+        <div class="sc-num">07</div>
+        <div class="sc-titles">
+          <div class="sc-eyebrow">Section</div>
+          <div class="sc-title">Boston</div>
+        </div>
+        <div class="sc-count">04</div>
+      </div>
+      <div class="sc-list"><a class="sc-item" href="https://news.google.com/rss/articles/CBMiowFBVV95cUxNSmVxUDh4OEFDOW1IVFg5U0NyTGJBcHpvQzFad3I4Tk9IOUtTdEFRakhSRVhldUhvUU5ZSWgzeVNFeVNMXzNCaUJZQ242YV9FSTZiN1gtYmxXdTBwaE5Ka01jZHQtMVZaSkh3S0ZMQnhFMHItRy1KNGJ4eFlUREhueGVQRHVWOEhiYllvdkNhRklkOEo5Y3B4NWJaMmJVM1VEeFlB0gGrAUFVX3lxTE15T1NzVE1lSFFncWZET1ljTDQtdVJtejRsWE93WXNxNEcxcGZmcjlfRmp6UTV0Vm54MGZZcGllRkpPYi1TUHozclhhb2lHUzRzM0xGRXdCcllIVV9mbmxBNjlsZWpKVnluMGs3QmhIczBRMFBTUmFmcUltQ0h5elpPZVQxM2hRbWRocHVkc1hJS25ZT0JtTnFiSkpHX2NUWll0NW5mZXdVNTA5SQ?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Healey announces new regulations on data center development in Mass. - NBC Boston</div><div class="sc-item-source">NBC Boston</div></div><span class="sc-arrow">&rarr;</span></a><a class="sc-item" href="https://news.google.com/rss/articles/CBMimgFBVV95cUxQS1d4Ny1xUzJhQnBRTVF6ZkJGUGpnVGY5R2pHWkVVODhVYnI5c2FFRURJcEJSNnM2NVNkTHFYU3l0Sm9vMmtVVnF5blNhdVR0WVNCNnhhSnBtRU9RWmlFSWpERE1feWtpYjEwX0piSUZCUkRFNnIzbWVyVV81UDREUmZuWHJ6MFVkM2RPWjBXdDFSMTRVcFNDU2JR?oc=5" target="_blank" rel="noopener"><div><div class="sc-item-headline">Massachusetts now requires local approval for all future data center developments - The Business Journals</div><div class="sc-item-source">The Business Journals</div></div><span class="sc-arrow">&rarr;</span></a></div>
+    </article></div>
+</div>
+
 </section>
 
 </div>
