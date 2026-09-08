@@ -6519,9 +6519,20 @@ def enrich_with_yfinance(stocks, max_workers=6):
     enriched = 0
     skipped = 0
     t0 = time.time()
+    # Least recently refreshed first, so a budgeted run resumes where the last one
+    # stopped instead of re-fetching the same head of the list every time.
+    tickers.sort(key=lambda sym: (by_ticker.get(sym) or {}).get("last_updated") or "")
+
+    yf_budget_hit = False
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(fetch_one, s) for s in tickers]
         for f in as_completed(futures):
+            if not yf_budget_hit and time.time() - t0 > _YF_TIME_BUDGET_S:
+                yf_budget_hit = True
+                for pending in futures:
+                    pending.cancel()
+            if f.cancelled():
+                continue
             sym, info = f.result()
             if not info:
                 continue
@@ -6692,6 +6703,11 @@ def enrich_with_yfinance(stocks, max_workers=6):
     elapsed = time.time() - t0
     suffix = f", {skipped} skipped on bad payloads" if skipped else ""
     print(f"yfinance: enriched {enriched}/{len(tickers)} tickers in {elapsed:.1f}s ({max_workers} threads){suffix}.")
+    if yf_budget_hit:
+        print(f"yfinance: stopped at the {_YF_TIME_BUDGET_S}s budget with {enriched} of "
+              f"{len(tickers)} done. Yahoo is throttling. The remainder are the least "
+              f"recently refreshed and go first next run. Stopping here means this run "
+              f"still commits; overrunning the job timeout would discard all of it.")
     return enriched
 
 
@@ -6982,9 +6998,18 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     empty_ok = 0
     t0 = time.time()
     stamp = datetime.now(timezone.utc).isoformat()
+    news_budget_hit = False
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, s) for s in todo]
         for f in as_completed(futures):
+            # Same reasoning as the yfinance budget: Google throttles, the pass is
+            # unbounded, and a job killed by the timeout commits nothing.
+            if not news_budget_hit and time.time() - t0 > _NEWS_TIME_BUDGET_S:
+                news_budget_hit = True
+                for pending in futures:
+                    pending.cancel()
+            if f.cancelled():
+                continue
             sym, n, failed = f.result()
             if failed:
                 news_errors += 1
@@ -7004,6 +7029,9 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     if news_errors and news_errors > len(todo) * 0.5:
         print(f"news: WARNING, {news_errors} of {len(todo)} fetches failed. "
               f"Treat news_count_7d and the neglect score as unreliable for this run.")
+    if news_budget_hit:
+        print(f"news: stopped at the {_NEWS_TIME_BUDGET_S}s budget. The untouched "
+              f"tickers keep their existing files and are retried next run.")
     return fetched
 
 
@@ -7550,6 +7578,14 @@ _INSIDER_TOP_N_BY_MARKET_CAP = 600  # only fetch insider data for the largest N 
 # of the daily pass comfortable room inside the job timeout. Coverage builds
 # across runs rather than being attempted in one sweep that may never land.
 _EDGAR_MAX_FETCH_PER_RUN = 2000
+
+# Wall-clock budgets for the passes that scale with the universe and depend on a
+# rate-limited third party. The job allows 120 minutes; these leave room for
+# scoring, the site rebuild and the commit. A pass that hits its budget stops and
+# reports how far it got, which lands, rather than being killed mid-flight with
+# everything still in memory.
+_YF_TIME_BUDGET_S = 2100      # 35 min. Uncapped worst case measured was 4,354s.
+_NEWS_TIME_BUDGET_S = 900     # 15 min across ~5,400 Google RSS fetches.
                                      # (small caps Form 4 is noisier and not worth the latency)
 
 # Shared SEC rate limiter. SEC's documented limit is 10 req/sec/IP. We aim for
