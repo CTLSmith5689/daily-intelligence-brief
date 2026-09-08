@@ -537,7 +537,7 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
   color:var(--text-3); padding:2px 7px; margin-left:9px; }
 .stk-map-spin.active { background:var(--text-1); color:var(--bg-base); border-color:var(--text-1); }
 /* One height for both plots, so the map and the rings end on the same line. */
-.stk-radar { --pane-h:432px; }
+.stk-radar { --pane-h:clamp(400px, calc(100vh - 290px), 780px); }
 .stk-map-plot { position:relative; height:var(--pane-h);
   border:1px solid var(--border); background:var(--surface-1); }
 .stk-map-plot canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; }
@@ -1703,57 +1703,16 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     Quality:  { fields: ['roe_ttm', 'earnings_consistency', 'net_debt_ebitda', 'op_margin_stability', 'accruals_ratio'], invert: ['net_debt_ebitda', 'op_margin_stability', 'accruals_ratio'] },
   };
 
-  // Pre-compute per-sector mean and stddev for every scoring field at init.
-  // ~12 sectors x ~20 fields = 240 stats objects, computed once. Fast.
-  let PEER_STATS = {};
-  function buildPeerStats() {
-    const stats = {};
-    const allFields = new Set();
-    for (const g of Object.values(SCORE_GROUPS)) {
-      for (const f of g.fields) allFields.add(f);
-    }
-    for (const s of ALL) {
-      const sector = s.sector || 'Unknown';
-      if (!stats[sector]) stats[sector] = {};
-      for (const f of allFields) {
-        const v = s[f];
-        if (v == null || !isFinite(v)) continue;
-        if (!stats[sector][f]) stats[sector][f] = { sum: 0, sumSq: 0, count: 0 };
-        stats[sector][f].sum += v;
-        stats[sector][f].sumSq += v * v;
-        stats[sector][f].count++;
-      }
-    }
-    for (const sector of Object.keys(stats)) {
-      for (const f of Object.keys(stats[sector])) {
-        const x = stats[sector][f];
-        x.mean = x.sum / x.count;
-        const variance = (x.sumSq / x.count) - (x.mean * x.mean);
-        x.stddev = Math.sqrt(Math.max(0, variance));
-      }
-    }
-    return stats;
-  }
+  // The server already computed these, under gates this cannot reproduce: at
+  // least two fields per dimension, a real sector cohort of at least five, and a
+  // population sd over that cohort. Recomputing them here with one field and an
+  // "Unknown" bucket produced confident scores for companies the server had
+  // deliberately refused to score.
+  const DIM_KEY = { Growth: 'g', Value: 'v', Momentum: 'm', Quality: 'q' };
 
   function scoreDimension(s, groupKey) {
-    const sector = s.sector || 'Unknown';
-    const sectorStats = PEER_STATS[sector];
-    if (!sectorStats) return null;
-    const group = SCORE_GROUPS[groupKey];
-    let sum = 0, count = 0;
-    for (const f of group.fields) {
-      const v = s[f];
-      if (v == null || !isFinite(v)) continue;
-      const stat = sectorStats[f];
-      if (!stat || !stat.stddev || stat.stddev === 0 || stat.count < 5) continue;
-      let z = (v - stat.mean) / stat.stddev;
-      if (group.invert.includes(f)) z = -z;
-      // Clamp to ±3 for display sanity (real outliers usually mean bad data)
-      z = Math.max(-3, Math.min(3, z));
-      sum += z;
-      count++;
-    }
-    return count > 0 ? sum / count : null;
+    const v = s[DIM_KEY[groupKey]];
+    return (v == null || !isFinite(v)) ? null : v;
   }
 
   // Per-dimension weights for the composite. Range 0 to 2, default 1.0 (equal).
@@ -1761,6 +1720,10 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   const weights = { Growth: 1, Value: 1, Momentum: 1, Quality: 1 };
 
   function computeComposite(s) {
+    // scorable means the server got three of the four dimensions. Below that a
+    // composite is one or two numbers wearing the costume of four, and it ranked
+    // the least-measured companies at the top of the list.
+    if (!s.scorable) return null;
     const dims = ['Growth', 'Value', 'Momentum', 'Quality'];
     let weightedSum = 0;
     let totalWeight = 0;
@@ -2556,7 +2519,12 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     if (!listEl.getClientRects().length) return;
     let guard = 0, grew = false;
     while (shownCount < windowRows.length && guard++ < 60) {
-      if (listEl.getBoundingClientRect().bottom > window.innerHeight + EXTEND_MARGIN) break;
+      // Always paint the first page. The runway test below compares against
+      // window.innerHeight, and a viewport that measures zero, which happens in
+      // a collapsed pane and in some embedded contexts, makes it true on the
+      // first iteration and leaves the list completely empty with no error.
+      if (shownCount > 0 &&
+          listEl.getBoundingClientRect().bottom > window.innerHeight + EXTEND_MARGIN) break;
       if (!paintMore()) break;
       grew = true;
     }
@@ -4468,7 +4436,6 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
 
   function boot(data) {
     ALL = Array.isArray(data) ? data : [];
-    PEER_STATS = buildPeerStats();
     populateRangeStats();
     render();
   }

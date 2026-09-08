@@ -3057,57 +3057,16 @@ STOCKS_JS_TEMPLATE = """
     Quality:  { fields: ['roe_ttm', 'earnings_consistency', 'net_debt_ebitda', 'op_margin_stability', 'accruals_ratio'], invert: ['net_debt_ebitda', 'op_margin_stability', 'accruals_ratio'] },
   };
 
-  // Pre-compute per-sector mean and stddev for every scoring field at init.
-  // ~12 sectors x ~20 fields = 240 stats objects, computed once. Fast.
-  let PEER_STATS = {};
-  function buildPeerStats() {
-    const stats = {};
-    const allFields = new Set();
-    for (const g of Object.values(SCORE_GROUPS)) {
-      for (const f of g.fields) allFields.add(f);
-    }
-    for (const s of ALL) {
-      const sector = s.sector || 'Unknown';
-      if (!stats[sector]) stats[sector] = {};
-      for (const f of allFields) {
-        const v = s[f];
-        if (v == null || !isFinite(v)) continue;
-        if (!stats[sector][f]) stats[sector][f] = { sum: 0, sumSq: 0, count: 0 };
-        stats[sector][f].sum += v;
-        stats[sector][f].sumSq += v * v;
-        stats[sector][f].count++;
-      }
-    }
-    for (const sector of Object.keys(stats)) {
-      for (const f of Object.keys(stats[sector])) {
-        const x = stats[sector][f];
-        x.mean = x.sum / x.count;
-        const variance = (x.sumSq / x.count) - (x.mean * x.mean);
-        x.stddev = Math.sqrt(Math.max(0, variance));
-      }
-    }
-    return stats;
-  }
+  // The server already computed these, under gates this cannot reproduce: at
+  // least two fields per dimension, a real sector cohort of at least five, and a
+  // population sd over that cohort. Recomputing them here with one field and an
+  // "Unknown" bucket produced confident scores for companies the server had
+  // deliberately refused to score.
+  const DIM_KEY = { Growth: 'g', Value: 'v', Momentum: 'm', Quality: 'q' };
 
   function scoreDimension(s, groupKey) {
-    const sector = s.sector || 'Unknown';
-    const sectorStats = PEER_STATS[sector];
-    if (!sectorStats) return null;
-    const group = SCORE_GROUPS[groupKey];
-    let sum = 0, count = 0;
-    for (const f of group.fields) {
-      const v = s[f];
-      if (v == null || !isFinite(v)) continue;
-      const stat = sectorStats[f];
-      if (!stat || !stat.stddev || stat.stddev === 0 || stat.count < 5) continue;
-      let z = (v - stat.mean) / stat.stddev;
-      if (group.invert.includes(f)) z = -z;
-      // Clamp to ±3 for display sanity (real outliers usually mean bad data)
-      z = Math.max(-3, Math.min(3, z));
-      sum += z;
-      count++;
-    }
-    return count > 0 ? sum / count : null;
+    const v = s[DIM_KEY[groupKey]];
+    return (v == null || !isFinite(v)) ? null : v;
   }
 
   // Per-dimension weights for the composite. Range 0 to 2, default 1.0 (equal).
@@ -3115,6 +3074,10 @@ STOCKS_JS_TEMPLATE = """
   const weights = { Growth: 1, Value: 1, Momentum: 1, Quality: 1 };
 
   function computeComposite(s) {
+    // scorable means the server got three of the four dimensions. Below that a
+    // composite is one or two numbers wearing the costume of four, and it ranked
+    // the least-measured companies at the top of the list.
+    if (!s.scorable) return null;
     const dims = ['Growth', 'Value', 'Momentum', 'Quality'];
     let weightedSum = 0;
     let totalWeight = 0;
@@ -3910,7 +3873,12 @@ STOCKS_JS_TEMPLATE = """
     if (!listEl.getClientRects().length) return;
     let guard = 0, grew = false;
     while (shownCount < windowRows.length && guard++ < 60) {
-      if (listEl.getBoundingClientRect().bottom > window.innerHeight + EXTEND_MARGIN) break;
+      // Always paint the first page. The runway test below compares against
+      // window.innerHeight, and a viewport that measures zero, which happens in
+      // a collapsed pane and in some embedded contexts, makes it true on the
+      // first iteration and leaves the list completely empty with no error.
+      if (shownCount > 0 &&
+          listEl.getBoundingClientRect().bottom > window.innerHeight + EXTEND_MARGIN) break;
       if (!paintMore()) break;
       grew = true;
     }
@@ -5822,7 +5790,6 @@ STOCKS_JS_TEMPLATE = """
 
   function boot(data) {
     ALL = Array.isArray(data) ? data : [];
-    PEER_STATS = buildPeerStats();
     populateRangeStats();
     render();
   }
@@ -6444,6 +6411,7 @@ YF_NUMERIC_KEYS = frozenset({
     "earningsGrowth", "enterpriseToEbitda", "enterpriseToRevenue", "priceToBook",
     "freeCashflow", "fiftyTwoWeekHigh", "fiftyDayAverage", "52WeekChange",
     "SandP52WeekChange", "averageDailyVolume10Day", "averageVolume10days",
+    "regularMarketPreviousClose",
     "returnOnEquity", "totalDebt", "totalCash", "ebitda", "netIncomeToCommon",
     "operatingCashflow", "totalAssets", "operatingMargins", "grossMargins",
     "numberOfAnalystOpinions", "heldPercentInstitutions", "heldPercentInsiders",
@@ -6555,10 +6523,17 @@ def enrich_with_yfinance(stocks, max_workers=6):
                     s["market_cap"] = cap
                 if price is not None and 0 < price < 1e6:
                     s["price"] = price
-                if chg is not None:
-                    pct = chg if abs(chg) > 1 else chg * 100
-                    if abs(pct) <= 20:
-                        s["change_pct"] = pct
+                prev = info.get("regularMarketPreviousClose")
+                pct = None
+                if prev is not None and prev > 0 and price is not None and price > 0:
+                    # Unambiguous: two prices, one unit.
+                    pct = (price - prev) / prev * 100
+                elif chg is not None:
+                    # No previous close. Yahoo documents this field as a percent,
+                    # so take it as one rather than guessing from its magnitude.
+                    pct = chg
+                if pct is not None and abs(pct) <= 40:
+                    s["change_pct"] = pct
                 if pe is not None and -500 < pe < 1000:
                     s["pe"] = pe
                 if vol is not None and vol > 0:
@@ -6588,7 +6563,9 @@ def enrich_with_yfinance(stocks, max_workers=6):
 
                 # ── Value factors ───────────────────────────
                 ev_eb = info.get("enterpriseToEbitda")
-                if ev_eb is not None and abs(ev_eb) < 200:
+                # 0 <, not abs(): a negative multiple means negative EBITDA,
+                # and inverting it scored the biggest losses as the best value.
+                if ev_eb is not None and 0 < ev_eb < 200:
                     s["ev_ebitda"] = ev_eb
                 ev_rev = info.get("enterpriseToRevenue")
                 if ev_rev is not None and 0 < ev_rev < 100:
@@ -6635,7 +6612,11 @@ def enrich_with_yfinance(stocks, max_workers=6):
                 debt = info.get("totalDebt") or 0
                 tcash = info.get("totalCash") or 0
                 ebitda = info.get("ebitda")
-                if ebitda is not None and ebitda != 0:
+                # Positive EBITDA only. With negative EBITDA the ratio flips
+                # sign, so a distressed borrower became indistinguishable from a
+                # company sitting on net cash, and Quality inverts this field, so
+                # the distress scored as prudence.
+                if ebitda is not None and ebitda > 0:
                     nde = (debt - tcash) / ebitda
                     if -20 < nde < 50:
                         s["net_debt_ebitda"] = nde
