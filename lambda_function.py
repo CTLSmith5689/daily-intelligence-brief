@@ -251,6 +251,25 @@ def record_headlines(headlines, observed_at):
     return n
 
 
+def panel_has_date(date_iso):
+    """True when the append-only panel already carries a row for this date."""
+    path = FUNDAMENTALS_CSV_DIR / f"{date_iso[:7]}.csv"
+    if not path.exists():
+        return False
+    try:
+        with path.open(encoding="utf-8", newline="") as fh:
+            for row in csv.DictReader(fh):
+                if row.get("date") == date_iso:
+                    return True
+    except Exception as exc:
+        # Unreadable is not the same as absent. Say so rather than silently
+        # deciding the day is missing and triggering a full pass every hour.
+        print(f"panel: could not read {path.name} ({type(exc).__name__}: {exc}); "
+              f"assuming today is already recorded.")
+        return True
+    return False
+
+
 def record_fundamentals(stocks, date_iso):
     """Append one row per ticker for the given date, at most once per day.
 
@@ -9010,6 +9029,19 @@ def lambda_handler(event, context):
     date_iso = now_et.strftime("%Y-%m-%d")
     date_str = now_et.strftime("%A, %B %d")
     timestamp = now_et.strftime("%I:%M %p ET")
+
+    # A record run promotes itself when the day's panel row is still missing and
+    # the session is over. The cron that was supposed to guarantee this is not
+    # reliable: GitHub dropped the 22:23 slot on four consecutive days while
+    # every hourly run succeeded, so the pipeline looked healthy and recorded
+    # nothing. Whichever run happens to be the first one after the close does
+    # the work now, and the rest see the row and stay cheap.
+    if mode == "record" and now_et.weekday() < 5 and now_et.hour >= 17:
+        if not panel_has_date(date_iso):
+            print(f"mode: record run promoted to daily. {date_iso} has no panel row "
+                  f"and the session is over ({timestamp}). The daily cron is not "
+                  f"dependable enough to be the only thing that triggers this.")
+            mode = "daily"
 
     # 1. Market data
     print("Fetching market data...")
