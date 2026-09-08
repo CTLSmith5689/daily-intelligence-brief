@@ -127,24 +127,32 @@ jobs:
       # noticing, because the brief email was sent before the step that crashed.
       # Nothing emails on success any more, so this alert is the only signal.
       - name: Alert on failure
-        if: failure()
+        # Not `failure()` alone: a job killed by timeout-minutes is CANCELLED,
+        # not failed, so the most likely hard failure was the one that never
+        # alerted. cancelled() also covers a run the concurrency group drops.
+        if: failure() || cancelled()
         env:
           APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
           RECIPIENTS: ${{ vars.RECIPIENTS }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           MODE: ${{ steps.pick.outputs.mode }}
+          JOB_STATUS: ${{ job.status }}
         run: |
           python - <<'PY'
           import os
           from lambda_function import send_email
 
           mode = os.environ.get("MODE") or "unknown"
+          status = os.environ.get("JOB_STATUS") or "failed"
           run_url = os.environ["RUN_URL"]
           send_email(
-              f"apterreon-brief FAILED ({mode})",
-              "<h2>The data pipeline failed.</h2>"
+              f"apterreon-brief {status.upper()} ({mode})",
+              f"<h2>The data pipeline {status}.</h2>"
               f"<p>Mode: <b>{mode}</b></p>"
-              f'<p><a href="{run_url}">Open the failed run</a></p>',
+              f"<p>A cancelled job is usually the 120-minute timeout. A failed one
+              either raised, or completed without accomplishing its purpose and
+              exited non-zero on that basis.</p>"
+              f'<p><a href="{run_url}">Open the run</a></p>',
           )
           print("Failure alert sent.")
           PY

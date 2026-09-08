@@ -9076,8 +9076,12 @@ def lambda_handler(event, context):
     n_heads = record_headlines(headlines, observed_at)
 
     if mode == "record":
+        # A record run exists to append quotes and headlines. Seeing neither
+        # means every source was down, or the append silently failed, and either
+        # way the run did not do its job.
         return {"status": "recorded", "mode": mode, "quotes": n_quotes,
-                "headlines_new": n_heads, "headlines_seen": len(headlines)}
+                "headlines_new": n_heads, "headlines_seen": len(headlines),
+                "ok": bool(n_quotes or n_heads or headlines)}
 
     # ── daily only ──────────────────────────────────────────────────────────
     if not headlines:
@@ -9101,6 +9105,8 @@ def lambda_handler(event, context):
     # Weekends only. Exchange holidays still slip through, since detecting them
     # needs a market calendar this project does not carry; those rows repeat the
     # prior close but are identifiable via the last_updated column.
+    panel_rows = 0
+    panel_expected = now_et.weekday() < 5
     if now_et.weekday() >= 5:
         print(f"fundamentals: {date_iso} is a weekend, no trading day to record.")
     elif (universe or {}).get("stale"):
@@ -9109,19 +9115,29 @@ def lambda_handler(event, context):
         # prior session's. Writing them under today's date would append a
         # permanent flat day that record_fundamentals can never correct. Today
         # having no panel row is recoverable; today having a wrong one is not.
+        # Deliberate, but not healthy: the universe scrape failed. Leave
+        # panel_expected true so the run reports itself as having fallen short.
         print(f"fundamentals: universe is a cached fallback, not a live scrape for "
               f"{date_iso}; skipping the panel rather than recording stale prices "
               f"under today's date.")
     else:
-        record_fundamentals(stocks, date_iso)
+        panel_rows = record_fundamentals(stocks, date_iso)
 
     # 6. Publish the snapshot page and rebuild the site.
     title = f"Daily Brief · {date_str}"
     interactive_html = build_interactive_html(title, data, quotes, timestamp)
     s3_publish_brief("daily", now_et, interactive_html, data=data, quotes=quotes, timestamp=timestamp)
 
+    # A daily run exists to add a row to the panel and refresh the universe.
+    # It is allowed to add no row on a weekend, on a holiday, or when the panel
+    # already has today; those set panel_rows to 0 deliberately and are reported
+    # as fine. What is not fine is a weekday run that tried and got nothing.
+    priced = sum(1 for s in stocks if s.get("price") is not None)
+    healthy = bool(stocks) and (panel_rows > 0 or not panel_expected)
     return {"status": "published", "mode": mode, "stories": len(headlines),
-            "quotes": len(quotes), "stocks": len(stocks)}
+            "quotes": len(quotes), "stocks": len(stocks),
+            "panel_rows": panel_rows, "priced": priced,
+            "panel_expected": panel_expected, "ok": healthy}
 
 
 if __name__ == "__main__":
@@ -9131,3 +9147,10 @@ if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else "daily"
     result = lambda_handler({"mode": mode}, None)
     print(json.dumps(result, indent=2))
+    # The exit code is the only thing CI reads. Every silent outage this project
+    # has had was a run that failed at its purpose and exited 0 anyway, so the
+    # verdict the handler just computed decides the code.
+    if result.get("status") == "error" or result.get("ok") is False:
+        print(f"FAILED: the run completed but did not accomplish its purpose "
+              f"({result.get('status')}). Exiting non-zero so this is visible.")
+        sys.exit(1)
