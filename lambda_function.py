@@ -123,6 +123,7 @@ HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", 
 FUNDAMENTAL_SKIP_FIELDS = {
     "benford", "op_margin_history",
     "g", "v", "m", "q", "pct", "scorable", "dims_present", "neglect_parts",
+    "status",
 }
 # Leading columns, in this order; every other scalar field follows alphabetically.
 FUNDAMENTAL_LEAD = ["date", "ticker", "name", "sector", "sub_industry", "index",
@@ -3002,9 +3003,13 @@ STOCKS_JS_TEMPLATE = """
   // percent fields, raw dollars for market cap). UI inputs use HUMAN UNITS
   // (e.g. "10" for 10%, "5B" for $5B); parseFilterInput translates.
   // Percent-coded fields are listed here so we can convert correctly.
+  // change_pct is deliberately absent: it is the one field stored already in
+  // percent (-1.17 means -1.17%), so scaling it by 100 here would have labelled
+  // a colour legend -117% and read a filter of "2" as 0.02 against a value of
+  // -1.17. Everything in this set is stored as a fraction.
   const PCT_FIELDS = new Set([
     'revenue_growth_yoy', 'high52w_proximity', 'roe_ttm', 'fcf_yield',
-    'eps_growth_yoy', 'change_pct', 'return_1m', 'return_12_2',
+    'eps_growth_yoy', 'return_1m', 'return_12_2',
     'rel_strength_sp500', 'volume_trend',
     'gross_margin', 'operating_margin', 'gross_margin_trend',
     'revenue_acceleration', 'fcf_growth_yoy', 'accruals_ratio',
@@ -7544,6 +7549,161 @@ def aggregate_news_sentiment(stocks):
 PRICES_DIR = DOCS_DIR / "prices"
 
 
+# ── Provenance: how every derived number is produced ────────────────────────
+#
+# One entry per computed field, and the only place methodology is written down.
+# The screener's methodology panel and the README's provenance table are both
+# generated from this, so a formula and its description cannot drift apart.
+#
+# They had drifted. return_1m was labelled "Last 30 calendar days price change"
+# while computing distance from the 50-day moving average, and return_12_2 cited
+# Jegadeesh-Titman while subtracting one return from another. Both descriptions
+# lived loose in the JavaScript with nothing tying them to the code.
+
+FIELD_SOURCES = {
+    "price_history": "Daily closes and volumes, downloaded in bulk from Yahoo and stored per ticker",
+    "market_series": "13-week Treasury bill (^IRX) and S&P 500 (^GSPC), stored once per run",
+    "edgar": "SEC EDGAR XBRL company facts",
+    "form4": "SEC EDGAR Form 4 filings",
+    "yfinance": "Yahoo Finance quote summary, one request per ticker",
+    "news": "Google News RSS, one search per ticker",
+    "index": "Wikipedia index constituent tables and the NASDAQ Trader directory",
+}
+
+# How often the underlying input can actually change. A number is not stale
+# because time has passed; it is stale when its input has moved and we have not.
+# A quarterly figure that is 70 days old is exactly as current as it can be.
+REFRESH_CLASSES = {
+    "daily": "Changes every trading day",
+    "12h": "Refreshed twice a day",
+    "weekly": "Swept once a week",
+    "quarterly": "Changes only when the company files",
+    "static": "Rarely changes; carried forward until it does",
+}
+
+# Why a value is missing or older than today. Stamped per field, only when there
+# is something to say, so the payload stays sparse.
+FIELD_STATUS = {
+    "awaiting_filing": "Waiting on the next quarterly report. This is as current as the filings allow.",
+    "no_coverage": "The source has nothing for this company.",
+    "insufficient_history": "Not enough observations to compute this honestly.",
+    "cohort_too_small": "Too few sector peers to rank against.",
+    "deferred_budget": "The fetch pass ran out of time this run and will reach it next run.",
+    "not_meaningful": "The inputs make this arithmetic meaningless, such as a multiple on negative earnings.",
+    "source_error": "The source was reachable but the fetch or parse failed.",
+}
+
+FIELD_METHODS = {
+    "price": {
+        "label": "Price", "units": "USD", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "closes[-1]",
+        "note": "The most recent daily close, not a live or intraday quote. The "
+                "daily run happens after the US close, so the close of the "
+                "session just ended is the current price.",
+    },
+    "change_pct": {
+        "label": "1-Day Move", "units": "percent", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "(closes[-1] / closes[-2] - 1) * 100",
+        "note": "Close-to-close, one session. Stored in percent, not as a "
+                "fraction, which is why it is the one percentage field not "
+                "scaled by 100 for display.",
+    },
+    "return_1m": {
+        "label": "1-Month Return", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "closes[-1] / closes[-22] - 1",
+        "note": "Simple holding-period return over 21 trading days, which is one "
+                "calendar month of sessions.",
+    },
+    "return_12_2": {
+        "label": "12-2 Month Return", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "closes[-22] / closes[-253] - 1",
+        "note": "Jegadeesh-Titman momentum: twelve months of return ending one "
+                "month ago. Skipping the most recent month is the point, because "
+                "that is where short-term reversal lives. Needs 200 sessions.",
+    },
+    "return_52w": {
+        "label": "52-Week Return", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "closes[-1] / closes[-253] - 1",
+        "note": "Simple holding-period return over the stored year.",
+    },
+    "high52w_proximity": {
+        "label": "52-Week High Proximity", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "closes[-1] / max(closes) - 1",
+        "note": "Distance below the highest close of the year, as a negative "
+                "fraction; 0 means at the high. Measured on closes, so it sits "
+                "slightly above a version measured on intraday highs.",
+    },
+    "rel_strength_sp500": {
+        "label": "Relative Strength vs S&P 500", "units": "fraction",
+        "source": "price_history", "refresh": "daily", "asof": "prices_updated",
+        "formula": "return_52w(stock) - return_52w(^GSPC)",
+        "note": "Difference of the two 52-week returns over the same trading "
+                "days, which is the usual construction. Not a ratio and not a "
+                "regression; beta_1y is the regression.",
+    },
+    "volume": {
+        "label": "Volume", "units": "shares", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "volumes[-1]",
+        "note": "Shares traded in the most recent session.",
+    },
+    "volume_trend": {
+        "label": "Volume Trend", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "mean(volumes[-10:]) / mean(volumes[-63:]) - 1",
+        "note": "Ten-session average against three-month average. Positive means "
+                "trading has picked up. Matches the ratio Yahoo's own "
+                "averageDailyVolume10Day over averageVolume expresses.",
+    },
+    "volatility_1y": {
+        "label": "Volatility (1y)", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "stdev(daily returns) * sqrt(252)",
+        "note": "Annualized standard deviation of simple daily returns, sample "
+                "standard deviation, over the stored year.",
+    },
+    "beta_1y": {
+        "label": "Beta vs S&P 500", "units": "ratio", "source": "market_series",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "cov(r_stock, r_index) / var(r_index)",
+        "note": "Ordinary least squares slope of daily returns against the S&P "
+                "500, matched on the sessions both actually traded. 1.00 moves "
+                "with the index.",
+    },
+    "sharpe_1y": {
+        "label": "Sharpe (1y)", "units": "ratio", "source": "market_series",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "mean(r - rf) / stdev(r - rf) * sqrt(252)",
+        "note": "Daily excess return over the 13-week Treasury bill, annualized. "
+                "Withheld rather than assuming a zero rate when the rate series "
+                "is unavailable, since that would inflate every Sharpe by roughly "
+                "the level of short rates.",
+    },
+    "max_drawdown_1y": {
+        "label": "Max Drawdown (1y)", "units": "fraction", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "min(close / running_max(close) - 1)",
+        "note": "Worst peak-to-trough fall across the stored year, on closes, as "
+                "a negative fraction.",
+    },
+    "sector": {
+        "label": "Sector", "units": "text", "source": "yfinance",
+        "refresh": "static", "asof": "last_updated",
+        "formula": "normalize_sector(yahoo.sector)",
+        "note": "Yahoo's own eleven-sector taxonomy, mapped onto the GICS sector "
+                "NAMES. It is not licensed GICS, which is a commercial product of "
+                "S&P Dow Jones Indices and MSCI and is not publicly available. "
+                "The names match; the classifications are Yahoo's.",
+    },
+}
+
+
 # Trading days, not calendar days, because that is what the series holds.
 _RET_1M_DAYS = 21
 _RET_12M_DAYS = 252
@@ -7553,75 +7713,179 @@ _RET_12M_DAYS = 252
 _RET_12M_MIN_DAYS = 200
 
 
-def derive_returns_from_history(stocks):
-    """Momentum returns computed from the daily closes already on disk.
+def _benchmark_levels():
+    """The S&P 500 close on each date, for matched relative-strength windows."""
+    try:
+        data = json.loads((PRICES_DIR / MARKET_FILE).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    for row in data.get("benchmark") or []:
+        try:
+            out[str(row[0])] = float(row[1])
+        except Exception:
+            continue
+    return out
 
-    return_1m was (price - fiftyDayAverage) / fiftyDayAverage: the distance
-    from the 50-day moving average, published under the label "Last 30 calendar
-    days price change". Those are different quantities, and they disagree most
-    exactly where momentum matters. A stock that jumped 8% and then went flat
-    for a fortnight still reads strongly positive, because the average trails
-    it. A stock that fell steadily all month reads near zero, because the
-    average falls with it. Screening on "1-Month Return > 10%" found neither.
 
-    return_12_2 was return_52w minus that number, so it inherited the error and
-    added one of its own: a 12-2 momentum is a ratio between two prices, not a
-    difference between two returns. Its method string cited Jegadeesh-Titman.
+def _nearest_on_or_before(levels_sorted, levels, day):
+    """Value on `day`, or the last one before it. Calendars disagree on
+    holidays, so an exact-match-only lookup silently drops comparisons."""
+    if day in levels:
+        return levels[day]
+    lo, hi = 0, len(levels_sorted)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if levels_sorted[mid] <= day:
+            lo = mid + 1
+        else:
+            hi = mid
+    return levels[levels_sorted[lo - 1]] if lo else None
 
-    docs/prices/{TICKER}.json already holds 251 daily closes per ticker,
-    written by enrich_with_prices for the chart card, so the honest numbers
-    cost one file read each and no network at all."""
+
+def derive_from_price_history(stocks):
+    """Everything the stored daily series can answer, without a network call.
+
+    enrich_with_prices downloads a year of closes and volumes per ticker in
+    bulk, one request per ~200 tickers. Yahoo's per-ticker quote summary, which
+    is one request each and the slowest pass in the run, was answering several
+    questions the bulk data already contains. Where both can answer, this wins:
+    it is complete for every ticker with a stored series rather than for
+    whichever ones a budgeted pass happened to reach.
+
+    Sets price, change_pct, return_1m, return_12_2, return_52w,
+    high52w_proximity, rel_strength_sp500, volume and volume_trend. Every
+    formula is in FIELD_METHODS, which is what the methodology panel reads.
+
+    return_1m was previously (price - fiftyDayAverage) / fiftyDayAverage: the
+    distance from the 50-day moving average, published as "Last 30 calendar days
+    price change". Those disagree most exactly where momentum matters, and 21%
+    of tickers had the opposite sign."""
     if not stocks:
         return 0
-    # A file whose last close is old would make a month-old price the "current"
-    # one and report a stale return as a live one. Ten days covers a holiday
-    # week plus one missed refresh.
+    # A series whose last close is old would make a month-old price the current
+    # one. Ten days covers a holiday week plus one missed refresh.
     cutoff = (datetime.now(timezone.utc).date() - timedelta(days=10)).isoformat()
-    got_1m = got_122 = 0
+    stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    levels = _benchmark_levels()
+    levels_sorted = sorted(levels)
+
+    counts = collections.Counter()
     missing = short = stale = 0
     for s in stocks:
-        f = PRICES_DIR / _news_filename(s["ticker"])
+        status = s.get("status") or {}
         try:
-            closes = json.loads(f.read_text(encoding="utf-8")).get("closes") or []
+            blob = json.loads((PRICES_DIR / _news_filename(s["ticker"]))
+                              .read_text(encoding="utf-8"))
+            closes = blob.get("closes") or []
         except Exception:
             missing += 1
+            for f in ("price", "change_pct", "return_1m", "return_12_2", "return_52w",
+                      "high52w_proximity", "rel_strength_sp500", "volume", "volume_trend"):
+                status[f] = "no_coverage"
+            s["status"] = status
             continue
-        if len(closes) < _RET_1M_DAYS + 2:
+        if len(closes) < 2:
             short += 1
             continue
         if str(closes[-1][0]) < cutoff:
             stale += 1
+            status["price"] = "source_error"
+            s["status"] = status
             continue
         try:
-            px = [float(c[1]) for c in closes]
+            dates = [str(d) for d, _ in closes]
+            px = [float(p) for _, p in closes]
         except (TypeError, ValueError, IndexError):
             missing += 1
             continue
+        if any(p <= 0 for p in px):
+            missing += 1
+            continue
 
-        now_px = px[-1]
-        month_ago = px[-1 - _RET_1M_DAYS]
-        if now_px > 0 and month_ago > 0:
-            r1 = now_px / month_ago - 1
+        s["price"] = px[-1]
+        s["prices_updated"] = stamp
+        counts["price"] += 1
+
+        if px[-2] > 0:
+            # Percent, not a fraction. This is the one percentage field stored
+            # in percent, which is why it is absent from the client's PCT_FIELDS.
+            chg = (px[-1] / px[-2] - 1) * 100
+            if abs(chg) <= 40:
+                s["change_pct"] = chg
+                counts["change_pct"] += 1
+
+        month_ago = px[-1 - _RET_1M_DAYS] if len(px) > _RET_1M_DAYS else None
+        if month_ago and month_ago > 0:
+            r1 = px[-1] / month_ago - 1
             if abs(r1) < 2:
                 s["return_1m"] = r1
-                got_1m += 1
+                counts["return_1m"] += 1
+        elif len(px) <= _RET_1M_DAYS:
+            status["return_1m"] = "insufficient_history"
 
-        # Twelve months ago to one month ago: the standard construction. It
-        # skips the most recent month because that is where short-term reversal
-        # lives, which is the whole reason the 12-2 form exists.
         anchor_i = max(0, len(px) - 1 - _RET_12M_DAYS)
-        if len(px) - anchor_i >= _RET_12M_MIN_DAYS:
-            anchor = px[anchor_i]
-            if anchor > 0 and month_ago > 0:
+        long_enough = len(px) - anchor_i >= _RET_12M_MIN_DAYS
+        anchor = px[anchor_i]
+        if long_enough and anchor > 0:
+            r52 = px[-1] / anchor - 1
+            if abs(r52) < 10:
+                s["return_52w"] = r52
+                counts["return_52w"] += 1
+            if month_ago and month_ago > 0:
                 r122 = month_ago / anchor - 1
                 if abs(r122) < 10:
                     s["return_12_2"] = r122
-                    got_122 += 1
+                    counts["return_12_2"] += 1
+            # Matched window: the benchmark measured between the same two dates,
+            # not over its own separate year.
+            if levels_sorted:
+                b0 = _nearest_on_or_before(levels_sorted, levels, dates[anchor_i])
+                b1 = _nearest_on_or_before(levels_sorted, levels, dates[-1])
+                if b0 and b1 and b0 > 0 and "return_52w" in s:
+                    rel = s["return_52w"] - (b1 / b0 - 1)
+                    if abs(rel) < 5:
+                        s["rel_strength_sp500"] = rel
+                        counts["rel_strength_sp500"] += 1
+            else:
+                status["rel_strength_sp500"] = "no_coverage"
+        else:
+            for f in ("return_52w", "return_12_2", "rel_strength_sp500"):
+                status[f] = "insufficient_history"
 
-    print(f"returns: derived return_1m for {got_1m} and return_12_2 for {got_122} "
-          f"of {len(stocks)} tickers from stored closes "
+        peak = max(px)
+        if peak > 0:
+            s["high52w_proximity"] = px[-1] / peak - 1
+            counts["high52w_proximity"] += 1
+
+        vols = blob.get("volumes")
+        if isinstance(vols, list) and len(vols) == len(px):
+            recent = [v for v in vols[-10:] if isinstance(v, (int, float))]
+            base = [v for v in vols[-63:] if isinstance(v, (int, float))]
+            last = vols[-1]
+            if isinstance(last, (int, float)) and last > 0:
+                s["volume"] = last
+                counts["volume"] += 1
+            if len(recent) >= 5 and len(base) >= 30:
+                mb = sum(base) / len(base)
+                if mb > 0:
+                    vt = (sum(recent) / len(recent)) / mb - 1
+                    if abs(vt) < 10:
+                        s["volume_trend"] = vt
+                        counts["volume_trend"] += 1
+        else:
+            # Old files predate the volume column and refill on the next price
+            # refresh, which is a wait rather than a gap.
+            status["volume"] = "deferred_budget"
+            status["volume_trend"] = "deferred_budget"
+
+        if status:
+            s["status"] = status
+
+    print(f"price-derived: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items()))
+          + f" of {len(stocks)} tickers "
           f"({missing} no history, {short} too short, {stale} stale).")
-    return got_1m
+    return counts["price"]
 
 
 # ── Risk metrics from the history we already store ─────────────────────────
@@ -7838,8 +8102,8 @@ def derive_risk_metrics(stocks):
 
 
 def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
-    """Fetch ~1y daily closes per ticker via yf.download bulk endpoint and write
-    docs/prices/{TICKER}.json. The bulk endpoint is dramatically faster than
+    """Fetch ~1y daily closes and volumes per ticker via the yf.download bulk
+    endpoint and write docs/prices/{TICKER}.json. The bulk endpoint is dramatically faster than
     per-ticker .history() (one HTTP per batch instead of one per ticker), and is
     much friendlier to Yahoo's rate limiter. 24h cache per file so the midday/
     evening runs are no-ops. Stored shape: {"updated": iso, "closes": [[date, close], ...]}.
@@ -7904,13 +8168,39 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
                     series = None
                 if series is None or series.empty:
                     continue
+                # Volume comes back in the same download and was being thrown
+                # away, so volume and volume_trend were coming from a per-ticker
+                # .info request instead. Stored as a bare array aligned with
+                # closes by index rather than repeating every date.
+                vol_series = None
+                try:
+                    if len(chunk) == 1:
+                        vol_series = df["Volume"] if "Volume" in df.columns else None
+                    elif yf_sym in df.columns.get_level_values(0):
+                        sub = df[yf_sym]
+                        vol_series = sub["Volume"] if "Volume" in sub.columns else None
+                except Exception:
+                    vol_series = None
+
                 closes = []
-                for idx, val in series.dropna().items():
+                volumes = []
+                clean = series.dropna()
+                for idx, val in clean.items():
                     try:
                         date_str = idx.strftime("%Y-%m-%d")
                         v = float(val)
-                        if v > 0 and v < 1e6:
-                            closes.append([date_str, round(v, 4)])
+                        if not (0 < v < 1e6):
+                            continue
+                        closes.append([date_str, round(v, 4)])
+                        vol = None
+                        if vol_series is not None:
+                            try:
+                                raw_vol = vol_series.get(idx)
+                                if raw_vol is not None and raw_vol == raw_vol:
+                                    vol = int(float(raw_vol))
+                            except Exception:
+                                vol = None
+                        volumes.append(vol if (vol is not None and vol >= 0) else None)
                     except Exception:
                         continue
                 if not closes:
@@ -7921,6 +8211,10 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
                     "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                     "closes": closes,
                 }
+                # Only when we actually got some, so a file without the key is
+                # an old file rather than a ticker Yahoo reports no volume for.
+                if any(v is not None for v in volumes):
+                    payload["volumes"] = volumes
                 (PRICES_DIR / _news_filename(ticker)).write_text(
                     json.dumps(payload, separators=(",", ":")), encoding="utf-8"
                 )
@@ -9133,7 +9427,7 @@ def get_or_generate_stocks_universe():
         aggregate_news_sentiment(cached_list)
         compute_neglect_score(cached_list)
         enrich_with_prices(cached_list)
-        derive_returns_from_history(cached_list)
+        derive_from_price_history(cached_list)
         enrich_with_market_series()
         derive_risk_metrics(cached_list)
         return last_known
@@ -9383,7 +9677,7 @@ def get_or_generate_stocks_universe():
     # run after scoring, back when it only fed the chart card. The momentum
     # returns are read back out of it now, so it has to come first.
     enrich_with_prices(stocks)
-    derive_returns_from_history(stocks)
+    derive_from_price_history(stocks)
     enrich_with_market_series()
     derive_risk_metrics(stocks)
 
