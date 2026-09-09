@@ -7943,7 +7943,20 @@ EDGAR_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 # Form 4 XML document fetched at:
 # https://www.sec.gov/Archives/edgar/data/{cik}/{accession_no_dashes}/{primary_doc}
 _INSIDER_LOOKBACK_DAYS = 90
-_INSIDER_MAX_DOCS_PER_TICKER = 8   # cap per-ticker fetches to keep workflow under 30 min
+# Every field this pass emits is named _90d or measures a 30-day cluster inside
+# that window, and all of them are computed from whatever filings we fetched. At
+# a cap of 8 that was not a 90-day window at all: Microsoft and Procter & Gamble
+# file in batches, so their eight most recent Form 4s span zero days. Microsoft's
+# "90-day insider signal" was one afternoon's filings, reported to the cent.
+#
+# Measured across ten of the largest filers: median 12 Form 4s per 90 days, with
+# MSFT and PG at 38. 60 clears that with room, and the wall-clock budget below,
+# not the document cap, is what keeps the pass inside the job now.
+_INSIDER_MAX_DOCS_PER_TICKER = 60
+# Roughly 7 fetches/sec against the SEC limit, so this is about 6,000 documents.
+# A ticker not reached keeps its stale insider_updated stamp and is picked up by
+# the next run, the same way the EDGAR sweep builds coverage across runs.
+_INSIDER_TIME_BUDGET_S = 900
 _INSIDER_TOP_N_BY_MARKET_CAP = 600  # only fetch insider data for the largest N tickers
 # Ceiling on EDGAR fetches in one run. At roughly 7 per second against the
 # SEC's rate limit this is about 5 minutes of fetching, which leaves the rest
@@ -8000,6 +8013,7 @@ def _fetch_recent_form4_filings(cik):
     primary_docs = recent.get("primaryDocument") or []
     cutoff = (datetime.now(timezone.utc).date() - timedelta(days=_INSIDER_LOOKBACK_DAYS)).isoformat()
     out = []
+    total = 0
     for i, form in enumerate(forms):
         if form != "4":
             continue
@@ -8007,14 +8021,17 @@ def _fetch_recent_form4_filings(cik):
             continue
         if dates[i] < cutoff:
             continue
-        out.append({
-            "accession": accessions[i],
-            "filing_date": dates[i],
-            "primary_doc": primary_docs[i],
-        })
-        if len(out) >= _INSIDER_MAX_DOCS_PER_TICKER:
-            break
-    return out
+        # Counted before the cap, so the caller can tell a complete window from
+        # a truncated one instead of inferring it from the number of documents
+        # it happened to receive.
+        total += 1
+        if len(out) < _INSIDER_MAX_DOCS_PER_TICKER:
+            out.append({
+                "accession": accessions[i],
+                "filing_date": dates[i],
+                "primary_doc": primary_docs[i],
+            })
+    return out, total
 
 
 def _parse_form4_xml(cik, accession, primary_doc):
@@ -8081,21 +8098,28 @@ def _parse_form4_xml(cik, accession, primary_doc):
 
 
 def fetch_insider_form4(cik):
-    """Top-level per-ticker Form 4 fetch. Returns list of normalized transactions
-    over the last _INSIDER_LOOKBACK_DAYS, capped to _INSIDER_MAX_DOCS_PER_TICKER
-    most recent filings. Empty list when the company has no Form 4 activity.
+    """Top-level per-ticker Form 4 fetch. Returns (transactions, truncated) over
+    the last _INSIDER_LOOKBACK_DAYS. Empty list when there is no Form 4 activity.
+
+    truncated says the company filed more Form 4s in the window than the cap
+    allows, so what came back is the most recent slice and not the window the
+    field names claim. The caller drops the aggregates in that case: a net-buy
+    total, a distinct-buyer count and a rolling-cluster maximum are all biased
+    by which filings were kept, and no label repairs a dollar figure summed over
+    an arbitrary subset.
 
     Raises if the SEC fetch failed, so the caller counts it as an error rather
     than as an absence of insider trading."""
-    filings = _fetch_recent_form4_filings(cik)
-    if filings is None:
+    result = _fetch_recent_form4_filings(cik)
+    if result is None:
         raise IOError(f"SEC submissions fetch failed for CIK {cik}")
+    filings, total = result
     if not filings:
-        return []
+        return [], False
     txs = []
     for f in filings:
         txs.extend(_parse_form4_xml(cik, f["accession"], f["primary_doc"]))
-    return txs
+    return txs, total > len(filings)
 
 
 def compute_insider_signal(transactions):
@@ -8194,19 +8218,34 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
     def process(item):
         sym, cik = item
         try:
-            txs = fetch_insider_form4(cik)
-            return sym, compute_insider_signal(txs), len(txs), None
+            txs, truncated = fetch_insider_form4(cik)
+            if truncated:
+                # More filings than we fetched, so every aggregate below would
+                # describe a slice while being named for the window.
+                return sym, {}, len(txs), None, True
+            return sym, compute_insider_signal(txs), len(txs), None, False
         except Exception as e:
-            return sym, {}, 0, str(e)
+            return sym, {}, 0, str(e), False
 
     enriched = 0
     no_activity = 0
     errors = 0
+    truncated_count = 0
+    budget_hit = False
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, item) for item in matched]
         for f in as_completed(futures):
-            sym, signal, n_tx, err = f.result()
+            # Same reasoning as the yfinance and news budgets: a pass that
+            # overruns the job timeout commits nothing at all. A ticker not
+            # reached keeps its old insider_updated stamp and goes first next run.
+            if not budget_hit and time.time() - t0 > _INSIDER_TIME_BUDGET_S:
+                budget_hit = True
+                for pending in futures:
+                    pending.cancel()
+            if f.cancelled():
+                continue
+            sym, signal, n_tx, err, truncated = f.result()
             s = by_ticker.get(sym)
             if not s:
                 continue
@@ -8215,6 +8254,12 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
             s["insider_updated"] = today_str
             if err:
                 errors += 1
+            elif truncated:
+                truncated_count += 1
+                for k in ("insider_net_buy_90d", "insider_buyer_count_90d",
+                          "insider_seller_count_90d", "insider_cluster_max_30d",
+                          "insider_cluster_score", "insider_tx_count_90d"):
+                    s.pop(k, None)
             elif signal:
                 s.update(signal)
                 enriched += 1
@@ -8222,7 +8267,13 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
                 no_activity += 1
     elapsed = time.time() - t0
     print(f"Insider Form 4 enrichment: signals for {enriched}/{len(matched)} tickers "
-          f"({no_activity} no activity, {errors} errors) in {elapsed:.1f}s.")
+          f"({no_activity} no activity, {errors} errors, {truncated_count} filed more "
+          f"than {_INSIDER_MAX_DOCS_PER_TICKER} forms and were left unscored) "
+          f"in {elapsed:.1f}s.")
+    if budget_hit:
+        print(f"Insider: stopped at the {_INSIDER_TIME_BUDGET_S}s budget. The rest "
+              f"keep their previous stamp and are refetched next run, which is "
+              f"cheaper than overrunning the job timeout and committing nothing.")
     # Insider buying is sparse, but not this sparse. Across several hundred large
     # caps some Form 4 activity is a near certainty in any 90-day window, so a
     # universal blank is a broken parser or a blocked IP, not a quiet market.
