@@ -171,43 +171,69 @@ against the index it tracks comes out at beta 0.9964, correlation 0.9968.
 
 ## Data provenance
 
-Every derived number, what produces it, and how often its input can
-actually change. Generated from `FIELD_METHODS` in `lambda_function.py`,
-which is the single place methodology is written down, so this table and
-the screener's methodology panel cannot disagree with each other or with
-the code.
+Every derived number, what produces it, and how often its input can actually
+change. Generated from `FIELD_METHODS` in `lambda_function.py`, which is the
+single place methodology is written down, so this table, the screener's
+methodology panel and the code cannot disagree.
 
 | Field | Units | Formula | Source | Changes |
 |---|---|---|---|---|
 | `beta_1y` | ratio | `cov(r_stock, r_index) / var(r_index)` | market_series | changes every trading day |
 | `change_pct` | percent | `(closes[-1] / closes[-2] - 1) * 100` | price_history | changes every trading day |
+| `eps_growth_yoy` | fraction | `ttm_diluted_eps / prior_ttm_diluted_eps - 1` | edgar | changes only when the company files |
+| `fcf_yield` | fraction | `(ttm_operating_cash_flow - ttm_capex) / market_cap` | edgar | changes only when the company files |
+| `gross_margin` | fraction | `ttm_gross_profit / ttm_revenue` | edgar | changes only when the company files |
 | `high52w_proximity` | fraction | `closes[-1] / max(closes) - 1` | price_history | changes every trading day |
+| `market_cap` | USD | `price * shares_outstanding` | edgar | changes every trading day |
 | `max_drawdown_1y` | fraction | `min(close / running_max(close) - 1)` | price_history | changes every trading day |
+| `operating_margin` | fraction | `ttm_operating_income / ttm_revenue` | edgar | changes only when the company files |
+| `pe` | ratio | `price / sum(last 4 quarters of diluted EPS)` | edgar | changes only when the company files |
 | `price` | USD | `closes[-1]` | price_history | changes every trading day |
+| `price_book` | ratio | `market_cap / stockholders_equity` | edgar | changes only when the company files |
 | `rel_strength_sp500` | fraction | `return_52w(stock) - return_52w(^GSPC)` | price_history | changes every trading day |
 | `return_12_2` | fraction | `closes[-22] / closes[-253] - 1` | price_history | changes every trading day |
 | `return_1m` | fraction | `closes[-1] / closes[-22] - 1` | price_history | changes every trading day |
 | `return_52w` | fraction | `closes[-1] / closes[-253] - 1` | price_history | changes every trading day |
+| `revenue_growth_yoy` | fraction | `ttm_revenue / prior_ttm_revenue - 1` | edgar | changes only when the company files |
+| `roe_ttm` | fraction | `ttm_net_income / mean(equity_now, equity_a_year_ago)` | edgar | changes only when the company files |
 | `sector` | text | `normalize_sector(yahoo.sector)` | yfinance | rarely changes; carried forward until it does |
 | `sharpe_1y` | ratio | `mean(r - rf) / stdev(r - rf) * sqrt(252)` | market_series | changes every trading day |
 | `volatility_1y` | fraction | `stdev(daily returns) * sqrt(252)` | price_history | changes every trading day |
 | `volume` | shares | `volumes[-1]` | price_history | changes every trading day |
 | `volume_trend` | fraction | `mean(volumes[-10:]) / mean(volumes[-63:]) - 1` | price_history | changes every trading day |
 
-Notes on the ones where the choice matters:
+Notes where the choice matters:
 
+- **`market_cap`** — Cover-page shares outstanding from the latest filing, times the latest close. Not the weighted-average count, which describes a period rather than a moment and understates a company mid-buyback. Matches the vendor to 0.0% across the filers checked.
+- **`pe`** — Diluted, not basic, because that is the share count an outside holder is actually diluted by. Undefined and withheld when trailing EPS is zero or negative.
+- **`roe_ttm`** — Average equity over the same window as the earnings, not the closing balance, because the denominator moves through the year.
+- **`fcf_yield`** — Capital expenditure is a positive outflow in the cash-flow statement, so it is subtracted by magnitude. This deliberately does not match the vendor's freeCashflow, which implies about $16bn for Microsoft against roughly $70bn of actual free cash flow; ours reconstructs from the filed statements.
+- **`revenue_growth_yoy`** — Trailing twelve months against the twelve before it, which is the smoother and more usual construction for a screen. The vendor's revenueGrowth compares a single quarter with the year-ago quarter, so the two agree only when growth is steady.
 - **`change_pct`** — Close-to-close, one session. Stored in percent, not as a fraction, which is why it is the one percentage field not scaled by 100 for display.
 - **`return_12_2`** — Jegadeesh-Titman momentum: twelve months of return ending one month ago. Skipping the most recent month is the point, because that is where short-term reversal lives. Needs 200 sessions.
-- **`high52w_proximity`** — Distance below the highest close of the year, as a negative fraction; 0 means at the high. Measured on closes, so it sits slightly above a version measured on intraday highs.
 - **`rel_strength_sp500`** — Difference of the two 52-week returns over the same trading days, which is the usual construction. Not a ratio and not a regression; beta_1y is the regression.
 - **`sharpe_1y`** — Daily excess return over the 13-week Treasury bill, annualized. Withheld rather than assuming a zero rate when the rate series is unavailable, since that would inflate every Sharpe by roughly the level of short rates.
 - **`sector`** — Yahoo's own eleven-sector taxonomy, mapped onto the GICS sector NAMES. It is not licensed GICS, which is a commercial product of S&P Dow Jones Indices and MSCI and is not publicly available. The names match; the classifications are Yahoo's.
 
+### What is deliberately not derived
+
+`ev_ebitda`, `ev_revenue` and `net_debt_ebitda` still come from the vendor.
+All three need total debt, and total debt cannot be composed from XBRL
+reliably: filers split short-term borrowing across `ShortTermBorrowings`,
+`CommercialPaper`, `DebtCurrent` and the current portion of long-term debt in
+combinations that overlap. Coca-Cola tags both `ShortTermBorrowings` and
+`CommercialPaper`, so picking one understates and summing both risks counting
+the same paper twice; the attempt put its total debt at $36.8bn against
+roughly $45bn. A leverage figure wrong by that much is worse than none, and
+unlike free cash flow there is no independent check saying ours is better.
+The `ttm_ebitda`, `total_debt` and `cash_and_investments` aggregates are
+published anyway, for anyone who wants to build their own.
+
 ### Why a number is missing or old
 
 A quarterly figure that is seventy days old is exactly as current as the
-filings allow. Rather than let that look like staleness, fields carry a
-status when there is something to say:
+filings allow. Rather than let that look like staleness, fields carry a status
+when there is something to say:
 
 | Status | Meaning |
 |---|---|

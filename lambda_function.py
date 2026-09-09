@@ -7738,6 +7738,76 @@ FIELD_METHODS = {
         "note": "Worst peak-to-trough fall across the stored year, on closes, as "
                 "a negative fraction.",
     },
+    "market_cap": {
+        "label": "Market Cap", "units": "USD", "source": "edgar",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "price * shares_outstanding",
+        "note": "Cover-page shares outstanding from the latest filing, times the "
+                "latest close. Not the weighted-average count, which describes a "
+                "period rather than a moment and understates a company mid-buyback. "
+                "Matches the vendor to 0.0% across the filers checked.",
+    },
+    "pe": {
+        "label": "P/E (Trailing)", "units": "ratio", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "price / sum(last 4 quarters of diluted EPS)",
+        "note": "Diluted, not basic, because that is the share count an outside "
+                "holder is actually diluted by. Undefined and withheld when "
+                "trailing EPS is zero or negative.",
+    },
+    "price_book": {
+        "label": "Price/Book", "units": "ratio", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "market_cap / stockholders_equity",
+        "note": "Parent-company equity. The including-noncontrolling-interests "
+                "variant counts equity common holders have no claim on.",
+    },
+    "roe_ttm": {
+        "label": "ROE (TTM)", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "ttm_net_income / mean(equity_now, equity_a_year_ago)",
+        "note": "Average equity over the same window as the earnings, not the "
+                "closing balance, because the denominator moves through the year.",
+    },
+    "gross_margin": {
+        "label": "Gross Margin", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "ttm_gross_profit / ttm_revenue",
+        "note": "Both trailing twelve months, from the same four quarters.",
+    },
+    "operating_margin": {
+        "label": "Operating Margin", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "ttm_operating_income / ttm_revenue",
+        "note": "Both trailing twelve months, from the same four quarters.",
+    },
+    "fcf_yield": {
+        "label": "FCF Yield", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "(ttm_operating_cash_flow - ttm_capex) / market_cap",
+        "note": "Capital expenditure is a positive outflow in the cash-flow "
+                "statement, so it is subtracted by magnitude. This deliberately "
+                "does not match the vendor's freeCashflow, which implies about "
+                "$16bn for Microsoft against roughly $70bn of actual free cash "
+                "flow; ours reconstructs from the filed statements.",
+    },
+    "revenue_growth_yoy": {
+        "label": "Revenue Growth YoY", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "ttm_revenue / prior_ttm_revenue - 1",
+        "note": "Trailing twelve months against the twelve before it, which is "
+                "the smoother and more usual construction for a screen. The "
+                "vendor's revenueGrowth compares a single quarter with the "
+                "year-ago quarter, so the two agree only when growth is steady.",
+    },
+    "eps_growth_yoy": {
+        "label": "EPS Growth YoY", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "ttm_diluted_eps / prior_ttm_diluted_eps - 1",
+        "note": "Trailing twelve months against the twelve before it, on diluted "
+                "EPS. Same difference from the vendor as revenue growth: theirs "
+                "is a single quarter, so it can carry the opposite sign.",
+    },
     "sector": {
         "label": "Sector", "units": "text", "source": "yfinance",
         "refresh": "static", "asof": "last_updated",
@@ -8046,6 +8116,121 @@ def _load_market_series():
     return rf, bench
 
 
+def derive_ratios_from_fundamentals(stocks):
+    """Valuation and profitability ratios, from filings and a price.
+
+    Every one of these was arriving as a finished number from Yahoo's
+    per-ticker quote summary, which is the slowest request in the run and the
+    one most likely to be cut short by its time budget. The inputs are all in
+    the XBRL facts already fetched for the trend factors, and combining them
+    with a close is arithmetic.
+
+    Conventions, all of them the ordinary ones:
+
+      market cap    price x cover-page shares outstanding, not the
+                    weighted average, which describes a period rather than a
+                    moment and understates a company mid-buyback
+      P/E           price / trailing four quarters of DILUTED EPS
+      P/B           market cap / parent-company equity, excluding
+                    noncontrolling interests that common holders cannot claim
+      ROE           trailing net income / AVERAGE equity over the same window,
+                    since the denominator moves through the year
+      EV            market cap + total debt - cash and short-term investments
+      FCF           trailing operating cash flow - capital expenditure
+
+    Only computed where the filing inputs exist, which is why coverage tracks
+    the EDGAR sweep rather than the price series."""
+    if not stocks:
+        return 0
+    counts = collections.Counter()
+
+    def put(s, key, value, lo, hi):
+        if value is None or not math.isfinite(value) or not (lo < value < hi):
+            return
+        s[key] = value
+        counts[key] += 1
+
+    for s in stocks:
+        price = s.get("price")
+        shares = s.get("shares_outstanding")
+        equity = s.get("equity")
+        rev = s.get("ttm_revenue")
+        ebitda = s.get("ttm_ebitda")
+
+        cap = None
+        if _finite(price) and _finite(shares) and price > 0 and shares > 0:
+            cap = price * shares
+            put(s, "market_cap", cap, 0, 1e14)
+        if cap is None:
+            cap = s.get("market_cap") if _finite(s.get("market_cap")) else None
+
+        eps = s.get("ttm_eps_diluted")
+        if _finite(price) and _finite(eps) and eps > 0:
+            put(s, "pe", price / eps, -500, 1000)
+
+        if cap and _finite(equity) and equity > 0:
+            put(s, "price_book", cap / equity, 0, 100)
+
+        ni = s.get("ttm_net_income")
+        prior_eq = s.get("prior_equity")
+        if _finite(ni) and _finite(equity):
+            denom = ((equity + prior_eq) / 2) if _finite(prior_eq) else equity
+            if denom and denom > 0:
+                put(s, "roe_ttm", ni / denom, -3, 3)
+
+        if _finite(rev) and rev > 0:
+            gp = s.get("ttm_gross_profit")
+            if _finite(gp):
+                put(s, "gross_margin", gp / rev, -2, 1)
+            oi = s.get("ttm_operating_income")
+            if _finite(oi):
+                put(s, "operating_margin", oi / rev, -5, 1)
+
+        fcf = s.get("ttm_fcf")
+        if cap and _finite(fcf):
+            put(s, "fcf_yield", fcf / cap, -1, 1)
+
+        prior_rev = s.get("prior_ttm_revenue")
+        if _finite(rev) and _finite(prior_rev) and prior_rev > 0:
+            put(s, "revenue_growth_yoy", rev / prior_rev - 1, -5, 5)
+        prior_eps = s.get("prior_ttm_eps_diluted")
+        if _finite(eps) and _finite(prior_eps) and prior_eps > 0:
+            put(s, "eps_growth_yoy", eps / prior_eps - 1, -10, 10)
+
+        # ev_ebitda, ev_revenue and net_debt_ebitda are deliberately NOT derived
+        # here, and keep coming from the vendor.
+        #
+        # All three need total debt, and total debt cannot be composed from XBRL
+        # reliably. Filers split short-term borrowing across ShortTermBorrowings,
+        # CommercialPaper, DebtCurrent and the current portion of long-term debt,
+        # in combinations that overlap: Coca-Cola tags both ShortTermBorrowings
+        # and CommercialPaper, so picking one understates and summing both risks
+        # counting the same paper twice. Measured against the vendor, this
+        # construction put Coca-Cola's total debt at $36.8bn against roughly
+        # $45bn, and net-debt-to-EBITDA disagreed by a median of 43%.
+        #
+        # A leverage figure that is wrong by half is worse than no leverage
+        # figure, and unlike revenue growth or free cash flow there is no
+        # independent check here that says our version is the better one. The
+        # ttm_ebitda, total_debt and cash_and_investments aggregates are still
+        # published for anyone who wants to build their own.
+
+        # A filing-derived number is as current as the filing, not as the run.
+        if s.get("fiscal_period_end"):
+            status = s.get("status") or {}
+            for f in ("pe", "price_book", "roe_ttm", "gross_margin", "operating_margin",
+                      "fcf_yield", "ev_ebitda", "ev_revenue", "net_debt_ebitda",
+                      "revenue_growth_yoy", "eps_growth_yoy"):
+                if s.get(f) is not None:
+                    status[f] = "awaiting_filing"
+            if status:
+                s["status"] = status
+
+    print("filing-derived: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items()))
+          + f" of {len(stocks)} tickers.")
+    return counts["market_cap"]
+
+
 def derive_risk_metrics(stocks):
     """Volatility, drawdown, beta and Sharpe, from the stored daily closes.
 
@@ -8303,7 +8488,71 @@ EDGAR_CONCEPT_FALLBACKS = {
     # Balance-sheet total assets. Instant fact, not a duration: see
     # _extract_instant_series for why it needs its own extractor.
     "total_assets": ["Assets"],
+    # Everything below was chosen by counting which tags eight large filers
+    # across four sectors actually use, rather than by picking the name that
+    # sounds right. The order is by that hit rate.
+    #
+    # Diluted, not basic: a trailing P/E is quoted on diluted EPS because that
+    # is the share count an outside holder is actually diluted by.
+    "eps_diluted": ["EarningsPerShareDiluted",
+                    "IncomeLossFromContinuingOperationsPerDilutedShare"],
+    # Cover-page share count, which is the one closest to today. The
+    # weighted-average figures describe a period, not a moment, and would
+    # understate a company that has been buying back stock.
+    "shares_outstanding": ["EntityCommonStockSharesOutstanding",
+                           "CommonStockSharesOutstanding"],
+    # Parent-company equity. The IncludingNoncontrollingInterest variant counts
+    # equity that common holders have no claim on.
+    "equity": ["StockholdersEquity"],
+    "cash": ["CashAndCashEquivalentsAtCarryingValue"],
+    "short_term_investments": ["ShortTermInvestments", "MarketableSecuritiesCurrent"],
+    "long_term_debt": ["LongTermDebtNoncurrent", "LongTermDebt"],
+    # Current portion of long-term debt plus other short-term borrowing. Kept
+    # as two separate lookups rather than one fallback chain, because a filer
+    # reporting both is reporting two different things.
+    "current_debt": ["LongTermDebtCurrent"],
+    "short_term_borrowings": ["ShortTermBorrowings", "CommercialPaper"],
+    # A combined figure where the filer reports one. Microsoft does not: it
+    # tags depreciation and intangible amortization as separate lines, so a
+    # single-concept lookup returned nothing and its EBITDA went missing
+    # entirely rather than wrong, which is the better failure but still a gap.
+    "dep_amort": ["DepreciationDepletionAndAmortization",
+                  "DepreciationAndAmortization",
+                  "DepreciationAmortizationAndAccretionNet"],
+    # Only used when no combined tag exists, so a filer reporting both cannot
+    # be counted twice.
+    "depreciation_only": ["Depreciation"],
+    "amortization_only": ["AmortizationOfIntangibleAssets"],
 }
+
+
+# Four quarters is a trailing twelve months. Fewer is not, and summing three
+# and calling it TTM is how a ratio ends up 25% light.
+_TTM_QUARTERS = 4
+
+
+def _ttm(series, offset=0):
+    """Sum of four consecutive quarters, most recent first, or None.
+
+    offset=4 gives the four quarters before those, which is what a
+    year-over-year comparison needs on the same basis."""
+    if not series or len(series) < offset + _TTM_QUARTERS:
+        return None
+    window = series[offset:offset + _TTM_QUARTERS]
+    try:
+        return sum(float(r["val"]) for r in window)
+    except (TypeError, ValueError, KeyError):
+        return None
+
+
+def _latest(series):
+    """Most recent value in an instant series, or None."""
+    if not series:
+        return None
+    try:
+        return float(series[0]["val"])
+    except (TypeError, ValueError, KeyError):
+        return None
 
 
 def fetch_edgar_ticker_cik_map():
@@ -8460,6 +8709,62 @@ def _quarterly_from_records(records):
                                       "val": missing, "filed": annual["filed"],
                                       "derived": True}
 
+    # Cash-flow statements are filed year-to-date, not per quarter. A 10-Q's
+    # cash-flow column covers fiscal-year-start to quarter-end, so only Q1 is
+    # ever ~90 days long and everything above lands nothing else: Coca-Cola's
+    # "quarterly" operating cash flow was four first quarters from four
+    # different years, one per year, and summing them produced a trailing
+    # twelve months of minus $2.5bn for a company that earns about ten.
+    #
+    # It also silently broke the year-over-year comparisons that read this
+    # series positionally. fcf_growth_yoy compares entry 0 against entry 4,
+    # which on a one-Q1-per-year series is a four-year growth rate wearing a
+    # year-over-year label.
+    #
+    # Consecutive year-to-date figures sharing a fiscal-year start differ by
+    # exactly one quarter, so difference the chain: Q2 = H1 - Q1, Q3 = 9M - H1,
+    # Q4 = FY - 9M. Income-statement facts are unaffected, since a 10-Q tags
+    # both a three-month and a year-to-date column and the three-month one is
+    # picked up directly above.
+    by_start = {}
+    for r in records:
+        start, end, val = r.get("start"), r.get("end"), r.get("val")
+        if not start or not end or val is None:
+            continue
+        days = _period_days(start, end)
+        if days is None or not (_QUARTER_MIN_DAYS <= days <= _ANNUAL_MAX_DAYS):
+            continue
+        by_start.setdefault(start, []).append(
+            {"end": end, "days": days, "val": val, "filed": r.get("filed", "")})
+
+    for start, chain in by_start.items():
+        if len(chain) < 2:
+            continue
+        # One row per period length, most recently filed winning, so a restated
+        # year does not appear twice in the same chain.
+        best = {}
+        for item in chain:
+            cur = best.get(item["days"])
+            if cur is None or item["filed"] > cur["filed"]:
+                best[item["days"]] = item
+        ordered = sorted(best.values(), key=lambda x: x["days"])
+        prev = None
+        for item in ordered:
+            if prev is not None:
+                span = item["days"] - prev["days"]
+                if _QUARTER_MIN_DAYS <= span <= _QUARTER_MAX_DAYS:
+                    q_start = _shift_iso(prev["end"], 1)
+                    key = (q_start, item["end"])
+                    if key not in quarters:
+                        try:
+                            quarters[key] = {
+                                "start": q_start, "end": item["end"],
+                                "val": item["val"] - prev["val"],
+                                "filed": item["filed"], "derived": True}
+                        except TypeError:
+                            pass
+            prev = item
+
     # One value per period end. A quarter the filer actually tagged beats one
     # worked out by subtraction, whatever the filing dates say.
     by_end = {}
@@ -8491,7 +8796,7 @@ def _instants_from_records(records):
     return sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
 
 
-def _select_concept_series(facts, concept_keys, builder):
+def _select_concept_series(facts, concept_keys, builder, unit_keys=None):
     """Build a series from the best concept, not merely the first that answers.
 
     The old rule was first-match-wins, which is only right if every candidate
@@ -8508,14 +8813,21 @@ def _select_concept_series(facts, concept_keys, builder):
     retired tags and are dropped. Among what remains, concept_keys order still
     decides, because that order is a real preference between live tags."""
     from datetime import date as _date
-    us_gaap = facts.get("us-gaap", {})
+    # dei carries the cover-page facts, us-gaap the statements.
+    pools = (facts.get("us-gaap", {}), facts.get("dei", {}))
     candidates = []
     for rank, concept in enumerate(concept_keys):
-        node = us_gaap.get(concept)
+        node = pools[0].get(concept) or pools[1].get(concept)
         if not node:
             continue
         units = node.get("units", {})
-        records = units.get("USD") or units.get("USD/shares") or []
+        # Share counts are filed under a "shares" unit, not USD, so a
+        # USD-only lookup returns nothing for them.
+        records = []
+        for u in (unit_keys or ("USD", "USD/shares")):
+            if units.get(u):
+                records = units[u]
+                break
         if not records:
             continue
         series = builder(records)
@@ -8537,13 +8849,14 @@ def _extract_quarterly_series(facts, concept_keys, max_periods=12):
     return _select_concept_series(facts, concept_keys, _quarterly_from_records)[:max_periods]
 
 
-def _extract_instant_series(facts, concept_keys, max_periods=12):
+def _extract_instant_series(facts, concept_keys, max_periods=12, unit_keys=None):
     """Balance-sheet values for the best matching concept, most recent first.
 
     Balance-sheet facts are instants: they carry an `end` and no `start`, so
     the duration path drops every one of them at its `if not start` guard.
     That is why accruals_ratio sat at 0% coverage across the whole universe."""
-    return _select_concept_series(facts, concept_keys, _instants_from_records)[:max_periods]
+    return _select_concept_series(facts, concept_keys, _instants_from_records,
+                                 unit_keys=unit_keys)[:max_periods]
 
 
 def compute_benford(facts):
@@ -8685,8 +8998,61 @@ def compute_edgar_factors(facts):
     eps = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["eps_basic"])
     net_income = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["net_income"])
     assets = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["total_assets"])
+    eps_dil = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["eps_diluted"])
+    dep_amort = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["dep_amort"])
+    if not dep_amort:
+        # Components, summed, only when the combined line is absent.
+        dep_only = _ttm(_extract_quarterly_series(
+            facts, EDGAR_CONCEPT_FALLBACKS["depreciation_only"]))
+        amort_only = _ttm(_extract_quarterly_series(
+            facts, EDGAR_CONCEPT_FALLBACKS["amortization_only"]))
+        split_da = None if dep_only is None else dep_only + (amort_only or 0)
+    else:
+        split_da = None
+    shares = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["shares_outstanding"],
+                                     unit_keys=("shares",))
+    equity = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["equity"])
+    cash = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["cash"])
+    st_inv = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["short_term_investments"])
+    lt_debt = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["long_term_debt"])
+    cur_debt = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["current_debt"])
+    st_borrow = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["short_term_borrowings"])
 
     out = {}
+    # Trailing-twelve-month aggregates and latest balance-sheet values. These
+    # are the inputs the price-dependent ratios need; the ratios themselves are
+    # computed in derive_ratios_from_fundamentals once a price is known.
+    for key, val in (
+        ("ttm_revenue", _ttm(revenues)),
+        ("ttm_gross_profit", _ttm(gp)),
+        ("ttm_operating_income", _ttm(op_inc)),
+        ("ttm_net_income", _ttm(net_income)),
+        ("ttm_eps_diluted", _ttm(eps_dil)),
+        ("ttm_dep_amort", _ttm(dep_amort) if dep_amort else split_da),
+        ("prior_ttm_revenue", _ttm(revenues, _TTM_QUARTERS)),
+        ("prior_ttm_eps_diluted", _ttm(eps_dil, _TTM_QUARTERS)),
+        ("shares_outstanding", _latest(shares)),
+        ("equity", _latest(equity)),
+        ("prior_equity", (float(equity[_TTM_QUARTERS]["val"])
+                          if len(equity) > _TTM_QUARTERS else None)),
+        ("cash_and_investments", (_latest(cash) or 0) + (_latest(st_inv) or 0)
+         if _latest(cash) is not None else None),
+        ("total_debt", ((_latest(lt_debt) or 0) + (_latest(cur_debt) or 0)
+                        + (_latest(st_borrow) or 0)) or None),
+    ):
+        if val is not None and math.isfinite(val):
+            out[key] = val
+    ttm_cfo, ttm_capex = _ttm(cfo), _ttm(capex)
+    if ttm_cfo is not None and ttm_capex is not None:
+        # Capex is reported as a positive outflow in the cash-flow statement.
+        out["ttm_fcf"] = ttm_cfo - abs(ttm_capex)
+    if out.get("ttm_operating_income") is not None and out.get("ttm_dep_amort") is not None:
+        out["ttm_ebitda"] = out["ttm_operating_income"] + out["ttm_dep_amort"]
+    # The period the newest fact covers. This, not the day we ran, is what makes
+    # a filing-derived number as current as it can be.
+    newest = max([s[0]["end"] for s in (revenues, net_income, eps_dil) if s] or [""])
+    if newest:
+        out["fiscal_period_end"] = newest
 
     # Accruals ratio (Sloan 1996): (TTM net income - TTM operating cash flow)
     # / average total assets. High accruals mean earnings are not backed by cash,
@@ -9476,6 +9842,7 @@ def get_or_generate_stocks_universe():
         derive_from_price_history(cached_list)
         enrich_with_market_series()
         derive_risk_metrics(cached_list)
+        derive_ratios_from_fundamentals(cached_list)
         return last_known
     if last_known and not schema_ok:
         print("stocks_universe: schema bump, bypassing the daily cache.")
@@ -9582,6 +9949,14 @@ def get_or_generate_stocks_universe():
         # EDGAR-derived (refreshed weekly)
         "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy",
         "earnings_consistency", "op_margin_stability", "op_margin_history", "edgar_updated",
+        # Trailing aggregates and balance-sheet values behind the ratios. The
+        # EDGAR sweep is capped per run, so without these a ticker's ratios
+        # would vanish on any rebuild that did not happen to refetch it.
+        "ttm_revenue", "ttm_gross_profit", "ttm_operating_income", "ttm_net_income",
+        "ttm_eps_diluted", "ttm_dep_amort", "ttm_fcf", "ttm_ebitda",
+        "prior_ttm_revenue", "prior_ttm_eps_diluted",
+        "shares_outstanding", "equity", "prior_equity",
+        "cash_and_investments", "total_debt", "fiscal_period_end",
         "benford",
         # News-derived sentiment aggregates
         "news_lm_avg", "news_vader_avg", "news_count_7d",
@@ -9726,6 +10101,8 @@ def get_or_generate_stocks_universe():
     derive_from_price_history(stocks)
     enrich_with_market_series()
     derive_risk_metrics(stocks)
+    # After the price derivation, because every ratio here needs a price.
+    derive_ratios_from_fundamentals(stocks)
 
     # Peer scoring last: it reads every factor the steps above populate.
     compute_peer_scores(stocks)
