@@ -2393,6 +2393,7 @@ body.page-stocks .stk-railgroup .lib-chip { font-size:8px; padding:3px 7px; lett
 .stk-radar-fam { margin-top:16px; }
 .stk-radar-fam-h { display:flex; justify-content:space-between; align-items:baseline;
   border-bottom:1px solid var(--border-bright); padding-bottom:5px; margin-bottom:7px; }
+.stk-radar-val.na { cursor:help; }
 .stk-radar-fam-h b { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
   text-transform:uppercase; font-weight:400; color:var(--text-2); }
 .stk-radar-row { display:grid; grid-template-columns:1fr 46px 26px; gap:8px; align-items:center;
@@ -2974,6 +2975,7 @@ STOCKS_JS_TEMPLATE = """
   // reads this rather than the strings sitting beside each row below, so a
   // formula and its description are the same object.
   const FIELD_METHODS = __FIELD_METHODS_JSON__;
+  const MIN_COHORT = __MIN_COHORT_JSON__;
   const FIELD_STATUS = __FIELD_STATUS_JSON__;
   const REFRESH_CLASSES = __REFRESH_CLASSES_JSON__;
   const pctOf = (s, field) => {
@@ -5007,6 +5009,7 @@ STOCKS_JS_TEMPLATE = """
         const vals = picks.map(function(s, i) {
           const v = pctOf(s, k);
           return '<span class="stk-radar-val' + (v == null ? ' na' : '') + '"' +
+            (v == null ? ' title="' + escapeHtml(naReason(s, k)) + '"' : '') +
             (solo ? '' : ' style="color:' + RADAR_COLORS[i % RADAR_COLORS.length] + '"') + '>' +
             (v == null ? '\u2014' : v) + '</span>';
         }).join('');
@@ -5084,11 +5087,41 @@ STOCKS_JS_TEMPLATE = """
     });
   })();
 
+  // A dash in these panels had no explanation, and it covers three different
+  // situations that a reader cannot tell apart: the company does not report the
+  // line, the value exists but too few sector peers report it to rank against,
+  // or a fetch has not reached it yet. Annaly is a mortgage REIT with no
+  // meaningful EBITDA and no capital expenditure line, so its blanks are
+  // correct and permanent; Micron's single blank is a fetch that needs one more
+  // quarter. Those deserve different words.
+  function naReason(s, key) {
+    const code = (s.status || {})[key];
+    if (code && FIELD_STATUS[code]) return FIELD_STATUS[code];
+    const m = FIELD_METHODS[key];
+    if (s[key] == null) {
+      if (m && (m.source === 'edgar' || m.source === 'form4')) {
+        // No apostrophe here on purpose. This is a Python string that becomes
+        // JavaScript, and Python consumes the backslash in an escaped quote
+        // before the browser ever sees it, leaving a bare quote that closes the
+        // string early and breaks the entire script block. Wording around it is
+        // safer than escaping twice and hoping the next edit preserves it.
+        return 'Not reported in the filings for this company. Financial and property '
+             + 'companies often do not file the line this needs, in which case the '
+             + 'blank is permanent rather than pending.';
+      }
+      return 'No value from the source for this company.';
+    }
+    return 'Measured, but fewer than ' + MIN_COHORT + ' sector peers report it, so a '
+         + 'percentile would claim precision the sample cannot support. The value '
+         + 'itself is in the factor card above.';
+  }
+
   function radarExtraBlock(picks, solo) {
     const rows = RADAR_EXTRA.map(function(x) {
       const vals = picks.map(function(s, i) {
         const v = pctOf(s, x.key);
         return '<span class="stk-radar-val' + (v == null ? ' na' : '') + '"' +
+          (v == null ? ' title="' + escapeHtml(naReason(s, x.key)) + '"' : '') +
           (solo ? '' : ' style="color:' + RADAR_COLORS[i % RADAR_COLORS.length] + '"') + '>' +
           (v == null ? '—' : v) + '</span>';
       }).join('');
@@ -5102,7 +5135,8 @@ STOCKS_JS_TEMPLATE = """
     return '<div class="stk-radar-fam"><div class="stk-radar-fam-h' + (solo ? '' : ' cmp') + '">' +
       '<b>Coverage</b></div>' + rows +
       '<p class="stk-radar-foot">Percentiles against sector peers, the same as above. ' +
-      'These are shown, not scored: none of them feeds a factor or the composite.</p></div>';
+      'These are shown, not scored: none of them feeds a factor or the composite. ' +
+      'Hover a dash to see why it is blank.</p></div>';
   }
 
   // -- Chart ---------------------------------------------------------------
@@ -10712,6 +10746,7 @@ def generate_stocks_page(universe):
                  .replace("__DATA_URL__", stocks_json)
                  .replace("__PCT_FIELDS_JSON__", json.dumps(PCT_ARRAY_FIELDS))
                  .replace("__FIELD_METHODS_JSON__", json.dumps(FIELD_METHODS))
+                 .replace("__MIN_COHORT_JSON__", json.dumps(MIN_COHORT_FOR_PERCENTILE))
                  .replace("__FIELD_STATUS_JSON__", json.dumps(FIELD_STATUS))
                  .replace("__REFRESH_CLASSES_JSON__", json.dumps(REFRESH_CLASSES))
                  .replace("__SECTORS_JSON__", sectors_json)
