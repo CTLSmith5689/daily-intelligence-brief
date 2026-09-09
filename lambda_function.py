@@ -2863,6 +2863,7 @@ STOCKS_JS_TEMPLATE = """
     'gross_margin', 'operating_margin', 'gross_margin_trend',
     'revenue_acceleration', 'fcf_growth_yoy', 'accruals_ratio',
     'inst_ownership', 'insider_ownership',
+    'volatility_1y', 'max_drawdown_1y',
   ]);
   // Market-cap-coded fields use 1B / 300M / 5T suffixes
   const CAP_FIELDS = new Set(['market_cap', 'volume', 'insider_net_buy_90d']);
@@ -3054,6 +3055,15 @@ STOCKS_JS_TEMPLATE = """
         { label: 'Net Debt/EBITDA',     key: 'net_debt_ebitda',     type: 'ratio', source: 'yfinance', method: '(Total debt minus cash) / TTM EBITDA. Lower is better; negative means net cash.' },
         { label: 'Op Margin Stability', key: 'op_margin_stability', type: 'ratio', source: 'edgar',    method: 'Standard deviation of quarterly operating margins over last 8 quarters. Lower means more stable.' },
         { label: 'Accruals Ratio',      key: 'accruals_ratio',      type: 'pct',   source: 'edgar',    method: 'Sloan accruals: (TTM net income minus TTM operating cash flow) / average total assets, from XBRL. High accruals mean earnings are not backed by cash.' },
+      ],
+    },
+    {
+      title: 'Risk',
+      rows: [
+        { label: 'Volatility (1y)',     key: 'volatility_1y',       type: 'pct',   source: 'derived',  method: 'Annualized standard deviation of daily returns over the stored year of closes: sd(daily) x sqrt(252).' },
+        { label: 'Beta vs S&P 500',     key: 'beta_1y',             type: 'ratio', source: 'derived',  method: 'Slope of daily returns against the S&P 500 (^GSPC), matched on the days both traded. 1.00 moves with the index; below zero means it moved against it over this window.' },
+        { label: 'Sharpe (1y)',         key: 'sharpe_1y',           type: 'ratio', source: 'derived',  method: 'Mean daily return in excess of the 13-week Treasury bill (^IRX), over its own standard deviation, annualized by sqrt(252).' },
+        { label: 'Max Drawdown (1y)',   key: 'max_drawdown_1y',     type: 'pct',   source: 'derived',  method: 'Worst peak-to-trough fall across the stored year, as a negative number.' },
       ],
     },
   ];
@@ -4928,6 +4938,11 @@ STOCKS_JS_TEMPLATE = """
     { k:'rel_strength_sp500', label:'Rel strength vs S&P',  g:'Momentum' },
     { k:'volume_trend',       label:'Volume trend',         g:'Momentum' },
 
+    { k:'volatility_1y',      label:'Volatility 1y',        g:'Risk' },
+    { k:'beta_1y',            label:'Beta vs S&P',          g:'Risk' },
+    { k:'sharpe_1y',          label:'Sharpe 1y',            g:'Risk' },
+    { k:'max_drawdown_1y',    label:'Max drawdown 1y',      g:'Risk' },
+
     { k:'neglect_score',      label:'Neglect',              g:'Coverage' },
     { k:'analyst_count',      label:'Analyst count',        g:'Coverage' },
     { k:'inst_ownership',     label:'Institutional %',      g:'Coverage' },
@@ -4943,6 +4958,7 @@ STOCKS_JS_TEMPLATE = """
     { label:'Compounders',      x:'q',              y:'g',  c:'' },
     { label:'Cheap and moving', x:'v',              y:'m',  c:'' },
     { label:'Sentiment',        x:'news_vader_avg', y:'m',  c:'' },
+    { label:'Risk vs reward',   x:'volatility_1y',  y:'sharpe_1y', c:'beta_1y' },
     { label:'Neglect',          x:'neglect_score',  y:'q',  c:'market_cap' },
     { label:'Size vs score',    x:'market_cap',     y:'__score__', c:'neglect_score' },
   ];
@@ -7337,6 +7353,219 @@ def derive_returns_from_history(stocks):
     return got_1m
 
 
+# ── Risk metrics from the history we already store ─────────────────────────
+#
+# enrich_with_prices keeps 251 daily closes for 5,447 tickers so the expanded
+# row can draw a chart. That is a year of daily returns per company, sitting on
+# disk and read by nothing but the chart. Volatility, drawdown, beta and Sharpe
+# all fall out of it, and only the last two need anything we do not already have.
+#
+# What they need is a risk-free rate and a benchmark. Both are free and need no
+# key: ^IRX is the 13-week Treasury bill, the standard short-rate proxy, and
+# ^GSPC is the S&P 500 itself. Both come through yfinance, which is already a
+# dependency, so this adds a data source without adding a service, a credential
+# or a second thing that can go down.
+#
+# The Treasury publishes the same series as keyless CSV at home.treasury.gov if
+# Yahoo ever stops carrying it; the shape here is deliberately small enough that
+# swapping the source means rewriting one function.
+MARKET_FILE = "_MARKET.json"
+_RISK_FREE_SYMBOL = "^IRX"       # 13-week T-bill discount rate, quoted in percent
+_BENCHMARK_SYMBOL = "^GSPC"      # S&P 500
+_TRADING_DAYS = 252
+# Enough of a year to annualize honestly. Below this the numbers are noise
+# wearing an annual label.
+_MIN_RISK_OBS = 120
+
+
+def enrich_with_market_series(max_age_hours=24):
+    """Store the risk-free rate and the benchmark beside the ticker histories.
+
+    Two symbols, one file, same 24h cache as the per-ticker prices. Returns True
+    when a usable series is on disk afterwards."""
+    PRICES_DIR.mkdir(parents=True, exist_ok=True)
+    path = PRICES_DIR / MARKET_FILE
+    if path.exists():
+        try:
+            cached = json.loads(path.read_text(encoding="utf-8"))
+            age = _age_hours_from_iso(cached.get("updated"))
+            if age is not None and age <= max_age_hours and cached.get("risk_free"):
+                print(f"market: risk-free and benchmark are {age:.1f}h old, reusing.")
+                return True
+        except Exception:
+            pass
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("market: yfinance not installed, skipping risk-free and benchmark.")
+        return path.exists()
+
+    def series(symbol):
+        try:
+            hist = yf.download(symbol, period="1y", interval="1d",
+                               progress=False, auto_adjust=True, threads=False)
+            if hist is None or hist.empty:
+                return []
+            col = hist["Close"]
+            # A single-symbol download still comes back with MultiIndex columns
+            # on current yfinance, so take the first column rather than assuming.
+            if hasattr(col, "columns"):
+                col = col.iloc[:, 0]
+            out = []
+            for ts, val in col.dropna().items():
+                try:
+                    out.append([ts.date().isoformat(), round(float(val), 6)])
+                except Exception:
+                    continue
+            return out
+        except Exception as exc:
+            print(f"market: {symbol} fetch failed ({type(exc).__name__}: {exc}).")
+            return []
+
+    rf = series(_RISK_FREE_SYMBOL)
+    bench = series(_BENCHMARK_SYMBOL)
+    if not rf and not bench:
+        print("market: both series empty, keeping whatever is already on disk.")
+        return path.exists()
+    payload = {"updated": datetime.now(timezone.utc).isoformat(),
+               "risk_free_symbol": _RISK_FREE_SYMBOL, "risk_free": rf,
+               "benchmark_symbol": _BENCHMARK_SYMBOL, "benchmark": bench}
+    path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+    print(f"market: stored {len(rf)} risk-free and {len(bench)} benchmark observations "
+          f"({_RISK_FREE_SYMBOL} latest {rf[-1][1] if rf else 'n/a'}%).")
+    return True
+
+
+def _load_market_series():
+    """(risk_free_by_date, benchmark_daily_return_by_date). Empty when absent."""
+    try:
+        data = json.loads((PRICES_DIR / MARKET_FILE).read_text(encoding="utf-8"))
+    except Exception:
+        return {}, {}
+    # ^IRX is quoted as a percentage, so 3.775 means 3.775% a year. Convert to a
+    # daily decimal rate the same way the return series is daily.
+    rf = {}
+    for row in data.get("risk_free") or []:
+        try:
+            rf[row[0]] = float(row[1]) / 100.0 / _TRADING_DAYS
+        except Exception:
+            continue
+    bench_closes = []
+    for row in data.get("benchmark") or []:
+        try:
+            bench_closes.append((row[0], float(row[1])))
+        except Exception:
+            continue
+    bench_closes.sort()
+    bench = {}
+    for i in range(1, len(bench_closes)):
+        prev, cur = bench_closes[i - 1][1], bench_closes[i][1]
+        if prev > 0:
+            bench[bench_closes[i][0]] = cur / prev - 1
+    return rf, bench
+
+
+def derive_risk_metrics(stocks):
+    """Volatility, drawdown, beta and Sharpe, from the stored daily closes.
+
+    Nothing here is fetched. enrich_with_prices already keeps a year of closes
+    per ticker for the chart card, and this reads the same files:
+
+      volatility_1y   annualized standard deviation of daily returns
+      max_drawdown_1y worst peak-to-trough fall over the window, as a negative
+      beta_1y         slope against the S&P 500 on the days both traded
+      sharpe_1y       mean daily excess return over the 13-week bill, annualized
+
+    Volatility and drawdown need only the ticker's own history, so they are
+    produced whether or not the market file is there. Beta and Sharpe need the
+    benchmark and the risk-free rate and are skipped when it is missing, rather
+    than substituting a zero rate, which would quietly inflate every Sharpe in
+    the universe by roughly the level of short rates."""
+    if not stocks:
+        return 0
+    rf_by_date, bench_by_date = _load_market_series()
+    have_market = bool(rf_by_date and bench_by_date)
+    if not have_market:
+        print("risk: no market series on disk, computing volatility and drawdown only.")
+
+    cutoff = (datetime.now(timezone.utc).date() - timedelta(days=10)).isoformat()
+    n_vol = n_beta = n_sharpe = 0
+    skipped = 0
+    for s in stocks:
+        try:
+            closes = json.loads((PRICES_DIR / _news_filename(s["ticker"]))
+                                .read_text(encoding="utf-8")).get("closes") or []
+        except Exception:
+            skipped += 1
+            continue
+        if len(closes) < _MIN_RISK_OBS or str(closes[-1][0]) < cutoff:
+            skipped += 1
+            continue
+        try:
+            dated = [(str(d), float(p)) for d, p in closes if float(p) > 0]
+        except (TypeError, ValueError):
+            skipped += 1
+            continue
+        if len(dated) < _MIN_RISK_OBS:
+            skipped += 1
+            continue
+
+        rets = []
+        for i in range(1, len(dated)):
+            rets.append((dated[i][0], dated[i][1] / dated[i - 1][1] - 1))
+
+        mean = sum(r for _, r in rets) / len(rets)
+        var = sum((r - mean) ** 2 for _, r in rets) / (len(rets) - 1)
+        sd = var ** 0.5
+        vol = sd * (_TRADING_DAYS ** 0.5)
+        if 0 < vol < 10:
+            s["volatility_1y"] = vol
+            n_vol += 1
+
+        peak = dated[0][1]
+        worst = 0.0
+        for _, px in dated:
+            if px > peak:
+                peak = px
+            dd = px / peak - 1
+            if dd < worst:
+                worst = dd
+        s["max_drawdown_1y"] = worst
+
+        if not have_market:
+            continue
+
+        # Beta on the days both actually traded. Aligning by position instead
+        # would silently pair a stock's Tuesday with the index's Wednesday for
+        # every holiday the two calendars disagree on.
+        pairs = [(r, bench_by_date[d]) for d, r in rets if d in bench_by_date]
+        if len(pairs) >= _MIN_RISK_OBS:
+            mb = sum(b for _, b in pairs) / len(pairs)
+            ms = sum(a for a, _ in pairs) / len(pairs)
+            cov = sum((a - ms) * (b - mb) for a, b in pairs) / (len(pairs) - 1)
+            varb = sum((b - mb) ** 2 for _, b in pairs) / (len(pairs) - 1)
+            if varb > 0:
+                beta = cov / varb
+                if abs(beta) < 10:
+                    s["beta_1y"] = beta
+                    n_beta += 1
+
+        excess = [r - rf_by_date[d] for d, r in rets if d in rf_by_date]
+        if len(excess) >= _MIN_RISK_OBS:
+            me = sum(excess) / len(excess)
+            ve = sum((e - me) ** 2 for e in excess) / (len(excess) - 1)
+            se = ve ** 0.5
+            if se > 0:
+                sharpe = me / se * (_TRADING_DAYS ** 0.5)
+                if abs(sharpe) < 20:
+                    s["sharpe_1y"] = sharpe
+                    n_sharpe += 1
+
+    print(f"risk: volatility for {n_vol}, beta for {n_beta}, Sharpe for {n_sharpe} "
+          f"of {len(stocks)} tickers ({skipped} without usable history).")
+    return n_vol
+
+
 def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
     """Fetch ~1y daily closes per ticker via yf.download bulk endpoint and write
     docs/prices/{TICKER}.json. The bulk endpoint is dramatically faster than
@@ -8410,7 +8639,8 @@ SCORE_FIELDS = [f for g in SCORE_GROUPS_PY.values() for f in g["fields"]]
 
 # Ranked against sector peers and shown, but never summed into a dimension or
 # the composite. Order matters: it is appended to the positional pct array.
-DISPLAY_PCT_FIELDS = ["news_vader_avg", "news_lm_avg", "news_count_7d", "neglect_score"]
+DISPLAY_PCT_FIELDS = ["news_vader_avg", "news_lm_avg", "news_count_7d", "neglect_score",
+                      "volatility_1y", "beta_1y", "sharpe_1y", "max_drawdown_1y"]
 PCT_ARRAY_FIELDS = SCORE_FIELDS + DISPLAY_PCT_FIELDS
 INVERTED_FIELDS = {f for g in SCORE_GROUPS_PY.values() for f in g["invert"]}
 
@@ -8611,6 +8841,8 @@ def get_or_generate_stocks_universe():
         compute_neglect_score(cached_list)
         enrich_with_prices(cached_list)
         derive_returns_from_history(cached_list)
+        enrich_with_market_series()
+        derive_risk_metrics(cached_list)
         return last_known
     if last_known and not schema_ok:
         print("stocks_universe: schema bump, bypassing the daily cache.")
@@ -8839,6 +9071,8 @@ def get_or_generate_stocks_universe():
     # returns are read back out of it now, so it has to come first.
     enrich_with_prices(stocks)
     derive_returns_from_history(stocks)
+    enrich_with_market_series()
+    derive_risk_metrics(stocks)
 
     # Peer scoring last: it reads every factor the steps above populate.
     compute_peer_scores(stocks)
@@ -9178,6 +9412,10 @@ FILTER_PANEL = [
         {"label": "Accruals Ratio",        "key": "accruals_ratio",     "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
         {"label": "Gross Margin",          "key": "gross_margin",       "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
         {"label": "Operating Margin",      "key": "operating_margin",   "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max %"},
+        {"label": "Volatility (1y)",       "key": "volatility_1y",      "type": "pct",   "placeholder_min": "min %",            "placeholder_max": "max % (e.g. 30)"},
+        {"label": "Beta vs S&P 500",       "key": "beta_1y",            "type": "ratio",   "placeholder_min": "min (e.g. 0.5)",   "placeholder_max": "max (e.g. 1.2)"},
+        {"label": "Sharpe (1y)",           "key": "sharpe_1y",          "type": "ratio",   "placeholder_min": "min (e.g. 1)",     "placeholder_max": "max"},
+        {"label": "Max Drawdown (1y)",     "key": "max_drawdown_1y",    "type": "pct",   "placeholder_min": "min % (e.g. -30)", "placeholder_max": "max %"},
     ]},
 ]
 
