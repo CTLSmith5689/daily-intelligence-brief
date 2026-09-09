@@ -115,7 +115,7 @@ HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", 
 # and these are recomputed from the panel's own inputs on every run anyway.
 FUNDAMENTAL_SKIP_FIELDS = {
     "benford", "op_margin_history",
-    "g", "v", "m", "q", "pct", "scorable", "dims_present",
+    "g", "v", "m", "q", "pct", "scorable", "dims_present", "neglect_parts",
 }
 # Leading columns, in this order; every other scalar field follows alphabetically.
 FUNDAMENTAL_LEAD = ["date", "ticker", "name", "sector", "sub_industry", "index",
@@ -7158,16 +7158,41 @@ def enrich_with_news(stocks, max_age_hours=12, max_workers=10):
     return fetched
 
 
+# A composite of one is not a composite. Before this gate, 1,842 of 5,339
+# tickers (34%) carried a neglect_score resting on a single component, and in
+# every one of those cases the component was the same: news_count_7d. The number
+# presented as a three-factor Lynch signal was, for a third of the universe,
+# `1 - items_found / 20` and nothing else.
+MIN_NEGLECT_COMPONENTS = 2
+
+
 def compute_neglect_score(stocks):
     """Peter Lynch neglect signal: under-followed names tend to have asymmetric
-    upside when something good happens because Wall Street isn't watching. Composite
-    of three normalized 0-to-1 components, each scoring "more neglected" higher:
+    upside when something good happens, because Wall Street is not watching.
+    Composite of up to three normalized 0-to-1 components, each scoring "more
+    neglected" higher:
       - analyst coverage:  1 - min(analyst_count, 30) / 30
       - institutional %:   1 - min(inst_ownership, 0.50) / 0.50
       - news mentions 7d:  1 - min(news_count_7d, 20) / 20
-    Score in [0, 1]; >0.7 is genuinely off-the-radar; <0.3 is heavily covered.
-    Skips a component when its input is missing rather than penalizing it."""
+    Score in [0, 1]; >0.7 is genuinely off-the-radar, <0.3 is heavily covered.
+
+    Two components minimum, because a single one is not a composite and the
+    single one was always the same: news_count_7d is stamped on every ticker
+    that has a news file, including the 447 whose file is empty, while
+    analyst_count and inst_ownership come from Yahoo and are frequently absent.
+    So a third of the universe was scored on our own search hit count alone.
+
+    That matters most exactly where the score is loudest. A ticker we found no
+    headlines for scores 1.0, maximally neglected, and zero is ambiguous: it can
+    mean nobody covers the company, or it can mean the query did not match it.
+    Four of the feeds in this project were returning nothing at all until
+    recently and looked no different. With a second component present, a real
+    zero is tempered by evidence from somewhere other than the same search.
+
+    Coverage cost is 1,842 tickers, and they are not the large ones: median cap
+    among those keeping a score is $1,431M against $1,382M for the universe."""
     scored = 0
+    dropped = 0
     for s in stocks:
         parts = []
         if isinstance(s.get("analyst_count"), (int, float)):
@@ -7176,10 +7201,20 @@ def compute_neglect_score(stocks):
             parts.append(1 - min(s["inst_ownership"], 0.50) / 0.50)
         if isinstance(s.get("news_count_7d"), (int, float)):
             parts.append(1 - min(s["news_count_7d"], 20) / 20)
-        if parts:
+        if len(parts) >= MIN_NEGLECT_COMPONENTS:
             s["neglect_score"] = sum(parts) / len(parts)
+            s["neglect_parts"] = len(parts)
             scored += 1
-    print(f"neglect_score: computed for {scored} tickers.")
+        else:
+            # Clear rather than leave: on the cached path these dicts persist
+            # between runs, and a score whose inputs have since gone missing
+            # would otherwise sit there looking freshly computed.
+            s.pop("neglect_score", None)
+            s.pop("neglect_parts", None)
+            if parts:
+                dropped += 1
+    print(f"neglect_score: computed for {scored} tickers; "
+          f"{dropped} had only one component and were left unscored.")
     return scored
 
 
