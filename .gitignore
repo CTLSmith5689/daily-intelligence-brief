@@ -9,3 +9,19 @@ Thumbs.db
 source/
 *.zip
 .claude/
+
+# The rendered site lives on the gh-pages branch, which is force-pushed as a
+# single orphan commit every run and so never accumulates. Versioning it here
+# made docs/ 161 MB of a 197 MB repository, growing 12-20 MB per daily run,
+# against 3.9 MB for all of data/, which is the actual product.
+#
+# docs/briefs is the exception and stays tracked. Those are the archive: written
+# once, never regenerated, and the only thing under docs/ that cannot be rebuilt
+# from a later run. The workflow restores the rest from gh-pages before the run,
+# because docs/news and docs/prices are also the fetch cache.
+#
+# docs/* rather than docs/**, so the negations below can re-include: git cannot
+# re-include a path whose parent directory is itself excluded.
+docs/*
+!docs/briefs/
+!docs/.nojekyll
