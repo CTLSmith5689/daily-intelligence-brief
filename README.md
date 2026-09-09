@@ -103,22 +103,46 @@ Different sources move at different speeds, so they are gated separately:
   Those columns therefore repeat within a week, which is why the `*_updated`
   columns exist.
 
-### Growth
+### Growth, and where the site lives
 
-Measured at roughly 21.7 MB/day, so about 7.9 GB/year, against a `.git` that is
-already 229 MB. GitHub warns around 1 GB, which on that trajectory is about five
-weeks out.
+`docs/` used to be versioned in `main`: 10,900 per-ticker JSON files rewritten in
+full on every daily run, which made it 161 MB of a 197 MB repository and cost
+12-20 MB a night. `data/`, which is the actual product, is 3.9 MB of it. On that
+trajectory the repo reached GitHub's 1 GB warning in about five weeks.
 
-The driver is not `data/`, which is 1.8% of history. It is `docs/news` and
-`docs/prices`: 10,903 per-ticker JSON files rewritten in full on every daily run,
-59% of all object growth. GitHub Pages is not the constraint either, since
-`docs/` is 74 MB against a 1 GB limit.
+The rendered site now publishes to a `gh-pages` branch as a single orphan commit,
+force-pushed each run, so it never accumulates. `main` keeps only `docs/briefs`,
+the archive, which is written once and cannot be regenerated.
 
-The cheapest fix is to stop versioning the sidecars in `main` at all. They are
-pure caches, fully re-derivable from yfinance and Google News, and nothing ever
-reads a historical version of one. Publishing `docs/` to an orphan `gh-pages`
-branch with a single force-pushed commit removes that 59% from history
-permanently.
+The obvious alternative, `actions/upload-pages-artifact`, does not work here.
+`docs/news` and `docs/prices` are not only output: `enrich_with_news` and
+`enrich_with_prices` decide what to skip by reading those files off disk. A deploy
+that does not restore them first would refetch 5,400 news feeds and 5,447 price
+histories on every run. So the workflow checks the branch out before the run and
+publishes it after, with two guards, since a force-push writes whatever is on
+disk: it refuses a tree with no `index.html`, and one whose brief count went
+backwards.
+
+### Risk metrics come from history already on disk
+
+`enrich_with_prices` keeps a year of daily closes per ticker so the expanded row
+can draw a chart. `volatility_1y`, `beta_1y`, `sharpe_1y` and `max_drawdown_1y`
+are computed from those same files, so they cost no extra fetching and reach 95%
+of the universe, better than any other factor here.
+
+Beta and Sharpe need a benchmark and a risk-free rate. Both are keyless: `^IRX`
+(13-week Treasury bill) and `^GSPC`, fetched through yfinance, which is already a
+dependency, and cached in `docs/prices/_MARKET.json` beside the ticker histories.
+The Treasury publishes the same series as CSV at home.treasury.gov if Yahoo stops
+carrying it.
+
+Volatility and drawdown need only a ticker's own closes and are produced whether
+or not that file exists. Beta and Sharpe are withheld when it is missing rather
+than falling back to a zero rate, which would inflate every Sharpe in the universe
+by roughly the level of short rates.
+
+Checked against the case that is forced regardless of market conditions: SPY
+against the index it tracks comes out at beta 0.9964, correlation 0.9968.
 
 ## Schedules (UTC)
 
@@ -194,10 +218,12 @@ lambda_function.py          # the whole pipeline
   brief.yml                 # hourly record + daily full run
   keepalive.yml             # weekly check; emails a warning, makes no commit
 data/                       # the append-only record (the actual product)
-docs/                       # GitHub Pages, rebuilt daily from data
+docs/                       # the site. Only briefs/ is tracked in main; the
+                            # rest lives on gh-pages, restored before each run
   index.html today.html stories.html stocks.html
-  briefs/                   # daily snapshot pages
-  news/ prices/             # per-ticker caches
+  briefs/                   # daily snapshot pages, tracked in main, not regenerable
+  news/ prices/             # per-ticker caches, and the fetch state itself
+  prices/_MARKET.json       # risk-free rate (^IRX) and benchmark (^GSPC)
 state/                      # caches committed back by the workflow
   stocks_universe.json      # the daily fundamentals snapshot
   news_fetch_log.json       # per-ticker news freshness; see note below
