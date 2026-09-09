@@ -15,14 +15,21 @@
 ## alerts, and reads history with the built-in token.
 ##
 ## This workflow is itself a scheduled workflow, so it is subject to the same
-## disable. It runs on the 1st of the month, which means it fires at least once
-## inside any 60-day window and warns with roughly two weeks to spare.
+## disable it warns about.
+##
+## It runs weekly, not monthly. A monthly run can only warn if one of its
+## firings happens to land with the age between 40 and 60 days, which is a
+## 20-day window sampled at a 28-31 day stride, so the stride steps clean over
+## it. Simulated across all 365 possible last-commit dates in 2026: the monthly
+## schedule never warned at all for 113 of them (31%), and where it did warn the
+## notice was sometimes zero days. Weekly misses none of them and never gives
+## less than 14 days.
 
 name: keepalive-check
 
 on:
   schedule:
-    - cron: '0 12 1 * *'   # 12:00 UTC on the 1st of each month
+    - cron: '0 12 * * 1'   # 12:00 UTC every Monday
   workflow_dispatch:
 
 permissions:
@@ -96,4 +103,29 @@ jobs:
               f'<p><a href="{repo}">{repo}</a></p>',
           )
           print(f"Warning sent: {age} days since the last human commit.")
+          PY
+
+      # Without this the keepalive can fail silently. It runs weekly and does
+      # nothing but send mail, so a revoked app-specific password would go
+      # unnoticed until the week it was needed, which is the week the schedule
+      # is about to be disabled.
+      - name: Alert if the keepalive itself failed
+        if: failure() || cancelled()
+        env:
+          APTERREON_ICLOUD_APP_PASSWORD: ${{ secrets.APTERREON_ICLOUD_APP_PASSWORD }}
+          RECIPIENTS: ${{ vars.RECIPIENTS }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import os
+          from lambda_function import send_email
+          send_email(
+              "apterreon keepalive check FAILED",
+              "<h2>The inactivity warning did not run.</h2>"
+              "<p>This is the check that tells you before GitHub disables the "
+              "schedule after 60 days without a human commit. While it is broken "
+              "you have no warning that the pipeline is about to stop.</p>"
+              f'<p><a href="{os.environ["RUN_URL"]}">Open the failed run</a></p>',
+          )
+          print("Keepalive failure alert sent.")
           PY

@@ -105,10 +105,20 @@ Different sources move at different speeds, so they are gated separately:
 
 ### Growth
 
-Roughly 500-700 MB/year at the current ~5,300-ticker universe, almost entirely
-`fundamentals`. Worth revisiting (compression,
-or splitting static ticker metadata into its own reference table) before it becomes
-a problem.
+Measured at roughly 21.7 MB/day, so about 7.9 GB/year, against a `.git` that is
+already 229 MB. GitHub warns around 1 GB, which on that trajectory is about five
+weeks out.
+
+The driver is not `data/`, which is 1.8% of history. It is `docs/news` and
+`docs/prices`: 10,903 per-ticker JSON files rewritten in full on every daily run,
+59% of all object growth. GitHub Pages is not the constraint either, since
+`docs/` is 74 MB against a 1 GB limit.
+
+The cheapest fix is to stop versioning the sidecars in `main` at all. They are
+pure caches, fully re-derivable from yfinance and Google News, and nothing ever
+reads a historical version of one. Publishing `docs/` to an orphan `gh-pages`
+branch with a single force-pushed commit removes that 59% from history
+permanently.
 
 ## Schedules (UTC)
 
@@ -159,7 +169,7 @@ Any commit resets the clock:
 git commit --allow-empty -m keepalive && git push
 ```
 
-If you ignore the warning for 20 days, the schedule stops. That is the tradeoff
+If you ignore the warning for 14 days or more, the schedule stops. That is the tradeoff
 for not keeping a write token around.
 
 ## Manual run
@@ -182,7 +192,7 @@ Yahoo and SEC hard, so prefer `record` for iteration.
 lambda_function.py          # the whole pipeline
 .github/workflows/
   brief.yml                 # hourly record + daily full run
-  keepalive.yml             # monthly empty commit, keeps the schedule alive
+  keepalive.yml             # weekly check; emails a warning, makes no commit
 data/                       # the append-only record (the actual product)
 docs/                       # GitHub Pages, rebuilt daily from data
   index.html today.html stories.html stocks.html
