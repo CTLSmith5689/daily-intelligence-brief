@@ -2582,6 +2582,19 @@ body.page-stocks .lib-h { display:none; }
 
 /* Expand-on-click factor panel */
 .stk-detail { padding:16px 0 22px 20px; background:transparent; border-top:1px solid var(--border); border-bottom:1px solid var(--border); border-left:2px solid var(--apt-red); animation:fpFadeIn .25s ease-out; }
+/* One expanded company ran 2,418px in a 720px viewport: three and a half
+   screens of scrolling, with every block full width and stacked because there
+   was nothing telling them otherwise. The summary and the factor cards stay
+   across the top, where they are read first and want the width. The four
+   blocks below are evidence, they pair naturally by size, and side by side
+   they take about a third off the height.
+   align-items:start so a short card does not stretch to match a tall one. */
+@media (min-width:1100px) {
+  .stk-detail { display:grid; grid-template-columns:1fr 1fr; column-gap:18px; align-items:start; }
+  .stk-detail > .sb-card,
+  .stk-detail > .fp-grid,
+  .stk-detail > .fp-meta-panel { grid-column:1 / -1; }
+}
 @keyframes fpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
 /* Score breakdown card (sits above the 4 factor cards) */
@@ -2795,9 +2808,12 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   .stk-wrap { grid-template-columns:1fr; }
   .stk-sidebar { position:static; max-height:none; overflow:visible; }
 }
-.fp-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
-@media (max-width:1000px) { .fp-grid { grid-template-columns:repeat(2, 1fr); } }
-@media (max-width:560px) { .fp-grid { grid-template-columns:1fr; } }
+/* auto-fit, not a fixed four. Adding the Risk group made five cards, and a
+   four-column track left the fifth stranded on a row of its own with four
+   empty cells beside it. Sized so the full-width panel takes all five across
+   and narrower viewports step down on their own, which is what the two fixed
+   breakpoints underneath were doing by hand. */
+.fp-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:14px; }
 .fp-card { padding:14px 16px; background:transparent; border:1px solid var(--border);  }
 .fp-card-h { font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; color:var(--text-1); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
 .fp-card-toggle { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:0; cursor:pointer; color:var(--text-1); font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.02em; text-align:left; padding:0 0 8px 0; margin-bottom:10px; border-bottom:1px solid var(--border); transition:color .15s; }
