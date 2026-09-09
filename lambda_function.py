@@ -2825,6 +2825,11 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
 
 /* Standalone methodology card. Slides in below the 4 factor cards when one is clicked. */
 .fp-meta-panel { margin-top:14px; }
+.fp-meta-status { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4);
+  border:1px solid var(--border); padding:1px 5px; white-space:nowrap; cursor:help; }
+.fp-meta-formula { font-family:'Space Mono',monospace; font-size:10.5px; color:var(--text-2);
+  background:var(--surface-1); padding:1px 4px; margin-right:5px; }
+.fp-meta-refresh { color:var(--text-4); }
 .fp-meta-card { padding:16px 18px; background:transparent; border:1px solid var(--border);  border-left-width:3px; }
 .fp-meta-growth   { border-left-color:#34D27A; }
 .fp-meta-value    { border-left-color:#9B8CFF; }
@@ -2965,6 +2970,12 @@ STOCKS_JS_TEMPLATE = """
   // Order of the positional `pct` array on each stock, matching SCORE_FIELDS in
   // lambda_function.py. Index into it rather than looking up by name.
   const PCT_ORDER = __PCT_FIELDS_JSON__;
+  // Generated from FIELD_METHODS in lambda_function.py. The methodology panel
+  // reads this rather than the strings sitting beside each row below, so a
+  // formula and its description are the same object.
+  const FIELD_METHODS = __FIELD_METHODS_JSON__;
+  const FIELD_STATUS = __FIELD_STATUS_JSON__;
+  const REFRESH_CLASSES = __REFRESH_CLASSES_JSON__;
   const pctOf = (s, field) => {
     if (!s.pct) return null;
     const i = PCT_ORDER.indexOf(field);
@@ -3135,15 +3146,24 @@ STOCKS_JS_TEMPLATE = """
   function fmtDate(iso) {
     if (!iso) return '—';
     try {
-      const d = new Date(iso + 'T12:00:00Z');
+      const d = new Date(isoDatePart(iso) + 'T12:00:00Z');
       if (isNaN(d.getTime())) return '—';
       return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' }).toUpperCase();
     } catch (e) { return '—'; }
   }
+  // Accepts either a bare date or a full ISO timestamp. Appending a time to a
+  // string that already carries one yields "...+00:00T12:00:00Z", which parses
+  // to NaN, which rendered as an em dash on every row that used a real
+  // timestamp rather than a date.
+  function isoDatePart(v) {
+    const s = String(v || '');
+    const t = s.indexOf('T');
+    return t > 0 ? s.slice(0, t) : s;
+  }
   function fmtDateMDY(iso) {
     if (!iso) return '—';
     try {
-      const d = new Date(iso + 'T12:00:00Z');
+      const d = new Date(isoDatePart(iso) + 'T12:00:00Z');
       if (isNaN(d.getTime())) return '—';
       const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
       const dd = String(d.getUTCDate()).padStart(2, '0');
@@ -3220,9 +3240,14 @@ STOCKS_JS_TEMPLATE = """
   ];
 
   const SOURCE_LABEL = {
-    yfinance: 'Yahoo Finance (yfinance)',
-    edgar:    'SEC EDGAR XBRL',
-    derived:  'Computed from Yahoo + reference price series',
+    yfinance:      'Yahoo Finance quote summary',
+    edgar:         'SEC EDGAR XBRL',
+    derived:       'Computed here',
+    price_history: 'Stored daily closes and volumes',
+    market_series: 'Treasury bill (^IRX) and S&P 500 (^GSPC)',
+    form4:         'SEC EDGAR Form 4',
+    news:          'Google News RSS',
+    index:         'Index constituent tables',
   };
 
   // Decide which "as of" timestamp to surface for a given row's source. yfinance
@@ -3565,14 +3590,35 @@ STOCKS_JS_TEMPLATE = """
   function buildMetaPanelHTML(s, dimTitle) {
     const group = FACTOR_GROUPS.find(g => g.title === dimTitle);
     if (!group) return '';
+    const statuses = s.status || {};
     const rows = group.rows.map(r => {
-      const asOf = fieldAsOf(s, r.source);
+      // The registry wins where it has an entry. The inline strings stay as the
+      // fallback for fields not yet migrated, and every one of those is a field
+      // whose description nothing verifies.
+      const m = FIELD_METHODS[r.key] || null;
+      const src = m ? m.source : r.source;
+      // A registry entry names the timestamp that actually governs it, rather
+      // than inferring one from the source bucket.
+      const asOf = m && m.asof ? (s[m.asof] || fieldAsOf(s, src)) : fieldAsOf(s, src);
       const asOfTxt = asOf ? fmtDateMDY(asOf) : 'n/a';
+      const code = statuses[r.key];
+      const statusTxt = code
+        ? '<span class="fp-meta-status" title="' + escapeHtml(FIELD_STATUS[code] || '') + '">'
+            + escapeHtml(code.replace(/_/g, ' ')) + '</span>'
+        : (s[r.key] == null ? '<span class="fp-meta-status">not reported</span>' : '');
+      const refreshTxt = m && REFRESH_CLASSES[m.refresh]
+        ? ' <span class="fp-meta-refresh">' + escapeHtml(REFRESH_CLASSES[m.refresh]) + '.</span>'
+        : '';
+      const method = m
+        ? '<code class="fp-meta-formula">' + escapeHtml(m.formula) + '</code> '
+            + escapeHtml(m.note) + refreshTxt
+        : escapeHtml(r.method);
       return '<tr>'
         + '<td class="fp-meta-label">'+escapeHtml(r.label)+'</td>'
-        + '<td class="fp-meta-src" data-src="'+r.source+'">'+escapeHtml(SOURCE_LABEL[r.source] || r.source)+'</td>'
+        + '<td class="fp-meta-src" data-src="'+src+'">'+escapeHtml(SOURCE_LABEL[src] || src)+'</td>'
         + '<td class="fp-meta-asof">'+asOfTxt+'</td>'
-        + '<td class="fp-meta-method">'+escapeHtml(r.method)+'</td>'
+        + '<td class="fp-meta-status-cell">'+statusTxt+'</td>'
+        + '<td class="fp-meta-method">'+method+'</td>'
         + '</tr>';
     }).join('');
     return '<div class="fp-meta-card fp-meta-' + dimTitle.toLowerCase() + '">'
@@ -3582,7 +3628,7 @@ STOCKS_JS_TEMPLATE = """
       +   '<button type="button" class="fp-meta-card-close" aria-label="Close">&times;</button>'
       + '</div>'
       + '<table class="fp-meta-table"><thead><tr>'
-      +   '<th>Metric</th><th>Source</th><th>As of</th><th>Method</th>'
+      +   '<th>Metric</th><th>Source</th><th>As of</th><th>Status</th><th>Method</th>'
       + '</tr></thead><tbody>' + rows + '</tbody></table>'
       + '</div>';
   }
@@ -9548,7 +9594,7 @@ def get_or_generate_stocks_universe():
         "insider_cluster_max_30d", "insider_cluster_score", "insider_tx_count_90d",
         "insider_updated",
         # Per-row freshness + earnings calendar
-        "last_updated", "earnings_date",
+        "last_updated", "earnings_date", "prices_updated",
     )
     def _absent(v):
         """Missing, for carry-forward purposes.
@@ -10288,6 +10334,9 @@ def generate_stocks_page(universe):
     stocks_js = (STOCKS_JS_TEMPLATE
                  .replace("__DATA_URL__", stocks_json)
                  .replace("__PCT_FIELDS_JSON__", json.dumps(PCT_ARRAY_FIELDS))
+                 .replace("__FIELD_METHODS_JSON__", json.dumps(FIELD_METHODS))
+                 .replace("__FIELD_STATUS_JSON__", json.dumps(FIELD_STATUS))
+                 .replace("__REFRESH_CLASSES_JSON__", json.dumps(REFRESH_CLASSES))
                  .replace("__SECTORS_JSON__", sectors_json)
                  .replace("__INDEXES_JSON__", indexes_json))
     html = render_screener_page("Stocks, Apterreon", body, extra_scripts=stocks_js)

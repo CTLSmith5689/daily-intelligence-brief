@@ -169,6 +169,56 @@ by roughly the level of short rates.
 Checked against the case that is forced regardless of market conditions: SPY
 against the index it tracks comes out at beta 0.9964, correlation 0.9968.
 
+## Data provenance
+
+Every derived number, what produces it, and how often its input can
+actually change. Generated from `FIELD_METHODS` in `lambda_function.py`,
+which is the single place methodology is written down, so this table and
+the screener's methodology panel cannot disagree with each other or with
+the code.
+
+| Field | Units | Formula | Source | Changes |
+|---|---|---|---|---|
+| `beta_1y` | ratio | `cov(r_stock, r_index) / var(r_index)` | market_series | changes every trading day |
+| `change_pct` | percent | `(closes[-1] / closes[-2] - 1) * 100` | price_history | changes every trading day |
+| `high52w_proximity` | fraction | `closes[-1] / max(closes) - 1` | price_history | changes every trading day |
+| `max_drawdown_1y` | fraction | `min(close / running_max(close) - 1)` | price_history | changes every trading day |
+| `price` | USD | `closes[-1]` | price_history | changes every trading day |
+| `rel_strength_sp500` | fraction | `return_52w(stock) - return_52w(^GSPC)` | price_history | changes every trading day |
+| `return_12_2` | fraction | `closes[-22] / closes[-253] - 1` | price_history | changes every trading day |
+| `return_1m` | fraction | `closes[-1] / closes[-22] - 1` | price_history | changes every trading day |
+| `return_52w` | fraction | `closes[-1] / closes[-253] - 1` | price_history | changes every trading day |
+| `sector` | text | `normalize_sector(yahoo.sector)` | yfinance | rarely changes; carried forward until it does |
+| `sharpe_1y` | ratio | `mean(r - rf) / stdev(r - rf) * sqrt(252)` | market_series | changes every trading day |
+| `volatility_1y` | fraction | `stdev(daily returns) * sqrt(252)` | price_history | changes every trading day |
+| `volume` | shares | `volumes[-1]` | price_history | changes every trading day |
+| `volume_trend` | fraction | `mean(volumes[-10:]) / mean(volumes[-63:]) - 1` | price_history | changes every trading day |
+
+Notes on the ones where the choice matters:
+
+- **`change_pct`** — Close-to-close, one session. Stored in percent, not as a fraction, which is why it is the one percentage field not scaled by 100 for display.
+- **`return_12_2`** — Jegadeesh-Titman momentum: twelve months of return ending one month ago. Skipping the most recent month is the point, because that is where short-term reversal lives. Needs 200 sessions.
+- **`high52w_proximity`** — Distance below the highest close of the year, as a negative fraction; 0 means at the high. Measured on closes, so it sits slightly above a version measured on intraday highs.
+- **`rel_strength_sp500`** — Difference of the two 52-week returns over the same trading days, which is the usual construction. Not a ratio and not a regression; beta_1y is the regression.
+- **`sharpe_1y`** — Daily excess return over the 13-week Treasury bill, annualized. Withheld rather than assuming a zero rate when the rate series is unavailable, since that would inflate every Sharpe by roughly the level of short rates.
+- **`sector`** — Yahoo's own eleven-sector taxonomy, mapped onto the GICS sector NAMES. It is not licensed GICS, which is a commercial product of S&P Dow Jones Indices and MSCI and is not publicly available. The names match; the classifications are Yahoo's.
+
+### Why a number is missing or old
+
+A quarterly figure that is seventy days old is exactly as current as the
+filings allow. Rather than let that look like staleness, fields carry a
+status when there is something to say:
+
+| Status | Meaning |
+|---|---|
+| `awaiting_filing` | Waiting on the next quarterly report. This is as current as the filings allow. |
+| `no_coverage` | The source has nothing for this company. |
+| `insufficient_history` | Not enough observations to compute this honestly. |
+| `cohort_too_small` | Too few sector peers to rank against. |
+| `deferred_budget` | The fetch pass ran out of time this run and will reach it next run. |
+| `not_meaningful` | The inputs make this arithmetic meaningless, such as a multiple on negative earnings. |
+| `source_error` | The source was reachable but the fetch or parse failed. |
+
 ## Schedules (UTC)
 
 | Cron | Mode | What it does |
