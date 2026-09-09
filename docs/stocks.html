@@ -679,7 +679,10 @@ body.scr-page::before, body.scr-page::after { display:none !important; }
   text-transform:uppercase; color:var(--text-4); }
 .scr-ac-item.on .scr-ac-tag { color:var(--apt-red); }
 .scr-ac-none { padding:10px 12px; font-size:12px; color:var(--text-4); }
-.scr-count { margin-left:auto; flex-shrink:0; white-space:nowrap;
+.scr-note { margin-left:auto; flex-shrink:1; min-width:0; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; font-family:'Space Mono',monospace;
+  font-size:9px; letter-spacing:1px; color:var(--text-4); }
+.scr-count { margin-left:14px; flex-shrink:0; white-space:nowrap;
   font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-4); }
 .scr-pane { padding:0 32px 30px; }
 .scr-page-body { padding:0 32px 40px; }
@@ -1314,6 +1317,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
           <button type="button" class="clear-btn" id="stk-clear" hidden>&times;</button>
           <div class="scr-ac" id="stk-ac" role="listbox" hidden></div>
         </div>
+        <span class="scr-note" id="stk-score-note"></span>
         <span class="scr-count" id="stk-count"></span>
       </div>
 
@@ -2540,6 +2544,33 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   window.addEventListener('scroll', onScrollExtend, { passive: true });
   window.addEventListener('resize', onScrollExtend, { passive: true });
 
+  // Canvases are sized from clientWidth at draw time, so a resize leaves the
+  // bitmap stretched into the new box and, worse, leaves the hit list in the
+  // old coordinate frame: clicking a visible dot selects a different company.
+  // Debounced, because a drag-resize would otherwise redraw thousands of dots
+  // per frame.
+  let resizeRedrawT = null;
+  function redrawActiveView() {
+    clearTimeout(resizeRedrawT);
+    resizeRedrawT = setTimeout(function() {
+      if (currentView === 'chart') drawChart();
+      else if (currentView === 'radar') { drawMap(); renderRadar(); }
+    }, 120);
+  }
+  window.addEventListener('resize', redrawActiveView, { passive: true });
+
+  // A window resize is not the only thing that changes a canvas box: the filter
+  // rail reflowing, the focus bar wrapping to a second line and devtools docking
+  // all do it while firing no resize event. Observing the elements catches every
+  // case, and fires once on observe so the first paint is covered too.
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(redrawActiveView);
+    ['stk-map-canvas', 'stk-chart-canvas'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) ro.observe(el);
+    });
+  }
+
   function render() {
     syncFilterCount();
     let filtered = currentFiltered();
@@ -2550,13 +2581,27 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       } else {
         av = a[sortKey]; bv = b[sortKey];
       }
-      if (av == null && bv == null) return 0;
+      // Ties and absent values fall back to ticker. Returning 0 for two nulls
+      // left most of the universe in arrival order once the composite became
+      // gated on scorable, so clicking Score appeared to do nothing at all.
+      if (av == null && bv == null) {
+        return String(a.ticker || '').localeCompare(String(b.ticker || ''));
+      }
       if (av == null) return 1;
       if (bv == null) return -1;
       if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+      if (av === bv) return String(a.ticker || '').localeCompare(String(b.ticker || ''));
       return (av - bv) * sortDir;
     });
     renderHero(filtered);
+    const scoredVisible = filtered.reduce(function(n, s) { return n + (s.scorable ? 1 : 0); }, 0);
+    const scoreNote = document.getElementById('stk-score-note');
+    if (scoreNote) {
+      scoreNote.textContent = scoredVisible === filtered.length
+        ? ''
+        : scoredVisible.toLocaleString() + ' of ' + filtered.length.toLocaleString() +
+          ' scored · the rest lack data on at least two of the four factors';
+    }
     countEl.textContent = filtered.length === ALL.length
       ? String(ALL.length) + ' stocks'
       : String(filtered.length) + ' of ' + String(ALL.length) + ' stocks';
@@ -2568,7 +2613,7 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       windowRows = []; shownCount = 0;
       tetraInvalidate();
       if (currentView === 'chart') drawChart();
-      else if (currentView === 'radar') renderRadar();
+      else if (currentView === 'radar') { drawMap(); renderRadar(); }
       return;
     }
     windowRows = filtered;
@@ -3158,6 +3203,15 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     else if (currentView === 'radar') { drawMap(); renderRadar(); }
   }
 
+  // Every path that changes the focus or the filtered set repaints through
+  // here. Four call sites used to decide this individually and two of them
+  // forgot the map, which sits directly beside the control that changed.
+  function refreshFocusViews() {
+    renderFocusBar();
+    if (currentView === 'chart') drawChart();
+    else if (currentView === 'radar') { drawMap(); renderRadar(); }
+  }
+
   function renderFocusBar() {
     const bar = document.getElementById('stk-focus');
     if (!bar) return;
@@ -3264,15 +3318,13 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       focusBar.addEventListener('click', function(e) {
         if (e.target.id === 'stk-focus-clear') {
           radarTickers = [];
-          renderFocusBar(); drawChart();
-          if (currentView === 'radar') renderRadar();
+          refreshFocusViews();
           return;
         }
         const x = e.target.closest('[data-drop]');
         if (!x) return;
         radarTickers = radarTickers.filter(function(t) { return t !== x.dataset.drop; });
-        renderFocusBar(); drawChart();
-        if (currentView === 'radar') renderRadar();
+        refreshFocusViews();
       });
     }
     const host = document.getElementById('stk-radar-chips');
@@ -3282,11 +3334,10 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       if (!btn) return;
       const t = btn.dataset.drop;
       radarTickers = radarTickers.filter(function(x) { return x !== t; });
-      // The bar is the legend for these colours. Leaving it stale named a
-      // company that was neither focused nor drawn, and shifted the key for
-      // everything below it.
-      renderFocusBar();
-      renderRadar();
+      // The bar is the legend for these colours, and the map is what they key.
+      // Repainting one without the other left the removed company highlighted on
+      // the plot beside this very control.
+      refreshFocusViews();
     });
   })();
 
@@ -3383,13 +3434,19 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     if (!el) return;
     let rows;
     try { rows = currentFiltered(); } catch (e) { rows = []; }
-    rows = rows.slice().sort(function(a, b) {
-      const av = computeComposite(a), bv = computeComposite(b);
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1;
-      if (bv == null) return -1;
-      return bv - av;
+    // Score first, then ticker. Two unscored companies used to compare equal,
+    // which left them in arrival order while the header claimed they were ranked.
+    const withScore = rows.map(function(s) { return { s: s, c: computeComposite(s) }; });
+    withScore.sort(function(a, b) {
+      if (a.c == null && b.c == null) {
+        return String(a.s.ticker || '').localeCompare(String(b.s.ticker || ''));
+      }
+      if (a.c == null) return 1;
+      if (b.c == null) return -1;
+      return b.c - a.c;
     });
+    const scoredCount = withScore.reduce(function(n, r) { return n + (r.c != null ? 1 : 0); }, 0);
+    rows = withScore.map(function(r) { return r.s; });
     const shown = rows.slice(0, PICKLIST_MAX);
     if (!shown.length) {
       el.hidden = false;
@@ -3399,7 +3456,11 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     el.hidden = false;
     el.innerHTML =
       '<div class="stk-pick-h">' + rows.length.toLocaleString() + ' matching' +
-      (rows.length > PICKLIST_MAX ? ', top ' + PICKLIST_MAX + ' by score' : '') + '</div>' +
+      (scoredCount === 0
+        ? ', none scored, by ticker'
+        : (rows.length > PICKLIST_MAX
+            ? ', top ' + PICKLIST_MAX + ' of ' + scoredCount.toLocaleString() + ' scored'
+            : ', ' + scoredCount.toLocaleString() + ' scored')) + '</div>' +
       shown.map(function(s) {
         const c = computeComposite(s);
         return '<button type="button" class="stk-pick" data-pick="' + escapeHtml(s.ticker) + '">' +
@@ -3817,6 +3878,11 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     for (const s of currentFiltered()) allowed.add(s.ticker);
     const pts = tetraPts.filter(function(p) { return allowed.has(p.s.ticker); });
     mapHit = [];
+    // Stamp the geometry the hits were computed against. A click arriving after
+    // the box changed but before a redraw would otherwise hit-test against the
+    // wrong frame and confidently select the wrong company.
+    mapHit.w = cv.clientWidth;
+    mapHit.h = cv.clientHeight;
     drawTetra(cv, pts, tetraRef, mapHit);
     const foot = document.getElementById('stk-map-foot');
     if (foot) {
@@ -4019,6 +4085,8 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
       // dot sized off an undefined market cap, which is to say all the same size.
       row: function(p) { return p.s; },
       gc: function(p) { return p.c; },
+      xZero: !!(AXIS_BY_KEY[axisX] || {}).zero,
+      yZero: !!(AXIS_BY_KEY[axisY] || {}).zero,
       xl: axisLabel(axisX), yl: axisLabel(axisY),
     }, ink, line, dim, chartHit);
     document.getElementById('stk-chart-foot').textContent =
@@ -4116,6 +4184,12 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
     if (!cv) return;
     cv.addEventListener('click', function(e) {
       if (suppressNextClick) { suppressNextClick = false; return; }
+      // Refuse to hit-test a stale frame. Selecting the wrong company is worse
+      // than selecting none, because nothing about it looks wrong.
+      if (mapHit.w !== cv.clientWidth || mapHit.h !== cv.clientHeight) {
+        drawMap();
+        return;
+      }
       const b = cv.getBoundingClientRect();
       const mx = e.clientX - b.left, my = e.clientY - b.top;
       let best = null, bd = 1e9;
