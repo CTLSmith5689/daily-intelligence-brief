@@ -9511,11 +9511,20 @@ def lambda_handler(event, context):
     # already has today; those set panel_rows to 0 deliberately and are reported
     # as fine. What is not fine is a weekday run that tried and got nothing.
     priced = sum(1 for s in stocks if s.get("price") is not None)
-    healthy = bool(stocks) and (panel_rows > 0 or not panel_expected)
+    # Writing no row is correct when the row is already there. The panel is
+    # append-only and refuses a duplicate date, so record_fundamentals returns 0
+    # both when it failed and when it deliberately declined, and the verdict
+    # cannot tell those apart from the count alone. Asking the panel itself can:
+    # a second daily run on a recorded day, a manual dispatch, or a retry are
+    # all no-ops by design. Failing them would send a failure email for correct
+    # behaviour, and an alert that cries wolf is how a channel gets ignored.
+    panel_satisfied = panel_rows > 0 or panel_has_date(date_iso)
+    healthy = bool(stocks) and (panel_satisfied or not panel_expected)
     return {"status": "published", "mode": mode, "stories": len(headlines),
             "quotes": len(quotes), "stocks": len(stocks),
             "panel_rows": panel_rows, "priced": priced,
-            "panel_expected": panel_expected, "ok": healthy}
+            "panel_expected": panel_expected, "panel_satisfied": panel_satisfied,
+            "ok": healthy}
 
 
 if __name__ == "__main__":
