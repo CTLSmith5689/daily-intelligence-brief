@@ -92,6 +92,31 @@ returns under 90% of the previously-active count.
 Rows with neither a price nor a market cap are not written. Broadening to every US
 listing brings in many names yfinance has nothing for, and a line of commas is noise.
 
+### What is archived, and what deliberately is not
+
+Two different things travel under the name "news" here.
+
+`data/headlines/` is the general feed archive: section-level stories from the RSS
+set (Finance & Markets, AI & Technology, International, and so on). It carries no
+ticker column because these stories are not about particular companies, and a
+column that would be empty on every row is worse than no column.
+
+Per-ticker headlines are a different thing. They are fetched per company, scored
+for sentiment, and cached in `docs/news/{TICKER}.json` on a 12-hour refresh. What
+is archived from them is the **derived** values, in the panel, per ticker per day:
+`news_count_7d`, `news_lm_avg`, `news_vader_avg`, `neglect_score`. The panel is
+self-contained for those columns.
+
+The headlines themselves are not archived, on purpose. The current cache is 81,385
+headlines, about 34 MB as CSV, and it turns over every twelve hours; keeping the
+raw text would add well over 100 MB a month to a repository whose entire product
+is presently under 5 MB. That is the same trade that made `docs/` 161 MB, and it
+would buy auditability of a sentiment score rather than any new measurement.
+
+The consequence is worth being explicit about: you can see what a company's tone
+score was on a given day, and you cannot go back and see which headlines produced
+it.
+
 ### Refresh cadence is deliberately split
 
 Different sources move at different speeds, so they are gated separately:
