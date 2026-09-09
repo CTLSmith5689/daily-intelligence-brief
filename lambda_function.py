@@ -8,6 +8,7 @@ Sends via iCloud SMTP. Triggered by EventBridge rules at 7 AM, 12:15 PM, and 4:4
 import os
 import re
 import ssl
+import subprocess
 import collections
 import csv
 import io
@@ -1536,6 +1537,85 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
 </div>
 </body>
 </html>"""
+
+
+# GitHub disables a repository's scheduled workflows after 60 days with no
+# repository activity, and the workflow's own commits do not count because they
+# are pushed with the built-in token. That is what killed this project on
+# 2026-07-07. These two live here rather than in the workflow YAML for the same
+# reason send_failure_alert does: embedded Python is parsed for the first time
+# when it runs, and the one time this runs is the week it matters.
+_KEEPALIVE_BOT = "actions@users.noreply.github.com"
+_KEEPALIVE_WARN_AFTER_DAYS = 40
+_KEEPALIVE_DISABLE_AT_DAYS = 60
+
+
+def verify_smtp_login():
+    """Prove the SMTP credential still works, without sending anything.
+
+    The alert channel is exercised only when something has already gone wrong,
+    which is the worst possible time to discover that an app-specific password
+    was revoked. Connecting and authenticating is the whole of what sending
+    needs, so doing just that, weekly, turns a silent expiry into a failed job.
+
+    Deliberately does not fall back to emailing the problem, since the thing
+    being tested is the ability to email. A non-zero exit makes the workflow red
+    and GitHub's own failed-run notification carries the news on a path that
+    does not depend on this credential at all.
+
+    Raises on any failure; returns the server greeting on success."""
+    app_password = os.environ.get("APTERREON_ICLOUD_APP_PASSWORD")
+    if not app_password:
+        raise ValueError("APTERREON_ICLOUD_APP_PASSWORD not set")
+    context = ssl.create_default_context()
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+        server.starttls(context=context)
+        server.login(SMTP_USER, app_password)
+        return f"{SMTP_SERVER}:{SMTP_PORT} accepted the credential for {SMTP_USER}"
+
+
+def last_human_commit():
+    """(iso_date, email) of the newest commit not made by the workflow bot."""
+    log = subprocess.run(["git", "log", "--format=%cI|%ae"],
+                         capture_output=True, text=True, check=True).stdout
+    for line in log.splitlines():
+        when, _, email = line.partition("|")
+        if email.strip().lower() != _KEEPALIVE_BOT:
+            return when, email.strip()
+    return None, None
+
+
+def check_inactivity(repo_url):
+    """Warn by email when the inactivity clock is close to disabling the schedule.
+
+    Returns the age in days of the last human commit, or None when history holds
+    no non-bot commit to measure against."""
+    when, email = last_human_commit()
+    if not when:
+        print("No non-bot commit found in history; nothing to compare against.")
+        return None
+    age = (datetime.now(timezone.utc) - datetime.fromisoformat(when)).days
+    print(f"Last human commit: {when} by {email} ({age} days ago)")
+    if age < _KEEPALIVE_WARN_AFTER_DAYS:
+        print(f"Under the {_KEEPALIVE_WARN_AFTER_DAYS}-day threshold, "
+              f"no warning needed.")
+        return age
+    left = _KEEPALIVE_DISABLE_AT_DAYS - age
+    send_email(
+        f"apterreon-brief: schedule stops in ~{left} days",
+        "<h2>Push any commit to keep the pipeline running.</h2>"
+        f"<p>The last commit that was not from the workflow bot was "
+        f"<b>{age} days ago</b> ({when}).</p>"
+        "<p>GitHub disables scheduled workflows after 60 days with no human "
+        "repository activity. The pipeline's own commits do not reset that "
+        "timer, so without a real commit the hourly and daily runs will stop "
+        "silently, exactly as they did on 2026-07-07.</p>"
+        "<p>Any commit resets the clock. An empty one is enough:</p>"
+        "<pre>git commit --allow-empty -m keepalive &amp;&amp; git push</pre>"
+        f'<p><a href="{repo_url}">{repo_url}</a></p>',
+    )
+    print(f"Warning sent: {age} days since the last human commit.")
+    return age
 
 
 def send_failure_alert(mode, status, run_url):
