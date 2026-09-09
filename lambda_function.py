@@ -5086,6 +5086,20 @@ STOCKS_JS_TEMPLATE = """
     return radarTickers.filter(function(t) { return !drawn.has(t); });
   }
 
+  // The sentence the footers append. Selecting a company and then switching to
+  // a lens it has no value for makes its highlight disappear with no
+  // explanation, which reads as the focus having been lost rather than the
+  // company having no data on these axes.
+  function focusMissingNote(proj) {
+    const gone = focusMissing(proj);
+    if (!gone.length) return '';
+    const names = gone.length > 4
+      ? gone.slice(0, 4).join(', ') + ' and ' + (gone.length - 4) + ' more'
+      : gone.join(', ');
+    return ' \u00b7 ' + (gone.length === 1 ? 'focused company not on these axes: '
+                                          : 'focused companies not on these axes: ') + names;
+  }
+
   function paintFocused(ctx, proj) {
     if (!radarTickers.length) return;
     ctx.font = "10px 'Space Mono', monospace";
@@ -5408,7 +5422,7 @@ STOCKS_JS_TEMPLATE = """
       ctx.fillStyle = dim;
       ctx.font = "12px 'Space Mono', monospace";
       ctx.fillText('No companies are scored on enough dimensions to place.', 46, h / 2);
-      if (foot) foot.textContent = '0 plotted';
+      if (foot) foot.textContent = '0 plotted' + focusMissingNote([]);
       return;
     }
     // One cap scale across both panels, so a dot the same size means the same
@@ -5441,7 +5455,8 @@ STOCKS_JS_TEMPLATE = """
         'only companies scored on 3 of 4 dimensions can be placed \u00b7 ' +
         (n > DENSITY_ABOVE
           ? 'shaded by how many companies fall in each cell, largest 70 drawn on top'
-          : 'dot size: market cap');
+          : 'dot size: market cap') +
+        focusMissingNote(chartPoints());
     }
     const plot = cv.parentElement;
     if (plot) ['tl','tr','bl','br'].forEach(function(c) {
@@ -5471,7 +5486,8 @@ STOCKS_JS_TEMPLATE = """
       ctx.font = "12px 'Space Mono', monospace";
       ctx.fillText('No company has both ' + axisLabel(axisY).toLowerCase() +
         ' and ' + axisLabel(axisX).toLowerCase() + '.', 46, h / 2);
-      document.getElementById('stk-chart-foot').textContent = '0 plotted';
+      document.getElementById('stk-chart-foot').textContent =
+        '0 plotted' + focusMissingNote([]);
       return;
     }
     // The points are already projected for this lens, so the panel just reads
@@ -5496,7 +5512,8 @@ STOCKS_JS_TEMPLATE = """
                 ? ' \u00b7 shaded by how many companies fall in each cell, largest 70 on top'
                 : '')) +
       (((AXIS_BY_KEY[axisX] || {}).log || (AXIS_BY_KEY[axisY] || {}).log)
-        ? ' \u00b7 log scale where the range demands it' : '');
+        ? ' \u00b7 log scale where the range demands it' : '') +
+      focusMissingNote(pts);
   }
 
   function axisOptions(sel) {
