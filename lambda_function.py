@@ -9256,7 +9256,24 @@ def get_or_generate_stocks_universe():
         # Per-row freshness + earnings calendar
         "last_updated", "earnings_date",
     )
+    def _absent(v):
+        """Missing, for carry-forward purposes.
+
+        The test used to be `is None`, which is right for the numeric fields and
+        wrong for every string one. A fresh universe build sets sector to "" for
+        anything the index scrapes do not classify, normalize_sector returns ""
+        for a label it does not recognise, and "" is not None. So 3,833 tickers
+        could never inherit a sector: whatever yfinance learned about them was
+        discarded on the next rebuild, and sector coverage sat at exactly the
+        number of names Wikipedia classifies, 1,506, no matter how many times
+        the pass ran.
+
+        That gates everything downstream. No sector means no peer cohort, no
+        cohort means no z-scores, and no z-scores means not scorable."""
+        return v is None or (isinstance(v, str) and not v.strip())
+
     carried_forward = 0
+    sectors_carried = 0
     if last_known and last_known.get("stocks"):
         prev_by_ticker = {s["ticker"]: s for s in last_known["stocks"]}
         for s in stocks:
@@ -9264,12 +9281,15 @@ def get_or_generate_stocks_universe():
             if not prev:
                 continue
             for field in CARRY_FIELDS:
-                if prev.get(field) is not None and s.get(field) is None:
+                if not _absent(prev.get(field)) and _absent(s.get(field)):
                     s[field] = prev[field]
+                    if field == "sector":
+                        sectors_carried += 1
             if prev.get("market_cap"):
                 carried_forward += 1
     if carried_forward:
-        print(f"stocks_universe: carried forward enrichment for {carried_forward} tickers from previous cache.")
+        print(f"stocks_universe: carried forward enrichment for {carried_forward} tickers "
+              f"from previous cache ({sectors_carried} sectors).")
 
     # Fresh yfinance pass overwrites carried-forward data where successful and adds
     # the intraday fields (price, change_pct, volume).
