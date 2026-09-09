@@ -8564,6 +8564,23 @@ EDGAR_CONCEPT_FALLBACKS = {
 # and calling it TTM is how a ratio ends up 25% light.
 _TTM_QUARTERS = 4
 
+# Every field compute_edgar_factors emits that something downstream depends on.
+# When one of these is absent across the entire cache, the cache predates it and
+# the weekly stamp has to be ignored, because the tickers that would carry the
+# new field are exactly the ones already marked fresh.
+#
+# This list was two names, hardcoded, and adding the trailing aggregates without
+# extending it would have been silent: 4,631 of 5,339 tickers were stamped inside
+# the current ISO week, so the ratios built on those aggregates would have
+# reached about 700 companies and the rest would have waited for Monday. Anything
+# added to compute_edgar_factors that another pass reads belongs here.
+EDGAR_SCHEMA_SENTINELS = (
+    "accruals_ratio", "op_margin_history",
+    # Trailing aggregates and balance-sheet values behind the valuation ratios.
+    "shares_outstanding", "ttm_revenue", "ttm_eps_diluted", "equity",
+    "fiscal_period_end",
+)
+
 
 def _ttm(series, offset=0):
     """Sum of four consecutive quarters, most recent first, or None.
@@ -9220,11 +9237,20 @@ _INSIDER_MAX_DOCS_PER_TICKER = 60
 # the next run, the same way the EDGAR sweep builds coverage across runs.
 _INSIDER_TIME_BUDGET_S = 900
 _INSIDER_TOP_N_BY_MARKET_CAP = 600  # only fetch insider data for the largest N tickers
-# Ceiling on EDGAR fetches in one run. At roughly 7 per second against the
-# SEC's rate limit this is about 5 minutes of fetching, which leaves the rest
-# of the daily pass comfortable room inside the job timeout. Coverage builds
-# across runs rather than being attempted in one sweep that may never land.
-_EDGAR_MAX_FETCH_PER_RUN = 2000
+# A backstop, not the real limit. The wall-clock budget below is what keeps
+# this pass inside the job, the same way it does for yfinance, news and insider.
+#
+# The count cap was 2,000, chosen before any of those budgets existed, when a
+# ceiling on fetches was the only available guard. It is not a good one: it
+# spends the same allowance whether the SEC is answering in 30ms or 3s, and it
+# turned a sweep that measured 4,631 tickers in 690 seconds, about 6.7 a second,
+# into a three-run job for no reason. 6,000 covers the present universe with
+# room, and the budget stops the pass if the rate ever collapses.
+_EDGAR_MAX_FETCH_PER_RUN = 6000
+# 15 minutes. At the measured rate that is roughly 6,000 companies, and a run
+# that hits it stops and commits what it has rather than being killed with
+# everything still in memory.
+_EDGAR_TIME_BUDGET_S = 900
 
 # Wall-clock budgets for the passes that scale with the universe and depend on a
 # rate-limited third party. The job allows 120 minutes; these leave room for
@@ -9587,7 +9613,9 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
     # the tickers that would carry it are exactly the ones already stamped.
     # accruals_ratio sat at 0 of 5,336 for precisely this reason, which left
     # Quality scoring on 4 of its 5 inputs for every company in the universe.
-    schema_gap = [f for f in ("accruals_ratio", "op_margin_history")
+    # EDGAR_SCHEMA_SENTINELS is the list, kept beside compute_edgar_factors so
+    # that adding a field and forgetting to register it is harder to do.
+    schema_gap = [f for f in EDGAR_SCHEMA_SENTINELS
                   if not any(s.get(f) is not None for s in stocks)]
     if schema_gap:
         print(f"EDGAR: {', '.join(schema_gap)} missing across the whole cache, "
@@ -9626,10 +9654,20 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
         return sym, out
 
     enriched = 0
+    budget_hit = False
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, item) for item in matched]
         for f in as_completed(futures):
+            # Same reasoning as every other fetch pass: a job killed by the
+            # timeout commits nothing at all, so stopping with partial coverage
+            # that lands beats a full sweep that does not.
+            if not budget_hit and time.time() - t0 > _EDGAR_TIME_BUDGET_S:
+                budget_hit = True
+                for pending in futures:
+                    pending.cancel()
+            if f.cancelled():
+                continue
             sym, factors = f.result()
             if not factors:
                 continue
@@ -9639,7 +9677,12 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
                 s["edgar_updated"] = today_str
                 enriched += 1
     elapsed = time.time() - t0
-    print(f"EDGAR enrichment: enriched {enriched}/{len(matched)} matched tickers ({len(by_ticker) - len(matched)} no CIK match) in {elapsed:.1f}s.")
+    print(f"EDGAR enrichment: enriched {enriched}/{len(matched)} matched tickers "
+          f"({len(by_ticker) - len(matched)} no CIK match) in {elapsed:.1f}s.")
+    if budget_hit:
+        print(f"EDGAR: stopped at the {_EDGAR_TIME_BUDGET_S}s budget with {enriched} "
+              f"of {len(matched)} done. The rest keep their previous stamp and go "
+              f"first next run.")
     return enriched
 
 
