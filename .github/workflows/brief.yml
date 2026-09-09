@@ -56,6 +56,32 @@ jobs:
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "Mode: $MODE"
 
+      # docs/news and docs/prices are the published site AND the fetch cache:
+      # enrich_with_news and enrich_with_prices both decide what to skip by
+      # reading these files off disk (lambda_function.py:7059, :7220). Arriving
+      # without them means refetching 5,400 Google feeds and 5,447 price
+      # histories, which the 15- and 35-minute budgets cannot absorb, so the
+      # site would serve partial coverage for days.
+      #
+      # Restoring is therefore not an optimisation, it is what makes publishing
+      # off-branch safe at all. -n keeps anything the main checkout already
+      # provided, which is how docs/briefs stays authoritative from main.
+      - name: Restore the published site
+        run: |
+          set -uo pipefail
+          # Into a named ref, not FETCH_HEAD: the Commit data step fetches main
+          # when a push is rejected, which would overwrite FETCH_HEAD and leave
+          # the publish guard comparing against the wrong tree.
+          if git fetch --depth=1 origin +gh-pages:refs/remotes/origin/gh-pages 2>/dev/null; then
+            mkdir -p "$RUNNER_TEMP/site" docs
+            git archive refs/remotes/origin/gh-pages | tar -x -C "$RUNNER_TEMP/site"
+            cp -rn "$RUNNER_TEMP/site/." docs/ 2>/dev/null || true
+            rm -rf "$RUNNER_TEMP/site"
+            echo "Restored $(find docs/news docs/prices -type f 2>/dev/null | wc -l) cached ticker files."
+          else
+            echo "No gh-pages branch yet. This run builds it; the fetch passes will be cold."
+          fi
+
       - name: Gather
         env:
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
@@ -122,6 +148,45 @@ jobs:
           done
           echo "Failed to push after 5 attempts."
           exit 1
+
+      # The site is a snapshot, not a history, so it gets a branch that is one
+      # orphan commit deep and force-pushed every run.
+      #
+      # It used to live in main, where 10,900 per-ticker JSON files rewritten in
+      # full every run made docs/ 161 MB of the repository's 197 MB and cost
+      # 12-20 MB per daily run. data/, which is the actual product, is 3.9 MB.
+      # At that rate the repo reached GitHub's 1 GB warning in about five weeks.
+      - name: Publish the site
+        run: |
+          set -uo pipefail
+          # Nothing here is recoverable from a later run, so refuse to publish a
+          # tree that is missing the things a real render always produces.
+          if [ ! -s docs/index.html ] || [ ! -s docs/stocks.html ]; then
+            echo "Refusing to publish: the render did not produce a site."
+            exit 1
+          fi
+
+          IDX="$RUNNER_TEMP/ghp.idx"
+          rm -f "$IDX"
+          ( cd docs && GIT_INDEX_FILE="$IDX" git --git-dir="$GITHUB_WORKSPACE/.git"               --work-tree=. add -A . )
+          TREE=$(GIT_INDEX_FILE="$IDX" git write-tree)
+
+          # docs/briefs is the one thing under docs/ that cannot be regenerated.
+          # A force-push publishes whatever is on disk, so check the archive has
+          # not shrunk before overwriting the only other copy of it.
+          NEW=$(git ls-tree -r --name-only "$TREE" -- briefs | wc -l)
+          OLD=0
+          if git rev-parse -q --verify refs/remotes/origin/gh-pages >/dev/null 2>&1; then
+            OLD=$(git ls-tree -r --name-only refs/remotes/origin/gh-pages -- briefs | wc -l)
+          fi
+          if [ "$NEW" -lt "$OLD" ]; then
+            echo "Refusing to publish: the brief archive went from $OLD to $NEW files."
+            exit 1
+          fi
+
+          COMMIT=$(git commit-tree "$TREE" -m "site: $(date -u +%FT%H:%M)Z")
+          git push -f origin "$COMMIT:refs/heads/gh-pages"
+          echo "Published $(git ls-tree -r --name-only "$TREE" | wc -l) files ($NEW briefs)."
 
       # Between 2026-05-09 and 2026-07-07 this job failed 78 times without anyone
       # noticing, because the brief email was sent before the step that crashed.
