@@ -3792,7 +3792,12 @@ STOCKS_JS_TEMPLATE = """
       const lm = avgScore(bucket, 'lm');
       const vd = avgScore(bucket, 'vader');
       return '<div class="nws-sent-row">'
-        + '<div class="nws-sent-cell"><span class="nws-sent-label">LM</span> <span class="nws-sent-val ' + sentClass(lm) + '">' + fmtSent(lm) + '</span></div>'
+        + '<div class="nws-sent-cell" title="Loughran-McDonald financial dictionary, '
+        +   'averaged over the headlines in this group that contain any dictionary term. '
+        +   'Three quarters of headlines contain none and are not counted, so this often '
+        +   'rests on two or three of them and reads closer to a direction than a magnitude. '
+        +   'A dash means nothing in the group was scorable.">'
+        +   '<span class="nws-sent-label">LM</span> <span class="nws-sent-val ' + sentClass(lm) + '">' + fmtSent(lm) + '</span></div>'
         + '<div class="nws-sent-cell"><span class="nws-sent-label">VADER</span> <span class="nws-sent-val ' + sentClass(vd) + '">' + fmtSent(vd) + '</span></div>'
       + '</div>';
     }
@@ -6977,18 +6982,37 @@ wrongdoing wrongful wrongly
 """.split())
 
 
+# A tone average built from a single headline is one headline's wording
+# presented as a company's coverage.
+MIN_LM_HEADLINES = 2
+
+
 def compute_lm_score(text):
-    """Loughran-McDonald financial sentiment polarity. Returns float in [-1, +1]:
-    (positive_count - negative_count) / (positive_count + negative_count). 0 if
-    no LM words found."""
+    """Loughran-McDonald financial sentiment polarity, or None.
+
+    Returns (positive - negative) / (positive + negative) in [-1, +1] when the
+    text contains any dictionary word, and None when it contains none.
+
+    It used to return 0.0 for that case, which reads on the page as perfectly
+    balanced coverage and is really "this headline contains no word the
+    dictionary knows". Those are not the same claim, and the second one is by
+    far the more common: across the 81,385 headlines cached here, 76% match no
+    LM term at all, so a field displayed as sentiment was mostly an average of
+    zeros meaning nothing was measured. VADER, scored on the same headlines,
+    is 0.0 for 11.7% of tickers, which is what a real neutral rate looks like.
+
+    The dictionary is a subset of the published lists, 149 positive and 520
+    negative against roughly 350 and 2,350, so the miss rate is higher here
+    than the method itself implies. Returning None keeps that a gap in coverage
+    rather than a claim about tone."""
     if not text:
-        return 0.0
+        return None
     words = re.findall(r"[a-z]+", text.lower())
     pos = sum(1 for w in words if w in LM_POSITIVE)
     neg = sum(1 for w in words if w in LM_NEGATIVE)
     total = pos + neg
     if total == 0:
-        return 0.0
+        return None
     return round((pos - neg) / total, 3)
 
 
@@ -7280,10 +7304,20 @@ def aggregate_news_sentiment(stocks):
         if not isinstance(items, list):
             continue
         recent = [i for i in items if isinstance(i, dict) and i.get("ts") and (now_ts - i["ts"]) < week_secs]
-        lm_vals = [i["lm"] for i in recent if isinstance(i.get("lm"), (int, float))]
+        # Recomputed from the stored title rather than read back from the file,
+        # so the headlines already cached with lm 0.0 are corrected without
+        # refetching any of them. The files themselves heal on their next
+        # 12-hour refresh.
+        lm_vals = [v for v in (compute_lm_score(i.get("title") or "") for i in recent)
+                   if v is not None]
         vd_vals = [i["vader"] for i in recent if isinstance(i.get("vader"), (int, float))]
-        if lm_vals:
+        if len(lm_vals) >= MIN_LM_HEADLINES:
             s["news_lm_avg"] = sum(lm_vals) / len(lm_vals)
+        else:
+            # Clear rather than leave: these dicts persist across runs on the
+            # cached path, and a value whose headlines have since rolled out of
+            # the window would sit there looking current.
+            s.pop("news_lm_avg", None)
         if vd_vals:
             s["news_vader_avg"] = sum(vd_vals) / len(vd_vals)
         s["news_count_7d"] = len(recent)
