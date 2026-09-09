@@ -109,7 +109,14 @@ HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", 
 
 # Nested values (benford is a dict, op_margin_history a list) have no sensible
 # CSV representation, so they are dropped rather than stringified.
-FUNDAMENTAL_SKIP_FIELDS = {"benford", "op_margin_history"}
+# Excluded from the panel. The first two are nested structures; the rest are
+# screener presentation state that the scoring pass attaches to the same dicts.
+# The panel is append-only, so a column added by accident is a column forever,
+# and these are recomputed from the panel's own inputs on every run anyway.
+FUNDAMENTAL_SKIP_FIELDS = {
+    "benford", "op_margin_history",
+    "g", "v", "m", "q", "pct", "scorable", "dims_present",
+}
 # Leading columns, in this order; every other scalar field follows alphabetically.
 FUNDAMENTAL_LEAD = ["date", "ticker", "name", "sector", "sub_industry", "index",
                     "in_index", "price", "change_pct", "market_cap", "pe", "volume"]
@@ -6338,6 +6345,24 @@ def normalize_sector(value):
     return YF_SECTOR_TO_GICS.get(value.strip().lower(), "")
 
 
+# What each source has historically supplied. A source returning far less than
+# this has failed rather than shrunk: index membership moves by a handful of
+# names a quarter, not by hundreds in a day.
+#
+# The total-based guard downstream was written when the universe was ~1,500
+# names, where losing one S&P page was a third of everything. At 5,336 it no
+# longer covers the case it exists for: losing all of the S&P 500 is 503 names,
+# which is 9.4% and slips under a 10% threshold. That would mark 503 live
+# constituents delisted and write in_index=0 for them into a panel row that
+# record_fundamentals can never rewrite.
+EXPECTED_SOURCE_MINIMUM = {
+    "S&P 500": 400,
+    "S&P 400": 320,
+    "S&P 600": 480,
+    "NASDAQ": 2500,
+}
+
+
 def fetch_all_universes():
     """Build the full deduplicated stock universe from Wikipedia (S&P 500/400/600),
     plus any working ISHARES_SOURCES. S&P sources go first because their sector
@@ -6367,6 +6392,18 @@ def fetch_all_universes():
             out.append(r)
             kept += 1
         print(f"Wikipedia {src['label']}: parsed {len(rows)} rows, kept {kept} new tickers (total now {len(out)}).")
+        floor = EXPECTED_SOURCE_MINIMUM.get(src["label"])
+        if floor and len(rows) < floor:
+            # Not a shrinking index: a failed fetch or a changed table layout.
+            # Returning a short universe would mark the missing constituents
+            # dropped and stamp in_index=0 into a panel row that can never be
+            # rewritten, so refuse the whole build instead.
+            print(f"UNIVERSE ABORT: {src['label']} returned {len(rows)} rows against an "
+                  f"expected floor of {floor}. One source failing is invisible in the "
+                  f"total once the universe is this large, so the check is per source. "
+                  f"Keeping yesterday's universe rather than recording {floor - len(rows)}+ "
+                  f"false delistings.")
+            return []
 
     # Broad US listings last: they have no sector, so anything already claimed by
     # an S&P index keeps its GICS classification and only genuinely new small caps
@@ -6379,8 +6416,18 @@ def fetch_all_universes():
         seen.add(r["ticker"])
         out.append(r)
         nt_kept += 1
-    if nt_rows:
-        print(f"nasdaqtrader: added {nt_kept} tickers not in any S&P index (total now {len(out)}).")
+    nt_floor = EXPECTED_SOURCE_MINIMUM.get("NASDAQ")
+    if nt_rows and nt_kept < nt_floor:
+        print(f"UNIVERSE ABORT: nasdaqtrader added only {nt_kept} tickers against an "
+              f"expected floor of {nt_floor}. It supplies roughly 72% of the universe, "
+              f"so a partial answer here would mark thousands of live listings dropped.")
+        return []
+    if not nt_rows:
+        print("UNIVERSE ABORT: nasdaqtrader returned nothing. It supplies roughly 72% "
+              "of the universe; continuing would record the other 3,800 names as "
+              "delisted in a panel row that cannot be rewritten.")
+        return []
+    print(f"nasdaqtrader: added {nt_kept} tickers not in any S&P index (total now {len(out)}).")
 
     for src in ISHARES_SOURCES:
         rows = fetch_ishares_holdings(src["url"], src["label"])
