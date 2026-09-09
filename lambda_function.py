@@ -7468,73 +7468,207 @@ def fetch_edgar_company_facts(cik):
         return None
 
 
-def _extract_quarterly_series(facts, concept_keys, max_periods=12):
-    """Extract quarterly values for the first matching concept name.
-    Filters to ~90-day periods from 10-Qs (avoids YTD/comparable overlaps).
-    Returns list of {end, val} sorted most-recent-first, dedup'd by end date
-    (most recent filing wins)."""
+_QUARTER_MIN_DAYS = 60
+# 120, not 100, because a 4-4-5 retail calendar makes the fourth quarter 16
+# weeks. At 100 days Costco's Q4 fell outside the window every single year, so
+# it was neither read nor reconstructable and the series ran three quarters to
+# the year. Nothing legitimate sits between 120 days and the 340 the annual
+# window starts at, so widening cannot pull in a half-year by mistake.
+_QUARTER_MAX_DAYS = 120
+_ANNUAL_MIN_DAYS = 340
+_ANNUAL_MAX_DAYS = 380
+# A concept whose newest fact trails the newest fact any candidate offers by
+# more than this is a retired tag, not a preference.
+_CONCEPT_STALE_DAYS = 400
+
+
+def _period_days(start, end):
+    """Length of an XBRL duration in days, or None if either date is unusable."""
+    from datetime import date as _date
+    try:
+        return (_date.fromisoformat(end) - _date.fromisoformat(start)).days
+    except Exception:
+        return None
+
+
+def _shift_iso(day, delta):
+    from datetime import date as _date
+    try:
+        return (_date.fromisoformat(day) + timedelta(days=delta)).isoformat()
+    except Exception:
+        return day
+
+
+def _quarterly_from_records(records):
+    """Every ~90-day duration in a concept's records, from any form, with the
+    fourth quarter reconstructed where the filer never tagged one.
+
+    This used to take 10-Q rows only. A 10-Q covers Q1, Q2 and Q3; the fourth
+    quarter of every fiscal year is in the 10-K or nowhere. So the series had a
+    hole at every fourth entry, invisible in a list sorted by date and fatal to
+    anything reading it positionally. fcf_growth_yoy compared Q[n] against
+    Q[n-4] believing that to be a year, when it was fifteen months against
+    sixteen. op_margin_stability measured every retailer's volatility with the
+    holiday quarter removed. accruals_ratio summed four entries and called the
+    result a TTM.
+
+    Two ways back. Walmart and Target tag Q4 in the 10-K, so simply reading
+    every form recovers it: 9 quarters for WMT, 5 for TGT. Coca-Cola never tags
+    one, but files an annual figure alongside three quarters, and the fourth is
+    the difference. Only a year with exactly three quarters and exactly one
+    quarter-shaped gap qualifies; anything else is left missing rather than
+    guessed at."""
+    quarters, annuals = {}, {}
+    for r in records:
+        start, end, val = r.get("start"), r.get("end"), r.get("val")
+        if not start or not end or val is None:
+            continue
+        days = _period_days(start, end)
+        if days is None:
+            continue
+        if _QUARTER_MIN_DAYS <= days <= _QUARTER_MAX_DAYS:
+            bucket = quarters
+        elif _ANNUAL_MIN_DAYS <= days <= _ANNUAL_MAX_DAYS:
+            bucket = annuals
+        else:
+            continue
+        filed = r.get("filed", "")
+        cur = bucket.get((start, end))
+        if not cur or filed > cur["filed"]:
+            bucket[(start, end)] = {"start": start, "end": end, "val": val,
+                                    "filed": filed, "derived": False}
+
+    for (a_start, a_end), annual in annuals.items():
+        inside = sorted((q for q in quarters.values()
+                         if q["start"] >= a_start and q["end"] <= a_end),
+                        key=lambda q: q["start"])
+        if len(inside) != 3:
+            continue
+        # The missing quarter is the year's one uncovered stretch. Consecutive
+        # quarters abut with a day between them, so a real gap is the only edge
+        # wide enough to hold a quarter. Two wide gaps means the three periods
+        # do not tile the year and nothing is safe to infer.
+        edges = [(a_start, inside[0]["start"]),
+                 (inside[0]["end"], inside[1]["start"]),
+                 (inside[1]["end"], inside[2]["start"]),
+                 (inside[2]["end"], a_end)]
+        gaps = [(s, e) for s, e in edges
+                if (_period_days(s, e) or 0) >= _QUARTER_MIN_DAYS]
+        if len(gaps) != 1:
+            continue
+        g_start, g_end = gaps[0]
+        # The boundary day belongs to the quarter that reported it.
+        if any(q["end"] == g_start for q in inside):
+            g_start = _shift_iso(g_start, 1)
+        if any(q["start"] == g_end for q in inside):
+            g_end = _shift_iso(g_end, -1)
+        span = _period_days(g_start, g_end)
+        if span is None or not (_QUARTER_MIN_DAYS <= span <= _QUARTER_MAX_DAYS):
+            continue
+        if (g_start, g_end) in quarters:
+            continue
+        try:
+            missing = annual["val"] - sum(q["val"] for q in inside)
+        except TypeError:
+            continue
+        # A subtraction is only as good as its inputs agreeing on what they
+        # measure. Where a filer restated the year but not the quarters that
+        # made it up, the difference absorbs the restatement: Target's fiscal
+        # 2013, restated for the Canada exit, comes out 6% under the figure it
+        # reported. That is small, twelve years stale, and far outside the
+        # twelve periods anything reads, but the failure mode has no upper
+        # bound, so reject a result that cannot be a quarter of this year.
+        sibling_max = max(abs(q["val"]) for q in inside)
+        if sibling_max and abs(missing) > 3 * sibling_max:
+            continue
+        quarters[(g_start, g_end)] = {"start": g_start, "end": g_end,
+                                      "val": missing, "filed": annual["filed"],
+                                      "derived": True}
+
+    # One value per period end. A quarter the filer actually tagged beats one
+    # worked out by subtraction, whatever the filing dates say.
+    by_end = {}
+    for q in quarters.values():
+        cur = by_end.get(q["end"])
+        if cur is None or (not q["derived"], q["filed"]) > (not cur["derived"], cur["filed"]):
+            by_end[q["end"]] = q
+    return sorted(by_end.values(), key=lambda q: q["end"], reverse=True)
+
+
+def _instants_from_records(records):
+    """Point-in-time (balance-sheet) values, most recent first.
+
+    Instants carry an end and no start. Duration facts land in the same unit
+    array and would otherwise be read as a balance at their end date."""
+    by_end = {}
+    for r in records:
+        if r.get("start"):
+            continue
+        if r.get("form") not in ("10-Q", "10-Q/A", "10-K", "10-K/A"):
+            continue
+        end, val = r.get("end"), r.get("val")
+        if not end or val is None:
+            continue
+        filed = r.get("filed", "")
+        cur = by_end.get(end)
+        if not cur or filed > cur["filed"]:
+            by_end[end] = {"end": end, "val": val, "filed": filed}
+    return sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
+
+
+def _select_concept_series(facts, concept_keys, builder):
+    """Build a series from the best concept, not merely the first that answers.
+
+    The old rule was first-match-wins, which is only right if every candidate
+    tag is current. They are not. Apple's `Revenues` holds nothing since 2018,
+    because its modern revenue is tagged
+    RevenueFromContractWithCustomerExcludingAssessedTax; the 10-Q-only filter
+    happened to return nothing for it, so the fallback list moved on and the
+    bug stayed hidden. Reading every form makes those 2018 rows answer, and
+    first-match-wins would then have stopped there and published eight-year-old
+    revenue as current. That is the same failure that already had 66 tickers
+    computing margins off filings from 2014.
+
+    So: candidates whose newest fact is well behind the best available are
+    retired tags and are dropped. Among what remains, concept_keys order still
+    decides, because that order is a real preference between live tags."""
     from datetime import date as _date
     us_gaap = facts.get("us-gaap", {})
-    for concept in concept_keys:
-        if concept not in us_gaap:
+    candidates = []
+    for rank, concept in enumerate(concept_keys):
+        node = us_gaap.get(concept)
+        if not node:
             continue
-        units_dict = us_gaap[concept].get("units", {})
-        records = units_dict.get("USD") or units_dict.get("USD/shares") or []
+        units = node.get("units", {})
+        records = units.get("USD") or units.get("USD/shares") or []
         if not records:
             continue
-        clean = []
-        for r in records:
-            if r.get("form") not in ("10-Q", "10-Q/A"):
-                continue
-            start, end = r.get("start", ""), r.get("end", "")
-            if not start or not end:
-                continue
-            try:
-                period_days = (_date.fromisoformat(end) - _date.fromisoformat(start)).days
-                if 60 <= period_days <= 100:
-                    clean.append({"end": end, "val": r.get("val"), "filed": r.get("filed", "")})
-            except Exception:
-                continue
-        # Dedup by end date, keep most recent filing
-        by_end = {}
-        for r in clean:
-            existing = by_end.get(r["end"])
-            if not existing or r["filed"] > existing["filed"]:
-                by_end[r["end"]] = r
-        sorted_periods = sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
-        if sorted_periods:
-            return sorted_periods[:max_periods]
-    return []
+        series = builder(records)
+        if series:
+            candidates.append((rank, series))
+    if not candidates:
+        return []
+    newest = max(s[0]["end"] for _, s in candidates)
+    try:
+        cutoff = (_date.fromisoformat(newest) - timedelta(days=_CONCEPT_STALE_DAYS)).isoformat()
+    except Exception:
+        cutoff = ""
+    live = [c for c in candidates if c[1][0]["end"] >= cutoff]
+    return min(live or candidates, key=lambda c: c[0])[1]
+
+
+def _extract_quarterly_series(facts, concept_keys, max_periods=12):
+    """Quarterly values for the best matching concept, most recent first."""
+    return _select_concept_series(facts, concept_keys, _quarterly_from_records)[:max_periods]
 
 
 def _extract_instant_series(facts, concept_keys, max_periods=12):
-    """Extract point-in-time (balance-sheet) values for the first matching concept.
+    """Balance-sheet values for the best matching concept, most recent first.
 
-    Balance-sheet facts are instants, not durations: they carry an `end` and no
-    `start`, so _extract_quarterly_series drops every one of them at its
-    `if not start or not end` guard. That is exactly why accruals_ratio sat at 0%
-    coverage across the whole universe. Returns [{end, val}] most-recent-first."""
-    us_gaap = facts.get("us-gaap", {})
-    for concept in concept_keys:
-        if concept not in us_gaap:
-            continue
-        records = us_gaap[concept].get("units", {}).get("USD") or []
-        if not records:
-            continue
-        by_end = {}
-        for r in records:
-            if r.get("form") not in ("10-Q", "10-Q/A", "10-K", "10-K/A"):
-                continue
-            end, val = r.get("end", ""), r.get("val")
-            if not end or val is None:
-                continue
-            existing = by_end.get(end)
-            if not existing or r.get("filed", "") > existing.get("filed", ""):
-                by_end[end] = {"end": end, "val": val, "filed": r.get("filed", "")}
-        periods = sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
-        if periods:
-            return periods[:max_periods]
-    return []
+    Balance-sheet facts are instants: they carry an `end` and no `start`, so
+    the duration path drops every one of them at its `if not start` guard.
+    That is why accruals_ratio sat at 0% coverage across the whole universe."""
+    return _select_concept_series(facts, concept_keys, _instants_from_records)[:max_periods]
 
 
 def compute_benford(facts):
