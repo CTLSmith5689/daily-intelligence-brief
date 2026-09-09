@@ -3192,7 +3192,7 @@ STOCKS_JS_TEMPLATE = """
       return 'far';
     }
 
-    function buildSubcard(title, fitLabel, fitClass, chi, n, observed, expected, startDigit, scale) {
+    function buildSubcard(title, fitLabel, fitClass, chi, mad, n, observed, expected, startDigit, scale) {
       const rows = observed.map((obs, i) => {
         const exp = expected[i];
         const obsW = Math.min(100, obs / scale * 100);
@@ -3211,7 +3211,13 @@ STOCKS_JS_TEMPLATE = """
       return '<div class="bf-sub">'
         + '<div class="bf-sub-h">' + title
         +   ' <span class="bf-fit ' + fitClass + '">' + fitLabel + '</span>'
-        +   ' <span class="bf-sub-meta">&chi;<sup>2</sup> ' + chi + '  &middot;  n=' + n.toLocaleString() + '</span>'
+        +   ' <span class="bf-sub-meta">'
+        +     'MAD ' + (mad == null ? '—' : Number(mad).toFixed(4))
+        +     '  &middot;  <span title="Chi-square scales with sample size. At n in the '
+        +     'thousands it rejects conformity for any deviation at all, so it is shown '
+        +     'for reference while the verdict above uses MAD instead.">'
+        +     '&chi;<sup>2</sup> ' + chi + '</span>'
+        +     '  &middot;  n=' + n.toLocaleString() + '</span>'
         + '</div>'
         + rows
       + '</div>';
@@ -3222,6 +3228,7 @@ STOCKS_JS_TEMPLATE = """
       String(b.fit).toUpperCase() + ' FIT',
       'bf-fit-' + b.fit,
       b.chi_sq,
+      b.mad,
       b.n,
       b.observed,
       EXP_D1,
@@ -3235,6 +3242,7 @@ STOCKS_JS_TEMPLATE = """
         String(b.fit_d2).toUpperCase() + ' FIT',
         'bf-fit-' + b.fit_d2,
         b.chi_sq_d2,
+        b.mad_d2,
         b.n_d2,
         b.observed_d2,
         EXP_D2,
@@ -7959,9 +7967,16 @@ def compute_benford(facts):
       observed (1st-digit, 9 values), chi_sq, n, fit
       observed_d2 (2nd-digit, 10 values), chi_sq_d2, n_d2, fit_d2 (when n_d2 >= 30)
 
-    Critical chi-squared values for the fit verdict:
-      df=8 (1st digit): 13.36 (p=.10), 15.51 (p=.05), 20.09 (p=.01)
-      df=9 (2nd digit): 14.68 (p=.10), 16.92 (p=.05), 21.67 (p=.01)
+    The verdict is MAD, not chi-square, and the distinction matters. A 10-K dump
+    carries thousands of values (median n here is 10,732), and at that sample
+    size chi-square rejects conformity for any deviation at all: 8 df puts the
+    5% critical value at 15.51, while the median company in this universe scores
+    around 75. That is not evidence of fraud, it is what chi-square does with
+    large n. Nigrini's mean absolute deviation is the forensic-accounting
+    standard precisely because it does not scale with sample size.
+
+    chi_sq is still reported, correctly computed, for anyone who wants it. It
+    should not be read against textbook critical values at these sample sizes.
 
     Second-digit Benford is harder to game: most manipulators only fudge first
     digits to look natural, leaving the second digit to leak the truth."""
@@ -8004,7 +8019,20 @@ def compute_benford(facts):
         return None
     observed_d1 = [round(digits_d1[d] / n_d1 * 100, 1) for d in range(1, 10)]
     expected_d1 = [_math.log10(1 + 1 / d) * 100 for d in range(1, 10)]
-    chi_sq_d1 = sum((observed_d1[i] - expected_d1[i]) ** 2 / expected_d1[i] for i in range(9))
+    # Chi-square is defined on counts. This was computed from the percentages
+    # above, which yields 100 * sum((p_obs - p_exp)^2 / p_exp) where the real
+    # statistic is n * sum(...) of the same thing. With a median n of 10,732
+    # that is off by a factor of about 107: the median company published 0.7,
+    # against a critical value of 15.51 quoted in this very docstring, when its
+    # actual statistic was around 75. A reader who knows what chi-square means
+    # read overwhelming nonconformity as a near-perfect fit.
+    #
+    # Computed from the raw counts now, not from the rounded percentages, since
+    # rounding to one decimal is itself a large perturbation at this n.
+    chi_sq_d1 = sum(
+        (digits_d1[d] - n_d1 * _math.log10(1 + 1 / d)) ** 2 / (n_d1 * _math.log10(1 + 1 / d))
+        for d in range(1, 10)
+    )
     # Mean Absolute Deviation in proportion units (Nigrini, Forensic Analytics).
     # Chi-square is too sensitive at large n (any 10-K dump has thousands of values
     # so even tiny structural rounding flips the fit to "poor"). MAD is the
@@ -8033,8 +8061,10 @@ def compute_benford(facts):
             sum(_math.log10(1 + 1 / (10 * k + d)) for k in range(1, 10)) * 100
             for d in range(0, 10)
         ]
+        # Same correction as the first digit: counts, not percentages.
         chi_sq_d2 = sum(
-            (observed_d2[i] - expected_d2[i]) ** 2 / expected_d2[i] for i in range(10)
+            (digits_d2[d] - n_d2 * expected_d2[d] / 100) ** 2 / (n_d2 * expected_d2[d] / 100)
+            for d in range(10)
         )
         mad_d2 = sum(abs(observed_d2[i] - expected_d2[i]) for i in range(10)) / 10 / 100
         # Nigrini 2nd-digit thresholds: <0.008 close, 0.008-0.010 acceptable,
