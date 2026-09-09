@@ -3039,8 +3039,8 @@ STOCKS_JS_TEMPLATE = """
     {
       title: 'Momentum',
       rows: [
-        { label: '12-2 Month Return',   key: 'return_12_2',        type: 'pct', source: 'yfinance', method: 'Trailing 12-month return excluding the most recent month (classic Jegadeesh-Titman momentum).' },
-        { label: '1-Month Return',      key: 'return_1m',          type: 'pct', source: 'yfinance', method: 'Last 30 calendar days price change.' },
+        { label: '12-2 Month Return',   key: 'return_12_2',        type: 'pct', source: 'derived',  method: 'Close 21 trading days ago against the close 252 trading days ago, from the stored daily history. Skipping the most recent month is what makes it 12-2 (Jegadeesh-Titman); needs 200 trading days.' },
+        { label: '1-Month Return',      key: 'return_1m',          type: 'pct', source: 'derived',  method: 'Latest close against the close 21 trading days earlier, from the stored daily history.' },
         { label: '52W High Proximity',  key: 'high52w_proximity',  type: 'pct', source: 'derived',  method: '(Price minus 52W high) / 52W high. Always less than or equal to zero.' },
         { label: 'Rel Strength vs S&P', key: 'rel_strength_sp500', type: 'pct', source: 'derived',  method: 'Stock 12-2 return minus SPY 12-2 return.' },
         { label: 'Volume Trend',        key: 'volume_trend',       type: 'pct', source: 'derived',  method: 'Recent average volume divided by longer-term average volume, minus 1.' },
@@ -6726,16 +6726,15 @@ def enrich_with_yfinance(stocks, max_workers=6):
                 high52 = info.get("fiftyTwoWeekHigh")
                 if price and high52 and high52 > 0:
                     s["high52w_proximity"] = (price - high52) / high52
-                ma50 = info.get("fiftyDayAverage")
-                if price and ma50 and ma50 > 0:
-                    ret_1m = (price - ma50) / ma50
-                    if abs(ret_1m) < 2:
-                        s["return_1m"] = ret_1m
+                # return_1m and return_12_2 are set by
+                # derive_returns_from_history, from the daily closes on disk.
+                # What used to be here computed return_1m as
+                # (price - fiftyDayAverage) / fiftyDayAverage and then built
+                # return_12_2 out of it by subtraction. Neither is what its
+                # label said it was.
                 chg52 = info.get("52WeekChange")
                 if chg52 is not None and abs(chg52) < 10:
                     s["return_52w"] = chg52
-                    if "return_1m" in s:
-                        s["return_12_2"] = chg52 - s["return_1m"]
                 sp_chg52 = info.get("SandP52WeekChange")
                 if chg52 is not None and sp_chg52 is not None:
                     rel = chg52 - sp_chg52
@@ -7221,6 +7220,86 @@ def aggregate_news_sentiment(stocks):
 # ── Per-ticker price history (yfinance bulk download, 1y daily) ─────────────
 
 PRICES_DIR = DOCS_DIR / "prices"
+
+
+# Trading days, not calendar days, because that is what the series holds.
+_RET_1M_DAYS = 21
+_RET_12M_DAYS = 252
+# 12-2 needs most of a year behind it to mean anything. A ticker that listed
+# four months ago gets no value, rather than a number computed over four months
+# and labelled twelve.
+_RET_12M_MIN_DAYS = 200
+
+
+def derive_returns_from_history(stocks):
+    """Momentum returns computed from the daily closes already on disk.
+
+    return_1m was (price - fiftyDayAverage) / fiftyDayAverage: the distance
+    from the 50-day moving average, published under the label "Last 30 calendar
+    days price change". Those are different quantities, and they disagree most
+    exactly where momentum matters. A stock that jumped 8% and then went flat
+    for a fortnight still reads strongly positive, because the average trails
+    it. A stock that fell steadily all month reads near zero, because the
+    average falls with it. Screening on "1-Month Return > 10%" found neither.
+
+    return_12_2 was return_52w minus that number, so it inherited the error and
+    added one of its own: a 12-2 momentum is a ratio between two prices, not a
+    difference between two returns. Its method string cited Jegadeesh-Titman.
+
+    docs/prices/{TICKER}.json already holds 251 daily closes per ticker,
+    written by enrich_with_prices for the chart card, so the honest numbers
+    cost one file read each and no network at all."""
+    if not stocks:
+        return 0
+    # A file whose last close is old would make a month-old price the "current"
+    # one and report a stale return as a live one. Ten days covers a holiday
+    # week plus one missed refresh.
+    cutoff = (datetime.now(timezone.utc).date() - timedelta(days=10)).isoformat()
+    got_1m = got_122 = 0
+    missing = short = stale = 0
+    for s in stocks:
+        f = PRICES_DIR / _news_filename(s["ticker"])
+        try:
+            closes = json.loads(f.read_text(encoding="utf-8")).get("closes") or []
+        except Exception:
+            missing += 1
+            continue
+        if len(closes) < _RET_1M_DAYS + 2:
+            short += 1
+            continue
+        if str(closes[-1][0]) < cutoff:
+            stale += 1
+            continue
+        try:
+            px = [float(c[1]) for c in closes]
+        except (TypeError, ValueError, IndexError):
+            missing += 1
+            continue
+
+        now_px = px[-1]
+        month_ago = px[-1 - _RET_1M_DAYS]
+        if now_px > 0 and month_ago > 0:
+            r1 = now_px / month_ago - 1
+            if abs(r1) < 2:
+                s["return_1m"] = r1
+                got_1m += 1
+
+        # Twelve months ago to one month ago: the standard construction. It
+        # skips the most recent month because that is where short-term reversal
+        # lives, which is the whole reason the 12-2 form exists.
+        anchor_i = max(0, len(px) - 1 - _RET_12M_DAYS)
+        if len(px) - anchor_i >= _RET_12M_MIN_DAYS:
+            anchor = px[anchor_i]
+            if anchor > 0 and month_ago > 0:
+                r122 = month_ago / anchor - 1
+                if abs(r122) < 10:
+                    s["return_12_2"] = r122
+                    got_122 += 1
+
+    print(f"returns: derived return_1m for {got_1m} and return_12_2 for {got_122} "
+          f"of {len(stocks)} tickers from stored closes "
+          f"({missing} no history, {short} too short, {stale} stale).")
+    return got_1m
 
 
 def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
@@ -8284,6 +8363,7 @@ def get_or_generate_stocks_universe():
         aggregate_news_sentiment(cached_list)
         compute_neglect_score(cached_list)
         enrich_with_prices(cached_list)
+        derive_returns_from_history(cached_list)
         return last_known
     if last_known and not schema_ok:
         print("stocks_universe: schema bump, bypassing the daily cache.")
@@ -8506,12 +8586,15 @@ def get_or_generate_stocks_universe():
     # which are all set by this point in the pipeline.
     compute_neglect_score(stocks)
 
+    # Per-ticker daily price history (1y). 24h cache, bulk download via
+    # yf.download in batches so we hit Yahoo once per ~200 tickers. This used to
+    # run after scoring, back when it only fed the chart card. The momentum
+    # returns are read back out of it now, so it has to come first.
+    enrich_with_prices(stocks)
+    derive_returns_from_history(stocks)
+
     # Peer scoring last: it reads every factor the steps above populate.
     compute_peer_scores(stocks)
-
-    # Per-ticker daily price history (1y) for the chart card. 24h cache, bulk
-    # download via yf.download in batches so we hit Yahoo once per ~200 tickers.
-    enrich_with_prices(stocks)
 
     total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
     total_with_price = sum(1 for s in stocks if s.get("price"))
