@@ -137,22 +137,9 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           MODE: ${{ steps.pick.outputs.mode }}
           JOB_STATUS: ${{ job.status }}
-        run: |
-          python - <<'PY'
-          import os
-          from lambda_function import send_email
-
-          mode = os.environ.get("MODE") or "unknown"
-          status = os.environ.get("JOB_STATUS") or "failed"
-          run_url = os.environ["RUN_URL"]
-          send_email(
-              f"apterreon-brief {status.upper()} ({mode})",
-              f"<h2>The data pipeline {status}.</h2>"
-              f"<p>Mode: <b>{mode}</b></p>"
-              f"<p>A cancelled job is usually the 120-minute timeout. A failed one
-              either raised, or completed without accomplishing its purpose and
-              exited non-zero on that basis.</p>"
-              f'<p><a href="{run_url}">Open the run</a></p>',
-          )
-          print("Failure alert sent.")
-          PY
+        # One line, calling into code the Gather step already imports. The
+        # previous version was 17 lines of Python embedded in YAML that nothing
+        # parsed until a failure ran it, and it did not parse.
+        run: >-
+          python -c "import os, lambda_function as L;
+          L.send_failure_alert(os.environ['MODE'], os.environ['JOB_STATUS'], os.environ['RUN_URL'])"

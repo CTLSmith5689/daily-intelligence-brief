@@ -1488,6 +1488,29 @@ def build_static_attachment_html(title, data, quotes, timestamp, usage_info=None
 </html>"""
 
 
+def send_failure_alert(mode, status, run_url):
+    """The alert that fires when a run fails, times out, or is cancelled.
+
+    This lives here rather than in the workflow because the workflow's version
+    was an f-string spanning three lines, which is a SyntaxError. It shipped in
+    the same commit as the health assertion, so the only channel that reports a
+    failure was itself broken for exactly as long as the check meant to trigger
+    it was live. Nothing parsed that script until a failure ran it.
+
+    Anything in this module is parsed on every single run, because the Gather
+    step imports it. A typo here fails the run that introduced it, loudly, in
+    front of someone who is looking. That is the entire reason for the move."""
+    send_email(
+        f"apterreon-brief {status.upper()} ({mode})",
+        f"<h2>The data pipeline {status}.</h2>"
+        f"<p>Mode: <b>{mode}</b></p>"
+        "<p>A cancelled job is usually the 120-minute timeout. A failed one "
+        "either raised, or completed without accomplishing its purpose and "
+        "exited non-zero on that basis.</p>"
+        f'<p><a href="{run_url}">Open the run</a></p>',
+    )
+
+
 def send_email(subject, html_body, attachment_html=None, attachment_name="brief.html"):
     """Send HTML email via iCloud SMTP with optional HTML attachment."""
     app_password = os.environ.get("APTERREON_ICLOUD_APP_PASSWORD")
