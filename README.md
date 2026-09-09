@@ -229,6 +229,36 @@ unlike free cash flow there is no independent check saying ours is better.
 The `ttm_ebitda`, `total_debt` and `cash_and_investments` aggregates are
 published anyway, for anyone who wants to build their own.
 
+### Institutional ownership is not computed from 13F, and here is the measurement
+
+Worth writing down, because the idea is obvious enough to be tried again.
+
+SEC publishes quarterly Form 13F structured data sets, about 95 MB a quarter,
+covering every manager over $100M. For the quarter ending 31-MAR-2026 that is
+8,741 managers and 3.1 million holdings across 22,840 issuers. Aggregating
+shares by issuer is straightforward: drop `13F-NT` notices, keep the latest
+amendment per manager, exclude option positions and `PRN` principal rows, and
+sum `SSHPRNAMT`.
+
+The problem is identity. 13F reports holdings by CUSIP, and CUSIP-to-ticker
+crosswalks are licensed data, so issuers have to be matched by name. Matching
+against SEC's own company names, which is the best available key since both
+sides then come from SEC filings, resolves 3,301 of our 5,339 tickers, 61.8%.
+
+That number flatters it. Of those 3,301, **1,311 had more than one CUSIP
+mapping to the same ticker**, which is share classes and similarly named
+companies being summed into one position. Against the vendor's figure for the
+2,269 tickers carrying both, only **25% land within 10%**, the median gap is
+16.2%, and **195 imply ownership above 100%**, which is impossible.
+
+So the arithmetic is right and the identity resolution is not, and a wrong
+match does not fail visibly: it produces a plausible percentage for the wrong
+company. `inst_ownership` therefore keeps coming from the vendor, where it
+covers 65% of the universe and is correct, rather than 62% and wrong in three
+cases out of four.
+
+What would change this is a CUSIP-to-ticker crosswalk. There is no free one.
+
 ### Why a number is missing or old
 
 A quarterly figure that is seventy days old is exactly as current as the
