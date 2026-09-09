@@ -104,7 +104,13 @@ QUOTES_CSV = DATA_DIR / "quotes.csv"
 HEADLINES_CSV_DIR = DATA_DIR / "headlines"
 FUNDAMENTALS_CSV_DIR = DATA_DIR / "fundamentals"
 
-QUOTE_COLUMNS = ["observed_at", "ticker", "label", "price", "change_pct", "is_yield"]
+# trading_day is the session the price belongs to, which is not the session we
+# observed it in. Alpha Vantage GLOBAL_QUOTE returns the previous close, so an
+# hourly schedule re-recorded one number all day: 236 rows held 22 distinct
+# prices, and SPAXX had a single price across 40 rows. Keeping the field the API
+# already returns makes the repetition visible and lets the writer skip it.
+QUOTE_COLUMNS = ["observed_at", "ticker", "label", "price", "change_pct",
+                 "is_yield", "trading_day"]
 HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", "title", "link"]
 
 # Nested values (benford is a dict, op_margin_history a list) have no sensible
@@ -138,14 +144,23 @@ def _csv_num(value):
 
 
 def _append_csv(path, columns, rows):
-    """Append rows, writing a header only when creating the file."""
+    """Append rows, writing a header only when creating the file.
+
+    The file's own header wins when it has one. Adding an entry to `columns`
+    after a file exists would otherwise write one more value per row than the
+    header declares, and since a CSV row is positional every field after the
+    insertion point shifts one place. The result parses, which is the dangerous
+    part: an append-only archive would carry silently misaligned columns from
+    that run onward. _csv_header was written for this and was not being used
+    here."""
     if not rows:
         return 0
     path.parent.mkdir(parents=True, exist_ok=True)
-    is_new = not path.exists()
+    existing = _csv_header(path)
     with path.open("a", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=columns, extrasaction="ignore")
-        if is_new:
+        writer = csv.DictWriter(fh, fieldnames=existing or columns,
+                                extrasaction="ignore")
+        if existing is None:
             writer.writeheader()
         writer.writerows(rows)
     return len(rows)
@@ -205,18 +220,51 @@ def _widen_csv_schema(path, columns):
 
 
 def record_quotes(quotes, observed_at):
-    """Append one row per quote. Called on every run, including hourly ones."""
-    rows = [{
-        "observed_at": observed_at,
-        "ticker": q.get("ticker", ""),
-        "label": q.get("label", ""),
-        # Stored bare so the column is numeric: the display strings carry $ and %.
-        "price": str(q.get("price", "")).replace("$", "").replace("%", "").strip(),
-        "change_pct": str(q.get("change_pct", "")).replace("%", "").strip(),
-        "is_yield": "1" if q.get("is_yield") else "0",
-    } for q in quotes]
+    """Append one row per quote per trading session, skipping repeats.
+
+    This appended on every run, hourly included, but the source does not change
+    hourly: Alpha Vantage GLOBAL_QUOTE returns the previous close. So the file
+    was mostly a record of how often we asked. 236 rows carried 22 distinct
+    prices, 9.3% information, and the two money-market funds had one price each
+    across 40 rows.
+
+    Deduping on (ticker, trading_day) turns it into what it was always meant to
+    be: one close per instrument per session. The same shape record_headlines
+    already uses for links, and the same reason. Rows whose session is unknown
+    fall back to the observation date, so a source that stops reporting one
+    degrades to daily rather than to hourly repeats."""
+    seen = set()
+    if QUOTES_CSV.exists():
+        try:
+            with QUOTES_CSV.open(encoding="utf-8", newline="") as fh:
+                for row in csv.DictReader(fh):
+                    seen.add((row.get("ticker", ""), row.get("trading_day", "")))
+        except Exception as exc:
+            print(f"csv: could not read {QUOTES_CSV.name} for dedupe ({exc}); "
+                  f"appending all.")
+            seen = set()
+
+    rows = []
+    for q in quotes:
+        ticker = q.get("ticker", "")
+        day = (q.get("trading_day") or observed_at[:10]).strip()
+        if (ticker, day) in seen:
+            continue
+        seen.add((ticker, day))
+        rows.append({
+            "observed_at": observed_at,
+            "ticker": ticker,
+            "label": q.get("label", ""),
+            # Stored bare so the column is numeric: display strings carry $ and %.
+            "price": str(q.get("price", "")).replace("$", "").replace("%", "").strip(),
+            "change_pct": str(q.get("change_pct", "")).replace("%", "").strip(),
+            "is_yield": "1" if q.get("is_yield") else "0",
+            "trading_day": day,
+        })
     n = _append_csv(QUOTES_CSV, QUOTE_COLUMNS, rows)
-    print(f"csv: appended {n} quote rows to data/{QUOTES_CSV.name}.")
+    skipped = len(quotes) - n
+    print(f"csv: appended {n} quote rows to data/{QUOTES_CSV.name}"
+          + (f" ({skipped} already recorded for their session)." if skipped else "."))
     return n
 
 
@@ -574,6 +622,8 @@ def fetch_market_data():
                     "label": label,
                     "price": f"{float(price):.2f}",
                     "change_pct": change_pct.replace("%", "").strip(),
+                    # The session this close belongs to, straight from the API.
+                    "trading_day": (quote.get("07. latest trading day") or "").strip(),
                 })
         except Exception as e:
             print(f"Alpha Vantage error for {ticker}: {e}")
