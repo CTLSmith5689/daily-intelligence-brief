@@ -5284,6 +5284,48 @@ STOCKS_JS_TEMPLATE = """
     };
   }
 
+  // Axis values reach the chart already log10'd where the field asks for it,
+  // so a legend printing them raw would label market cap 6.0 to 12.5 rather
+  // than $1M to $3T. Undo the transform for display, then format in the
+  // field's own units.
+  function fmtAxisValue(v, k) {
+    if (v == null || !isFinite(v)) return '—';
+    const f = AXIS_BY_KEY[k] || {};
+    const raw = f.log ? Math.pow(10, v) : v;
+    if (CAP_FIELDS.has(k)) return fmtCapShort(raw);
+    if (PCT_FIELDS.has(k)) return (raw * 100).toFixed(1) + '%';
+    return Math.abs(raw) >= 1000 ? fmtCapShort(raw) : raw.toFixed(2);
+  }
+
+  // A ramp with no key is decoration. This says which end is which, in the
+  // units of the field itself, and names the outline used for missing values.
+  function drawColourLegend(ctx, box, label, lo, hi, missing, ink, dim) {
+    const W = 104, H = 7;
+    const x = box.x + box.w - W - 14, y = box.y + 16;
+    for (let i = 0; i < W; i++) {
+      ctx.fillStyle = colourRamp(i / (W - 1));
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(x + i, y, 1, H);
+    }
+    ctx.globalAlpha = 1;
+    ctx.font = "9px 'Space Mono', monospace";
+    ctx.fillStyle = dim;
+    ctx.textAlign = 'left';
+    ctx.fillText(label.toUpperCase(), x, y - 4);
+    ctx.fillText(lo, x, y + H + 9);
+    ctx.textAlign = 'right';
+    ctx.fillText(hi, x + W, y + H + 9);
+    if (missing) {
+      ctx.beginPath(); ctx.arc(x + 4, y + H + 20, 3.2, 0, Math.PI * 2);
+      ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.globalAlpha = 0.5; ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = dim;
+      ctx.textAlign = 'left';
+      ctx.fillText(missing.toLocaleString() + ' no value', x + 11, y + H + 23);
+    }
+    ctx.textAlign = 'left';
+  }
+
   function paintCloud(ctx, proj, ink, hits, capMaxIn) {
     if (!proj.length) return;
     const capMax = capMaxIn ||
@@ -5301,8 +5343,17 @@ STOCKS_JS_TEMPLATE = """
         const r = 2 + Math.sqrt((q.s.market_cap || 0) / capMax) * 9;
         const col = colourOf ? colourOf(q.c) : null;
         ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = col || ink;
-        ctx.globalAlpha = (col ? 0.55 : 0.30) * ctxDim; ctx.fill();
+        if (colourOf && !col) {
+          // No value on the colour axis. Filling it with ink put it at the dark
+          // end of a ramp whose dark end means "low", so a company we know
+          // nothing about looked like a company scoring badly. An outline says
+          // absent, which is what it is.
+          ctx.strokeStyle = ink; ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.35 * ctxDim; ctx.stroke();
+        } else {
+          ctx.fillStyle = col || ink;
+          ctx.globalAlpha = (col ? 0.55 : 0.30) * ctxDim; ctx.fill();
+        }
         hits.push({ x: q.x, y: q.y, r: Math.max(r, 4), s: q.s });
       }
       ctx.globalAlpha = 1;
@@ -5647,10 +5698,25 @@ STOCKS_JS_TEMPLATE = """
       yZero: !!(AXIS_BY_KEY[axisY] || {}).zero,
       xl: axisLabel(axisX), yl: axisLabel(axisY),
     }, ink, line, dim, chartHit);
+
+    // The key goes on after the cloud so nothing is painted over it.
+    let colourGaps = 0;
+    if (axisC) {
+      const cv2 = pts.map(function(p) { return p.c; })
+                     .filter(function(v) { return v != null && isFinite(v); })
+                     .sort(function(a, b) { return a - b; });
+      colourGaps = pts.length - cv2.length;
+      if (cv2.length >= 2) {
+        drawColourLegend(ctx, { x: 0, y: 0, w: w, h: h }, axisLabel(axisC),
+                         fmtAxisValue(cv2[0], axisC), fmtAxisValue(cv2[cv2.length - 1], axisC),
+                         colourGaps, ink, dim);
+      }
+    }
     document.getElementById('stk-chart-foot').textContent =
       pts.length.toLocaleString() + ' plotted of ' + currentFiltered().length.toLocaleString() +
       ' matching \u00b7 dot size: market cap' +
-      (axisC ? ' \u00b7 colour: ' + axisLabel(axisC).toLowerCase() + ', cool to warm by rank'
+      (axisC ? ' \u00b7 colour: ' + axisLabel(axisC).toLowerCase() + ', cool to warm by rank' +
+               (colourGaps ? ', ' + colourGaps.toLocaleString() + ' with no value drawn as outlines' : '')
              : (pts.length > DENSITY_ABOVE
                 ? ' \u00b7 shaded by how many companies fall in each cell, largest 70 on top'
                 : '')) +
