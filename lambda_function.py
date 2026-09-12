@@ -2796,6 +2796,36 @@ body.page-stocks .lib-h { display:none; }
 .th-hist-row span:first-child { color:var(--text-4); min-width:82px; }
 .th-note-link { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); margin-top:10px; }
 .th-note-link a { color:var(--text-3); }
+.co-card { margin-top:14px; padding:16px 18px; border:1px solid var(--border); }
+.co-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
+.co-h-src { color:var(--text-4); letter-spacing:1px; margin-left:auto; text-transform:none; }
+.co-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
+.co-empty { font-size:12px; color:var(--text-3); line-height:1.6; max-width:62ch; }
+.co-block { margin-bottom:18px; }
+.co-block:last-child { margin-bottom:0; }
+.co-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-4); margin-bottom:8px; }
+.co-note + .co-k, .co-chips + .co-k, .co-bar + .co-k { margin-top:16px; }
+.co-note { font-size:11.5px; color:var(--text-3); line-height:1.55; margin-top:7px; max-width:62ch; }
+.co-note a { color:var(--text-2); }
+.co-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.co-chip { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-2); border:1px solid var(--border-bright); padding:3px 9px; }
+.co-bar { height:10px; background:var(--surface-3); border:1px solid var(--border); position:relative; }
+.co-bar-fill { position:absolute; inset:0 auto 0 0; background:var(--apt-red); }
+.co-srow { display:flex; align-items:center; gap:12px; padding:5px 0; flex-wrap:wrap; }
+.co-srow-k { font-family:'Space Mono',monospace; font-size:10.5px; color:var(--text-3); min-width:124px; }
+.co-spark { flex:0 0 auto; overflow:visible; }
+.co-srow-v { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-3); min-width:96px; font-variant-numeric:tabular-nums; }
+.co-srow-v b { color:var(--text-1); font-weight:400; }
+.co-srow-v i, .co-srow-from i { font-style:normal; color:var(--text-4); font-size:10px; }
+.co-srow-from { font-family:'Space Mono',monospace; font-size:10.5px; color:var(--text-4); font-variant-numeric:tabular-nums; }
+.co-files { display:flex; flex-direction:column; border-top:1px solid var(--border); }
+.co-file { display:flex; align-items:baseline; gap:12px; padding:6px 0; border-bottom:1px solid var(--border); font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); text-decoration:none; }
+.co-file:hover { color:var(--text-1); }
+.co-file-d { color:var(--text-4); min-width:86px; }
+.co-file-n { color:var(--text-2); flex:1 1 auto; }
+.co-file-f { color:var(--text-4); min-width:44px; }
+.co-file-c { color:var(--text-4); min-width:40px; text-align:right; font-variant-numeric:tabular-nums; }
+@media (max-width:640px) { .co-srow-k { min-width:100%; } .co-srow-from { display:none; } }
 .nws-card { margin-top:14px; padding:16px 18px; background:transparent; border:1px solid var(--border);  }
 .nws-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .nws-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
@@ -3565,7 +3595,12 @@ STOCKS_JS_TEMPLATE = """
     const thesisCard = '<div class="th-card" id="th-' + escapeHtml(s.ticker) + '">'
       + '<div class="th-h">Thesis <span class="th-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + thesisCard + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
+    // Reported facts, populated lazily by fetchCompanyFor. Sits under the thesis
+    // and above the computed factors: filings are what the view is argued from.
+    const companyCard = '<div class="co-card" id="co-' + escapeHtml(s.ticker) + '">'
+      + '<div class="co-h">Reported <span class="co-loading">loading…</span></div>'
+      + '</div>';
+    return '<div class="stk-detail">' + thesisCard + companyCard + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
   }
 
   // ── Signals row: Neglect (Lynch) on the left, Insider Movement (Seyhun) on the right ──
@@ -4047,6 +4082,177 @@ STOCKS_JS_TEMPLATE = """
 
   const thesisCache = {};
 
+  // ── Reported: what the filings say, as opposed to what the panel computes ──
+  // The panel holds five dates of derived ratios. This holds a decade of what
+  // the company actually filed, plus the documents it was taken from. Loaded
+  // lazily from docs/company/{TICKER}.json, which most tickers do not have.
+
+  const companyCache = {};
+  const CO_REPO = 'https://github.com/CTLSmith5689/daily-intelligence-brief/blob/main/data/filings/';
+
+  function fetchCompanyFor(ticker) {
+    if (companyCache[ticker] !== undefined) { renderCompany(ticker, companyCache[ticker]); return; }
+    fetch('./company/' + encodeURIComponent(newsFilename(ticker)), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(v => { companyCache[ticker] = v || null; renderCompany(ticker, companyCache[ticker]); })
+      .catch(() => { companyCache[ticker] = null; renderCompany(ticker, null); });
+  }
+
+  // One series, drawn to one scale. The zero line appears only when the series
+  // actually crosses zero, which for operating margin and EPS it often does and
+  // for revenue it never does.
+  function coSpark(vals, w, h) {
+    const pts = vals.filter(v => v != null && isFinite(v));
+    if (pts.length < 2) return '';
+    let lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);
+    if (lo === hi) { lo -= 1; hi += 1; }
+    const crosses = lo < 0 && hi > 0;
+    if (crosses) { const m = Math.max(Math.abs(lo), Math.abs(hi)); lo = -m; hi = m; }
+    const pad = (hi - lo) * 0.12;
+    lo -= pad; hi += pad;
+    const x = i => 3 + (i / (vals.length - 1)) * (w - 6);
+    const y = v => h - 4 - ((v - lo) / (hi - lo)) * (h - 8);
+    // A missing year breaks the line rather than being bridged. MPC has no
+    // tagged revenue for 2016 and 2017, and joining 2015 to 2018 would draw two
+    // years of figures the filings do not report.
+    let d = '', open = false;
+    vals.forEach((v, i) => {
+      if (v == null || !isFinite(v)) { open = false; return; }
+      d += (open ? ' L' : ' M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1);
+      open = true;
+    });
+    d = d.trim();
+    let last = null;
+    for (let i = vals.length - 1; i >= 0; i--) { if (vals[i] != null && isFinite(vals[i])) { last = i; break; } }
+    const zero = crosses
+      ? '<line x1="3" y1="' + y(0).toFixed(1) + '" x2="' + (w - 3) + '" y2="' + y(0).toFixed(1)
+        + '" stroke="var(--grid-line)" stroke-width="1"/>'
+      : '';
+    let dots = '';
+    vals.forEach((v, i) => {
+      if (v == null || !isFinite(v)) return;
+      const prev = i > 0 && vals[i - 1] != null && isFinite(vals[i - 1]);
+      const next = i < vals.length - 1 && vals[i + 1] != null && isFinite(vals[i + 1]);
+      if (!prev && !next) {
+        dots += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1)
+             + '" r="2" fill="var(--apt-red)"/>';
+      }
+    });
+    const dot = dots + (last == null ? ''
+      : '<circle cx="' + x(last).toFixed(1) + '" cy="' + y(vals[last]).toFixed(1)
+        + '" r="2.6" fill="var(--apt-red)"/>');
+    return '<svg class="co-spark" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h
+      + '" aria-hidden="true">' + zero
+      + '<path d="' + d + '" fill="none" stroke="var(--apt-red)" stroke-width="2" '
+      + 'stroke-linejoin="round" stroke-linecap="round"/>' + dot + '</svg>';
+  }
+
+  function coMoney(v) {
+    if (v == null || !isFinite(v)) return '--';
+    const a = Math.abs(v);
+    if (a >= 1e12) return (v / 1e12).toFixed(2) + 'T';
+    if (a >= 1e9) return (v / 1e9).toFixed(1) + 'B';
+    if (a >= 1e6) return (v / 1e6).toFixed(0) + 'M';
+    return v.toFixed(0);
+  }
+
+  function coSeriesRow(label, rows, key, fmt) {
+    const vals = rows.map(r => (r[key] == null ? null : r[key]));
+    if (!vals.some(v => v != null && isFinite(v))) return '';
+    let firstI = vals.findIndex(v => v != null && isFinite(v));
+    let lastI = -1;
+    for (let i = vals.length - 1; i >= 0; i--) { if (vals[i] != null && isFinite(vals[i])) { lastI = i; break; } }
+    const yr = i => (rows[i].period_end || '').slice(0, 4);
+    return '<div class="co-srow">'
+      + '<span class="co-srow-k">' + escapeHtml(label) + '</span>'
+      + coSpark(vals, 188, 30)
+      + '<span class="co-srow-v"><b>' + fmt(vals[lastI]) + '</b> <i>' + escapeHtml(yr(lastI)) + '</i></span>'
+      + '<span class="co-srow-from">from ' + fmt(vals[firstI]) + ' <i>' + escapeHtml(yr(firstI)) + '</i></span>'
+      + '</div>';
+  }
+
+  function renderCompany(ticker, v) {
+    const el = document.getElementById('co-' + ticker);
+    if (!el) return;
+    const head = kicker => '<div class="co-h"><span>Reported</span>'
+      + '<span class="co-h-src">' + kicker + '</span></div>';
+    if (!v) {
+      el.innerHTML = head('SEC EDGAR')
+        + '<div class="co-empty">Nothing collected from EDGAR for this ticker yet. Filings are '
+        + 'harvested when a company reports, so a name that has not reported since collection '
+        + 'started will be empty.</div>';
+      return;
+    }
+
+    let html = head('SEC EDGAR &middot; XBRL companyfacts');
+
+    // What it reports: segment names and share of its sub-industry. Both are
+    // statements about structure rather than about price.
+    const seg = v.segments, ps = v.peer_share;
+    if (seg || ps) {
+      html += '<div class="co-block">';
+      if (seg && seg.names && seg.names.length) {
+        html += '<div class="co-k">Reportable segments</div><div class="co-chips">'
+          + seg.names.map(n => '<span class="co-chip">' + escapeHtml(n) + '</span>').join('')
+          + '</div>'
+          + '<div class="co-note">Named in the ' + escapeHtml(seg.form || 'filing')
+          + ' segment note. Revenue by segment is not collected: the rendered note flattens '
+          + 'several tables into one block and parsing it produced wrong numbers, so only the '
+          + 'names are shown.'
+          + (seg.text_path ? ' <a href="' + CO_REPO + escapeHtml(seg.text_path)
+              + '" target="_blank" rel="noopener">Read the note</a>.' : '')
+          + '</div>';
+      }
+      if (ps && ps.share != null) {
+        const pct = (ps.share * 100);
+        html += '<div class="co-k">Share of sub-industry revenue</div>'
+          + '<div class="co-bar"><span class="co-bar-fill" style="width:'
+          + Math.max(1, Math.min(100, pct)).toFixed(1) + '%"></span></div>'
+          + '<div class="co-note">' + pct.toFixed(1) + '% of trailing revenue across '
+          + ps.n + ' names in ' + escapeHtml(ps.group) + ', ranked ' + ps.rank + ' of ' + ps.n
+          + (ps.rank === 1 ? '.' : '. Largest is ' + escapeHtml(ps.leader) + ' at '
+              + (ps.leader_share * 100).toFixed(1) + '%.')
+          + ' Revenue share is not market share: the peer group is a GICS label, not a market.'
+          + '</div>';
+      }
+      html += '</div>';
+    }
+
+    // Reported history. Annual, because a quarterly series of a seasonal
+    // business shows the season rather than the trend.
+    const ann = (v.reported && v.reported.annual) || [];
+    if (ann.length >= 2) {
+      const rows = coSeriesRow('Revenue', ann, 'revenue', coMoney)
+        + coSeriesRow('Diluted EPS', ann, 'eps_diluted', x => (x == null ? '--' : x.toFixed(2)))
+        + coSeriesRow('Operating margin', ann, 'operating_margin',
+            x => (x == null ? '--' : (x * 100).toFixed(1) + '%'))
+        + coSeriesRow('Free cash flow', ann, 'fcf', coMoney);
+      if (rows) {
+        html += '<div class="co-block"><div class="co-k">As reported, annual &middot; '
+          + ann.length + ' years to ' + escapeHtml((ann[ann.length - 1].period_end || '').slice(0, 4))
+          + '</div>' + rows
+          + '<div class="co-note">Taken from XBRL companyfacts, which reports consolidated '
+          + 'figures only. Revenue before 2018 is tagged differently by many filers, so an early '
+          + 'gap in the line is a tagging change rather than a year without revenue.</div></div>';
+      }
+    }
+
+    const f = v.filings || [];
+    if (f.length) {
+      html += '<div class="co-block"><div class="co-k">Documents held</div><div class="co-files">'
+        + f.map(r => '<a class="co-file" href="' + CO_REPO + escapeHtml(r.text_path || '')
+            + '" target="_blank" rel="noopener">'
+            + '<span class="co-file-d">' + escapeHtml(r.filed || '') + '</span>'
+            + '<span class="co-file-n">' + escapeHtml((r.doc_kind || '').replace(/_/g, ' ')) + '</span>'
+            + '<span class="co-file-f">' + escapeHtml(r.form || '') + '</span>'
+            + '<span class="co-file-c">' + Math.round((r.text_chars || 0) / 1000) + 'k</span>'
+            + '</a>').join('')
+        + '</div><div class="co-note">These are the documents the thesis agent reads. A 42k '
+        + 'character item is truncated at that length.</div></div>';
+    }
+    el.innerHTML = html;
+  }
+
   function fetchThesisFor(ticker) {
     if (thesisCache[ticker] !== undefined) { renderThesis(ticker, thesisCache[ticker]); return; }
     fetch('./thesis/' + encodeURIComponent(newsFilename(ticker)), { cache: 'no-store' })
@@ -4475,6 +4681,7 @@ STOCKS_JS_TEMPLATE = """
     render();
     if (!wasOpen) {
       fetchThesisFor(t);
+      fetchCompanyFor(t);
       fetchNewsFor(t);
       // Defer to next frame so the canvas elements exist in the DOM.
       requestAnimationFrame(() => fetchPricesFor(t));

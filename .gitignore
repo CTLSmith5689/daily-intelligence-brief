@@ -8,7 +8,6 @@ Thumbs.db
 # Local-only artifacts from the migration
 source/
 *.zip
-.claude/
 
 # The rendered site lives on the gh-pages branch, which is force-pushed as a
 # single orphan commit every run and so never accumulates. Versioning it here
