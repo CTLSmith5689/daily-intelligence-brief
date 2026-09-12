@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (SLEEVES, THESES, RAW, PAGES, fetch, num, load_panel,
                     read_csv_rows, CONTAMINATED, NEWS_FIX_DATE)
 import screen
+import tensions
 
 MAX_FILING_CHARS = 34000      # ~8.5K tokens; the largest single block here
 MAX_NEWS = 10
@@ -202,7 +203,28 @@ def main():
         w("")
         w(gate_note)
 
-    # --- freshness, first, because every number below inherits it -------------
+    # --- the question, before any of the numbers ------------------------------
+    found = tensions.detect(me, [r for r in scored if r["_scorable"]]) if me.get("_scorable") else []
+    w("")
+    w("## What is worth asking about this name")
+    w("")
+    if found:
+        w("Places where this company's own data disagrees with itself. These are questions, "
+          "not signals, and none of them is a reason to buy or sell anything on its own. "
+          "A tension that turns out to have a dull explanation is a finished piece of work.")
+        for t in found:
+            w("")
+            w(f"**{t['headline']}**  ")
+            w(f"`{t['evidence']}`")
+            w("")
+            w(f"> {t['question']}")
+    else:
+        w("No tension detected: this name's factors broadly agree with each other. That is "
+          "common and is not a criticism of the company. It does mean there is no obvious "
+          "question to start from, and a thesis will have to come from the filings or from "
+          "somewhere outside this dossier.")
+
+    # --- freshness, because every number below inherits it --------------------
     w("")
     w("## How current is this")
     w("")
