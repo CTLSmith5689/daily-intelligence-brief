@@ -7682,8 +7682,22 @@ def compute_neglect_score(stocks):
     neglected" higher:
       - analyst coverage:  1 - min(analyst_count, 30) / 30
       - institutional %:   1 - min(inst_ownership, 0.50) / 0.50
-      - news mentions 7d:  1 - min(news_count_7d, 20) / 20
+      - news mentions 7d:  1 - min(news_count_7d, N) / N, N = NEWS_MAX_ITEMS
     Score in [0, 1]; >0.7 is genuinely off-the-radar, <0.3 is heavily covered.
+
+    The news denominator has to be the fetch cap, not a round number. It was 20
+    while fetch_company_news has always stopped at 15, so the component could
+    not fall below 0.25 no matter how heavily covered a company was, and 858
+    tickers sat pinned at the cap. A third of the scale was unreachable.
+
+    An absent analyst_count is not missing data. Yahoo omits
+    numberOfAnalystOpinions precisely when nobody publishes an estimate, which
+    is the strongest neglect signal the composite can receive, and treating it
+    as unknown discarded the signal exactly where it was loudest. It is read as
+    zero coverage, but only when inst_ownership came back for the same ticker,
+    which is the evidence that the yfinance pass actually reached this row
+    rather than failing on it. Without that guard a throttled fetch would look
+    identical to an uncovered micro cap.
 
     Two components minimum, because a single one is not a composite and the
     single one was always the same: news_count_7d is stamped on every ticker
@@ -7704,12 +7718,17 @@ def compute_neglect_score(stocks):
     dropped = 0
     for s in stocks:
         parts = []
+        yf_reached = isinstance(s.get("inst_ownership"), (int, float))
         if isinstance(s.get("analyst_count"), (int, float)):
             parts.append(1 - min(s["analyst_count"], 30) / 30)
-        if isinstance(s.get("inst_ownership"), (int, float)):
+        elif yf_reached:
+            # No estimate published for a ticker the fetch did reach: zero
+            # analysts, maximally neglected on this axis.
+            parts.append(1.0)
+        if yf_reached:
             parts.append(1 - min(s["inst_ownership"], 0.50) / 0.50)
         if isinstance(s.get("news_count_7d"), (int, float)):
-            parts.append(1 - min(s["news_count_7d"], 20) / 20)
+            parts.append(1 - min(s["news_count_7d"], NEWS_MAX_ITEMS) / NEWS_MAX_ITEMS)
         if len(parts) >= MIN_NEGLECT_COMPONENTS:
             s["neglect_score"] = sum(parts) / len(parts)
             s["neglect_parts"] = len(parts)
