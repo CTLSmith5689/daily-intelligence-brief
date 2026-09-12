@@ -1,0 +1,116 @@
+{
+  "run_date": "2026-09-12",
+  "panel_date": "2026-09-11",
+  "prepared_at": "2026-09-12T19:56:47+00:00",
+  "universe": {
+    "panel_rows": 5350,
+    "core": 1613,
+    "scorable": 1075,
+    "peer_groups": 105
+  },
+  "track_record": {
+    "scored": 0,
+    "note": "No prediction has matured yet. There is no track record to calibrate against, so be correspondingly humble."
+  },
+  "open_predictions": 0,
+  "slots": [
+    {
+      "ticker": "AAPL",
+      "slot": "watchlist",
+      "reason": "watchlist, longest since covered",
+      "composite_z": 0.0993,
+      "peer_group": "Technology Hardware, Storage & Peripherals",
+      "peer_n": 11,
+      "sector": "Information Technology",
+      "price": 315.34,
+      "sleeves": {
+        "Growth": -0.166,
+        "Value": -0.51,
+        "Momentum": 0.286,
+        "Quality": 0.787
+      },
+      "sleeve_fields": {
+        "Growth": 5,
+        "Value": 5,
+        "Momentum": 5,
+        "Quality": 5
+      },
+      "dossier": "AAPL.md",
+      "dossier_chars": 5818
+    },
+    {
+      "ticker": "HIMS",
+      "slot": "contrarian",
+      "reason": "lowest composite among large caps",
+      "composite_z": -0.9406,
+      "peer_group": "Health Care Services",
+      "peer_n": 22,
+      "sector": "Health Care",
+      "price": 27.9,
+      "sleeves": {
+        "Growth": -0.189,
+        "Value": -0.71,
+        "Momentum": -1.925,
+        "Quality": -0.939
+      },
+      "sleeve_fields": {
+        "Growth": 5,
+        "Value": 4,
+        "Momentum": 5,
+        "Quality": 5
+      },
+      "dossier": "HIMS.md",
+      "dossier_chars": 5434
+    },
+    {
+      "ticker": "MPC",
+      "slot": "screen",
+      "reason": "highest composite off cooldown",
+      "composite_z": 0.8356,
+      "peer_group": "Oil & Gas Refining & Marketing",
+      "peer_n": 9,
+      "sector": "Energy",
+      "price": 399.44,
+      "sleeves": {
+        "Growth": 1.066,
+        "Value": 0.354,
+        "Momentum": 1.336,
+        "Quality": 0.586
+      },
+      "sleeve_fields": {
+        "Growth": 4,
+        "Value": 5,
+        "Momentum": 5,
+        "Quality": 5
+      },
+      "dossier": "MPC.md",
+      "dossier_chars": 5471
+    },
+    {
+      "ticker": "CF",
+      "slot": "screen",
+      "reason": "highest composite off cooldown",
+      "composite_z": 0.7584,
+      "peer_group": "Fertilizers & Agricultural Chemicals",
+      "peer_n": 5,
+      "sector": "Materials",
+      "price": 138.11,
+      "sleeves": {
+        "Growth": 0.662,
+        "Value": 0.523,
+        "Momentum": 1.247,
+        "Quality": 0.601
+      },
+      "sleeve_fields": {
+        "Growth": 5,
+        "Value": 5,
+        "Momentum": 5,
+        "Quality": 5
+      },
+      "dossier": "CF.md",
+      "dossier_chars": 4663
+    }
+  ],
+  "dossier_failed": [],
+  "elapsed_s": 6.7
+}
