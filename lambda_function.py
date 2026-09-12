@@ -2756,6 +2756,38 @@ body.page-stocks .lib-h { display:none; }
 .ch-canvas { width:100%; height:160px; display:block; }
 
 /* News card per ticker (lazy-loaded on row expand) */
+/* Thesis card. Sits above the score breakdown because the view is the point and
+   the factors are the evidence for it. The falsifier is the only element wearing
+   the brand accent: on this page the thing that could kill the thesis outranks
+   the conclusion. */
+.th-card { margin-top:14px; padding:16px 18px; border:1px solid var(--border); border-top:2px solid var(--text-1); }
+.th-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.th-h-date { color:var(--text-4); letter-spacing:1px; margin-left:auto; text-transform:none; }
+.th-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
+.th-empty { font-size:12px; color:var(--text-3); line-height:1.6; }
+.th-top { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+.th-dir { font-family:'Instrument Serif',Georgia,serif; font-size:26px; line-height:1; color:var(--text-1); }
+.th-dir-noview { color:var(--text-3); }
+.th-pips { display:inline-flex; gap:3px; align-items:center; }
+.th-pip { width:10px; height:10px; border-radius:50%; border:1.5px solid var(--text-4); }
+.th-pip-on { background:var(--apt-red); border-color:var(--apt-red); }
+.th-nums { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); display:flex; gap:0; flex-wrap:wrap; }
+.th-nums span { padding-right:12px; margin-right:12px; border-right:1px solid var(--border); }
+.th-nums span:last-child { border-right:0; margin-right:0; padding-right:0; }
+.th-nums b { color:var(--text-1); font-weight:400; }
+.th-claim { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.42; color:var(--text-1); margin:0 0 14px; max-width:62ch; }
+.th-fals { border:1px solid var(--apt-red); border-left:3px solid var(--apt-red); padding:11px 14px; margin-bottom:14px; max-width:62ch; }
+.th-fals-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--apt-red-deep); display:block; margin-bottom:6px; }
+.th-fals-t { font-size:13px; line-height:1.55; color:var(--text-2); }
+.th-drift { border:1px solid var(--apt-amber); border-left:3px solid var(--apt-amber); padding:10px 13px; margin-bottom:14px; font-size:12px; line-height:1.55; color:var(--text-2); max-width:62ch; }
+.th-drift b { color:var(--text-1); }
+.th-cav { font-size:12px; color:var(--text-3); line-height:1.6; margin-bottom:14px; max-width:62ch; }
+.th-cav-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-4); display:block; margin-bottom:5px; }
+.th-hist { border-top:1px solid var(--border); padding-top:11px; font-family:'Space Mono',monospace; font-size:10.5px; color:var(--text-3); }
+.th-hist-row { display:flex; gap:10px; padding:3px 0; flex-wrap:wrap; }
+.th-hist-row span:first-child { color:var(--text-4); min-width:82px; }
+.th-note-link { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); margin-top:10px; }
+.th-note-link a { color:var(--text-3); }
 .nws-card { margin-top:14px; padding:16px 18px; background:transparent; border:1px solid var(--border);  }
 .nws-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .nws-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
@@ -3520,7 +3552,12 @@ STOCKS_JS_TEMPLATE = """
     const newsCard = '<div class="nws-card" id="nws-' + escapeHtml(s.ticker) + '">'
       + '<div class="nws-h">News <span class="nws-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
+    // Thesis placeholder, populated lazily by fetchThesisFor. First in the detail:
+    // the view is the point and the factor cards are the evidence for it.
+    const thesisCard = '<div class="th-card" id="th-' + escapeHtml(s.ticker) + '">'
+      + '<div class="th-h">Thesis <span class="th-loading">loading…</span></div>'
+      + '</div>';
+    return '<div class="stk-detail">' + thesisCard + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
   }
 
   // ── Signals row: Neglect (Lynch) on the left, Insider Movement (Seyhun) on the right ──
@@ -4000,6 +4037,85 @@ STOCKS_JS_TEMPLATE = """
     return WIN_RESERVED.has(t) ? '_' + t + '.json' : t + '.json';
   }
 
+  const thesisCache = {};
+
+  function fetchThesisFor(ticker) {
+    if (thesisCache[ticker] !== undefined) { renderThesis(ticker, thesisCache[ticker]); return; }
+    fetch('./thesis/' + encodeURIComponent(newsFilename(ticker)), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(v => { thesisCache[ticker] = v || null; renderThesis(ticker, thesisCache[ticker]); })
+      .catch(() => { thesisCache[ticker] = null; renderThesis(ticker, null); });
+  }
+
+  function renderThesis(ticker, v) {
+    const el = document.getElementById('th-' + ticker);
+    if (!el) return;
+    if (!v) {
+      el.innerHTML = '<div class="th-h">Thesis</div>'
+        + '<div class="th-empty">No thesis written for this ticker. Coverage is deliberately '
+        + 'partial: the screen surfaces a few names a week out of roughly a thousand eligible, '
+        + 'so most names will never have one.</div>';
+      return;
+    }
+    const conv = parseInt(v.conviction, 10);
+    let pips = '<span class="th-pips">';
+    for (let i = 1; i <= 5; i++) pips += '<span class="th-pip' + (i <= conv ? ' th-pip-on' : '') + '"></span>';
+    pips += '</span>';
+
+    const noView = (v.direction || '') === 'no view';
+    const nums = [];
+    if (v.target_price) nums.push('<span>target <b>' + escapeHtml(v.target_price) + '</b></span>');
+    if (v.entry_price) nums.push('<span>at <b>' + escapeHtml(v.entry_price) + '</b></span>');
+    if (v.horizon_days) nums.push('<span><b>' + escapeHtml(v.horizon_days) + 'd</b></span>');
+    if (v.review_by) nums.push('<span>review <b>' + escapeHtml(v.review_by) + '</b></span>');
+
+    let html = '<div class="th-h">Thesis <span class="th-h-date">' + escapeHtml(v.kind || '')
+      + ' &middot; ' + escapeHtml(v.written_on || '')
+      + (v.note_count > 1 ? ' &middot; ' + v.note_count + ' notes' : '') + '</span></div>';
+
+    html += '<div class="th-top"><span class="th-dir' + (noView ? ' th-dir-noview' : '') + '">'
+      + escapeHtml(v.direction || '?') + '</span>' + pips
+      + '<span class="th-nums">' + nums.join('') + '</span></div>';
+
+    if (v.claim_changed_ever) {
+      html += '<div class="th-drift"><b>This thesis has been revised with direction and '
+        + 'conviction unchanged.</b> That is the shape thesis drift takes: the position '
+        + 'survives while the reasoning is replaced. Read the history before trusting the '
+        + 'current view.</div>';
+    }
+    if (v.key_claim) html += '<p class="th-claim">' + escapeHtml(v.key_claim) + '</p>';
+    if (v.falsifier) {
+      html += '<div class="th-fals"><span class="th-fals-k">What would prove this wrong</span>'
+        + '<div class="th-fals-t">' + escapeHtml(v.falsifier) + '</div></div>';
+    }
+    const cav = Array.isArray(v.data_caveats) ? v.data_caveats : [];
+    if (cav.length) {
+      html += '<div class="th-cav"><span class="th-cav-k">What the analyst could not know ('
+        + cav.length + ')</span>' + cav.map(escapeHtml).join(' &middot; ') + '</div>';
+    }
+    const hist = Array.isArray(v.history) ? v.history.slice().reverse() : [];
+    if (hist.length > 1) {
+      html += '<div class="th-hist">';
+      hist.forEach(function (h) {
+        let c = escapeHtml(h.conviction || '');
+        if (h.prior_conviction && h.prior_conviction !== h.conviction) {
+          c = escapeHtml(h.prior_conviction) + '&rarr;' + c;
+        }
+        html += '<div class="th-hist-row"><span>' + escapeHtml(h.date || '') + '</span>'
+          + '<span>' + escapeHtml(h.kind || '') + '</span>'
+          + '<span>' + escapeHtml(h.direction || '') + ' ' + c + '</span>'
+          + '<span>' + escapeHtml(h.trigger || '') + '</span></div>';
+      });
+      html += '</div>';
+    }
+    if (v.note_path) {
+      html += '<div class="th-note-link"><a href="https://github.com/CTLSmith5689/'
+        + 'daily-intelligence-brief/blob/main/' + escapeHtml(v.note_path) + '" target="_blank" '
+        + 'rel="noopener">' + escapeHtml(v.note_path) + '</a></div>';
+    }
+    el.innerHTML = html;
+  }
+
   function fetchNewsFor(ticker) {
     if (newsCache[ticker]) {
       renderNews(ticker, newsCache[ticker]);
@@ -4350,6 +4466,7 @@ STOCKS_JS_TEMPLATE = """
     if (wasOpen) expanded.delete(t); else expanded.add(t);
     render();
     if (!wasOpen) {
+      fetchThesisFor(t);
       fetchNewsFor(t);
       // Defer to next frame so the canvas elements exist in the DOM.
       requestAnimationFrame(() => fetchPricesFor(t));
@@ -11353,6 +11470,106 @@ def write_manifest():
     (DOCS_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
+# --- thesis views -------------------------------------------------------------
+#
+# theses/ is written by a scheduled Claude agent and is the source of truth. This
+# renders the CURRENT view per ticker into docs/thesis/{TICKER}.json so the
+# screener can show it without the browser parsing markdown.
+#
+# Derived, and regenerated from theses/ on every run. That direction matters: a
+# copy under docs/ that drifted from the notes would be worse than no copy, and
+# docs/ is force-pushed to gh-pages each run so it can never be authoritative.
+THESES_DIR = REPO_ROOT / "theses"
+THESIS_VIEW_DIR = DOCS_DIR / "thesis"
+_THESIS_SCALARS = ("thesis_id", "kind", "written_on", "panel_date", "direction",
+                   "conviction", "evidence_base", "falsifier_specific",
+                   "variant_perception", "disconfirmation", "entry_price",
+                   "horizon_days", "target_price", "review_by", "key_claim",
+                   "falsifier", "slot")
+
+
+def _parse_front_matter(text):
+    """Minimal YAML front-matter reader: scalars, block lists, inline lists.
+
+    Deliberately not a YAML parser. The notes are written to a fixed shape that
+    validate.py enforces before anything is committed, so the surface this has to
+    cover is small and a dependency would not earn its place."""
+    if not text.startswith("---"):
+        return None
+    end = text.find("\n---", 3)
+    if end == -1:
+        return None
+    out, key = {}, None
+    for line in text[3:end].splitlines():
+        if re.match(r"^\s*-\s+", line) and key:
+            out.setdefault(key, [])
+            if isinstance(out[key], list):
+                out[key].append(line.strip()[1:].strip().strip('"'))
+            continue
+        m = re.match(r"^([A-Za-z_][\w]*):\s*(.*)$", line)
+        if not m:
+            continue
+        key, val = m.group(1), m.group(2).strip()
+        if val.startswith("[") and val.endswith("]"):
+            inner = val[1:-1].strip()
+            out[key] = [x.strip().strip('"') for x in inner.split(",") if x.strip()]
+        elif val == "":
+            out[key] = []
+        else:
+            out[key] = val.strip('"')
+    return out
+
+
+def write_thesis_views():
+    """One JSON per ticker holding the current view and its history."""
+    notes_dir = THESES_DIR / "notes"
+    if not notes_dir.is_dir():
+        return 0
+    events = []
+    ev_path = THESES_DIR / "ledger" / "events.csv"
+    if ev_path.exists():
+        try:
+            with ev_path.open(encoding="utf-8", newline="") as fh:
+                events = list(csv.DictReader(fh))
+        except Exception as exc:
+            print(f"thesis: could not read events.csv ({exc}); history omitted.")
+
+    THESIS_VIEW_DIR.mkdir(parents=True, exist_ok=True)
+    written = 0
+    for tdir in sorted(notes_dir.iterdir()):
+        if not tdir.is_dir():
+            continue
+        ticker = tdir.name
+        notes = sorted(tdir.glob("*.md"))
+        if not notes:
+            continue
+        latest = notes[-1]          # filenames lead with the date, so this is current
+        fm = _parse_front_matter(latest.read_text(encoding="utf-8"))
+        if not fm:
+            print(f"thesis: {latest.name} has no front-matter; skipped.")
+            continue
+        hist = [e for e in events if e.get("ticker") == ticker]
+        view = {k: fm.get(k) for k in _THESIS_SCALARS if fm.get(k) not in (None, "")}
+        view["ticker"] = ticker
+        view["data_caveats"] = fm.get("data_caveats") or []
+        view["note_path"] = f"theses/notes/{ticker}/{latest.name}"
+        view["note_count"] = len(notes)
+        view["history"] = [{"date": e.get("date"), "kind": e.get("kind"),
+                            "direction": e.get("direction"),
+                            "conviction": e.get("conviction"),
+                            "target_price": e.get("target_price"),
+                            "prior_conviction": e.get("prior_conviction"),
+                            "trigger": e.get("trigger")} for e in hist]
+        # Surfaced on the card: a revision that kept direction and conviction while
+        # swapping the claim is what thesis drift looks like.
+        view["claim_changed_ever"] = any(e.get("claim_changed") == "yes" for e in hist)
+        (THESIS_VIEW_DIR / _news_filename(ticker)).write_text(
+            json.dumps(view, separators=(",", ":")), encoding="utf-8")
+        written += 1
+    print(f"thesis: wrote {written} view files to docs/thesis/.")
+    return written
+
+
 def generate_site(briefs):
     """Orchestrator. Generates the full multi-page static site under docs/.
     Triggers Recent Trends (daily-cached Claude call) and Stocks Universe (weekly,
@@ -11365,7 +11582,12 @@ def generate_site(briefs):
     generate_stories(briefs)
     generate_stocks_page(universe)
     write_manifest()
-    print("Wrote docs/index.html, today.html, stories.html, stocks.html, manifest.json.")
+    # Derived from theses/, which the scheduled analyst writes and which is the
+    # source of truth. Regenerated every run so the published view cannot drift
+    # from the notes.
+    n_thesis = write_thesis_views()
+    print("Wrote docs/index.html, today.html, stories.html, stocks.html, manifest.json"
+          + (f", and {n_thesis} thesis views." if n_thesis else "."))
 
 
 def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):
