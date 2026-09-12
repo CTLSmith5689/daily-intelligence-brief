@@ -1,0 +1,1 @@
+prediction_id,scored_on,horizon_end,exit_price,abs_return,spy_return,rel_spy,peer_median_return,rel_peer,target_hit,falsifier_triggered,outcome

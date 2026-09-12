@@ -1,0 +1,11 @@
+{
+  "slots_per_run": 4,
+  "min_market_cap": 1000000000,
+  "min_fields_per_sleeve": 4,
+  "min_sleeves": 4,
+  "min_peer_group": 5,
+  "cooldown_days": {"screen": 45, "contrarian": 21, "watchlist": 21, "review": 0},
+  "contrarian_min_market_cap": 5000000000,
+  "max_per_sector_per_run": 1,
+  "review_move_threshold": 0.08
+}
