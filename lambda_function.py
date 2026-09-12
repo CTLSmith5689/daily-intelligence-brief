@@ -6901,7 +6901,8 @@ YF_NUMERIC_KEYS = frozenset({
     "returnOnEquity", "totalDebt", "totalCash", "ebitda", "netIncomeToCommon",
     "operatingCashflow", "totalAssets", "operatingMargins", "grossMargins",
     "numberOfAnalystOpinions", "heldPercentInstitutions", "heldPercentInsiders",
-    "earningsTimestamp", "earningsTimestampStart", "earningsCallTimestampStart",
+    "earningsTimestamp", "earningsTimestampStart", "earningsTimestampEnd",
+    "earningsCallTimestampStart",
 })
 
 
@@ -7126,18 +7127,31 @@ def enrich_with_yfinance(stocks, max_workers=6):
                 if isinstance(ins_o, (int, float)) and 0 <= ins_o <= 1.0:
                     s["insider_ownership"] = ins_o
 
-                # Earnings date (next expected). yfinance exposes this under several keys
-                # depending on data availability: earningsTimestamp (single), or a list at
-                # earningsDate, or a range start/end. Take the first valid one.
+                # Earnings date, meaning the NEXT one. The key order here is the
+                # whole fix: earningsTimestamp is the most recently REPORTED
+                # date about as often as it is the next one, and it used to be
+                # tried first, so 3,837 of 4,357 populated values pointed into
+                # the past and 520 into the future. The column was labelled
+                # "Earnings" on the screener and was mostly last quarter.
+                #
+                # Probing seven large caps: earningsTimestampStart was forward
+                # for all seven, earningsTimestamp was forward for four, and
+                # earningsCallTimestampStart was BACKWARD for four, so it goes
+                # last rather than second.
+                #
+                # The window was -730 to +730, which is how values from 2024
+                # survived. A next-earnings date is not two years old. Two days
+                # of slack on the near side covers a call that happened today
+                # before Yahoo rolled the field forward.
                 ed_iso = None
-                for ts_key in ("earningsTimestamp", "earningsTimestampStart", "earningsCallTimestampStart"):
+                for ts_key in ("earningsTimestampStart", "earningsTimestampEnd",
+                               "earningsTimestamp", "earningsCallTimestampStart"):
                     ts = info.get(ts_key)
                     if ts and isinstance(ts, (int, float)) and ts > 0:
                         try:
                             ed = datetime.fromtimestamp(ts, tz=timezone.utc).date()
                             delta = (ed - datetime.now(tz=timezone.utc).date()).days
-                            # Sanity: within ~2 years past or future
-                            if -730 < delta < 730:
+                            if -2 <= delta < 400:
                                 ed_iso = ed.isoformat()
                                 break
                         except Exception:
@@ -7149,7 +7163,12 @@ def enrich_with_yfinance(stocks, max_workers=6):
                         if isinstance(raw, (int, float)) and raw > 0:
                             try:
                                 ed = datetime.fromtimestamp(raw, tz=timezone.utc).date()
-                                ed_iso = ed.isoformat()
+                                # This path had no sanity check at all, so it
+                                # could reinstate exactly what the loop above
+                                # just refused.
+                                delta = (ed - datetime.now(tz=timezone.utc).date()).days
+                                if -2 <= delta < 400:
+                                    ed_iso = ed.isoformat()
                             except Exception:
                                 pass
                 if ed_iso:
