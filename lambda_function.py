@@ -8582,6 +8582,28 @@ def derive_risk_metrics(stocks):
     return n_vol
 
 
+# A stale file is only worth rechecking so often. Holidays are invisible to this
+# project, so without a floor a holiday would refetch ~5,300 tickers every run.
+_PRICE_RECHECK_FLOOR_H = 6
+
+
+def _last_expected_session(now=None):
+    """The most recent date a US close should exist for, as YYYY-MM-DD.
+
+    Weekday after the close, that is today; otherwise the previous weekday.
+    Exchange holidays are not detected anywhere in this project, so on a holiday
+    this points at a session that never happened. Callers must treat it as an
+    upper bound and rate-limit on it rather than refetching forever."""
+    now = now or datetime.now(tz=EASTERN)
+    d = now.date()
+    # 16:00 ET close; allow a margin for the data to settle at the vendor.
+    if now.weekday() < 5 and now.hour < 17:
+        d -= timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d.isoformat()
+
+
 def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
     """Fetch ~1y daily closes and volumes per ticker via the yf.download bulk
     endpoint and write docs/prices/{TICKER}.json. The bulk endpoint is dramatically faster than
@@ -8598,6 +8620,8 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
         return 0
     PRICES_DIR.mkdir(parents=True, exist_ok=True)
 
+    expected_close = _last_expected_session()
+
     def needs_fetch(ticker):
         f = PRICES_DIR / _news_filename(ticker)
         if not f.exists():
@@ -8605,10 +8629,34 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
         # Freshness comes from the "updated" field the writer stores in the file,
         # not from the mtime, which CI resets on every checkout.
         try:
-            age = _age_hours_from_iso(json.loads(f.read_text(encoding="utf-8")).get("updated"))
+            data = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             return True
-        return age is None or age > max_age_hours
+        age = _age_hours_from_iso(data.get("updated"))
+        if age is None or age > max_age_hours:
+            return True
+        # How recently we asked is the wrong question. The panel takes its price
+        # from the last close in this file, so what matters is whether that close
+        # is the latest session.
+        #
+        # On a 24h window alone it never was. The file refreshed around 00:23 UTC
+        # and the panel was written around 23:21 UTC, roughly 23 hours later and
+        # just inside the window, so the fetch was skipped and the panel recorded
+        # a close one session old. Every run. On 2026-09-11, 4,703 of 5,340
+        # tickers carried an identical price across three consecutive panel
+        # dates, and prices_updated advanced anyway because it stamps the attempt
+        # rather than a new value. price, change_pct, market_cap, pe and
+        # high52w_proximity all inherited it.
+        #
+        # The recheck floor bounds the cost: exchange holidays are not detected,
+        # so on a holiday expected_close names a session that never happens and
+        # this would otherwise refetch the whole universe on every run.
+        if age > _PRICE_RECHECK_FLOOR_H:
+            closes = data.get("closes") or []
+            last_close = closes[-1][0] if closes and isinstance(closes[-1], list) else None
+            if last_close and last_close < expected_close:
+                return True
+        return False
 
     todo = [s for s in stocks if needs_fetch(s["ticker"])]
     skipped = len(stocks) - len(todo)
