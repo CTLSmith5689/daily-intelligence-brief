@@ -20,7 +20,7 @@ the arrangement the README's "no LLM, and no AI API key" note anticipated.
 | `notes/{TICKER}/{DATE}.md` | the thesis: YAML front-matter, Markdown body |
 | `ledger/predictions.csv` | **append-only, never rewritten** |
 | `ledger/scores.csv` | **append-only.** Outcomes, joined on `prediction_id` |
-| `ledger/coverage.csv` | who was covered when, for cooldown and rotation |
+| *(coverage)* | not a file. Folded from `events.csv` by `screen.coverage_from_events()`, so it cannot drift from the notes |
 | `runs/{DATE}.json` | what each run planned, what it completed, what failed |
 
 ## The ledger is the point

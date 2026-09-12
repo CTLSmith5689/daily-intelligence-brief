@@ -156,8 +156,34 @@ def score(rows):
     return rows
 
 
+def coverage_from_events():
+    """ticker -> {last_covered, times_covered, last_thesis_id}, folded from events.
+
+    This used to read ledger/coverage.csv. Nothing in the repo ever wrote that
+    file: screen.py was its only reference and it has sat as a header-only stub
+    since it was created, so off_cooldown() returned True for every name and
+    cooldown has never once applied. The screen would have re-surfaced the same
+    tickers indefinitely.
+
+    Deriving it from events.csv is the same treatment positions/{TICKER}.md
+    already gets, and it cannot go stale: a note that produced an event is by
+    definition a note that covered the name."""
+    cov = {}
+    for e in read_csv_rows(LEDGER / "events.csv"):
+        t, d = e.get("ticker"), e.get("date")
+        if not t or not d:
+            continue
+        row = cov.setdefault(t, {"ticker": t, "last_covered": "",
+                                 "times_covered": 0, "last_thesis_id": ""})
+        row["times_covered"] += 1
+        if d >= row["last_covered"]:        # ISO dates sort lexically
+            row["last_covered"] = d
+            row["last_thesis_id"] = e.get("thesis_id") or ""
+    return cov
+
+
 def load_state():
-    cov = {r["ticker"]: r for r in read_csv_rows(LEDGER / "coverage.csv")}
+    cov = coverage_from_events()
     preds = read_csv_rows(LEDGER / "predictions.csv")
     scored_ids = {r["prediction_id"] for r in read_csv_rows(LEDGER / "scores.csv")}
     open_preds = [p for p in preds if p.get("prediction_id") not in scored_ids]

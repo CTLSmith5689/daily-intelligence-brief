@@ -114,6 +114,11 @@ def check(path):
         try:
             v = int(str(fm.get(k, "")).strip())
         except (TypeError, ValueError):
+            # Must fail, not just skip. Both checks below are guarded on
+            # ok_parts, so a component that is present but unparseable used to
+            # disable the sum check and the evidence floor at once: a note could
+            # claim conviction 5 with evidence_base "two" and pass clean.
+            F(f"{k} is not an integer: {fm.get(k)!r}")
             ok_parts = False
             continue
         if not lo <= v <= hi:
@@ -172,7 +177,16 @@ def main():
     if len(sys.argv) < 2:
         print(__doc__)
         return 2
-    target = Path(sys.argv[1])
+    # Every argument, not just the first. A shell glob like notes/*/*.md expands
+    # to many paths, and reading only argv[1] checked one note while printing
+    # "1/1 passed", which reads as a clean run over the whole set.
+    targets = [Path(a) for a in sys.argv[1:]]
+    if len(targets) > 1:
+        files = []
+        for t in targets:
+            files.extend(sorted(t.rglob("*.md")) if t.is_dir() else [t])
+        return _report(files)
+    target = targets[0]
     if target.is_dir():
         # A run directory holds dossiers as well as notes. A dossier has no
         # front-matter and is not meant to: it is the input. Scanning a
@@ -191,6 +205,10 @@ def main():
         print(f"validate: nothing to check in {target}")
         return 0
 
+    return _report(files)
+
+
+def _report(files):
     bad = 0
     for f in files:
         fails, warns = check(f)
