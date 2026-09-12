@@ -1,1 +1,2 @@
 event_id,date,ticker,kind,thesis_id,note_path,direction,conviction,target_price,horizon_days,prior_direction,prior_conviction,prior_target,claim_changed,trigger,rationale
+HIMS-2026-09-12-1,2026-09-12,HIMS,initiate,HIMS-2026-09-12,theses/notes/HIMS/2026-09-12-initiation.md,avoid,3,22.00,126,,,,,"contrarian slot, lowest composite among large caps",regulatory cutoff on the revenue that is accelerating

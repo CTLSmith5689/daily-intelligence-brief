@@ -1,7 +1,7 @@
 {
   "run_date": "2026-09-12",
   "panel_date": "2026-09-11",
-  "prepared_at": "2026-09-12T19:56:47+00:00",
+  "prepared_at": "2026-09-12T20:19:45+00:00",
   "universe": {
     "panel_rows": 5350,
     "core": 1613,
@@ -112,5 +112,5 @@
     }
   ],
   "dossier_failed": [],
-  "elapsed_s": 6.7
+  "elapsed_s": 6.2
 }

@@ -92,9 +92,43 @@ def event_from_note(path, trigger="", rationale=""):
     }
 
 
+PREDICTION_COLUMNS = ["prediction_id", "thesis_id", "ticker", "written_on", "panel_date",
+                      "entry_price", "direction", "conviction", "evidence_base",
+                      "falsifier_specific", "variant_perception", "disconfirmation",
+                      "horizon_days", "target_price", "review_by", "key_claim", "falsifier"]
+
+
+def append_prediction(path):
+    """Append the gradeable claim this note makes, if it makes one.
+
+    A note with direction "no view" or "watch" is research, not a prediction, and
+    putting it in the ledger would dilute the hit rate with calls that were never
+    made. prediction_id is deterministic, so re-running is a no-op rather than a
+    duplicate."""
+    fm, _ = validate.parse(Path(path).read_text(encoding="utf-8"))
+    if not fm:
+        return None
+    g = lambda k: "" if fm.get(k) is None else str(fm.get(k)).strip().strip('"')
+    if g("direction") in ("no view", "watch", ""):
+        return None
+    t, day = g("ticker"), g("written_on")
+    existing = {r["prediction_id"] for r in read_csv_rows(LEDGER / "predictions.csv")}
+    n = 1
+    while f"{t}-{day}-{n}" in existing:
+        n += 1
+    pid = f"{t}-{day}-{n}"
+    row = {"prediction_id": pid}
+    for k in PREDICTION_COLUMNS[1:]:
+        row[k] = g(k)
+    append_csv(LEDGER / "predictions.csv", PREDICTION_COLUMNS, [row])
+    return pid
+
+
 def record(path, trigger="", rationale=""):
     ev = event_from_note(path, trigger, rationale)
     append_csv(LEDGER / "events.csv", EVENT_COLUMNS, [ev])
+    pid = append_prediction(path)
+    ev["prediction_id"] = pid or ""
     return ev
 
 
@@ -153,4 +187,8 @@ if __name__ == "__main__":
         rat = sys.argv[3] if len(sys.argv) > 3 else ""
         ev = record(sys.argv[1], trig, rat)
         print(f"recorded {ev['event_id']} ({ev['kind']})")
+        if ev.get("prediction_id"):
+            print(f"gradeable prediction {ev['prediction_id']} appended")
+        else:
+            print("no prediction appended: this note makes no gradeable claim")
         write_position(ev["ticker"])
