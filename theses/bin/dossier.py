@@ -145,6 +145,40 @@ def price_block(ticker):
             "pos": (last - lo) / (hi - lo) if hi > lo else None}
 
 
+def reported_history(ticker):
+    """Annual and quarterly reported periods for this ticker."""
+    raw = fetch(f"{RAW}/data/financials/reported.csv")
+    if not raw:
+        return [], []
+    rows = [r for r in csv.DictReader(io.StringIO(raw.decode("utf-8", "replace")))
+            if r.get("ticker") == ticker]
+    fy = sorted([r for r in rows if r.get("period") == "FY"], key=lambda r: r["period_end"])
+    q = sorted([r for r in rows if r.get("period") == "Q"], key=lambda r: r["period_end"])
+    return fy, q
+
+
+def peer_share(row, scored):
+    """Revenue share within the sub-industry, across public filers in the panel.
+
+    This is not market share. It excludes private companies, foreign issuers that
+    do not file here, and any competitor sitting in a different sub-industry. It
+    is a floor on concentration among listed peers and should be read as nothing
+    more. The real number needs industry data this project does not have."""
+    sub = (row.get("sub_industry") or "").strip()
+    if not sub:
+        return None
+    peers = [r for r in scored if (r.get("sub_industry") or "").strip() == sub
+             and num(r.get("ttm_revenue"))]
+    total = sum(num(r.get("ttm_revenue")) for r in peers)
+    mine = num(row.get("ttm_revenue"))
+    if not total or not mine or len(peers) < 3:
+        return None
+    ranked = sorted(peers, key=lambda r: -(num(r.get("ttm_revenue")) or 0))
+    rank = next((i + 1 for i, r in enumerate(ranked) if r["ticker"] == row["ticker"]), None)
+    return {"share": mine / total, "rank": rank, "n": len(peers),
+            "leader": ranked[0]["ticker"], "leader_share": (num(ranked[0].get("ttm_revenue")) or 0) / total}
+
+
 def filings_for(ticker):
     """Latest collected document of each kind for this ticker.
 
@@ -398,6 +432,68 @@ def main():
         w("No reliable company news. Treat this as absence of evidence, not evidence of "
           "absence: the filter may simply have rejected everything the query returned.")
         caveats.append("no relevance-passing headlines were available")
+
+    # --- reported history -----------------------------------------------------
+    fy, qh = reported_history(ticker)
+    w("")
+    w("## Reported history")
+    w("")
+    if fy:
+        w(f"{len(fy)} fiscal years from filings, {fy[0]['period_end'][:4]} to "
+          f"{fy[-1]['period_end'][:4]}. The panel itself holds five dates and cannot "
+          f"describe a cycle; this can.")
+        w("")
+        w("| FY | Revenue | Op income | Net income | EPS | OCF | Capex |")
+        w("|---|---|---|---|---|---|---|")
+        for r in fy[-10:]:
+            g = lambda k: num(r.get(k))
+            w(f"| {r['period_end'][:4]} | {fmt(g('revenue'),'ttm_revenue')} | "
+              f"{fmt(g('operating_income'),'ttm_operating_income')} | "
+              f"{fmt(g('net_income'),'ttm_net_income')} | "
+              f"{fmt(g('eps_diluted'),'ttm_eps_diluted')} | "
+              f"{fmt(g('ocf'),'ttm_fcf')} | {fmt(g('capex'),'ttm_fcf')} |")
+        eps = [num(r.get("eps_diluted")) for r in fy if num(r.get("eps_diluted")) is not None]
+        if len(eps) >= 5:
+            w("")
+            w(f"EPS over that span ranges {min(eps):,.2f} to {max(eps):,.2f}, against "
+              f"{eps[-1]:,.2f} most recently. **Before describing current earnings as high or "
+              f"low, say where they sit in this range.**")
+        if qh:
+            w("")
+            w(f"{len(qh)} quarters are also held, {qh[0]['period_end']} to "
+              f"{qh[-1]['period_end']}. Note the gaps: Q4 is never filed as a quarter, "
+              f"because the 10-K reports the full year instead.")
+    else:
+        w("No reported history collected for this ticker yet. Collection is tied to earnings "
+          "events, so it arrives when the company next reports. **Without it there is no way "
+          "to say whether current earnings are high or low for this business**, and a claim "
+          "that they are either should not be made.")
+        caveats.append("no multi-year reported history; current earnings cannot be placed "
+                       "against the company's own range")
+
+    # --- competitive position --------------------------------------------------
+    # The full gated universe, not the scorable subset. A competitor's revenue
+    # counts whether or not it has enough populated fields to be factor-scored.
+    # Filtering on _scorable dropped 7 of MPC's 9 listed refining peers.
+    ps = peer_share(me, scored)
+    w("")
+    w("## Position among listed peers")
+    w("")
+    if ps:
+        sub = (me.get("sub_industry") or "").strip() or me["_peer"]
+        if ps["rank"] == 1:
+            w(f"**{ps['share']*100:.1f}%** of TTM revenue across the {ps['n']} filers in "
+              f"{sub}, which is the **largest** of them.")
+        else:
+            w(f"**{ps['share']*100:.1f}%** of TTM revenue across the {ps['n']} filers in "
+              f"{sub}, ranked **{ps['rank']} of {ps['n']}**. Largest is {ps['leader']} at "
+              f"{ps['leader_share']*100:.1f}%.")
+        w("")
+        w("This is not market share. It excludes private companies, foreign issuers that do "
+          "not file here, and any competitor classified into a different sub-industry. Treat "
+          "it as concentration among listed peers and nothing more.")
+    else:
+        w("Not computable: fewer than three peers with revenue in this sub-industry.")
 
     # --- segment structure ---------------------------------------------------
     docs = filings_for(ticker)

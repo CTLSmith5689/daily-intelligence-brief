@@ -113,6 +113,14 @@ FUNDAMENTALS_CSV_DIR = DATA_DIR / "fundamentals"
 # full on every commit.
 FILINGS_CSV_DIR = DATA_DIR / "filings"
 FILINGS_TEXT_DIR = FILINGS_CSV_DIR / "text"
+# Reported history, long format, one row per ticker per fiscal period. The panel
+# carries five dates and cannot describe a cycle; this carries a decade. MPC's
+# annual series shows EPS of -15.13 in 2020, 28.12 in 2022 and 13.22 now, which
+# is the context a thesis calling something "peak-cycle earnings" actually needs.
+FINANCIALS_CSV_DIR = DATA_DIR / "financials"
+FINANCIAL_COLUMNS = ["ticker", "cik", "period", "period_end", "revenue", "gross_profit",
+                     "operating_income", "net_income", "eps_diluted", "ocf", "capex",
+                     "assets", "equity", "shares_diluted", "revenue_tag", "collected_at"]
 
 # trading_day is the session the price belongs to, which is not the session we
 # observed it in. Alpha Vantage GLOBAL_QUOTE returns the previous close, so an
@@ -9312,6 +9320,139 @@ def _fetch_segment_note(cik, ticker):
     return None
 
 
+# --- reported history -----------------------------------------------------
+#
+# companyfacts carries every XBRL fact a company has filed, back to 2009 for
+# most. Consolidated only, with no dimensions, which is why segments come from
+# the R-files instead. But for a straight history of revenue, earnings and cash
+# flow it is complete and free.
+#
+# Two series are kept. ANNUAL is the useful one: there is no missing Q4, because
+# the 10-K reports the full year, and cash flow is not year-to-date at that
+# duration so OCF and capex arrive complete. QUARTERLY is denser but has holes,
+# since Q4 is never filed as a quarter and 10-Q cash flows are cumulative.
+_FIN_CONCEPTS = {
+    "revenue":          ["RevenueFromContractWithCustomerExcludingAssessedTax",
+                         "Revenues", "SalesRevenueNet"],
+    "gross_profit":     ["GrossProfit"],
+    "operating_income": ["OperatingIncomeLoss"],
+    "net_income":       ["NetIncomeLoss"],
+    "eps_diluted":      ["EarningsPerShareDiluted"],
+    "ocf":              ["NetCashProvidedByUsedInOperatingActivities",
+                         "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
+    "capex":            ["PaymentsToAcquirePropertyPlantAndEquipment"],
+    "assets":           ["Assets"],
+    "equity":           ["StockholdersEquity"],
+    "shares_diluted":   ["WeightedAverageNumberOfDilutedSharesOutstanding"],
+}
+_FIN_FLOW = {"revenue", "gross_profit", "operating_income", "net_income",
+             "eps_diluted", "ocf", "capex", "shares_diluted"}
+_FIN_ANNUAL = (350, 380, 12)
+_FIN_QUARTERLY = (80, 100, 20)
+
+
+def _fin_series(facts, metric, lo, hi):
+    """One metric as {period_end: (value, tag)}.
+
+    Earlier tags in the list win outright and a later tag only fills a period the
+    earlier one left empty, so revenue spanning the ASC 606 tag change keeps its
+    pre-2018 history instead of starting when the new tag does. Within one tag
+    the latest filing wins, which is how a restatement is picked up. The tag is
+    returned so a reader can see where the seam is."""
+    out = {}
+    for tag in _FIN_CONCEPTS[metric]:
+        node = facts.get(tag)
+        if not node:
+            continue
+        for rows in node.get("units", {}).values():
+            for f in rows:
+                end, val, filed = f.get("end"), f.get("val"), f.get("filed", "")
+                if end is None or val is None:
+                    continue
+                if metric in _FIN_FLOW:
+                    start = f.get("start")
+                    if not start:
+                        continue
+                    try:
+                        days = (datetime.strptime(end, "%Y-%m-%d")
+                                - datetime.strptime(start, "%Y-%m-%d")).days
+                    except ValueError:
+                        continue
+                    if not (lo <= days <= hi):
+                        continue
+                prev = out.get(end)
+                if prev is None or (prev[2] == tag and filed >= prev[1]):
+                    out[end] = (val, filed, tag)
+    return {k: (v[0], v[2]) for k, v in out.items()}
+
+
+def _fin_periods(facts, lo, hi, n):
+    """Periods keyed on FLOW metrics, with balance-sheet items attached after.
+
+    Keying on everything lets assets and equity, which are filed every quarter,
+    occupy all the slots in an annual series and push the annual revenue out of
+    its own table."""
+    per = {}
+    for metric, tags in _FIN_CONCEPTS.items():
+        if metric not in _FIN_FLOW:
+            continue
+        for end, (val, tag) in _fin_series(facts, metric, lo, hi).items():
+            per.setdefault(end, {})[metric] = val
+            if metric == "revenue":
+                per[end]["revenue_tag"] = tag
+    ends = sorted(per, reverse=True)[:n]
+    for metric in ("assets", "equity"):
+        pit = _fin_series(facts, metric, lo, hi)
+        for e in ends:
+            if e in pit:
+                per[e][metric] = pit[e][0]
+    return [{"period_end": e, **per[e]} for e in sorted(ends)]
+
+
+def fetch_financial_history(cik, ticker):
+    """Annual and quarterly reported history. Returns a list of CSV rows."""
+    raw = _edgar_get(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{int(cik):010d}.json")
+    if not raw:
+        return []
+    try:
+        facts = json.loads(raw).get("facts", {}).get("us-gaap", {})
+    except Exception:
+        return []
+    if not facts:
+        return []
+    rows = []
+    for label, (lo, hi, n) in (("FY", _FIN_ANNUAL), ("Q", _FIN_QUARTERLY)):
+        for r in _fin_periods(facts, lo, hi, n):
+            rows.append({"ticker": ticker, "cik": int(cik), "period": label, **r})
+    return rows
+
+
+def record_financials(rows, observed_at):
+    """Append reported periods not already held. Dedupe on ticker+period+end."""
+    if not rows:
+        return 0
+    path = FINANCIALS_CSV_DIR / "reported.csv"
+    seen = set()
+    if path.exists():
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                for r in csv.DictReader(fh):
+                    seen.add((r.get("ticker"), r.get("period"), r.get("period_end")))
+        except Exception as exc:
+            print(f"csv: could not read reported.csv for dedupe ({exc}); appending all.")
+    fresh = []
+    for r in rows:
+        key = (r["ticker"], r["period"], r["period_end"])
+        if key in seen:
+            continue
+        seen.add(key)
+        fresh.append({**r, "collected_at": observed_at})
+    n = _append_csv(path, FINANCIAL_COLUMNS, fresh)
+    if n:
+        print(f"csv: appended {n} reported periods to data/financials/reported.csv.")
+    return n
+
+
 def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_BUDGET_S):
     """Harvest EX-99.1 earnings releases filed in the last `days_back` days.
 
@@ -9325,6 +9466,7 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
     # Both months, because a run on the 1st looks at filings from the 28th. With
     # only the current month loaded, those would read as unrecorded and be
     # fetched and written a second time, into a second month's index.
+    reported = {}          # ticker -> cik, for the financial-history pass
     already = filing_accessions_recorded(today.isoformat())
     already |= filing_accessions_recorded((today.replace(day=1) - timedelta(days=1)).isoformat())
     entries, scanned, skipped = [], 0, 0
@@ -9340,7 +9482,7 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
             if time.time() - started > budget_s:
                 print(f"filings: time budget reached after {scanned} headers; "
                       f"remaining filings will be picked up next run.")
-                return entries
+                return entries, reported
             ticker = cik_to_ticker.get(cik)
             if not ticker:
                 continue
@@ -9374,6 +9516,7 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
             # periodic filing. Tying the fetch to the earnings event rate-limits
             # it to roughly four per company per year, and collects it exactly
             # when the numbers changed.
+            reported[ticker] = cik
             seg = _fetch_segment_note(cik, ticker)
             if seg:
                 s_acc, s_form, s_name, s_text = seg
@@ -11852,9 +11995,19 @@ def lambda_handler(event, context):
                 cik_to_ticker.setdefault(int(_cik), _tkr)
             except (TypeError, ValueError):
                 continue
-        _entries = collect_earnings_filings(cik_to_ticker, days_back=FILINGS_DAYS_BACK)
+        _entries, _reported = collect_earnings_filings(cik_to_ticker,
+                                                       days_back=FILINGS_DAYS_BACK)
         if _entries:
             record_filings(_entries, observed_at)
+        # Reported history, for the companies that just reported. companyfacts is
+        # ~4MB each, so fetching the universe would move 20GB. Tied to the earnings
+        # event it costs one request per company per quarter and arrives exactly
+        # when there is a new period to add.
+        _fin = []
+        for _t, _c in _reported.items():
+            _fin.extend(fetch_financial_history(_c, _t))
+        if _fin:
+            record_financials(_fin, observed_at)
     except Exception as exc:
         print(f"filings: collection failed ({type(exc).__name__}: {exc}); "
               f"the panel and the site are unaffected.")
