@@ -517,6 +517,43 @@ def main():
         caveats.append("no segment note collected; the revenue and margin mix across "
                        "business lines is not visible")
 
+    # --- what the company says it does and fears -------------------------------
+    biz_row, biz_text = docs.get("business", (None, None))
+    rk_row, rk_text = docs.get("risk_factors", (None, None))
+    w("")
+    w("## The business, in its own words")
+    w("")
+    if biz_row and biz_text:
+        w(f"10-K Item 1, filed {biz_row.get('filed')}. {len(biz_text):,} characters.")
+        w("")
+        w("```text")
+        w(biz_text)
+        w("```")
+    else:
+        w("No Item 1 collected yet. **You do not have a description of what this company "
+          "sells, to whom, or why anyone buys it.** Do not write one from the ticker and "
+          "the sector label.")
+        caveats.append("no 10-K Item 1; there is no business description in this dossier")
+
+    w("")
+    w("## What the company says could go wrong")
+    w("")
+    if rk_row and rk_text:
+        w(f"10-K Item 1A, filed {rk_row.get('filed')}. {len(rk_text):,} characters.")
+        w("")
+        w("Risk factors are largely boilerplate and are written by lawyers to be "
+          "comprehensive rather than informative. Read them for what is specific to this "
+          "company and ignore the rest. A risk that appears here is not a reason to avoid "
+          "the stock; a risk that is **absent** from a peer's filing and present in this one "
+          "is worth a sentence.")
+        w("")
+        w("```text")
+        w(rk_text)
+        w("```")
+    else:
+        w("No Item 1A collected yet.")
+        caveats.append("no 10-K Item 1A; the company's own stated risks are not available")
+
     # --- the filing ----------------------------------------------------------
     row, text = docs.get("earnings_release", (None, None))
     if row is None:

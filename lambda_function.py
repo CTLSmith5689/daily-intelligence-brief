@@ -9320,6 +9320,138 @@ def _fetch_segment_note(cik, ticker):
     return None
 
 
+# --- 10-K narrative items -------------------------------------------------
+#
+# Item 1 is what the company says it does; Item 1A is what it says could go
+# wrong. Neither is in the panel and neither can be inferred from it.
+#
+# Boundaries are found by taking the LAST match of each item header. The first
+# matches are the table of contents: on AAPL's 10-K the TOC hits cluster around
+# offset 19,100 while the body's Item 1 begins at 22,374. Measured on 25 filers,
+# Item 1A extracted cleanly for 24. Item 7 managed 18, and its failures are not
+# a parsing problem: APH and MOS incorporate MD&A by reference to an exhibit, so
+# there is nothing in the 10-K to extract. Item 7 is therefore not collected.
+_ITEM_MAX = {"business": 26000, "risk_factors": 42000}
+_ITEM_MIN = 1500
+# A real section runs at least this far before the next item heading. Table of
+# contents entries are a few hundred characters apart at most.
+_ITEM_SECTION_MIN = 3000
+# Both patterns key on the "Item 1." / "Item 1A." prefix, which is a convention
+# rather than a requirement: a filer may organise the 10-K however it likes so
+# long as a cross-reference index maps the items. Intel does exactly that, using
+# named headings ("Risk Factors" with no item number) and an index at the back,
+# and this extractor returns nothing for it.
+#
+# Measured before deciding not to handle it: in a random sample of 45 filers over
+# $1B, 39 file a 10-K and all 39 use the item prefix. The other 6 file 20-F or are
+# funds with no 10-K at all. Matching bare headings as a fallback would mean
+# matching the phrase "Risk Factors", which appears 22 times in Intel's own
+# filing, mostly as prose. A ticker with no items collected is reported as such
+# in the dossier rather than filled in with a worse guess.
+_ITEM_BOUNDS = {
+    "business":     (r"item\s*1\s*[\.\:\-–—]?\s*business",
+                     r"item\s*1a\s*[\.\:\-–—]?\s*risk\s*factors"),
+    "risk_factors": (r"item\s*1a\s*[\.\:\-–—]?\s*risk\s*factors",
+                     r"item\s*(1b|2)\s*[\.\:\-–—]?\s*(unresolved|propert)"),
+}
+
+
+# A heading that is being *named* rather than *opened* is preceded by one of
+# these within a clause. "as described in Item 1A. Risk Factors" is a pointer;
+# a real heading follows the end of the previous section.
+_ITEM_XREF_LEAD = re.compile(
+    r"\b(?:see|in|under|within|refer|referred|reference|described|discussed|"
+    r"included|contained|set forth|pursuant to)\b[^.]{0,40}$", re.I)
+# "Part I" is deliberately not in that list. It reads like a cross-reference
+# lead ("described in Part II, Item 7") but it is also what immediately precedes
+# every genuine Item 1 heading, and excluding it dropped Item 1 on 9 of 10 test
+# filers while changing no Item 1A result.
+# ...and is followed by prose that continues the sentence: a closing quote, a
+# comma, or another item reference a few words later.
+_ITEM_XREF_TRAIL = re.compile(r"\bItems?\s+\d", re.I)
+_ITEM_TRAIL_PUNCT = '\u201d"\'\u2019,;)'
+
+
+def _opens_a_section(text, start, end):
+    """True when the heading matched at [start:end] begins a section.
+
+    The same words appear three ways in a filing: in the table of contents, as
+    the actual heading, and as a cross-reference from other sections. The span
+    minimum removes the first. This removes the third, which is what put KO's
+    Item 1A at a forward-looking-statements paragraph ('Item 1A. Risk Factors"
+    and elsewhere in this report') and MPC's at a list of pointers ('Item 1A.
+    Risk Factors, Item 3. Legal Proceedings, Item 7. ...')."""
+    if _ITEM_XREF_LEAD.search(text[max(0, start - 60):start]):
+        return False
+    after = text[end:end + 200]
+    if after.lstrip()[:1] in _ITEM_TRAIL_PUNCT:
+        return False
+    return not _ITEM_XREF_TRAIL.search(after)
+
+
+def _extract_item(text, kind):
+    """Slice one 10-K item out of stripped filing text, or None."""
+    start_pat, end_pat = _ITEM_BOUNDS[kind]
+    starts = [(m.start(), m.end()) for m in re.finditer(start_pat, text, re.I)]
+    if not starts:
+        return None
+    ends = [m.start() for m in re.finditer(end_pat, text, re.I)]
+    if not ends:
+        return None
+
+    # Take the EARLIEST candidate that opens a substantial section, not the
+    # widest. Table-of-contents entries sit a few characters from the next
+    # heading and are removed by the minimum; the real heading is the first one
+    # left that survives the cross-reference test. Choosing the widest span
+    # instead picked up cross-references late in the filing, because a reference
+    # followed by a distant boundary measures enormous: MPC opened on "Item 1.
+    # Business - Regulatory Matters for additional information" and KO on
+    # 'Item 1. Business" of this report'.
+    best = best_len = None
+    for st, en in starts:
+        after = [e for e in ends if e > st]
+        if not after:
+            continue
+        span = after[0] - st
+        if span >= _ITEM_SECTION_MIN and _opens_a_section(text, st, en):
+            best, best_len = st, span
+            break
+    if best is None:
+        return None
+    body = text[best:best + min(best_len, _ITEM_MAX[kind])].strip()
+    return body if len(body) >= _ITEM_MIN else None
+
+
+def fetch_10k_items(cik, ticker):
+    """Item 1 and Item 1A from the latest 10-K. Returns [(kind, accession, filed, text)]."""
+    raw = _edgar_get(EDGAR_SUBMISSIONS_URL.format(cik=cik))
+    if not raw:
+        return []
+    try:
+        rec = json.loads(raw).get("filings", {}).get("recent", {})
+    except Exception:
+        return []
+    forms = rec.get("form", [])
+    idx = next((i for i, f in enumerate(forms) if f == "10-K"), None)
+    if idx is None:
+        return []
+    acc = rec["accessionNumber"][idx]
+    filed = rec["filingDate"][idx]
+    doc = rec.get("primaryDocument", [None] * len(forms))[idx]
+    if not doc:
+        return []
+    raw_doc = _edgar_get(EDGAR_ARCHIVE_URL.format(cik=cik, nod=acc.replace("-", ""), name=doc))
+    if not raw_doc:
+        return []
+    text = _filing_to_text(raw_doc)
+    out = []
+    for kind in ("business", "risk_factors"):
+        body = _extract_item(text, kind)
+        if body:
+            out.append((kind, acc, filed, body))
+    return out
+
+
 # --- reported history -----------------------------------------------------
 #
 # companyfacts carries every XBRL fact a company has filed, back to 2009 for
@@ -9460,7 +9592,7 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
     Anything already in this month's index is skipped, so re-running is cheap
     and idempotent."""
     if not cik_to_ticker:
-        return []
+        return [], {}
     started = time.time()
     today = datetime.now(tz=timezone.utc).date()
     # Both months, because a run on the 1st looks at filings from the 28th. With
@@ -9517,6 +9649,24 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
             # it to roughly four per company per year, and collects it exactly
             # when the numbers changed.
             reported[ticker] = cik
+            # Item 1 and Item 1A from the latest 10-K. Annual documents, so this
+            # is a no-op after the first time a company is seen in a given year:
+            # the accession is already recorded and the write is skipped.
+            for kind, k_acc, k_filed, k_text in fetch_10k_items(cik, ticker):
+                k_key = f"{k_acc}-{kind}"
+                if k_key in already:
+                    continue
+                already.add(k_key)
+                k_rel = f"text/{ticker}/{k_acc}-{kind}.txt"
+                k_path = FILINGS_CSV_DIR / k_rel
+                k_path.parent.mkdir(parents=True, exist_ok=True)
+                k_path.write_text(k_text, encoding="utf-8")
+                entries.append({
+                    "filed": k_filed, "ticker": ticker, "cik": cik, "form": "10-K",
+                    "doc_kind": kind, "items": "1" if kind == "business" else "1A",
+                    "accession": k_key, "exhibit": "", "text_path": k_rel,
+                    "text_chars": len(k_text),
+                })
             seg = _fetch_segment_note(cik, ticker)
             if seg:
                 s_acc, s_form, s_name, s_text = seg
@@ -9531,10 +9681,14 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
                         "accession": s_acc, "exhibit": "", "text_path": s_rel,
                         "text_chars": len(s_text),
                     })
-    print(f"filings: {len(entries)} earnings releases collected, "
-          f"{scanned} 8-K headers read, {skipped} already recorded, "
-          f"{time.time() - started:.0f}s.")
-    return entries
+    kinds = {}
+    for e in entries:
+        kinds[e["doc_kind"]] = kinds.get(e["doc_kind"], 0) + 1
+    detail = ", ".join(f"{v} {k}" for k, v in sorted(kinds.items())) or "nothing"
+    print(f"filings: {detail}; {scanned} 8-K headers read, "
+          f"{skipped} already recorded, {time.time() - started:.0f}s.")
+    # Both values, matching the early return above. The caller unpacks a pair.
+    return entries, reported
 
 
 def fetch_edgar_company_facts(cik):
@@ -11824,6 +11978,241 @@ def write_thesis_views():
     return written
 
 
+# --- company views ----------------------------------------------------------
+# Everything the filings and companyfacts passes collect lives in CSVs and text
+# files that the screener cannot read: the browser would have to pull a whole
+# month of filing rows to find one ticker's. So the same derived-view pattern
+# used for theses applies here, one small JSON per covered ticker.
+#
+# Only tickers that actually have collected data get a file. A missing file is
+# the normal case for most of the universe and the page treats it as such.
+COMPANY_VIEW_DIR = DOCS_DIR / "company"
+# Enough periods to show a cycle without making the file big. MPC needs 2020 in
+# view for its current earnings to mean anything.
+_COMPANY_MAX_PERIODS = 14
+_COMPANY_MAX_FILINGS = 8
+
+
+def _company_financials():
+    """ticker -> annual and quarterly reported history, newest last."""
+    out = {}
+    if not FINANCIALS_CSV_DIR.is_dir():
+        return out
+    for path in sorted(FINANCIALS_CSV_DIR.glob("*.csv")):
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                for row in csv.DictReader(fh):
+                    tk = (row.get("ticker") or "").upper()
+                    if tk:
+                        # Keyed on both, not on period alone: every annual row
+                        # carries the literal period "FY", so keying on it
+                        # collapsed a decade of history into one row.
+                        key = (row.get("period", ""), row.get("period_end", ""))
+                        out.setdefault(tk, {})[key] = row
+        except Exception as exc:
+            print(f"company: could not read {path.name} ({exc}).")
+    series = {}
+    for tk, periods in out.items():
+        rows = sorted(periods.values(), key=lambda r: r.get("period_end") or "")
+        annual = [r for r in rows if (r.get("period") or "").startswith("FY")]
+        quarterly = [r for r in rows if not (r.get("period") or "").startswith("FY")]
+        series[tk] = {
+            "annual": [_company_period(r) for r in annual[-_COMPANY_MAX_PERIODS:]],
+            "quarterly": [_company_period(r) for r in quarterly[-_COMPANY_MAX_PERIODS:]],
+        }
+    return series
+
+
+def _company_period(row):
+    """One reported period, numbers as numbers so the page need not parse."""
+    out = {"period": row.get("period"), "period_end": row.get("period_end")}
+    for f in ("revenue", "gross_profit", "operating_income", "net_income",
+              "eps_diluted", "ocf", "capex", "assets", "equity", "shares_diluted"):
+        v = row.get(f)
+        if v not in (None, ""):
+            try:
+                out[f] = float(v)
+            except ValueError:
+                pass
+    # Margins are the reason to look at this series at all, and computing them
+    # here keeps one definition rather than one per consumer.
+    rev = out.get("revenue")
+    if rev:
+        for name, num in (("gross_margin", "gross_profit"),
+                          ("operating_margin", "operating_income"),
+                          ("net_margin", "net_income")):
+            if out.get(num) is not None:
+                out[name] = out[num] / rev
+        if out.get("ocf") is not None and out.get("capex") is not None:
+            out["fcf"] = out["ocf"] - abs(out["capex"])
+    return out
+
+
+def _company_filings():
+    """ticker -> the most recent filing rows, newest first, text path kept."""
+    out = {}
+    if not FILINGS_CSV_DIR.is_dir():
+        return out
+    for path in sorted(FILINGS_CSV_DIR.glob("*.csv")):
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                for row in csv.DictReader(fh):
+                    tk = (row.get("ticker") or "").upper()
+                    if tk:
+                        out.setdefault(tk, []).append(row)
+        except Exception as exc:
+            print(f"company: could not read {path.name} ({exc}).")
+    trimmed = {}
+    for tk, rows in out.items():
+        rows.sort(key=lambda r: (r.get("filed") or "", r.get("accession") or ""),
+                  reverse=True)
+        seen, keep = set(), []
+        for r in rows:
+            key = (r.get("doc_kind"), r.get("accession"))
+            if key in seen:
+                continue
+            seen.add(key)
+            try:
+                chars = int(r.get("text_chars") or 0)
+            except ValueError:
+                chars = 0
+            keep.append({"filed": r.get("filed"), "form": r.get("form"),
+                         "doc_kind": r.get("doc_kind"), "items": r.get("items"),
+                         "accession": r.get("accession"),
+                         "text_path": r.get("text_path"), "text_chars": chars})
+            if len(keep) >= _COMPANY_MAX_FILINGS:
+                break
+        trimmed[tk] = keep
+    return trimmed
+
+
+# Segment NAMES only, deliberately. The rendered R-file carries the numbers too,
+# but they arrive as a flattened line of several tables sharing one caption, and
+# a generic scraper over them produced confident nonsense: Apple's "segments"
+# came out as the XBRL footnote references Topic 280 and SubTopic 10, JPM's
+# included "ROE NM NM NM NM", and MPC's first table is segment adjusted EBITDA
+# rather than revenue, so its shares would have been labelled wrong while looking
+# right. Segment revenue is worth having, but the way to get it is the inline
+# XBRL contexts on StatementBusinessSegmentsAxis, where each number arrives
+# tagged with its segment member and its measure. Until that exists, the page
+# shows the names and links the note rather than printing a made-up mix.
+# Anchored on the segment noun rather than the sentence opener, because filers
+# introduce the list five different ways: "We have three reportable segments:",
+# "Our reportable segments consist of", "There are three reportable business
+# segments \u2013", "the following five operating segments:".
+_SEGMENT_ANCHOR = re.compile(
+    r"\b(?:reportable|reporting|operating|business)\s+segments?\b\s*"
+    r"(?:consist(?:ing|s)?\s+of|are\s+comprised\s+of|are|include[sd]?|:|"
+    r"\u2013|\u2014|\u2010|-)\s*([^.]{4,240})", re.I)
+_SEGMENT_COUNT_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+                        "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+
+
+def _segment_names(text):
+    """Segment names from the note's own sentence, or [].
+
+    "We have three reportable segments: Refining & Marketing, Midstream and
+    Renewable Diesel." is prose, not a table, and parses without guessing."""
+    flat = " ".join((text or "").split())
+    m = _SEGMENT_ANCHOR.search(flat)
+    if not m:
+        return []
+    tail = m.group(1)
+    # Cut at the first clause that stops listing and starts describing.
+    tail = re.split(r"\b(?:each|these|which|as\s+of|for\s+the|in\s+addition|"
+                    r"with\s+the|our\s+reportable|the\s+following)\b|"
+                    r"\s[\u2013\u2014]\s", tail, 1, re.I)[0]
+    parts = re.split(r"\s*,\s*|\s+and\s+|\s*;\s*", tail)
+    names = []
+    for p in parts:
+        p = re.sub(r"^(?:and|or)\s+", "", p.strip(" .;:-\u2013\u2014"), flags=re.I)
+        # A segment name is a short proper noun phrase. Anything longer is the
+        # sentence continuing past the list.
+        if not p or len(p) > 48 or len(p) < 2:
+            continue
+        if not re.match(r"^[A-Z0-9]", p) or re.search(r"\b(?:segment|which|that)\b", p, re.I):
+            continue
+        if p in ("The", "the", "A", "a", "An", "an"):
+            continue
+        names.append(p)
+    if len(names) < 2:
+        return []
+    # Cross-check against the stated count. A mismatch means the split ran past
+    # the list, so the names are not trustworthy enough to show.
+    cm = re.search(r"\b(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+"
+                   r"(?:(?:reportable|reporting|operating|business)\s+){1,2}"
+                   r"segments?\b", flat, re.I)
+    if cm:
+        raw = cm.group(1).lower()
+        stated = _SEGMENT_COUNT_WORDS.get(raw) or (int(raw) if raw.isdigit() else None)
+        if stated and stated != len(names):
+            return []
+    return names[:10]
+
+
+def write_company_views(stocks=None):
+    """One JSON per ticker with reported history, filings held and segment mix.
+
+    Regenerated every run from the CSVs, same as the thesis views: docs/ is
+    force-pushed to gh-pages, so nothing under it can be authoritative."""
+    fins = _company_financials()
+    filings = _company_filings()
+    tickers = set(fins) | set(filings)
+    if not tickers:
+        print("company: nothing collected yet, no view files written.")
+        return 0
+
+    # Peer share needs the panel's revenue and sub-industry, which the scoring
+    # pass has already attached to the stock dicts.
+    peers = {}
+    if stocks:
+        groups = {}
+        for s in stocks:
+            grp, rev = s.get("sub_industry"), s.get("ttm_revenue")
+            if grp and isinstance(rev, (int, float)) and rev > 0:
+                groups.setdefault(grp, []).append((s.get("ticker"), float(rev)))
+        for grp, members in groups.items():
+            if len(members) < 3:
+                continue        # a "share" of two names says nothing
+            total = sum(r for _t, r in members)
+            ranked = sorted(members, key=lambda x: -x[1])
+            for pos, (tk, rev) in enumerate(ranked, 1):
+                peers[tk] = {"group": grp, "n": len(members), "rank": pos,
+                             "share": rev / total if total else None,
+                             "leader": ranked[0][0],
+                             "leader_share": ranked[0][1] / total if total else None}
+
+    COMPANY_VIEW_DIR.mkdir(parents=True, exist_ok=True)
+    written = 0
+    for tk in sorted(tickers):
+        view = {"ticker": tk}
+        if tk in fins:
+            view["reported"] = fins[tk]
+        rows = filings.get(tk) or []
+        if rows:
+            view["filings"] = rows
+        if tk in peers:
+            view["peer_share"] = peers[tk]
+        seg_row = next((r for r in rows if r.get("doc_kind") == "segment_note"), None)
+        if seg_row and seg_row.get("text_path"):
+            seg_file = FILINGS_CSV_DIR / seg_row["text_path"]
+            if seg_file.exists():
+                try:
+                    names = _segment_names(seg_file.read_text(encoding="utf-8"))
+                except Exception:
+                    names = []
+                if names:
+                    view["segments"] = {"names": names,
+                                        "as_of": seg_row.get("filed"),
+                                        "form": seg_row.get("form"),
+                                        "text_path": seg_row.get("text_path"),
+                                        "text_chars": seg_row.get("text_chars")}
+        (COMPANY_VIEW_DIR / _news_filename(tk)).write_text(
+            json.dumps(view, separators=(",", ":")), encoding="utf-8")
+        written += 1
+    print(f"company: wrote {written} view files to docs/company/.")
+    return written
+
 def generate_site(briefs):
     """Orchestrator. Generates the full multi-page static site under docs/.
     Triggers Recent Trends (daily-cached Claude call) and Stocks Universe (weekly,
@@ -11840,8 +12229,13 @@ def generate_site(briefs):
     # source of truth. Regenerated every run so the published view cannot drift
     # from the notes.
     n_thesis = write_thesis_views()
+    # Same shape, different author: these come from the filings and companyfacts
+    # passes rather than from the analyst. The scored stock dicts carry
+    # sub_industry and ttm_revenue, which is what peer share is computed from.
+    n_company = write_company_views(universe.get("stocks") or [])
     print("Wrote docs/index.html, today.html, stories.html, stocks.html, manifest.json"
-          + (f", and {n_thesis} thesis views." if n_thesis else "."))
+          + (f", {n_thesis} thesis views" if n_thesis else "")
+          + (f", {n_company} company views" if n_company else "") + ".")
 
 
 def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):
