@@ -49,6 +49,10 @@ def pct_rank(value, cohort_values):
 _COUNT_FIELDS = {"analyst_count", "insider_buyer_count_90d", "insider_seller_count_90d",
                  "insider_tx_count_90d", "insider_cluster_max_30d", "volume",
                  "shares_outstanding"}
+# Per-share dollars. Without this an EPS of 2.08 falls into the ratio branch and
+# renders as "+208.0%", which is not a cosmetic problem: it is a number the
+# thesis writer would compute a P/E from.
+_PERSHARE_FIELDS = {"ttm_eps_diluted", "prior_ttm_eps_diluted"}
 _MONEY_FIELDS = {"market_cap", "ttm_revenue", "ttm_ebitda", "ttm_net_income", "ttm_fcf",
                  "ttm_gross_profit", "ttm_operating_income", "total_debt", "equity",
                  "cash_and_investments", "insider_net_buy_90d"}
@@ -66,6 +70,8 @@ def fmt(v, field):
         if a >= 1e6:
             return f"${v/1e6:,.1f}M"
         return f"${v:,.0f}"
+    if field in _PERSHARE_FIELDS:
+        return f"${v:,.2f}"
     if field in _COUNT_FIELDS:
         return f"{v:,.0f}"
     if field in ("price", "pe", "ev_ebitda", "ev_revenue", "price_book",
