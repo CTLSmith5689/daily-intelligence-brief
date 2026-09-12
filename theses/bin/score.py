@@ -56,13 +56,33 @@ def close_on_or_before(series, date_iso):
     return None, None
 
 
-def spy_series():
-    """SPY daily closes from data/quotes.csv.
+def benchmark_series():
+    """A year of daily benchmark closes.
 
-    docs/prices holds equities only, so the benchmark cannot come from there.
-    quotes.csv needs care: it carries a SECOND header at line 250 from a schema
-    widening, and roughly 38% of its rows duplicate an earlier (observed_at,
-    ticker). Reading it naively yields the literal string "observed_at" as data."""
+    docs/prices/_MARKET.json carries ^GSPC and ^IRX, 251 and 252 points, written
+    by enrich_with_market_series on the same cadence as the ticker files. That is
+    the benchmark of record.
+
+    data/quotes.csv has SPY too, but only from 2026-09-03, so it cannot benchmark
+    anything with a horizon. It stays as a fallback and nothing more."""
+    raw = fetch(f"{PAGES}/prices/_MARKET.json")
+    if raw:
+        try:
+            d = json.loads(raw)
+            series = {day: px for day, px in (d.get("benchmark") or [])
+                      if isinstance(px, (int, float))}
+            if len(series) > 30:
+                return series, d.get("benchmark_symbol", "^GSPC")
+        except Exception:
+            pass
+    return _spy_from_quotes(), "SPY (quotes.csv, short history)"
+
+
+def _spy_from_quotes():
+    """Fallback only. quotes.csv carries a SECOND header at line 250 from a
+    schema widening, and roughly 38% of its rows duplicate an earlier
+    (observed_at, ticker). Read naively it yields the literal string
+    "observed_at" as data."""
     raw = fetch(f"{RAW}/data/quotes.csv")
     if not raw:
         return {}
@@ -137,10 +157,13 @@ def main():
 
     _, rows = load_panel()
     panel = {r["ticker"]: r for r in rows}
-    spy = spy_series()
+    spy, bench_name = benchmark_series()
     if not spy:
-        print("score: SPY series unavailable; rel_spy will be blank but peer scoring "
+        print("score: no benchmark series; rel_spy will be blank but peer scoring "
               "continues. The peer benchmark is the one that tests stock picking.")
+    else:
+        print(f"score: benchmark {bench_name}, {len(spy)} closes "
+              f"{min(spy)} to {max(spy)}.")
 
     out = []
     for p, end in matured:
