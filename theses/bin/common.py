@@ -95,14 +95,44 @@ def read_csv_rows(path):
         return list(csv.DictReader(fh))
 
 
+def csv_header(path):
+    if not path.exists():
+        return None
+    with path.open(encoding="utf-8", newline="") as fh:
+        return next(csv.reader(fh), None)
+
+
 def append_csv(path, columns, rows):
+    """Append to an append-only ledger, refusing to misalign it.
+
+    A CSV row is positional. Writing today's column order into a file whose
+    header was written with a different one shifts every field after the first
+    difference, and the result still parses, which is the dangerous part. It
+    happened here: score.py grew peers_used, max_favourable, max_adverse and
+    note, the ledger's header predated them, and a run wrote peers_used into
+    the peer_median_return column and target_hit into rel_peer. Nothing failed.
+
+    So the file's own header wins, and a mismatch raises rather than degrading.
+    An append-only archive is worth nothing if a schema change can silently
+    corrupt the rows already in it."""
     if not rows:
         return 0
     path.parent.mkdir(parents=True, exist_ok=True)
-    new = not path.exists()
+    existing = csv_header(path)
+    if existing and existing != list(columns):
+        missing = [c for c in columns if c not in existing]
+        extra = [c for c in existing if c not in columns]
+        raise SystemExit(
+            f"append_csv: refusing to write {path.name}.\n"
+            f"  file header : {existing}\n"
+            f"  writer wants: {list(columns)}\n"
+            + (f"  new fields not in the file: {missing}\n" if missing else "")
+            + (f"  file has fields the writer dropped: {extra}\n" if extra else "")
+            + "  Migrate the file deliberately. Appending now would shift every\n"
+              "  field after the first difference and still parse cleanly.")
     with path.open("a", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=columns, extrasaction="ignore")
-        if new:
+        w = csv.DictWriter(fh, fieldnames=existing or list(columns), extrasaction="ignore")
+        if not existing:
             w.writeheader()
         for r in rows:
             w.writerow(r)
