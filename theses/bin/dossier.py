@@ -145,6 +145,30 @@ def price_block(ticker):
             "pos": (last - lo) / (hi - lo) if hi > lo else None}
 
 
+def filings_for(ticker):
+    """Latest collected document of each kind for this ticker.
+
+    Returns {doc_kind: (index_row, text)}. Kinds today are earnings_release
+    (the 8-K EX-99.1) and segment_note (the segment note from the last periodic
+    filing). The segment note is here because three of the first four theses
+    named the segment split as the thing they could not see."""
+    today = datetime.now(tz=timezone.utc).date()
+    rows = []
+    for m in (today.strftime("%Y-%m"),
+              (today.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")):
+        raw = fetch(f"{RAW}/data/filings/{m}.csv")
+        if raw:
+            rows += [r for r in csv.DictReader(io.StringIO(raw.decode("utf-8", "replace")))
+                     if r.get("ticker") == ticker]
+    out = {}
+    for kind in {r.get("doc_kind") or "earnings_release" for r in rows}:
+        of_kind = [r for r in rows if (r.get("doc_kind") or "earnings_release") == kind]
+        row = max(of_kind, key=lambda r: r.get("filed", ""))
+        text = fetch(f"{RAW}/data/filings/{row.get('text_path', '')}")
+        out[kind] = (row, text.decode("utf-8", "replace")[:MAX_FILING_CHARS] if text else None)
+    return out
+
+
 def latest_filing(ticker):
     """Most recent earnings release text collected by the pipeline."""
     today = datetime.now(tz=timezone.utc).date()
@@ -375,8 +399,32 @@ def main():
           "absence: the filter may simply have rejected everything the query returned.")
         caveats.append("no relevance-passing headlines were available")
 
+    # --- segment structure ---------------------------------------------------
+    docs = filings_for(ticker)
+    seg_row, seg_text = docs.get("segment_note", (None, None))
+    w("")
+    w("## Segment structure")
+    w("")
+    if seg_row and seg_text:
+        w(f"From the {seg_row.get('form')} filed {seg_row.get('filed')}, "
+          f"note titled \"{seg_row.get('items')}\". {len(seg_text):,} characters.")
+        w("")
+        w("```text")
+        w(seg_text)
+        w("```")
+    else:
+        w("No segment note collected for this ticker yet. Collection is tied to earnings "
+          "events, so a company that has not reported since 2026-09-12 will have none. "
+          "**Where a company's earnings mix across segments is the thesis, say so and stop, "
+          "rather than reasoning about a consolidated number as though it described one "
+          "business.**")
+        caveats.append("no segment note collected; the revenue and margin mix across "
+                       "business lines is not visible")
+
     # --- the filing ----------------------------------------------------------
-    row, text = latest_filing(ticker)
+    row, text = docs.get("earnings_release", (None, None))
+    if row is None:
+        row, text = latest_filing(ticker)
     w("")
     w("## Latest earnings release (8-K item 2.02, EX-99.1)")
     w("")

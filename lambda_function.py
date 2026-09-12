@@ -122,7 +122,7 @@ FILINGS_TEXT_DIR = FILINGS_CSV_DIR / "text"
 QUOTE_COLUMNS = ["observed_at", "ticker", "label", "price", "change_pct",
                  "is_yield", "trading_day"]
 HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", "title", "link"]
-FILING_COLUMNS = ["filed", "ticker", "cik", "form", "items", "accession",
+FILING_COLUMNS = ["filed", "ticker", "cik", "form", "doc_kind", "items", "accession",
                   "exhibit", "text_path", "text_chars", "recorded_at"]
 
 # Nested values (benford is a dict, op_margin_history a list) have no sensible
@@ -9232,6 +9232,86 @@ def _filing_header(cik, accession):
     return items, exhibit
 
 
+# --- segment notes --------------------------------------------------------
+#
+# Three of the four theses written on 2026-09-12 named the segment split as the
+# thing they could not see. MPC's Refining / Midstream / Retail mix IS the
+# thesis on MPC; AAPL's Products versus Services mix is most of the long-run
+# story. The panel has no segment data and cannot get any: companyfacts returns
+# consolidated figures only, with no dimensions on the facts.
+#
+# It is in the filing, though, in the rendered R-files. Every XBRL filing ships
+# a FilingSummary.xml listing one report per statement and note, and the segment
+# note is one of them. Confirmed against MPC, AAPL, JPM and KO.
+#
+# MPC 10-Q 2026-08-04, from R75: Refining & Marketing 49,299, Midstream 1,455,
+# Renewable Diesel 1,240, against a 51,994 total. That is the number the MPC
+# note said was unobtainable.
+_SEGMENT_MIN_CHARS = 600
+_SEGMENT_MAX_CHARS = 30000
+
+
+def _segment_note_file(cik, accession):
+    """The segment note's R-file, from the filing's own report index.
+
+    Matching on the word "segment" alone is not enough. JPM's filing carries
+    "Loans - By Portfolio Segment" and "Goodwill by Business Segment", neither
+    of which is the segment note. The note proper has no parenthetical suffix;
+    the (Tables), (Policies) and (Details) variants are fragments of it."""
+    nod = accession.replace("-", "")
+    raw = _edgar_get(f"https://www.sec.gov/Archives/edgar/data/{cik}/{nod}/FilingSummary.xml")
+    if not raw:
+        return None, None
+    xml = raw.decode("utf-8", "replace")
+    best = None
+    for block in re.findall(r"<Report[^>]*>(.*?)</Report>", xml, re.S):
+        nm = re.search(r"<ShortName>(.*?)</ShortName>", block, re.S)
+        fn = re.search(r"<HtmlFileName>(.*?)</HtmlFileName>", block, re.S)
+        if not (nm and fn):
+            continue
+        name = _html.unescape(nm.group(1)).strip()
+        low = name.lower()
+        if "(" in name:                      # (Tables) / (Policies) / (Details)
+            continue
+        if re.match(r"^(business )?(operating )?segments?\b", low) or \
+           low.startswith("segment information") or "disaggregat" in low:
+            best = (name, fn.group(1).strip())
+            break
+    return best if best else (None, None)
+
+
+def _fetch_segment_note(cik, ticker):
+    """Latest 10-Q or 10-K segment note as text. Returns (accession, form, name, text)."""
+    raw = _edgar_get(EDGAR_SUBMISSIONS_URL.format(cik=cik))
+    if not raw:
+        return None
+    try:
+        rec = json.loads(raw).get("filings", {}).get("recent", {})
+    except Exception:
+        return None
+    forms, accs = rec.get("form", []), rec.get("accessionNumber", [])
+    for i, f in enumerate(forms):
+        if f not in ("10-Q", "10-K"):
+            continue
+        name, fname = _segment_note_file(cik, accs[i])
+        if not fname:
+            return None                      # newest periodic filing has no note
+        nod = accs[i].replace("-", "")
+        doc = _edgar_get(EDGAR_ARCHIVE_URL.format(cik=cik, nod=nod, name=fname))
+        if not doc:
+            return None
+        text = _filing_to_text(doc)
+        # The R-file viewer prepends its own banner: "XML 48 R21.htm IDEA: XBRL
+        # DOCUMENT v3.26.1". Present on every one of them and carries nothing.
+        text = re.sub(r"^\s*XML\s+\d+\s+R\d+\.htm\s+IDEA:\s*XBRL DOCUMENT\s*\S*\s*", "",
+                      text, count=1)
+        text = text[:_SEGMENT_MAX_CHARS]
+        if len(text) < _SEGMENT_MIN_CHARS:
+            return None
+        return accs[i], f, name, text
+    return None
+
+
 def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_BUDGET_S):
     """Harvest EX-99.1 earnings releases filed in the last `days_back` days.
 
@@ -9286,9 +9366,28 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
             out_path.write_text(text, encoding="utf-8")
             entries.append({
                 "filed": day, "ticker": ticker, "cik": cik, "form": "8-K",
+                "doc_kind": "earnings_release",
                 "items": items, "accession": accession, "exhibit": exhibit,
                 "text_path": rel, "text_chars": len(text),
             })
+            # A company that just reported has a fresh segment note in its last
+            # periodic filing. Tying the fetch to the earnings event rate-limits
+            # it to roughly four per company per year, and collects it exactly
+            # when the numbers changed.
+            seg = _fetch_segment_note(cik, ticker)
+            if seg:
+                s_acc, s_form, s_name, s_text = seg
+                if s_acc not in already:
+                    s_rel = f"text/{ticker}/{s_acc}-segment.txt"
+                    s_path = FILINGS_CSV_DIR / s_rel
+                    s_path.parent.mkdir(parents=True, exist_ok=True)
+                    s_path.write_text(s_text, encoding="utf-8")
+                    entries.append({
+                        "filed": day, "ticker": ticker, "cik": cik, "form": s_form,
+                        "doc_kind": "segment_note", "items": s_name[:60],
+                        "accession": s_acc, "exhibit": "", "text_path": s_rel,
+                        "text_chars": len(s_text),
+                    })
     print(f"filings: {len(entries)} earnings releases collected, "
           f"{scanned} 8-K headers read, {skipped} already recorded, "
           f"{time.time() - started:.0f}s.")
