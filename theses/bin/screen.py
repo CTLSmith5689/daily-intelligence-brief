@@ -7,7 +7,7 @@ each week cannot be compared against its own track record.
 
 Emits one JSON object on stdout. Zero model tokens.
 """
-import json, math, statistics as st, sys
+import json, os, math, statistics as st, sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -15,6 +15,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (SLEEVES, THESES, LEDGER, load_panel, num, read_csv_rows)
 
 CFG = json.loads((THESES / "config.json").read_text())
+# prepare.py runs this file as a SUBPROCESS, so assigning screen.CFG in the
+# parent changed nothing here: the child re-read config.json on import and
+# --slots was silently ignored. An env var is the only channel that crosses the
+# process boundary.
+if os.environ.get("THESES_SLOTS"):
+    try:
+        CFG["slots_per_run"] = int(os.environ["THESES_SLOTS"])
+    except ValueError:
+        pass
 
 
 def recompute_ev_ebitda(r):

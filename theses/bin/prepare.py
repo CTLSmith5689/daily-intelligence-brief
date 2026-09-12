@@ -12,8 +12,13 @@ prints what the agent should do next. Costs zero model tokens.
 
     python3 theses/bin/prepare.py [--slots N] [--date YYYY-MM-DD]
 """
-import json, subprocess, sys, time
+import json, os, subprocess, sys, time
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+# One clock for the whole pipeline. A US equity pipeline has exactly one
+# meaningful day boundary and it is not UTC.
+EASTERN = ZoneInfo("America/New_York")
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -64,18 +69,23 @@ def hit_rate():
 def main():
     args = sys.argv[1:]
     slots = int(args[args.index("--slots") + 1]) if "--slots" in args else None
+    # Eastern, not UTC. The rest of the pipeline stamps everything in Eastern
+    # (lambda_function uses datetime.now(EASTERN) for the panel date), and the
+    # analyst session writes notes dated in its own local time. With UTC here,
+    # any run between 20:00 and midnight Eastern put the dossiers in tomorrow's
+    # runs/ directory while the note it produced carried today's date, so the
+    # run and its output no longer reconciled.
     run_date = (args[args.index("--date") + 1] if "--date" in args
-                else datetime.now(tz=timezone.utc).date().isoformat())
+                else datetime.now(tz=EASTERN).date().isoformat())
 
+    env = dict(os.environ)
     if slots:
-        cfg = json.loads((THESES / "config.json").read_text())
-        cfg["slots_per_run"] = slots
-        screen.CFG = cfg
+        env["THESES_SLOTS"] = str(slots)
 
     t0 = time.time()
     print(f"prepare: screening for {run_date} ...", file=sys.stderr)
     out = subprocess.run([sys.executable, str(BIN / "screen.py")],
-                         capture_output=True, text=True)
+                         capture_output=True, text=True, env=env)
     if out.returncode != 0:
         print(f"prepare: screen failed\n{out.stderr}", file=sys.stderr)
         return 1
@@ -89,7 +99,7 @@ def main():
         t = s["ticker"]
         print(f"prepare:   dossier {t} ...", file=sys.stderr)
         d = subprocess.run([sys.executable, str(BIN / "dossier.py"), t],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, env=env)
         if d.returncode != 0 or len(d.stdout) < 500:
             failed.append(t)
             continue
