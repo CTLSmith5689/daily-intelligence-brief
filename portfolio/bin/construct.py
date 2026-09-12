@@ -60,7 +60,15 @@ def build(views):
     series = {t: s for t, s in series.items() if len(s) > 60}
     dropped = [t for t in views if t not in series]
     if len(series) < 2:
-        return None, dropped, "fewer than two positions have a usable close series"
+        # Say which of the two reasons it is. "No usable close series" on a book
+        # that simply has one holdable name sends the reader to check gh-pages
+        # for a problem that is not there.
+        if dropped:
+            return None, dropped, (f"only {len(series)} of {len(views)} candidate positions have a "
+                                   f"usable close series; missing: {dropped}")
+        return None, dropped, (f"{len(views)} name(s) are holdable, which is not a portfolio. "
+                               f"Correlation, book volatility and sector concentration are all "
+                               f"undefined on one position. Write more theses before sizing.")
 
     common = sorted(set.intersection(*[set(s) for s in series.values()]))
     rets = {t: [series[t][common[i]] / series[t][common[i - 1]] - 1
