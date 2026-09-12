@@ -1,2 +1,4 @@
 event_id,date,ticker,kind,thesis_id,note_path,direction,conviction,target_price,horizon_days,prior_direction,prior_conviction,prior_target,claim_changed,trigger,rationale
 HIMS-2026-09-12-1,2026-09-12,HIMS,initiate,HIMS-2026-09-12,theses/notes/HIMS/2026-09-12-initiation.md,avoid,3,22.00,126,,,,,"contrarian slot, lowest composite among large caps",regulatory cutoff on the revenue that is accelerating
+CF-2026-09-12-1,2026-09-12,CF,initiate,CF-2026-09-12,theses/notes/CF/2026-09-12-initiation.md,long,3,152.00,252,,,,,"screen slot, highest composite off cooldown",balance sheet absorbs the cycle
+MPC-2026-09-12-1,2026-09-12,MPC,initiate,MPC-2026-09-12,theses/notes/MPC/2026-09-12-initiation.md,no view,2,392.00,252,,,,,"screen slot, highest composite off cooldown",cycle not separable from company without segment data
