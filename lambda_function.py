@@ -8541,6 +8541,18 @@ def derive_ratios_from_fundamentals(stocks):
         eps = s.get("ttm_eps_diluted")
         if _finite(price) and _finite(eps) and eps > 0:
             put(s, "pe", price / eps, -500, 1000)
+        elif _finite(eps) and eps <= 0:
+            # Declining to compute one is not the same as withholding one.
+            # enrich_with_yfinance has already written Yahoo's trailingPE, which
+            # can be positive on a company losing money because it is not built
+            # from the same EPS. Skipping the write here left that vendor number
+            # in place on exactly the names where our own filing data says it is
+            # wrong: HIMS carried pe 51.70 against ttm_eps_diluted of -0.63, and
+            # 64 rows on 2026-09-11 had a positive P/E with non-positive TTM EPS.
+            # The README documents this field as withheld when TTM EPS <= 0, so
+            # withhold it.
+            if s.pop("pe", None) is not None:
+                counts["pe_withheld_negative_eps"] += 1
 
         if cap and _finite(equity) and equity > 0:
             put(s, "price_book", cap / equity, 0, 100)
