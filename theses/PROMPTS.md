@@ -8,15 +8,37 @@ Each fires in a fresh session with no memory of the last run, so both prompts ar
 self-contained: where to clone, what to run, what to write, how to commit.
 
 These are versioned here rather than living only in the scheduler, because a prompt that
-changes silently makes the track record in `theses/ledger/` uninterpretable. If you edit
-one, commit the edit, so a note can always be read against the instructions that produced
-it.
+changes silently makes the track record in `theses/ledger/` uninterpretable. A hit rate is
+only meaningful against the instructions that produced it. If you edit one, commit the
+edit, so any note can be read against the instructions in force when it was written.
 
 ## Order
 
     pipeline (cron, no model)  ->  analyst (weekly)  ->  PM (weekly, after)
 
 The PM reads what the analyst wrote. Never the other way round.
+
+## On conviction
+
+Conviction is **derived, not asserted**. A self-rated confidence number clusters at 3 to 4
+however the prompt is worded, and is not comparable across notes written in separate
+sessions with no memory of each other. It is the sum of four properties of the note, each
+of which a reader can check against the text:
+
+| Component | Range | What earns it |
+|---|---|---|
+| `evidence_base` | 0-2 | 2 = management's own words from the 8-K EX-99.1; 1 = panel factors and price history; 0 = headlines or inference |
+| `falsifier_specific` | 0-1 | the falsifier names an observable, a threshold and a date known before `horizon_end` |
+| `variant_perception` | 0-1 | the note names what the market gets wrong AND why that error persists |
+| `disconfirmation` | 0-1 | the strongest counter-case was engaged and the falsifier survived it |
+
+`validate.py` checks the arithmetic and rejects a conviction of 4 or more resting on
+`evidence_base` 0. Most notes should score `evidence_base` 1: only 9 of 20 large caps
+tested carry real forward guidance in their earnings release.
+
+This does not make conviction objective. It makes a disagreement about conviction a
+disagreement about something specific, and it makes the scale auditable after the fact
+against `ledger/scores.csv`.
 
 ---
 
@@ -94,19 +116,41 @@ Answer four things, in this order:
   g. Never use news_count_7d, news_lm_avg, news_vader_avg or neglect_score.
      They are contaminated before 2026-09-12 and cannot be audited.
 
-=== 4. CONVICTION ===
+=== 4. CONVICTION IS DERIVED, NOT FELT ===
 
-  5  You would be surprised to be wrong. Needs a sourced variant view AND a
-     dated catalyst AND valuation support. A few times a year at most.
-  4  Clear edge, one leg soft.
-  3  A real but unremarkable observation. Most notes land here.
-  2  Directionally interesting, thinly supported.
-  1  Worth watching, no view yet.
+Do not rate your own confidence. A number you simply feel is not comparable
+across notes written in separate sessions with no memory of each other, and a
+model asked to rate its own conviction clusters at 3 to 4 however the prompt is
+worded. Score four properties of the note instead, each of which a reader can
+check against the text.
 
-Base rates matter. Since 1926 roughly 4 percent of US stocks produced all net
-market wealth above Treasury bills, and the median stock's lifetime return is
-negative. A skeptical prior is correct. If you are writing conviction 4 on most
-names you are pattern-matching on your own fluency rather than on evidence.
+  evidence_base       0-2   2 = management's own words, from the 8-K EX-99.1
+                            text in the dossier
+                            1 = panel factors and price history only
+                            0 = headlines or inference
+                            MOST NOTES SCORE 1. Only 9 of 20 large caps tested
+                            carry real guidance in their release, so a 2 is
+                            genuinely uncommon and should stay that way.
+
+  falsifier_specific  0-1   1 if the falsifier names an observable with a
+                            threshold and a date that will be known before
+                            horizon_end. 0 if it restates "the stock falls".
+
+  variant_perception  0-1   1 if the note names what the market is getting
+                            wrong AND why that error persists. An error with no
+                            reason to persist is already closing.
+
+  disconfirmation     0-1   1 if you engaged the strongest case against the
+                            thesis and the falsifier survived it.
+
+conviction = the sum of those four. Put all five numbers in the front-matter.
+validate.py checks the arithmetic and rejects a conviction of 4 or more resting
+on evidence_base 0.
+
+Base rates still apply. Since 1926 roughly 4 percent of US stocks produced all
+net market wealth above Treasury bills, and the median stock's lifetime return
+is negative. If most of your notes score 4, the question is not whether you are
+confident. It is which component you are awarding too freely.
 
 === 5. VALUATION ===
 
@@ -138,7 +182,8 @@ thesis drift and it is the failure this archive exists to prevent.
 
 YAML front-matter then markdown body, at most 900 words of body. Front-matter:
 thesis_id, ticker, kind, written_on, panel_date, entry_price, entry_source,
-slot, direction (long|short|avoid|watch|no view), conviction, horizon_days,
+slot, direction (long|short|avoid|watch|no view), conviction, evidence_base,
+falsifier_specific, variant_perception, disconfirmation, horizon_days,
 target_price, review_by, key_claim, falsifier, data_caveats (a list).
 
 Body sections, exactly these headings:

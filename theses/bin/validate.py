@@ -15,7 +15,18 @@ from pathlib import Path
 
 REQUIRED_FM = ["thesis_id", "ticker", "kind", "written_on", "panel_date", "entry_price",
                "direction", "conviction", "horizon_days", "target_price", "review_by",
-               "falsifier", "data_caveats"]
+               "falsifier", "data_caveats",
+               # Conviction is DERIVED, not asserted. A number the analyst simply
+               # feels is not comparable across notes written in separate sessions
+               # with no memory of each other, and a model asked to rate its own
+               # confidence clusters at 3 to 4 no matter how the prompt is worded.
+               # Each component is a property of the note a reader can check, so a
+               # disagreement about conviction becomes a disagreement about
+               # something specific.
+               "evidence_base", "falsifier_specific", "variant_perception",
+               "disconfirmation"]
+CONVICTION_PARTS = {"evidence_base": (0, 2), "falsifier_specific": (0, 1),
+                    "variant_perception": (0, 1), "disconfirmation": (0, 1)}
 DIRECTIONS = {"long", "short", "avoid", "watch", "no view"}
 KINDS = {"initiation", "update", "revision", "close"}
 SECTIONS = ["WHAT IS PRICED IN", "WHERE I DIFFER", "WHAT I DON'T KNOW"]
@@ -92,10 +103,31 @@ def check(path):
 
     try:
         c = int(str(fm.get("conviction", "")).strip())
-        if not 1 <= c <= 5:
-            F(f"conviction {c} outside 1-5")
+        if not 0 <= c <= 5:
+            F(f"conviction {c} outside 0-5")
     except (TypeError, ValueError):
+        c = None
         F("conviction is not an integer")
+
+    total, ok_parts = 0, True
+    for k, (lo, hi) in CONVICTION_PARTS.items():
+        try:
+            v = int(str(fm.get(k, "")).strip())
+        except (TypeError, ValueError):
+            ok_parts = False
+            continue
+        if not lo <= v <= hi:
+            F(f"{k} is {v}, outside {lo}-{hi}")
+            ok_parts = False
+        else:
+            total += v
+    if ok_parts and c is not None and c != total:
+        F(f"conviction is {c} but its components sum to {total} "
+          f"(evidence_base + falsifier_specific + variant_perception + disconfirmation). "
+          f"Conviction is derived, not asserted: change a component or change the note.")
+    if ok_parts and c is not None and c >= 4 and int(str(fm.get("evidence_base", 0)).strip() or 0) < 1:
+        F("conviction 4 or above with evidence_base 0. A high-conviction call resting on "
+          "neither filings nor factor data is resting on inference.")
 
     for f in ("entry_price", "target_price"):
         try:
