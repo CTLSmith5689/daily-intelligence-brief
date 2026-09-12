@@ -9496,7 +9496,12 @@ def _segment_note_file(cik, accession):
 
 
 def _fetch_segment_note(cik, ticker):
-    """Latest 10-Q or 10-K segment note as text. Returns (accession, form, name, text)."""
+    """Latest 10-Q or 10-K segment note as text.
+
+    Returns (accession, form, filing_date, name, text). The date is the periodic
+    filing's own, not the date of the 8-K that triggered the fetch: the note
+    describes the quarter the 10-Q covers, and stamping it with today's date
+    would make a note from August read as current on the page."""
     raw = _edgar_get(EDGAR_SUBMISSIONS_URL.format(cik=cik))
     if not raw:
         return None
@@ -9505,6 +9510,7 @@ def _fetch_segment_note(cik, ticker):
     except Exception:
         return None
     forms, accs = rec.get("form", []), rec.get("accessionNumber", [])
+    dates = rec.get("filingDate", [])
     for i, f in enumerate(forms):
         if f not in ("10-Q", "10-K"):
             continue
@@ -9523,7 +9529,7 @@ def _fetch_segment_note(cik, ticker):
         text = text[:_SEGMENT_MAX_CHARS]
         if len(text) < _SEGMENT_MIN_CHARS:
             return None
-        return accs[i], f, name, text
+        return accs[i], f, (dates[i] if i < len(dates) else ""), name, text
     return None
 
 
@@ -9876,14 +9882,14 @@ def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_
                 })
             seg = _fetch_segment_note(cik, ticker)
             if seg:
-                s_acc, s_form, s_name, s_text = seg
+                s_acc, s_form, s_filed, s_name, s_text = seg
                 if s_acc not in already:
                     s_rel = f"text/{ticker}/{s_acc}-segment.txt"
                     s_path = FILINGS_CSV_DIR / s_rel
                     s_path.parent.mkdir(parents=True, exist_ok=True)
                     s_path.write_text(s_text, encoding="utf-8")
                     entries.append({
-                        "filed": day, "ticker": ticker, "cik": cik, "form": s_form,
+                        "filed": s_filed or day, "ticker": ticker, "cik": cik, "form": s_form,
                         "doc_kind": "segment_note", "items": s_name[:60],
                         "accession": s_acc, "exhibit": "", "text_path": s_rel,
                         "text_chars": len(s_text),
