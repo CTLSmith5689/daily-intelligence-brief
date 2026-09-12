@@ -11,6 +11,8 @@ import ssl
 import subprocess
 import collections
 import csv
+import gzip
+import html as _html
 import io
 import json
 import math
@@ -26,6 +28,7 @@ from datetime import datetime, timezone, timedelta
 
 import time
 import random
+import zlib
 from pathlib import Path
 
 # ── Config ──────────────────────────────────────────────────────────────────
@@ -104,6 +107,12 @@ DATA_DIR = REPO_ROOT / "data"
 QUOTES_CSV = DATA_DIR / "quotes.csv"
 HEADLINES_CSV_DIR = DATA_DIR / "headlines"
 FUNDAMENTALS_CSV_DIR = DATA_DIR / "fundamentals"
+# Earnings press releases. The index is a month CSV like the other archives, so
+# merge=union covers it; the text is one file per filing because git stores an
+# unchanged blob once, while a single growing corpus file would be re-stored in
+# full on every commit.
+FILINGS_CSV_DIR = DATA_DIR / "filings"
+FILINGS_TEXT_DIR = FILINGS_CSV_DIR / "text"
 
 # trading_day is the session the price belongs to, which is not the session we
 # observed it in. Alpha Vantage GLOBAL_QUOTE returns the previous close, so an
@@ -113,6 +122,8 @@ FUNDAMENTALS_CSV_DIR = DATA_DIR / "fundamentals"
 QUOTE_COLUMNS = ["observed_at", "ticker", "label", "price", "change_pct",
                  "is_yield", "trading_day"]
 HEADLINE_COLUMNS = ["first_seen", "published", "section", "category", "source", "title", "link"]
+FILING_COLUMNS = ["filed", "ticker", "cik", "form", "items", "accession",
+                  "exhibit", "text_path", "text_chars", "recorded_at"]
 
 # Nested values (benford is a dict, op_margin_history a list) have no sensible
 # CSV representation, so they are dropped rather than stringified.
@@ -306,6 +317,45 @@ def record_headlines(headlines, observed_at):
     print(f"csv: appended {n} new headlines to data/headlines/{path.name} "
           f"({len(headlines) - n} already recorded).")
     return n
+
+
+def record_filings(entries, observed_at):
+    """Append filing index rows not already recorded this month.
+
+    Dedupes on accession, which is unique per filing across all of EDGAR, so a
+    re-run over the same day is a no-op rather than a duplicate."""
+    path = FILINGS_CSV_DIR / f"{observed_at[:7]}.csv"
+    seen = set()
+    if path.exists():
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                for row in csv.DictReader(fh):
+                    seen.add(row.get("accession", ""))
+        except Exception as exc:
+            print(f"csv: could not read {path.name} for dedupe ({exc}); appending all.")
+    rows = []
+    for e in entries:
+        acc = e.get("accession", "")
+        if not acc or acc in seen:
+            continue
+        seen.add(acc)
+        rows.append({**e, "recorded_at": observed_at})
+    n = _append_csv(path, FILING_COLUMNS, rows)
+    print(f"csv: appended {n} filings to data/filings/{path.name} "
+          f"({len(entries) - n} already recorded).")
+    return n
+
+
+def filing_accessions_recorded(month_iso):
+    """Accessions already in the month index, so a run can skip re-fetching."""
+    path = FILINGS_CSV_DIR / f"{month_iso[:7]}.csv"
+    if not path.exists():
+        return set()
+    try:
+        with path.open(encoding="utf-8", newline="") as fh:
+            return {r.get("accession", "") for r in csv.DictReader(fh)}
+    except Exception:
+        return set()
 
 
 def panel_has_date(date_iso):
@@ -8790,6 +8840,277 @@ def fetch_edgar_ticker_cik_map():
         return {}
 
 
+
+# --- 8-K Item 2.02 earnings press releases -----------------------------------
+#
+# The panel is all numbers. It has no account of what management said about the
+# quarter, and no guidance at all. The EX-99.1 exhibit attached to an earnings
+# 8-K is the cheapest way to fix that: it is public domain, it lands within
+# hours of the call, and it is roughly a tenth the size of a 10-K.
+#
+# Measured on 20 large caps before building this: the exhibit was retrievable
+# for 20 of 20, and 9 of 20 carried a real forward-guidance section. So it is
+# reliable for reported results and management's framing, and a coin flip for
+# guidance. Nothing downstream may assume guidance is present.
+#
+# Discovery runs off the daily index rather than per-ticker submissions. One
+# 737 KB request lists every filing EDGAR received that day, so a run costs
+# 1 + N + M requests (N = 8-Ks matching our universe, M = those carrying item
+# 2.02) instead of one request per ticker. At ~5,300 tickers that is the
+# difference between ~40 seconds and ~33 minutes.
+EDGAR_DAILY_INDEX_URL = ("https://www.sec.gov/Archives/edgar/daily-index/"
+                         "{year}/QTR{qtr}/form.{ymd}.idx")
+EDGAR_ARCHIVE_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{nod}/{name}"
+EDGAR_HEADER_URL = EDGAR_ARCHIVE_URL.format(cik="{cik}", nod="{nod}",
+                                            name="{acc}-index-headers.html")
+_FILING_MIN_BODY = 500          # a shorter body is EDGAR returning nothing
+_FILING_MAX_TEXT = 400_000      # guards against an 8 MB filing with inline exhibits
+_FILINGS_TIME_BUDGET_S = 900
+# Four days so a weekend, a holiday, or a dropped cron slot is caught up rather
+# than lost. Already-recorded accessions are skipped before any request is made,
+# so in steady state the extra days cost one index fetch each and nothing more.
+FILINGS_DAYS_BACK = 4
+
+
+def _edgar_get(url, accept=None, tries=3):
+    """Throttled EDGAR fetch returning decoded bytes, or None.
+
+    Two things this has to handle that a plain urlopen does not. Asking for
+    gzip saves real bandwidth on 700 KB index files, but urllib does not
+    decompress, so a caller would get 0x8b garbage. And EDGAR occasionally
+    answers with an empty body and a 200, which is indistinguishable from a
+    genuinely absent document unless the length is checked."""
+    headers = {"User-Agent": EDGAR_USER_AGENT, "Accept-Encoding": "gzip, deflate"}
+    if accept:
+        headers["Accept"] = accept
+    for attempt in range(tries):
+        _sec_throttle()
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                data = resp.read()
+                encoding = (resp.headers.get("Content-Encoding") or "").lower()
+            if encoding == "gzip":
+                data = gzip.decompress(data)
+            elif encoding == "deflate":
+                data = zlib.decompress(data, -zlib.MAX_WBITS)
+            if len(data) < _FILING_MIN_BODY:
+                raise ValueError(f"short body {len(data)}B")
+            return data
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return None          # weekend, holiday, or no such document
+            if attempt == tries - 1:
+                return None
+        except Exception:
+            if attempt == tries - 1:
+                return None
+        time.sleep(1.0 * (3 ** attempt))
+    return None
+
+
+def _filing_to_text(raw):
+    """Strip a filing document to readable text.
+
+    The ix:header removal is not optional. An inline-XBRL filing carries a
+    couple of KB of taxonomy context at the top, and naive tag-stripping turns
+    it into a wall of 'http://fasb.org/us-gaap/2025#LongTermDebtNoncurrent'."""
+    try:
+        text = raw.decode("utf-8", "replace")
+    except Exception:
+        return ""
+    text = re.sub(r"(?is)<ix:header.*?</ix:header>", " ", text)
+    text = re.sub(r"(?is)<(script|style).*?</\1>", " ", text)
+    text = re.sub(r"(?s)<[^>]+>", " ", text)
+    text = _html.unescape(text)
+    text = text.replace("\xa0", " ").replace("\u200b", "")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
+    text = text.strip()
+    # EDGAR's viewer prepends its own document wrapper, which strips down to
+    #   EX-99.1 / 2 / rh-20260910xex99d1.htm / EX-99.1
+    # before the press release begins. It is noise in every single filing, so
+    # drop it up to and including the last "Exhibit 99.x" marker near the top.
+    head = text[:600]
+    m = None
+    for m in re.finditer(r"(?i)exhibit\s+99\.?\d*\s*", head):
+        pass
+    if m:
+        text = text[m.end():].lstrip()
+    return text[:_FILING_MAX_TEXT]
+
+
+def _daily_index_filings(date_iso, want_form="8-K"):
+    """Every filing of one form type that EDGAR received on a date.
+
+    Returns [(cik, accession)]. Empty on weekends and holidays, which 404.
+
+    form.*.idx is FIXED-WIDTH, not pipe-delimited; the pipe format belongs to
+    master.idx. Splitting on "|" here silently matched nothing at all, which
+    looked exactly like a quiet day. Rather than parse columns, which breaks on
+    form types containing spaces ("1-A POS") and on company names containing
+    almost anything, both identifiers are read straight out of the archive path
+    at the end of the line, where their shape is unambiguous."""
+    dt = datetime.strptime(date_iso, "%Y-%m-%d")
+    url = EDGAR_DAILY_INDEX_URL.format(year=dt.year, qtr=(dt.month - 1) // 3 + 1,
+                                       ymd=dt.strftime("%Y%m%d"))
+    raw = _edgar_get(url)
+    if not raw:
+        return []
+    prefix = want_form.upper()
+    out, seen = [], set()
+    for line in raw.decode("utf-8", "replace").splitlines():
+        head = line[:len(prefix) + 1].upper()
+        if not head.startswith(prefix) or (len(line) > len(prefix)
+                                           and not line[len(prefix)].isspace()):
+            continue
+        m = re.search(r"edgar/data/(\d+)/(\d{10}-\d{2}-\d{6})\.txt", line)
+        if not m:
+            continue
+        key = m.group(2)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((int(m.group(1)), key))
+    return out
+
+
+# The index-headers page writes item DESCRIPTIONS, not numbers:
+#   ITEM INFORMATION:\t\tResults of Operations and Financial Condition
+# Nothing on that page carries "2.02" as a string, so matching on the code
+# returned no earnings filings at all while looking like a quiet fortnight.
+# Only the submissions JSON exposes numeric items, and that costs one request
+# per issuer, which is the cost this whole daily-index path exists to avoid.
+_EDGAR_ITEM_CODES = {
+    "entry into a material definitive agreement": "1.01",
+    "termination of a material definitive agreement": "1.02",
+    "completion of acquisition or disposition of assets": "2.01",
+    "results of operations and financial condition": "2.02",
+    "creation of a direct financial obligation": "2.03",
+    "triggering events that accelerate": "2.04",
+    "costs associated with exit or disposal activities": "2.05",
+    "material impairments": "2.06",
+    "notice of delisting or failure to satisfy": "3.01",
+    "unregistered sales of equity securities": "3.02",
+    "material modifications to rights of security holders": "3.03",
+    "material modification to rights of security holders": "3.03",
+    "changes in registrant's certifying accountant": "4.01",
+    "non-reliance on previously issued financial statements": "4.02",
+    "changes in control of registrant": "5.01",
+    "departure of directors or certain officers": "5.02",
+    "amendments to articles of incorporation or bylaws": "5.03",
+    "amendments to the registrant's code of ethics": "5.05",
+    "amendment to registrant's code of ethics": "5.05",
+    "change in shell company status": "5.06",
+    "submission of matters to a vote of security holders": "5.07",
+    "regulation fd disclosure": "7.01",
+    "other events": "8.01",
+    "financial statements and exhibits": "9.01",
+}
+_EARNINGS_ITEM = "2.02"
+
+
+def _edgar_item_codes(text):
+    """Map ITEM INFORMATION descriptions to 8-K item numbers.
+
+    Prefix matching, because SEC truncates the longer descriptions and pads
+    them with tabs. An unrecognised description is kept verbatim so a new or
+    renamed item shows up in the index rather than vanishing."""
+    codes = []
+    for desc in re.findall(r"ITEM INFORMATION:\s*([^\n<]+)", text):
+        key = " ".join(desc.split()).strip().lower()
+        code = next((v for k, v in _EDGAR_ITEM_CODES.items() if key.startswith(k)), None)
+        codes.append(code or key.replace(",", " ")[:40].strip())
+    return ",".join(sorted(set(codes)))
+
+
+def _filing_header(cik, accession):
+    """Read one filing's SGML header. Returns (items, exhibit_filename).
+
+    The header page HTML-escapes its own SGML, so <TYPE> arrives as &lt;TYPE&gt;
+    and nothing matches until it is unescaped. That is the single most likely
+    thing to silently break here."""
+    nod = accession.replace("-", "")
+    raw = _edgar_get(EDGAR_HEADER_URL.format(cik=cik, nod=nod, acc=accession))
+    if not raw:
+        return "", None
+    text = _html.unescape(raw.decode("utf-8", "replace"))
+    items = _edgar_item_codes(text)
+    exhibit = None
+    docs = re.findall(r"<TYPE>([^<\s]+).*?<FILENAME>([^<\s]+)", text, re.S)
+    for want in ("EX-99.1", "EX-99"):
+        for doc_type, filename in docs:
+            if doc_type.upper() == want and filename.lower().endswith((".htm", ".html", ".txt")):
+                exhibit = filename
+                break
+        if exhibit:
+            break
+    return items, exhibit
+
+
+def collect_earnings_filings(cik_to_ticker, days_back=1, budget_s=_FILINGS_TIME_BUDGET_S):
+    """Harvest EX-99.1 earnings releases filed in the last `days_back` days.
+
+    Writes one text file per filing and returns index rows for record_filings.
+    Anything already in this month's index is skipped, so re-running is cheap
+    and idempotent."""
+    if not cik_to_ticker:
+        return []
+    started = time.time()
+    today = datetime.now(tz=timezone.utc).date()
+    # Both months, because a run on the 1st looks at filings from the 28th. With
+    # only the current month loaded, those would read as unrecorded and be
+    # fetched and written a second time, into a second month's index.
+    already = filing_accessions_recorded(today.isoformat())
+    already |= filing_accessions_recorded((today.replace(day=1) - timedelta(days=1)).isoformat())
+    entries, scanned, skipped = [], 0, 0
+
+    for back in range(days_back):
+        day_date = today - timedelta(days=back)
+        # EDGAR answers 503, not 404, for a date with no index, so a weekend
+        # would otherwise cost a full retry cycle each. Holidays still do.
+        if day_date.weekday() >= 5:
+            continue
+        day = day_date.isoformat()
+        for cik, accession in _daily_index_filings(day):
+            if time.time() - started > budget_s:
+                print(f"filings: time budget reached after {scanned} headers; "
+                      f"remaining filings will be picked up next run.")
+                return entries
+            ticker = cik_to_ticker.get(cik)
+            if not ticker:
+                continue
+            if accession in already:
+                skipped += 1
+                continue
+            scanned += 1
+            items, exhibit = _filing_header(cik, accession)
+            if _EARNINGS_ITEM not in (items or "") or not exhibit:
+                continue
+            nod = accession.replace("-", "")
+            doc = _edgar_get(EDGAR_ARCHIVE_URL.format(cik=cik, nod=nod, name=exhibit))
+            if not doc:
+                continue
+            text = _filing_to_text(doc)
+            if len(text) < 400:
+                # An exhibit this short is a cover page or a failed strip, not a
+                # press release. Recording it would claim coverage we lack.
+                continue
+            rel = f"text/{ticker}/{accession}.txt"
+            out_path = FILINGS_CSV_DIR / rel
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(text, encoding="utf-8")
+            entries.append({
+                "filed": day, "ticker": ticker, "cik": cik, "form": "8-K",
+                "items": items, "accession": accession, "exhibit": exhibit,
+                "text_path": rel, "text_chars": len(text),
+            })
+    print(f"filings: {len(entries)} earnings releases collected, "
+          f"{scanned} 8-K headers read, {skipped} already recorded, "
+          f"{time.time() - started:.0f}s.")
+    return entries
+
+
 def fetch_edgar_company_facts(cik):
     """Fetch full XBRL facts for one CIK. Returns the 'facts' dict or None.
     Routes through _sec_throttle (defined later in the file) so that EDGAR and
@@ -11128,6 +11449,27 @@ def lambda_handler(event, context):
               f"under today's date.")
     else:
         panel_rows = record_fundamentals(stocks, date_iso)
+
+    # 5b. Earnings press releases (8-K item 2.02, exhibit EX-99.1).
+    #
+    # Deliberately after the panel and wrapped, because this is the one part of
+    # the run that depends on a third party's index being up. The panel row is
+    # the thing that cannot be backfilled; a missed filing is picked up by the
+    # next run's four-day window. So nothing in here is allowed to cost the day
+    # its row, or the site its rebuild.
+    try:
+        cik_to_ticker = {}
+        for _tkr, _cik in (fetch_edgar_ticker_cik_map() or {}).items():
+            try:
+                cik_to_ticker.setdefault(int(_cik), _tkr)
+            except (TypeError, ValueError):
+                continue
+        _entries = collect_earnings_filings(cik_to_ticker, days_back=FILINGS_DAYS_BACK)
+        if _entries:
+            record_filings(_entries, observed_at)
+    except Exception as exc:
+        print(f"filings: collection failed ({type(exc).__name__}: {exc}); "
+              f"the panel and the site are unaffected.")
 
     # 6. Publish the snapshot page and rebuild the site.
     title = f"Daily Brief · {date_str}"

@@ -26,6 +26,32 @@ view rebuilt from scratch each day and safe to regard as disposable.
 | `data/headlines/YYYY-MM.csv` | hourly | one row per article, deduped on link |
 | `data/fundamentals/YYYY-MM.csv` | trading days | one row per ticker per day, ~50 columns |
 | `data/tickers.csv` | daily | every ticker ever seen, with first/last seen and status |
+| `data/filings/YYYY-MM.csv` | daily | one row per earnings release, deduped on accession |
+| `data/filings/text/{TICKER}/` | daily | the release text, one file per filing |
+
+`filings` is the only qualitative series here. When a company reports, it files
+an 8-K carrying item 2.02, Results of Operations and Financial Condition, with
+the press release attached as exhibit EX-99.1. That exhibit is what the panel
+cannot express: the quarter in management's own words, and sometimes next
+quarter's guidance.
+
+Measured on 20 large caps before this was built, the exhibit was retrievable for
+20 of 20 and 9 of 20 carried a real guidance section. So it is dependable for
+reported results and framing, and a coin flip for guidance. Nothing reading this
+series should assume guidance is present. Apple, for one, never puts it there.
+
+Discovery runs off EDGAR's daily index rather than per-issuer submissions. One
+request lists every filing EDGAR received that day, so a run costs one index
+fetch plus two requests per new earnings filing, instead of one request per
+ticker. Across ~5,300 tickers that is the difference between about forty seconds
+and half an hour. Two details are load-bearing and easy to get wrong: form.idx
+is fixed-width, not pipe-delimited like master.idx, and the filing header page
+names items by description ("Results of Operations and Financial Condition")
+and never by number, so matching on the string "2.02" finds nothing at all.
+
+The window is four days, so a weekend, a holiday or a dropped cron slot is
+caught up rather than lost. Accessions already recorded are skipped before any
+request is made, which is what makes re-running cheap.
 
 `headlines` dedupes on link across the month, so `first_seen` is genuinely the
 first time the pipeline saw an article, not the most recent hour it was still on
