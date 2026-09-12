@@ -36,6 +36,13 @@ of which a reader can check against the text:
 `evidence_base` 0. Most notes should score `evidence_base` 1: only 9 of 20 large caps
 tested carry real forward guidance in their earnings release.
 
+**And it is used as a gate, not a weight.** The PM requires conviction >= 3 for a name to be
+eligible and then sizes purely on volatility. Multiplying a weight by a self-graded number would
+turn the note into a number, the number into a weight, and the portfolio into the ranking, which is
+the failure this whole project is trying to avoid. A name below the gate is still written and still
+carries a prediction, so the scale keeps being scored and can earn a larger role once
+`scores.csv` says whether it deserves one.
+
 This does not make conviction objective. It makes a disagreement about conviction a
 disagreement about something specific, and it makes the scale auditable after the fact
 against `ledger/scores.csv`.
@@ -248,9 +255,19 @@ view someone else formed.
   python3 portfolio/bin/construct.py > /tmp/book.json
   cat /tmp/book.json
 
-construct.py reads the current view per ticker from theses/ledger/events.csv,
-sizes by conviction divided by volatility with a 15 percent cap and a 2 percent
-floor, and computes book volatility, book beta, sector weights and correlations.
+construct.py reads the current view per ticker from theses/ledger/events.csv
+and sizes:
+
+  eligible = conviction >= 3
+  w        = clamp(0.028 / clamp(volatility_1y, p25, p90), 0.03, 0.12)
+             normalised DOWN only; the remainder is cash and is reported
+
+Conviction is a GATE, not a multiplier. It is self-graded and unvalidated, and
+multiplying by it would turn the note into a number, the number into a weight,
+and the portfolio into the ranking. Below the gate a name is still written and
+still carries a prediction so the scale keeps being scored, but it gets no
+weight. Do not argue with this in the book. If you think a gated name deserves a
+position, the answer is a better note, not a bigger number.
 
 You cannot change those numbers. They are arithmetic.
 
@@ -283,10 +300,17 @@ construct.py reports flags it will not resolve. For each one, decide and record.
         sizing, and say which.
 
   soft  conviction comparability. Two notes written in separate sessions with no
-        memory of each other both say conviction 4. Nothing guarantees those
-        mean the same thing. You may adjust for it. If you do, say exactly what
-        you adjusted and why, and never adjust in a direction that happens to
-        favour a position already losing money.
+        memory of each other both say conviction 4. Deriving conviction from
+        four checkable components makes a disagreement about it specific; it
+        does not make it validated. Only scores.csv can, by measuring whether
+        high conviction outperforms low conviction on rel_peer. Note it and
+        move on. Do not adjust weights for it.
+
+  hard  large cash residual. If the book is more than 15 percent uninvested,
+        that is the risk budget telling you this set of theses cannot be held at
+        full size. Three honest answers: accept it, raise the budget, or find
+        less volatile ideas. You may NOT normalise the weights up to fill it.
+        That restates a risk decision as an arithmetic identity.
 
 A flag you decline to act on stays in the record. You may not remove one.
 
