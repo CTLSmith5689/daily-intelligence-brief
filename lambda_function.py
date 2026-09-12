@@ -3002,6 +3002,97 @@ body.scr-page .stk-head { top:109px; }   /* clears the 56px bar + 53px toolbar *
   .featured-card { padding:32px 24px; }
   .feat-grid { grid-template-columns:1fr; }
 }
+/* --- research page -------------------------------------------------------
+   Its own vocabulary (rs-*) rather than reusing th-*, because the thesis card
+   on the screener is a summary inside a row and these are the primary objects
+   on their own page. Both draw from the same tokens, so they read as siblings. */
+body.page-research .scr-page-body { max-width:1060px; margin:0 auto; padding:0 22px 72px; }
+.rs-head { padding:44px 0 26px; border-bottom:1px solid var(--border); }
+.rs-h1 { font-family:'Instrument Serif',Georgia,serif; font-size:54px; line-height:1; color:var(--text-1); font-weight:400; }
+.rs-lede { margin-top:16px; font-size:14.5px; line-height:1.65; color:var(--text-3); max-width:66ch; }
+.rs-h2 { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-4); font-weight:400; }
+.rs-h2row { display:flex; align-items:baseline; gap:12px; margin-bottom:14px; }
+.rs-count { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-5); letter-spacing:1px; margin-left:auto; }
+.rs-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-4); display:block; margin-bottom:6px; }
+.rs-note { font-size:12.5px; line-height:1.65; color:var(--text-3); max-width:66ch; margin-top:12px; }
+.rs-note b { color:var(--text-2); font-weight:400; }
+.rs-note-loud { border-left:2px solid var(--apt-amber); padding-left:12px; color:var(--text-2); }
+.rs-empty { font-size:13px; color:var(--text-3); padding:26px 0; }
+
+.rs-record { padding:30px 0; border-bottom:1px solid var(--border); }
+.rs-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); margin:14px 0 20px; }
+.rs-tile { background:var(--bg-base); padding:16px 18px; display:flex; flex-direction:column; gap:5px; }
+.rs-tile-v { font-family:'Instrument Serif',Georgia,serif; font-size:34px; line-height:1; color:var(--text-1); font-variant-numeric:tabular-nums; }
+.rs-tile-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-4); }
+.rs-tiers { width:100%; border-collapse:collapse; font-family:'Space Mono',monospace; font-size:11.5px; font-variant-numeric:tabular-nums; }
+.rs-tiers th { text-align:left; font-weight:400; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-4); padding:7px 10px 7px 0; border-bottom:1px solid var(--border); }
+.rs-tiers td { padding:7px 10px 7px 0; border-bottom:1px solid var(--border); color:var(--text-2); }
+.rs-td-na { color:var(--text-5); }
+
+.rs-views { padding:30px 0 0; }
+.rs-controls { display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.rs-group { display:flex; flex-direction:column; }
+.rs-group .rs-k { margin-bottom:7px; }
+.rs-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.rs-chip { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); background:transparent; border:1px solid var(--border-bright); padding:5px 11px; cursor:pointer; }
+.rs-chip:hover { color:var(--text-1); }
+.rs-chip.on { color:var(--text-1); border-color:var(--apt-red); }
+.rs-chip i { font-style:normal; color:var(--text-5); margin-left:4px; }
+.rs-select { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-2); background:var(--bg-base); border:1px solid var(--border-bright); padding:5px 9px; }
+
+.rs-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-top:0; }
+.rs-card { background:var(--bg-base); padding:22px 24px; }
+.rs-top { display:flex; align-items:baseline; gap:11px; flex-wrap:wrap; margin-bottom:12px; }
+.rs-tk { font-family:'Space Mono',monospace; font-size:15px; letter-spacing:1px; color:var(--text-1); text-decoration:none; border-bottom:1px solid var(--border-bright); }
+.rs-tk:hover { border-bottom-color:var(--apt-red); }
+.rs-nm { font-size:12.5px; color:var(--text-3); }
+.rs-status { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; padding:3px 8px; border:1px solid var(--border-bright); color:var(--text-4); margin-left:auto; }
+.rs-status-due { color:var(--apt-amber); border-color:var(--apt-amber); }
+.rs-status-open { color:var(--text-2); border-color:var(--text-4); }
+.rs-status-graded { color:var(--apt-red); border-color:var(--apt-red); }
+.rs-dirline { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+.rs-dir { font-family:'Instrument Serif',Georgia,serif; font-size:28px; line-height:1; color:var(--text-1); }
+.rs-dir-no-view, .rs-dir-watch { color:var(--text-4); }
+.rs-pips { display:inline-flex; gap:3px; align-items:center; }
+.rs-pip { width:9px; height:9px; border-radius:50%; border:1.5px solid var(--text-5); }
+.rs-pip-on { background:var(--apt-red); border-color:var(--apt-red); }
+.rs-comps { display:flex; gap:6px; flex-wrap:wrap; }
+.rs-comp { font-family:'Space Mono',monospace; font-size:9.5px; letter-spacing:0.5px; color:var(--text-5); border:1px solid var(--border); padding:3px 7px; }
+.rs-comp b { color:var(--text-4); font-weight:400; }
+.rs-comp i { font-style:normal; color:var(--text-5); }
+.rs-comp-on { color:var(--text-3); border-color:var(--border-bright); }
+.rs-comp-on b { color:var(--text-1); }
+.rs-claim { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.45; color:var(--text-1); max-width:62ch; margin-bottom:14px; }
+.rs-claim-none { color:var(--text-4); font-size:16px; }
+.rs-drift { border:1px solid var(--apt-amber); border-left:3px solid var(--apt-amber); padding:9px 12px; margin-bottom:13px; font-size:12px; line-height:1.55; color:var(--text-2); max-width:62ch; }
+.rs-nums { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); display:flex; flex-wrap:wrap; margin-bottom:14px; font-variant-numeric:tabular-nums; }
+.rs-nums span { padding-right:12px; margin-right:12px; border-right:1px solid var(--border); }
+.rs-nums span:last-child { border-right:0; margin-right:0; padding-right:0; }
+.rs-nums b { color:var(--text-1); font-weight:400; }
+.rs-move { font-style:normal; }
+.rs-up { color:var(--apt-red); }
+.rs-down { color:var(--text-4); }
+.rs-fals { border:1px solid var(--apt-red); border-left:3px solid var(--apt-red); padding:11px 14px; margin-bottom:14px; max-width:62ch; }
+.rs-fals .rs-k { color:var(--apt-red-deep); margin-bottom:5px; }
+.rs-fals div { font-size:12.5px; line-height:1.55; color:var(--text-2); }
+.rs-screen { margin-bottom:14px; }
+.rs-sleeves { display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
+.rs-sl { display:inline-flex; align-items:center; gap:7px; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); }
+.rs-sl i { font-style:normal; color:var(--text-4); width:10px; }
+.rs-sl b { color:var(--text-2); font-weight:400; font-variant-numeric:tabular-nums; min-width:38px; text-align:right; }
+.rs-sl-track { width:88px; height:7px; background:var(--surface-3); border:1px solid var(--border); position:relative; }
+.rs-sl-zero { position:absolute; top:-2px; bottom:-2px; left:50%; width:1px; background:var(--text-5); }
+.rs-sl-fill { position:absolute; top:0; bottom:0; background:var(--apt-red); }
+.rs-sl-neg { background:var(--text-4); }
+.rs-links { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding-top:12px; border-top:1px solid var(--border); font-family:'Space Mono',monospace; font-size:10px; }
+.rs-links a { color:var(--text-2); }
+.rs-meta { color:var(--text-5); margin-left:auto; letter-spacing:0.5px; }
+@media (max-width:700px) {
+  .rs-h1 { font-size:38px; }
+  .rs-card { padding:18px 15px; }
+  .rs-status { margin-left:0; }
+  .rs-meta { margin-left:0; width:100%; }
+}
 """
 
 
@@ -3082,6 +3173,65 @@ STORIES_JS_TEMPLATE = """
   });
 
   render();
+})();
+"""
+
+
+RESEARCH_JS_TEMPLATE = """
+(function() {
+  // The cards are already in the DOM, server-rendered. This only hides and
+  // reorders them, so the page is readable with scripting off.
+  var list = document.getElementById('rs-list');
+  if (!list) return;
+  var cards = Array.prototype.slice.call(list.querySelectorAll('.rs-card'));
+  var state = { dir: 'all', status: 'all', sort: 'status' };
+
+  function count(sel, val) {
+    return cards.filter(function(c) { return c.dataset[sel] === val; }).length;
+  }
+
+  var SORTS = {
+    status:   function(a, b) { return (ORDER[a.dataset.status] - ORDER[b.dataset.status])
+                                      || b.dataset.written.localeCompare(a.dataset.written); },
+    written:  function(a, b) { return b.dataset.written.localeCompare(a.dataset.written); },
+    review:   function(a, b) { return (a.dataset.review || '9999').localeCompare(b.dataset.review || '9999'); },
+    convict:  function(a, b) { return (+b.dataset.conv) - (+a.dataset.conv); },
+    move:     function(a, b) { return (+b.dataset.move) - (+a.dataset.move); }
+  };
+  var ORDER = { due: 0, open: 1, watching: 2, graded: 3 };
+
+  function apply() {
+    var shown = 0;
+    cards.forEach(function(c) {
+      var ok = (state.dir === 'all' || c.dataset.dir === state.dir)
+            && (state.status === 'all' || c.dataset.status === state.status);
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    var sorted = cards.slice().sort(SORTS[state.sort] || SORTS.status);
+    sorted.forEach(function(c) { list.appendChild(c); });
+    var n = document.getElementById('rs-count');
+    if (n) n.textContent = shown + (shown === 1 ? ' name' : ' names');
+    var empty = document.getElementById('rs-noresult');
+    if (empty) empty.hidden = shown > 0;
+  }
+
+  document.querySelectorAll('[data-filter]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var group = btn.dataset.filter, val = btn.dataset.value;
+      state[group] = val;
+      document.querySelectorAll('[data-filter="' + group + '"]').forEach(function(b) {
+        b.classList.toggle('on', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      apply();
+    });
+  });
+  var sortEl = document.getElementById('rs-sort');
+  if (sortEl) sortEl.addEventListener('change', function() {
+    state.sort = sortEl.value; apply();
+  });
+  apply();
 })();
 """
 
@@ -6689,6 +6839,7 @@ def render_topnav(active=""):
         "today":   "Today",
         "stories": "Stories",
         "stocks":  "The Screen",
+        "research": "Research",
     }
     sub = SUBTITLE.get(active, "Explore what&rsquo;s out there.")
 
@@ -6707,6 +6858,7 @@ def render_topnav(active=""):
         + link("today.html", "Today", "today")
         + link("stories.html", "Stories", "stories")
         + link("stocks.html", "Stocks", "stocks")
+        + link("research.html", "Research", "research")
         + '<button type="button" id="apt-theme-toggle" class="theme-toggle"'
           ' aria-label="Toggle light/dark theme" title="Toggle light/dark">'
           '<span class="theme-toggle-icon">&#9788;</span></button>'
@@ -12426,6 +12578,432 @@ def write_company_views(stocks=None):
     print(f"company: wrote {written} view files to docs/company/.")
     return written
 
+# --- the research page ------------------------------------------------------
+#
+# The screen ranks 5,354 names by arithmetic. This page holds the part that is
+# not arithmetic: what the analyst actually concluded about a handful of them,
+# and whether those conclusions have been any good.
+#
+# Coverage is about four names a week against roughly a thousand eligible, so
+# the notes are invisible from the screen unless you already know the ticker.
+# That is what this page is for. It is built server-side from theses/, the same
+# source write_thesis_views reads, so it cannot disagree with the note cards on
+# the stocks page.
+RESEARCH_STATUS_ORDER = {"due": 0, "open": 1, "watching": 2, "graded": 3}
+# A direction that commits to something gets a prediction row and a grade.
+# "watch" and "no view" deliberately do not: see append_prediction in events.py.
+GRADEABLE_DIRECTIONS = ("long", "short", "avoid")
+
+
+def _research_price(ticker, entry_price):
+    """Last close and move since the note was written, or {}.
+
+    Reads the same docs/prices/{TICKER}.json the screener charts use. Absent in
+    a local run that has not fetched prices; the page renders a dash."""
+    try:
+        blob = json.loads((PRICES_DIR / _news_filename(ticker)).read_text(encoding="utf-8"))
+        closes = [c for c in (blob.get("closes") or []) if c and c[1] is not None]
+    except Exception:
+        return {}
+    if not closes:
+        return {}
+    last_date, last = closes[-1][0], float(closes[-1][1])
+    out = {"last": round(last, 2), "as_of": last_date}
+    try:
+        entry = float(entry_price)
+    except (TypeError, ValueError):
+        return out
+    if entry > 0:
+        out["move"] = round(last / entry - 1.0, 4)
+    return out
+
+
+def _research_views(stocks_by_ticker, today):
+    """One record per covered ticker, newest note wins."""
+    notes_dir = THESES_DIR / "notes"
+    if not notes_dir.is_dir():
+        return []
+    events = []
+    ev_path = THESES_DIR / "ledger" / "events.csv"
+    if ev_path.exists():
+        with ev_path.open(encoding="utf-8", newline="") as fh:
+            events = list(csv.DictReader(fh))
+    preds, scored = [], set()
+    for name, sink in (("predictions.csv", preds), ("scores.csv", None)):
+        path = THESES_DIR / "ledger" / name
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        if sink is None:
+            scored = {r.get("prediction_id") for r in rows}
+        else:
+            sink.extend(rows)
+    pred_by_ticker = {}
+    for p in preds:
+        pred_by_ticker.setdefault(p.get("ticker"), []).append(p)
+
+    out = []
+    for tdir in sorted(notes_dir.iterdir()):
+        if not tdir.is_dir():
+            continue
+        ticker = tdir.name
+        notes = sorted(tdir.glob("*.md"))
+        if not notes:
+            continue
+        latest = notes[-1]
+        fm = _parse_front_matter(latest.read_text(encoding="utf-8"))
+        if not fm:
+            continue
+        direction = (fm.get("direction") or "").strip()
+        mine = pred_by_ticker.get(ticker) or []
+        open_preds = [p for p in mine if p.get("prediction_id") not in scored]
+        if direction not in GRADEABLE_DIRECTIONS:
+            status = "watching"
+        elif mine and not open_preds:
+            status = "graded"
+        else:
+            status = "open"
+        review_by = (fm.get("review_by") or "").strip()
+        days_to_review = None
+        if review_by:
+            try:
+                d = (datetime.strptime(review_by, "%Y-%m-%d").date() - today).days
+                days_to_review = d
+                if d < 0 and status in ("open", "watching"):
+                    status = "due"
+            except ValueError:
+                pass
+
+        s = stocks_by_ticker.get(ticker) or {}
+        sleeves = {k: s.get(k) for k in ("g", "v", "m", "q")
+                   if isinstance(s.get(k), (int, float))}
+        rec = {
+            "ticker": ticker,
+            "name": s.get("name") or ticker,
+            "sector": s.get("sector") or "",
+            "sub_industry": s.get("sub_industry") or "",
+            "direction": direction or "no view",
+            "status": status,
+            "review_by": review_by,
+            "days_to_review": days_to_review,
+            "note_path": f"theses/notes/{ticker}/{latest.name}",
+            "note_count": len(notes),
+            "price": _research_price(ticker, fm.get("entry_price")),
+            "sleeves": sleeves,
+            "data_caveats": fm.get("data_caveats") or [],
+        }
+        for k in ("conviction", "evidence_base", "falsifier_specific",
+                  "variant_perception", "disconfirmation", "horizon_days"):
+            try:
+                rec[k] = int(str(fm.get(k, "")).strip())
+            except (TypeError, ValueError):
+                rec[k] = None
+        for k in ("entry_price", "target_price"):
+            try:
+                rec[k] = float(str(fm.get(k, "")).strip())
+            except (TypeError, ValueError):
+                rec[k] = None
+        for k in ("kind", "written_on", "key_claim", "falsifier", "slot", "thesis_id"):
+            rec[k] = (fm.get(k) or "").strip()
+        hist = [e for e in events if e.get("ticker") == ticker]
+        rec["history"] = [{"date": e.get("date"), "kind": e.get("kind"),
+                           "direction": e.get("direction"),
+                           "conviction": e.get("conviction"),
+                           "prior_direction": e.get("prior_direction"),
+                           "prior_conviction": e.get("prior_conviction"),
+                           "trigger": e.get("trigger")} for e in hist]
+        rec["claim_changed_ever"] = any(e.get("claim_changed") == "yes" for e in hist)
+        # Equal weight, and labelled as such on the page. The screener's own
+        # composite depends on slider weights the reader sets, so there is no
+        # single number to quote here; the four sleeve percentiles are.
+        if len(sleeves) == 4:
+            rec["equal_weight"] = round(sum(sleeves.values()) / 4, 4)
+        out.append(rec)
+    out.sort(key=lambda r: (RESEARCH_STATUS_ORDER.get(r["status"], 9),
+                            r.get("written_on") or ""), reverse=False)
+    return out
+
+
+def _research_record(views):
+    """The track record, and an honest account of it when it is empty."""
+    scores = []
+    sc_path = THESES_DIR / "ledger" / "scores.csv"
+    if sc_path.exists():
+        with sc_path.open(encoding="utf-8", newline="") as fh:
+            scores = list(csv.DictReader(fh))
+    tiers = {}
+    for v in views:
+        c = v.get("conviction")
+        if c is None:
+            continue
+        t = tiers.setdefault(c, {"conviction": c, "n": 0, "open": 0,
+                                 "graded": 0, "watching": 0})
+        t["n"] += 1
+        t[{"due": "open"}.get(v["status"], v["status"])] = \
+            t.get({"due": "open"}.get(v["status"], v["status"]), 0) + 1
+    # Maturity is horizon_days from the note date, which is not review_by: the
+    # review is a prompt to look again, the horizon is when the call is graded.
+    maturities = []
+    for v in views:
+        if v["direction"] not in GRADEABLE_DIRECTIONS:
+            continue
+        if not v.get("written_on") or not v.get("horizon_days"):
+            continue
+        try:
+            d = datetime.strptime(v["written_on"], "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        maturities.append((d + timedelta(days=v["horizon_days"])).isoformat())
+    return {
+        "notes": sum(v["note_count"] for v in views),
+        "tickers": len(views),
+        "open": sum(1 for v in views if v["status"] in ("open", "due")),
+        "watching": sum(1 for v in views if v["status"] == "watching"),
+        "graded": len(scores),
+        "tiers": [tiers[k] for k in sorted(tiers)],
+        "earliest_maturity": min(maturities) if maturities else "",
+        "scored": bool(scores),
+    }
+
+
+def _research_sleeve_bar(label, z, span=2.0):
+    """One diverging bar for a sector z-score, zero at the centre.
+
+    The sign is carried by the number as well as by the direction and colour, so
+    the bar never has to be read on colour alone."""
+    frac = max(-1.0, min(1.0, (z or 0.0) / span))
+    half = abs(frac) * 50.0
+    left = 50.0 - half if frac < 0 else 50.0
+    cls = " rs-sl-neg" if frac < 0 else ""
+    return (f'<span class="rs-sl"><i>{_html.escape(label)}</i>'
+            f'<span class="rs-sl-track">'
+            f'<span class="rs-sl-zero"></span>'
+            f'<span class="rs-sl-fill{cls}" style="left:{left:.1f}%;width:{half:.1f}%">'
+            f'</span></span>'
+            f'<b>{z:+.2f}</b></span>')
+
+
+def _research_cards(views):
+    """Server-rendered cards. The page must be readable before its JS runs."""
+    e = _html.escape
+    if not views:
+        return ('<div class="rs-empty">No notes have been written yet. The analyst '
+                'writes to <code>theses/notes/</code> and this page is built from '
+                'that directory.</div>')
+    parts = []
+    for v in views:
+        conv = v.get("conviction")
+        pips = "".join(
+            f'<span class="rs-pip{" rs-pip-on" if conv and i <= conv else ""}"></span>'
+            for i in range(1, 6))
+        comps = []
+        for key, short, hi in (("evidence_base", "evidence", 2),
+                               ("falsifier_specific", "falsifier", 1),
+                               ("variant_perception", "variant", 1),
+                               ("disconfirmation", "counter-case", 1)):
+            got = v.get(key)
+            on = " rs-comp-on" if got else ""
+            comps.append(f'<span class="rs-comp{on}" title="{e(key)} scores '
+                         f'{got if got is not None else "?"} of {hi}">'
+                         f'{e(short)} <b>{got if got is not None else "?"}</b>'
+                         f'<i>/{hi}</i></span>')
+        nums = []
+        if v.get("entry_price") is not None:
+            nums.append(f'<span>entry <b>{v["entry_price"]:.2f}</b></span>')
+        price = v.get("price") or {}
+        if price.get("last") is not None:
+            mv = price.get("move")
+            cls = ""
+            if mv is not None:
+                cls = " rs-up" if mv >= 0 else " rs-down"
+            moved = f' <i class="rs-move{cls}">{mv * 100:+.1f}%</i>' if mv is not None else ""
+            nums.append(f'<span>now <b>{price["last"]:.2f}</b>{moved}</span>')
+        if v.get("target_price") is not None:
+            nums.append(f'<span>target <b>{v["target_price"]:.2f}</b></span>')
+        if v.get("horizon_days"):
+            nums.append(f'<span>horizon <b>{v["horizon_days"]}d</b></span>')
+        d2r = v.get("days_to_review")
+        if d2r is not None:
+            word = f"in {d2r}d" if d2r >= 0 else f"{abs(d2r)}d ago"
+            nums.append(f'<span>review <b>{e(word)}</b></span>')
+
+        sleeves = v.get("sleeves") or {}
+        screen_line = ""
+        if len(sleeves) == 4:
+            # These are z-scores against the sector, not percentiles: measured
+            # range across the universe is -2.05 to +1.87 with 55 percent of
+            # names below zero. Rendering them as a left-anchored 0-100 bar
+            # clamped every negative sleeve to empty and printed HIMS as
+            # "-39 of 100", which is not a quantity that exists.
+            bars = "".join(_research_sleeve_bar(lbl, sleeves[k])
+                           for k, lbl in (("g", "G"), ("v", "V"),
+                                          ("m", "M"), ("q", "Q")))
+            ew = v.get("equal_weight")
+            screen_line = (
+                '<div class="rs-screen"><span class="rs-k">Where the screen puts it</span>'
+                f'<div class="rs-sleeves">{bars}</div>'
+                f'<div class="rs-note">Standard deviations from the '
+                f'{e(v["sector"] or "sector")} mean, one bar per sleeve, zero at the '
+                f'tick. Equal-weighted across the four that is <b>{ew:+.2f}</b>. '
+                f'The screener\'s own composite moves with the weights you set there, '
+                f'so there is no single number to quote.</div></div>')
+
+        drift = ('<div class="rs-drift">A revision kept the direction and the conviction '
+                 'and changed the claim. That is what thesis drift looks like.</div>'
+                 if v.get("claim_changed_ever") else "")
+        claim = (f'<p class="rs-claim">{e(v["key_claim"])}</p>' if v.get("key_claim")
+                 else '<p class="rs-claim rs-claim-none">No claim recorded. The note '
+                      'declined to take a view.</p>')
+        fals = (f'<div class="rs-fals"><span class="rs-k">What would prove it wrong</span>'
+                f'<div>{e(v["falsifier"])}</div></div>' if v.get("falsifier") else "")
+        parts.append(
+            f'<article class="rs-card" data-dir="{e(v["direction"])}" '
+            f'data-status="{e(v["status"])}" data-conv="{conv if conv is not None else 0}" '
+            f'data-move="{(price.get("move") if price.get("move") is not None else 0):.4f}" '
+            f'data-review="{e(v.get("review_by") or "")}" '
+            f'data-written="{e(v.get("written_on") or "")}" '
+            f'data-ticker="{e(v["ticker"])}">'
+            f'<div class="rs-top">'
+            f'<a class="rs-tk" href="./stocks.html#{e(v["ticker"])}">{e(v["ticker"])}</a>'
+            f'<span class="rs-nm">{e(v["name"])}</span>'
+            f'<span class="rs-status rs-status-{e(v["status"])}">{e(v["status"])}</span>'
+            f'</div>'
+            f'<div class="rs-dirline">'
+            f'<span class="rs-dir rs-dir-{e(v["direction"].replace(" ", "-"))}">'
+            f'{e(v["direction"])}</span>'
+            f'<span class="rs-pips" title="conviction {conv if conv is not None else "?"} of 5">'
+            f'{pips}</span>'
+            f'<span class="rs-comps">{"".join(comps)}</span>'
+            f'</div>'
+            f'{drift}{claim}'
+            f'<div class="rs-nums">{"".join(nums)}</div>'
+            f'{fals}{screen_line}'
+            f'<div class="rs-links">'
+            f'<a href="https://github.com/CTLSmith5689/daily-intelligence-brief/blob/main/'
+            f'{e(v["note_path"])}" target="_blank" rel="noopener">Read the note</a>'
+            f'<span class="rs-meta">{e(v.get("kind") or "note")} '
+            f'{e(v.get("written_on") or "")}'
+            + (f' &middot; {v["note_count"]} notes on this name' if v["note_count"] > 1 else "")
+            + (f' &middot; surfaced by the {e(v["slot"])} slot' if v.get("slot") else "")
+            + '</span></div></article>')
+    return "".join(parts)
+
+
+def _research_record_html(rec):
+    e = _html.escape
+    tiles = [("Names covered", str(rec["tickers"])),
+             ("Open calls", str(rec["open"])),
+             ("Watching, not graded", str(rec["watching"])),
+             ("Graded", str(rec["graded"]))]
+    tile_html = "".join(
+        f'<div class="rs-tile"><span class="rs-tile-v">{e(v)}</span>'
+        f'<span class="rs-tile-k">{e(k)}</span></div>' for k, v in tiles)
+    rows = "".join(
+        f'<tr><td>{t["conviction"]}</td><td>{t["n"]}</td><td>{t.get("open", 0)}</td>'
+        f'<td>{t.get("watching", 0)}</td><td>{t.get("graded", 0)}</td>'
+        f'<td class="rs-td-na">&mdash;</td><td class="rs-td-na">&mdash;</td></tr>'
+        for t in rec["tiers"]) or '<tr><td colspan="7" class="rs-td-na">No notes yet.</td></tr>'
+    if rec["scored"]:
+        verdict = ""
+    else:
+        when = (f' The first call matures on {e(rec["earliest_maturity"])}.'
+                if rec.get("earliest_maturity") else "")
+        verdict = (
+            '<p class="rs-note rs-note-loud">No call has been graded yet, so the two '
+            'right-hand columns are empty and the hit rate is unknown.' + when +
+            ' Until then this page records what was claimed and when, which is the '
+            'part that cannot be reconstructed later.</p>')
+    return (
+        '<section class="rs-record">'
+        '<h2 class="rs-h2">The record</h2>'
+        f'<div class="rs-tiles">{tile_html}</div>'
+        '<table class="rs-tiers"><thead><tr>'
+        '<th>Conviction</th><th>Names</th><th>Open</th><th>Watching</th><th>Graded</th>'
+        '<th>Hit rate</th><th>vs peers</th></tr></thead>'
+        f'<tbody>{rows}</tbody></table>'
+        f'{verdict}'
+        '<p class="rs-note">Conviction is not a feeling. It is the sum of four '
+        'checkable properties of the note, shown on every card below: whether the '
+        'claim rests on filings or only on factors, whether the falsifier carries a '
+        'number and a date, whether the view differs from what the price already '
+        'says, and whether the note engaged with the best case against itself. '
+        'The only reason to track it is this table: if the high-conviction calls do '
+        'not beat the low-conviction ones, the judgement is adding nothing and the '
+        'table is the only place that shows it.</p>'
+        '</section>')
+
+
+def generate_research(universe):
+    """Write docs/research.html: the analyst's current views and their record."""
+    stocks = {s.get("ticker"): s for s in (universe.get("stocks") or [])
+              if s.get("ticker")}
+    today = datetime.now(tz=timezone.utc).date()
+    views = _research_views(stocks, today)
+    record = _research_record(views)
+
+    dirs = ["all"] + sorted({v["direction"] for v in views})
+    statuses = ["all"] + [s for s in ("due", "open", "watching", "graded")
+                          if any(v["status"] == s for v in views)]
+    e = _html.escape
+
+    # The filter group name is the JS state key; the view key it counts is not
+    # always the same word.
+    COUNT_KEY = {"dir": "direction", "status": "status"}
+
+    def chips(group, values):
+        out = []
+        key = COUNT_KEY[group]
+        for i, val in enumerate(values):
+            on = " on" if i == 0 else ""
+            n = "" if val == "all" else (
+                f' <i>{sum(1 for v in views if v[key] == val)}</i>')
+            label = "all" if val == "all" else val
+            out.append(f'<button type="button" class="rs-chip{on}" data-filter="{e(group)}" '
+                       f'data-value="{e(val)}" aria-pressed="{"true" if i == 0 else "false"}">'
+                       f'{e(label)}{n}</button>')
+        return '<div class="rs-chips">' + "".join(out) + '</div>'
+
+    body = (
+        '<section class="rs-head">'
+        '<h1 class="rs-h1">Research</h1>'
+        '<p class="rs-lede">Written views on individual names, and the record of '
+        'whether they were right. The screen next door ranks 5,354 companies by '
+        'arithmetic and surfaces about four a week for a written opinion, so almost '
+        'every name on it will never appear here. That is the intended behaviour of '
+        'a screen, not a gap in coverage.</p>'
+        '</section>'
+        + _research_record_html(record) +
+        '<section class="rs-views">'
+        '<div class="rs-h2row"><h2 class="rs-h2">The views</h2>'
+        '<span class="rs-count" id="rs-count"></span></div>'
+        '<div class="rs-controls">'
+        f'<div class="rs-group"><span class="rs-k">Direction</span>{chips("dir", dirs)}</div>'
+        f'<div class="rs-group"><span class="rs-k">Status</span>{chips("status", statuses)}</div>'
+        '<div class="rs-group"><label class="rs-k" for="rs-sort">Sort</label>'
+        '<select id="rs-sort" class="rs-select">'
+        '<option value="status">Status, then newest</option>'
+        '<option value="written">Newest written</option>'
+        '<option value="review">Review date</option>'
+        '<option value="convict">Conviction</option>'
+        '<option value="move">Move since written</option>'
+        '</select></div></div>'
+        f'<div class="rs-list" id="rs-list">{_research_cards(views)}</div>'
+        '<div class="rs-empty" id="rs-noresult" hidden>Nothing matches those filters.</div>'
+        '<p class="rs-note">A name shows as <b>watching</b> when the note declined to '
+        'take a position. Those produce no row in the prediction ledger and are never '
+        'graded, which is deliberate: scoring a "no view" against the market would '
+        'manufacture a track record out of abstentions.</p>'
+        '</section>')
+
+    html = render_page("Research, Apterreon", body, active_nav="research",
+                       extra_scripts=RESEARCH_JS_TEMPLATE)
+    (DOCS_DIR / "research.html").write_text(html, encoding="utf-8")
+    print(f"research: wrote research.html ({len(views)} names, "
+          f"{record['open']} open, {record['graded']} graded).")
+    return len(views)
+
+
 def generate_site(briefs):
     """Orchestrator. Generates the full multi-page static site under docs/.
     Triggers Recent Trends (daily-cached Claude call) and Stocks Universe (weekly,
@@ -12446,7 +13024,11 @@ def generate_site(briefs):
     # passes rather than from the analyst. The scored stock dicts carry
     # sub_industry and ttm_revenue, which is what peer share is computed from.
     n_company = write_company_views(universe.get("stocks") or [])
-    print("Wrote docs/index.html, today.html, stories.html, stocks.html, manifest.json"
+    # After the view writers, because it reads the same theses/ tree and the log
+    # line below reports all three together.
+    n_views = generate_research(universe)
+    print("Wrote docs/index.html, today.html, stories.html, stocks.html, "
+          f"research.html ({n_views} names), manifest.json"
           + (f", {n_thesis} thesis views" if n_thesis else "")
           + (f", {n_company} company views" if n_company else "") + ".")
 
