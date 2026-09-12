@@ -1871,8 +1871,15 @@ SITE_CSS = """
   --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
   --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
   --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
-  /* Theme-tunable surface tints (used by topnav, cards, table). Dark default. */
-  --surface-1:var(--surface-1); --surface-2:var(--surface-2); --surface-3:var(--surface-3);
+  /* Theme-tunable surface tints (used by topnav, cards, table). Dark default.
+     These were written as --surface-1:var(--surface-1), which is a self-reference.
+     CSS treats that as invalid at computed-value time, so in dark mode all three
+     resolved to nothing and every background:var(--surface-N) painted no fill at
+     all. Verified in the browser: light returns rgba(245,241,232,0.80), dark
+     returned empty. Eleven rules were affected, including .stk-row:hover, the
+     chart plot grounds, .lib-controls and .edition-edge. Defined here against
+     --bg-1 and --bg-2 with the same alphas the light theme uses. */
+  --surface-1:rgba(17,18,26,0.80); --surface-2:rgba(17,18,26,0.94); --surface-3:rgba(22,23,31,0.96);
   --grid-line:rgba(255,255,255,0.06); --chart-axis:rgba(255,255,255,0.45); --chart-value:rgba(255,255,255,0.85);
   --plexus-opacity:0.55;
   --bg-glow-1:rgba(255,31,61,0.10); --bg-glow-2:rgba(204,0,40,0.07); --bg-glow-3:rgba(255,122,133,0.04);
