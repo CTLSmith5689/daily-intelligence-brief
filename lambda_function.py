@@ -7358,7 +7358,118 @@ def _save_news_fetch_log(log):
         print(f"news: could not write fetch log ({type(exc).__name__}: {exc}).")
 
 
-def fetch_company_news(ticker, name="", max_items=15):
+# Google News does not honour quoted phrases as strict boolean literals; it
+# expands semantically. Querying '"ALL" OR "Allstate"' returned fifteen stories
+# about interstate highways, rugby, the NBA, diesel prices and a balloon museum,
+# and not one about the insurer. 242 tickers in the registry are one or two
+# characters and many more are ordinary words: KEY, ON, IT, CAT, NOW, WELL.
+#
+# Nothing downstream could detect this. The contaminated count feeds
+# news_count_7d, the sentiment averages and the neglect score, and those land in
+# the panel permanently while the headlines that produced them are never
+# archived. So the filter has to run here, before the file is written.
+NEWS_MAX_ITEMS = 15
+
+# Two kinds of word get stripped before a company name is used as a search
+# term. Corporate furniture ("Inc", "Holdings") carries no identity. Industry
+# nouns are worse than useless: "ON Semiconductor" reduces to "semiconductor",
+# which matches every chip story published that day, and "Panel-Mount Regulators
+# Market Forecast" duly came back tagged as company news for ON.
+_NEWS_NAME_STOPWORDS = {
+    # corporate suffixes and legal form
+    "the", "and", "for", "inc", "ltd", "plc", "llc", "lp", "co", "corp", "company",
+    "companies", "corporation", "incorporated", "holding", "holdings", "group",
+    "groupe", "partners", "partnership", "trust", "fund", "funds", "class",
+    "common", "ordinary", "shares", "share", "stock", "adr", "sa", "ag", "nv",
+    "se", "spa", "ab", "oyj", "as", "bv",
+    # geography and generic qualifiers
+    "international", "global", "worldwide", "american", "america", "national",
+    "united", "states", "usa", "european", "asia", "pacific", "atlantic",
+    "northern", "southern", "eastern", "western", "north", "south", "east",
+    "west", "new", "first", "second", "third", "general", "standard", "premier",
+    "united", "allied", "associated", "consolidated", "continental",
+    # industry nouns that describe a sector rather than a company
+    "semiconductor", "semiconductors", "technologies", "technology", "systems",
+    "solutions", "services", "service", "industries", "industrial", "enterprises",
+    "pharmaceutical", "pharmaceuticals", "pharma", "biosciences", "bioscience",
+    "biotech", "therapeutics", "health", "healthcare", "medical", "medicine",
+    "bank", "bancorp", "bancshares", "banking", "financial", "finance",
+    "capital", "investment", "investments", "insurance", "assurance",
+    "energy", "resources", "resource", "mining", "minerals", "petroleum",
+    "oil", "gas", "power", "electric", "utilities", "utility",
+    "realty", "properties", "property", "estate", "communications",
+    "media", "entertainment", "networks", "network", "digital", "data",
+    "software", "hardware", "electronics", "materials", "chemical", "chemicals",
+    "motors", "motor", "airlines", "airways", "air", "transport", "logistics",
+    "foods", "food", "beverage", "beverages", "brands", "retail", "stores",
+    "manufacturing", "products", "laboratories", "labs", "research",
+    "development", "holdings", "management", "acquisition", "ventures",
+}
+
+
+def _news_is_relevant(title, ticker, clean_name):
+    """True when the headline is plausibly about this company.
+
+    Four ways to qualify, in descending order of confidence:
+
+      1. The ticker in an explicit ticker context: $ON, (ON), NASDAQ: ON. This
+         is unambiguous at any ticker length.
+      2. A bare uppercase ticker token, but only at three characters or more.
+         "IT spending to rise 8%" is not a story about Gartner, and 242 tickers
+         in the registry are one or two characters.
+      3. The full company name as a contiguous, CASE-SENSITIVE phrase, on
+         word boundaries. Case is what separates "ON Semiconductor surges"
+         from "mood high on semiconductor demand", and nothing else does.
+         This is also the only rule that can match "3M" or "AT&T".
+      4. Distinctive name tokens: two of them, or one of at least five
+         characters. Generic industry nouns are stripped first.
+
+    This is string matching, not comprehension, so it does not catch every
+    case. A company's own arena keeps its naming rights ("Garth Brooks at
+    Allstate Arena") and a company named after an animal keeps the animal.
+    Callers should treat kept/considered as the filter's own confidence."""
+    if not title:
+        return False
+
+    if ticker:
+        esc = re.escape(ticker)
+        if re.search(r"(?:\$" + esc + r"|\(" + esc + r"\)|:\s*" + esc + r")(?![A-Za-z0-9])", title):
+            return True
+        if len(ticker) >= 3 and re.search(
+                r"(?<![A-Za-z0-9])" + esc + r"(?![A-Za-z0-9])", title):
+            return True
+
+    name = (clean_name or "").strip()
+    if len(name) >= 2 and re.search(
+            r"(?<![A-Za-z0-9])" + re.escape(name) + r"(?![A-Za-z0-9])", title):
+        # Case-sensitive, and short names must qualify here rather than by
+        # token: "3M" and "AT&T" tokenize to nothing usable, and a one-letter
+        # ticker cannot be matched bare.
+        return True
+
+    raw_tokens = [t for t in re.split(r"[^A-Za-z]+", name.lower()) if len(t) > 2]
+    tokens = [t for t in raw_tokens if t not in _NEWS_NAME_STOPWORDS]
+    if not tokens and len(raw_tokens) >= 2:
+        # Some companies are made entirely of furniture: "First National Bank".
+        # Stripping generics leaves nothing, and returning False here would
+        # reject the company's own earnings story. Falling back is only safe
+        # with two or more tokens, because the two-match rule is what supplies
+        # the discrimination. A lone generic token is the case this filter
+        # exists to stop: "ON Semiconductor" reduces to "semiconductor" and
+        # would otherwise match every chip story printed that day.
+        tokens = raw_tokens
+    if not tokens:
+        return False
+
+    low = title.lower()
+    uniq = set(tokens)
+    hits = sum(1 for t in uniq if re.search(r"\b" + re.escape(t) + r"\b", low))
+    if len(uniq) >= 2:
+        return hits >= 2
+    return hits >= 1 and len(tokens[0]) >= 5
+
+
+def fetch_company_news(ticker, name="", max_items=NEWS_MAX_ITEMS):
     """Pull recent news for a ticker from Google News RSS. Returns list of
     {title, source, link, ts (unix int)}.
 
@@ -7376,8 +7487,17 @@ def fetch_company_news(ticker, name="", max_items=15):
                    " Group", " Plc", " plc"]:
         clean_name = clean_name.replace(suffix, "")
     clean_name = clean_name.strip().rstrip(".")
+    # A short ticker is not a search term. Three characters or fewer are almost
+    # always an ordinary word somewhere, and OR-ing one against the company name
+    # lets the word half dominate the result set: '"ALL" OR "Allstate"' came
+    # back as highways, rugby and a balloon museum, with no Allstate at all. The
+    # company name alone is the more specific half, so when the ticker is short
+    # we drop it from the query rather than filtering its damage out afterwards.
     if clean_name and clean_name.upper() != ticker and len(clean_name) > 2:
-        query = f'"{ticker}" OR "{clean_name}"'
+        if len(ticker) <= 3:
+            query = f'"{clean_name}"'
+        else:
+            query = f'"{ticker}" OR "{clean_name}"'
     else:
         query = f'"{ticker}" stock'
     url = f"https://news.google.com/rss/search?q={_up.quote(query)}&hl=en-US&gl=US&ceid=US:en"
@@ -7389,7 +7509,8 @@ def fetch_company_news(ticker, name="", max_items=15):
     except Exception:
         return None
     items = []
-    for item in root.findall(".//item")[:max_items * 2]:
+    considered = 0
+    for item in root.findall(".//item")[:max_items * 3]:
         title = (item.findtext("title") or "").strip()
         pub_date = (item.findtext("pubDate") or "").strip()
         link = (item.findtext("link") or "").strip()
@@ -7398,6 +7519,9 @@ def fetch_company_news(ticker, name="", max_items=15):
             continue
         # Same rule as the site feeds: a company's news should be readable.
         if not _is_english(title, source):
+            continue
+        considered += 1
+        if not _news_is_relevant(title, ticker, clean_name):
             continue
         parsed = parse_rss_date(pub_date)
         ts = int(parsed.timestamp()) if parsed else 0
@@ -7412,6 +7536,10 @@ def fetch_company_news(ticker, name="", max_items=15):
         })
         if len(items) >= max_items:
             break
+    if considered and not items:
+        # Genuinely nothing on topic. That is a real zero, not a failed fetch,
+        # and the caller is entitled to persist it.
+        print(f"news: {ticker} kept 0/{considered} headlines (none on topic).")
     return items
 
 
