@@ -13004,12 +13004,16 @@ def generate_research(universe):
     return len(views)
 
 
-def generate_site(briefs):
+def generate_site(briefs, universe=None):
     """Orchestrator. Generates the full multi-page static site under docs/.
-    Triggers Recent Trends (daily-cached Claude call) and Stocks Universe (weekly,
-    Wikipedia scrape + optional FMP enrichment)."""
+    Triggers Recent Trends (daily-cached) and Stocks Universe (weekly, Wikipedia
+    scrape + optional FMP enrichment).
+
+    `universe` lets a caller supply one it already has. A publish run passes the
+    committed cache so that rebuilding pages cannot trigger a 1,500-name refresh."""
     recent_trends = get_or_generate_recent_trends(briefs)
-    universe = get_or_generate_stocks_universe()
+    if universe is None:
+        universe = get_or_generate_stocks_universe()
 
     generate_home(briefs, recent_trends)
     generate_today(briefs)
@@ -13077,16 +13081,18 @@ def lambda_handler(event, context):
         return {"error": "No key provided"}
 
     # Modes:
-    #   record  cheap, runs hourly. Quotes + headlines appended to the CSVs.
-    #   daily   record, plus the fundamentals panel, the snapshot page and the
-    #           site rebuild. Runs once a day.
+    #   record   cheap, runs hourly. Quotes + headlines appended to the CSVs.
+    #   daily    record, plus the fundamentals panel, the snapshot page and the
+    #            site rebuild. Runs once a day.
+    #   publish  rebuild the site from what is already committed. Fetches
+    #            nothing, records nothing.
     # The split exists because docs/index.html is ~325KB and is rewritten in full
     # on every site rebuild; doing that hourly would bloat the repo for nothing,
     # while appending a few CSV rows hourly costs almost nothing.
     mode = event.get("mode") or event.get("brief_type") or "daily"
     if mode in ("morning", "midday", "evening"):
         mode = "daily"          # legacy edition names still dispatch a daily run
-    if mode not in ("record", "daily"):
+    if mode not in ("record", "daily", "publish"):
         return {"status": "error", "error": f"unknown mode {mode!r}"}
 
     now_et = datetime.now(EASTERN)
@@ -13094,6 +13100,41 @@ def lambda_handler(event, context):
     date_iso = now_et.strftime("%Y-%m-%d")
     date_str = now_et.strftime("%A, %B %d")
     timestamp = now_et.strftime("%I:%M %p ET")
+
+    # A publish run exists for one case: the analyst pushed a note and the page
+    # should show it. Rebuilding is the whole job, so it fetches nothing and
+    # records nothing.
+    #
+    # It must not be a daily run. A daily run appends the fundamentals panel row,
+    # and a push arriving at 11:00 would stamp mid-session prices with today's
+    # date. The panel is append-only, so that row would be permanent and every
+    # return, volatility and drawdown computed over it would be wrong. Rebuilding
+    # from committed data has no such hazard: docs/ is regenerated wholesale on
+    # every run anyway and is force-pushed to gh-pages, so it is never a source
+    # of truth for anything.
+    if mode == "publish":
+        # Read the cached universe rather than calling
+        # get_or_generate_stocks_universe. That function short-circuits only when
+        # the cache is under four hours old and in the same ISO week, so on any
+        # realistic push it would re-scrape Wikipedia and run a yfinance pass
+        # over 1,500 names, which is minutes of rate-limited work to rebuild
+        # pages from numbers that are already on disk. state/stocks_universe.json
+        # is committed, so the cache is always present in CI.
+        cache_path = STATE_DIR / "stocks_universe.json"
+        universe = None
+        if cache_path.exists():
+            try:
+                universe = json.loads(cache_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                print(f"publish: universe cache unreadable ({exc}).")
+        if not (universe or {}).get("stocks"):
+            print("publish: no usable universe cache; regenerating it once.")
+            universe = get_or_generate_stocks_universe()
+        generate_site(s3_list_briefs(), universe=universe)
+        n_stocks = len((universe or {}).get("stocks") or [])
+        print(f"publish: rebuilt the site from committed data ({n_stocks} tickers).")
+        return {"status": "published", "mode": mode, "stocks": n_stocks,
+                "ok": bool(n_stocks)}
 
     # A record run promotes itself when the day's panel row is still missing and
     # the session is over. The cron that was supposed to guarantee this is not
@@ -13229,8 +13270,9 @@ def lambda_handler(event, context):
 
 if __name__ == "__main__":
     import sys
-    # "record" for the hourly run, "daily" for the full one. The old edition
-    # names (morning/midday/evening) still work and map to a daily run.
+    # "record" for the hourly run, "daily" for the full one, "publish" to rebuild
+    # the site without fetching or recording anything. The old edition names
+    # (morning/midday/evening) still work and map to a daily run.
     mode = sys.argv[1] if len(sys.argv) > 1 else "daily"
     result = lambda_handler({"mode": mode}, None)
     print(json.dumps(result, indent=2))

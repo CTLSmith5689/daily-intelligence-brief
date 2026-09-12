@@ -21,7 +21,8 @@ the arrangement the README's "no LLM, and no AI API key" note anticipated.
 | `ledger/predictions.csv` | **append-only, never rewritten** |
 | `ledger/scores.csv` | **append-only.** Outcomes, joined on `prediction_id` |
 | *(coverage)* | not a file. Folded from `events.csv` by `screen.coverage_from_events()`, so it cannot drift from the notes |
-| `runs/{DATE}.json` | what each run planned, what it completed, what failed |
+| `runs/{DATE}/` | one dossier per slot plus `manifest.json`: what the run planned, what it completed, what failed |
+| `positions/{TICKER}.md` | the current view, folded from `events.csv`. Derived, never hand-edited |
 
 ## The ledger is the point
 

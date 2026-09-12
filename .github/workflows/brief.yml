@@ -17,6 +17,20 @@ on:
   schedule:
     - cron: '23 22 * * *'            # 18:23 ET (EDT) / 17:23 ET (EST), after the close
     - cron: '23 0-21,23 * * *'       # every other hour: record only
+  # The analyst agent pushes a note and nothing was watching for it. Until this
+  # existed a note sat in main until whichever scheduled run next reached the
+  # daily path, which on a Tuesday measured about eleven and a half hours.
+  #
+  # It lives in THIS workflow rather than a new one on purpose. The publish step
+  # force-pushes an orphan commit to gh-pages with a plain `push -f`, no lease,
+  # from a tree snapshotted at the start of the run. Two workflows publishing
+  # concurrently means last writer wins with no error, and the loser's work is
+  # gone. Sharing this file shares `concurrency: apterreon-brief`, so a push that
+  # lands mid-run queues behind it instead of racing it.
+  push:
+    branches: [main]
+    paths:
+      - 'theses/**'
   workflow_dispatch:
     inputs:
       mode:
@@ -48,11 +62,20 @@ jobs:
       - name: Determine mode
         id: pick
         run: |
+          # A push event carries no schedule, so it would otherwise fall into
+          # the "" arm and run a full daily. That is the wrong answer: a daily
+          # run appends the fundamentals panel row, and a note pushed at 11:00
+          # would stamp mid-session prices with today's date, permanently, in an
+          # append-only file. Push rebuilds the site and records nothing.
+          if [ "${{ github.event_name }}" = "push" ]; then
+            MODE=publish
+          else
           case "${{ github.event.schedule }}" in
             "23 22 * * *") MODE=daily  ;;
             "")           MODE="${{ github.event.inputs.mode || 'daily' }}" ;;
             *)            MODE=record ;;
           esac
+          fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "Mode: $MODE"
 
