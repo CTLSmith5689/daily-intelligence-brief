@@ -16,13 +16,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "theses" / "bin"))
 from common import LEDGER, PAGES, fetch, num, read_csv_rows, load_panel
+import screen
 
 REPO = Path(__file__).resolve().parents[2]
 BOOKS = REPO / "portfolio" / "books"
 
 CFG = {
-    "max_position": 0.15,
-    "min_position": 0.02,
+    "risk_budget": 0.028,         # per-name risk budget: weight x volatility
+    "min_conviction": 3,          # conviction is a GATE, not a multiplier
+    "max_position": 0.12,
+    "min_position": 0.03,
+    "max_invested": 0.97,
     "max_sector": 0.25,
     "correlation_warn": 0.50,     # a pair above this is effectively one bet
     "pair_warn_weight": 0.15,     # ... and matters once the pair is this big
@@ -65,31 +69,64 @@ def build(views):
     return (common, rets, vol), dropped, None
 
 
-def size(views, vol):
-    """conviction / volatility, normalised, then capped until it settles.
+def universe_vol_bounds(rows):
+    """The 25th and 90th percentile of volatility across the gated universe.
 
-    Conviction alone ignores risk. Inverse volatility alone ignores the analyst.
-    This multiplies them and lets the cap bind. It is not optimal under any
-    model and is not meant to be: it is legible, and a rule the PM can quietly
-    abandon is worse than a blunt one it cannot."""
-    raw = {}
+    The clamp is the whole point of this scheme. Raw inverse-volatility over
+    2,000 random 12-name books from this universe gives a max/min weight ratio
+    of 3.91 at the median and 7.75 at the 95th percentile. Clamping the input to
+    [p25, p90] pins it at 2.48 at BOTH. Without it the book is a low-volatility
+    factor bet wearing prudence as a disguise."""
+    # The GATED universe, not the raw panel. p90 across all 5,350 rows is 1.20,
+    # because the tail is micro caps nobody can hold; across the 1,613 names the
+    # screen will actually surface it is 0.71. Using the wrong one makes the
+    # upper clamp barely bind and quietly reinstates the dispersion it exists to
+    # remove.
+    rows = screen.core_universe(rows)
+    vols = sorted(v for v in (num(r.get("volatility_1y")) for r in rows) if v)
+    if len(vols) < 50:
+        return 0.25, 0.75
+    pick = lambda q: vols[int(q * (len(vols) - 1))]
+    return pick(0.25), pick(0.90)
+
+
+def size(views, vol, bounds):
+    """Clamped inverse volatility. Conviction is a gate, not a multiplier.
+
+    The earlier version sized by conviction / volatility, and that was wrong for
+    a reason worth writing down: conviction is self-graded, unvalidated, and the
+    single largest subjective input in this system. Multiplying by it turns the
+    note into a number, the number into a weight, and the portfolio into the
+    ranking. That is the failure this whole project is trying to avoid.
+
+    So conviction does one thing: below the gate a name is not in the book. It
+    still gets written, and it still gets a row in predictions.csv so the scale
+    keeps being scored, but it gets no weight. A one-bit signal gets a one-bit
+    use, until the ledger has enough history to say whether it deserves more.
+
+    Weight is then w = risk_budget / clamp(volatility), so every position
+    contributes a similar amount of risk rather than a similar amount of money."""
+    vlo, vhi = bounds
+    w, gated = {}, {}
     for t, e in views.items():
-        if t not in vol:
+        if t not in vol or vol[t] <= 0:
             continue
         try:
             c = int(e.get("conviction") or 0)
         except ValueError:
             c = 0
-        if c > 0 and vol[t] > 0:
-            raw[t] = c / vol[t]
-    if not raw:
-        return {}
-    norm = lambda d: {k: v / sum(d.values()) for k, v in d.items()}
-    w = norm(raw)
-    for _ in range(80):
-        w = norm({t: min(max(x, CFG["min_position"]), CFG["max_position"])
-                  for t, x in w.items()})
-    return w
+        if c < CFG["min_conviction"]:
+            gated[t] = c
+            continue
+        vc = min(max(vol[t], vlo), vhi)
+        w[t] = min(max(CFG["risk_budget"] / vc, CFG["min_position"]),
+                   CFG["max_position"])
+    # Normalise DOWN only. If the weights already sum to less than max_invested,
+    # the remainder is cash, and it is reported rather than quietly spread around.
+    total = sum(w.values())
+    if total > CFG["max_invested"]:
+        w = {t: x * CFG["max_invested"] / total for t, x in w.items()}
+    return w, gated
 
 
 def corr(a, b):
@@ -120,16 +157,19 @@ def main():
         return 1
     common, rets, vol = data
     held = {t: e for t, e in held.items() if t in vol}
-    w = size(held, vol)
+    _, panel_rows = load_panel()
+    bounds = universe_vol_bounds(panel_rows)
+    w, gated = size(held, vol, bounds)
     if not w:
-        print("construct: no position carries a usable conviction.")
-        return 1
+        print(f"construct: nothing clears the conviction gate of "
+              f"{CFG['min_conviction']}. {len(gated)} name(s) written but unweighted. "
+              f"An empty book is a real answer.")
+        return 0
 
     bookvol = lambda ws: st.pstdev(
         [sum(ws[t] * rets[t][i] for t in ws) for i in range(len(common) - 1)]) * math.sqrt(252)
     eq = {t: 1 / len(w) for t in w}
-    _, rows = load_panel()
-    panel = {r["ticker"]: r for r in rows}
+    panel = {r["ticker"]: r for r in panel_rows}
     beta = lambda ws: sum(ws[t] * (num(panel.get(t, {}).get("beta_1y")) or 0) for t in ws)
 
     sectors = {}
@@ -165,6 +205,22 @@ def main():
                                 f"guarantees those mean the same thing, and the sizing rule "
                                 f"treats them as though they do. Bounded by the "
                                 f"{CFG['max_position']*100:.0f}% cap, not solved."})
+    cash = 1.0 - sum(w.values())
+    if cash > 0.15:
+        flags.append({"severity": "soft", "kind": "large_cash_residual",
+                      "detail": f"{cash*100:.1f}% of the book is uninvested. That is not a view "
+                                f"on the market: it falls out of a {CFG['risk_budget']*100:.1f}% "
+                                f"per-name risk budget meeting names whose median volatility is "
+                                f"{sorted(vol.values())[len(vol)//2]*100:.0f}%. The rule is saying "
+                                f"this set of theses cannot be held at full size without "
+                                f"exceeding the budget. Decide whether to accept that, raise the "
+                                f"budget, or find less volatile ideas."})
+    if gated:
+        flags.append({"severity": "soft", "kind": "below_conviction_gate",
+                      "detail": f"{len(gated)} name(s) written but unweighted: "
+                                + ", ".join(f"{t} (conviction {c})" for t, c in sorted(gated.items()))
+                                + f". They still carry predictions so the conviction scale keeps "
+                                  f"being scored."})
     if dropped:
         flags.append({"severity": "hard", "kind": "no_price_series",
                       "detail": f"No usable close series for {dropped}: excluded from the book "
@@ -184,6 +240,9 @@ def main():
             "at_cap": abs(w[t] - CFG["max_position"]) < 1e-6,
         } for t in sorted(w, key=lambda x: -w[x])],
         "excluded": excluded,
+        "gated_out": gated,
+        "cash": round(cash, 4),
+        "vol_clamp": {"p25": round(bounds[0], 4), "p90": round(bounds[1], 4)},
         "risk": {
             "book_vol": round(bookvol(w), 4),
             "book_vol_equal_weight": round(bookvol(eq), 4),
@@ -195,8 +254,9 @@ def main():
         "sector_weights": {s: round(x, 4) for s, x in
                            sorted(sector_w.items(), key=lambda kv: -kv[1])},
         "flags": flags,
-        "rule": "w = clamp(normalise(conviction / volatility_1y), "
-                f"{CFG['min_position']}, {CFG['max_position']}), iterated to a fixed point",
+        "rule": f"conviction >= {CFG['min_conviction']} to be eligible, then "
+                f"w = clamp({CFG['risk_budget']} / clamp(volatility_1y, p25, p90), "
+                f"{CFG['min_position']}, {CFG['max_position']}); normalised DOWN only",
     }
 
     print(json.dumps(book, indent=2))
