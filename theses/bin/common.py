@@ -7,7 +7,14 @@ REPO = Path(__file__).resolve().parents[2]
 THESES = REPO / "theses"
 LEDGER = THESES / "ledger"
 RAW = "https://raw.githubusercontent.com/CTLSmith5689/daily-intelligence-brief/main"
-PAGES = "https://ctlsmith5689.github.io/daily-intelligence-brief"
+PAGES = os.environ.get("APTERREON_PAGES") or "https://ctlsmith5689.github.io/daily-intelligence-brief"
+# The same files, served straight from the branch GitHub Pages publishes. A cloud
+# session's egress proxy refuses github.io but allows raw.githubusercontent.com,
+# which is how the panel loads there. Verified byte-identical for prices, news,
+# the market series and company views on 2026-09-13.
+SITE_RAW = (os.environ.get("APTERREON_SITE_RAW")
+            or "https://raw.githubusercontent.com/CTLSmith5689/daily-intelligence-brief/gh-pages")
+_SITE_BASES = [PAGES, SITE_RAW]
 UA = "daily-intelligence-brief thesis agent (ctlsmith@me.com)"
 
 # GVMQ exactly as the pipeline defines it (SCORE_GROUPS_PY in lambda_function.py),
@@ -53,6 +60,23 @@ def fetch(url, tries=3):
         except Exception:
             if attempt == tries - 1:
                 return None
+    return None
+
+
+def fetch_site(path):
+    """A file from the published site, from whichever copy this session can reach.
+
+    Every consumer used to fetch from GitHub Pages alone. On 2026-09-13 a cloud
+    run's proxy refused it, every fetch returned None, and the dossiers were built
+    without price history or headlines while prepare.py reported nothing failed.
+    Whichever copy answers first is preferred for the rest of the process, so a
+    session that cannot reach Pages does not retry it for every ticker."""
+    for i, base in enumerate(list(_SITE_BASES)):
+        data = fetch(f"{base}/{path}")
+        if data is not None:
+            if i:
+                _SITE_BASES.insert(0, _SITE_BASES.pop(i))
+            return data
     return None
 
 

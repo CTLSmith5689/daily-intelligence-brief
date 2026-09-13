@@ -22,7 +22,7 @@ EASTERN = ZoneInfo("America/New_York")
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import THESES, LEDGER, read_csv_rows
+from common import THESES, LEDGER, read_csv_rows, fetch_site
 import screen
 
 BIN = Path(__file__).resolve().parent
@@ -77,6 +77,18 @@ def main():
     # run and its output no longer reconciled.
     run_date = (args[args.index("--date") + 1] if "--date" in args
                 else datetime.now(tz=EASTERN).date().isoformat())
+
+    # The dossiers read price history and headlines from the published site. When
+    # it cannot be reached they still build, only without those sections, and the
+    # run looks healthy: on 2026-09-13 a cloud session's proxy refused github.io,
+    # all four dossiers came back with no close series and no headlines, and this
+    # script reported that none had failed. So check once, before doing any work.
+    if fetch_site("prices/_MARKET.json") is None:
+        print("prepare: FAILED. The published site's price files cannot be reached from this "
+              "session, from GitHub Pages or from raw.githubusercontent.com, so every dossier "
+              "would be built without price history or headlines. Stopping before any work.",
+              file=sys.stderr)
+        return 1
 
     env = dict(os.environ)
     if slots:

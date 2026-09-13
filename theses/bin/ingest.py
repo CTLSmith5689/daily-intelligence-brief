@@ -132,12 +132,25 @@ class Drive:
     libraries: 21 packages and 131 MB to make three kinds of HTTP call."""
 
     def __init__(self, key_json):
+        # Never echo any part of the value: it is a private key. Only its shape.
+        fix = ("Set it straight from the downloaded file, with no copy and paste: "
+               "gh secret set GDRIVE_SA_KEY < path/to/key.json")
         try:
             sa = json.loads(key_json)
-            self._email, self._pem = sa["client_email"], sa["private_key"]
-        except (ValueError, KeyError, TypeError):
-            # Never echo the value. It is a private key.
-            raise DriveError("GDRIVE_SA_KEY is not a service account JSON key") from None
+        except ValueError as exc:
+            quotes = any(q in key_json for q in "\u201c\u201d\u2018\u2019")
+            raise DriveError(
+                f"GDRIVE_SA_KEY is not valid JSON ({len(key_json):,} characters, parse error at "
+                f"line {getattr(exc, 'lineno', '?')} column {getattr(exc, 'colno', '?')})."
+                + (" It contains curly quotes, which usually means it passed through a word "
+                   "processor on the way." if quotes else "") + " " + fix) from None
+        if not isinstance(sa, dict):
+            raise DriveError(f"GDRIVE_SA_KEY is JSON but not an object. {fix}") from None
+        missing = [k for k in ("client_email", "private_key") if not sa.get(k)]
+        if missing or sa.get("type") != "service_account":
+            raise DriveError(f"GDRIVE_SA_KEY is JSON but not a service account key "
+                             f"(type {sa.get('type')!r}, missing {missing}). {fix}") from None
+        self._email, self._pem = sa["client_email"], sa["private_key"]
         self._token, self._expires = None, 0.0
 
     def _assertion(self):

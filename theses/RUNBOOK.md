@@ -141,6 +141,10 @@ newline included.
    Every note and the manifest must appear exactly once, as `text/markdown` or
    `application/json`. Upload anything missing and trash any duplicate.
 
+   Do not download the files again to check their hashes. The pipeline recomputes
+   every sha256 when it ingests and refuses a mismatch, and re-downloading through
+   the connector took about four minutes a file on the first run.
+
 8. Upload `ingest.json` **last**, as `application/json`. Until it exists the
    pipeline treats the run as still being delivered, so a half-finished upload is
    never picked up.

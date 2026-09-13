@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (LEDGER, RAW, PAGES, fetch, num, read_csv_rows, load_panel)
+from common import (LEDGER, RAW, PAGES, fetch, fetch_site, num, read_csv_rows, load_panel)
 
 PRICE_MOVE = 0.08          # since the note was written
 EARNINGS_WINDOW = 10       # days ahead
@@ -24,7 +24,7 @@ _price_cache = {}
 def last_close(ticker):
     if ticker in _price_cache:
         return _price_cache[ticker]
-    raw = fetch(f"{PAGES}/prices/{ticker}.json")
+    raw = fetch_site(f"prices/{ticker}.json")
     out = (None, None)
     if raw:
         try:

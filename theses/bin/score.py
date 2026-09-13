@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (LEDGER, RAW, PAGES, fetch, num, read_csv_rows, append_csv, load_panel)
+from common import (LEDGER, RAW, PAGES, fetch, fetch_site, num, read_csv_rows, append_csv, load_panel)
 
 SCORE_COLUMNS = ["prediction_id", "scored_on", "horizon_end", "exit_price", "abs_return",
                  "spy_return", "rel_spy", "peer_median_return", "rel_peer", "peers_used",
@@ -28,7 +28,7 @@ _closes_cache = {}
 def closes(ticker):
     if ticker in _closes_cache:
         return _closes_cache[ticker]
-    raw = fetch(f"{PAGES}/prices/{ticker}.json")
+    raw = fetch_site(f"prices/{ticker}.json")
     out = {}
     if raw:
         try:
@@ -65,7 +65,7 @@ def benchmark_series():
 
     data/quotes.csv has SPY too, but only from 2026-09-03, so it cannot benchmark
     anything with a horizon. It stays as a fallback and nothing more."""
-    raw = fetch(f"{PAGES}/prices/_MARKET.json")
+    raw = fetch_site("prices/_MARKET.json")
     if raw:
         try:
             d = json.loads(raw)

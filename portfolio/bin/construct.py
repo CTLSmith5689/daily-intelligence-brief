@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "theses" / "bin"))
-from common import LEDGER, PAGES, fetch, num, read_csv_rows, load_panel
+from common import LEDGER, PAGES, fetch, fetch_site, num, read_csv_rows, load_panel
 import screen
 
 REPO = Path(__file__).resolve().parents[2]
@@ -45,7 +45,7 @@ def current_views():
 
 
 def closes(t):
-    raw = fetch(f"{PAGES}/prices/{t}.json")
+    raw = fetch_site(f"prices/{t}.json")
     if not raw:
         return {}
     try:

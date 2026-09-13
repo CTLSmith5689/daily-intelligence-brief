@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (SLEEVES, THESES, RAW, PAGES, fetch, num, load_panel,
+from common import (SLEEVES, THESES, RAW, PAGES, fetch, fetch_site, num, load_panel,
                     read_csv_rows, CONTAMINATED, NEWS_FIX_DATE)
 import screen
 import tensions
@@ -149,7 +149,7 @@ def news_for(ticker, name):
     applied no relevance check at all, and the headlines that produced those
     numbers were never archived, so they can be neither audited nor repaired.
     Filtering at read time is the only way to know what was kept."""
-    raw = fetch(f"{PAGES}/news/{ticker}.json")
+    raw = fetch_site(f"news/{ticker}.json")
     if not raw:
         return [], 0
     try:
@@ -187,7 +187,7 @@ def _relevant(title, ticker, name):
 
 
 def price_block(ticker):
-    raw = fetch(f"{PAGES}/prices/{ticker}.json")
+    raw = fetch_site(f"prices/{ticker}.json")
     if not raw:
         return None
     try:
