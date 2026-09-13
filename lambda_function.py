@@ -11503,11 +11503,14 @@ def get_or_generate_stocks_universe():
     """Cached US stocks universe scraped from Wikipedia (S&P 500/400/600), enriched
     with live quote data from Yahoo Finance via yfinance.
 
-    Cache strategy: skip the full refresh ONLY if the cache is very fresh (< 4 hours)
-    AND in the same ISO week. Otherwise: re-pull Wikipedia (fast, free), merge any
-    previous static enrichment (market_cap, pe) as a fallback layer, then attempt a
-    fresh yfinance pass. Yahoo rate-limits aggressively so a single run rarely covers
-    100% of 1500 names; subsequent runs accumulate coverage."""
+    Cache strategy: reuse the cache when it is from today (Eastern) and passes the
+    schema check below. Otherwise re-pull the constituent lists, merge the previous
+    enrichment as a fallback layer, then attempt a fresh yfinance pass. Yahoo
+    throttles hard enough that one run reaches roughly 850 tickers, so the cache is
+    what accumulates a full sweep across about a week of runs.
+
+    The cache is state/stocks_universe.json and is not in git. CI restores it from
+    the universe-cache release asset before the run and saves it back after."""
     now = datetime.now(EASTERN)
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
@@ -11521,11 +11524,10 @@ def get_or_generate_stocks_universe():
         except Exception as e:
             print(f"stocks_universe: cache read error: {e}")
 
-    # Short-circuit: if cache is very fresh (< 4h) and same week, skip the heavy
-    # refresh. News still gets a chance to fetch on its own 12h cadence so a
-    # fresh-deploy after a recent run doesn't have to wait until tomorrow morning.
-    # Schema bump: any cached stock lacking op_margin_history forces a full
-    # rebuild even if the 4h cache window says we could short-circuit.
+    # Short-circuit when the cache is from today and passes the schema check.
+    # News still gets a chance to fetch on its own cadence so a redeploy shortly
+    # after a run does not wait until tomorrow. Any cached stock lacking the newer
+    # fields (see schema_ok) forces a full rebuild even on a same-day cache.
     cached_stocks = (last_known or {}).get("stocks") or []
     schema_ok = (
         any(s.get("op_margin_history") for s in cached_stocks)
@@ -13474,12 +13476,13 @@ def lambda_handler(event, context):
     # of truth for anything.
     if mode == "publish":
         # Read the cached universe rather than calling
-        # get_or_generate_stocks_universe. That function short-circuits only when
-        # the cache is under four hours old and in the same ISO week, so on any
-        # realistic push it would re-scrape Wikipedia and run a yfinance pass
-        # over 1,500 names, which is minutes of rate-limited work to rebuild
-        # pages from numbers that are already on disk. state/stocks_universe.json
-        # is committed, so the cache is always present in CI.
+        # get_or_generate_stocks_universe, which regenerates whenever the cache is
+        # not from today (Eastern). On a push that means re-scraping the lists and
+        # a 2,100-second yfinance pass to rebuild pages from numbers already on disk.
+        #
+        # The cache is not in git. The workflow restores it from the
+        # universe-cache release asset before this runs, and fails the run itself
+        # if the asset exists but cannot be fetched.
         cache_path = STATE_DIR / "stocks_universe.json"
         universe = None
         if cache_path.exists():
@@ -13488,8 +13491,13 @@ def lambda_handler(event, context):
             except Exception as exc:
                 print(f"publish: universe cache unreadable ({exc}).")
         if not (universe or {}).get("stocks"):
-            print("publish: no usable universe cache; regenerating it once.")
-            universe = get_or_generate_stocks_universe()
+            # Refuse rather than regenerate. Regenerating was the old fallback, and
+            # in a push-triggered run it meant a cold rebuild of 40 minutes or more
+            # that rewrites data/tickers.csv (which the Commit data step then
+            # commits) and publishes a thin universe to the site. Failing leaves
+            # the published site as it was and fires the alert.
+            print("publish: no usable universe cache; refusing to rebuild the site without it.")
+            return {"status": "failed", "mode": mode, "stocks": 0, "ok": False}
         generate_site(s3_list_briefs(), universe=universe)
         n_stocks = len((universe or {}).get("stocks") or [])
         print(f"publish: rebuilt the site from committed data ({n_stocks} tickers).")

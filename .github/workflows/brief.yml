@@ -105,6 +105,51 @@ jobs:
             echo "No gh-pages branch yet. This run builds it; the fetch passes will be cold."
           fi
 
+      # The universe cache lives in a release asset, not in git. It is a 13 MB file
+      # the daily run rewrites whole, and in git every rewrite stayed in history
+      # forever: 33 versions and 21.7 MB of the pack by 2026-09-13, adding about
+      # 70 MB a month, on course for GitHub's 1 GB guidance inside a year. A
+      # release asset replaced with --clobber keeps one copy, does not count toward
+      # repository size, and does not expire the way the Actions cache does after
+      # seven days without a hit.
+      #
+      # It is not optional. Under Yahoo's throttling the yfinance pass reaches about
+      # 850 of 5,350 tickers per run, so the cache holds the rest of the week's
+      # sweep. A run that starts without it rebuilds cold, and a cold daily writes
+      # thin coverage into the append-only panel, where it is never corrected: the
+      # cold run on 2026-09-04 recorded 67% market-cap coverage. So when the asset
+      # exists but cannot be fetched, the run fails instead of falling through.
+      - name: Restore the universe cache
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          mkdir -p state
+          # Inside `if !` rather than a bare assignment: Actions runs this with
+          # bash -e, which exits on a failed command substitution before the check
+          # below can tell "no release yet" apart from an outage.
+          if ! CHECK=$(gh release view universe-cache --json tagName 2>&1); then
+            case "$CHECK" in
+              *[Nn]ot\ [Ff]ound*)
+                echo "No universe-cache release yet. This run builds the cache cold."
+                exit 0 ;;
+            esac
+            echo "Could not check for the universe cache: $CHECK"
+            exit 1
+          fi
+          for i in 1 2 3; do
+            if gh release download universe-cache -p stocks_universe.json -D state --clobber; then
+              cp state/stocks_universe.json "$RUNNER_TEMP/universe-before.json"
+              echo "Restored the universe cache ($(wc -c < state/stocks_universe.json) bytes)."
+              exit 0
+            fi
+            echo "Download attempt $i failed; retrying."
+            sleep 5
+          done
+          echo "The universe-cache release exists but its asset could not be downloaded."
+          echo "Refusing to continue: a cold rebuild would write thin coverage into the panel."
+          exit 1
+
       - name: Gather
         env:
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
@@ -210,6 +255,68 @@ jobs:
           COMMIT=$(git commit-tree "$TREE" -m "site: $(date -u +%FT%H:%M)Z")
           git push -f origin "$COMMIT:refs/heads/gh-pages"
           echo "Published $(git ls-tree -r --name-only "$TREE" | wc -l) files ($NEW briefs)."
+
+      # Runs even when an earlier step failed. The cache is written only at the end
+      # of a completed regeneration, so a copy on disk that differs from the one
+      # restored is a finished day of accumulation, and losing it to a failure in
+      # site rendering or the git push would cost a day of the sweep. A truncated
+      # or gutted file is caught by the row check below.
+      #
+      # One gap is accepted rather than engineered around. `gh release upload
+      # --clobber` deletes the old asset before uploading the new one, so if every
+      # attempt fails after that delete, the release is left without an asset. The
+      # next run then fails at the restore step instead of rebuilding cold, which is
+      # the safe direction: nothing thin reaches the panel, and the alert fires.
+      # Recovery is to delete the universe-cache release, which makes the following
+      # run rebuild cold as a deliberate choice.
+      - name: Save the universe cache
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          NEW=state/stocks_universe.json
+          OLD="$RUNNER_TEMP/universe-before.json"
+          if [ ! -s "$NEW" ]; then
+            echo "No universe cache on disk; nothing to save."
+            exit 0
+          fi
+          # Record runs that did not promote, and the stale fallbacks, return
+          # without rewriting the file.
+          if [ -s "$OLD" ] && cmp -s "$NEW" "$OLD"; then
+            echo "Universe cache unchanged this run; nothing to save."
+            exit 0
+          fi
+          # The release asset is the only copy, so refuse to replace it with one
+          # that lost more than a tenth of its rows. That is the same threshold the
+          # scrape guard in get_or_generate_stocks_universe treats as a source failure.
+          python3 - "$OLD" "$NEW" <<'PY' || exit 1
+          import json, os, sys
+          def rows(path):
+              if not os.path.exists(path) or not os.path.getsize(path):
+                  return None
+              return len(json.load(open(path)).get("stocks") or [])
+          old, new = rows(sys.argv[1]), rows(sys.argv[2])
+          print(f"Universe cache rows: {old} before, {new} after.")
+          if not new:
+              sys.exit("Refusing to save: the new cache has no rows.")
+          if old and new < 0.9 * old:
+              sys.exit("Refusing to save: the cache lost more than 10% of its rows.")
+          PY
+          if ! gh release view universe-cache >/dev/null 2>&1; then
+            gh release create universe-cache --prerelease --title "Universe cache" \
+              --notes "Resume state for the daily run, replaced in place by the workflow. Not a software release." || exit 1
+          fi
+          for i in 1 2 3; do
+            if gh release upload universe-cache "$NEW" --clobber; then
+              echo "Saved the universe cache ($(wc -c < "$NEW") bytes)."
+              exit 0
+            fi
+            echo "Upload attempt $i failed; retrying."
+            sleep 5
+          done
+          echo "Failed to save the universe cache. The next run resumes from the previous copy."
+          exit 1
 
       # Between 2026-05-09 and 2026-07-07 this job failed 78 times without anyone
       # noticing, because the brief email was sent before the step that crashed.

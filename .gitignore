@@ -24,3 +24,12 @@ source/
 docs/*
 !docs/briefs/
 !docs/.nojekyll
+
+# The universe cache is resume state, not data. It is a 13 MB file that every
+# daily run rewrites whole, and in git each rewrite stayed in history forever:
+# 33 versions and 21.7 MB of the pack by 2026-09-13, adding about 70 MB a month.
+# CI keeps it as the universe-cache release asset instead, replaced in place.
+# Its fields are either recorded in the append-only panel under data/fundamentals/
+# or recomputed every run, except op_margin_history and benford, which exist only
+# here and in the published stocks-data.json.
+state/stocks_universe.json
