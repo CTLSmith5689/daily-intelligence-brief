@@ -2814,6 +2814,7 @@ body.page-stocks .lib-h { display:none; }
 .co-note + .co-k, .co-chips + .co-k, .co-bar + .co-k { margin-top:16px; }
 .co-note { font-size:11.5px; color:var(--text-3); line-height:1.55; margin-top:7px; max-width:62ch; }
 .co-note a { color:var(--text-2); }
+.co-biz { font-size:13.5px; line-height:1.62; color:var(--text-2); max-width:64ch; }
 .co-chips { display:flex; flex-wrap:wrap; gap:6px; }
 .co-chip { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-2); border:1px solid var(--border-bright); padding:3px 9px; }
 .co-bar { height:10px; background:var(--surface-3); border:1px solid var(--border); position:relative; }
@@ -4362,6 +4363,24 @@ STOCKS_JS_TEMPLATE = """
     }
 
     let html = head('SEC EDGAR &middot; XBRL companyfacts');
+
+    // What the company says it sells, in its own words. The panel has a sector
+    // label and a sub-industry label and nothing that says what the business
+    // is, which is the first thing you need and the last thing a factor screen
+    // carries.
+    const biz = v.business;
+    if (biz && biz.excerpt) {
+      html += '<div class="co-block"><div class="co-k">What it does, in its own words</div>'
+        + '<p class="co-biz">' + escapeHtml(biz.excerpt) + '</p>'
+        + '<div class="co-note">Opening of Item 1 of the 10-K filed '
+        + escapeHtml(biz.filed || '') + '. '
+        + (biz.text_path
+            ? '<a href="' + CO_REPO + escapeHtml(biz.text_path) + '" target="_blank" '
+              + 'rel="noopener">Read the whole item</a> ('
+              + Math.round((biz.text_chars || 0) / 1000) + 'k characters).'
+            : '')
+        + '</div></div>';
+    }
 
     // What it reports: segment names and share of its sub-industry. Both are
     // statements about structure rather than about price.
@@ -12597,6 +12616,83 @@ def _segment_names(text):
     return names[:10]
 
 
+# The opening of Item 1, minus the heading and the boilerplate that precedes the
+# actual description. Filers start it half a dozen ways ("Item 1. Business
+# Company Background The Company designs...", "ITEM 1. BUSINESS In this report,
+# the terms..."), so the heading and any "in this report the terms" preamble are
+# dropped and the first sentences that actually describe the business are kept.
+_BIZ_HEAD = re.compile(
+    r"^\s*Items?\s+1\.?\s*[\u2014\u2013-]?\s*Business\.?\s*", re.I)
+_BIZ_PREAMBLE = re.compile(
+    r"^\s*(?:General|Overview|Introduction|Company Overview|Our Company|"
+    r"Company Background|Business|Our Business)\b[\s.:\u2014\u2013-]*", re.I)
+_BIZ_SKIP_SENTENCE = re.compile(
+    r"\b(?:in this (?:report|Annual Report|Form 10-K)|unless the context|"
+    r"references to|refer to|collectively|as used herein|incorporated (?:in|by)|"
+    r"Financial Statements and Supplementary Data|Notes to Consolidated|"
+    r"see Item\s+\d|Items?\s+\d[A-B]?\.)\b",
+    re.I)
+_BIZ_TARGET_CHARS = 520
+# Trailing dots that do not end a sentence. Ordered longest first so that "U.S."
+# is matched before "S.".
+_BIZ_ABBREV = re.compile(
+    r"\b(?:U\.S\.A?|N\.V|S\.A|L\.P|L\.L\.C|Inc|Corp|Co|Ltd|LLC|PLC|plc|"
+    r"Mr|Mrs|Ms|Dr|St|No|Nos|vs|approx|Cir|Ass'n)\.", re.I)
+
+
+def _business_excerpt(text):
+    """First few sentences of Item 1 that actually describe the business."""
+    flat = " ".join((text or "").split())
+    if not flat:
+        return ""
+    flat = _BIZ_HEAD.sub("", flat)
+    for _ in range(3):
+        trimmed = _BIZ_PREAMBLE.sub("", flat)
+        if trimmed == flat:
+            break
+        flat = trimmed
+    # Split on sentence ends, keeping the terminator. Abbreviations inside a
+    # company name would split early, so a fragment shorter than 30 characters
+    # is glued back onto the one before it.
+    # Protect abbreviations before splitting. "CF Industries Holdings, Inc. and
+    # its subsidiaries" split at "Inc.", which cut a definitions sentence in
+    # half so that only the first half was recognised as one and skipped.
+    # Python has no variable-length lookbehind, so the dots are masked instead.
+    guarded = _BIZ_ABBREV.sub(lambda m: m.group(0).replace(".", "\x00"), flat)
+    parts, buf = [], ""
+    for chunk in (c.replace("\x00", ".") for c in re.split(r"(?<=[.!?])\s+", guarded)):
+        if buf and len(chunk) < 30:
+            buf += " " + chunk
+            continue
+        if buf:
+            parts.append(buf)
+        buf = chunk
+    if buf:
+        parts.append(buf)
+
+    out, skipped = [], 0
+    for sent in parts:
+        # Defined terms are not a description of the business. CF opens with
+        # four such sentences, so skipping only the first left an excerpt that
+        # explained which subsidiary "CF Industries" refers to and nothing else.
+        if not out and skipped < 6 and _BIZ_SKIP_SENTENCE.search(sent):
+            skipped += 1
+            continue
+        out.append(sent)
+        if sum(len(x) for x in out) >= _BIZ_TARGET_CHARS:
+            break
+    excerpt = " ".join(out).strip()
+    # A heading can sit inside the first kept sentence rather than at the very
+    # start of the item, which is how KO kept "General" and YELP "Company
+    # Overview". Strip again now that the sentence is chosen.
+    for _ in range(3):
+        trimmed = _BIZ_PREAMBLE.sub("", excerpt)
+        if trimmed == excerpt:
+            break
+        excerpt = trimmed
+    return excerpt.strip() if len(excerpt) >= 80 else ""
+
+
 def write_company_views(stocks=None):
     """One JSON per ticker with reported history, filings held and segment mix.
 
@@ -12640,6 +12736,20 @@ def write_company_views(stocks=None):
             view["filings"] = rows
         if tk in peers:
             view["peer_share"] = peers[tk]
+        biz_row = next((r for r in rows if r.get("doc_kind") == "business"), None)
+        if biz_row and biz_row.get("text_path"):
+            biz_file = FILINGS_CSV_DIR / biz_row["text_path"]
+            if biz_file.exists():
+                try:
+                    excerpt = _business_excerpt(biz_file.read_text(encoding="utf-8"))
+                except Exception:
+                    excerpt = ""
+                if excerpt:
+                    view["business"] = {"excerpt": excerpt,
+                                        "filed": biz_row.get("filed"),
+                                        "text_path": biz_row.get("text_path"),
+                                        "text_chars": biz_row.get("text_chars")}
+
         seg_row = next((r for r in rows if r.get("doc_kind") == "segment_note"), None)
         if seg_row and seg_row.get("text_path"):
             seg_file = FILINGS_CSV_DIR / seg_row["text_path"]
