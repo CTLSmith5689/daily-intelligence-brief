@@ -515,6 +515,34 @@ def main():
               f"{fmt(g('net_income'),'ttm_net_income')} | "
               f"{fmt(g('eps_diluted'),'ttm_eps_diluted')} | "
               f"{fmt(g('ocf'),'ttm_fcf')} | {fmt(g('capex'),'ttm_fcf')} |")
+        # The panel's ttm_revenue and the filer's own reported revenue should
+        # agree within a quarter's growth. When they do not, the panel picked the
+        # wrong XBRL tag and caught a fragment of revenue rather than the whole
+        # of it. Measured across the gated universe, 38 of 216 Financials and 9
+        # of 97 Real Estate names imply a net margin above 50 percent, which is
+        # the same bug seen from the other side. JPM's panel revenue is 95.1B
+        # against 182.4B reported.
+        #
+        # Every field built on revenue inherits this: revenue_growth_yoy,
+        # revenue_acceleration, ev_revenue, operating_margin, gross_margin. The
+        # screen ranks on them, so the note has to know.
+        panel_rev, filed_rev = num(me.get("ttm_revenue")), num(fy[-1].get("revenue"))
+        if panel_rev and filed_rev and filed_rev > 0:
+            gap = abs(panel_rev - filed_rev) / filed_rev
+            if gap >= 0.25:
+                w("")
+                w(f"**The panel's revenue does not match the filing.** `ttm_revenue` is "
+                  f"{fmt(panel_rev,'ttm_revenue')} against {fmt(filed_rev,'ttm_revenue')} "
+                  f"reported for FY{fy[-1]['period_end'][:4]}, a gap of {gap:.0%}. The panel "
+                  f"selected an XBRL tag that captures part of revenue rather than all of it. "
+                  f"Treat `revenue_growth_yoy`, `revenue_acceleration`, `ev_revenue`, "
+                  f"`operating_margin` and `gross_margin` as unusable for this name, and use "
+                  f"the reported series above instead. Do not quote the panel's revenue.")
+                caveats.append(
+                    f"panel ttm_revenue is {gap:.0%} away from the revenue this company "
+                    f"reported for FY{fy[-1]['period_end'][:4]}; every revenue-derived field "
+                    f"is unreliable here")
+
         eps = [num(r.get("eps_diluted")) for r in fy if num(r.get("eps_diluted")) is not None]
         if len(eps) >= 5:
             w("")
