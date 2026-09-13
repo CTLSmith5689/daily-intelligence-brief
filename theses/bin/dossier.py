@@ -40,6 +40,26 @@ STALENESS = [("prices_updated", 4, "price and every return derived from it"),
 LENSES = THESES / "lenses"
 
 
+# The full items are 26,000 and 42,000 characters. Pasting both put the dossier
+# at 106,000 characters, roughly 26,000 tokens per ticker against a budget of
+# about 12,000 for filing text. The agent has a checkout, so the whole item is
+# a file read away; what the dossier owes it is enough to work from and the path
+# to the rest.
+_ITEM_DOSSIER_CAP = {"business": 12000, "risk_factors": 9000}
+
+
+def item_excerpt(kind, text, path):
+    """Capped item text, with a pointer to the whole thing."""
+    cap = _ITEM_DOSSIER_CAP.get(kind, 10000)
+    if len(text) <= cap:
+        return text, ""
+    cut = text.rfind(". ", 0, cap)
+    body = text[:cut + 1] if cut > cap * 0.6 else text[:cap]
+    return body, (f"Truncated at {len(body):,} of {len(text):,} characters. The whole "
+                  f"item is in the checkout at `data/filings/{path}`. Read it if the "
+                  f"thesis turns on something this excerpt cuts off.")
+
+
 def sector_lens(sector):
     """The lens body for a sector, or "" when none is written."""
     if not sector:
@@ -615,10 +635,14 @@ def main():
     w("## The business, in its own words")
     w("")
     if biz_row and biz_text:
+        biz_body, biz_cut = item_excerpt("business", biz_text, biz_row.get("text_path", ""))
         w(f"10-K Item 1, filed {biz_row.get('filed')}. {len(biz_text):,} characters.")
+        if biz_cut:
+            w("")
+            w(biz_cut)
         w("")
         w("```text")
-        w(biz_text)
+        w(biz_body)
         w("```")
     else:
         w("No Item 1 collected yet. **You do not have a description of what this company "
@@ -630,7 +654,11 @@ def main():
     w("## What the company says could go wrong")
     w("")
     if rk_row and rk_text:
+        rk_body, rk_cut = item_excerpt("risk_factors", rk_text, rk_row.get("text_path", ""))
         w(f"10-K Item 1A, filed {rk_row.get('filed')}. {len(rk_text):,} characters.")
+        if rk_cut:
+            w("")
+            w(rk_cut)
         w("")
         w("Risk factors are largely boilerplate and are written by lawyers to be "
           "comprehensive rather than informative. Read them for what is specific to this "
@@ -639,7 +667,7 @@ def main():
           "is worth a sentence.")
         w("")
         w("```text")
-        w(rk_text)
+        w(rk_body)
         w("```")
     else:
         w("No Item 1A collected yet.")
