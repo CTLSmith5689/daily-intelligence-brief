@@ -2595,6 +2595,13 @@ body.page-stocks .lib-h { display:none; }
   border:none; border-bottom:1px solid var(--border-bright); border-radius:0; padding:3px 0; }
 .stk-toprow .lib-chips { gap:5px; }
 .stk-table { border:none; background:transparent; }
+.stk-th { display:inline-block; width:7px; height:7px; border-radius:50%; margin-left:7px; vertical-align:middle; flex:0 0 auto; }
+.stk-th-long { background:var(--apt-red); }
+.stk-th-avoid { background:transparent; border:1.5px solid var(--apt-red); }
+.stk-th-short { background:transparent; border:1.5px solid var(--apt-red); }
+.stk-th-watch { background:var(--text-4); }
+.stk-th-no-view { background:transparent; border:1.5px solid var(--text-4); }
+.stk-th-none { background:var(--text-5); }
 .stk-row { border-bottom:1px solid var(--border); background:transparent; align-items:center; }
 .stk-row:hover { background:var(--surface-1); }
 .stk-rank { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-4); }
@@ -3243,6 +3250,10 @@ STOCKS_JS_TEMPLATE = """
   // paint, on every load, uncacheable separately from the markup.
   let ALL = [];
   const SECTORS = __SECTORS_JSON__;
+  // ticker -> {d: direction, c: conviction, w: written_on} for every name that
+  // has a note. Absent for almost every row, which is the expected case.
+  const THESIS_INDEX = __THESIS_INDEX_JSON__;
+  let researchFilter = '';        // '' all, 'any' covered, or a direction
   const INDEXES = __INDEXES_JSON__;
   const DATA_URL = __DATA_URL__;
   // Order of the positional `pct` array on each stock, matching SCORE_FIELDS in
@@ -3399,7 +3410,23 @@ STOCKS_JS_TEMPLATE = """
     for (const dim of ['Growth', 'Value', 'Momentum', 'Quality']) {
       if (coverageMin[dim] > 0 && dimensionCoverage(s, dim) < coverageMin[dim]) return false;
     }
+    if (researchFilter) {
+      const v = THESIS_INDEX[s.ticker];
+      if (!v) return false;
+      if (researchFilter !== 'any' && v.d !== researchFilter) return false;
+    }
     return true;
+  }
+
+  // A direction is a word, so the dot is never the only carrier: it has a title
+  // and the detail card underneath spells the view out in full.
+  function thesisDot(ticker) {
+    const v = THESIS_INDEX[ticker];
+    if (!v) return '';
+    const cls = 'stk-th-' + String(v.d || 'none').replace(/\s+/g, '-');
+    const conv = v.c == null ? '' : ', conviction ' + v.c + ' of 5';
+    return '<span class="stk-th ' + cls + '" title="' + escapeHtml(v.d || 'view')
+         + conv + ', written ' + escapeHtml(v.w || '') + '"></span>';
   }
 
   function escapeHtml(s) {
@@ -4608,6 +4635,7 @@ STOCKS_JS_TEMPLATE = """
       return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
         + '<div class="stk-rank">'+String(idx + 1).padStart(2, '0')+'</div>'
         + '<div class="stk-id"><span class="stk-tk">'+escapeHtml(s.ticker||'')+'</span>'
+          + thesisDot(s.ticker)
           + '<span class="stk-nm">'+escapeHtml(s.name||'')+'</span></div>'
         + '<div class="stk-sector" title="'+escapeHtml(s.sector||'')+'">'+escapeHtml(s.sector||'')+'</div>'
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
@@ -4858,6 +4886,14 @@ STOCKS_JS_TEMPLATE = """
     if (!chip) return;
     activeIndex = chip.dataset.index || '';
     indexChipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
+    render();
+  });
+  const researchChipsEl = document.getElementById('stk-research-chips');
+  researchChipsEl && researchChipsEl.addEventListener('click', e => {
+    const chip = e.target.closest('.lib-chip');
+    if (!chip) return;
+    researchFilter = chip.dataset.research || '';
+    researchChipsEl.querySelectorAll('.lib-chip').forEach(c => c.classList.toggle('active', c === chip));
     render();
   });
   // The pill row and the column headers are two controls over one piece of
@@ -12027,12 +12063,50 @@ def generate_stocks_page(universe):
             out[k] = round(v, 4) if isinstance(v, float) else v
         return out
 
+    # Which names carry a written view. Coverage is about four a week against
+    # 5,354 rows, so without a marker here a finished thesis is unreachable from
+    # the screen unless you already know the ticker. Small enough to embed: one
+    # short object per covered name, a few hundred a year.
+    thesis_index = {}
+    notes_dir = THESES_DIR / "notes"
+    if notes_dir.is_dir():
+        for tdir in sorted(notes_dir.iterdir()):
+            if not tdir.is_dir():
+                continue
+            notes = sorted(tdir.glob("*.md"))
+            if not notes:
+                continue
+            try:
+                fm = _parse_front_matter(notes[-1].read_text(encoding="utf-8"))
+            except Exception:
+                fm = None
+            if not fm:
+                continue
+            try:
+                conv = int(str(fm.get("conviction", "")).strip())
+            except (TypeError, ValueError):
+                conv = None
+            thesis_index[tdir.name] = {"d": (fm.get("direction") or "").strip(),
+                                       "c": conv,
+                                       "w": (fm.get("written_on") or "").strip()}
+
     data_path = DOCS_DIR / "stocks-data.json"
     data_path.write_text(
         json.dumps([_trim(s) for s in stocks], separators=(",", ":")),
         encoding="utf-8")
     print(f"stocks: wrote {data_path.name} "
           f"({data_path.stat().st_size / 1024 / 1024:.2f} MB, {len(stocks)} tickers).")
+    # Chips are built from what actually exists, so a direction with no notes
+    # never shows an empty filter.
+    _dirs = sorted({v["d"] for v in thesis_index.values() if v.get("d")})
+    research_chips = '<span class="lib-chip active" data-research="">All</span>'
+    research_chips += '<span class="lib-chip" data-research="any">Covered</span>'
+    for _d in _dirs:
+        _n = sum(1 for v in thesis_index.values() if v.get("d") == _d)
+        research_chips += (f'<span class="lib-chip" data-research="{_html.escape(_d)}">'
+                           f'{_html.escape(_d)} {_n}</span>')
+    n_universe = f"{len(stocks):,}"
+
     stocks_json = json.dumps("stocks-data.json")
     sectors_json = json.dumps(sectors)
     indexes_json = json.dumps(indexes)
@@ -12094,6 +12168,13 @@ def generate_stocks_page(universe):
             <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase">Sector</span>
           </summary>
           <div style="padding:2px 20px 15px" class="lib-chips" id="stk-sector-chips">{sector_chips}</div>
+        </details>
+        <details class="stk-rg">
+          <summary style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;list-style:none">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase">Research</span>
+          </summary>
+          <div style="padding:2px 20px 15px" class="lib-chips" id="stk-research-chips">{research_chips}</div>
+          <p style="padding:0 20px 14px;margin:0;font-size:10.5px;line-height:1.5;color:var(--text-4)">A written view exists for a few names a week out of {n_universe}. The dot beside a ticker marks one.</p>
         </details>
         <div id="stk-filter-panel">{rail_html}</div>
         <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
@@ -12225,6 +12306,7 @@ def generate_stocks_page(universe):
                  .replace("__FIELD_STATUS_JSON__", json.dumps(FIELD_STATUS))
                  .replace("__REFRESH_CLASSES_JSON__", json.dumps(REFRESH_CLASSES))
                  .replace("__SECTORS_JSON__", sectors_json)
+                 .replace("__THESIS_INDEX_JSON__", json.dumps(thesis_index, separators=(",", ":")))
                  .replace("__INDEXES_JSON__", indexes_json))
     html = render_screener_page("Stocks, Apterreon", body, extra_scripts=stocks_js)
     (DOCS_DIR / "stocks.html").write_text(html, encoding="utf-8")
