@@ -78,6 +78,10 @@ class Refuse(Exception):
 class DriveError(Exception):
     """Drive or the token exchange failed. Nothing about the run is decided."""
 
+    def __init__(self, message, status=None):
+        super().__init__(message)
+        self.status = status
+
 
 def now_iso():
     return datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
@@ -171,7 +175,7 @@ class Drive:
         return self._token
 
     def _get(self, url, raw=False):
-        problem = ""
+        problem, code = "", None
         for attempt in range(4):
             if attempt:
                 time.sleep(2 ** attempt)
@@ -181,7 +185,7 @@ class Drive:
                     body = resp.read()
                 return body if raw else json.loads(body)
             except urllib.error.HTTPError as exc:
-                problem = f"HTTP {exc.code} {exc.read()[:200]!r}"
+                problem, code = f"HTTP {exc.code} {exc.read()[:200]!r}", exc.code
                 if exc.code not in (429, 500, 502, 503, 504):
                     break
             except (urllib.error.URLError, TimeoutError) as exc:
@@ -189,7 +193,19 @@ class Drive:
             except ValueError:
                 problem = "the response was not JSON"
                 break
-        raise DriveError(f"{url.split('?')[0]}: {problem}")
+        raise DriveError(f"{url.split('?')[0]}: {problem}", status=code)
+
+    def folder(self, folder_id):
+        """The delivery folder's own metadata, which proves the account can see it.
+
+        Searching for the children of a folder the account cannot see returns no
+        files rather than an error, which reads exactly like a folder with nothing
+        delivered yet. A missing share would therefore ingest nothing, forever,
+        with every run reporting success. Asking for the folder itself turns that
+        into a 404."""
+        if not DRIVE_ID.match(folder_id or ""):
+            raise DriveError(f"not a Drive id: {folder_id!r}")
+        return self._get(f"{API}/{folder_id}?fields=id,name,mimeType&supportsAllDrives=true")
 
     def children(self, folder_id):
         if not DRIVE_ID.match(folder_id or ""):
@@ -438,6 +454,20 @@ def main(argv=None, drive=None):
         except DriveError as exc:
             result["errors"].append(str(exc))
             return finish(result, dry_run)
+
+    try:
+        meta = drive.folder(FOLDER_ID)
+    except DriveError as exc:
+        if exc.status == 404:
+            who = getattr(drive, "_email", "the service account")
+            result["errors"].append(f"the delivery folder {FOLDER_ID} is not shared with {who}. "
+                                    "Share it with that address as Viewer in Google Drive.")
+        else:
+            result["errors"].append(f"checking the delivery folder: {exc}")
+        return finish(result, dry_run)
+    if meta.get("mimeType") != FOLDER_MIME:
+        result["errors"].append(f"{FOLDER_ID} is not a folder, so there is nothing to ingest from it")
+        return finish(result, dry_run)
 
     done = {r.get("drive_folder_id") for r in read_csv_rows(INGESTED)}
     refused = {(r.get("drive_folder_id"), r.get("fingerprint")) for r in read_csv_rows(REFUSED)}
