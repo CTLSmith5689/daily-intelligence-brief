@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Daily Brief · Thursday, September 03</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'DM Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--apt-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--apt-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--apt-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--apt-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--apt-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--apt-red); }
+  .story-source { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }
+  .insight-label { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--apt-red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--apt-red); }
+  .panel:not(.edge) .panel-title { color:var(--apt-grey); }
+  .panel p { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Apterreon</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </a>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Daily Brief · Thursday, September 03</h1>
+    <div class="meta">10:13 PM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
+    <span class="ts">10:13 PM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "My Everett News - My Everett News", "summary": "", "insight": "", "source": "My Everett News", "link": "https://news.google.com/rss/articles/CBMiP0FVX3lxTE9MVnYtOWJWd2ZxbWJEV1FMWUh5WjJ3bUc1VER6YXM0MFpGbVdCa3A5WWVlbFNaVDVFSWxNNWpuZw?oc=5"}, {"headline": "Ukraine News Today: Breaking Updates & Live Coverage - September 4, 2026 from Kyiv Post - Kyiv Post", "summary": "", "insight": "", "source": "Kyiv Post", "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE1ncndsRlUzVEJVMzFlTHF6TjByNm8xclBMNkxoTjdSU0xoNFRYTUJtWVFSeFdrVE02eGpwY1lReEFhTlJUc3NFOWo1dTBCZw?oc=5"}, {"headline": "Missouri Supreme Court rules new GOP-drawn map can\u2019t be used for November elections - NBC News", "summary": "", "insight": "", "source": "NBC News", "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOZlZ1c3ljMHdkLUxtLXo4RG5tTkU5VFNHRFdkMGRuak5nY3hQNXVpSk9jLXptdEJWZzBaaElSWko0N1ZqZUJXTUNUbHI4UktvX2lnTnFLQjFvdjNaYk1zdEF5VXdHVGFaZUQyU3J2MUxUWVJhRzlHelVDYVNJSlU3cGxOTnQ0MmdKdW5LbUI0T2Uwd3dzdVZMczZUUHRJUHpqWmFCZG5HZ1g3ejRGTzBjX1oxTXlZczlHT3B0UEZObVpNeGdsblM4?oc=5"}, {"headline": "Vance says he doesn\u2019t know when Iran conflict will end \u2014 it\u2019s up to Iran - The Washington Post", "summary": "", "insight": "", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNUkg1LUZscnlBMGFEQWpoT2dZb0QwZFVpUWpZOUNydUcxbHBJYUFqNmpxUmtOeXMzTW9IRzFtOGg1Ylg2Z2NDOTlfRnVlMWtBQ0FuTGVYVTBvc003MWhFaEJ3YXd6TFVzYmp4MmNKWVgyLXh3b0d6WTNZVU5Kckk3YlpnOU1nbFhHaVZkcnlkMklWRVdTVVBzT1VBX25kVnpNU1dNZDNFT0xmb0w2aGxtazdjeERwenFL?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "E-mini S&P futures rally as Treasury yields pull back. - CME Group", "summary": "", "insight": "", "source": "CME Group", "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPd2pyZmg5TGVkcVJFZVVDMkRDcVJOOEpuSEZEbDVKMHdTRUZ5cjZYaGVRVVpIdVlLaUNBQkJySS1JeHptUWhMTThRd2l5anBhcjhWUXBMOFg2WmZrT0NybHo3MzVvR3R6blozM0p1RjJWNDlCUENCYzZBRW1jSzN2TUtnUGxRNThFUWZJTThnRUFDQjljYlVCaEozR3E4UjhlLUJsN3I3US1YSmVF?oc=5"}, {"headline": "Wall Street ends sharply higher as Waller remarks ease rate hike fears - Reuters", "summary": "", "insight": "", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPUzRxMTJxTk80aFlHOHU2WkVVbjhCeDhJVGNiVXFqSUg0cGhIUjY3d2hBTWQtUGVvMTJXMUVjaVJwc1lnTW9OMUp1ZjhiUjFfVlVTbk44Z1c2WTdqOVYwUUMzbVhVbHk5Tnk4V3ZoVWtvdHdBMDJDV1V2dEVRanc1UGc1ZlExN3VFTUpTTzBDcUVRZWN6Qlh0STQzb0ZqUmVlbWk4YWwzOA?oc=5"}, {"headline": "US Stock Futures Rise as Traders Parse Fedspeak, Earnings - Bloomberg.com", "summary": "", "insight": "", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPZ0hBLWVPSkVXQlFEblFqT3dOWnNyalVvQ0JSY1p5SFVVSi1SWVc3NTVnbFhZaVRyWGJPOUUxdGllMy1uQk81cWtvUjY3SEN5cHVIeTNsbHNoQXdQNmNuZjdRaklVMXdrTHNGMndSdnRJeF9VdEtULU5TR01YZnZ0aExDZUdwb2E1aDV6bTVOMzJvandJRW5qdEZvNHVmeFlkX3NCTjVPaWstc00?oc=5"}, {"headline": "Dow Jumps 624 Points as Treasury Yields, Rate-Hike Odds Drop: Stock Market Today - Kiplinger", "summary": "", "insight": "", "source": "Kiplinger", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQTXVUa0d1ME1WVWJNUGJVd2l3bFpDUTFLa3d2RldIOUpMQzlFLXlzVncxUjZkcmdlaGxQU3E3bUNSbnFIdVJrOHdrRFg3Ync2Vnh4WklXRU1rNGxUWHJvUExPbW1TUWxpVmVKbWo3bmdVTmlXNUJrSklWa0hCV2xuX25KcDlMR21lTjRxZlFWbDcwTGl1d0d3TURGQWFxWjR6WVNtZGFRQ3N1NFF2Q2Q3Mg?oc=5"}, {"headline": "CVC Secondary Partners Raises $10 Billion For Sixth Global Private Equity Secondaries Fund - Pulse 2.0", "summary": "", "insight": "", "source": "Pulse 2.0", "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPMFBqN1RJaGVwLTZOczhSaUZLR1NoaTFXYUN1TmFNcFpFRTdDS0JmZ2ZFV01VWmhmS0FDVEdYQ3VHTU9RSjBXVWVhcnZJc01Fei00c3JxTl9SNUVNT1pOSF82M2g0NDlMZzU5THNJWlhLb2xUS3FQdTVMOGtDTGU0WW9xM1A4Y1RRUWJ0Z0c4cHNnenNZdHJXVS1yZlJlbXYxSzhpVzF3UWlXRlV6ZkHSAbMBQVVfeXFMTU44aDUyXzlhYUFHTUJ2cVF1SXhpYnZFOUtfenNkYXZTTndiQ1ZpdkZFbGtDQzN1bE9Ta3JJdlgtWGFwQjZWZ21QdXVtSEZ6OWhqTllYRUQwUmxPRDNvT3FCek96Z1ZXd2lNQVd1TmktODlaWGpMd05SWEQ0blBoNW5GMmhGbFBiZmdIQlFrTlpNSno0UWM3UV9saWRBdHFTY2QwbzRxSFJhcFBhV3RmN0daUm8?oc=5"}, {"headline": "CVC Secondary Partners closes sixth secondaries fund at $10bn - Alternatives Watch", "summary": "", "insight": "", "source": "Alternatives Watch", "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPMk13YjBkM3hYNnREYW1Ta3ZheFkwMTg5UjBzLUp2Z2VQRTl0M1liTGRZRkJLWkFxN1p6TDR6Y25jYnc1cXZkTjVYX2stSWVrRTJuUW9nUnlqOU5QWmNlZFg3bHRqVkViMnlrYncwLVNBWThXMXl4RHJrTkJpdnVlRmJIdlRURm1yZWR0eXVpUFU1TXlLeS1SWkQwa3JjV05Nd1A5aldB?oc=5"}, {"headline": "The big August jobs report is due out Friday. Here's what to expect for what has been a jobless summer - CNBC", "summary": "", "insight": "", "source": "CNBC", "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE92WE1BZmt4QlJkTjhBYmI4dERxRVNIUEZtX2hqY3dSUjA2a3NaSlJzT1dTYmhweVhwZ0kybkhySVlGUzdTRVRxTEhIT3ZQXzgzMy1Td19XbDFUVllZRVlYdXc4dE1teVRaRXBQcWlvaGpLVG12NjNlbtIBfkFVX3lxTE5Cb3IxU1ZGc2FxektEWFN3T0lSLVA3cnlGY3VlV29OT1JFRVN4YVdTMkdPOGJmTjhUdUZ4dFNlMy1Fc1ZudURxNUJySXk5VHBUcHhvWXk4ZHBrcF8tYkQzRVZLdGxVZU9SR2EyaXA5SENtdkFoY1Y4N3NLLUtDQQ?oc=5"}, {"headline": "Can zero job growth really be a sign of a healthy labor market? - marketplace.org", "summary": "", "insight": "", "source": "marketplace.org", "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOelhTUUJXNjUybE9kRERCVzlxZkRqRzI3XzRjcFhSNThyQnVuenhYZ0hBR1BHN2x6YUR4UVd1SUIzU29HaV9XRXBKVTAyT3hSdnIxaXdZM0thU3BNWEV0a3UwZEJfTGF6ZTlOWVctSnNjd0dhY0dXVnQ4THhYWGM0aTdzZW5la045bGdXLVhhY25KN2lXQjRZVG93WW9UNHlTV09ZWU1VNWF4Tmc?oc=5"}, {"headline": "Unemployment claims tick up to 206,000 but remain at historically low levels - ABC News - Breaking News, Latest News and Videos", "summary": "", "insight": "", "source": "ABC News - Breaking News, Latest News and Videos", "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQeGRlVE5neDkwUjYxbW83NFBMX3d2SWVmX25ieHR1V1A1WnB6V0FWalB2ck9XQ3BvOERab3J4NGR2ZVNfcFVPR19vZ0FQbW9pSVBmSEhCLThOWXg2QjB4dVFkb2JfdjBOUUNJZUJXc3R4emdLb3cyRWV4VmRaQ1VlSVNWdUVSdU1MMVlFczZTcHY1MmdUN29MZEh6aTFtcHNwUkNYVUVqSHTSAa4BQVVfeXFMTUFDNzg0dWlIWnV2ZkFtelRiVEQ3WDJ4MDRZck9zRWRrVHNZOEJqVG9Jb0MyRlFXbXNkd2M0SmIwbkNpSWpRd3UwODFBTDRyaVRyeXpRRjhQc1UxNEJQQVRPcG8tV3dmQlMxeDFvSndDbmhRaXk5cWQyV2d4d013NzBsTWRrbjAxN2d6UUd6b1hidEI2MTQ4Qm5vSEdBQjI4bDNtSnBod1AxdFpvMm5R?oc=5"}, {"headline": "US Economy Jobs Report - timesdaily.com", "summary": "", "insight": "", "source": "timesdaily.com", "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxPaXBnaWhaNzNPb05XM3AyamgzLWpSdW1ZWkZxYnVweHdoamtPdUxXc2Q2dFdycktWVW1DcnZaRkxOcUxuX3IwLUpDTGtQa0RlbmRDYk16R1dNeTZqYjR2SF8wSDlVdnJNWVdvM3lTQVE2NC1kT3NEQlZQT21qWEpwcVhfNm1SZXYwTGx1TEgxTHpvWC1ZNUFtSm54Y3pKdw?oc=5"}, {"headline": "How the ESG retreat made Galvanize\u2019s decarbonization bet more convincing - Pensions & Investments", "summary": "", "insight": "", "source": "Pensions & Investments", "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNYXNvMHlVX0dvdzI4ekdhc1FXVUdwdng1cE1pOW85ZXA5c0hGcTJDZUNwWnNLWXBGMFBoZHZrY2J4WVVvWnpJQnFtQzRjT0RMMGFpV3RNbGRPM2t3MUpoMnFqTnQ5UU45bnRuU3NHSUFDd1JTLU1Mb1JnTVNCX3RnaWlwZUw5Tm1tNjMzNjdtcURfdFR6S0k4M1V1R1FrQ1pWb0E3N2dsTmZSZmJpMTZKRVB5UQ?oc=5"}, {"headline": "How a $46 billion Texas pension plan defines a hedge fund - Pensions & Investments", "summary": "", "insight": "", "source": "Pensions & Investments", "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOb3RuU2FSRFBUZFA1ck5tbWpmY1NMLU85aVczREptYmpoMWhxTTlONmI3Y285VTJ1RGVlbEtDdzZVekU2UnRKV3d6ZHVabHdWc2x4azhNYUV6Zm1FeDZBTWZoeE5LczRsQncxdDlCN0RsZU11SWV0eVItaFpyenVNUmZlWE1UcFByem0zeUhTRVNJTWxfbzVOZkdJMHlBOVNpZWMxUmpRZFd4dFViZ04ySkZR?oc=5"}, {"headline": "A Strategic Shift Forward in ETF Usage - Pensions & Investments", "summary": "", "insight": "", "source": "Pensions & Investments", "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNb21fWlFQTDFEZXlOM0JSaVNZM1pjQkZPb0dCX1p2b2FHWHZ0RlBXaW1WRTV2dGozY1M3ZDJUVm1fMEFlOTRqdTNBSFRUeW00c1RnQ0xHV09ab1MydG9xWnNBUG9raVlWSlg3SHY5SWI3VnUzeXN0YWRCQTk0ZlFXSXk4dUQ?oc=5"}, {"headline": "Chicago Teachers Pension Fund finally settles on an investment consultant - Pensions & Investments", "summary": "", "insight": "", "source": "Pensions & Investments", "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxObWhnRHFfT21FOWhtUEJpYzZ6a3AwZ2lMd1hzS2diZG5QS3dCNUF2RmJGaEVQUEZXdDIzNHg2blhJbkFPYUI1ZW10NE9SVHJzLWlaZzNWZGM4NEJtbkRPdFFoc0dZTll1TUJfLTZZd3gwRWlUTFZ1LUhES01LRVoxWlZhdkNDbHRkbWJ5QTNhaVRDNUJpM2VVQ1VyZzMwQ3QxZ3RYUWo4cDIybUtYVzIza2tIdWoxbFhMT2pYa1JLSmp0c0tjUTJqUzg2MA?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Democrats promise a big agenda if they win control of Congress, but their unity is being tested - PBS", "summary": "", "insight": "", "source": "PBS", "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOMGVwYWxwNDBETlc3dmdnV1ROSlZJd09BYW5MS3NyLXpsTWZxa0tKUUp6M203MjZTMFUyZG0xcFhtbkI4YkJyMUpTMWlfX3NPaHM2M0ZIcWJ4V09qbVNGTVJ4Uloxc0x5dHlIVF9wRERzVVExRjJhX1ZqNXB4bTd4UXNPbXcxZ19lMnZZeTQ2bTQ1ZWdKMUdWZGlUNEQtcHE5VkczNGZBU3V2Ukd1TWVzQmtGVnd0TXZscGltNTNuWUJNY2xDUF84ZlI0WFHSAdIBQVVfeXFMTlVpWkxqVENQMWZrYXZ0d2lrU1VacExzTHNiQ1o3VkF0cFhRNVk0WlpuT3lsOUJtazljUzFLWjEtaGp0UUFTdmhOel9objRZR0FCbVlUd0plazNIWVZ0b0dFc19jampXQkFiWkwzTy1aVmVQeFVaTzluVTQtTHZtOTYxc0R3NHFkREZXYkpXeGxrd0dDOGtxMWdFbmxFSkQtTlFRZmpIZl9yWi1JcTltNjdYbTVlYXBmQVJQQ29EUjk5TWlhbVFCWG4tWXJGWGswR1B3?oc=5"}, {"headline": "Vice President JD Vance Briefs Members of the Media, Sep. 3, 2026 - The White House (.gov)", "summary": "", "insight": "", "source": "The White House (.gov)", "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQWG12bjBxaXQ2S3RRdjRRYnZaM0RxN1YtUkNsdDZpT1VMcjdjZlE3OWNQck1sRTRiZ2E2eFI4WXZJdVdNVmpTOGpjQ0dONEY3aHFIZk53RTVpOTlaeXRyUnd3M003VTNBNVdhMmFwd1dXajFSV3loN1VIZ3FLQmdoYmNHXy0zcnFxeXZldWFyZFRoOERuZU94RmlpeXNwUQ?oc=5"}, {"headline": "Secret Service is getting the fortified White House that past presidents resisted - The Washington Post", "summary": "", "insight": "", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNSHZzYk9jZVV4RmttX3ZPUmZaTWVoa3dPSnotZ2RrYWFDTzVDN2VVVmdSY0t6NTZEYTliZ29zRC1iajhFZzk3bG5TdkRUS0N6cFpYQUxwQ2xrVjFlN1pvaDNRNWhub29aaGJYenhRbEFJWUNKc3hEdDd6bXFnY3lxa195OXhIR3BwS1JwcmdMM0lqZmxHU0hwNDR6T0s0MEpJVjJmOFdNR29YM0VtMHJ6Zw?oc=5"}, {"headline": "White House gives classic arcade games a MAGA makeover in new online launch - foxnews.com", "summary": "", "insight": "", "source": "foxnews.com", "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPVUxXZXp2QmprRF9oeDlzejZfOW1OVXIzNGhEU0lISEwzTUtjWFU4OWZTYW9yNlpELWlfVHJkWXRLc2tKNWptc3Z2a1RfTGFUek05Sm9sQ2VyWUsxdW5sV3hQcmt4VnVibmU2Tk0xRGRYQWFjMmZXQ2JabmxyS1RjdUF6UzVpUWlQbFFIcm1mMU5ocmxqTXU3cNIBngFBVV95cUxNNjBBQkYwTnVZM0dIRFU5Yk41TzNjRWlOd25PM0QzbVBGU2VYeFgwelZvcnVNS3ZoU1FBTm5MaWtzYnZmWGpJeDRGODJHT2VPd3JNRVNjZmNQOTQ1Y293YjBTbGg1bE0wTGdQYld3cFF1OFZaVmI5OTFCejJaZGdGZkFKSTJYWE5peml2UEd4OXcxclotWVN4YUl1cW5tdw?oc=5"}, {"headline": "    SEC Proposes Rescission of Political Contribution Rule for Investment Advisers\n", "summary": "", "insight": "", "source": "", "link": "https://www.sec.gov/newsroom/press-releases/2026-85-sec-proposes-rescission-political-contribution-rule-investment-advisers"}]}, {"name": "AI & Technology", "stories": [{"headline": "Nvidia buying AI startup that was hacked by rogue OpenAI agents - KRON4", "summary": "", "insight": "", "source": "KRON4", "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNVmlZR0Z2NlNRNU4zb3J6dDRzbTROVkJ6U0tiWUU3b3RkeXh1Q2JsbE5zVHE0bEExRndTYzZ5b0VCVWh6SXFCSURWM1hwOWRLTVFuNDdJRDBPVXlpdUdZVEc1eTVlYzU3OFluLUMyR0lRRDhWdXBOcy1BX2s3N1JvMU5sazQxc3pTZHE0NDZWb3FENkY2R0lvTjZmWkVlMlVYZUdQNXMxNTPSAa4BQVVfeXFMTm5tS3JYYUpzeVFFSWdQckFkVTZ4c2V1dTdHUncxNGp4Z2xHUGZqU0kyLU5aNnp5R2F4Nk5YU3dHX3pCNXdob0N2UU5XdGZ4WS1GMFE5SjRMZmRZWXQtbXhUaFFJSW9MZEpVZ05IOGFGNVFad0lhZzJfbVIyQ2FUdm1sZnJ5dUUxSVJpZFdGZThlRmF6aXlEM2tRaTN0S2sxcHJnelI3NEZJYll1MVdB?oc=5"}, {"headline": "Startup takes on AI hallucinations with $25M and an HQ rooted in a small town south of Seattle - GeekWire", "summary": "", "insight": "", "source": "GeekWire", "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNRGlVV3NTeERsaUdBVVBuYmpGU3k1bkppNnZ6Y3p0LW1QejB2OURTREl6NWFENTBzQlNMajJOVEZwbTR3WFdITjJwLWNkaUdRV1djWmh2RXpqMnRxMzVONG51NkU0MEp6VnI3TlBLeEF6VkpGWHVzWDBhbFc4ZC01cjVLY0t4X0FDaWhqM2JaclNZaGJwRzAxcnM2dFVKU0gyLTFZcy01SGZ4TnBzdGZlcUdqVkNiakV3VmgxMU1kZUtvdw?oc=5"}, {"headline": "Nvidia bets on open source models, acquiring AI startup HuggingFace - USA Today", "summary": "", "insight": "", "source": "USA Today", "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOTXA4eDBCbFlIa0VpaWlXVXRzV1d1ZkpSaGo1VnRpV0xELWpRRTd5T01sU1JlTTduMW54MDVLYlBjUWswTXFFdkpsWWp5MGF3dHZFZ1R3RzlVUkR0d2ZvQnE4NGFpaGdBMVRWeXppcS1lVjhnZ0ZYWkJLRkgwdXdaLWU4TFBYT29xZFNCWVhXWGhER2dpUzhWLWR3?oc=5"}, {"headline": "Nvidia to buy Hugging Face for $13 billion in open-source push - The Derrick", "summary": "", "insight": "", "source": "The Derrick", "link": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxQTlprWGtiUW02Zkc5SjBDN3A4NGEycE5SN1hqTEVORHJEbmtUTzVYSFlhOTNUOUlXMldLWVVpM1dUZWdDMm5kU3didXdNMV92SDM0TGdVMURUYjlib1pkR1RyWmZQcU8tTU0tOUdXVFdrTFE1dEZkaXd0QzJKOTVpRVdmb3V6Mms0NDk5RXZtYVJrck9mTU1JazV2NmpfU3dkQjJsSUFCUnNPV3NmVDNPTGcxTnAzbGlEcVR3VjJuV3Azclg2OEl1dTNVN3lvbG5pZWlrQVlUeHdMU1VXTjRzMFFCMk5wYy13OFVFQnRB?oc=5"}, {"headline": "Meta is paying to peek at how you use their latest AI model - TechCrunch", "summary": "", "insight": "", "source": "TechCrunch", "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOazlJMnF6UGtkMVBOUjAwcURLbUtJMU12eXdubUgteUhsVHloLWdaNzhKWnA1WlhRQ1F4dlE2RkZpZ1h5OGpqQmR0dDVyVi1nWExRM2Z5WVhTM1llV2U2U2d5OTdpSFhiZzNheWlWX2w0aGJtdmJuejhkUk9pRUhNbnhPLW85MExPQktHSFVqRmJrdjY3M3doZVVR?oc=5"}, {"headline": "New iPhone Fold Display Details Emerge Ahead Of Apple Event - Forbes", "summary": "", "insight": "", "source": "Forbes", "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQS2tPaDRyN20zeXdoZFNna1RlWHBVcmZ5NGVpTHBxeTNBd3J2NDMyUlVSb2pmTlA5TG1UUnRaUXdxZm4yOWQ2amR0QnVXVlMteF85bUctNWNLTFVoUTRnWk9uelNVN1BBQ3ZoTUJnU2Z4N2x3RzdQVUFRWGNCYzRyWlYxaTh6V2RhNlFTeElpWTJDbTRtc19GVVNUUm4xQ2ZFTVVZUzZCSzNvWkk0MklPYTZULXhQNjRlbzBYLQ?oc=5"}, {"headline": "The latest iPhone 18 news, leaks, and rumors: Release date, price increases, new colors - Mashable", "summary": "", "insight": "", "source": "Mashable", "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPVjFENHV2Qi1uOWduVEZBTlhMTGpidVVSS0JwdWQzQ1NwWC1iNG55RGpzbjBVbzdQQXpQRTZuNlVTWGx1bkdfaWlrNVJrRTlKbW9yOXppY0ZFS3lEak1GeDI1amJKaVpQX21oclY2ZE14NkxfU0VNQmlMaV84SjRaaVVjM0dnZVI0QVZTTjBUVQ?oc=5"}, {"headline": "Apple vs budget tech: When it's actually worth paying more, according to tech experts - Yahoo Tech", "summary": "", "insight": "", "source": "Yahoo Tech", "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQbzRJS3pTbnlDQmVlTzMzOWdfUVo1d1QtdUdnTGVWUEJ0QW1FNmM3UHJqSmc4aVZ5YjUzTWYyVng3aTcyZWNZSmRNYTlOMU03aGFucENiUzBPT19LR29wd2d2WjFvQU1aanFjckVRZUdNd0x6RmJybnIxQldYbTN5WEFIZlp0emxvNkxhTXBMeTJvdThoVWd2S0hTNHlMY2drWDJBZjVSZFo4MmJUNmZSakhxMlBPMTk0V05MbWE4ekVPVGhnTHVyb1A5WXpzS05ZbWp4bQ?oc=5"}, {"headline": "Reports: RFK Jr. ordered measles deaths deletion; CDC still secretly counts them", "summary": "", "insight": "", "source": "", "link": "https://arstechnica.com/health/2026/09/reports-rfk-jr-ordered-measles-deaths-deletion-cdc-still-secretly-counts-them/"}, {"headline": "Xbox imposes harsh new time limits for Game Pass game streaming", "summary": "", "insight": "", "source": "", "link": "https://arstechnica.com/gaming/2026/09/xbox-imposes-harsh-new-time-limits-for-game-pass-game-streaming/"}, {"headline": "150 research primates got diarrhea, flooding lab with priceless vaccine data", "summary": "", "insight": "", "source": "", "link": "https://arstechnica.com/health/2026/09/150-research-primates-got-diarrhea-flooding-lab-with-priceless-vaccine-data/"}, {"headline": "Confused about which VPN is right, US senator asks the NSA for guidance", "summary": "", "insight": "", "source": "", "link": "https://arstechnica.com/security/2026/09/us-senator-calls-on-the-nsa-to-give-guidance-for-use-of-vpns/"}]}, {"name": "International", "stories": [{"headline": "Oil prices mixed as investors weigh Middle East escalation, chance of Russia-Ukraine peace deal - Reuters", "summary": "", "insight": "", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQUUpNcGxHMWt3cDdxdFVCZUNrdTBGRlZSUEpJOEg1ZENWVkRPN2lWbTZxMUU3WG56bkZScmlMM3hpOWtzOEtFcWJUaXNqUklwZU9KVlFxd2FxUEtVV2pwYnh3cXo2Y3dhZkJNUDBoSHcxN1dRM3ZCU25QdG02N1JCOHk2SjFzN2Z3UnhKc3hWbDNnWWFp?oc=5"}, {"headline": "Flaring Middle East Tensions Push Oil Prices Up - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNSWkyZEptNDJJVW00ZWZkMUt4SkUtZWJmNFRvMUtQbkM1WTBudU9neTVHUDBxc0ZpQ0kyUU5EclowQ2xqQVBzUjVNZW5JaHNBaEMtRWx0eHkwSHBUZHkwekFKdVFodXQwWGRtQUI5c3FKdTRtNmRYTHJGUFNEZWVjOUdXVzhTQ3NhWndvRXlsWmhEQ1psSDNlc0pB?oc=5"}, {"headline": "Oil Jumps for Fourth Straight Day and Diesel Nears Record High - The New York Times", "summary": "", "insight": "", "source": "The New York Times", "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOWnZkbk1hTzlhVkotM3JKYWdLVkJfREM3N0dqNDFXSW5JY04yLXpCMDVUVHQ0SFVRdG45NFdFZUlTVEY5MUotQUx0MjZkM2NWdTh6bXlWOTl4WTNlWHlfOTdFYnF2MFEyXzNVTHJ0d05OdlpieGcwQklJMmFfNHlxdg?oc=5"}, {"headline": "Middle East Conflict Sends Oil Up, Bonds Down - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPNXowTGpiSmZYbWx3MGt2VE5nYVFnYk04NDhQS0VXZkF4bGpCWWFKYkpEVmtDUTV1Y2J1bHc3V09lSC03UG9ZbE90RGhhZ2N4VFY4QzJaMkx1clItY2pxc2FOSGlNV180Nk1vUFpvR2xPbksxQWhHMUlNS3BwUnZIa3A3elRLanI2WVJUUnpiU1Y3X0l1Zmc?oc=5"}, {"headline": "US urged to consider military strikes to stop China achieving AGI first - scmp.com", "summary": "", "insight": "", "source": "scmp.com", "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNMjJHZUFIUWRwN2JDTUxTZkNETk9FTWk4ZTRNNEpPd1l6SWxLZW5GT3UwVVpJcFNGaXNlVURJeGxpZWVjVFp0dFhHSXlNbXhiQWd5WlM4MV9Sc3M2OTZXX3VvOXNhUVJiNmpmZTZiVTFfa3hZT1JEYnNYM0UzVGllaXAyTUJIcDRHQk9JQVN1N1hiZmIyWC00dnlseW0yQmlxYVlkTlFVVWtPZG5WejVF0gGvAUFVX3lxTE5xSmw3anRkQnlvOGZ6eEJtaTlxUnhqRmg2YVE3clFsaWVBQUJqMXk1MlE3OEVvZGpOektYTUlsakhtT3lhNHg3dThzVkNVam9qR0RRbS1WVXN4Z1gxSDdfcU1tR0FCaVlWUXJodUFZREprOFhTbGVYVjFRUUhYZmQ3U3Y2dXFhY01JWUxiTElTbE1ZNzZ3LXNYX1ZPSFp5X19JMWhBRmFNVUhzS25CTnc?oc=5"}, {"headline": "The Two Key Takeaways From Xi\u2019s Egypt Visit - Carnegie Endowment for International Peace", "summary": "", "insight": "", "source": "Carnegie Endowment for International Peace", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxORGZpakFDMXpGdHhlSloxTFk1V2xHZlJOaGkzeUo5Y1I4QzdKOUd6anY1czE1aTAzdjdscXVJTU5WNDUta2lDX2lUTEZGLUpJUEx1NFg0dkdoZTNMTDVNWDFob3h1Sl9Id1I4Rkh3TnBCOVB1RzVQQnItY19oRzdvUHBISDlLY0ln?oc=5"}, {"headline": "Open-Weight Diplomacy: How China\u2019s AI Models Are Rerunning the Digital Silk Road - Lawfare", "summary": "", "insight": "", "source": "Lawfare", "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQX2w3bmJVQnk1UGpfQXI1RTdacnc3d2lMX2Frdlh0UEtSS1JQSjAxaXJocnFLRDIwZ3JJeDNzWHVzMXJFWmVTcFZJdXgxdkoxakdqN0Fqa0IzUEs5WDhhYmRmc0JINzZWNGN1aGY0d1RRVnZ4T0g1N0VUaFV6SlVLSU9DZlhlaEd3NnZYSzBQMHowTEhFeG12eGowZ0RSRlZVQXZYVE1vUDVWRGhGcTdWa2c2Rk9DXzlW?oc=5"}, {"headline": "Cooperation of mutual benefit flourishes across Pacific - China Daily", "summary": "", "insight": "", "source": "China Daily", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBFY2x5WTJaVU41SGRDSTBoT1U2UkRhMWpENWZFVHduMkhWR19UUWxEOTIxbk84NUthb3RYdWE1WWZ2SlJWWTFPcU83bXVsMjg4QTVpSkRXMmxqeVZURXVDZ3dVZVROeGtPVXpEMEtkUTNfbFpUNjhPUnMwU05zZw?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "Disney Movies Coming to Theaters Fall 2026 - The Walt Disney Company", "summary": "", "insight": "", "source": "The Walt Disney Company", "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBnM052TXVyemQwblBMY3Y1SF9DaUU0UVNXVjQtUlJra2lMLU11Rk84bjZjbFI5UnNWb0FVVEJ6U0xJSEp2ZHlkU2hUTkFaVVBXdXJPaWVIbVFrdGpjdmlFc19VNkdqUXZuSGVzR0dyQmFQeEZBZlBYazhYOA?oc=5"}, {"headline": "Connor Storrie\u2019s Managers Join Linden Entertainment, Home of Amy Adams, Brendan Fraser - The Hollywood Reporter", "summary": "", "insight": "", "source": "The Hollywood Reporter", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQV0VYVzZ4ZHFVQ1prTVN6bm9VNUFZVW1TZDVydGdlcWhLZEM3d3Q4Sm81WjBTc0EwU1FlbG90NFhfejdURGNvdFc1ZWtIby05TzMwRHZ6Tm5YSlZRZ0w1dmF1NmRFNmhmZ1JZZC05cDhiZnVHTzVvUkhCSjVsczRyS3o1TlBCLTFsMTk1bGpVdzQyVGdsNTVaRWs2cExPNUo2ZThULXdiUzQ3TlhKamJkMzREcG0?oc=5"}, {"headline": "Out and About in Arlington: Catch free live music all weekend at Levitt Pavilion - Fort Worth Report", "summary": "", "insight": "", "source": "Fort Worth Report", "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQbWxabU9VRkQ3RUFWZjItTmh1WVFGeGJkRDRyLWVYNGwxdXp4cGJFa2FKUUlhTW9Db0xYTl9QZTBabU5yREpDRmk4OTFHTXdlYmZJVjhRMUFNUWdjYzZIbTdrNFdpUFFLUWFrTVFPc3AtSHpnOTlvQVVsMjFrdS1uUUN4UjEtUV8wY3pfMkJwLUFjRzVlMEU0bk9KTERGY0VuYW5fNDNuTU9XbGNBRHBIUWVyMUhjSmY4c3JB?oc=5"}, {"headline": "FSU College of Music alumni strike a chord in Miami communities - Florida State University News", "summary": "", "insight": "", "source": "Florida State University News", "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQSTc3Y1lQb1BWT2F2NUh4aUs2Y0pILWdIZFVUb0xsbUJ6eFQ1UTR1Rkpyc3pSRS1VZFk1TWRFTzE1SWR2bW5NNEdkUnBtS2tVYmh6c1NqNWFKM2M5eTlFZnhiU1p2TTlNajA0WVo3Y0ZDYkNyWTQ1UnJBUDBIc25UT2txS2V5TlFLbWtWc2lyU2NtWFJRVW5Wcng0T1VjaGZiZjRoTWFESU1jME16MU42V3BVdlRtaFkw?oc=5"}, {"headline": "NFL Games Today: Is There a Thursday Night Football Game Tonight? Complete Week 1 TV Schedule - sports.yahoo.com", "summary": "", "insight": "", "source": "sports.yahoo.com", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPdEh3RnhsSFljVDI3a3RrT0RId1oyU3RzOURCcjd6NDZuU2NtYWVPNnZSYWdZZTJjU3g4MnYyNF9XT3ViRklQdnA3eWNleGlVRFZYWHRyM0drV1BqYXFZYjVuNmRZSjFaUlFFR1l0RlVWYURpaWlDTS1tMHRqMVV4cTl4aHR0QQ?oc=5"}, {"headline": "NBA Offseason: Every free agency deal, extension & trade for all 30 teams - NBA.com", "summary": "", "insight": "", "source": "NBA.com", "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9ZNFhUUEFWOUM1REJwM0d6ZjMwNmZCc0xqYTBnMlU1SFpaWkpXdEo4bkIwNTNvS2F2TFFXa1RnNndqaFhweS00bkVRQWtlRFd2N1VaUUZBY3hLa1pHLWc?oc=5"}, {"headline": "8:00pm ET Today: MLB Big Inning - MLB.com", "summary": "", "insight": "", "source": "MLB.com", "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBzZkU2SE1RVDZ6bk1rQmR4SkZoclQ3OTQ3WFgxaktoV250TVJYZk9FamZmbU1GbzNONk94ZDNvYjJDX3pwVDFHbUZSbnFmSXdTZThkajdtbld6SXlyTXN4eTMxNVo1RG1yU3VsazVOd0E?oc=5"}, {"headline": "Watch ESPN - Stream Live Sports & ESPN Originals - espn.com", "summary": "", "insight": "", "source": "espn.com", "link": "https://news.google.com/rss/articles/CBMiQEFVX3lxTFBOaDRLZTZaOWFGWk5QX0lUYlZiQVoyUGVaRUpmcEM5Z05OUzRCNmlJbXV1R3BndU9FTGJCb0FxY0c?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Severe weather threat, with heavy downpours, lightning, gusty winds - NBC Boston", "summary": "", "insight": "", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOVDN4QVRuMS1oWnFPdEJ6Qm9oOUpzTUg1QTlrcHZVYUMwelpQbFNac2xXbEJFYUVhTnBBOVpXTUxaMi1fRTBZTXJDOXVQaXJzcGFwNXA3UFJwVXpHOHFCRXg4S0J3UDdlWnkxSEE2Tjd4R1JWOXZWVTM5QmZ0Zm5hYTVodzBWZHdOQ2hjMHpaLWFQc25YZ3VrSU1lcnXSAaQBQVVfeXFMT0VTOW5QeVZENnJDUXBXaHJyT09zbjdFVlQ5MmM4dUdRRmR1MFpiTjBPXzUtWUtiN1lYWk42LVA0alB0VV9qbTVubktJWGFSMG5qRFN3ejF5T2NqWXBfYUVPbjhmc2d2WTlWc3ZOdkJsM2RaTC1TaUV4dzNUYzZPMEFYLTZzMHdkNm93U0w2dFJ6ZHhLUExDVm5zZUp1Wk05dTVVcXo?oc=5"}, {"headline": "Maynard declares emergency after losing a third of its water capacity in main break - NBC Boston", "summary": "", "insight": "", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOMVd0aDFDMjBIWVFNTTJaNWZkRmtSZXo2R0xuTE5wTUZvYnRJLU9ITGRfMGpjbHJFUUlDMnVqcHVBd21RZ1lEazljcXhUanpnRzk3dk5BUEJXUXd2VXVwZnItM3ZXZ3h3ZGJnQU9XQ0tramcxbTQxSlJQVUplRTAxVmluZUk3ekw3eTd6OdIBlAFBVV95cUxNSUZYSk9FM3c1eGJCenB0eXI5akpiMmxyNC1oaXJNLV9DVkZVMGJXeFYxeUMtV0djTW5Rb0UtMGg1b1BoRWVkcGJCZGhFdmVaMXBfc19Rc0FuQ0NpMnpPX0tWd0YxSWdLVWMzNmNOeXgwclc4NGtsZzhZTFZTTl9MdGdmN2w4Tjd3b0JuWEpwSFlNN1U1?oc=5"}, {"headline": "Owner of more than 20 Dunkin\u2019 franchises in Eastern Mass., staffing firms fined $1.6M over employment law violations - Boston.com", "summary": "", "insight": "", "source": "Boston.com", "link": "https://news.google.com/rss/articles/CBMi9gFBVV95cUxQZ1ZZb25PUTV2SDBnaEVJcV9PeWZJZF95TzItbWdaVU9MZmx6LWNjUThwbU5tUVprOW95VmM3eW54alhJUVFYUnQyaFRnNjRTaG52R1pIbHpVbThEOGhES2hqYWNmM1gyMjBEbUJTTGxYeGtnNEpGN2l0ZFZFRkVDaktTTnVmNUhNRmY3RERkeUZpc3lmeDRTdHdUUU9nWTgxTFVIVzF4YXRqMEVGRS1sRm5pRmtfR1NQbHFXMXZqY1RybFVFN1NHOUpoMEJLLU5lRmdxZXJ4VnlPdTVCc3ZVcW9xTmpYeVpmY1VtY1poOHdheDQ4cXc?oc=5"}, {"headline": "MIT professor dies days after being injured in Cambridge bike crash - NBC Boston", "summary": "", "insight": "", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNRloxLXVGMUl4TnJSYl9LMEdOUzNaNXU1eC1mZnF2S3pkN29Uem5JZWZsdlZ5ZkhFVElMeGd5dmJDaEpoTHZYaHZVRkllUms1OGFLWlFETXZUMzVPSlBKNFhtNVJ6UVh0UzFpWmxBVG1KU1hGRzRmeERRUW1UcFFTMmJ1UFBHU0xjWUhXeThHNGxud9IBmgFBVV95cUxNa3lrX05GMGp4d3pJRXFQTzhKb3M4bWJndE5YX1B4QkVWVHVIWUdLRk1EZkNncDNfTTI2TFpTemtIY0lhTGtUNy1Udk5uUGtNMHRZSF90WG5ONDVWSjBQSUpfdVdkX3BmUUJyQUtWNGJVZ2t0dHc5aVI0Y1AxVmgyNWd1WFdvcllSZTlldThRV3dfT1oyM0xqaElR?oc=5"}]}];
+const edgeText = "";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "773.17", "change_pct": "1.0468"}, {"ticker": "IWB", "label": "Russell 1000", "price": "423.06", "change_pct": "1.1065"}, {"ticker": "IWM", "label": "Russell 2000", "price": "295.19", "change_pct": "0.4013"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "108.21", "change_pct": "1.0742"}, {"ticker": "SPAXX", "label": "SPAXX 7d Yield", "price": "3.33%", "change_pct": "0", "is_yield": true}, {"ticker": "FZFXX", "label": "FZFXX 7d Yield", "price": "3.34%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Apterreon Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>

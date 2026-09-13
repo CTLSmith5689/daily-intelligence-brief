@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Morning Brief · Wednesday, April 29</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'DM Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--apt-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--apt-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--apt-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--apt-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--apt-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--apt-red); }
+  .story-source { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }
+  .insight-label { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--apt-red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--apt-red); }
+  .panel:not(.edge) .panel-title { color:var(--apt-grey); }
+  .panel p { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Apterreon</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </a>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Morning Brief · Wednesday, April 29</h1>
+    <div class="meta">08:16 AM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
+    <span class="ts">08:16 AM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {"input_tokens": 14834, "output_tokens": 6596, "total_tokens": 21430, "cost_this_call": 0.0383, "cost_daily_projected": 0.1148, "cost_monthly_projected": 3.44};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "Stock Market News Today, NYSE, NASDAQ & OTC Headlines", "summary": "", "insight": "", "source": "Stock Titan", "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE02dHU4VENTcTBKalRzWmhpZ2xld0JOZ2E3TlMtUmpCRVdyaThhTFctc2pZanNDaG9CcUljOERNSXhuX0NhZHphVDZjSUhmNW5ydFROREhn?oc=5"}, {"headline": "Ukraine News Today: Breaking Updates & Live Coverage, April 29, 2026 from Kyiv Post", "summary": "", "insight": "", "source": "Kyiv Post", "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFBTQ2pIa1Ixa1VhT1JnZG0yWmFIb1JQbTIyQmc0TlZocjI4SzNCMUE4UUozUFViQ3dTNHFKN0F2WVhEN1FpMzVCNjhoVVZodw?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "S&P 500 Futures Flat As Traders Await Fed Decision", "summary": "Equity futures are showing minimal movement ahead of the Federal Reserve decision today, with the S&P 500 already down 0.49% and small-caps hit harder at minus 1.17%.", "insight": "This is the most critical macro event of Q2: Powell's last policy decision before departure creates a policy transition premium where markets are pricing both the immediate decision and the shift to new Fed leadership, creating volatility asymmetries for large-cap tech stocks versus rate-sensitive small caps.", "source": "Yahoo Finance, simplywall.st, The Motley Fool, Benzinga", "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNOUVRQ296c2l3LWVvRU9mZGV5emhtNXY5eGFOQTVVT2Ztd2xIRzNneURZUEhwbnFEQnRSb0F6LXBfWXRpcU5td2pWTVBlZnNYM3l5TUYxdGpxWVZVYjk5T0tjNjE3cDRmb1piYXdMR29MMFRfeFJmazVSVG0wdjN1eG55dDNrdlJPcW5PX3Bmd18zdw?oc=5"}, {"headline": "Dollar Gets Safe-Haven Tailwind; Oil Extends Rally as Iran Blockade Reported", "summary": "The dollar strengthened as a risk-off asset ahead of the Fed decision while oil jumped to $114-115 per barrel on reports of extended Iranian blockade, creating a rare combination where currency and commodity dynamics pull in opposite directions for allocators.", "insight": "This setup exposes the fragmentation in capital flows: equity allocators are hedging via dollar strength while commodity traders are pricing geopolitical premium that nominally benefits dollar weakness, revealing where cross-asset positioning diverges during policy uncertainty windows.", "source": "Reuters, WSJ, CNBC", "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNajJpalpFN0xKcjlnRG9ibzJ5Q05TQmZSZ0prcDB4RXo5X2l6NE40X0ppOTlRMm1VTFU5YkhPMDlzMmVvZkliTjlXNmEwUDh4NkRMeWxyR0pZMjhZVXN2NXZ1VVJWcUdwOS1STHN5UTU1Z2FZSkIwa3N6RGRfOFJiX2hpaHhXSk5Yd0tkSjhLdUUzYklXNkl0cmpGbHY?oc=5"}, {"headline": "Iran's Economic Collapse Accelerates as Rial Hits Record Low Under Shaky Ceasefire", "summary": "Iran's currency fell to historic lows as its economy descends into what analysts describe as a death spiral, even as a fragile ceasefire with the U.S. and Israel technically holds.", "insight": "This represents real credit-side risk for any institution with Iran exposure or regional emerging market allocations: the ceasefire masks fundamental currency devaluation dynamics that will force capital controls and sanctions redesign, shrinking investable opportunity sets faster than markets are currently pricing.", "source": "Reuters, Spectrum News, WSJ", "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNVWtKeldfWUZxNzBmOGNJa3lIMmpkaEZQQ2MxeUtCZzZ6NHg2N0lPZG1wYmxXM19HdFVVaVplSU93RWN4Qm9iNndqenE0SVBveF9zZEJTbXZFcHpEQjdwdGc0aGJWUTJIZE5kVnpsRWhpU0JDSy1RRmc4SDhNMXFtblI3R3U4TDgtTEtQaFJCNkw1QW9acjFjQUJ6c0diRHFIbmxqMmNWcGNBWG5XVTNIVUg1dlV1Ni16c29zR3VaUS1rWWFhSWxydHFEUHdVbUk1aGNwR0J6MGgtV0s5Rmw5aFd3RQ?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "King Charles Urges Checks on Executive Power During Historic Congressional Address", "summary": "King Charles used his first address to Congress to emphasize constitutional constraints on executive authority, signaling alignment with legislative oversight themes.", "insight": "This signals a refinement of the Trump administration's relationship with institutional guardrails: a ceremonial but pointed public reminder about separation of powers from a U.S.-aligned foreign head of state during a period when executive action has been aggressive, creating soft political pressure on the administration's deregulatory agenda.", "source": "BBC, The Washington Post", "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQT2VlVjVSZXVQN3dUTDhweDIzb2tzN3JCUnBNY21IRkI1ZWZfSkx3SGxiMklQTFo1d1FzUjNOcWk4Y25BaUFYZzJUb1dVOTdtMWxBYWZuNjdtYnFTSDBxYmJub1VBLUQ2QU9PR2xLQTktUFpsaTVES3lmTjlGdk5GVVJScGt3V3B6YjgzZ25fakdGUQ?oc=5"}, {"headline": "White House Attributes Assassination Attempt to Anti-Trump Rhetoric; Democrats Dispute Frame", "summary": "The administration blamed hostile political rhetoric for an attempted assassination, while Democrats rejected the characterization, exposing a fundamental disagreement over narrative control.", "insight": "This is not a policy dispute but a marker of how the administration is positioning itself for the remainder of its term: by framing security threats as a function of political communication rather than policy outcomes, it's attempting to shift accountability away from operational decisions and toward media and opposition behavior, which constrains future regulatory pushback.", "source": "USA Today", "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOcWZ6cDRGaDA5ZDlpX2I3cEpPZV9uMXpaOHJBdDM0el9od3hYYXFTbDVON0tIdDNQZnd1aThkUl9vRC1tN0wzcFBUQjdyVnNvRm40aU9kT0ZkWUZuZ1ozZGhZV0RVMVIwZFZTa29IU2ZuYXNLMTdPUHNnLTJsQ3hpUVRvV19TT0dPa0tzdEx4S3o0ZjZ1ZnEwRFIwYXJLN1kxTEpWQjF5elVIR0RyWmFNWV9VNi1WMTRRd2FBckRPTkJCRW5Ca0o3S1hGSQ?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Parag Agrawal's Startup Raises $100M to Build Parallel Web Infrastructure for AI Agents", "summary": "Agrawal, former Twitter CTO, secured $100 million to develop alternative web infrastructure enabling autonomous AI agents to operate independently of traditional internet constraints.", "insight": "This represents a bet on the unbundling of the current web stack: rather than compete within API limitations imposed by existing platforms, this cohort is building parallel rails where agent economics favor independence from traditional cloud providers, creating a structural arbitrage against cloud margin compression and vendor lock-in risks for downstream AI applications.", "source": "SiliconANGLE", "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPMnpiQjF4SUdvSk5UenFxXzV6MDl4TEF3dGVsY1pDNWtFRXExamgzMkVqdG5ZV3h2TzN0eTdCU0dpMFloQW14cUYxUUxCWHZJUnVqZE8ySWpuamV4OXhMVVRndm1wSnFPVlR0THB6Q25IQzd4T3NJXy11QnVpSzBoaWE5WjlvT2xTMGxOVVBJbVo2TGNUdnlwUXVVT2RyN3NGTWc?oc=5"}, {"headline": "Indian VCs Build Bridges to America as Domestic AI Startups Look Westward", "summary": "Indian venture capital firms are creating distribution and partnership networks specifically designed to facilitate founder and capital flows from India to U.S. AI markets.", "insight": "This is a meaningful shift in capital arbitrage: Indian VCs are recognizing that AI talent and data advantages at home cannot be monetized at U.S. valuations without U.S. market access, so they're building go-to-market infrastructure rather than competing domestically, creating a VC-level efficiency play that concentrates winner-take-most dynamics in U.S. AI markets while India becomes a talent farm.", "source": "Business Standard", "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxPd3E0UW5JVUl2anhnQWhxWkx0anNnV2trc2lZcVZUYzNucXNRV2dEaDZNSVhHb0p5YVJ4MWI4UHlCNUNPaW8ybFJ5Uk1LOGt1ajhIVFdOVHFlUUw0Tk54VnlKWl9iRlVaU2xxcWE0VGZwUURSY2VZRzJtTDdpOEJ2eVFwdmNtR2hDSmdCbHNWc0pOUENoWUdtNkhmTjBUdjB2WEpJTy0xckRZVWg4bllzVkNmZXFvNkd4LUUtLXhRbjBGd05KZkJVT0k0b21ULS1NYW5iWNIB2gFBVV95cUxNemFJNjR0UjBVUWoybXdIZ0Z6UTRuN3lGUFB6NFRHT0IyQWpIMER6bmU5eFcxOFNWd3BwX3ZveUx5MHVtVW9aVXMyMjVoWVItOW42NnJtYXQ0dTJKbWl2TjJFdFF5UGFzZXR0dGxvNlNKMW1TMG1Wc0VsWU16R2NQaExTMmk5WElOVE54Q1RtcURQTDE1WTJDRTlSMmVYRldRQUl0LUdGOTFLWFF5M3Z4Z2FVR0YwRlhLWWRuOWpEOHNYMWNURUstak44QXprY2pwOERlZUllQXJGdw?oc=5"}, {"headline": "School-Shooting Lawsuits Accuse OpenAI of Concealing Violent ChatGPT User Data", "summary": "Plaintiffs in school shooting cases are claiming that OpenAI failed to flag or report users generating violent content through ChatGPT, creating liability exposure for algorithmic concealment.", "insight": "This is a critical product liability vector: if courts rule that AI platform operators have a duty to report violent intent signals, it creates retroactive compliance exposure for all foundational model companies and forces a redesign of log retention policies, fundamentally altering the cost structure of safety infrastructure and potentially reducing the addressable market for generalist models.", "source": "Ars Technica", "link": "https://arstechnica.com/tech-policy/2026/04/school-shooting-lawsuits-accuse-openai-of-hiding-violent-chatgpt-users/"}]}, {"name": "International", "stories": [{"headline": "Oil Jumps to $115 as Trump Issues New Iran Threat; Extended Blockade Reported", "summary": "Oil prices surged past $114 per barrel after reports of prolonged Iranian blockade and fresh Trump administration threats, with geopolitical risk premium accelerating despite stated ceasefire framework.", "insight": "The price action reveals a credibility problem: markets don't believe the ceasefire holds and are pricing in Trump administration escalation, creating a structural premium on energy allocations that persists independent of headline peace announcements, which asymmetrically rewards physical commodity holders over financial shorts.", "source": "BBC, CNBC, Reuters", "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE53aEJrRTBraHBRbGY5MndDTUxWc1JJWnVKQnlWYmdKUmpCZ2JjbW9wNWxGeHlNTHhTM2d6cG5fbnJ4eTJCSTBVVllCMEJET1c4LWpld2lBZmFiQQ?oc=5"}, {"headline": "Exclusive: Chinese Tech Firms Scramble to Secure Huawei AI Chips After DeepSeek V4 Launch", "summary": "Major Chinese technology companies are competing aggressively to acquire Huawei AI chips following the release of DeepSeek's latest model, exposing supply constraints in domestic semiconductor capacity.", "insight": "This is a supply-side constraint that inverts the competitive dynamic: Huawei's semiconductor availability becomes the binding constraint on Chinese AI model capability, not algorithmic innovation, which means U.S. export controls have created a scarcity economics play where allocated chip access determines which Chinese firms can scale foundation models and consolidate the market.", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQb2k3eWk0STFfck5fbjZoWkMzRlg5OFRGR19BM0xXV3Vfb0dCX1NralZ2SDNVQ1RvU1Zpck1mVGhNT0FfRFIwcERIaFVmTHRJRTVRVlNOQlR1a0lyVE9iLW9OT0pYQTdZc3NqdVhPeTJhajhwWlJfZUpOeFdSZmd2M3QxZ2RraG12d2xFSkk1VXloOTNtSFJXS05wb3Y5Zk94VHJwQ2Z4d0V2X1BsbWlIWm1CVTBkYkVVS1hXSy1jR0JMVURZSmc?oc=5"}, {"headline": "Chinese Green Technology Poses National Security Problem for Europe, Report Warns", "summary": "A new report flags that Chinese dominance in solar, battery, and renewable manufacturing creates strategic vulnerability for European energy independence and supply chain resilience.", "insight": "This framing accelerates European reindustrialization spending but reveals the structural bind: decarbonization requires Chinese manufacturing scale that Europe cannot replicate at cost parity, forcing a choice between energy transition speed and supply chain autonomy that will reshape industrial policy subsidies and create tariff escalation cascades.", "source": "Financial Times", "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPQ3dXVHFqQWYxQ2M0MDNfWmhfeU03d2gyalNfcHhLVnd1RGVqeFFOZHNBUzFJX1VMNWRHOWZGajl2d1lQaFJINEV0eHFPdmt6N1NhYjZMelk5QkFFQm9UUVY4OGs5am1JZlVTZGdSQmJTV3pqdk1lN0Q3NFQ2eDhBUHo4STQ?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "Summer Movie Guide 2026: What's Coming to Theaters and Streaming May Through August", "summary": "Major studios and streaming platforms are unveiling their summer slate with mix of franchise sequels, adaptations, and original content competing across theatrical and direct-to-streaming distribution.", "insight": "The portfolio composition reflects ongoing theatrical recovery uncertainty: studios are still splitting tentpole releases between streaming and theatrical, indicating they haven't restored confidence in consistent theatrical window monetization despite post-pandemic recovery, which keeps streaming content economics in structural flux.", "source": "AP News", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNY09xRmZycnRLN0tmRDdWVU4tSmQ4SEMwbEQwdlRtcEJIVTBxdG9KYTUxQ0ZGaThUeGttdk1SNm5yM1VmdUU2cGVUWGd6V1MzNG5oeFdBTmJoVzNmX3k2dXg2U1VfVzU0d0xSOGlEVk9VQzJ6eGVrMS1jcUd3Qk1UN3B3SktsUDhNOGZR?oc=5"}, {"headline": "MLB Roundup: Phillies Trounce Giants After Making Managerial Change", "summary": "Philadelphia decisively beat San Francisco in a game following a managerial change, signaling potential chemistry shift in the organization.", "insight": "Mid-season managerial changes typically reflect front office desperation rather than strategic planning; the immediate positive result creates survivor bias that can blind teams to underlying structural issues, particularly in a league where April roster composition is relatively fixed.", "source": "Southern Sports Today", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOcnZJQ1NURUxkRjBlS19JalFYMEVfRUpoQTlrX1ZBU1g3UmFwU19Ha0tDLVYtc2ItSExWYnZsT3RUWFNrcVk0N2doR2ktLU5fY3d0Q3JaZUc1QzNMV2NNcGdMRWZxcnMxMUo1SHdFOVlxZzNnM0Q3RVVOUmdVLUJZUTRaM2MxOXhqT0RsT1J3ak5FTndxOU1ESmpFV29ISzZLSlVkVzdZcFpHRlZ4dGdKYzlRSVc?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Boston Candy Store Robbed at Knifepoint", "summary": "A retail location in Boston was targeted in an armed robbery, continuing a pattern of street-level theft in urban retail environments.", "insight": "This reflects post-pandemic urban crime dynamics where retail margins have compressed while organized retail crime networks have professionalized, creating a permanent structural shift in urban loss rates that pushes insurance costs higher and accelerates retail consolidation.", "source": "NBC Boston", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQcVA3Qy1JeUR0SUlGQ2lmcjVYTk5yWXF3MzVxTHFxZlNycnh4VkU2Sno0VmVfd01NTWlFYmtBOF9FRGJEVk5IazRnWm1JRW5YN2lvTFQ2MzZRUTdyY3k0cmNfOExmQzJZNW5SX05fWUJTVTBoS1JjZlduczRUeE1jQnJMQUxnbWlXYndXRHg30gGWAUFVX3lxTE5mVnY4NFhveXNyUW9nVE5hOXVuZmNQdnZHWlR3V0NoOVBBa1hfRE5mRzh4UWVmaUtBdHY2OC1GQlE0Wm9LLWZzYVcwa3NST0tlSTUtMGRzY0MtQ3NEOVJJWnFCWEkxUDYyMk9kMTV1TmJsZkNLNng3RUN5bWFleFJoblpHX0JYTHdlUVJtNGVQa2dhLTJhQQ?oc=5"}, {"headline": "Suspects Arrested in Everett Bank Robbery; Unconnected to Boston Crime Pattern", "summary": "Law enforcement arrested individuals suspected of a bank robbery in Everett, explicitly noting the incident is unrelated to recent Boston-area thefts.", "insight": "The administrative clarification that this robbery is disconnected from the broader pattern is itself noteworthy: it signals police concern about public perception of organized crime proliferation, suggesting law enforcement is managing optics around crime clustering even as underlying trends may remain concerning.", "source": "WCVB", "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPekdONjQ4ZWNzOHhtZkxZcTRjaHBfOGVDem4yRnF2ekFFQWJEWXVzSVlpSzgzNnZzbnZRSnM5ejVUTVB3VTNDbHFERWowNi1fQUtZcTBJZzd2QnBxTDJtcFJyTjJQVFB1RFNlaU5KdVR6Mkk0YmxoZS0wclh6T0xIU0FJRDZ6UQ?oc=5"}]}];
+const edgeText = "The Fed decision today is the inflection point where three structural pressures converge: U.S. equity markets are pricing geopolitical risk premium on Iran (via oil at $115) while Chinese AI firms are experiencing semiconductor constraints that consolidate market share, and capital flows are fragmenting between dollar safety, commodity hedges, and parallel web infrastructure for AI agents. The allocator playbook is splitting between traditional macro hedging (long dollar, long oil) and structural picks on supply-chain winners like Huawei-dependent Chinese AI platforms and foundational model infrastructure companies building outside incumbent cloud economics.";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "711.69", "change_pct": "-0.4866"}, {"ticker": "IWB", "label": "Russell 1000", "price": "389.07", "change_pct": "-0.5292"}, {"ticker": "IWM", "label": "Russell 2000", "price": "273.91", "change_pct": "-1.1655"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "100.96", "change_pct": "-0.4143"}, {"ticker": "FFR", "label": "MM Yield (avg)", "price": "3.64%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Apterreon Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>
