@@ -26,6 +26,46 @@ STALENESS = [("prices_updated", 4, "price and every return derived from it"),
              ("insider_updated", 14, "insider buy/sell signal")]
 
 
+# --- sector lens ------------------------------------------------------------
+#
+# A refiner, a bank and a SaaS company do not answer the same questions, and
+# several fields in the panel mean different things or nothing at all depending
+# on which of those you are looking at. ev_ebitda is not a concept for a bank.
+# A low pe on a cyclical at the top of its cycle is the most expensive kind of
+# cheap. Without this the agent applies one template to every name.
+#
+# Keyed on GICS sector, which is a column on every row, so this is a dictionary
+# lookup and not a retrieval problem. There is nothing to embed and nothing that
+# can come back wrong: either the file exists for that sector or it does not.
+LENSES = THESES / "lenses"
+
+
+def sector_lens(sector):
+    """The lens body for a sector, or "" when none is written."""
+    if not sector:
+        return ""
+    slug = re.sub(r"[^a-z0-9]+", "-", sector.lower()).strip("-")
+    path = LENSES / f"{slug}.md"
+    if not path.exists():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except Exception:
+        return ""
+
+
+def sector_field_warnings(sector):
+    """[(field, severity, why, instead)] for fields that mislead in this sector."""
+    path = LENSES / "_fields.json"
+    if not path.exists() or not sector:
+        return []
+    try:
+        blob = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    return blob.get(sector) or []
+
+
 def age_days(stamp, panel_date):
     if not stamp:
         return None
@@ -287,6 +327,29 @@ def main():
           "common and is not a criticism of the company. It does mean there is no obvious "
           "question to start from, and a thesis will have to come from the filings or from "
           "somewhere outside this dossier.")
+
+    # --- how to read this kind of business ------------------------------------
+    lens = sector_lens(me.get("sector"))
+    warns = sector_field_warnings(me.get("sector"))
+    if warns:
+        w("")
+        w("## Fields that mislead in this sector")
+        w("")
+        w("Read these before the factor table, not after. A field listed here is not "
+          "merely noisy for this kind of business: it is measuring something other than "
+          "what its name suggests, and quoting it as evidence would be a defect in the "
+          "note rather than a difference of opinion.")
+        w("")
+        w("| Field | | Why | Look at instead |")
+        w("|---|---|---|---|")
+        for x in warns:
+            w(f"| `{x.get('field','')}` | {x.get('severity','')} | {x.get('why','')} "
+              f"| {x.get('instead','') or '—'} |")
+    if lens:
+        w("")
+        w("## How to read a company in this sector")
+        w("")
+        w(lens)
 
     # --- freshness, because every number below inherits it --------------------
     w("")
