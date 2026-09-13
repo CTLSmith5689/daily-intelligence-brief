@@ -1,0 +1,169 @@
+SEGMENT INFORMATION 
+ 9 Months Ended 
+ 
+ Jul. 31, 2026 
+ 
+ Segment Reporting [Abstract] 
+
+ SEGMENT INFORMATION 
+ NOTE
+15 - SEGMENT INFORMATION 
+
+ ASC
+Topic 280, “Segment Reporting,” establishes standards for companies to report in their financial statement information about
+operating segments, products, services, geographic areas, and major customers. Operating segments are defined as components of an enterprise
+for which separate financial information is available that is regularly evaluated by the Company’s chief operating decision maker,
+or group, in deciding how to allocate resources and assess performance. 
+
+ The
+Company’s chief operating decision maker (“CODM”) is Andrew Gordon, President, Chief Executive Officer, Chief Financial
+Officer, and Director. The Company has one reportable segment: coffee. The Company derives revenue primarily in North America and manages
+the business activities on a consolidated basis. 
+
+ The
+coffee segment derives revenue from the sale of wholesale green coffee, private label coffee and branded coffee. Revenue for these product
+lines is recognized upon shipment to the customer. The CODM assesses performance for the coffee segment and decides how to allocate resources
+based on operating income that also is reported on statement of operations as consolidated income from operations. The measure of segment
+assets is reported on the consolidated balance sheet as total consolidated assets. 
+
+ When
+evaluating the Company’s performance and making key decisions regarding resource allocation the CODM reviews the Trading Profit
+and Operating Income table below: 
+
+ SCHEDULE OF SEGMENT INFORMATION 
+
+ 2026 
+ 2025 
+
+ Statements
+ of Operations 
+
+ Three
+ months ended July 31, 
+
+ 2026 
+ 2025 
+ 
+ Net
+ sales 
+ $ 21,686,262 
+ $ 23,910,514 
+ 
+ Cost
+ of Goods Sold (1) 
+ (16,882,814 ) 
+ (20,885,641 ) 
+ 
+ Gross
+ Profit 
+ 4,803,448 
+ 3,024,873 
+ 
+ Trading
+ Profit (Loss) (1) 
+ 620,683 
+ (769,845 ) 
+ 
+ Overhead
+ (2) 
+ (3,099,801 ) 
+ (3,350,179 ) 
+ 
+ Operating
+ income 
+ $ 2,324,330 
+ $ (1,095,151 ) 
+
+ 2026 
+ 2025 
+
+ Statements
+ of Operations 
+
+ Nine
+ months ended July 31, 
+
+ 2026 
+ 2025 
+ 
+ Net
+ sales 
+ $ 69,378,258 
+ $ 68,535,860 
+ 
+ Cost
+ of Goods Sold (1) 
+ (55,123,851 ) 
+ (58,133,113 ) 
+ 
+ Gross
+ Profit 
+ 14,254,407 
+ 10,402,747 
+ 
+ Trading
+ Profit (Loss) (1) 
+ 781,729 
+ 686,868 
+ 
+ Overhead
+ (2) 
+ (9,992,569 ) 
+ (9,705,120 ) 
+ 
+ Operating
+ income 
+ $ 5,043,567 
+ $ 1,384,495 
+
+ (1) Trading
+profit is included in cost of goods sold in the condensed consolidated statements of operations. 
+
+ (2) Overhead
+includes officers’ salaries and selling and administrative expenses included in the condensed consolidated statements of operations. 
+
+ The
+CODM uses operating income to evaluate income generated from segment assets (return on assets) in deciding whether to reinvest profits
+into the coffee segment or into other parts of the entity such as for acquisitions or to pay dividends. Intra-entity sales and cash transfers
+are eliminated in operating income used by the CODM. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for segment reporting. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 7: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 11: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 Reference 12: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 13: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 14: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 16: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 18: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 19: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 20: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 21: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 22: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration

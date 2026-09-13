@@ -1,0 +1,345 @@
+Item
+1. Business 
+
+ GENERAL
+DISCUSSION 
+
+ Frequency
+Electronics, Inc. (sometimes referred to as “Registrant”, “Frequency Electronics” or the “Company”)
+is a world leader in precision time and frequency generation technology, which is incorporated into commercial and U.S. Government satellites,
+Command, Control, Communication, Computer, Intelligence, Surveillance and Reconnaissance (“C4ISR”), and Electronic Warfare
+(“EW”) systems. Its technology is used for a wide range of space and non-space applications. 
+
+ Unless
+the context indicates otherwise, references to the Registrant, Frequency Electronics or the Company are to Frequency Electronics, Inc.
+and its subsidiaries. References to “FEI” are to the parent company alone and do not refer to any of the subsidiaries. Frequency
+Electronics, a Delaware corporation, has its principal executive office at 55 Charles Lindbergh Boulevard, Mitchel Field, New York 11553.
+Its telephone number is 516-794-4500 and its website is www.frequencyelectronics.com. 
+
+ Frequency
+Electronics was founded in 1961 as a research and development firm generating proprietary precision time and frequency technology primarily
+under contracts for end-use by the United States (“U.S.”) Government. In the mid-1990’s, the Company evolved into a
+designer, developer and manufacturer of state-of-the-art products for both commercial and government end-use. The Company’s present
+mission is to be the world leader in providing precision time and low phase noise frequency generation systems, from 1 Hz to 46 GHz for
+space and other challenging environments. The Company’s technology is the key element in enhancing the functionality and performance
+of many electronic systems. 
+
+ CORPORATE
+STRUCTURE AND RESTRUCTURING 
+
+ On April 30, 2026, FEI-Elcom
+Tech, Inc. (“FEI-Elcom”) a wholly-owned subsidiary of the Company, was converted into a Delaware limited liability company.
+The ongoing business operations of FEI-Elcom will continue under the FEI-NY segment. This restructuring was a transaction between entities
+under common control and did not result in a change in the consolidated financial statements of the Company. For more information regarding
+the Company’s restructuring, see Note 1 to the Consolidated Financial Statements. 
+
+ MARKETS 
+
+ The
+Company’s principal end markets are time and frequency generation and distribution systems for use in satellite payloads and terrestrial
+secure command control and communications systems. 
+
+ For
+the satellite market, the Company has a unique legacy of providing master timing systems, power converters, and frequency generation,
+synthesis and distribution systems. These products are applicable for both commercial and U.S. Government end-use. Currently, it is estimated
+that there are over 14,000 U.S. satellites with varying remaining useful lives operating in Geostationary, Medium and Low Earth Orbits
+(“LEO”). The number of operational satellites with emphasis on high-throughput is expected to continue to grow over the next
+ten years as demand for higher bandwidths and improved anti-jam-anti-spoofing increases. Furthermore, the U.S. Government is expected
+to contract options for additional GPS III satellites, and the Company believes it is well positioned to compete for the onboard clock
+ensemble with its high-precision digital Rubidium atomic frequency standard. 
+
+ For
+the terrestrial secure command control and communications systems market, the Company’s products support multiple C4ISR and EW
+applications for the U.S. Government on land, sea and air-borne platforms. Recently identified threats to the communication capabilities
+of U.S. Government facilities through jamming or “spoofing” global positioning systems (“GPS”) signals may be
+mitigated by the Company’s technologies. In addition, similar types of threats to the public and enterprise networks have been
+identified by the U.S. Department of Homeland Security. The Company’s high precision, ruggedized clocks combined with specialized
+software are essential for certain secure communication systems. 
+
+ To
+address these markets, the Company has several corporate entities that operate under two reportable segments primarily based on the geographic
+locations of its subsidiaries. The two reportable segments are (1) FEI-NY, which includes the subsidiaries FEI Government Systems, Inc.
+and FEI Communications, Inc., and, until April 30, 2026, included FEI-Elcom; and (2) FEI-Zyfer, Inc. (“FEI-Zyfer”). 
+
+ Frequency
+Electronics has made a strategic decision to focus on satellite payloads, C4ISR and EW market segments, because the Company believes
+these business areas represent significant opportunities for revenue growth. 
+
+ 1 
+ Table of Contents 
+
+ 1.
+ FEI-NY 
+
+ FEI
+Government Systems, Inc. and FEI Communications, Inc. design and manufacture U.S. Government and commercial satellite electronics, as
+well as products for the U.S. military and commercial telecom customers. These products are designed and manufactured at the Company’s
+Long Island, New York headquarters facility. 
+
+ Until
+April 30, 2026, FEI-Elcom designed and manufactured Radio Frequency (“RF”) microwave modules, devices and subsystems up to
+60 GHz including fast switching, ultra-low phase noise synthesizers, up-down converters, receivers, tuners, ceramic resonance oscillators
+and dielectric resonance oscillators. 
+
+ 2.
+ FEI-Zyfer – Precision time references for terrestrial secure communications and command and control, and frequency
+products that incorporate GPS technology are manufactured by FEI-Zyfer. FEI-Zyfer’s GPS capability complements the Company’s
+existing technologies and permits the combined entities to provide a broader range of embedded systems for a variety of timing functions
+and anti-spoofing applications. 
+
+ For
+additional information about these reportable segments, see Item 1. Business – Reportable Segments and Products below. 
+
+ REPORTABLE
+SEGMENTS AND PRODUCTS 
+
+ The Company operates under
+two reportable segments, primarily aligned with the geographical locations of its subsidiaries: (1) FEI-NY and (2) FEI-Zyfer. Within each
+segment the Company designs, develops, manufactures and markets precision time and frequency control products for different markets as
+described below. The Company’s Chief Operating Decision Maker (“CODM”) measures segment performance based on total revenues,
+cost of revenues, and profits generated by each geographic center rather than on the specific types of customers or end-users. Consequently,
+the Company determined that the segments indicated above appropriately reflect the way the Company’s CODM views the business. The
+FEI-NY segment, which includes the parent company, FEI, operates out of the Company’s Long Island, New York headquarters facility.
+The FEI-NY segment also includes the operations of FEI-Elcom. FEI-Elcom, in addition to its own product line, provides design and technical
+support for FEI’s business. Effective as of April 30, 2026, FEI-Elcom converted into a Delaware limited liability company; however,
+the ongoing business operations of FEI-Elcom will continue under the FEI-NY segment. For more information regarding the Company’s
+restructuring, see Note 1 to the Consolidated Financial Statements. The products manufactured by the FEI-NY segment are precision time
+and frequency products, and more recently, quantum sensing products ,principally marketed to the commercial and U.S. Government satellite
+markets, to other U.S. Department of War (“DOW”) customers and to wireless communications network providers. Quantum sensors
+include magnetic sensors (magnetometers), and Rydberg sensors (compact receiving antennae), which utilize the same basic physics phenomena
+as atomic clocks. Because FEI-NY has manufactured atomic clocks for decades, the quantum sensor market represents a new growing market
+which utilizes the underlying technology behind atomic clocks, and is a natural arena for FEI to compete in. The FEI-Zyfer segment, which
+operates out of California, designs and manufactures products that incorporate GPS technologies and high-precision clocks designed and
+manufactured at FEI. FEI-Zyfer sells its products to both commercial and U.S. Government customers and collaborates with FEI on joint
+product development activities. 
+
+ During
+fiscal years 2026 and 2025, approximately 72% and 76%, respectively, of the Company’s consolidated revenues were from products
+sold by the FEI-NY segment. In fiscal years 2026 and 2025, sales for the FEI-Zyfer segment were 34% and 27%, respectively, of the Company’s
+consolidated revenues. (The sum of annual sales percentages exceeds 100% due to intersegment sales.) 
+
+ Consolidated
+revenues include sales to end-users in countries located outside of the U.S., primarily in Europe and Asia. During fiscal years 2026
+and 2025, foreign sales comprised 9% and 6%, respectively, of the Company’s consolidated revenues. For segment information, see
+Note 13 to the Consolidated Financial Statements. 
+
+ The
+Company’s sales on U.S. Government programs for both space and non-space applications are generally made under fixed price or cost-plus
+contracts either directly with U.S. Government agencies or indirectly through subcontracts intended for U.S. Government end-use. 
+
+ For
+fixed-price contracts, the price paid to the Company is not subject to adjustment by reason of costs incurred by the Company in the performance
+of the contract, except for costs incurred due to contract changes ordered by the customer. These contracts are negotiated on terms under
+which the Company bears the risk of cost overruns and derives the benefit from cost savings. Cost-plus contracts reimburse the Company
+for the actual costs incurred in performance of the contract requirements. 
+
+ As
+indicated above, many of the programs and platforms for which the Company supplies products and systems are used by the U.S. Government
+for maintaining secure communications world-wide, for obtaining vital intelligence and for enabling precision targeting capabilities.
+The Company’s products are also used in classified projects for the U.S. Government. It is the belief of management that the future
+success of the mission of the U.S. military and intelligence community is dependent on successful and timely deployment of these systems.
+Thus, the Company anticipates that adequate funds will be provided by the U.S. Government to ensure that the programs are completed.
+However, the Company’s experience indicates that programs and/or product sales can be delayed or canceled due to variations associated
+with periodic U.S. Government appropriations cycles and shifting priorities. If the U.S. Government canceled or delayed, even temporarily,
+programs and/or purchases involving Company products, the Company’s business could suffer a material adverse effect. 
+
+ 2 
+ Table of Contents 
+
+ Negotiations
+on U.S. Government contracts are sometimes based in part on Certificates of Current Costs. An inaccuracy in such certificates may entitle
+the U.S. Government to an appropriate recovery. The Company’s accounts with respect to these contracts are subject to audit by
+the Defense Contract Audit Agency (“DCAA”). The Company’s last full incurred cost audit was performed in 2008. Additionally,
+the Company had successfully completed an accounting system audit in 2018 and 2023. The Company is required to submit, for subsequent
+review, an Incurred Cost Report by October 31, for each year then ended. All such required reports have been filed with no adverse comments
+to date. 
+
+ Frequency
+Electronics has a DCAA audited and approved accounting system, which enables the Company to enter into contracts directly with U.S. Government
+agencies that require government certified accounting systems. 
+
+ Government
+end-use contracts are subject to termination by the purchaser for convenience or default, as well as various other Federal Acquisition
+Regulations provisions. In the event of a termination for convenience, the Company is entitled to receive compensation as provided under
+the specific terms of such contracts. There were two government end-use contracts terminated during the fiscal year ended April 30, 2026. 
+
+ FEI-NY
+Segment: 
+
+ FEI-NY
+provides precision time, frequency generation and synchronization products and subsystems that are found on-board satellites, in ground-based
+communication systems and imbedded in mobile platforms operated by the U.S. military. FEI-NY has made a substantial investment in research
+and development (“R&D”) to apply its core technologies to satellite payloads, non-space DOW programs and commercial and
+industrial markets. Revenues from satellite payloads, both for commercial and U.S. Government applications, have become FEI-NY’s
+largest business area while the portion of commercial network infrastructure sales has declined relatively. FEI-NY expects to continue
+to generate substantial revenues from deployment of new and replacement satellites and other U.S. Government/DOW applications including
+sales of ruggedized subsystems for mobile U.S. military platforms. 
+
+ Satellite
+Payloads 
+
+ The
+use of satellites launched for communications, navigation, weather forecasting, video and data transmissions and Internet access has
+expanded the need to transmit increasing amounts of voice, video, and data to earth-based receivers. This requires more precise timing
+and frequency control at the satellite. The Company manufactures the master timing systems (quartz, rubidium) and other significant timing
+and frequency generation products for navigation, communication and intelligence collection satellites, and many of the Company’s
+other space assemblies are used onboard spacecraft for command, control and power distribution. Efficient and reliable DC-DC power converters
+are also manufactured for the Company’s own assemblies and as stand-alone products for space applications. The Company’s
+oven-controlled quartz crystal oscillators are cost-effective precision frequency sources suited for high-end performance required in
+satellite communications, airborne and terrestrial datalinks and geophysical survey positioning systems. Commercial satellite programs
+that utilize the Company’s space-qualified products include Iridium NEXT Constellation, Intelsat EPIC, O3B, WAAS, MexSat, MSV,
+ICO, TerreStar, EchoStar, Inmarsat and others. The Company is also pursuing core product opportunities for planned satellite constellations
+that will operate in Low- or Medium-Earth Orbits. 
+
+ In
+the years ahead, the Company expects that the DOW will require more secure communication capabilities, more assets in space and greater
+bandwidth. The Global Positioning Satellite System, the MILSTAR Satellite System and the AEHF Satellite System are examples of the programs
+in which the Company has participated or plans to participate and which management believes are important to the success of the U.S.
+Government’s communication, intelligence and Precision Navigation and Timing (“PNT”) needs. It is likely that the DOW
+will move to adopt smaller and less expensive satellites for LEO applications, which the Company anticipates will necessitate the adaptation
+of the Company’s products or development of new products to better suit this type of satellite architecture. The Company previously
+manufactured the master clock for the Trident missile, the basic timing system for the Voyager I and Voyager II deep space exploratory
+missions and the quartz timing system for the Space Shuttle. The Company’s product offerings for U.S. Government satellite programs
+are similar in design and function to those used on commercial satellites, as described above. 
+
+ U.S.
+Government- Non-space 
+
+ In
+addition to space-based programs, the Company’s proprietary products are used in airborne and ground-based guidance,
+navigation, communications, radar, sonar and electronic countermeasures and timing systems. The Company has developed and patented a
+low acceleration-sensitive technology which offers an approximate 100 times improvement in performance under shock, vibration and
+other environmental effects as compared to other devices. Products are built in accordance with DOW standards and are in use on many
+of the U.S. Government’s important military applications. The Company anticipates that the U.S. government will provide
+adequate funds to sustain these programs. 
+
+ Until
+April 30, 2026, FEI-Elcom addressed RF microwave modules and subsystems up to 60 GHz including fast switching, ultra-low phase noise
+synthesizers, up-down converters, receivers, tuners, ceramic resonance oscillators and dielectric resonance oscillators. 
+
+ 3 
+ Table of Contents 
+
+ FEI-Zyfer
+Segment: 
+
+ FEI-Zyfer
+designs, develops and manufactures products that provide PNT, primarily incorporating Global Navigation Satellite System(s) technology.
+FEI-Zyfer’s products make use of both “in-the-clear” civil and “crypto-secured” military signals for GPS.
+FEI-Zyfer’s products are integrated into radar systems, airborne SIGINT/COMINT platforms, information networks, test equipment,
+military command and control terminals, and satellite ground stations. FEI-Zyfer’s products are an important extension of FEI’s
+core product line, specifically in secure PNT for Command, Control, Communications, Computers, Combat Systems, Intelligence, Surveillance,
+and Reconnaissance (C5ISR). Recently identified threats to the communication capabilities of U.S. Government and to the public and enterprise
+networks through jamming, multi-path or “spoofing” GPS signals may be mitigated by FEI-Zyfer’s technologies and products.
+High precision, ruggedized clocks combined with specialized software are essential for the security of government communication and systems.
+More than 95% of FEI-Zyfer’s revenues are derived from sales where the end user is the U.S. Government. 
+
+ BACKLOG 
+
+ As
+of April 30, 2026, the Company’s consolidated backlog amounted to approximately $111 million compared to $70 million, at the end
+of the prior fiscal year. Approximately 73% of the current backlog is expected to be filled during the Company’s fiscal year ending
+April 30, 2027. As of April 30, 2026, there were no amounts included in backlog under cost-plus or fixed-fee contracts that had not been
+funded. The Company excludes from backlog those contracts or awards for which it has not received authorization to proceed. The Company
+expects any partially funded contracts to become fully funded over time and will add the additional funding to its backlog at that time.
+The backlog is subject to change for various reasons, including possible cancellation of orders, change orders, change in contract terms
+and other factors beyond the Company’s control. Accordingly, the backlog is not necessarily indicative of the revenues or profits
+(losses) which may be realized when the results of such contracts are reported. 
+
+ CUSTOMERS
+AND SUPPLIERS 
+
+ The
+Company’s products are sold to both commercial and governmental customers. For the years ended April 30, 2026 and 2025, approximately
+91% and 94%, respectively, of the Company’s sales were made under contracts to the U.S. Government or subcontracts for U.S. Government
+end-use. 
+
+ During
+fiscal year 2026, Lockheed Martin Corporation (“Lockheed Martin”), L3Harris Technologies, Inc. (“L3Harris”),
+and The Boeing Company (“Boeing”) each accounted for more than 10% of the Company’s consolidated revenues. 
+
+ During
+fiscal year 2025, Northrop Grumman Company (“Northrop Grumman”) accounted for more than 10% of the Company’s consolidated
+revenues. 
+
+ The
+loss by the Company of any one of these customers could have a material adverse effect on the Company’s business. The Company believes
+its relationship with these companies is mutually satisfactory. Additionally, the Company is not aware of any prospect for the cancellation
+or significant reduction of any of its commercial or existing U.S. Government contracts; however, the cancellation or significant reduction
+of the Company’s commercial or existing U.S. Government contracts could have a material adverse effect on the Company’s business. 
+
+ The
+Company purchases a variety of electrical and other components and materials for use in the manufacture of its products. The Company
+is not dependent upon any one supplier or source of supply for any of its materials and maintains alternative sources of supply for
+all of its purchases. The Company has found its suppliers to be generally reliable and price-competitive; however, recent quotes for
+various parts and materials reflect longer delivery schedules and price increases. Where supply chain issues have been encountered,
+the Company has responded by changing the source of supply or redesigning products and replacing unavailable parts and materials
+with alternates wherever possible. FEI-NY is dependent on a limited number of suppliers for space qualified parts. If these
+suppliers were unable to deliver in reasonable time frames, then the prompt qualification of alternate suppliers may not be feasible
+or cost effective. Consequently, the Company could experience delays in delivery of its end products or costs in excess of what was
+originally quoted. 
+
+ RESEARCH
+AND DEVELOPMENT 
+
+ The
+Company’s technological leadership continues to be an essential factor as it pursues future growth in revenues and earnings. The
+Company has focused its internal R&D efforts on improving the core physics and electronic performance in its time and frequency products,
+conducting research to develop new time and frequency technologies and capabilities, improving product manufacturability by seeking to
+reduce its production costs through product redesign and process improvements and other measures to take advantage of lower cost components. 
+
+ The
+Company continues to focus a significant portion of its own resources and efforts on developing hardware for satellites (commercial
+and U.S. Government) and terrestrial commercial communications systems, including wireless and GPS-related systems. During fiscal
+years 2026 and 2025, the Company expended $6.1 million on such R&D activity in both years. See Item 7, Management’s
+Discussion and Analysis of Financial Condition and Results of Operations. Additionally, the Company receives customer funding for
+specific R&D projects and anticipates additional funding from customers for future R&D initiatives. Although funding is
+obtained from customers, the Company retains the rights to any products developed. During fiscal years 2026 and 2025, some of the
+Company’s development resources were applied to the design-stage of fixed-price satellite payload sub-system programs. For
+fiscal year 2027, the resources to be allocated to R&D will depend on market conditions and identification of new opportunities,
+as was the case in fiscal year 2026. 
+
+ 4 
+ Table of Contents 
+
+ PATENTS
+AND LICENSES 
+
+ The
+Company believes that its business is generally not dependent on patent or license protection. Rather, it is primarily dependent upon
+the Company’s technical competence, the quality of its products and its prompt and responsible contract performance. However, employees
+working for the Company assign all rights to inventions to the Company, and the Company presently holds such patents and licenses. In
+certain limited circumstances, the U.S. Government may use or permit the use by the Company’s competitors of certain patents or
+licenses the government has funded. During fiscal year 2003, the Company received a broad and significant patent for proprietary quartz
+oscillator technology which the Company has incorporated into its legacy designs, and which it will incorporate into future designs,
+to exploit in both legacy and new applications. In 2006, the Company obtained a basic patent for its low g-sensitivity technology which
+management believes will permit greatly enhanced performance of devices on moving platforms and under externally imposed shock or vibration.
+The Company’s current patents run through 2026. 
+
+ COMPETITION 
+
+ The
+Company experiences competition in all areas of its business. Many of the Company’s competitors are larger, have greater financial
+resources and have larger R&D and marketing staffs. The Company has a strong history of competing successfully in this environment
+due to the quality, reliability and outstanding record of performance its products have achieved. The Company competes primarily on the
+basis of the accuracy, performance and reliability of its products, the ability of its products to function under severe conditions,
+such as in space or in other extremely hostile environments, and the Company’s track record of prompt and responsive contract performance
+and technical competence. The Company has unique and broad capabilities which include quartz and rubidium-based timing references and
+specialized RF microwave technology. With respect to very high precision products, the Company encounters fewer competitors than it does
+for lower precision products for which there are a significant number of suppliers. 
+
+ The
+Company’s principal competition for space products is the in-house capability of its major customers such as Boeing, Northrop Grumman
+and Lockheed Martin, as well as a number of other firms capable of providing high-reliability microwave frequency generators. With respect
+to non-space products, such as systems for precision time for terrestrial secure communication and command and control, and products
+for multiple applications in the EW market, the Company competes with larger domestic companies such as Microchip Technology Incorporated
+and Mercury Systems, Inc. 
+
+ The
+Company believes its ability to obtain raw materials, manufacture finished products, integrate them into systems and sub-systems and
+interface these systems with highly sophisticated end-user applications provides a strong competitive edge. 
+
+ EMPLOYEES 
+
+ Due
+to the specialized nature of our business, our performance depends on identifying, attracting, developing, motivati

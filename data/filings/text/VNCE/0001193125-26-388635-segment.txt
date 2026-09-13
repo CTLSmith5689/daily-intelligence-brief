@@ -1,0 +1,525 @@
+Segment Financial Information 
+ 6 Months Ended 
+ 
+ Aug. 01, 2026 
+ 
+ Segment Reporting [Abstract] 
+
+ Segment Financial Information 
+ Note 12. Segment Financial Information The Company has identified two reportable segments based on the information used by its chief operating decision maker (“CODM”). The CODM has been identified as the Chief Executive Officer . Management considered both similar and dissimilar economic characteristics, internal reporting and management structures, as well as products, customers, and supply chain logistics to identify the following reportable segments: • Vince Wholesale segment—consists of the Company's operations to distribute Vince brand products to major department stores and specialty stores in the United States and select international markets; • Vince Direct-to-consumer segment—consists of the Company's operations to distribute Vince brand products directly to the consumer through its Vince branded full-price specialty retail stores, outlet stores, and e-commerce platform. The accounting policies of the Company's reportable segments are consistent with those described in Note 1 to the audited consolidated financial statements for the fiscal year ended January 31, 2026 included in the 2025 Annual Report on Form 10-K. The Company’s CODM evaluates segment performance based on several factors, including Income before income taxes and equity in net income of equity method investment. The CODM uses Income before income taxes and equity in net income of equity method investment as the key performance measure of segment profitability because it excludes the impact of certain items that our CODM believes do not directly reflect our underlying operations, including the impact of income taxes and equity in net income of equity method investment. The CODM also considers budget-to-actual and period-over-period variances for this performance measure when making decisions about the allocation of operating and capital resources to each segment. Unallocated corporate expenses are comprised of SG&A expenses attributable to corporate and administrative activities (such as marketing, design, finance, information technology, and legal and human resource departments), transaction-related expenses, and other charges, including interest expense, that are not directly attributable to the Company's Vince Wholesale and Vince Direct-to-consumer reportable segments. Unallocated corporate assets are comprised of the carrying values of the Company's equity method investment and other assets that will be utilized to generate revenue for the Company's Vince Wholesale and Vince Direct-to-consumer reportable segments. Summary information for the Company's reportable segments is presented below. 
+
+ (in thousands) 
+ 
+ Vince Wholesale 
+
+ Vince Direct-to-consumer 
+
+ Total 
+
+ Three Months Ended August 1, 2026 
+
+ Net Sales 
+ 
+ $ 
+ 49,407 
+
+ $ 
+ 32,381 
+
+ $ 
+ 81,788 
+
+ Cost of Products Sold* 
+
+ 22,614 
+
+ 9,340 
+
+ 31,954 
+
+ Staff and Personnel 
+
+ 944 
+
+ 5,964 
+
+ 6,908 
+
+ Occupancy 
+
+ 121 
+
+ 6,501 
+
+ 6,622 
+
+ Marketing and advertising 
+
+ 168 
+
+ 2,314 
+
+ 2,482 
+
+ Other segment items (1) 
+
+ 976 
+
+ 3,764 
+
+ 4,740 
+
+ Total segment income before income taxes and equity in net income of equity method investment 
+
+ 24,584 
+
+ 4,498 
+
+ 29,082 
+
+ Unallocated Corporate (2) 
+
+ ( 15,744 
+ ) 
+
+ Total income before income taxes and equity in net income of equity method investment 
+
+ $ 
+ 13,338 
+
+ Six Months Ended August 1, 2026 
+
+ Net Sales 
+ 
+ $ 
+ 81,473 
+
+ $ 
+ 64,350 
+
+ $ 
+ 145,823 
+
+ Cost of Products Sold* 
+
+ 42,369 
+
+ 21,228 
+
+ 63,597 
+
+ Staff and Personnel 
+
+ 1,845 
+
+ 11,893 
+
+ 13,738 
+
+ Occupancy 
+
+ 238 
+
+ 12,940 
+
+ 13,178 
+
+ Marketing and advertising 
+
+ 519 
+
+ 4,705 
+
+ 5,224 
+
+ Other segment items (1) 
+
+ 1,784 
+
+ 7,239 
+
+ 9,023 
+
+ Total segment income before income taxes and equity in net income of equity method investment 
+
+ 34,718 
+
+ 6,345 
+
+ 41,063 
+
+ Unallocated Corporate (2) 
+
+ ( 30,913 
+ ) 
+
+ Total income before income taxes and equity in net income of equity method investment 
+
+ $ 
+ 10,150 
+
+ Vince Wholesale 
+
+ Vince Direct-to-consumer 
+
+ Total 
+
+ Three Months Ended August 2, 2025 
+
+ Net Sales 
+ 
+ $ 
+ 44,762 
+
+ $ 
+ 28,479 
+
+ $ 
+ 73,241 
+
+ Cost of Products Sold* 
+
+ 25,828 
+
+ 10,475 
+
+ 36,303 
+
+ Staff and Personnel 
+
+ 933 
+
+ 5,892 
+
+ 6,825 
+
+ Occupancy 
+
+ 127 
+
+ 6,530 
+
+ 6,657 
+
+ Marketing and advertising 
+
+ 48 
+
+ 1,900 
+
+ 1,948 
+
+ Other segment items (1) 
+
+ 768 
+
+ 3,471 
+
+ 4,239 
+
+ Total segment income before income taxes and equity in net income of equity method investment 
+
+ 17,058 
+
+ 211 
+
+ 17,269 
+
+ Unallocated Corporate (2) 
+
+ ( 5,407 
+ ) 
+
+ Total income before income taxes and equity in net income of equity method investment 
+
+ $ 
+ 11,862 
+
+ Six Months Ended August 2, 2025 
+
+ Net Sales 
+ 
+ $ 
+ 75,052 
+
+ $ 
+ 56,122 
+
+ $ 
+ 131,174 
+
+ Cost of Products Sold* 
+
+ 44,287 
+
+ 20,786 
+
+ 65,073 
+
+ Staff and Personnel 
+
+ 1,828 
+
+ 11,617 
+
+ 13,445 
+
+ Occupancy 
+
+ 235 
+
+ 13,095 
+
+ 13,330 
+
+ Marketing and advertising 
+
+ 162 
+
+ 4,091 
+
+ 4,253 
+
+ Other segment items (1) 
+
+ 2,085 
+
+ 7,122 
+
+ 9,207 
+
+ Total segment income (loss) before income taxes and equity in net income of equity method investment 
+
+ 26,455 
+
+ ( 589 
+ ) 
+
+ 25,866 
+
+ Unallocated Corporate (2) 
+
+ ( 19,298 
+ ) 
+
+ Total income before income taxes and equity in net income of equity method investment 
+
+ $ 
+ 6,568 
+
+ Three Months Ended 
+
+ Six Months Ended 
+
+ August 1, 2026 
+
+ August 2, 2025 
+
+ August 1, 2026 
+
+ August 2, 2025 
+
+ Depreciation and Amortization: 
+
+ Vince Wholesale 
+ 
+ $ 
+ 80 
+
+ $ 
+ 85 
+
+ $ 
+ 156 
+
+ $ 
+ 161 
+
+ Vince Direct-to-Consumer 
+
+ 448 
+
+ 614 
+
+ 912 
+
+ 1,224 
+
+ Total Segment Depreciation and Amortization 
+
+ 528 
+
+ 699 
+
+ 1,068 
+
+ 1,385 
+
+ Unallocated Corporate 
+
+ 70 
+
+ 74 
+
+ 146 
+
+ 149 
+
+ Total Depreciation and Amortization 
+ 
+ $ 
+ 598 
+
+ $ 
+ 773 
+
+ $ 
+ 1,214 
+
+ $ 
+ 1,534 
+
+ Capital Expenditures: 
+
+ Vince Wholesale 
+ 
+ $ 
+ 202 
+
+ $ 
+ 237 
+
+ $ 
+ 202 
+
+ $ 
+ 333 
+
+ Vince Direct-to-Consumer 
+
+ 529 
+
+ 1,762 
+
+ 745 
+
+ 3,052 
+
+ Total Segment Capital Expenditures 
+
+ 731 
+
+ 1,999 
+
+ 947 
+
+ 3,385 
+
+ Unallocated Corporate 
+
+ 16 
+
+ 107 
+
+ 16 
+
+ 145 
+
+ Total Capital Expenditures 
+ 
+ $ 
+ 747 
+
+ $ 
+ 2,106 
+
+ $ 
+ 963 
+
+ $ 
+ 3,530 
+
+ As of 
+
+ August 1, 2026 
+
+ January 31, 2026 
+
+ Total Assets: 
+
+ Vince Wholesale 
+ 
+ $ 
+ 81,416 
+
+ $ 
+ 75,339 
+
+ Vince Direct-to-Consumer 
+
+ 101,233 
+
+ 101,008 
+
+ Total Segment Assets 
+
+ 182,649 
+
+ 176,347 
+
+ Unallocated Corporate 
+
+ 46,263 
+
+ 48,694 
+
+ Total Assets 
+ 
+ $ 
+ 228,912 
+
+ $ 
+ 225,041 
+
+ (1) Other segment items primarily include various third party expenses, banking fees, depreciation and amortization, supplies, and commissions. (2) Unallocated Corporate for the three and six months ended August 1, 2026 includes Other income related to the IEEPA Tariff Refunds of $ 488 . Unallocated Corporate for the three and six months ended August 2, 2025 includes the ERC benefit of $ 7,173 . See Note 9 "Commitments and Contingencies" for further information. *Cost of Products Sold for the three months ended August 1, 2026 includes royalty expenses of $ 3,021 and $ 962 for the Wholesale and Direct-to-consumer segmen ts, respectively. Cost of Products Sold for the six months ended August 1, 2026 includes royalty expenses of $ 4,857 and $ 1,921 for the Wholesale and Direct-to-consumer segments, respectively. Cost of Products Sold for the three months ended August 2, 2025 includes royalty expenses of $ 2,777 and $ 846 for the Wholesale and Direct-to-consumer segments, respectively. Cost of Products Sold for the six months ended August 2, 2025 includes royalty expenses of $ 4,539 and $ 1,666 for the Wholesale and Direct-to-consumer segments, respectively. In addition, Cost of Products sold for the three and six months ended August 1, 2026 includes IEEPA Tariff Refunds of $ 7,154 and $ 3,214 for the Wholesale and Direct-to-consumer segments, respectively. See Note 9 "Commitments and Contingencies" for further information. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for segment reporting. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 7: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 11: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 Reference 12: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 13: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 14: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 16: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 18: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 19: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 20: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 21: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 22: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration

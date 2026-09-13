@@ -1,0 +1,328 @@
+Item
+1A. Risk Factors 
+
+ Risks
+Related to Business Operations and Our Industry 
+
+ We
+rely heavily on U.S. Government programs for a substantial portion of our business. Accordingly, changes in U.S. Government priorities
+or delays or reductions in spending by the U.S. Government on such programs could have a material adverse effect on our business, financial
+position, results of operations and/or cash flows. 
+
+ Either
+as a prime contractor or as a subcontractor, we rely heavily on U.S. Government programs, from which we derived approximately 91% and
+94% of our sales in fiscal year 2026 and fiscal year 2025, respectively. These U.S Government programs may be only partially or incrementally
+funded and are subject to potential termination. These programs may also be subject to funding reductions and/or delays due to changes
+in government priorities or other factors. Whether direct contracts with the U.S. Government or contracts with prime contractors to the
+U.S. Government, our contracts typically are funded at a level less than the full contract value and require periodic incremental additional
+funding in order to continue. Should circumstances change regarding funding and sufficient funding become unavailable, contracts may
+be terminated, delayed significantly or put on stop work status. 
+
+ U.S.
+Government contracts are subject to Congressional funding, which may be unavailable due to changes in priorities or subject to continuing
+resolution, which may result in funding reductions, eliminations or other effects that could impact our business. Furthermore, budget
+uncertainty, the risk of future budget cuts, the potential for U.S. Government shutdowns, and the federal debt ceiling could also adversely
+affect our industry and the funding for our current and future contracts. If appropriations are delayed or a government shutdown was
+to occur and was to continue for an extended period of time, we could be at risk of program or contract cancellations and other disruptions
+and nonpayment. Finally, shifting funding priorities or federal budget changes, could also result in reductions in overall spending on
+our contracts and projects, which could adversely impact our business, financial condition, results of operations and/or cash flows.
+Changes in funding priorities could reduce opportunities in existing programs and in future programs where we intend to compete. While
+we would expect to compete and be well positioned as the incumbent on existing programs, we may not be successful and, even if we are
+successful, the replacement programs may be funded at lower levels, which could adversely affect our business, financial position, results
+of operations and/or cash flows. 
+
+ We
+depend heavily on a small number of larger customers for a substantial portion of our business. The loss of one or more of our largest
+customers or programs could have a material adverse effect on our business, financial position, results of operations and/or cash flows.
+
+ As
+a subcontractor, the Company is reliant on a few large customers that generally hold the ultimate contract with the U.S. Government.
+During fiscal year 2026, Lockheed Martin, L3Harris, and Boeing each accounted for more than 10% of the Company’s consolidated revenues.
+These customers typically incorporate our products into larger programs. If these customers encounter technical, financial or other issues
+unrelated to our products that affect the larger program’s operations, the related program may be terminated or require expensive,
+unanticipated revisions. These issues, although unrelated to our products, could adversely impact us if our customers’ contracts
+with the U.S. Government become subject to re-competition or are ultimately cancelled. Additionally, our larger customers are sophisticated
+corporations with large research and development staffs and budgets. If one or more sought to design and manufacture replacements for
+our products, they could potentially discontinue their need for our products. Alternatively, our larger customers could look to replace
+our products with the products of one or more of our competitors. The loss of the U.S. Government or one or more of our other larger
+customers or programs could adversely affect our business, financial position, results of operations and/or cash flows. 
+
+ We
+use estimates when accounting for contracts. Changes in estimated contract revenues and/or changes in costs can affect our profitability
+and our overall financial position. 
+
+ Contract
+accounting requires significant judgment by the Company’s management with respect to estimating contract revenues and costs and
+making assumptions for possible schedule and technical issues. These costs include planned costs for all phases of the contract and,
+if needed, costs for any technical issues that arise. Due to the nature and complexity of many of our contracts, the estimation of total
+revenues and costs at completion is subject to many variables and often difficult to predict accurately. As a result, it has, and could
+in the future, be possible that the Company’s estimates when accounting for contracts may prove to be materially incorrect. 
+
+ 6 
+ Table of Contents 
+
+ The
+Company’s operating income can be adversely affected when estimated contract costs increase. Reasons for increased estimated contract
+costs include: design issues; changes in estimates of the nature and complexity of the work, including technical or quality issues or
+requests for additional work; production challenges, including those resulting from the timeliness of customer funding and the unavailability
+or reduced productivity of qualified labor; the availability, performance, and quality of significant subcontractors; supplier issues,
+including the costs, timeliness and availability of materials and components; changes in laws or regulations; actions necessary for long-term
+customer satisfaction; and natural disasters or other matters. We have filed, and may file, requests for equitable adjustment or claims
+to seek recovery in whole or in part for our increased costs and aim to protect against these risks through contract terms and conditions
+when practical, but the prime contractor or the U.S. Government may disagree with our requests or may not have funding to cover them. 
+
+ Due
+to their nature, fixed price contracts inherently tend to have more financial risk than cost-type contracts, including as a result of
+inflationary pressures, labor shortages, and increased labor rates. In fiscal year 2026, 95% of our sales were derived from fixed-price
+contracts. While the Company’s management uses its best judgment to estimate costs associated with fixed-price contracts, future
+events may require adjustments, which could ultimately adversely affect the Company’s operating income. 
+
+ Under
+cost-type contracts, allowable costs incurred by the contractor are generally subject to reimbursement plus a fee. These cost-type programs
+may have award or incentive fees that are uncertain and may be earned over extended periods or towards the end of the contract. In these
+cases, the associated financial risks are primarily in recognizing profit, which ultimately may not be earned, or program cancellation
+if cost, schedule, or technical performance issues arise. 
+
+ Changes
+in underlying assumptions, circumstances or estimates, and the failure to prevail on related claims for equitable adjustments could have
+a material adverse effect on our business, financial position, results of operations and/or cash flows. 
+
+ We
+face substantial competition in our industry, and if we fail to win future business or experience undue pricing pressures as a result
+of such competition, our business, financial position, results of operations and/or cash flows could be adversely affected. 
+
+ We
+operate in a highly competitive industry focused on very high-performance products. Many of our competitors are larger, have greater
+financial resources and have larger R&D and marketing staffs. While we also maintain a robust internal R&D program that is intended
+to maintain our technical edge, the Company is limited in its resources and ultimately may not be able to successfully compete. Technology
+is advancing rapidly, and if we are unable to respond effectively to competition, we may lose existing customers, fail to win future
+business or experience undue pricing pressures that could affect our financial performance. Certain of our current technologies may become
+subject to significant future advancements, which may make our products obsolete or non-competitive. Competitors may be able to develop
+new manufacturing technologies that afford them cost and/or schedule advantages compared to our products. Customers may elect a less
+expensive product, even where it offers lower performance, compared to our current products. Specifically, the emergence of numerous
+LEO commercial satellite systems that have significantly lower requirements for life in orbit may result in new products based on commercial
+parts and processes not required for the high performance and/or longer lived geo-synchronous orbit satellites for which the Company
+has typically developed products. This may result in a migration to less capable, but less expensive products compared to what the Company
+has traditionally produced. This may result in reduced market share, lower revenues and adversely impact our business operations and
+financial conditions. Additionally, competitors may have the benefit of other contracts that enable them to produce in volume with a
+concomitant cost advantage that affords them a price advantage. Many of our customers have in-house capability to develop products comparable
+to ours and may opt to do so. Accordingly, if we are unable to continue to compete successfully against our current or future competitors,
+we may experience declines in future revenues and market share, which could have a material adverse effect on our business, financial
+position, results of operations and/or cash flows. 
+
+ Our
+products, which are often incorporated into larger systems, are technologically complex and require state-of-the-art technology and manufacturing
+expertise. Any defect in the design, materials or workmanship with respect to our product could result in system failure. 
+
+ Our
+products are technologically complex and require state-of-the-art technology and manufacturing expertise. If a defect in design, materials
+or workmanship is not identified prior to delivery, the defect can result in product failure and potentially the loss of mission capability
+for the systems into which our products are integrated. All satellites cannot be recovered from orbit to repair failed sub-systems, therefore
+failure of a Company product incorporated into a satellite may result in the complete loss of the satellite with a significant impact
+to the Company’s reputation and future business prospects. Penalties and possible litigation may result from these types of problems,
+with potential significant impact to our business, financial position, results of operations and/or cash flows. 
+
+ 7 
+ Table of Contents 
+
+ We
+are dependent on numerous suppliers for various parts, materials, test services, facility operations and infrastructure. If these suppliers
+fail to perform or we are unable to procure or experience significant delays with respect to needed products, materials or services,
+our financial position, results of operations and/or cash flows could be materially adversely affected. 
+
+ We
+are dependent on numerous suppliers for various parts, materials, test services, facility operations and infrastructure who may, in turn,
+be affected by factors such as raw material availability, skilled personnel shortages, pandemics, major weather events or natural disasters
+and other impacts that affect their ability to provide the goods and services we require. Disruptions or performance problems caused
+by our suppliers or failure to meet regulatory or contractual requirements, have had, and may continue to have, various adverse impacts
+on the Company, including our ability to meet our commitments to customers. The inability of our suppliers to perform adequately has
+resulted in and could in the future result in the need for us to transition to alternate suppliers if available, which could result in
+significant incremental cost and delay or the need for us to provide other resources to support our existing suppliers. The Company is
+reliant on suppliers who are space-qualified, limiting the ability to procure certain key materials, such as circuit boards, from other
+vendors. When these key suppliers experience quality issues, their products may have to be rejected, causing delays in our ability to
+complete projects on schedule and at projected costs. The time and cost associated with resolution of these issues may impact our financial
+performance. Consolidation of the industry can result in elimination of suppliers or discontinuation of certain product lines upon which
+we are reliant, necessitating lifetime buys of components or the need to redesign electronics to incorporate different components, having
+a negative effect on our financial position, results of operations and/or cash flows. Furthermore, latent supply chain quality issues
+may affect our product performance and reliability, which may damage our reputation and impact future business. 
+
+ The
+success of our business and financial performance is dependent on our ability to identify, attract, train and retain a highly skilled
+workforce. 
+
+ We
+rely on very unique skill sets in our employee population. Our average employee tenure is approximately 11 years and the median age is
+approximately 53. Our products rely on very experienced engineers, physicists and manufacturing personnel who are trained in-house and
+who acquire competence only after a lengthy period of time. Given the median age of our average employee, we anticipate that a number
+of our key personnel will retire in the coming years. If we are unable to attract, train and retain competent and skilled replacement
+employees, our ability to design, develop and manufacture our products will be adversely affected. Furthermore, our operating performance
+is also dependent upon personnel who hold security clearances and receive substantial training to work on certain programs or tasks.
+If we experience unanticipated attrition with respect to these employees, it will be difficult for us to replace them on a timely basis. 
+
+ Adverse
+changes in global economic or geopolitical conditions may adversely affect business operations and financial condition. 
+
+ Global
+economic and geopolitical conditions may adversely affect our business operations and financial condition. Turmoil in world financial
+markets may impact our supply chain resulting in unavailability of key components and materials, increasing costs due to delays, need
+to redesign certain electronics in order to mitigate shortages or schedule impacts and increasing costs to establish alternate qualified
+suppliers. These impacts may adversely affect our business due to customer cancellations, reduced demand for our products and increased
+costs, which could impact our financial condition. We are also subject to inflation and recessionary pressures. The current inflationary
+environment has and may continue to increase our cost of labor as well as our other operating costs. Likewise, deteriorating economic
+conditions could reduce the demand for our products, which could adversely affect our business operations and financial condition. 
+
+ We
+face various risks related to health epidemics, pandemics and similar outbreaks, which may have material adverse effects on our business,
+financial position, results of operations and/or cash flows. 
+
+ Health
+epidemics, pandemics and similar outbreaks create substantial risk to the Company. Employees work in close proximity to one another.
+Therefore, if an employee is infected with a communicable disease or suspected of being infected, other employees he or she has come
+in contact with may also be infected, with a cascading effect on the workforce. In addition to the time off to recover, there is a need
+to clean and disinfect the areas where the employee was working and had frequented in the facility. The nature of the Company’s
+business requires mostly “hands-on” activities related to design, manufacturing and testing. Therefore, absenteeism resulting
+from infectious diseases and cleaning procedures to disinfect various areas of our facilities can have a significant impact on a contract’s
+schedule, with a corresponding impact to costs. The Company is not able to predict possible future health epidemics, pandemics, or similar
+outbreaks, but if they manifest, they could have significant adverse effects on our business, financial position, results of operations
+and/or cash flows. 
+
+ 8 
+ Table of Contents 
+
+ Our
+business could be adversely impacted by various external disruptions. 
+
+ A
+natural disaster, terrorism, insider threat, workplace violence, civil unrest, damaging weather, fire, act of war, or similar acts or
+events could limit our access to our facilities or cause interruption in the supply of electricity, natural gas, or water or preclude
+delivery of various supplies or limit the movement of our workforce, which may have a significant adverse impact to our operations and
+financial performance. The nature of our business requires mostly “hands-on” activities at our facilities to design and manufacture
+our products. Additionally, our products undergo lengthy testing, and interruption of these tests for any reason can cause damage to
+the product and/or necessitate the need to repeat test cycles, with adverse cost and schedule impacts. Catastrophic effects that result
+in intrusion of damaging water or other contaminants may cause damage to sensitive capital equipment, inventory or facilities that could
+be material. Our ability to recover from these catastrophes may be limited. As a result, such disruptions could adversely impact our
+financial position, results of operations and/or cash flows. 
+
+ Noncompliance
+with any of the covenants in the Company’s $10 million senior secured revolving credit facility (the “Credit Agreement”),
+which matures on June 12, 2029, could result in any debt outstanding thereunder becoming due, which could have a material adverse effect
+on its financial position, operations and liquidity. 
+
+ The
+Credit Agreement contains customary restrictive covenants and financial covenants, including those related to total leverage and minimum
+fixed charge coverage, that, if violated, could restrict the Company’s operational and financial flexibility. Failure to comply
+with these covenants could result in an event of default. If any such event of default is not cured or waived, the lender could elect
+to declare any outstanding debt under the Credit Agreement at such time to be due and payable and could cease making further loans and
+institute foreclosure proceedings against the Company’s assets, all of which could have a material adverse effect on the Company’s
+financial position, operations and liquidity. 
+
+ Risks
+Related to Legal, Regulatory and Compliance Matters 
+
+ Our
+failure to comply with laws, regulations and/or terms we are subject to could adversely affect our business. 
+
+ We operate in a highly regulated
+industry and are routinely audited and reviewed by the U.S. Government and its agencies. These agencies review performance under our contracts,
+our cost structure and accounting, and our compliance with applicable laws, regulations, terms and standards, as well as the adequacy
+of our systems in meeting government requirements. If an audit uncovers improper or illegal activities, we would be subject to possible
+civil and criminal penalties, sanctions, forfeiture of profits or suspension or debarment. Most of our contracts are subject to Federal
+Acquisition Regulations (FARs) or Defense Federal Acquisition Regulation Supplement (DFARS). Violation of any of these regulations can
+result in significant consequences, including fines, debarments or other punitive measures by the U.S. Government. Additionally, the Company
+has defense department security clearance that is required for performance on several contracts. Failure to maintain compliant security
+procedures may result in suspension of our security clearance and inability to perform on current contracts, as well as limit our ability
+to be awarded future contracts. The Company is also subject to export control requirements, anti-boycott regulations and Office of Foreign
+Assets Control (OFAC) sanctions against business dealings with certain persons and entities, including its investment in Morion, Inc.,
+a less than wholly-owned subsidiary of state-owned Russian bank Gazprombank. For example, the U.S. Ukraine-related sanctions regime has
+since 2014 included a list of sectoral sanctions identifications (“SSI”) pursuant to Executive Order 13662, which prohibits
+certain transactions, including certain extensions of credit, with an entity designated as an SSI or certain affiliates of an entity designated
+as an SSI. On July 16, 2014, after the Company’s investment in Morion, Gazprombank was designated as an SSI. As previously disclosed,
+in light of Morion’s relationship with Gazprombank, in 2020, the Company evaluated, with the assistance of external legal counsel,
+certain sales to Morion and the timing of payments by Morion to the Company in connection with those sales to determine whether payments
+by Morion may have inadvertently constituted extensions of credit in violation of Directive 1 under Executive Order 13662. The Company
+determined that certain payments by Morion – the majority of which occurred more than five years ago – were not timely. Following
+the evaluation, on May 7, 2020, the Company voluntarily disclosed its findings to OFAC. The Company’s voluntary disclosure to OFAC
+related solely to delays in collection of accounts receivable that exceeded then-applicable payment windows set forth in sanctions regulations
+and did not relate to any other type of payment or transaction. On February 17, 2021, the Company received a Cautionary Letter from OFAC
+indicating that OFAC has completed its review of the matter. According to OFAC, the Cautionary Letter was issued instead of pursuing a
+civil monetary penalty or taking other enforcement action. On October 30, 2024, OFAC designated Morion as a Specially Designated National,
+resulting in the blocking of all Morion property and property interests and the termination of all commercial relationships between the
+Company and Morion. Although the Company’s prior voluntary disclosure to OFAC discussed above did not lead to any civil monetary
+penalty or other enforcement action and although the Company has terminated all commercial relationships with Morion following Morion’s
+designation as a Specially Designated National, the Company continues to hold a minority equity interest in Morion, and there can be no
+assurance that the Company’s historical or continuing relationship with Morion will not result in additional regulatory scrutiny
+or liability. Any future violation of any of the requirements, governmental regulations discussed above, including OFAC sanctions, or
+other similar laws, regulations, terms or standards could have a material adverse effect on our financial position, results of operations
+and/or cash flows. 
+
+ We
+are subject to various investigations, claims, disputes, enforcement actions, litigation, and other legal proceedings that could ultimately
+be resolved against us. 
+
+ We have and may in the future
+become subject to investigations, claims, disputes, enforcement actions and administrative, civil or criminal litigation, arbitration
+or other legal proceedings across a broad array of matters, including government contracts, commercial transactions, false claims, false
+statements, compliance with government orders, mischarging, contract performance, fraud, procurement integrity, securities laws and requirements,
+products liability, warranties, hazardous materials, personal injury claims, environmental, stockholder derivative actions, acquisitions
+and divestitures, intellectual property, tax, corporate law and obligations, employment, export/import, anti-corruption, debt and equity,
+labor, health and safety, accidents, and employee benefits and plans, including plan administration, improper payments and issues related
+to privacy and security (cyber and physical). These matters can divert financial and management resources; result in administrative, civil
+or criminal fines, penalties or other sanctions (including judgments, convictions, consent or other voluntary decrees or agreements),
+compensatory, treble or other damages, non-monetary relief or other liabilities; and otherwise harm our business and our ability to obtain
+and retain new business. Certain allegations against us can lead to suspension or debarment from government contracts. A suspension or
+debarment could have a material adverse effect on the Company because of our reliance on U.S. Government contracts. Additionally, an investigation,
+claim, dispute, enforcement action or litigation, even if pending or not ultimately substantiated or if fully indemnified or insured,
+can also negatively impact our reputation among our customers, and make it substantially more difficult for us to compete effectively
+for business in the future. Accordingly, investigations, claims, disputes, enforcement actions, litigation or other legal proceedings
+could have a material adverse effect on our financial position, results of operations and/or cash flows. 
+
+ 9 
+ Table of Contents 
+
+ Risks
+Related to Information Technology and Intellectual Property 
+
+ Our
+business could be adversely impacted by significant cybersecurity attacks. 
+
+ As
+a U.S. Government defense industry contractor, the Company has experienced cybersecurity attacks in the past and may be subjected to
+significant cybersecurity attacks in the future in an effort to, among other things, steal intellectual property, disrupt operations,
+embed ransomware or initiate insider attacks. Although we implement various measures and controls to monitor and mitigate risks associated
+with these threats and to increase the cyber resiliency of our infrastructure and products, there can be no assurance that these processes
+will be sufficient. Our inability to defend effectively against cyberattacks may result in disruption of operations, loss of significant
+intellectual property, compromise of employee’s personal information or violation of government contractor requirements for information
+security. These could result in reputational damage, fines, litigation, operational impacts or significant costs for mitigation and/or
+recovery, all with adverse consequences to our financial position, results of operations and/or cash flows. 
+
+ Claims
+by third parties that our products infringe their intellectual property could result in costly disputes and/or require us to develop
+alternate designs. 
+
+ We
+may become subject to claims for infringement of intellectual property, which could result in litigation costs or require us to incur
+costs for developing alternate designs that may require extensive testing and qualification to meet contract obligations. This could
+result in adverse consequences to our financial position, results of operations and/or cash flows. 
+
+ Risks
+Related to Our Common Stock 
+
+ Our
+stock price may continue to be volatile. 
+
+ The trading price of our common
+stock has been, and may continue to be volatile and subject to wide fluctuations in response to various factors, many of which we cannot
+control. As a result, investors in our common stock may experience substantial losses. This volatility may or may not be related to our
+operating performance. Our operating results, from time to time, may be below the expectations of public market analysts and investors,
+which could have a material adverse effect on the market price of our common stock. 
+
+ If
+significant existing stockholders sell large numbers of shares of our common stock, our common stock price could decline. 
+
+ Approximately 38.5% of our
+outstanding common stock is held by 5 individuals or entities. The market price of our common stock could decline if a large number of
+our shares of outstanding common stock are sold in the public market by our existing stockholders or as a result of the perception that
+such sales could occur. 
+
+ 10 
+ Table of Contents

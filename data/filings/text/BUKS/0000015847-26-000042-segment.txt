@@ -1,0 +1,50 @@
+Disaggregation of Revenue 
+ 3 Months Ended 
+ 
+ Jul. 31, 2026 
+ 
+ Revenue from Contract with Customer [Abstract] 
+
+ Disaggregation of Revenue 
+ Disaggregation of Revenue In the following table, revenue is disaggregated by primary geographical market, major product line, and timing of revenue recognition. Three Months Ended July 31, 2026 Three Months Ended July 31, 2025 Professional Services Aerospace Products Total Professional Services Aerospace Products Total Geographical Markets North America $ 9,041 $ 15,905 $ 24,946 $ 8,811 $ 8,233 $ 17,044 Europe - 4,204 4,204 - 1,256 1,256 Asia - 1,530 1,530 - 1,742 1,742 Australia and Other - 101 101 - 83 83 $ 9,041 $ 21,740 $ 30,781 $ 8,811 $ 11,314 $ 20,125 Major Product Lines Casino Gaming Revenue $ 6,841 $ - $ 6,841 $ 6,483 $ - $ 6,483 Sports Wagering Revenue 1,095 - 1,095 1,287 - 1,287 Casino Non-Gaming Revenue 1,105 - 1,105 1,041 - 1,041 Aircraft Modification - 16,301 16,301 - 5,642 5,642 Aircraft Avionics - 537 537 - 1,437 1,437 Special Mission Electronics - 4,902 4,902 - 4,235 4,235 $ 9,041 $ 21,740 $ 30,781 $ 8,811 $ 11,314 $ 20,125 Contract Types / Revenue Recognition Timing Percentage of completion contracts $ - $ 14,170 $ 14,170 $ - $ 5,080 $ 5,080 Goods or services transferred at a point of sale 9,041 7,570 16,611 8,811 6,234 15,045 $ 9,041 $ 21,740 $ 30,781 $ 8,811 $ 11,314 $ 20,125 
+
+ X 
+ 
+ - Definition The entire disclosure of disaggregation of revenue. 
+ + References No definition available. 
+ + Details 
+ 
+ Name: 
+ buks_DisaggregationOfRevenueTextBlock 
+
+ Namespace Prefix: 
+ buks_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_RevenueFromContractWithCustomerAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration
