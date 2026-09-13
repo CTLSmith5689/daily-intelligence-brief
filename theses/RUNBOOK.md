@@ -6,108 +6,229 @@ half.
 
 ## Where it runs
 
-Two mechanisms exist and they are not the same thing.
-
-| | Cloud routine | Local scheduled task |
+| | Research Agent (claude.ai) | A session on the Mac |
 |---|---|---|
-| Runs on | Anthropic's cloud, via claude.ai | The Mac, via `~/.claude/scheduled-tasks/` |
-| Fires when the Mac is asleep | Yes | No. It waits for the next app launch |
-| Repo | Needs the Claude GitHub App installed on this repository | Uses the local clone |
-| Push credential | The GitHub App | `osxkeychain` |
+| Runs on | Anthropic's cloud | This Mac |
+| Fires when the Mac is asleep | Yes | No |
+| Can push to GitHub | No. The cloud git proxy will not inject a credential for this repository | Yes, through `osxkeychain` |
+| Delivers by | Uploading the run to Google Drive, which the hourly workflow ingests | `events.py`, then commit and push |
 
-The cloud routine is the intended one. A 7am slot is exactly the case the local
-task fails, because the machine is usually asleep.
+The Research Agent is the intended one, because a 7am slot is exactly when the Mac
+is asleep. "Running in the cloud" below covers it, and "Running on the Mac
+instead" covers the other.
 
 ### One-time setup
 
-1. Open claude.ai/code. Connect the GitHub account, then install the Claude
-   GitHub App and grant it this repository. The repository picker at the bottom
-   of that page should list `CTLSmith5689/daily-intelligence-brief` once it has
-   worked.
-2. Create the routine. Schedule: Monday 07:00 ET, weekly.
-3. Paste the prompt below as the routine's instruction.
+1. The workflow's Drive credential: "One-time setup: letting the workflow read
+   the folder", below. Until it exists, deliveries wait in Drive.
+2. The task, on the Scheduled tasks page: New task, named **Research Agent**,
+   model Opus 5, Permissions "Skip all approvals", "Require this computer"
+   unchecked. Frequency Manual until one run has been ingested end to end, then
+   weekly.
+3. Its instructions, below.
 
-The routine's prompt is deliberately short. It points at `PROMPTS.md` in the
-repo rather than restating it, so the analyst's instructions are versioned with
-the code they invoke and changing them is a commit rather than an edit in a web
-form.
+The instructions are deliberately short. They point at this file and `PROMPTS.md`
+rather than restating them, so the analyst's instructions are versioned with the
+code they invoke, and changing them is a commit rather than an edit in a web form.
 
 ```text
-You are the analyst for Apterreon, a personal equity research archive.
-Repo: github.com/CTLSmith5689/daily-intelligence-brief
+Apterreon weekly analyst run. Unattended: do not ask questions.
 
-This is a fresh session with no memory of previous runs. Everything you need is
-in the repo.
+1. git clone https://github.com/CTLSmith5689/daily-intelligence-brief.git and cd into it.
+2. Read theses/RUNBOOK.md, section "Running in the cloud", and follow "What the
+   analyst does" exactly, step by step. Step 2 is a Google Drive preflight: if it
+   fails, stop, do no analysis, and report the exact error.
+3. Write the notes by following theses/PROMPTS.md, section "## Agent 1: the
+   analyst". Do not follow the PM section. Do not commit or push anything: this
+   session cannot push, and the pipeline ingests the Drive delivery.
 
-1. Get a checkout. The environment may already provide one. If not:
-     git clone https://github.com/CTLSmith5689/daily-intelligence-brief.git
-     cd daily-intelligence-brief
-   Then: git pull --rebase
-
-2. Read theses/PROMPTS.md and follow the section headed
-   "## Agent 1: the analyst" exactly, start to finish. That file is the
-   specification. Do not improvise around it. Do not follow the
-   "## Agent 2: the PM" section, which is a separate run.
-
-3. You may not edit anything under theses/bin/. If a script fails, write the
-   traceback into theses/runs/{run_date}/manifest.json, commit that alone, push,
-   and stop. An agent that rewrites its own screen after a bad run is not a
-   research process.
-
-4. When you have pushed, report back in three lines: the tickers covered, each
-   one's direction and conviction, and anything skipped and why.
+Report back: tickers covered, each direction and conviction, the Drive run folder
+link, and anything skipped and why.
 ```
 
 ## Running in the cloud
 
-The cloud routine is `trig_019GEQVFFZa8RbMuwNH8Tjyn`, "Apterreon: weekly analyst
-run", visible in Scheduled tasks on claude.ai alongside the others. Its cron is
-`7 11 * * 1`, which is **UTC**: 07:07 Eastern while daylight saving is in force.
-Unlike the local task, it does not follow the clock change, so it drifts to 06:07
-Eastern on 1 November 2026 and the cron needs changing to `7 12 * * 1` then.
+The analyst runs as **Research Agent**, a scheduled task on claude.ai: Opus 5,
+"Skip all approvals", and "Require this computer" unchecked, so it runs whether
+or not the Mac is awake. Keep it manual until one run has gone end to end, then
+set it weekly. `trig_019GEQVFFZa8RbMuwNH8Tjyn` is a disabled test routine left
+over from setting this up and can be deleted in the Scheduled tasks page.
 
-The environment is the generic one. It has Bash, Python and network, and no
-checkout, so the routine clones the repo itself. The repository is public, so
-the clone always works. **Whether it can push is the open question**, which is
-why the run starts by finding out.
+### Why it delivers to Drive instead of pushing
 
-### The push preflight
+A cloud session can clone this public repository but cannot push to it. The
+first run's push preflight got this from the git proxy:
 
-Do this before any analysis, and stop if it fails:
+> access denied by the git proxy: CTLSmith5689/daily-intelligence-brief is not in
+> this session's authorized repository set, so the proxy will not inject a
+> credential for it. To fix, add the repository to the session's sources.
+
+The scheduled-task form has no repository field. The routines API accepts a
+`git_repository` source, but setting one requires a `session_request.worker`
+object whose shape is not documented, and five probes did not find it. So a cloud
+run writes its output to the owner's Google Drive, which its connector writes to
+as the owner, and `theses/bin/ingest.py`, run by the hourly workflow, brings it
+into the repository.
+
+The delivery folder is **Investment Research**, id
+`1J6Wk6dzAg92lgrbAnLqVbQLXXKy1qck6`. Every Drive call below was run against it
+while building this, and an uploaded file came back byte-identical, trailing
+newline included.
+
+### What the analyst does
+
+1. Clone, prepare, and read the run date.
+
+   ```bash
+   git clone https://github.com/CTLSmith5689/daily-intelligence-brief.git
+   cd daily-intelligence-brief
+   python3 theses/bin/score.py
+   python3 theses/bin/prepare.py
+   ```
+
+   `run_date` in `theses/runs/*/manifest.json` is the run date. Use it wherever
+   `{RUN_DATE}` appears below, not the session clock.
+
+2. **Drive preflight, before any analysis.** Look for this run's folder:
+
+   `search_files(query="parentId = '1J6Wk6dzAg92lgrbAnLqVbQLXXKy1qck6' and title = 'run-{RUN_DATE}'", excludeContentSnippets=true)`
+
+   - If it exists and holds `ingest.json`, this run was already delivered. Stop
+     and say so.
+   - If it exists without `ingest.json`, an earlier attempt stopped part way.
+     Trash every file in it with `trash_file` and reuse the folder.
+   - Otherwise create it:
+     `create_file(title="run-{RUN_DATE}", parentId="1J6Wk6dzAg92lgrbAnLqVbQLXXKy1qck6", contentMimeType="application/vnd.google-apps.folder")`
+
+   Then upload a one-line `started.json` into it, using the call in step 5. If any
+   of these calls fails, stop, do no analysis, and report the exact error. A run
+   that writes four theses and only then finds it cannot deliver them has spent
+   the work and lost it.
+
+3. Write and validate the notes and update the manifest: `PROMPTS.md`, "Agent 1:
+   the analyst", steps 2 to 7. Do not run `events.py`. Do not commit or push.
+
+4. Hash what will be delivered:
+
+   ```bash
+   sha256sum theses/notes/*/{RUN_DATE}-*.md theses/runs/{RUN_DATE}/manifest.json
+   ```
+
+5. Upload each note and the manifest. The Drive name is the repository path with
+   every `/` written as `__`:
+
+   | Repository path | Drive name |
+   |---|---|
+   | `theses/notes/AAPL/2026-09-14-initiation.md` | `theses__notes__AAPL__2026-09-14-initiation.md` |
+   | `theses/runs/2026-09-14/manifest.json` | `theses__runs__2026-09-14__manifest.json` |
+
+   `create_file(title=<Drive name>, parentId=<run folder id>, textContent=<the file's exact contents>, contentMimeType="text/markdown", disableConversionToGoogleType=true)`
+
+   Use `application/json` for the manifest and for `started.json`. Pass each file
+   exactly as `cat` prints it. Do not reformat, rewrap or retype it: the pipeline
+   compares sha256 and refuses any difference. `disableConversionToGoogleType` is
+   required. Without it Drive converts the upload into a Google Doc, which the
+   pipeline refuses.
+
+6. Upload each dossier as `dossier-{TICKER}.md` the same way. These are for a
+   person reading the folder and are not ingested, so if one fails, note it and
+   carry on.
+
+7. Confirm the delivery:
+
+   `search_files(query="parentId = '<run folder id>'", excludeContentSnippets=true)`
+
+   Every note and the manifest must appear exactly once, as `text/markdown` or
+   `application/json`. Upload anything missing and trash any duplicate.
+
+8. Upload `ingest.json` **last**, as `application/json`. Until it exists the
+   pipeline treats the run as still being delivered, so a half-finished upload is
+   never picked up.
+
+   ```json
+   {
+     "run_date": "2026-09-14",
+     "notes": [
+       {"path": "theses/notes/AAPL/2026-09-14-initiation.md",
+        "trigger": "weekly screen, SCREEN slot",
+        "rationale": "one line on why this name, now"}
+     ],
+     "sha256": {
+       "theses/notes/AAPL/2026-09-14-initiation.md": "<64 hex characters>",
+       "theses/runs/2026-09-14/manifest.json": "<64 hex characters>"
+     }
+   }
+   ```
+
+   `trigger` and `rationale` become the event row, exactly as if they had been
+   passed to `events.py` on the command line.
+
+9. Report: tickers, each one's direction and conviction, the run folder's link,
+   and anything skipped and why.
+
+If a script fails at any point, do not upload `ingest.json`. Upload the traceback
+as `FAILED.md` into the run folder, report it, and stop.
+
+### What the pipeline does with it
+
+The hourly workflow runs `theses/bin/ingest.py` before Gather. It picks up any
+`run-YYYY-MM-DD` folder that holds `ingest.json` and has not been ingested, and
+checks it again against committed code:
+
+- every Drive name starting `theses__` must decode to a note or the run manifest
+  and be listed in `ingest.json`; anything else in the folder is ignored;
+- every delivered file's sha256 must match `ingest.json`;
+- a note that already exists must be byte-identical, because notes are never
+  edited;
+- then `validate.py` and `events.py` run.
+
+If any of that fails, every file and ledger row from the run is rolled back and
+the run is refused. The Research page picks up an ingested run within the hour,
+because a record run that ingests something rebuilds the site. Ingested runs are
+listed in `theses/ledger/ingested.csv`.
+
+A refused run is written to `theses/ledger/ingest_refused.csv` with its reason and
+a fingerprint of the folder. It alerts once and is skipped until its files change.
+To retry one, fix the files in Drive and upload `ingest.json` again, and the
+changed folder is checked from scratch. Or trash the folder and run again.
+
+### One-time setup: letting the workflow read the folder
+
+The workflow reads Drive as a service account that is shared on this one folder
+as Viewer, so it can see nothing else in the Drive and cannot write. Until the
+secret exists the ingest step logs that it has no credential and does nothing,
+and the rest of the workflow runs as before.
+
+1. [Create a project](https://console.cloud.google.com/projectcreate) named `apterreon-drive`.
+2. [Enable the Drive API](https://console.cloud.google.com/apis/library/drive.googleapis.com) in it.
+3. [Service accounts](https://console.cloud.google.com/iam-admin/serviceaccounts): Create service account, name it `github-actions-drive`, Create and continue, Done. Skip the roles step.
+4. Open the account, Keys, Add key, Create new key, JSON. Copy the account's email.
+5. Share **Investment Research** with that email as Viewer, with "Notify people" unticked.
+6. Repository Settings, Secrets and variables, Actions, New repository secret: `GDRIVE_SA_KEY`, containing the whole JSON file.
+7. Delete the downloaded JSON.
+
+A service account cannot create files in a personal Drive (it has no storage
+quota), which is why writing is left to the analyst's connector and the workflow
+only reads.
+
+### Running on the Mac instead
+
+A session on the owner's Mac has push access and can skip Drive. After step 3,
+record each note and push:
 
 ```bash
-git clone https://github.com/CTLSmith5689/daily-intelligence-brief.git
-cd daily-intelligence-brief
-git config user.email ctlsmith@me.com
-git config user.name "Apterreon Analyst"
-git config pull.rebase true
-git commit --allow-empty -m "preflight: confirm push access"
+python3 theses/bin/events.py theses/notes/{TICKER}/{RUN_DATE}-{kind}.md "<trigger>" "<rationale>"
+git add theses/
+git commit -m "theses({RUN_DATE}): T1, T2, T3"
 git pull && git push
 ```
 
-Confirming the push first is the whole point of the step. A run that screens the
-universe, reads four dossiers and writes four theses, and only then discovers it
-cannot save them, has spent the work and lost it. Finding out in ten seconds
-costs nothing.
+`git pull && git push`, not a bare push: a bot commits to this repository every
+hour at :23 and a bare push loses that race whenever one lands in the window.
 
-`git pull && git push` rather than a bare push: a bot commits to this repo every
-hour at :23, and a bare push loses that race whenever one lands in the window.
-
-If the push fails, stop, do no analysis, and report the exact error together with
-the fact that the environment lacks push access. That is a useful result. The
-fallback is the local scheduled task, which runs on the Mac where the clone, the
-git identity and the keychain credential already exist, at the cost of only
-running while the Claude app is open.
-
-If the push succeeds, continue with `PROMPTS.md`, section "Agent 1: the analyst".
-
-### Only one of them should be scheduled
-
-The cloud routine and a local scheduled task would both write notes for the same
-week and race each other to push. Run one. The cloud one is preferred because it
-does not need the Mac awake; the local one is the fallback if the preflight shows
-the cloud environment cannot push.
-
+Run one or the other for a given week, never both. Two runs on the same date
+write the same note paths, and ingest refuses a note that already exists with
+different content.
 
 ## What the run is fed
 
@@ -163,19 +284,19 @@ notes.
 
 ## After a run
 
-The push is what publishes. `brief.yml` triggers on a push touching `theses/**`,
-runs in `publish` mode, and rebuilds the site from committed data in under a
-second, so a note reaches the Research page within a couple of minutes. Nothing
-else needs triggering.
-
+A delivered run reaches the archive at the next hourly workflow run, which
+ingests it and, if that was a record run, rebuilds the site. Allow up to an hour.
 Check, in order:
 
-1. `theses/runs/{RUN_DATE}/manifest.json` for what the run planned against what
-   it completed, and for any dossier that failed to build.
-2. `python3 theses/bin/validate.py theses/notes` passes.
-3. The Research page shows the new names.
-4. `ledger/predictions.csv` gained a row for each note whose direction was long,
-   short or avoid, and none for a note that said watch or no view.
+1. The run folder in Drive holds every note, the manifest and `ingest.json`, and
+   no `FAILED.md`.
+2. The workflow's "Ingest analyst runs from Drive" step logs `ingested
+   run-{RUN_DATE}`. A refusal is logged there with its reason, and written to
+   `theses/ledger/ingest_refused.csv`.
+3. `theses/ledger/ingested.csv` lists the run.
+4. The Research page shows the new names.
+5. `theses/ledger/predictions.csv` gained a row for each note whose direction was
+   long, short or avoid, and none for a note that said watch or no view.
 
 ## Failure modes worth knowing
 
@@ -187,3 +308,16 @@ Check, in order:
 - **The run date is Eastern.** `prepare.py` stamps `run_date` in US Eastern and
   writes it into the manifest. The agent's own clock may be on another day. The
   manifest is the authority.
+- **No Drive credential yet.** The ingest step logs that `GDRIVE_SA_KEY` is not
+  set and does nothing else. Deliveries wait in Drive and are ingested once the
+  secret exists.
+- **A refused delivery alerts once.** It is skipped until its files change, so an
+  unchanged refusal does not alert again. Its reason is in
+  `theses/ledger/ingest_refused.csv`.
+- **A run folder without `ingest.json` is never ingested.** The step logs it as
+  still being delivered, and flags it once it is two days old. Usually the
+  analyst stopped after the preflight: look for `FAILED.md` in the folder.
+- **A conflict under `theses/` aborts the push.** If something else pushes to a
+  ledger file while a workflow run is ingesting, the run refuses to resolve the
+  conflict rather than commit conflict markers into an append-only file. The job
+  alerts, and the next run ingests the same delivery again from a clean checkout.

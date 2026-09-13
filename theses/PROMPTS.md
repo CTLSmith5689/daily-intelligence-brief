@@ -78,7 +78,7 @@ dossier per slot. Read manifest.json FIRST, then read every dossier in full.
 
 {RUN_DATE} IS NOT TODAY'S DATE AS YOU KNOW IT. Read it out of manifest.json,
 where prepare.py writes it as `run_date`, and use that exact string everywhere
-below: the runs/ directory, the note filename, the commit message. It is the US
+below: the runs/ directory, the note filename, and the Drive run folder. It is the US
 Eastern date, because that is the only day boundary a US equity pipeline has.
 Your session clock may be on another day; the manifest is the authority.
 
@@ -208,50 +208,36 @@ Body sections, exactly these headings:
 WHAT IS PRICED IN / WHERE I DIFFER / WHAT CLOSES THE GAP / VALUATION /
 WHAT PROVES ME WRONG / WHAT I DON'T KNOW
 
-=== 7. VALIDATE, RECORD, COMMIT ===
+=== 7. VALIDATE AND WRITE THE RUN MANIFEST ===
 
-  python3 theses/bin/validate.py theses/notes/
+  python3 theses/bin/validate.py theses/notes/*/{RUN_DATE}-*.md
 
 Fix every FAIL. Do not weaken a note to pass a check: if the falsifier is not
 checkable, write a better falsifier. If you cannot, the direction should be
 "no view".
 
-For each note, record the event and append the prediction:
+Then update theses/runs/{RUN_DATE}/manifest.json with what you actually did:
+which slots produced a note, which did not and why, and any dossier that was too
+thin to write against. A slot you skipped is information. Do not write up a name
+whose dossier failed to build. Leave its run_date field exactly as prepare.py
+wrote it.
 
-  python3 theses/bin/events.py theses/notes/{TICKER}/{RUN_DATE}-{kind}.md \
-      "<what triggered this revisit>" "<one line why>"
+Do NOT run events.py, and do NOT commit or push. This session cannot push, and
+the ledger is written by the pipeline when it ingests your delivery, so that the
+only thing that ever writes the ledger is committed code.
 
-Then commit and push:
+=== 8. DELIVER TO GOOGLE DRIVE ===
 
-  git add theses/
-  git commit -m "theses({RUN_DATE}): T1, T2, T3 [n/m]"
-  git push || (git pull --rebase && git push)
+Follow theses/RUNBOOK.md, "Running in the cloud", steps 4 to 9: hash every note
+and the manifest, upload each one byte for byte under its encoded name, list the
+run folder to confirm, and upload ingest.json last. The pipeline checks all of it
+again against committed code and refuses a delivery that fails any check, so
+nothing you deliver reaches the archive without passing.
 
-Commit as ctlsmith@me.com. If git has no identity configured, set it for this
-repo first:
-
-  git config user.email ctlsmith@me.com
-  git config user.name "Christopher Smith"
-
-If the push is rejected, rebase and retry up to five times. It cannot conflict:
-the pipeline workflow stages only data/, docs/ and state/, and never touches
-theses/.
-
-The push is what publishes the work. brief.yml triggers on a push touching
-theses/**, runs in `publish` mode, and rebuilds the site from committed data in
-under a second, so the note appears on the Research page within a couple of
-minutes. Nothing else needs to be triggered.
-
-=== 8. WRITE THE RUN MANIFEST ===
-
-Update theses/runs/{RUN_DATE}/manifest.json with what you actually did: which slots
-produced a note, which did not and why, and any dossier that was too thin to
-write against. A slot you skipped is information. Do not write up a name whose
-dossier failed to build.
-
-If any script fails, write the traceback into the manifest, commit that alone,
-and stop. You may not edit anything under theses/bin/. An agent that rewrites
-its own screen after a bad run is not a research process.
+If any script fails, do not upload ingest.json. Upload the traceback as FAILED.md
+into the run folder, report it, and stop. You may not edit anything under
+theses/bin/. An agent that rewrites its own screen after a bad run is not a
+research process.
 ```
 
 ---

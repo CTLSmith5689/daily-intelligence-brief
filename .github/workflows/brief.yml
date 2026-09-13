@@ -150,10 +150,69 @@ jobs:
           echo "Refusing to continue: a cold rebuild would write thin coverage into the panel."
           exit 1
 
+      # The analyst's cloud routine can clone this repository but not push to it,
+      # so it delivers each run to the owner's Google Drive and this step brings
+      # it in. theses/bin/ingest.py explains why it trusts nothing it reads there
+      # and checks everything again against committed code.
+      #
+      # It runs before Gather in every mode, so a delivered run lands within the
+      # hour. It never fails the job by itself: a Drive outage or a refused
+      # delivery must not stop quotes and headlines being recorded. The "Report
+      # ingest problems" step near the end fails the job instead, after
+      # everything else has finished, so the alert still fires.
+      #
+      # Nothing is committed unless ingest.py finished and left a readable result.
+      # Anything else it left under theses/ is discarded before Gather runs.
+      - name: Ingest analyst runs from Drive
+        id: ingest
+        continue-on-error: true
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+        run: |
+          set -uo pipefail
+          export INGEST_RESULT="$RUNNER_TEMP/ingest.env"
+          rm -f "$INGEST_RESULT"
+          INGESTED_RUNS=0
+          INGEST_ALERT=1
+          INGEST_MESSAGE=""
+          OK=1
+          if ! python3 theses/bin/ingest.py; then
+            echo "ingest.py exited non-zero, which it is written never to do. Nothing it wrote is committed."
+            OK=0
+          elif [ ! -s "$INGEST_RESULT" ] || ! . "$INGEST_RESULT"; then
+            echo "ingest.py left no readable result. Nothing it wrote is committed."
+            OK=0
+          fi
+          COMMITTED=0
+          if [ "$OK" = 1 ]; then
+            git config user.name "apterreon-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add theses/
+            if ! git diff --cached --quiet; then
+              git commit -q -m "$INGEST_MESSAGE" && COMMITTED=1 && echo "Committed: $INGEST_MESSAGE"
+            fi
+          fi
+          git reset -q -- theses/ 2>/dev/null || true
+          git checkout -q -- theses/ 2>/dev/null || true
+          git clean -fdq -- theses/ 2>/dev/null || true
+          [ "$OK" = 1 ] || INGEST_ALERT=1
+          {
+            echo "ingested_runs=${INGESTED_RUNS:-0}"
+            echo "committed=$COMMITTED"
+            echo "alert=${INGEST_ALERT:-1}"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Gather
         env:
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
         run: python lambda_function.py "${{ steps.pick.outputs.mode }}"
+
+      # A record run does not render the site, so research ingested during one
+      # would otherwise wait for the next daily run to appear. Publish mode
+      # rebuilds the pages from committed data in under a second.
+      - name: Rebuild the site for ingested research
+        if: steps.ingest.outputs.ingested_runs != '0' && steps.ingest.outputs.ingested_runs != '' && steps.pick.outputs.mode == 'record'
+        run: python lambda_function.py publish
 
       # This step used to destroy the previous run's work every night.
       #
@@ -186,10 +245,16 @@ jobs:
 
           git add data/ docs/ state/
           if git diff --cached --quiet; then
-            echo "Nothing generated this run, so nothing to commit."
-            exit 0
+            # The ingest step commits research separately. Exiting here without
+            # pushing would leave that commit on the runner, to vanish with it.
+            if [ "${{ steps.ingest.outputs.committed }}" != "1" ]; then
+              echo "Nothing generated this run, so nothing to commit."
+              exit 0
+            fi
+            echo "Gather staged nothing new; pushing the ingested research."
+          else
+            git commit -m "${{ steps.pick.outputs.mode }}: $(date -u +%FT%H:%M)Z"
           fi
-          git commit -m "${{ steps.pick.outputs.mode }}: $(date -u +%FT%H:%M)Z"
 
           for i in 1 2 3 4 5; do
             if git push; then
@@ -201,11 +266,25 @@ jobs:
             if git rebase origin/main; then
               continue
             fi
-            # A conflict here is a regenerated artefact, not data: docs/ and
-            # state/ are rendered wholesale each run, so ours is the fresher
-            # render. The CSVs never reach this path because union resolves them.
+            # A conflict in docs/ or state/ is a regenerated artefact, and this
+            # run's render is the fresher one. During a rebase that is --theirs:
+            # "ours" is the branch being rebased onto, origin/main, and "theirs"
+            # is the commit being replayed, which is this run's. This used --ours
+            # and so kept the remote's copy, the opposite of what it said. The
+            # data/ CSVs never reach this path because union resolves them.
             echo "Rebase conflict; preferring this run's freshly generated artefacts."
-            git checkout --ours -- docs/ state/ 2>/dev/null || true
+            git checkout --theirs -- docs/ 2>/dev/null || true
+            git checkout --theirs -- state/ 2>/dev/null || true
+            # Nothing else may be resolved that way. A conflict under theses/ is
+            # a note or a ledger, and git add -A would commit the conflict markers
+            # into an append-only file. Abort instead: the next run starts from a
+            # fresh checkout and ingests the same delivery again cleanly.
+            UNRESOLVED=$(git diff --name-only --diff-filter=U -- . ':!docs' ':!state')
+            if [ -n "$UNRESOLVED" ]; then
+              echo "Refusing to resolve a conflict outside docs/ and state/: $UNRESOLVED"
+              git rebase --abort || true
+              exit 1
+            fi
             git add -A
             if ! git -c core.editor=true rebase --continue; then
               echo "Could not reconcile with the remote; aborting rather than overwriting it."
@@ -316,6 +395,16 @@ jobs:
             sleep 5
           done
           echo "Failed to save the universe cache. The next run resumes from the previous copy."
+          exit 1
+
+      # The ingest step never fails the job itself, so that a Drive outage or a
+      # bad delivery cannot stop the day's data being recorded. This is where it
+      # does fail, last, so the alert below fires with everything else finished.
+      # A refused delivery alerts once: ingest.py skips it until its files change.
+      - name: Report ingest problems
+        if: always() && (steps.ingest.outcome == 'failure' || steps.ingest.outputs.alert == '1')
+        run: |
+          echo "The Drive ingest refused a delivery or could not run. The 'Ingest analyst runs from Drive' step log says which, and why."
           exit 1
 
       # Between 2026-05-09 and 2026-07-07 this job failed 78 times without anyone
