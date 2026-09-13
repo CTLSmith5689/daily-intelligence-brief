@@ -2595,6 +2595,20 @@ body.page-stocks .lib-h { display:none; }
   border:none; border-bottom:1px solid var(--border-bright); border-radius:0; padding:3px 0; }
 .stk-toprow .lib-chips { gap:5px; }
 .stk-table { border:none; background:transparent; }
+.wn-card { margin-top:14px; padding:0 18px; border:1px solid var(--apt-amber); }
+.wn-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-amber); text-transform:uppercase; padding:13px 0; cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; }
+.wn-h::-webkit-details-marker { display:none; }
+.wn-n { margin-left:auto; color:var(--text-4); }
+.wn-note { font-size:11.5px; line-height:1.55; color:var(--text-3); padding-bottom:11px; border-bottom:1px solid var(--border); max-width:66ch; }
+.wn-row { display:grid; grid-template-columns:170px 74px minmax(0,1fr); gap:11px; padding:9px 0; border-bottom:1px solid var(--border); align-items:baseline; }
+.wn-row:last-child { border-bottom:0; padding-bottom:14px; }
+.wn-f { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-1); }
+.wn-s { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-4); }
+.wn-useless .wn-s { color:var(--apt-red); }
+.wn-misleading .wn-s { color:var(--apt-amber); }
+.wn-w { font-size:12px; line-height:1.55; color:var(--text-2); }
+.wn-w i { font-style:normal; color:var(--text-3); }
+@media (max-width:700px) { .wn-row { grid-template-columns:1fr; gap:3px; } }
 .stk-th { display:inline-block; width:7px; height:7px; border-radius:50%; margin-left:7px; vertical-align:middle; flex:0 0 auto; }
 .stk-th-long { background:var(--apt-red); }
 .stk-th-avoid { background:transparent; border:1.5px solid var(--apt-red); }
@@ -3254,6 +3268,8 @@ STOCKS_JS_TEMPLATE = """
   // ticker -> {d: direction, c: conviction, w: written_on} for every name that
   // has a note. Absent for almost every row, which is the expected case.
   const THESIS_INDEX = __THESIS_INDEX_JSON__;
+  // sector -> [{f: field, s: severity, w: why, i: instead}], strong claims only.
+  const SECTOR_WARNINGS = __SECTOR_WARNINGS_JSON__;
   let researchFilter = '';        // '' all, 'any' covered, or a direction
   const INDEXES = __INDEXES_JSON__;
   const DATA_URL = __DATA_URL__;
@@ -3743,6 +3759,28 @@ STOCKS_JS_TEMPLATE = """
     + '</div>';
   }
 
+  // The factor grid prints twenty numbers with equal authority. Some of them do
+  // not mean what their name says for this kind of business, and that is worth
+  // knowing before reading them rather than after.
+  function buildWarnings(s) {
+    const ws = SECTOR_WARNINGS[s.sector || ''];
+    if (!ws || !ws.length) return '';
+    const rows = ws.map(w =>
+      '<div class="wn-row wn-' + escapeHtml(w.s) + '">'
+      + '<code class="wn-f">' + escapeHtml(w.f) + '</code>'
+      + '<span class="wn-s">' + escapeHtml(w.s) + '</span>'
+      + '<span class="wn-w">' + escapeHtml(w.w)
+      + (w.i ? ' <i>Use ' + escapeHtml(w.i) + '.</i>' : '')
+      + '</span></div>').join('');
+    return '<details class="wn-card">'
+      + '<summary class="wn-h"><span>Fields that mislead in ' + escapeHtml(s.sector)
+      + '</span><span class="wn-n">' + ws.length + '</span></summary>'
+      + '<div class="wn-note">These are not noisy readings. Each one measures '
+      + 'something other than what its name suggests for this kind of business. '
+      + 'Written per sector and not yet adversarially checked.</div>'
+      + rows + '</details>';
+  }
+
   function buildDetail(s) {
     const groups = FACTOR_GROUPS.map(g => {
       const items = g.rows.map(r => {
@@ -3778,7 +3816,7 @@ STOCKS_JS_TEMPLATE = """
     const companyCard = '<div class="co-card" id="co-' + escapeHtml(s.ticker) + '">'
       + '<div class="co-h">Reported <span class="co-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + thesisCard + companyCard + scoreCard + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
+    return '<div class="stk-detail">' + thesisCard + companyCard + scoreCard + buildWarnings(s) + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
   }
 
   // ── Signals row: Neglect (Lynch) on the left, Insider Movement (Seyhun) on the right ──
@@ -12217,6 +12255,27 @@ def generate_stocks_page(universe):
                                        "c": conv,
                                        "w": (fm.get("written_on") or "").strip()}
 
+    # The sector lenses name the fields that mislead in each sector. The factor
+    # grid below a row shows those fields as numbers with no warning attached,
+    # so the same table the analyst gets belongs here too. Only the strong
+    # claims: "needs care" applies to most fields in most sectors and would
+    # drown the useful ones.
+    sector_warnings = {}
+    _wf = THESES_DIR / "lenses" / "_fields.json"
+    if _wf.exists():
+        try:
+            _blob = json.loads(_wf.read_text(encoding="utf-8"))
+            for _sec, _ws in _blob.items():
+                if _sec.startswith("_") or not isinstance(_ws, list):
+                    continue
+                keep = [{"f": w.get("field"), "s": w.get("severity"),
+                         "w": w.get("why"), "i": w.get("instead")}
+                        for w in _ws if w.get("severity") in ("useless", "misleading")]
+                if keep:
+                    sector_warnings[_sec] = keep
+        except Exception as exc:
+            print(f"stocks: could not read sector field warnings ({exc}).")
+
     data_path = DOCS_DIR / "stocks-data.json"
     data_path.write_text(
         json.dumps([_trim(s) for s in stocks], separators=(",", ":")),
@@ -12434,6 +12493,7 @@ def generate_stocks_page(universe):
                  .replace("__REFRESH_CLASSES_JSON__", json.dumps(REFRESH_CLASSES))
                  .replace("__SECTORS_JSON__", sectors_json)
                  .replace("__THESIS_INDEX_JSON__", json.dumps(thesis_index, separators=(",", ":")))
+                 .replace("__SECTOR_WARNINGS_JSON__", json.dumps(sector_warnings, separators=(",", ":")))
                  .replace("__INDEXES_JSON__", indexes_json))
     html = render_screener_page("Stocks, Apterreon", body, extra_scripts=stocks_js)
     (DOCS_DIR / "stocks.html").write_text(html, encoding="utf-8")

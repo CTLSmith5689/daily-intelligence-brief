@@ -1,0 +1,974 @@
+{
+ "_verified": false,
+ "_note": "Written by one pass and not yet adversarially checked. The check run died on a usage limit. Treat severities as provisional.",
+ "Consumer Staples": [
+  {
+   "field": "ev_revenue",
+   "severity": "useless",
+   "why": "gross_margin spans 12 percent at Food Distributors to above 60 percent at Tobacco, so the same ev_revenue reading means opposite things across the sector.",
+   "instead": "ev_revenue compared only inside one sub_industry, otherwise ev_ebitda"
+  },
+  {
+   "field": "neglect_score",
+   "severity": "useless",
+   "why": "Branded staples mega-caps are among the most covered securities in the market, so neglect_score and analyst_count only discriminate in the Agricultural Products & Services and Food Distributors tail.",
+   "instead": "neglect_score read only within the small-cap tail of the sector"
+  },
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "Decades of buybacks and acquisition goodwill leave equity as a residue and sometimes negative at branded staples, so price_book returns an absurd or negative number with no economic content.",
+   "instead": "ev_ebitda recomputed from market_cap, total_debt, cash_and_investments and ttm_ebitda, plus fcf_yield"
+  },
+  {
+   "field": "volume_trend",
+   "severity": "useless",
+   "why": "Share turnover in mega-cap staples is dominated by index and income-fund flows rather than by information about the business.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "high52w_proximity",
+   "severity": "misleading",
+   "why": "It tracks rate expectations and defensive rotation across the whole sector at once, so it moves for every staples name together regardless of company news.",
+   "instead": "gross_margin_trend and revenue_acceleration for company-level change"
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "misleading",
+   "why": "It sums price, volume, currency and acquisitions, so six percent can be nine points of price against three of volume decline or one point of price against five of volume, and the panel cannot tell those apart.",
+   "instead": "revenue_growth_yoy paired with gross_margin_trend for a price-versus-cost read; volume itself is not available"
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "misleading",
+   "why": "Buyback-shrunk equity produces readings above 100 percent at tobacco and household products names, which reports past capital returns rather than operating quality.",
+   "instead": "a crude ROIC from ttm_operating_income after tax over (total_debt + equity - cash_and_investments)"
+  },
+  {
+   "field": "sharpe_1y",
+   "severity": "misleading",
+   "why": "Low beta_1y makes sharpe_1y and max_drawdown_1y look strong for the entire sector by construction, which says nothing about franchise quality.",
+   "instead": "op_margin_stability and earnings_consistency, with volatility_1y for risk"
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "needs_care",
+   "why": "The stored value does not reconcile to the panel's own balance sheet, and ttm_ebitda adds back ttm_dep_amort, which is a recurring store and fleet cost at Food Retail, Consumer Staples Merchandise Retail and Food Distributors.",
+   "instead": "ev_ebitda recomputed from market_cap, total_debt, cash_and_investments and ttm_ebitda, with fcf_yield as the cross-check for retailers"
+  },
+  {
+   "field": "pe",
+   "severity": "needs_care",
+   "why": "Restructuring and impairment charges run through ttm_net_income and ttm_eps_diluted regularly at branded staples, so a low pe often reflects a charge rather than a cheap price.",
+   "instead": "ttm_eps_diluted checked against the decade of reported eps_diluted before reading pe"
+  }
+ ],
+ "Energy": [
+  {
+   "field": "accruals_ratio",
+   "severity": "useless",
+   "why": "Depletion pushes reported net income far below operating cash flow for nearly every Energy name, so cohort p90 is -0.01 and essentially everyone scores clean by construction.",
+   "instead": "nothing we have; earnings quality here has to come from the reported ocf and capex series."
+  },
+  {
+   "field": "beta_1y",
+   "severity": "useless",
+   "why": "The Energy cohort median beta_1y is -0.11, because these equities price off their commodity rather than off the index.",
+   "instead": "volatility_1y, which is reliable in this data, for sizing and risk."
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "useless",
+   "why": "Refiner revenue carries the pass-through cost of crude (cohort median 0.73) while fee-based Oil & Gas Storage & Transportation sits at 5.76, so the field ranks business model rather than value.",
+   "instead": "a recomputed EV/EBITDA from market_cap, total_debt, cash_and_investments and ttm_ebitda."
+  },
+  {
+   "field": "pe",
+   "severity": "useless",
+   "why": "It divides price by peak or trough earnings, so it reads lowest at the cycle top; 14 of 94 Energy names above $1B carry no pe at all, and the panel has shown a positive pe against a negative ttm_eps_diluted.",
+   "instead": "fcf_yield and ttm_fcf, plus a normalised earnings figure built by applying a decade-median operating margin to ttm_revenue."
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "misleading",
+   "why": "It penalises cyclicality, which is the business here, so a high score identifies a fee-based midstream rather than a well-run company; Energy median is 0.49.",
+   "instead": "the ten-year reported operating margin series, used to measure cycle amplitude deliberately."
+  },
+  {
+   "field": "eps_growth_yoy",
+   "severity": "misleading",
+   "why": "It is a base effect off the commodity, spanning -0.69 at p10 to +2.98 at p90 in the cohort, and 200% growth beside a pe of 7 marks a cycle peak.",
+   "instead": "ttm_operating_income as a percentile of the ten-year reported range."
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "misleading",
+   "why": "The panel's value does not reconcile to its own balance sheet fields, median relative error near 10% and p90 above 50%, and even corrected it is a peak-cycle multiple.",
+   "instead": "(market_cap + total_debt - cash_and_investments) / ttm_ebitda computed yourself, then repeated on the worst EBITDA year in the EDGAR decade."
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "misleading",
+   "why": "Same mechanism as earnings_consistency: it sorts Energy names by contract structure, rewarding fee-based midstream and punishing every price taker.",
+   "instead": "operating_margin against its own decade range."
+  },
+  {
+   "field": "price_book",
+   "severity": "misleading",
+   "why": "Trough impairments cut equity, which raises price_book and makes the stock look most expensive at the bottom, and partnership equity can be negative.",
+   "instead": "ttm_fcf and an enterprise value rebuilt from market_cap, total_debt and cash_and_investments; nothing book-based works here."
+  },
+  {
+   "field": "revenue_acceleration",
+   "severity": "misleading",
+   "why": "It measures the second derivative of a commodity price pass-through, so it flips sign on price moves that have nothing to do with the business.",
+   "instead": "the direction of capex over the last eight reported quarters."
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "misleading",
+   "why": "It puts peak earnings over impaired book, two errors pushing the same way, and 14 of 94 Energy names currently show it negative.",
+   "instead": "operating_margin and ttm_operating_income read as percentiles of the company's own ten-year reported range."
+  },
+  {
+   "field": "gross_margin_trend",
+   "severity": "needs_care",
+   "why": "Gross margin means a crack spread at a refiner and a fixed fee at a midstream, and cohort medians run 0.13 to 0.71, so the trend is not comparable across sub_industry.",
+   "instead": "gross_margin trend within Oil & Gas Refining & Marketing only, otherwise operating_margin."
+  },
+  {
+   "field": "high52w_proximity",
+   "severity": "needs_care",
+   "why": "The whole Energy cohort approaches and leaves its highs together on one shared driver, so a reading near zero says where the commodity is.",
+   "instead": "pair it with insider_cluster_score and insider_net_buy_90d to find the idiosyncratic part."
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "needs_care",
+   "why": "It uses ttm_ebitda, which is peak EBITDA at a cycle top, so leverage looks safe exactly when the next two years will not support it.",
+   "instead": "the same ratio recomputed on the worst EBITDA year in the ten-year EDGAR history."
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "needs_care",
+   "why": "At a refiner or marketer, revenue is largely the crude price passed through, so this field tracks the commodity rather than demand or share.",
+   "instead": "read it as a crude price index and use ttm_operating_income for the actual business."
+  },
+  {
+   "field": "sub_industry",
+   "severity": "needs_care",
+   "why": "Four label pairs name the same business twice (Oil & Gas Exploration & Production / Oil & Gas E&P, Oil & Gas Midstream / Oil & Gas Storage & Transportation, Oil & Gas Integrated / Integrated Oil & Gas, Coal & Consumable Fuels / Thermal Coal), so a peer screen on one spelling drops half the cohort.",
+   "instead": "match on both spellings of each pair before comparing peers."
+  }
+ ],
+ "Communication Services": [
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "Equity is expensed-away intangibles plus cash at Interactive Media & Services, historical-cost spectrum and plant in telecom, and repeatedly impaired goodwill in Broadcasting, Publishing and Advertising, so the denominator has no economic content anywhere in the sector.",
+   "instead": "ev_ebitda rebuilt from market_cap, total_debt, cash_and_investments and ttm_ebitda, together with fcf_yield"
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "useless",
+   "why": "Buybacks, spectrum accounting and impairments leave equity tiny or negative across the network group and legacy media, so the ratio measures the denominator rather than returns.",
+   "instead": "ttm_operating_income divided by equity plus total_debt"
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "misleading",
+   "why": "Movies & Entertainment and Interactive Home Entertainment revenue is set by a release calendar, so lumpy earnings are the operating model rather than a quality defect.",
+   "instead": "the ten-year operating_margin range from the EDGAR annual history"
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "misleading",
+   "why": "A telco at roughly one and a half times revenue and a platform at six times are different business models, so any cross-sector ranking on ev_revenue is noise.",
+   "instead": "ev_revenue compared only within one sub_industry, or ttm_operating_income over rebuilt enterprise value"
+  },
+  {
+   "field": "gross_margin",
+   "severity": "misleading",
+   "why": "Telecom and Cable & Satellite allocate network cost above or below the gross profit line inconsistently and Advertising reports net of pass-through billings, so the level is not comparable between filers here.",
+   "instead": "gross_margin_trend inside a single company over time"
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "misleading",
+   "why": "As an inverted quality input it rewards cash-rich platforms and punishes Cable & Satellite and Wireless Telecommunication Services operators whose three to four turns is the standing capital structure supported by contracted subscriber cash flow.",
+   "instead": "the direction of net_debt_ebitda against the company's own history, checked with total_debt, cash_and_investments, ttm_ebitda and fcf_yield"
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "misleading",
+   "why": "Same release-calendar lumpiness plus content write-downs makes margin variance structural in content names, and the inverted scoring reads it as poor quality.",
+   "instead": "operating_margin ranked inside the company's own decade of reported history"
+  },
+  {
+   "field": "fcf_growth_yoy",
+   "severity": "needs_care",
+   "why": "Falling ttm_fcf against rising ttm_revenue at the largest Interactive Media & Services names is the data-center capex decision rather than business deterioration.",
+   "instead": "capex and ocf from the EDGAR annual series, read as capex over revenue"
+  },
+  {
+   "field": "insider_net_buy_90d",
+   "severity": "needs_care",
+   "why": "RSU vesting at platform companies sells shares every quarter under pre-set plans, so the measure is structurally negative and carries no information about intent.",
+   "instead": "insider_ownership for control, and insider_cluster_score only at smaller Publishing, Broadcasting and Alternative Carriers names"
+  },
+  {
+   "field": "neglect_score",
+   "severity": "needs_care",
+   "why": "The Interactive Media & Services and telecom mega-caps are among the most covered names in the market, so the field has no dispersion at the top of this sector.",
+   "instead": "neglect_score, analyst_count and inst_ownership read only within Publishing, Broadcasting and Alternative Carriers"
+  },
+  {
+   "field": "pe",
+   "severity": "needs_care",
+   "why": "Goodwill and title impairments in Broadcasting, Publishing and Movies & Entertainment hollow out ttm_net_income for four quarters, and a positive pe has appeared on rows whose ttm_eps_diluted is negative.",
+   "instead": "the sign of ttm_eps_diluted checked first, then ttm_operating_income against the EDGAR decade series"
+  },
+  {
+   "field": "revenue_acceleration",
+   "severity": "needs_care",
+   "why": "In Movies & Entertainment it tracks the release calendar rather than demand, while in Interactive Media & Services and Advertising it is a real ad-auction signal.",
+   "instead": "nothing we have for content names, since release slates are absent; use it only in Interactive Media & Services and Advertising"
+  }
+ ],
+ "Industrials": [
+  {
+   "field": "ev_revenue",
+   "severity": "useless",
+   "why": "Staffing revenue is largely pass-through wages billed at a spread, so the denominator is not the company's own economics.",
+   "instead": "Enterprise value over ttm_gross_profit, built from market_cap, total_debt, cash_and_investments and ttm_gross_profit."
+  },
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "For Human Resource & Employment Services, Research & Consulting Services, Security & Alarm Services and Professional Services there is no asset base and the reading is goodwill plus buyback depletion.",
+   "instead": "nothing we have for the services group; price_book is valid only for Rail Transportation, Passenger Airlines, Marine Transportation and Marine Ports & Services."
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "useless",
+   "why": "Buybacks have left equity small or negative at several large industrials and at the services acquirers equity is mostly purchase accounting, so the ratio is a capital-structure artifact.",
+   "instead": "ttm_operating_income over (total_debt plus equity minus cash_and_investments), a rough return on capital."
+  },
+  {
+   "field": "fcf_yield",
+   "severity": "misleading",
+   "why": "It peaks when working capital liquidates, which happens at the trough, so the best-looking fcf_yield sits on contracting revenue.",
+   "instead": "ttm_fcf against ttm_net_income read alongside revenue_growth_yoy, to see which side of the working capital cycle the number comes from."
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "misleading",
+   "why": "It penalises the operating leverage that defines these businesses, so a normal cyclical manufacturer scores as low quality.",
+   "instead": "Read it as intensity of cyclicality, and use operating_margin across the reported decade to see the real range."
+  },
+  {
+   "field": "pe",
+   "severity": "misleading",
+   "why": "Cyclical earnings peak before prices do, so pe prints lowest at the top of the cycle, which makes a late-cycle machinery or transport name screen as cheap.",
+   "instead": "A normalised pe: mid-cycle operating margin from the decade of reported revenue and operating_income in EDGAR, applied to ttm_revenue, divided into market_cap."
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "needs_care",
+   "why": "A decade containing one long expansion scores well and says nothing about behaviour in a downturn.",
+   "instead": "The spread of operating_margin across the ten years of reported history."
+  },
+  {
+   "field": "eps_growth_yoy",
+   "severity": "needs_care",
+   "why": "Buybacks routinely supply a large part of it, which hides flat or falling operating profit.",
+   "instead": "ttm_net_income growth and shares_diluted from the reported decade, read separately."
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "needs_care",
+   "why": "It does not reconcile to this panel's own balance sheet, and at Construction & Engineering names cash_and_investments includes customer money under billings in excess of costs, so netting it against debt flatters enterprise value.",
+   "instead": "Recompute from market_cap, total_debt, cash_and_investments and ttm_ebitda, against mid-cycle rather than trailing EBITDA."
+  },
+  {
+   "field": "gross_margin",
+   "severity": "needs_care",
+   "why": "Service, engineering and distribution costs sit in cost of sales at some industrial filers and in SG&A at others, so levels are not comparable across the sector.",
+   "instead": "gross_margin_trend within a single company over time, and operating_margin for cross-company comparison."
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "needs_care",
+   "why": "The denominator is cyclical, and at any name whose segment names include a financing segment the captive funding book inflates total_debt against operating EBITDA.",
+   "instead": "Leverage against mid-cycle EBITDA, with the segment note text checked for a financing segment before any peer comparison."
+  }
+ ],
+ "Information Technology": [
+  {
+   "field": "benford_mad",
+   "severity": "useless",
+   "why": "It carries no signal about software revenue recognition, capitalised software or channel inventory, which are the actual accounting risks here.",
+   "instead": "accruals_ratio, plus capex against ttm_dep_amort and reported ocf against net_income."
+  },
+  {
+   "field": "insider_net_buy_90d",
+   "severity": "useless",
+   "why": "The same vesting-driven selling swamps the net figure, so it tracks compensation schedules rather than conviction.",
+   "instead": "insider_buyer_count_90d and insider_cluster_score."
+  },
+  {
+   "field": "insider_seller_count_90d",
+   "severity": "useless",
+   "why": "Pay in this sector is delivered in stock, so disposals run on scheduled plans and carry no view.",
+   "instead": "insider_buyer_count_90d and insider_cluster_score."
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "useless",
+   "why": "cash_and_investments routinely exceeds total_debt in software and fabless semiconductors, so ranking on it just sorts by cash pile.",
+   "instead": "total_debt against cash_and_investments read directly, and the field itself only for Technology Distributors, Electronic Manufacturing Services and leveraged software roll-ups."
+  },
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "equity is the residue of buybacks and acquisition goodwill, so a long-repurchasing software name shows equity near zero or negative and a semiconductor manufacturer's equity is mostly depreciated fab.",
+   "instead": "Nothing we have repairs it; use ev_revenue deflated by gross_margin, or EV against ttm_gross_profit."
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "useless",
+   "why": "Across most of software equity is small, negative or mostly goodwill, so the ratio measures buyback history rather than returns on capital.",
+   "instead": "operating_margin and gross_margin, and roe_ttm only in Electronic Components and Electronic Manufacturing Services."
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "misleading",
+   "why": "It marks semiconductors down for the cyclicality that defines the sub_industry, so a weak score describes the business model rather than diagnosing quality.",
+   "instead": "The decade of reported operating_income and revenue, judged against the cycle rather than against a smooth baseline."
+  },
+  {
+   "field": "eps_growth_yoy",
+   "severity": "misleading",
+   "why": "Buybacks shrink shares_diluted and a near-zero ttm_eps_diluted makes the percentage arbitrary, so the field moves on capital structure rather than on the business.",
+   "instead": "revenue_growth_yoy and fcf_growth_yoy."
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "misleading",
+   "why": "The panel value does not reconcile to its own market_cap, total_debt and cash_and_investments, and ttm_ebitda adds back ttm_dep_amort, which is the real product cost at a company capitalising software.",
+   "instead": "Recompute from market_cap, total_debt, cash_and_investments and ttm_ebitda, and read it alongside accruals_ratio and capex against ttm_dep_amort."
+  },
+  {
+   "field": "fcf_yield",
+   "severity": "misleading",
+   "why": "ttm_fcf is lifted by deferred revenue growth and carries no charge for the equity issued as pay, and it turns negative at an integrated semiconductor manufacturer mid-build while the business is healthy.",
+   "instead": "ttm_fcf less the dilution implied by shares_diluted growth over the reported decade, with capex read against ttm_dep_amort."
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "misleading",
+   "why": "Fab utilisation swings semiconductor operating_margin by design, so the field penalises an integrated manufacturer for the operating leverage that is its economics.",
+   "instead": "The decade range of operating_income over revenue, with the current operating_margin placed inside it; the field itself is informative in software."
+  },
+  {
+   "field": "pe",
+   "severity": "misleading",
+   "why": "In software pe is meaningless wherever ttm_eps_diluted is near zero or negative (and panel rows written before 2026-09-12 carry a positive pe against a negative ttm_eps_diluted), and in semiconductors pe is inverted, printing its lowest value on peak-cycle earnings.",
+   "instead": "A normalised earnings figure: mid-cycle operating margin from the decade of reported revenue and operating_income, applied to ttm_revenue."
+  },
+  {
+   "field": "beta_1y",
+   "severity": "needs_care",
+   "why": "It is arithmetically correct and predictively weak, around 0.13 R-squared on a large name, so a sizing rule built on it will not hold.",
+   "instead": "volatility_1y, which survives recomputation from the close series."
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "needs_care",
+   "why": "A multiple is not comparable across the three models, since 0.4x on an Electronic Manufacturing Services name and 11x on a Systems Software name reflect gross_margin rather than value.",
+   "instead": "ev_revenue divided by gross_margin, or market_cap plus total_debt less cash_and_investments against ttm_gross_profit."
+  }
+ ],
+ "Health Care": [
+  {
+   "field": "accruals_ratio",
+   "severity": "useless",
+   "why": "A developer with no revenue and few line items has almost no accruals to measure, so the ratio scores noise.",
+   "instead": "ttm_fcf against ttm_net_income directly"
+  },
+  {
+   "field": "benford_mad",
+   "severity": "useless",
+   "why": "A pre-revenue filer has too few reported figures for a digit-distribution test to carry statistical power.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "pe",
+   "severity": "useless",
+   "why": "It is present on only 153 of the 264 billion-dollar Health Care names while 118 of those 264 report ttm_eps_diluted at or below zero, and within Biotechnology the 31 of 99 surviving values sit at p90 108 because a milestone payment made one year profitable.",
+   "instead": "fcf_yield and ttm_fcf for commercial, payor and distribution names; for developers, nothing we have"
+  },
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "36 of 264 report negative equity, Health Care Distributors carry median price_book 20.22 because buybacks and negative working capital drove book equity toward zero, and a developer's book value is mostly cash.",
+   "instead": "market_cap less cash_and_investments for developers, fcf_yield with operating_margin for distributors"
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "useless",
+   "why": "Median roe_ttm for billion-dollar Biotechnology is -0.26, and the Health Care Distributors median of 1.04 reflects an equity denominator near zero rather than returns.",
+   "instead": "operating_margin and gross_margin, with ttm_operating_income against total_debt plus equity"
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "misleading",
+   "why": "It does not reconcile to the panel's own balance sheet at median relative error near 10%, 112 of 264 report negative ttm_ebitda giving a cohort p10 of -7.08, and expensed R&D sits inside EBITDA so cutting research makes the multiple look cheaper.",
+   "instead": "ev_revenue within sub_industry, plus operating_income from the EDGAR decade"
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "misleading",
+   "why": "Managed Health Care's median -0.78 reads as net cash while much of a plan's portfolio is statutory reserve locked at regulated subsidiaries, and for developers the field is negative only because ttm_ebitda is negative.",
+   "instead": "total_debt against cash_and_investments and ttm_fcf, recomputed by hand"
+  },
+  {
+   "field": "return_12_2",
+   "severity": "misleading",
+   "why": "Billion-dollar Biotechnology shows a p90 of 2.24, which records an approval or readout that has already resolved and says nothing about the next binary event.",
+   "instead": "volatility_1y, which prices the event still pending"
+  },
+  {
+   "field": "revenue_acceleration",
+   "severity": "misleading",
+   "why": "It compounds the same problem as revenue_growth_yoy on a milestone-driven revenue base, and it cannot see a patent cliff that has not started yet.",
+   "instead": "gross_margin_trend, which turns first"
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "misleading",
+   "why": "38 of the 264 billion-dollar Health Care names have no revenue at all, and for the rest of the developer cohort the base is collaboration and milestone payments, so a 300% reading is one contract.",
+   "instead": "the EDGAR decade of reported revenue, read against ttm_revenue level"
+  },
+  {
+   "field": "analyst_count",
+   "severity": "needs_care",
+   "why": "Biotechnology's median analyst_count of 12 matches the sector median, and covering analysts cannot see unblinded trial data either, so coverage is not an information proxy.",
+   "instead": "insider_cluster_score and insider_net_buy_90d"
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "needs_care",
+   "why": "Sub-industry medians run 0.28 for Health Care Distributors, 0.41 for Managed Health Care, 3.42 for Pharmaceuticals and 11.35 for Biotechnology, so any cross-sector percentile is meaningless.",
+   "instead": "ev_revenue compared only inside the same sub_industry"
+  },
+  {
+   "field": "gross_margin",
+   "severity": "needs_care",
+   "why": "Median gross_margin for billion-dollar Biotechnology is 0.00 because there is no product, and Health Care Distributors run 0.04 by design, so the level alone misranks both.",
+   "instead": "ttm_revenue first, then gross_margin_trend within sub_industry"
+  },
+  {
+   "field": "high52w_proximity",
+   "severity": "needs_care",
+   "why": "A developer sitting near its 52-week high weeks before a phase 3 result carries as much downside as upside, so proximity is not a measure of strength here.",
+   "instead": "volatility_1y with earnings_date"
+  },
+  {
+   "field": "inst_ownership",
+   "severity": "needs_care",
+   "why": "Values exceed 1.0 in this cohort, reaching p90 of 1.15, so the field is not a clean float percentage.",
+   "instead": "inst_ownership read ordinally, with insider_ownership"
+  },
+  {
+   "field": "neglect_score",
+   "severity": "needs_care",
+   "why": "It infers neglect from coverage and news flow, which in this sector tracks the binary-event calendar rather than how well the business is understood.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "rel_strength_sp500",
+   "severity": "needs_care",
+   "why": "Relative strength in this sector is the record of company-specific regulatory outcomes rather than a factor exposure that persists.",
+   "instead": "volatility_1y and the EDGAR decade of shares_diluted"
+  }
+ ],
+ "Financials": [
+  {
+   "field": "ev_ebitda",
+   "severity": "useless",
+   "why": "Enterprise value is undefined for a depository because total_debt is funding raw material, and for insurers ev_ebitda fills on 54 of 62 gated names while ttm_ebitda fills on only 18, so the ratio has no auditable denominator and carries median 9.8% and p90 58% panel-wide error.",
+   "instead": "price_book read against roe_ttm"
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "useless",
+   "why": "Rebuilt from the panel's own market_cap, total_debt, cash_and_investments and ttm_revenue it misses by a median 13% across gated Financials and collapses for banks, LKFN reporting 5.02 against 437.7 rebuilt.",
+   "instead": "price_book and pe"
+  },
+  {
+   "field": "fcf_yield",
+   "severity": "useless",
+   "why": "For lenders operating cash flow contains loan origination, trading inventory and derivative collateral, so JPM's runs -79.9B in 2020, +107.1B in 2022 and -147.8B in 2025 while net income rose steadily, and COF's 0.208 is partly the non-cash provision addback that grows as credit worsens.",
+   "instead": "roe_ttm plus eps_growth_yoy; for fee businesses and payment networks fcf_yield is legitimate"
+  },
+  {
+   "field": "gross_margin",
+   "severity": "useless",
+   "why": "52 of 63 gated bank names carry exactly 0.0 and the eleven exceptions scatter from -0.484 to 1.0 purely on whether the filer tagged a cost of revenue.",
+   "instead": "operating_margin for fee businesses only, and nothing for lenders"
+  },
+  {
+   "field": "gross_margin_trend",
+   "severity": "useless",
+   "why": "It fills for 1 of 63 gated bank names, so it is absent rather than informative, and lending has no cost of goods sold to trend.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "useless",
+   "why": "It excludes policy reserves and deposits, which are the actual obligations, so AIG prints -0.1679 and reads as net cash, and it fills for 1 of 63 gated bank names.",
+   "instead": "nothing we have; regulatory capital and reserve adequacy are absent"
+  },
+  {
+   "field": "ttm_ebitda",
+   "severity": "useless",
+   "why": "It fills for 3 of 63 gated banks and 18 of 62 insurers, and EBITDA has no meaning where interest is revenue rather than a financing cost.",
+   "instead": "ttm_net_income and ttm_eps_diluted"
+  },
+  {
+   "field": "ttm_gross_profit",
+   "severity": "useless",
+   "why": "Banks and insurers do not report a gross profit line, so the field is empty or arbitrary across the sector.",
+   "instead": "ttm_net_income"
+  },
+  {
+   "field": "accruals_ratio",
+   "severity": "misleading",
+   "why": "It is net income less operating cash flow over assets, so JPM's 0.0476 is just (65.0B plus 147.8B) over 4,424.9B of assets, grading earnings quality on trading and lending flow.",
+   "instead": "earnings_consistency read skeptically, plus the reported net_income series"
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "misleading",
+   "why": "Provisioning and reserve estimates smooth reported earnings by construction, and the sector median of 0.770 against 0.642 universe-wide reflects accounting discretion as much as stability.",
+   "instead": "the same field read only in its low range, where COF 0.3245 and AFL 0.5795 are informative"
+  },
+  {
+   "field": "revenue_acceleration",
+   "severity": "misleading",
+   "why": "It is built on the same suspect revenue base as revenue_growth_yoy, so a stale or mis-tagged ttm_revenue produces a confident acceleration reading with no content.",
+   "instead": "eps_diluted growth from the EDGAR reported series"
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "misleading",
+   "why": "Revenue for a bank is whichever XBRL tag got selected, and JPM's ttm_revenue of 95,112,000,000 is exactly its FY2014 reported revenue and 48% below FY2025's 182,447,000,000 while its net income and EPS fields are current.",
+   "instead": "eps_growth_yoy, after reconciling ttm_revenue to the EDGAR reported annual series"
+  },
+  {
+   "field": "beta_1y",
+   "severity": "needs_care",
+   "why": "Insurers routinely print negative one-year betas (PGR -0.4965, ALL -0.3599, CB -0.3408) that reflect a single year of low correlation and have weak predictive value.",
+   "instead": "volatility_1y, which reconciles to the close series"
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "needs_care",
+   "why": "It fills for 2 of 63 gated banks and 17 of 62 insurers, so its absence will be read as a missing quality dimension rather than an inapplicable one.",
+   "instead": "earnings_consistency, discounted for smoothing"
+  },
+  {
+   "field": "operating_margin",
+   "severity": "needs_care",
+   "why": "It divides a pre-tax line by the same revenue number that is unreliable for banks, so the level is only as good as ttm_revenue.",
+   "instead": "roe_ttm"
+  },
+  {
+   "field": "price_book",
+   "severity": "needs_care",
+   "why": "It is market_cap over equity, and market_cap depends on shares_outstanding, which is missing or zero on 1,488 rows and understated for multi-class registrants, so CME prints 0.6903 and MA 12.39 on wrong share counts.",
+   "instead": "cross-check with pe times roe_ttm, which departs from price_book by 4.2x on CME and 33.6x on IBKR when the share count is wrong"
+  }
+ ],
+ "Consumer Discretionary": [
+  {
+   "field": "benford_mad",
+   "severity": "useless",
+   "why": "It is absent at the top level for all 206 sector names in the current panel, with the value nested under the benford object instead, and it is a filing-integrity check unrelated to this sector's cycle in any case.",
+   "instead": "nothing we have."
+  },
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "Null for 24 of the 206 sector names above $1B because buybacks drove equity negative (MCD, YUM, SBUX, AZO, ORLY, HLT, MAR, BKNG), and where equity is positive but small it reads as a buyback tally rather than a valuation (HD 18.64, TJX 13.02).",
+   "instead": "fcf_yield and a recomputed ev_ebitda; price_book is valid only for Homebuilding (LEN 0.8955, DHI 1.6314), where price to tangible book against ROE is the actual convention. Repair elsewhere would need tangible book plus capitalized lease assets plus cumulative buyback, none of which the panel carries."
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "useless",
+   "why": "Same negative-equity defect: null for 27 of 206 sector names, and where it survives it measures capital structure history (HD 1.0433, TJX 0.6217, DRI 0.5341) rather than returns on capital.",
+   "instead": "operating_margin read against the same company's op_margin_history, plus fcf_yield."
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "misleading",
+   "why": "1/(1 + coefficient of variation) of the last eight raw quarterly EPS values, unadjusted for seasonality, so a holiday-concentrated retailer or a ski resort scores as erratic while a smoother but structurally worse business scores as stable.",
+   "instead": "The decade of EDGAR annual eps_diluted history, or op_margin_history differenced year over year."
+  },
+  {
+   "field": "gross_margin",
+   "severity": "misleading",
+   "why": "Filers choose whether occupancy, buying and distribution sit in cost of sales or in SG&A, so TJX prints 0.1219 against ROST at 0.3338 for two similar off-price retailers, and five sector names print a gross_margin below their own operating_margin, which is impossible (AMZN 0.0074 against 0.1208, DHI 0.0158 against 0.1299, LEN 0.1450 against 0.1643, plus TOL and VFS).",
+   "instead": "gross_margin_trend, which is a same-company year-over-year comparison, where it is populated."
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "misleading",
+   "why": "Against the panel's own total_debt and cash_and_investments over ttm_ebitda it shows a median relative error of 53.6 percent on the 142 sector names where recomputation is possible, and the sign flips (ROST prints 0.1233 against a balance sheet showing net cash); 41 of 206 have no total_debt at all, and total_debt excludes operating lease liabilities, the largest fixed obligation these retailers and restaurants carry.",
+   "instead": "Recompute from total_debt and cash_and_investments over ttm_ebitda, treat the result as a floor because leases are missing, and fall back to fcf_yield and ttm_fcf where total_debt is absent (CMG, GM, DHI, LULU)."
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "misleading",
+   "why": "It is the standard deviation of eight raw quarterly operating margins with no seasonal adjustment, so in a sector with one or two peak quarters it ranks seasonality: across the 156 sector names with twelve quarters of history it overstates instability against a year-over-year differenced measure on 77, worst at MTN (0.5705 raw against 0.0587 differenced), FUN, PRKS and MAT.",
+   "instead": "op_margin_history differenced year over year, and the level compared to the decade of EDGAR annual operating margins."
+  },
+  {
+   "field": "beta_1y",
+   "severity": "needs_care",
+   "why": "Sector median is 0.94, which understates the cyclicality that defines these businesses, and beta_1y has already been measured as predictively weak in this dataset.",
+   "instead": "volatility_1y and max_drawdown_1y, which reconcile against the close series."
+  },
+  {
+   "field": "eps_growth_yoy",
+   "severity": "needs_care",
+   "why": "Same TTM-against-prior-TTM construction, and operating leverage amplifies it, so a smoothed four-quarter EPS change here can read strongly positive a quarter after the underlying business has turned.",
+   "instead": "revenue_acceleration plus gross_margin_trend, with fcf_growth_yoy as the cash cross-check."
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "needs_care",
+   "why": "It does not reconcile to the panel's own balance sheet anywhere in this universe, and for Automobile Manufacturers with captive finance arms even a recomputation fails, since F prints total_debt of $291 million against a finance book in the hundreds of billions.",
+   "instead": "Recompute EV from market_cap, total_debt and cash_and_investments over ttm_ebitda, and for F and GM use no EV multiple at all, since the sum-of-parts split the convention requires cannot be built from this data."
+  },
+  {
+   "field": "pe",
+   "severity": "needs_care",
+   "why": "It is null for 23 of 206 sector names and the nulls cluster at cycle troughs, rows written before 2026-09-12 carry a positive pe against negative EPS (PVH 21.96 with ttm_eps_diluted -3.56), and where price and ttm_eps_diluted sit on different per-share bases the ratio is nonsense (BKNG prints 1.0326 on price 173.43 against ttm_eps_diluted 167.96).",
+   "instead": "Check ttm_eps_diluted is positive and consistent with price before using pe; otherwise use fcf_yield and a recomputed ev_ebitda."
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "needs_care",
+   "why": "It is TTM revenue against prior TTM revenue, a four-quarter average that lags an inflection by up to a year in a sector that turns in one quarter.",
+   "instead": "revenue_acceleration, which is quarterly and seasonally clean, with revenue_growth_yoy used only as confirmation."
+  },
+  {
+   "field": "sub_industry",
+   "severity": "needs_care",
+   "why": "It cannot separate royalty collectors from capacity operators (MCD and CMG both sit in Restaurants; HLT, MAR, RCL and CCL all sit in Hotels, Resorts & Cruise Lines), it mixes two vocabularies (\"Auto Parts\" beside \"Automotive Parts & Equipment\", \"Gambling\" beside \"Casinos & Gaming\"), and it carries non-cyclicals such as SCI, ADT and BFAM under Specialized Consumer Services.",
+   "instead": "Item 1 of the 10-K and the segment names, and never an exact-string filter on sub_industry."
+  }
+ ],
+ "Utilities": [
+  {
+   "field": "ev_revenue",
+   "severity": "useless",
+   "why": "The zero-margin fuel and purchased power share of revenue differs by more than two to one between a wires-only delivery utility, a vertically integrated electric and a gas distributor.",
+   "instead": "price_book read against roe_ttm"
+  },
+  {
+   "field": "fcf_growth_yoy",
+   "severity": "useless",
+   "why": "It swings on deferred fuel recovery timing and on the lumpiness of the capital program, both of which reverse, and neither of which is earnings.",
+   "instead": "the direction of EDGAR annual capex against ttm_dep_amort across five years"
+  },
+  {
+   "field": "fcf_yield",
+   "severity": "useless",
+   "why": "Regulated utilities run negative free cash flow by design, so an attractive fcf_yield identifies a company spending less than its own depreciation and shrinking its future rate base.",
+   "instead": "EDGAR annual capex divided by ttm_dep_amort; above 1.5x is a compounding rate base"
+  },
+  {
+   "field": "insider_cluster_score",
+   "severity": "useless",
+   "why": "Utility insider holdings are small and disposals are mostly scheduled, so insider_net_buy_90d and insider_cluster_score sit near zero regardless of prospects.",
+   "instead": ""
+  },
+  {
+   "field": "neglect_score",
+   "severity": "useless",
+   "why": "analyst_count and inst_ownership are uniformly high across Utilities, so the score rarely separates names and usually just surfaces a small Water Utilities company.",
+   "instead": ""
+  },
+  {
+   "field": "accruals_ratio",
+   "severity": "misleading",
+   "why": "Regulatory assets and liabilities, deferred fuel, AFUDC equity, storm deferrals and deferred income taxes are large legitimate accruals the commission's accounting requires, so a high reading describes the regulatory model.",
+   "instead": "ocf against net_income in the decade history, read for deferred fuel build and unwind"
+  },
+  {
+   "field": "gross_margin_trend",
+   "severity": "misleading",
+   "why": "Fuel pass-through inflates the revenue denominator, so a gas distributor shows margin compression in a high fuel year with no economic change.",
+   "instead": "operating_income across the EDGAR decade history"
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "misleading",
+   "why": "Inverted in the Quality sleeve, it penalizes every healthy regulated utility, where five to six times is the commission-authorized design, and it is further inflated by non-recourse securitization bonds sitting in total_debt.",
+   "instead": "equity as a share of equity plus total_debt, read as the authorized capital structure rather than as risk"
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "misleading",
+   "why": "Fuel riders make reported operating margin move every year at a utility whose earned return is steady.",
+   "instead": "earnings_consistency, and the decade net_income over equity series"
+  },
+  {
+   "field": "operating_margin",
+   "severity": "misleading",
+   "why": "Same denominator distortion as gross_margin_trend: it falls when fuel costs rise and recovers when they fall, independent of the earned return.",
+   "instead": "roe_ttm and the decade net_income over equity series"
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "misleading",
+   "why": "Fuel and purchased power pass through revenue at zero margin, so revenue can move fifteen percent on gas costs with no change in earnings.",
+   "instead": ""
+  },
+  {
+   "field": "ttm_fcf",
+   "severity": "misleading",
+   "why": "A negative figure is the normal state of a healthy utility mid-program, and it also drops on a deferred fuel build that reverses within two years.",
+   "instead": "ocf and capex separately in the quarterly history"
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "needs_care",
+   "why": "Utility ttm_ebitda includes AFUDC, a non-cash accrued return on construction in progress, and the panel's own ev_ebitda does not reconcile to its balance sheet.",
+   "instead": "EV recomputed from market_cap, total_debt and cash_and_investments over ttm_ebitda"
+  },
+  {
+   "field": "pe",
+   "severity": "needs_care",
+   "why": "ttm_eps_diluted is GAAP, while utilities guide and are valued on ongoing EPS that excludes hedge mark to market, storm charges and impairments.",
+   "instead": "pe cross-checked against the decade eps_diluted series to spot the charge year"
+  },
+  {
+   "field": "rel_strength_sp500",
+   "severity": "needs_care",
+   "why": "Relative strength against the index in this sector is a rate observation that cannot be decomposed with the data on hand.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "return_12_2",
+   "severity": "needs_care",
+   "why": "Utility twelve-month returns here mostly reflect the move in long-term rates, and the only rate series available is a short-dated risk-free proxy.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "needs_care",
+   "why": "For Independent Power Producers & Energy Traders and Renewable Electricity, noncontrolling interests and HLBV tax-equity allocations make consolidated ttm_net_income and equity non-comparable to a regulated peer.",
+   "instead": "recomputed EV/EBITDA on mid-cycle ttm_ebitda for those two sub_industry values"
+  }
+ ],
+ "Materials": [
+  {
+   "field": "benford_mad",
+   "severity": "useless",
+   "why": "It is unpopulated on all 5,354 panel rows, so a blank is an absent test rather than a clean one.",
+   "instead": "nothing we have"
+  },
+  {
+   "field": "beta_1y",
+   "severity": "useless",
+   "why": "It is predictively weak in general and produces readings like CF at -0.96, which describes a commodity moving against the index rather than a risk characteristic.",
+   "instead": "volatility_1y, which reconciles to the close series to within 0.5%."
+  },
+  {
+   "field": "earnings_date",
+   "severity": "useless",
+   "why": "It is empty on every Materials name above $1B in the current panel, so event timing cannot come from it.",
+   "instead": "The EDGAR filing history, which dates the last 10-Q and any 8-K EX-99.1."
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "useless",
+   "why": "Revenue is a commodity price times a volume the company did not set, so the same asset base prints a different ev_revenue in every year of the cycle and the Gold median of 5.76 against Steel at 1.41 is commodity margin structure, not valuation.",
+   "instead": "A recomputed EV over normalized EBITDA, or price_book, compared only inside one sub_industry."
+  },
+  {
+   "field": "eps_growth_yoy",
+   "severity": "misleading",
+   "why": "It tracks the spread between the output commodity and the input cost rather than anything management did, so a large positive reading is evidence of a peak rather than of quality.",
+   "instead": "Reported annual eps_diluted and operating_income across the EDGAR decade, read as position within a range."
+  },
+  {
+   "field": "ev_ebitda",
+   "severity": "misleading",
+   "why": "The panel value does not reconcile to its own balance sheet (median relative error near 10%, p90 58%), and EBITDA excludes the sustaining capex these businesses cannot skip, with sector median ttm_fcf over ttm_ebitda at 0.38.",
+   "instead": "Recompute as market_cap plus total_debt minus cash_and_investments over ttm_ebitda, building the denominator from ttm_operating_income plus ttm_dep_amort where ttm_ebitda is missing, then sanity-check on fcf_yield."
+  },
+  {
+   "field": "gross_margin_trend",
+   "severity": "misleading",
+   "why": "It measures spread widening, which is the commodity, and it is only 47% filled across Materials names above $1B.",
+   "instead": "gross_margin and operating_margin levels compared against the decade of reported gross_profit, operating_income and revenue."
+  },
+  {
+   "field": "pe",
+   "severity": "misleading",
+   "why": "At the cycle peak it prints low against earnings that will not repeat (CF at 10.26 with eps_growth_yoy +76.4%), and at the trough it is absent entirely on 24 of the 109 Materials names above $1B, so any ranking on it screens out the entry point.",
+   "instead": "A normalized earnings number: decade-median operating margin from EDGAR annual history applied to ttm_revenue, taxed, divided into price; cross-check with fcf_yield, and always read pe against ttm_eps_diluted because rows before 2026-09-12 show a positive pe on negative EPS."
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "misleading",
+   "why": "Revenue moves with commodity price, so growth here is a cycle reading and reverses without any change in the business.",
+   "instead": "Ten years of reported revenue from EDGAR, plus operating_margin against its own history."
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "misleading",
+   "why": "Peak-cycle readings like CF at 46.7% are returns on earnings that do not repeat, and the denominator is also distorted where equity has been impaired.",
+   "instead": "Net income and equity across the reported decade, or a normalized margin applied to ttm_revenue."
+  },
+  {
+   "field": "accruals_ratio",
+   "severity": "needs_care",
+   "why": "Inventory write-downs at commodity price lows and their reversals on the way back move this without any earnings management.",
+   "instead": "ttm_fcf against ttm_net_income, and the reported ocf series."
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "needs_care",
+   "why": "Cyclical earnings make a low reading the business model rather than a defect, so using it as a quality gate simply excludes the sector (median 0.555, 75% filled).",
+   "instead": "Read it as cycle amplitude alongside net_debt_ebitda, which decides whether the amplitude is survivable."
+  },
+  {
+   "field": "fcf_growth_yoy",
+   "severity": "needs_care",
+   "why": "It is 62% filled here and swings violently because capex is lumpy, with sector values ranging from -3.91 to +4.02.",
+   "instead": "fcf_yield in level terms, and ocf minus capex across the reported decade."
+  },
+  {
+   "field": "gross_margin",
+   "severity": "needs_care",
+   "why": "It is 100% filled but reads 0.00 for pre-revenue explorers with no revenue and 0.9687 for royalty companies with no mining cost, and ttm_gross_profit is only 60% filled because miners report the line inconsistently.",
+   "instead": "operating_margin, and the sub_industry plus ttm_revenue to identify which business model is being measured."
+  },
+  {
+   "field": "insider_net_buy_90d",
+   "severity": "needs_care",
+   "why": "The insider fields, including insider_cluster_score and insider_buyer_count_90d, are filled on only 29% of Materials names above $1B, so a zero is usually missing data.",
+   "instead": "shares_outstanding and the reported shares_diluted history, which record what management actually did with cash."
+  },
+  {
+   "field": "op_margin_stability",
+   "severity": "needs_care",
+   "why": "It is only 59% filled in this sector and structurally penalizes price-takers whose margin is supposed to move with the spread.",
+   "instead": "The ten-year reported operating_income margin range, read as peak, median and trough."
+  },
+  {
+   "field": "price_book",
+   "severity": "needs_care",
+   "why": "It is the best available asset proxy at 96% fill, but book is an accounting reset after impairments, is missing on 25% of the sector above $1B, and is capitalized exploration spend at explorers (CNL 11.98, NG 8.44).",
+   "instead": "price_book for producers with intact equity, checked against total_debt, cash_and_investments and equity directly; nothing we have for explorers."
+  },
+  {
+   "field": "revenue_acceleration",
+   "severity": "needs_care",
+   "why": "Acceleration in this sector is the second derivative of a commodity price, so it flips sign with the spread and says nothing about the franchise.",
+   "instead": "Capex direction in the reported decade, which is what actually sets the next turn."
+  }
+ ],
+ "Real Estate": [
+  {
+   "field": "eps_growth_yoy",
+   "severity": "useless",
+   "why": "a single property disposition can swing it by hundreds of percent with no change in occupancy, rent or portfolio.",
+   "instead": "growth in ocf divided by shares_diluted from the decade of reported history"
+  },
+  {
+   "field": "pe",
+   "severity": "useless",
+   "why": "ttm_eps_diluted is crushed by building depreciation and inflated by gains on sale, so the multiple tracks portfolio vintage and disposition timing rather than cash earning power.",
+   "instead": "market_cap divided by (ttm_net_income + ttm_dep_amort) as a P/FFO proxy, compared inside sub_industry"
+  },
+  {
+   "field": "price_book",
+   "severity": "useless",
+   "why": "equity is historical cost less accumulated depreciation, so an old portfolio carries near-zero book against buildings worth billions and a high price_book means the assets are old.",
+   "instead": "nothing we have for NAV; the reciprocal of ev_ebitda is the only cap-rate-like substitute"
+  },
+  {
+   "field": "roe_ttm",
+   "severity": "useless",
+   "why": "depreciation suppresses ttm_net_income while accumulated depreciation shrinks equity every year, so the oldest and least-reinvested portfolios score highest.",
+   "instead": "op_margin_stability and net_debt_ebitda"
+  },
+  {
+   "field": "accruals_ratio",
+   "severity": "misleading",
+   "why": "depreciation puts net income far below ocf for every REIT, producing large negative accruals that the inverted scoring rewards uniformly, so it separates no names in this sector.",
+   "instead": "nothing we have; straight-line rent is not separable in the panel"
+  },
+  {
+   "field": "earnings_consistency",
+   "severity": "misleading",
+   "why": "it scores the lumpiness of ttm_net_income, which gains on sale make erratic even for a fully leased net-lease portfolio with fixed escalators.",
+   "instead": "op_margin_stability plus the decade revenue history"
+  },
+  {
+   "field": "gross_margin_trend",
+   "severity": "misleading",
+   "why": "classification of property operating expense differs across REITs, so gross margin levels reflect lease structure rather than efficiency: triple-net near 95%, hotel owners near 30%.",
+   "instead": "operating_margin and op_margin_stability, read as a trend within one name"
+  },
+  {
+   "field": "ev_revenue",
+   "severity": "needs_care",
+   "why": "NOI margin varies enormously by lease type, so the multiple is comparable inside a property type and meaningless across Hotel & Resort REITs versus net-lease landlords.",
+   "instead": "ev_revenue and ev_ebitda compared only within sub_industry"
+  },
+  {
+   "field": "fcf_growth_yoy",
+   "severity": "needs_care",
+   "why": "it inherits the capex definition problem and adds disposition and development timing, so year-over-year moves rarely track cash earning power.",
+   "instead": "growth in ocf divided by shares_diluted from the decade history"
+  },
+  {
+   "field": "fcf_yield",
+   "severity": "needs_care",
+   "why": "its meaning flips with capex definition: maintenance-only capex makes ttm_fcf a good AFFO proxy, while development spend makes a healthy builder look cash-destroying.",
+   "instead": "the capex to revenue path across the decade history, read before trusting ttm_fcf"
+  },
+  {
+   "field": "insider_cluster_score",
+   "severity": "needs_care",
+   "why": "UPREIT insiders hold operating partnership units, so Form 4 activity mixes unit conversions and plan transactions into insider_net_buy_90d and the cluster score.",
+   "instead": "insider_buyer_count_90d read with skepticism, or nothing we have"
+  },
+  {
+   "field": "net_debt_ebitda",
+   "severity": "needs_care",
+   "why": "five to seven times is ordinary for an equity REIT and would read as distress in any other sector, and the level alone says nothing about refinancing risk.",
+   "instead": "the level against the sector cohort only, with total_debt growth versus ttm_ebitda growth as the trend check"
+  },
+  {
+   "field": "return_12_2",
+   "severity": "needs_care",
+   "why": "it is a price return for an asset class legally required to distribute most of its income, so it understates total return by several points a year, and it mostly registers the direction of long rates rather than company performance.",
+   "instead": "return_12_2 and rel_strength_sp500 compared only inside the sector cohort, read as a rate signal"
+  },
+  {
+   "field": "revenue_growth_yoy",
+   "severity": "needs_care",
+   "why": "acquisitions raise revenue and share count together, so aggregate growth can be entirely purchased with issued equity.",
+   "instead": "revenue growth read alongside shares_diluted and assets from the decade history"
+  }
+ ]
+}
