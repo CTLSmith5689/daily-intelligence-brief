@@ -8988,7 +8988,13 @@ def derive_ratios_from_fundamentals(stocks):
 
         if _finite(rev) and rev > 0:
             gp = s.get("ttm_gross_profit")
-            if _finite(gp):
+            # An exact zero is a missing tag, not a measurement. Banks and
+            # insurers do not report a gross profit line at all, so the sum
+            # comes out 0.0 and the ratio prints as a 0% gross margin, which
+            # reads as a business selling below cost. 127 of 164 gated bank
+            # names carried exactly 0.0. Declining to compute it is not
+            # withholding it: the field is simply absent for these filers.
+            if _finite(gp) and gp != 0:
                 put(s, "gross_margin", gp / rev, -2, 1)
             oi = s.get("ttm_operating_income")
             if _finite(oi):
