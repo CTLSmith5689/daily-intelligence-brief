@@ -5,6 +5,14 @@
 
 # Health Care
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Health Care holds four economic models. The first is the therapeutics developer: sub_industry Biotechnology, with small names in Medical Devices and Drug Manufacturers - Specialty & Generic. These are option portfolios financed by issuing stock: of 264 Health Care names above $1B market_cap, 38 report ttm_revenue at or below zero, and median gross_margin across the 99 billion-dollar Biotechnology names is 0.00. The asset is a clinical pipeline that never reaches the balance sheet.

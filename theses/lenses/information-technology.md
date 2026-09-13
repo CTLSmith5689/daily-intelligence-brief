@@ -5,6 +5,14 @@
 
 # Information Technology
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Software and services (Application Software, Systems Software, Internet Services & Infrastructure, IT Consulting & Other Services, Transaction & Payment Processing Services) sells code already written to customers already installed, so the next seat costs nothing. gross_margin runs 70 to 85 percent on subscription and licence revenue and toward 30 percent where the revenue is billed hours or passed-through payment volume. Acquisition cost is expensed up front against five years of payments, so operating_income understates a growing company. Cash precedes recognised revenue, so ocf sits above net_income.

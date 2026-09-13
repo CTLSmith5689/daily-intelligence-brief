@@ -5,6 +5,14 @@
 
 # Real Estate
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Most of this sector is equity REITs: long-lived buildings, financed roughly half with debt, collecting contractual rent, exempt from corporate tax provided they distribute at least 90% of taxable income. Growth cannot come from retained earnings, so it requires issuing equity or debt, and the spread between that cost of capital and acquisition yields is the engine. And GAAP depreciates buildings over 27.5 to 40 years while they often gain value, so ttm_net_income and ttm_eps_diluted run structurally low, then spike whenever a property sells at a gain.

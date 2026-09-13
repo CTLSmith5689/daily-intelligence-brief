@@ -5,6 +5,14 @@
 
 # Industrials
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Industrials holds five unrelated economic models, so `sub_industry` gates everything below.

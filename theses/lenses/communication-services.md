@@ -5,6 +5,14 @@
 
 # Communication Services
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Communication Services holds four unrelated economic models under one GICS label, and the scoring cohort is the sector, so split it first. Model one is the attention auction: `sub_industry` Interactive Media & Services. Revenue is impressions times a clearing price set in an auction the company runs itself. Marginal cost per impression is near zero, so `gross_margin` runs high and operating leverage is violent both ways. Capex at the largest names went from trivial to a large share of operating cash flow, pulling `ttm_fcf` away from `ttm_net_income`.

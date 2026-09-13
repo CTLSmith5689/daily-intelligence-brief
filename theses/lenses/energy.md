@@ -5,6 +5,14 @@
 
 # Energy
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Upstream producers sell an undifferentiated barrel or mcf at a price set elsewhere: revenue is volume times realized price, and that price is exogenous. Cash costs are near fixed short term while depletion is a large non-cash charge, so operating leverage is extreme in both directions and the same company prints a record year and a loss two years apart. Reserves deplete, so output falls without continuous spending, which makes capex both maintenance and growth. The `sub_industry` values here are `Oil & Gas Exploration & Production` and `Oil & Gas E&P`, one cohort under two labels, plus `Oil & Gas Integrated` and `Integrated Oil & Gas`, which add downstream as a partial hedge.

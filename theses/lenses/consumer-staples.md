@@ -5,6 +5,14 @@
 
 # Consumer Staples
 
+> **Read this with suspicion.** The structured field claims that accompany this
+> lens were checked against the panel by a second pass told to refute them. It
+> refuted 31 of 158 outright and called 73 more overstated: a 34 percent survival
+> rate. The refutations were specific, including wrong medians, backwards sign
+> logic and a field key that does not exist. The prose below was written by the
+> same pass and has **not** been checked that way. Treat it as a well-informed
+> starting point, not as fact, and verify anything a thesis leans on.
+
 ## What these businesses actually do
 
 Consumer staples sell cheap, frequently repurchased items through retail channels they do not own. Unit demand tracks population and category penetration, zero to two percent a year in developed markets. Everything above that is price and mix. The durable asset is shelf position and purchase habit, which let a branded manufacturer price above the retailer's own-label version of a near-identical product. That premium is the business. The retailer attacks it continuously, since own label earns the retailer more.
