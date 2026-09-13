@@ -10528,6 +10528,103 @@ def compute_benford(facts):
     return result
 
 
+# A TTM is assembled from quarterly facts. When the preferred concept is filed
+# only once a year, it yields no quarterly series at all, so it never becomes a
+# candidate and a narrower concept wins by default.
+#
+# JPM is the clean example. It tags `Revenues` once a year and nothing else:
+# FY2025 is 182,447,000,000. There are zero quarterly `Revenues` facts, so the
+# selector fell through to RevenueFromContractWithCustomerExcludingAssessedTax,
+# which for a bank is fee revenue only, and published a ttm_revenue of
+# 95,112,000,000. Every field built on revenue inherited it, and the screen
+# ranks on several of them.
+#
+# The guard compares the assembled TTM against the most recent annual figure of
+# the highest-ranked concept that files one. A TTM materially below it means the
+# TTM is measuring a narrower thing, and the annual figure is the better answer
+# even though it is staler.
+_ANNUAL_MIN_DAYS, _ANNUAL_MAX_DAYS = 340, 400
+# Below this share of the annual figure, the TTM is a different concept rather
+# than a business that shrank. A real contraction of more than 30 percent in a
+# year happens, so the substitution is logged and the threshold kept loose.
+_TTM_ANNUAL_FLOOR = 0.70
+
+
+def _latest_annual_value(facts, concept_keys):
+    """(value, end, concept) for the highest-ranked concept filed annually."""
+    from datetime import date as _date
+    pools = (facts.get("us-gaap", {}), facts.get("dei", {}))
+    for concept in concept_keys:
+        node = pools[0].get(concept) or pools[1].get(concept)
+        if not node:
+            continue
+        best = None
+        for rec in node.get("units", {}).get("USD", []):
+            start, end, val = rec.get("start"), rec.get("end"), rec.get("val")
+            if not start or not end or val is None:
+                continue
+            try:
+                days = (_date.fromisoformat(end) - _date.fromisoformat(start)).days
+            except Exception:
+                continue
+            if not _ANNUAL_MIN_DAYS <= days <= _ANNUAL_MAX_DAYS:
+                continue
+            if best is None or end > best[1]:
+                best = (val, end, concept)
+        if best:
+            return best
+    return (None, None, None)
+
+
+# Banks below a certain size do not tag `Revenues` at all. Their income
+# statement is interest income plus noninterest income, under this taxonomy, and
+# neither half alone is revenue. EWBC files 4,293,396,000 and 379,227,000 for
+# 2025 and no Revenues fact; the panel published 0.1B and an implied net margin
+# of 2,372 percent. Both legs are required, which is what keeps this from
+# matching a non-bank.
+_BANK_REVENUE_LEGS = ("InterestAndDividendIncomeOperating", "NoninterestIncome")
+# Below this share of the two legs combined, the standard concept caught a
+# fragment rather than revenue. JPM sits well above it and keeps its own
+# Revenues tag; EWBC's fee line is about 1 percent of its total and does not.
+_BANK_FRAGMENT_SHARE = 0.40
+
+
+def _bank_annual_revenue(facts):
+    """(value, end) for a bank's total revenue, or (None, None)."""
+    legs, end = [], None
+    for concept in _BANK_REVENUE_LEGS:
+        val, leg_end, _c = _latest_annual_value(facts, [concept])
+        if val is None:
+            return (None, None)
+        legs.append(val)
+        if end is None or (leg_end or "") > end:
+            end = leg_end
+    return (sum(legs), end)
+
+
+def _ttm_with_annual_guard(facts, concept_keys, ttm_value, label, ticker=""):
+    """Replace a TTM that is measuring a narrower concept than it claims."""
+    if not facts:
+        return ttm_value, None
+    annual, end, concept = _latest_annual_value(facts, concept_keys)
+    if label == "revenue":
+        # A bank can file both: JPM tags Revenues at 182.4B net of interest
+        # expense, and the two legs gross up higher than that, so the composite
+        # must not simply win. It is used only when the standard concept is
+        # absent, or caught so small a fragment that it cannot be revenue.
+        bank, bank_end = _bank_annual_revenue(facts)
+        if bank and bank > 0 and (annual is None or annual < bank * _BANK_FRAGMENT_SHARE):
+            annual, end, concept = bank, bank_end, " + ".join(_BANK_REVENUE_LEGS)
+    if annual is None or annual <= 0:
+        return ttm_value, None
+    if ttm_value is not None and ttm_value >= annual * _TTM_ANNUAL_FLOOR:
+        return ttm_value, None
+    had = "no quarterly facts" if ttm_value is None else f"{ttm_value:,.0f}"
+    print(f"edgar: {ticker or '?'} {label} TTM was {had} against {annual:,.0f} "
+          f"reported for the year to {end} under {concept}; using the annual figure.")
+    return annual, {"source": "annual", "concept": concept, "period_end": end}
+
+
 def compute_edgar_factors(facts):
     """Compute the 5 quarterly-trend factors from a CIK's XBRL facts dict.
     Each factor goes through a plausibility clamp; out-of-range values are dropped."""
@@ -10563,11 +10660,16 @@ def compute_edgar_factors(facts):
     st_borrow = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["short_term_borrowings"])
 
     out = {}
+    # Revenue gets the annual guard because it is the field most other fields
+    # are built from, and because banks and insurers routinely file it only
+    # once a year.
+    ttm_rev, rev_note = _ttm_with_annual_guard(
+        facts, EDGAR_CONCEPT_FALLBACKS["revenue"], _ttm(revenues), "revenue")
     # Trailing-twelve-month aggregates and latest balance-sheet values. These
     # are the inputs the price-dependent ratios need; the ratios themselves are
     # computed in derive_ratios_from_fundamentals once a price is known.
     for key, val in (
-        ("ttm_revenue", _ttm(revenues)),
+        ("ttm_revenue", ttm_rev),
         ("ttm_gross_profit", _ttm(gp)),
         ("ttm_operating_income", _ttm(op_inc)),
         ("ttm_net_income", _ttm(net_income)),
