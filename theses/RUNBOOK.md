@@ -58,6 +58,57 @@ in the repo.
    one's direction and conviction, and anything skipped and why.
 ```
 
+## Running in the cloud
+
+The cloud routine is `trig_019GEQVFFZa8RbMuwNH8Tjyn`, "Apterreon: weekly analyst
+run", visible in Scheduled tasks on claude.ai alongside the others. Its cron is
+`7 11 * * 1`, which is **UTC**: 07:07 Eastern while daylight saving is in force.
+Unlike the local task, it does not follow the clock change, so it drifts to 06:07
+Eastern on 1 November 2026 and the cron needs changing to `7 12 * * 1` then.
+
+The environment is the generic one. It has Bash, Python and network, and no
+checkout, so the routine clones the repo itself. The repository is public, so
+the clone always works. **Whether it can push is the open question**, which is
+why the run starts by finding out.
+
+### The push preflight
+
+Do this before any analysis, and stop if it fails:
+
+```bash
+git clone https://github.com/CTLSmith5689/daily-intelligence-brief.git
+cd daily-intelligence-brief
+git config user.email ctlsmith@me.com
+git config user.name "Apterreon Analyst"
+git config pull.rebase true
+git commit --allow-empty -m "preflight: confirm push access"
+git pull && git push
+```
+
+Confirming the push first is the whole point of the step. A run that screens the
+universe, reads four dossiers and writes four theses, and only then discovers it
+cannot save them, has spent the work and lost it. Finding out in ten seconds
+costs nothing.
+
+`git pull && git push` rather than a bare push: a bot commits to this repo every
+hour at :23, and a bare push loses that race whenever one lands in the window.
+
+If the push fails, stop, do no analysis, and report the exact error together with
+the fact that the environment lacks push access. That is a useful result. The
+fallback is the local scheduled task, which runs on the Mac where the clone, the
+git identity and the keychain credential already exist, at the cost of only
+running while the Claude app is open.
+
+If the push succeeds, continue with `PROMPTS.md`, section "Agent 1: the analyst".
+
+### Only one of them should be scheduled
+
+The cloud routine and a local scheduled task would both write notes for the same
+week and race each other to push. Run one. The cloud one is preferred because it
+does not need the Mac awake; the local one is the fallback if the preflight shows
+the cloud environment cannot push.
+
+
 ## What the run is fed
 
 Nothing is passed in. The agent assembles its own inputs by running committed
