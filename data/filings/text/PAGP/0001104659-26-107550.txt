@@ -1,0 +1,575 @@
+PLAINS GP HOLDINGS, L.P. AND SUBSIDIARIES 
+
+ UNAUDITED PRO FORMA CONDENSED COMBINED FINANCIAL
+INFORMATION 
+
+ On November 6, 2025, Plains GP Holdings, L.P.
+(“PAGP”, “we”, “us”, “our”, or the “Company”) filed a Current Report on Form
+8-K, as amended on a Form 8-K/A filed on January 16, 2026, to report that on October 31, 2025, pursuant to a Purchase and Sale Agreement
+(the “PSA”) entered into on August 30, 2025 by and among a wholly-owned subsidiary (the “Buyer”) of Plains All
+American Pipeline, L.P. (“PAA”), and subsidiaries of Diamondback Energy, Inc. and Kinetik Holdings Inc. (collectively, the
+“Sellers”), the Buyer completed the purchase from Sellers of an aggregate 55% non-operated equity interest in EPIC Crude
+Holdings, LP (“EPIC Crude Holdings”), the entity that owned and operated the Cactus III Pipeline, formerly known as the EPIC
+Crude Oil Pipeline (the “Cactus III Pipeline”), and an aggregate 55% of the membership interests in EPIC Crude Holdings GP,
+LLC (“EPIC GP”), the general partner of EPIC Crude Holdings (the “EPIC 55% Transaction”). 
+
+ Effective November 1, 2025, in a separate transaction
+from the EPIC 55% Transaction, the Buyer also completed the purchase of the remaining 45% equity interest in EPIC Crude Holdings and
+the remaining 45% of the membership interests in EPIC GP from a subsidiary of Ares Management LLC (the “Ares Seller”) pursuant
+to that certain definitive Equity Purchase Agreement (the “EPA”) among the Buyer and the Ares Seller (the “EPIC 45%
+Transaction,” and, together with the EPIC 55% Transaction, the “EPIC Transactions”). 
+
+ As a result of the EPIC Transactions, PAA now
+indirectly owns 100% of the equity interests in EPIC Crude Holdings and 100% of the membership interests in EPIC GP and serves as operator
+of record of the Cactus III Pipeline. The EPIC Transactions are being reported in aggregate as a singular transaction (the “Transaction”)
+for purposes of the unaudited pro forma condensed combined financial information below due to EPIC Crude Holdings being managed by a
+common management team despite varying equity ownership. 
+
+ The Transaction is accounted for as a business
+combination and thus the Transaction Accounting Adjustments presented in the unaudited pro forma condensed combined financial information
+have been prepared using the acquisition method of accounting in accordance with Financial Accounting Standards Board Accounting Standards
+Codification 805, Business Combinations (“ASC 805”). The unaudited pro forma condensed combined financial information is
+based on assumptions that we believe are reasonable under the circumstances and are intended for informational purposes only. 
+
+ The following unaudited pro forma condensed combined
+financial information has been prepared in accordance with Article 11 of SEC Regulation S-X and includes pro forma adjustments that are
+directly attributable to the Transaction and factually supportable. Certain reclassifications have been made to the historical presentation
+of EPIC Crude Holdings’ financial statements to conform to our presentation and to the presentation of the unaudited pro forma
+condensed combined financial information contained herein. See Note 4 for additional information. 
+
+ The unaudited pro forma condensed combined financial
+information has been derived from and should be read in conjunction with the following historical financial statements and accompanying
+notes of PAGP and EPIC Crude Holdings: 
+
+ · audited
+ consolidated financial statements and related notes of PAGP included in PAGP’s Annual
+ Report on Form 10-K for the year ended December 31, 2025; 
+ 
+ · unaudited
+ consolidated financial statements of EPIC Crude Holdings, LP and Subsidiaries as of and for
+ the nine months ended September 30, 2025, filed as Exhibit 99.2 to PAGP’s Form 8-K/A
+ dated January 16, 2026. 
+
+ The unaudited pro forma condensed combined financial
+information should also be read together with the accompanying notes to the unaudited pro forma condensed combined financial information.
+The pro forma adjustments are based upon available information and certain assumptions, as described in the accompanying notes to the
+unaudited pro forma condensed combined financial information, which PAGP believes are reasonable under the circumstances. 
+
+ The following unaudited pro forma condensed statement
+of combined continuing operations for the year ended December 31, 2025 has been prepared as if the Transaction described above had taken
+place on January 1, 2025. Because the results of the Transaction are fully reflected in the audited consolidated balance sheet as of
+December 31, 2025 included in PAGP’s Annual Report on Form 10-K for the year ended December 31, 2025, no pro forma balance sheet
+is included herein. 
+
+ The unaudited pro forma condensed combined financial
+information was prepared to reflect transaction accounting adjustments that PAGP believes are necessary to present a fair statement of
+the combined company’s results of operations following the Transaction. They do not reflect any anticipated synergies, integration
+costs, cost savings, or other potential impacts of combining the businesses. The unaudited pro forma condensed combined financial information
+is presented for illustrative purposes only and is based on preliminary estimates and assumptions that are subject to change. 
+
+ The unaudited pro forma condensed combined financial
+information is not necessarily indicative of the results of the actual or future operations or financial condition that would have been
+achieved had the Transaction occurred at the date assumed (as noted above). The actual results in the periods following the Transaction
+may differ significantly from those reflected in the unaudited pro forma condensed combined financial information for a number of reasons. 
+
+ 1 
+
+ PLAINS GP HOLDINGS, L.P. AND SUBSIDIARIES 
+UNAUDITED PRO FORMA CONDENSED COMBINED FINANCIAL INFORMATION 
+
+ PLAINS GP HOLDINGS, L.P. AND SUBSIDIARIES 
+
+ UNAUDITED PRO FORMA CONDENSED STATEMENT OF
+COMBINED CONTINUING OPERATIONS 
+
+ For
+the Year Ended December 31, 2025 
+ (in millions, except per share data) 
+
+ PAGP
+ 
+ Historical 
+
+ EPIC
+ Historical 
+ As Adjusted 
+ (Note 4) 
+
+ Pro
+ Forma 
+ Adjustments 
+ (Note 2) 
+
+ PAGP 
+ Pro Forma 
+ Combined 
+
+ REVENUES 
+ 
+ $ 
+ 44,262 
+
+ $ 
+ 202 
+
+ $ 
+ — 
+
+ $ 
+ 44,464 
+
+ COSTS AND EXPENSES 
+
+ Purchases and related
+ costs 
+
+ 40,433 
+
+ (72 
+ ) 
+
+ — 
+
+ 40,361 
+
+ Field operating costs 
+
+ 1,154 
+
+ 63 
+
+ — 
+
+ 1,217 
+
+ General and administrative
+ expenses 
+
+ 348 
+
+ 19 
+
+ — 
+
+ 367 
+
+ Depreciation and amortization 
+
+ 953 
+
+ 96 
+
+ (96 
+ )(a) 
+
+ 1,055 
+
+ 47 
+ (b) 
+
+ 55 
+ (b) 
+
+ Gain
+ on asset sales, net 
+
+ (54 
+ ) 
+
+ — 
+
+ — 
+
+ (54 
+ ) 
+ 
+ Total costs and expenses 
+
+ 42,834 
+
+ 106 
+
+ 6 
+
+ 42,946 
+
+ OPERATING INCOME 
+
+ 1,428 
+
+ 96 
+
+ (6 
+ ) 
+
+ 1,518 
+
+ OTHER INCOME/(EXPENSE) 
+
+ Equity earnings in unconsolidated
+ entities 
+
+ 382 
+
+ — 
+
+ — 
+
+ 382 
+
+ Gain on investments
+ in unconsolidated entities, net 
+
+ 31 
+
+ — 
+
+ — 
+
+ 31 
+
+ Interest expense 
+
+ (467 
+ ) 
+
+ (73 
+ ) 
+
+ (94 
+ )(c) 
+
+ (634 
+ ) 
+ 
+ Other
+ income, net 
+
+ 21 
+
+ — 
+
+ — 
+
+ 21 
+
+ INCOME FROM CONTINUING
+ OPERATIONS BEFORE TAX 
+
+ 1,395 
+
+ 23 
+
+ (100 
+ ) 
+
+ 1,318 
+
+ Current income tax expense
+ from continuing operations 
+
+ (1 
+ ) 
+
+ — 
+
+ — 
+
+ (1 
+ ) 
+ 
+ Deferred
+ income tax expense from continuing operations 
+
+ (91 
+ ) 
+
+ — 
+
+ 5 
+ (d) 
+
+ (86 
+ ) 
+ 
+ INCOME FROM CONTINUING
+ OPERATIONS, NET OF TAX 
+
+ 1,303 
+
+ 23 
+
+ (95 
+ ) 
+
+ 1,231 
+
+ Net
+ income attributable to noncontrolling interests from continuing operations 
+
+ (1,151 
+ ) 
+
+ — 
+
+ 55 
+ (e) 
+
+ (1,096 
+ ) 
+ 
+ NET
+ INCOME ATTRIBUTABLE TO PAGP FROM CONTINUING OPERATIONS 
+ 
+ $ 
+ 152 
+
+ $ 
+ 23 
+
+ $ 
+ (40 
+ ) 
+ 
+ $ 
+ 135 
+
+ NET INCOME PER
+ CLASS A SHARE: 
+
+ Basic and diluted weighted
+ average Class A shares outstanding 
+
+ 198 
+
+ 198 
+
+ Basic
+ and diluted net income per Class A share from continuing operations 
+ 
+ $ 
+ 0.77 
+
+ $ 
+ 0.68 
+
+ The accompanying notes are an integral part of
+this Unaudited Pro Forma Condensed Combined Financial Information. 
+
+ 2 
+
+ PLAINS GP HOLDINGS, L.P. AND SUBSIDIARIES 
+NOTES TO UNAUDITED PRO FORMA CONDENSED COMBINED FINANCIAL INFORMATION 
+
+ Note 1 - Basis of Presentation 
+
+ The unaudited pro forma condensed combined financial
+information was prepared in accordance with Article 11 of SEC Regulation S-X (“Article 11”). The unaudited pro forma condensed
+combined financial information includes adjustments that depict the accounting for the Transaction using Transaction Accounting Adjustments
+(as defined in Article 11). Adjustments depicting synergies and dis-synergies of the Transaction (“Management Adjustments”)
+are not presented herein. 
+
+ The unaudited pro forma condensed combined financial
+information and underlying pro forma adjustments are based upon currently available information and certain estimates and assumptions
+that management believes are factually supportable; therefore, actual results could differ materially from the unaudited pro forma condensed
+combined financial information. However, we believe the assumptions provide a reasonable basis for presenting the significant effects
+of the Transaction noted herein. We believe the pro forma adjustments give appropriate effect to those assumptions and are properly applied
+in the unaudited pro forma condensed combined financial information. 
+
+ Note 2 - Pro Forma Adjustments 
+
+ (a) Reflects
+ the elimination of EPIC Crude Holdings’ historical depreciation and amortization of
+ $96 million for the year ended December 31, 2025. 
+
+ (b) Reflects
+ the depreciation on the acquired property and equipment under the straight-line method of
+ depreciation over a blended average useful life of 47 years resulting in incremental depreciation
+ expense of $47 million for the year ended December 31, 2025. Also reflects the incremental
+ amortization of the intangible assets under the declining balance method resulting in incremental
+ amortization expense of $55 million for the year ended December 31, 2025. 
+
+ (c) Represents
+ the interest expense on the $1,901 million of financing as if such financing was obtained
+ on or prior to January 1, 2025, and was outstanding for the entire year ended December 31,
+ 2025. The interest rate assumed for purposes of preparing this unaudited pro forma condensed
+ combined financial information was based off the one-month SOFR plus 1.125% as of the Closing
+ Date. The amortization of debt issuance costs is not considered material to the unaudited
+ pro forma condensed combined financial information. 
+
+ (d) Represents
+ the impact on PAGP’s Deferred income tax expense as a result of EPIC Crude Holdings’
+ historical operations and the transaction accounting adjustments. The income tax expense
+ was calculated based on PAGP’s statutory rate in effect during the year ended December
+ 31, 2025. 
+
+ (e) Reflects
+ the allocation of Net income attributable to noncontrolling interests from continuing operations
+ for the year ended December 31, 2025. 
+
+ Note 3 - Pro Forma Net Income Per Class A Share 
+
+ Pro forma basic and diluted net income per Class
+A share is determined by dividing the pro forma net income attributable to PAGP by the basic and diluted weighted average number of Class
+A shares outstanding during the applicable periods. The Transaction did not involve the issuance or redemption of securities. 
+
+ 3 
+
+ PLAINS GP HOLDINGS, L.P.
+AND SUBSIDIARIES 
+NOTES TO UNAUDITED PRO FORMA CONDENSED COMBINED FINANCIAL INFORMATION 
+
+ The following table sets forth the computation
+of basic and diluted net income per Class A share for the year ended December 31, 2025. 
+
+ Year Ended 
+
+ December
+ 31, 2025 
+
+ PAGP Historical 
+ Pro Forma 
+ 
+ Basic and Diluted
+ Net Income from Continuing Operations per Class A Share 
+
+ Net income
+ from continuing operations attributable to Class A shareholders - Basic and diluted 
+ $ 152 
+ $ 135 
+
+ Basic and diluted weighted
+ average Class A shares outstanding 
+ 198 
+ 198 
+
+ Basic
+ and diluted net income from continuing operations per Class A share 
+ $ 0.77 
+ $ 0.68 
+
+ Note 4 - Reclassification of EPIC Crude Holdings’ Historical
+Financial Statements 
+
+ Reclassification adjustments were made to EPIC
+Crude Holdings’ historical statements of operations for the nine months ended September 30, 2025 and for the period from October
+1, 2025 to November 6, 2025. Certain income statement line items presented by EPIC Crude Holdings under GAAP have been reclassified to
+align with the presentation used by PAGP under GAAP. In addition, EPIC Crude Holdings’ historical presentation of margin related
+to inventory exchanges has been conformed to PAGP’s accounting policy, which results in a reclassification from Revenue to Purchases
+and related costs. The amount of reclassification was $125 million for the year ended December 31, 2025. These reclassification adjustments
+are shown in the table below: 
+
+ 4 
+
+ PLAINS GP HOLDINGS, L.P.
+AND SUBSIDIARIES 
+NOTES TO UNAUDITED PRO FORMA CONDENSED COMBINED FINANCIAL INFORMATION 
+
+ EPIC CRUDE HOLDINGS, LP AND SUBSIDIARIES 
+
+ CONDENSED CONSOLIDATED STATEMENT OF OPERATIONS
+
+ For
+the Nine Months Ended September 30, 2025 and the Period from October 1, 2025 to November 6, 2025 
+ (in millions) 
+
+ EPIC 
+ Historical for the 
+ Nine Months 
+ Ended September 
+ 30, 2025 
+ EPIC 
+ Historical for the 
+ Period from 
+ October 1, 2025 to 
+ November 6, 2025 
+ Reclassification 
+ Adjustments 
+ EPIC Historical 
+ As Adjusted 
+
+ (unaudited) 
+ (unaudited) 
+
+ REVENUE 
+ $ 295 
+ $ 32 
+ $ (125 ) 
+ $ 202 
+
+ EXPENSES 
+
+ Cost of goods sold 
+ 46 
+ 7 
+ (53 ) 
+ — 
+ 
+ Operations and maintenance 
+ 57 
+ 6 
+ (63 ) 
+ — 
+ 
+ Depreciation and amortization 
+ 86 
+ 10 
+ — 
+ 96 
+ 
+ General and administrative 
+ 17 
+ 2 
+ (19 ) 
+ — 
+ 
+ Purchases and related costs 
+ — 
+ — 
+ (72 ) 
+ (72 ) 
+ 
+ Field operating costs 
+ — 
+ — 
+ 63 
+ 63 
+ 
+ General and administrative expenses 
+ — 
+ — 
+ 19 
+ 19 
+
+ 206 
+ 25 
+ (125 ) 
+ 106 
+
+ INCOME FROM OPERATIONS 
+ 89 
+ 7 
+ — 
+ 96 
+
+ OTHER INCOME (EXPENSE) 
+
+ Interest expense 
+ (67 ) 
+ (6 ) 
+ — 
+ (73 ) 
+
+ INCOME BEFORE TAXES 
+ 22 
+ 1 
+ — 
+ 23 
+
+ NET INCOME 
+ $ 22 
+ $ 1 
+ $ — 
+ $ 23 
+
+ 5

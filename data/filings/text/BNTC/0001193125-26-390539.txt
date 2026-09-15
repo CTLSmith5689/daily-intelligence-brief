@@ -1,0 +1,322 @@
+Benitec Biopharma Releases Full Year 2026 Financial Results and Provides Operational Update • All six Cohort 1 (low dose BB-301) patients have completed the full 12-month post-treatment follow-up period, and Cohort 2 (high dose BB-301) is fully enrolled with all three patients having been safely treated • A Type C meeting was held with the U.S. Food and Drug Administration in 3Q2026 to discuss the BB-301 pivotal study design, and meeting minutes are anticipated in October • Additional interim clinical study results from the ongoing BB-301 Phase 1b/2a trial have been accepted for late-breaking presentation at the Annual Congress of the European Society of Gene and Cell Therapy (ESGCT) in Hamburg, Germany taking place on October 27-30, 2026 • Well-capitalized with cash, as of June 30, 2026, of approximately $180 million. HAYWARD, Calif., Sep. 14, 2026 (GLOBE NEWSWIRE) -- Benitec Biopharma Inc. (NASDAQ: BNTC) (“Benitec” or the “Company”), a clinical-stage biotechnology company developing disease-modifying genetic medicines for life-threatening, genetically defined diseases, based on its proprietary “Silence and Replace” DNA-directed RNA interference (“ddRNAi”) platform, today announced financial results for its full fiscal year ended June 30, 2026, and provided an update on recent regulatory interactions and upcoming clinical data presentations. “This has been an important year of clinical execution for Benitec and for the continued development of BB-301,” said Jerel A. Banks, M.D., Ph.D., Executive Chairman and Chief Executive Officer of Benitec. “Over the course of the year, we completed the follow-up of all six patients in Cohort 1 and fully enrolled Cohort 2, while continuing the regulatory interactions required to prepare BB-301 for advancement into a pivotal trial. The consistency and durability of the clinical benefit observed to date, together with the discussions we have had with the FDA regarding pivotal study plans, continue to strengthen our conviction in the potential of BB-301 to meaningfully alter the course of OPMD-related dysphagia. We are grateful to the patients, families and investigators who have enabled this progress, and we look forward to building on this momentum as we work toward the planned initiation of the pivotal study in mid-2027.” 
+
+ Clinical Highlights The Company continues to advance BB-301 through clinical development in the ongoing Phase 1b/2a Clinical Study evaluating the safety and clinical efficacy of locally-administered BB-301 for the treatment of OPMD-related dysphagia. Interim Clinical Study Update • All six Cohort 1 (low dose BB-301) patients have completed the full 12-month post-treatment follow-up period, and Cohort 2 (high dose BB-301) is fully enrolled with all three patients having been safely treated • Clinically meaningful improvements (combined with a favorable safety profile) were observed across patient-reported swallowing symptom evaluations and X-ray based swallowing function evaluations, including improved throat closing ability, throat emptying ability, throat muscle relaxation, and functional swallowing ability • Interim clinical results for Cohort 1 and Cohort 2 will be presented at the 33rd Annual Congress of the European Society of Gene & Cell Therapy in Hamburg, Germany, October 27-30, 2026 Regulatory Update • A Type C meeting was held with the U.S. Food and Drug Administration in 3Q2026 to discuss the BB-301 pivotal study design, and meeting minutes are anticipated in October Upcoming Catalysts • Presentation of interim clinical results from the Phase 1b/2a study at the ESGCT Annual Congress in Hamburg, Germany, October 27-30, 2026. • Benitec anticipates initiating the BB-301 pivotal trial in mid-2027. Financial Highlights Full Year 2026 Financial Results For the year ended June 30, 2026, the Company reported total expenses of $51.2 million compared to $41.8 million for the year ended June 30, 2025. Research and development expenses were $23.4 million in 2026, up from $18.3 million in 2025, and were primarily related to the ongoing clinical development of BB-301 for the treatment of OPMD. The increase in research and development expenses primarily reflected higher share-based compensation of $6.3 million and increased payroll of $2.2 million, partially offset by a reduction in contract manufacturing activity of $3.8 million. General and administrative expenses totaled $27.8 million in 2026 compared to $23.4 million in 2025. The increase was primarily driven by higher share-based compensation of $2.7 million and an increase in payroll of $0.8 million. The net loss from operations for the year ended June 30, 2026, was $51.2 million compared to $41.8 million for the prior year. Net loss attributable to shareholders for the year ended June 30, 2026 was $45.5 million, or $0.98 per basic and diluted share, compared to a net loss of $37.9 million, or $1.05 per basic and diluted share, for the year ended June 30, 2025. As of June 30, 2026, the Company had $180.0 million in cash and cash equivalents. 
+
+ About BB-301 BB-301 is a novel, modified AAV9 capsid expressing a unique, single bifunctional construct promoting co-expression of both codon-optimized Poly-A Binding Protein Nuclear-1 (PABPN1) and two small inhibitory RNAs (siRNAs) against mutant PABPN1 (the causative gene for OPMD). The two siRNAs are modeled into microRNA backbones to silence expression of faulty mutant PABPN1, while allowing expression of the codon-optimized PABPN1 to replace the mutant with a functional version of the protein. BB-301 is administered locally, in a one-time procedure, to the muscles in the throat that drive the swallowing process, an approach designed to maximize local benefit and minimize systemic exposure. We believe the silence and replace mechanism of BB-301 is uniquely positioned for the treatment of OPMD by slowing or halting mutant PABPN1 expression while simultaneously providing a functional replacement protein. BB-301 has received Orphan Drug Designation from the EMA and Orphan Drug and Fast Track Designations from the FDA and is currently being evaluated in a Phase 1b/2a, first-in-human, open-label dose escalation study to evaluate the safety and clinical activity of intramuscular doses of BB-301 administered to subjects with OPMD (NCT06185673). About Benitec Biopharma Inc. Benitec Biopharma Inc. (NASDAQ: BNTC) is a clinical-stage biotechnology company developing disease-modifying genetic medicines designed to improve the lives of people with life-threatening, genetically defined diseases. The company’s proprietary “Silence and Replace” DNA-directed RNA interference (ddRNAi) platform combines RNA interference, or RNAi, with gene therapy to create medicines designed to facilitate sustained silencing of disease-causing genes and simultaneous delivery of replacement genes that restore normal cellular function following a single administration. The company’s lead investigational candidate, BB-301, is the first and only disease-modifying genetic medicine in clinical development for the treatment of Oculopharyngeal Muscular Dystrophy (OPMD)-related dysphagia. For additional information, visit www.benitec.com. Forward Looking Statements Except for the historical information set forth herein, the matters set forth in this press release include forward-looking statements, including statements regarding Benitec’s plans to develop and commercialize its product candidates, the timing of the completion of preclinical and clinical trials, the timing of the availability of data from our clinical trials, the timing and sufficiency of patient enrollment and dosing in clinical trials, the timing of expected regulatory filings and other regulatory steps, and the clinical utility and potential attributes and benefits of ddRNAi and Benitec’s product candidates, and other forward-looking statements. 
+
+ These forward-looking statements are based on the Company’s current expectations and subject to risks and uncertainties that may cause actual results to differ materially, including unanticipated developments in and risks related to: the success of our plans to develop and potentially commercialize our product candidates; the timing of the completion of preclinical studies and clinical trials; the timing and sufficiency of patient enrollment and dosing in any future clinical trials; the timing of the availability of data from our clinical trials; the timing and outcome of regulatory filings and approvals; the development of novel AAV vectors; our potential future out-licenses and collaborations; the plans of licensees of our technology; the clinical utility and potential attributes and benefits of ddRNAi and our product candidates, including the potential duration of treatment effects and the potential for a “one shot” cure; our intellectual property position and the duration of our patent portfolio; expenses, ongoing losses, future revenue, capital needs and needs for additional financing, and our ability to access additional financing given market conditions and other factors; the length of time over which we expect our cash and cash equivalents to be sufficient to execute on our business plan; unanticipated delays; further research and development and the results of clinical trials possibly being unsuccessful or insufficient to meet applicable regulatory standards or warrant continued development; the ability to enroll sufficient numbers of subjects in clinical trials; determinations made by the FDA and other governmental authorities; regulatory developments in the United States of America; the Company’s ability to protect and enforce its patents and other intellectual property rights; the Company’s dependence on its relationships with its collaboration partners and other third parties; the efficacy or safety of the Company’s products and the products of the Company’s collaboration partners; the acceptance of the Company’s products and the products of the Company’s collaboration partners in the marketplace and market competition; reliance on third party manufacturers and suppliers, and the risks associated with manufacturing complexity, supply interruptions, and compliance with current good manufacturing practices, sales, marketing and distribution requirements for our product candidates; greater than expected expenses; including expenses relating to litigation or strategic activities; our incurrence of significant losses and the uncertainty of our ability to achieve or sustain profitability or generate any revenue; the Company’s ability to satisfy its capital needs through increasing revenue and obtaining additional financing; the impact of local, regional, national and international economic conditions and events; including geopolitical instability, and risks associated with conducting business and seeking regulatory approvals in international markets; our ability to attract and retain key management, scientific, and technical personnel; cyber-security threats and vulnerabilities in our and our third parties' information technology systems; the impact of legislative and regulatory reforms affecting drug pricing and reimbursement, including Medicare drug-price negotiation and government pricing frameworks; potential product liability claims arising from the use of our product candidates in clinical trials or following any future marketing approval; physicians, patients, third-party payers, or others in the medical community may not be receptive to our product candidates, and we may not generate any future revenue from the sale or licensing of our product candidates; and disruptions to U.S. government agency operations, including FDA staffing changes; and other risks detailed from time to time in the Company’s reports filed with the Securities and Exchange Commission. The Company disclaims any intent or obligation to update these forward-looking statements. Investor Relations Contact: Candice Masse astr partners candice.masse@astrpartners.com Media Contact: Audra Friis Sam Brown Healthcare Communications (917) 519-9577 audrafriis@sambrown.com Source: Benitec Biopharma Inc. 
+
+ BENITEC BIOPHARMA INC. Consolidated Balance Sheets (in thousands, except par value and share amounts) 
+
+ June 30, 2026 
+
+ June 30, 2025 
+
+ Assets 
+
+ Current assets: 
+
+ Cash and cash equivalents 
+ 
+ $ 
+ 179,972 
+
+ $ 
+ 97,744 
+
+ Restricted cash 
+
+ 114 
+
+ 113 
+
+ Trade and other receivables 
+
+ 4 
+
+ 33 
+
+ Prepaid and other assets 
+
+ 1,595 
+
+ 628 
+
+ Total current assets 
+
+ 181,685 
+
+ 98,518 
+
+ Property and equipment, net 
+
+ 178 
+
+ 131 
+
+ Deposits 
+
+ 55 
+
+ 55 
+
+ Prepaid and other assets 
+
+ 12 
+
+ 28 
+
+ Right-of-use assets 
+
+ 693 
+
+ 860 
+
+ Total assets 
+ 
+ $ 
+ 182,623 
+
+ $ 
+ 99,592 
+
+ Liabilities and Stockholders’ Equity 
+
+ Current liabilities: 
+
+ Trade and other payables 
+ 
+ $ 
+ 4,295 
+
+ $ 
+ 1,022 
+
+ Accrued employee benefits 
+
+ 553 
+
+ 426 
+
+ Lease liabilities, current portion 
+
+ 496 
+
+ 354 
+
+ Total current liabilities 
+
+ 5,344 
+
+ 1,802 
+
+ Lease liabilities, less current portion 
+
+ 266 
+
+ 495 
+
+ Total liabilities 
+
+ 5,610 
+
+ 2,297 
+
+ Stockholders’ equity: 
+
+ Preferred stock, $0.0001 par value—5,000,000 shares authorized; no shares issued or outstanding at June 30, 2026 and June 30, 2025, respectively 
+
+ — 
+
+ — 
+
+ Common stock, $0.0001 par value—160,000,000 shares authorized; 34,416,834 and 26,250,469 shares issued and outstanding at June 30, 2026 and June 30, 2025, respectively 
+
+ 3 
+
+ 2 
+
+ Additional paid-in capital 
+
+ 451,695 
+
+ 326,308 
+
+ Accumulated deficit 
+
+ (273,722 
+ ) 
+
+ (228,176 
+ ) 
+
+ Accumulated other comprehensive loss 
+
+ (963 
+ ) 
+
+ (839 
+ ) 
+
+ Total stockholders’ equity 
+
+ 177,013 
+
+ 97,295 
+
+ Total liabilities and stockholders’ equity 
+ 
+ $ 
+ 182,623 
+
+ $ 
+ 99,592 
+
+ BENITEC BIOPHARMA INC. Consolidated Statements of Operations and Comprehensive Loss (in thousands, except share and per share amounts) 
+
+ Year Ended 
+
+ June 30, 
+
+ 2026 
+
+ 2025 
+
+ Operating expenses: 
+
+ Research and development 
+
+ 23,388 
+
+ 18,332 
+
+ General and administrative 
+
+ 27,804 
+
+ 23,433 
+
+ Total operating expenses 
+
+ 51,192 
+
+ 41,765 
+
+ Loss from operations 
+
+ (51,192 
+ ) 
+
+ (41,765 
+ ) 
+
+ Other income (loss): 
+
+ Foreign currency transaction gain (loss) 
+
+ 120 
+
+ (71 
+ ) 
+
+ Interest income, net 
+
+ 5,569 
+
+ 3,286 
+
+ Other expense, net 
+
+ (43 
+ ) 
+
+ (131 
+ ) 
+
+ Gain on extinguishment of liabilities 
+
+ — 
+
+ 764 
+
+ Total other income, net 
+
+ 5,646 
+
+ 3,848 
+
+ Net loss 
+ 
+ $ 
+ (45,546 
+ ) 
+ 
+ $ 
+ (37,917 
+ ) 
+
+ Other comprehensive income: 
+
+ Unrealized foreign currency translation gain (loss) 
+
+ (124 
+ ) 
+
+ 53 
+
+ Total other comprehensive income (loss) 
+
+ (124 
+ ) 
+
+ 53 
+
+ Total comprehensive loss 
+ 
+ $ 
+ (45,670 
+ ) 
+ 
+ $ 
+ (37,864 
+ ) 
+
+ Net loss 
+ 
+ $ 
+ (45,546 
+ ) 
+ 
+ $ 
+ (37,917 
+ ) 
+
+ Net loss attributable to common shareholders 
+ 
+ $ 
+ (45,546 
+ ) 
+ 
+ $ 
+ (37,917 
+ ) 
+
+ Net loss per share: 
+
+ Basic and diluted 
+ 
+ $ 
+ (0.98 
+ ) 
+ 
+ $ 
+ (1.05 
+ ) 
+
+ Weighted average number of shares outstanding: 
+
+ Basic and diluted 
+
+ 46,558,162 
+
+ 36,209,271
