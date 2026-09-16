@@ -1,0 +1,504 @@
+Segment Reporting 
+ 9 Months Ended 
+ 
+ Sep. 30, 2025 
+ 
+ Segment Reporting [Abstract] 
+
+ Segment Reporting 
+ NOTE 4. Segment Reporting Our CEO has been identified as our Chief Operating Decision Maker (“CODM”). We have two reportable segments: Intermodal and Transportation Solutions (“ITS”) and Logistics which are based primarily on the services each segment provides. Our ITS segment includes our asset-light business lines: intermodal and dedicated trucking. Our Logistics segment includes our non-asset business lines: managed transportation, truck brokerage, final mile and consolidation and fulfillment services. Our CODM uses operating income by segment to make decisions over the allocation of capital and resources and assess the performance of our segments. Intermodal and Transportation Solutions. Our ITS segment offers high service, nationwide door-to-door intermodal transportation, providing value, visibility and reliability in both transcontinental and local lanes by combining rail transportation with local trucking. This segment includes our trucking operations which provides our customers with local pickup and delivery (referred to as “drayage”) as well as high service local and regional trucking transportation using equipment dedicated to their needs. We arrange for the movement of our customers’ freight in one of our approximately 51,000 containers. As of September 30, 2025, we operated trucking terminals at 32 l ocations throughout the United States and Mexico, with locations in many large metropolitan areas. We also contract for services with independent owner-operators who supply their own equipment and operate under our regulatory authority. These assets and contractual services are used to support drayage for our intermodal service offering and to serve our customers who require high service local and regional trucking transportation using equipment dedicated to their needs. We contract with railroads to provide transportation for the long-haul portion of the shipment between rail terminals. Drayage between origin or destination and rail terminals are provided by our own trucking operations and third parties with whom we contract. Our dedicated service operation offers fleets of equipment and drivers to each customer on a contract basis, as well as the management and infrastructure to operate according to the customer’s high service expectations. As of September 30, 2025, our trucking transportation operation consisted of approximately 2,300 tractors, 3,100 employee drivers and 4,700 trailers. We also contract for services with approximately 500 independent owner-operators. Logistics . Our Logistics segment offers a wide range of services including transportation management, freight brokerage services, shipment optimization, load consolidation, mode selection, carrier management, load planning and execution, warehousing, fulfillment, cross-docking, consolidation services and final mile delivery. These services include a full range of trucking transportation services, including dry van, expedited, less-than-truckload, refrigerated and flatbed, all of which is provided by third party carriers with whom we contract. We also leverage proprietary technology along with collaborative relationships with third party service providers to deliver cost savings and performance-enhancing supply chain services to our clients. Our transportation management offering also serves as a source of volume for our ITS segment. Many of the customers for these solutions are consumer goods companies who sell into the retail channel. Our final mile delivery offering provides residential final mile delivery and installation of appliances and big and bulky goods. Final mile operates through a network of independent service providers in company, customer and third-party facilities throughout the continental United States. Our business operates or has access to approximately 7 million square feet of warehousing and cross-dock space across North America, to which our customers ship their goods to be stored and distributed to destinations including residences, retail stores and other commercial locations. These services offer our customers shipment visibility, transportation cost savings, high service and compliance with retailers’ increasingly stringent supply chain requirements. Logistics also includes our brokerage business which provides third-party truckload, less-than-truckload (“LTL”), flatbed and temperature-controlled needs. The following tables summarize our financial and operating data by segment for the three months ended September 30, 2025 and September 30, 2024 (in thousands): 
+
+ Three Months Ended 
+
+ September 30, 2025 
+
+ ITS 
+ 
+ Logistics 
+ 
+ Eliminations 
+ 
+ Total 
+
+ Operating revenue 
+ $ 
+ 561,487 
+ 
+ $ 
+ 402,399 
+ 
+ $ 
+ ( 29,390 
+ ) 
+ $ 
+ 934,496 
+
+ Operating expenses 
+
+ Purchased transportation and warehousing 
+ 
+ 396,632 
+
+ 316,125 
+
+ ( 29,099 
+ ) 
+
+ Salaries and benefits 
+ 
+ 88,277 
+
+ 31,916 
+
+ Depreciation and amortization 
+ 
+ 17,970 
+
+ 8,248 
+
+ Insurance and claims 
+ 
+ 8,839 
+
+ 1,170 
+
+ ( 291 
+ ) 
+
+ General and administrative 
+ 
+ 8,768 
+
+ 4,133 
+
+ Corporate allocations 
+ 
+ 25,678 
+
+ 17,232 
+
+ (Gain) / loss on sale of assets, net 
+ 
+ ( 545 
+ ) 
+
+ Total operating expenses 
+ 
+ 545,619 
+
+ 378,824 
+
+ ( 29,390 
+ ) 
+ 
+ 895,053 
+
+ Operating income 
+ $ 
+ 15,868 
+ 
+ $ 
+ 23,575 
+ 
+ $ 
+ - 
+ 
+ $ 
+ 39,443 
+
+ Three Months Ended 
+
+ September 30, 2024 
+
+ ITS 
+ 
+ Logistics 
+ 
+ Eliminations 
+ 
+ Total 
+
+ Operating revenue 
+ $ 
+ 559,968 
+ 
+ $ 
+ 460,847 
+ 
+ $ 
+ ( 33,923 
+ ) 
+ $ 
+ 986,892 
+
+ Operating expenses 
+
+ Purchased transportation and warehousing 
+ 
+ 401,482 
+
+ 372,185 
+
+ ( 33,603 
+ ) 
+
+ Salaries and benefits 
+ 
+ 85,575 
+
+ 34,750 
+
+ Depreciation and amortization 
+ 
+ 17,896 
+
+ 8,565 
+
+ Insurance and claims 
+ 
+ 7,848 
+
+ 1,443 
+
+ ( 320 
+ ) 
+
+ General and administrative 
+ 
+ 7,861 
+
+ 5,139 
+
+ Corporate allocations 
+ 
+ 26,059 
+
+ 19,966 
+
+ (Gain) / loss on sale of assets, net 
+ 
+ ( 269 
+ ) 
+ 
+ 216 
+
+ Total operating expenses 
+ 
+ 546,452 
+
+ 442,264 
+
+ ( 33,923 
+ ) 
+ 
+ 954,793 
+
+ Operating income 
+ $ 
+ 13,516 
+ 
+ $ 
+ 18,583 
+ 
+ $ 
+ - 
+ 
+ $ 
+ 32,099 
+
+ The following tables summarize our financial and operating data by segment for the nine months ended September 30, 2025 and September 30, 2024 (in thousands): 
+
+ Nine Months Ended 
+
+ September 30, 2025 
+
+ ITS 
+ 
+ Logistics 
+ 
+ Eliminations 
+ 
+ Total 
+
+ Operating revenue 
+ $ 
+ 1,619,693 
+ 
+ $ 
+ 1,217,710 
+ 
+ $ 
+ ( 82,043 
+ ) 
+ $ 
+ 2,755,360 
+
+ Operating expenses 
+
+ Purchased transportation and warehousing 
+ 
+ 1,124,594 
+
+ 954,053 
+
+ ( 81,165 
+ ) 
+
+ Salaries and benefits 
+ 
+ 265,524 
+
+ 99,329 
+
+ Depreciation and amortization 
+ 
+ 56,059 
+
+ 24,784 
+
+ Insurance and claims 
+ 
+ 27,162 
+
+ 3,629 
+
+ ( 878 
+ ) 
+
+ General and administrative 
+ 
+ 25,637 
+
+ 14,853 
+
+ Corporate allocations 
+ 
+ 76,869 
+
+ 54,258 
+
+ (Gain) / loss on sale of assets, net 
+ 
+ ( 477 
+ ) 
+
+ Total operating expenses 
+ 
+ 1,575,368 
+
+ 1,150,906 
+
+ ( 82,043 
+ ) 
+ 
+ 2,644,231 
+
+ Operating income 
+ $ 
+ 44,325 
+ 
+ $ 
+ 66,804 
+ 
+ $ 
+ - 
+ 
+ $ 
+ 111,129 
+
+ Nine Months Ended 
+
+ September 30, 2024 
+
+ ITS 
+ 
+ Logistics 
+ 
+ Eliminations 
+ 
+ Total 
+
+ Operating revenue 
+ $ 
+ 1,673,034 
+ 
+ $ 
+ 1,400,159 
+ 
+ $ 
+ ( 100,313 
+ ) 
+ $ 
+ 2,972,880 
+
+ Operating expenses 
+
+ Purchased transportation and warehousing 
+ 
+ 1,186,816 
+
+ 1,120,035 
+
+ ( 99,325 
+ ) 
+
+ Salaries and benefits 
+ 
+ 255,132 
+
+ 104,486 
+
+ Depreciation and amortization 
+ 
+ 65,999 
+
+ 25,406 
+
+ Insurance and claims 
+ 
+ 27,703 
+
+ 4,770 
+
+ ( 988 
+ ) 
+
+ General and administrative 
+ 
+ 21,953 
+
+ 16,847 
+
+ Corporate allocations 
+ 
+ 76,397 
+
+ 59,853 
+
+ (Gain) / loss on sale of assets, net 
+ 
+ ( 1,152 
+ ) 
+ 
+ 182 
+
+ Total operating expenses 
+ 
+ 1,632,848 
+
+ 1,331,579 
+
+ ( 100,313 
+ ) 
+ 
+ 2,864,114 
+
+ Operating income 
+ $ 
+ 40,186 
+ 
+ $ 
+ 68,580 
+ 
+ $ 
+ - 
+ 
+ $ 
+ 108,766 
+
+ The “Eliminations” column primarily relates to revenues for transportation management services provided to the Logistics segment and recognized as revenues in the ITS segment, and operating expenses incurred by the Logistics segment for these intercompany services. The following table summarizes our revenue from external customers by geographic region (in thousands): 
+
+ Three Months Ended 
+
+ Nine Months Ended 
+
+ September 30, 
+
+ September 30, 
+
+ 2025 
+
+ 2024 
+
+ 2025 
+
+ 2024 
+
+ United States 
+ $ 
+ 905,799 
+
+ $ 
+ 986,746 
+
+ $ 
+ 2,674,843 
+
+ $ 
+ 2,972,486 
+
+ Mexico 
+ 
+ 28,697 
+
+ 146 
+
+ 80,517 
+
+ 394 
+
+ Revenue from external customers 
+ $ 
+ 934,496 
+
+ $ 
+ 986,892 
+
+ $ 
+ 2,755,360 
+
+ $ 
+ 2,972,880 
+
+ Separate balance sheets are not presented by segment to our Chief Operating Decision Maker (“CODM”). Our CODM does not utilize segment asset information to evaluate performance and make resource allocation decisions, and thus such disclosures are not provided. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for reporting segments including data and tables. Reportable segments include those that meet any of the following quantitative thresholds a) it's reported revenue, including sales to external customers and intersegment sales or transfers is 10 percent or more of the combined revenue, internal and external, of all operating segments b) the absolute amount of its reported profit or loss is 10 percent or more of the greater, in absolute amount of 1) the combined reported profit of all operating segments that did not report a loss or 2) the combined reported loss of all operating segments that did report a loss c) its assets are 10 percent or more of the combined assets of all operating segments. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 7: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 11: http://fasb.org/us-gaap/role/ref/otherTransitionRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 12: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 13: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 14: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 16: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 18: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 19: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 20: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 21: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 22: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 Reference 25: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration

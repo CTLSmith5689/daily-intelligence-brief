@@ -1,0 +1,342 @@
+Item 1A. Risk Factors 
+ 
+ Our business is subject to numerous risks, as more fully described below in this "Risk Factors" section. The following is a summary of the most significant risks and uncertainties that we believe could adversely affect our business, financial condition, and results of operations. In addition to the following summary, you should read the other information set forth below in this “Risk Factors” section before you invest in our securities. In particular, our risks include, but are not limited to, the following: 
+ 
+ Risks Related to Our Financial Condition and Capital Requirements: 
+
+ • 
+ We have a limited operating history and we have incurred significant operating losses since our inception, and anticipate that we will incur continued losses for the foreseeable future; 
+
+ • 
+ If we are unable to maintain compliance with all applicable continued listing requirements and standards of Nasdaq, our Common Stock could be delisted from Nasdaq. 
+
+ • 
+ Our future operating results are dependent on receiving regulatory approval for the MyoVista wav ECG and associated AI-ECG algorithms from the FDA, and/or regulatory clearances for the MyoVista wav ECG and associated AI-ECG algorithms or the MyoVista Insights™ from state regulators, if any, or other similar foreign regulatory agencies, which we have not received as of the date of filing of this Annual Report on Form 10-K; 
+
+ • 
+ We will need to raise additional funding, which may not be available on acceptable terms, or at all. Failure to obtain funding on acceptable terms and on a timely basis may require us to curtail, delay or discontinue our development efforts and other operations; 
+
+ • 
+ All of our assets are subject to security interests; 
+
+ • 
+ We have identified weaknesses in our internal controls, and we cannot provide assurances that these weaknesses will be effectively remediated or that additional material weaknesses will not occur in the future; and 
+
+ • 
+ There is substantial doubt about our ability to continue as a going concern, which could prevent us from obtaining new financing either on reasonable terms or at all. 
+
+ Risks Related to Our Business and Industry: 
+
+ • 
+ Our future success depends on our ability to develop, receive regulatory clearance or approval for, and introduce the MyoVista wav ECG device and associated AI-ECG algorithms to the market in a timely manner. If we do not obtain and maintain the regulatory registrations and clearances for our products, we will be unable to market and sell our products in the United States, Europe or other regions; 
+
+ • 
+ Our success will be dependent upon physician acceptance; 
+
+ • 
+ If third-party payors do not provide adequate coverage and reimbursement for the use of our AI-ECG algorithms, our revenue will be negatively impacted; 
+
+ • 
+ We will be dependent upon third-party manufacturers and suppliers, making us vulnerable to supply shortages and problems, increased costs and quality or compliance issues, any of which could harm our business; 
+
+ • 
+ Interruptions in computing and data management cloud systems, including our reliance on Amazon Web Services, could impair the delivery of our cloud-based diagnostic and platform services; 
+
+ • 
+ Our proprietary data analytics engine may not operate properly, which could damage our reputation, give rise to claims against us or divert application of our resources from other purposes, any of which could harm our business and operating results; and 
+
+ • 
+ Our AI-ECG algorithms may exhibit performance limitations, including mode drift basis, that could harm clinical adoption and expose us to liability. 
+
+ 21
+
+ Table of Contents 
+
+ Risks Related to Product Development and Regulatory Approval: 
+
+ • 
+ Our products and operations are subject to extensive government regulation and oversight both in the U.S. and abroad, and our failure to comply with applicable requirements could harm our business; 
+
+ • 
+ Our marketplace strategy depends on third-party AI-ECG algorithm developers, and our business could be harmed if we are unable to enter into or maintain commercial arrangements with such developers on acceptable terms; 
+
+ • 
+ If and when our products are ready for sales launch into the U.S., modifications to our marketed products may require new 510(k) clearances, or may require us to cease marketing or recall the modified products until clearances or approvals are obtained; 
+
+ • 
+ Clinical studies may be necessary to support future product submissions to the FDA. The clinical trial process is lengthy and expensive with uncertain outcomes, and often requires the enrollment of large numbers of patients, and suitable patients may be difficult to identify and recruit. Delays or failures in our clinical studies will prevent us from launching sales of modified or new products into the U.S. and will adversely affect our business, operating results and prospects; 
+
+ • 
+ If the third parties on which we rely to conduct our clinical studies and to assist us with pre-clinical development do not perform as required or expected, we may be delayed or unable to obtain regulatory clearance or approval for sales launch of our products in the U.S.; 
+
+ • 
+ We may encounter substantial delays in our clinical studies, or we may fail to demonstrate specificity and sensitivity to the satisfaction of applicable regulatory authorities; 
+
+ • 
+ The results of future clinical studies may not support additional or new claims for future products or may result in the discovery of adverse side effects; 
+
+ • 
+ Failure to comply with post-marketing regulatory requirements could subject us to enforcement actions, including substantial penalties, and might require us to recall or withdraw a product from the market; 
+
+ • 
+ The MyoVista wav ECG device must be manufactured in accordance with federal, state and foreign regulations, and we could be forced to recall our devices or terminate production if we fail to comply with these regulations; and 
+
+ • 
+ Our products may cause or contribute to adverse medical events or be subject to failures or malfunctions that we are required to report to the FDA, and if we fail to do so, we would be subject to sanctions that could harm our reputation, business, financial condition and results of operations; and 
+
+ • 
+ Evolving FDA regulatory frameworks for AI-and machine learning-enabled medical devices may impose additional requirements on our products and limit our ability to update or improve our algorithms. 
+
+ Risks Related to Our Intellectual Property: 
+
+ • 
+ If we are unable to obtain and maintain effective patent rights for our products, we may not be able to compete effectively in our markets. If we are unable to protect the confidentiality of our trade secrets or know-how, such proprietary information may be used by others to compete against us; 
+
+ • 
+ The EU Artificial Intelligence Act imposes additional regulatory obligations on AI-based medical devices that could increase our compliance costs and delay or limit our ability to commercialize AI-ECG algorithms in the EU. 
+
+ • 
+ Intellectual property rights of third parties could adversely affect our ability to market our products, and we might be required to litigate or obtain licenses from third parties in order to develop or market our products. Such litigation or licenses could be costly or not available on commercially reasonable terms; and 
+
+ • 
+ We may be subject to claims challenging the inventorship of our intellectual property. 
+
+ 22
+
+ Table of Contents 
+
+ Risks Related to Our License Agreements with Mount Sinai: 
+
+ • 
+ We depend in part on the Mount Sinai Licenses for certain of our planned AI-EC algorithm offerings, and the termination of, or our failure to satisfy obligations under those Licenses could have an adverse effect on our business; 
+
+ Risks Related to Our Proposed Merger with Fortitude: 
+
+ • 
+ Our proposed merger with Fortitude (as defined below) is subject to certain conditions, as well as other uncertainties and there can be no assurances as to whether or when it may be completed. Failure to complete the proposed transactions contemplated by the Merger Agreement (as defined below) would likely materially adversely affect our business, financial condition, results of operations and stock price. 
+
+ Risks Related to the Ownership of our Securities: 
+
+ • 
+ The market price of our Common Stock may be highly volatile, and you could lose all or part of your investment; 
+
+ • 
+ Future sales of a substantial number of shares of our Common Stock by our existing shareholders could cause our stock price to decline; 
+
+ • 
+ If securities or industry analysts do not publish or cease publishing research or reports about us, our business or our market, or if they publish negative reports regarding our business or our securities, our share price and trading volume could decline; 
+
+ • 
+ We are an “emerging growth company,” and any decision on our part to comply with certain reduced disclosure requirements applicable to emerging growth companies could make the Common Stock less attractive to investors; and 
+
+ • 
+ We may be required to effect additional reverse stock splits or other corporate actions to maintain compliance with Nasdaq continued listing requirements, and proposed changes to Nasdaq's listing standards could subject us to accelerated delisting risk. 
+
+ 23
+
+ Table of Contents 
+
+ RISK FACTORS 
+ 
+ Investing in our securities involves a high degree of risk. You should consider carefully the risks and uncertainties described below, together with all of the other information in this Annual Report on Form 10-K, including the financial statements and related notes, before deciding whether to purchase our securities. If any of the following risks are realized, our business, operating results, financial condition and prospects could be materially and adversely affected. In that event, the price of our Common Stock or IPO Warrants could decline, and you could lose part or all of your investment. 
+ 
+ Risks Related to Our Financial Condition and Capital Requirements 
+ 
+ There is substantial doubt about our ability to continue as a going concern, which could prevent us from obtaining new financing either on reasonable terms or at all. 
+ 
+ Our independent registered public accounting firm has issued an opinion on our audited financial statements included in this Annual Report on Form 10-K that contains an explanatory paragraph regarding substantial doubt about our ability to continue as a going concern because we have experienced recurring losses, negative cash flows from operations, and limited capital resources. These events and conditions indicate that a material uncertainty exists that may cast significant doubt on our ability to continue as a going concern. The perception that we may not be able to continue as a going concern may have a material adverse effect on our share price and our ability to raise new capital (whether it is through the issuance of equity or debt securities or otherwise), enter into critical contractual relations with third parties and otherwise execute our business objectives. Until we can generate significant recurring revenues, we expect to satisfy our future cash needs through debt or equity financing. We cannot be certain that additional funding will be available to us on acceptable terms, if at all. Our financial statements do not include any adjustments that may result from the outcome of this uncertainty. 
+ 
+ If we are unable to continue as a going concern, we may have to liquidate our assets, and the values we receive for our assets in liquidation or dissolution could be significantly lower than the values reflected in our financial statements. 
+ 
+ We have a limited operating history and we have incurred significant operating losses since our inception, and anticipate that we will incur continued losses for the foreseeable future. 
+ 
+ We are a development-stage medical device company with a limited operating history. In addition, we have limited experience and have not yet demonstrated an ability to successfully overcome many of the risks and uncertainties frequently encountered by companies in new and rapidly evolving fields. To date, we have generated limited revenue from the sale of the MyoVista wav ECG devices and have not generated revenues under MyoVista Insights™ during the development stage. We have incurred losses in each year since our inception, including net losses of approximately $9.1 million and $8.8 million for Fiscal 2026 and Fiscal 2025, respectively. As of April 30, 2026, we had an accumulated deficit of approximately $85.3 million and stockholder’s equity of approximately $0.2 million. See “Management’s Discussion and Analysis of Financial Condition and Results of Operations—Results of Operations” for additional information. 
+ 
+ Even if we obtain regulatory approval for sales launch the MyoVista wav ECG or successful commercialization of MyoVista Insights™ into the U.S., our future revenue will depend upon the size of the market in which any future products receive approval as well as our ability to achieve sufficient market acceptance, pricing, and reimbursement from third-party payors, which we may never achieve. 
+ 
+ We also anticipate that our expenses will increase substantially if and as we: 
+
+ • 
+ continue R&D; 
+
+ • 
+ are granted regulatory and marketing approvals; 
+
+ • 
+ establish a sales, marketing, and distribution infrastructure; 
+
+ • 
+ seek to identify, assess, acquire, license, and/or develop subsequent generations of our current products and any new products; 
+
+ • 
+ seek to maintain, protect, and expand our intellectual property portfolio; 
+
+ • 
+ seek to attract and retain skilled personnel; 
+
+ • 
+ create additional infrastructure to support our operations as a public company as well as our product development and planned future marketing efforts; and 
+
+ • 
+ experience any delays or encounter issues with respect to any of the above, including, but not limited to, failed studies, complex results, safety issues or other regulatory challenges that require longer follow-up of existing studies or additional supportive studies in order to pursue marketing approval. 
+
+ We expect to continue to incur significant operating losses for the foreseeable future. As a result of the numerous risks and uncertainties associated with developing medical devices, we are unable to predict the extent of any future losses or whether we will ever achieve and maintain profitability. Further, the operating losses that we incur may fluctuate significantly from quarter to quarter and year to year, such that a period-to-period comparison of our results of operations may not be a good indication of our future performance. Other unanticipated costs may also arise. 
+
+ 24
+
+ Table of Contents 
+
+ If we are unable to maintain compliance with all applicable continued listing requirements and standards of Nasdaq, our Common Stock could be delisted from Nasdaq. 
+ 
+ Our Common Stock and IPO Warrants are currently listed on Nasdaq, which has qualitative and quantitative listing criteria. In August 2023, we received a notice from the Listing Qualifications Department the Nasdaq Stock Market (“Nasdaq”), regarding the fact that the market price of our shares of common stock was below the $1.00 minimum bid price requirement for continued listing (the “Bid Price Rule”), which listing deficiency we cured in June 2024. There can be no assurance that we be able to continue to meet all of the other criteria necessary for Nasdaq to allow us to remain listed, including maintaining minimum levels of shareholders’ equity or market values of our common stock. If we fail to satisfy the applicable continued listing requirement and continue to be in non-compliance after notice and the applicable grace period ends, Nasdaq may commence delisting procedures against our Company (during which we may have additional time of up to six months to appeal and correct our non-compliance). At that time, we may appeal the relevant delisting determination to a hearings panel pursuant to the procedures set forth in the applicable Nasdaq Listing Rules. However, there can be no assurance that, if we do appeal the delisting determination by Nasdaq to the panel, that such appeal would be successful. 
+ 
+ On January 15, 2025, the SEC approved an amendment to the Nasdaq Listing Rule 5810(c), which limits the conditions under which a listed company can use a reverse stock split to meet Nasdaq’s minimum price criteria. In particular, the amendment provides that if a company executes a reverse stock split to regain compliance with the Listing Rule but its stock price falls below $1.00 per share within one year after a company has completed a reverse split, the company will not be granted a new compliance period to address the bid price deficiency. Instead, Nasdaq will move forward with delisting proceedings. If in the future we need to implement a reverse stock split, the amendment to such Listing Rule may cause our board of directors to choose a higher reverse stock split ratio than it otherwise would have deemed appropriate and would make it more difficult for us to maintain our Nasdaq listing if our stock price dropped below the Bid Price Rule listing requirements in the future. If we need to seek to implement a reverse stock split in the future in order to remain listed on Nasdaq, the announcement or implementation of such a reverse stock split could negatively affect the price of our common stock. 
+ 
+ On March 19, 2025, we received a letter from Nasdaq stating that we were not in compliance with the minimum stockholders’ equity requirement for continued listing on the Nasdaq Capital Market, under Listing Rule 5550(b)(1) (the “Minimum Stockholders’ Equity Requirement”), because our stockholders’ equity of $1,786,689 as reported in our Quarterly Report on Form 10-Q for the period ended January 31, 2025, was below the required minimum of $2.5 million, and because, as of January 31, 2025, we did not meet the alternative compliance standards, relating to the market value of listed securities of $25 million or net income from continuing operations of $500,000 in the most recently completed fiscal year or two of the last three most recently completed fiscal years. On May 5, 2025, we submitted to Nasdaq a plan to regain compliance with the Minimum Stockholders’ Equity Requirement. On May 14, 2025, Nasdaq notified us that they granted us an extension of up to 180 calendar days from March 19, 2025, or through September 15, 2025, to regain compliance. On September 16, 2025, we received formal notice from the Staff of Nasdaq indicating that we have regained compliance with the Minimum Stockholders’ Equity Requirement and the matter is now closed. As reported in this Annual Report on Form 10-K, our stockholders’ equity as of April 30, 2026 was approximately $0.2 million, which is below the $2.5 million minimum required by Listing Rule 5550(b)(1), and we did not meet the alternative compliance standards as of that date. We therefore expect to receive a further notification from Nasdaq indicating that we are not in compliance with the Minimum Stockholders’ Equity Requirement following the filing of this Annual Report on Form 10-K. There can be no assurance that we will be able to regain compliance with the Minimum Stockholders’ Equity Requirement within any compliance or extension period that Nasdaq may grant, or that Nasdaq will grant such an extension, and our failure to regain compliance could result in delisting of our Common Stock and IPO Warrants from Nasdaq. 
+ 
+ If our Common Stock and IPO Warrants are ultimately delisted from Nasdaq, our Common Stock and IPO Warrants would likely then trade only in the over-the-counter market and the market liquidity of Common Stock and IPO Warrants could be adversely affected and their market price could decrease. If our Common Stock and IPO Warrants were to trade on the over-the-counter market, selling our Common Stock and IPO Warrants could be more difficult because smaller quantities of shares would likely be bought and sold, transactions could be delayed, and we could face significant material adverse consequences, including: a limited availability of market quotations for our securities; reduced liquidity with respect to our securities; a determination that our shares are a “penny stock,” which will require brokers trading in our securities to adhere to more stringent rules, possibly resulting in a reduced level of trading activity in the secondary trading market for our securities; a reduced amount of news and analyst coverage for our Company; and a decreased ability to issue additional securities or obtain additional financing in the future. These factors could result in lower prices and larger spreads in the bid and ask prices for our Common Stock and IPO Warrants and would substantially impair our ability to raise additional funds and could result in a loss of institutional investor interest and fewer development opportunities for us. 
+ 
+ In addition to the foregoing, if our Common Stock and IPO Warrants are ultimately delisted from Nasdaq and they trade on the over-the-counter market, the application of the “penny stock” rules could adversely affect the market price of our Common Stock and IPO Warrants and increase the transaction costs to sell those shares or IPO Warrants. The SEC has adopted regulations which generally define a “penny stock” as an equity security that has a market price of less than $5.00 per share, subject to specific exemptions. If our Common Stock and IPO Warrants are ultimately delisted from Nasdaq and then trade on the over-the-counter market at a price of less than $5.00 per share, our Common Stock would be considered a penny stock. The SEC’s penny stock rules require a broker-dealer, before a transaction in a penny stock not otherwise exempt from the rules, to deliver a standardized risk disclosure document that provides information about penny stocks and the risks in the penny stock market. The broker-dealer must also provide the customer with current bid and offer quotations for the penny stock, the compensation of the broker-dealer and the salesperson in the transaction, and monthly account statements showing the market value of each penny stock held in the customer’s account. In addition, the penny stock rules generally require that before a transaction in a penny stock occurs, the broker-dealer must make a special written determination that the penny stock is a suitable investment for the purchaser and receive the purchaser’s agreement to the transaction. If applicable in the future, these rules may restrict the ability of brokers-dealers to sell our Common Stock and IPO Warrants and may affect the ability of investors to sell their shares, until our Common Stock is no longer considered a penny stock. 
+
+ 25
+
+ Table of Contents 
+
+ We may in the future be required to effect additional reverse stock splits or other corporate actions to maintain compliance with Nasdaq continued listing requirements. 
+ 
+ In May 2024, we effected a 1-for-100 reverse stock split of our Common Stock to regain compliance with the Nasdaq minimum bid price requirement. We may in the future be required to effect additional reverse stock splits or take other corporate actions to maintain compliance with the minimum bid price requirement or other continued listing standards. Reverse stock splits can have unpredictable effects on trading volume, liquidity, market perception and the trading price of our Common Stock, including post-split price declines, and may not produce sustained compliance with applicable requirements. 
+ 
+ Our future operating results are dependent on receiving regulatory approval for the MyoVista wav ECG and associated AI-ECG algorithms and/or regulatory clearances for the MyoVista wavECG and associated AI-ECG algorithms or the MyoVista Insights™ from state regulators , which we have not received as of the date of filing of this Annual Report on Form 10-K . 
+ 
+ The MyoVista wav ECG is our first product candidate for FDA clearance. As a result, the success of our business plan is entirely dependent on our ability to obtain regulatory approval and to subsequently develop, manufacture and launch sales of the MyoVista wav ECG into the U.S. Our failure to do so would likely cause our business to fail. Successful marketing of medical devices is a complex, lengthy, costly and uncertain process, dependent on the efforts of management, manufacturers, local operators, integrators, medical professionals, third-party payors, as well as general economic conditions, among other factors. For more information, see “—Risks Related to Our Business and Industry—Our future success depends on our ability to develop, receive regulatory clearance or approval for, and introduce our products to the market in a timely manner. If we do not obtain and maintain the regulatory registrations and clearances for our products, we will be unable to market and sell in the United States, Europe or other regions.” Any factor that adversely impacts the approval, development and sales launch of the MyoVista wav ECG device or the MyoVista Insights™ into the U.S. will have a negative impact on our business, financial condition and results of operations. We have developed the MyoVista Insights™ to offer access to multiple AI-ECG cardiovascular algorithms and, in the future, we also intend to incorporate multiple AI-ECG algorithms in the MyoVista wav ECG. 
+ 
+ We may face several challenges with respect to launching sales of our products into the U.S. including, among others, that: 
+
+ • 
+ we may fail to obtain regulatory clearance or approvals or, even if regulatory approval is obtained, we may face adverse regulatory and/or legal actions; 
+
+ • 
+ we may not have adequate financial or other resources to properly market our products or sell them in economically viable quantities; 
+
+ • 
+ we may not be able to manufacture in commercial quantities, at an adequate quality or at an acceptable cost; 
+
+ • 
+ we may not be able to establish adequate sales, marketing and distribution channels; 
+
+ • 
+ healthcare professionals and patients may not accept our products; 
+
+ • 
+ we may not be able to compete with existing solutions for cardiac screening; 
+
+ • 
+ technological breakthroughs in heart disease screening solutions may reduce the potential demand for our products; 
+
+ • 
+ third-party payors may not agree to reimburse patients for any or all of the charges related to the use of our products, which may adversely affect physicians’ adoption and use of our products; and 
+
+ • 
+ we may face third-party claims of intellectual property infringement. 
+
+ If we are unable to obtain regulatory approval and accomplish any one or more of the challenges listed above, our ability to effectively launch sales of the MyoVista wav ECG device and associated AI-ECG algorithms or the MyoVista Insights™ into the U.S. could be limited, which in turn could have a material adverse effect on our business, financial condition and results of operations. For additional information regarding risks related to our ability to successfully develop, market and sell our products, see “—Risks Related to Our Business and Industry—Our success will be dependent upon physician acceptance.” 
+
+ 26
+
+ Table of Contents 
+
+ We will need to raise substantial additional funding, which may not be available on acceptable terms, or at all. Failure to obtain funding on acceptable terms and on a timely basis may require us to curtail, delay or discontinue our development efforts and other operations. 
+ 
+ If we are unable to obtain funding on a timely basis, we may (i) not be able to complete the process of FDA clearance, (ii) need to significantly curtail, delay or discontinue our efforts to launch sales of our products into the U.S. if FDA clearance is achieved or (iii) be unable to continue operations or otherwise capitalize on our business opportunities, as desired, which could materially affect our business, financial condition and results of operations. Even if we achieve FDA clearance, we expect that we will require substantial additional capital for sales launch and marketing of our products. In addition, our planned expenses and operations may change as a result of many factors that could be currently unknown to us and we may need to seek additional funds sooner than planned. Our future funding requirements will depend on many factors including: 
+
+ • 
+ the progress, results and costs of our ongoing and planned studies and, if applicable, clinical trials related to the use of our products as well as any future products and services; 
+
+ • 
+ the cost, timing and outcomes of regulatory review of current and any future products and services; 
+
+ • 
+ the scope, progress, results and costs of product development, testing, manufacturing, pre-clinical development and, if applicable, clinical trials for any other product that we may develop or otherwise obtain in the future; 
+
+ • 
+ the cost of our future activities, including establishing sales, marketing and distribution capabilities for our products, in any particular geography, where we receive marketing and/or regulatory approval; 
+
+ • 
+ the terms and timing of any collaborative, licensing, payment plan and/or other arrangements that we may establish; 
+
+ • 
+ the costs of preparing, filing and prosecuting patent applications, maintaining and enforcing our intellectual property rights and defending any intellectual property-related claims; and 
+
+ • 
+ the level of revenue, if any, received from commercial sales of our products if we receive approval for sales launch of our products into the U.S. 
+
+ We could also be required to seek additional funds at an earlier stage than would otherwise be desirable and, as a result, we may be required to relinquish rights to some of our intellectual property, our device, or otherwise agree to terms unfavorable to us or our shareholders, any of which may have a material adverse effect on our business. Even if we believe that we have sufficient funds for our current or future operating plans, we may seek additional capital if market conditions are favorable or if we have specific strategic objectives such as acquiring IP, partnering with a vendor or other worthwhile business endeavors. 
+ 
+ Any additional fundraising efforts may divert our management from their day-to-day activities, which may adversely affect our ability to develop and launch sales of our current products as wells as any future products into the U.S. In addition, we cannot guarantee that future financing will be available in sufficient amounts or on terms acceptable to us, if at all. 
+ 
+ All of our assets are subject to security interests. 
+ 
+ Our ability to service our indebtedness will depend upon, among other things, further funding. A breach of the terms and conditions of our indebtedness would likely result in an event of default. If an event of default occurs (after any applicable notice and cure periods), the lenders would be entitled to accelerate the repayment of amounts outstanding (including accrued and unpaid interest and fees). Upon such a default, the lenders could also foreclose against any collateral securing such obligations, which consists of all of our assets. In addition to the assets securing our indebtedness, our obligation to pay certain royalties to the inventor of certain specified MyoVista wav ECG technology and proprietary and intellectual property rights thereto (including patents, copyright, trademarks, trade secrets and know-how) is secured by a first lien security interest. If we fail to pay those royalties, the inventor could foreclose on the technology. For more information, please see “Business—Intellectual Property.” If any such foreclosure occurred, we would likely not be able to continue to operate as a going concern. 
+
+ 27
+
+ Table of Contents 
+
+ We have identified weaknesses in our internal controls, and we cannot provide assurances that these weaknesses will be effectively remediated or that additional material weaknesses will not occur in the future. 
+ 
+ Prior to the completion of the IPO, we had been a private company with limited accounting personnel to adequately execute our accounting processes and limited supervisory resources with which to address our internal control over financial reporting. While a private company, we had not designed or maintained an effective control environment as required of public companies under the rules and regulations of the SEC. Management and our independent registered public accounting firm, Haskell & White LLP, identified several material weaknesses in our internal control over financial reporting in connection with our preparation and the audits of our financial statements for Fiscal 2026. 
+ 
+ A material weakness is a deficiency, or combination of deficiencies, in internal control over financing reporting such that there is a reasonable possibility that a material misstatement of our annual or interim financial statements will not be prevented or detected on a timely basis. The material weaknesses we and our independent registered public accounting firms identified are listed below: 
+
+ • 
+ lack of proper approval processes and review processes and documentation for such reviews; 
+
+ • 
+ we did not maintain sufficient U.S. GAAP and SEC accounting resources commensurate with those required of a public company; and 
+
+ • 
+ insufficient number of staff to maintain optimal segregation of duties and levels of oversight. 
+
+ These material weaknesses resulted in adjustments to our prior year financial statements primarily related to equity accounts, accruals, and inventory and could result in a misstatement of any account balances or disclosures that would result in a material misstatement to the annual or interim financial statements that would not be prevented or detected. 
+ 
+ We have taken and continue to take remedial steps to improve our internal controls over financial reporting, which includes establishing a more robust process related to review of complex accounting transactions, preparation of account reconciliations, and review of journal entries. Our Chief Financial Officer frequently attends continuing education for updates on accounting policies and procedures. We cannot assure you that these measures will significantly improve or remediate the material weaknesses described above. Management is monitoring the effectiveness of these and other processes, procedures and controls and will make any further changes deemed appropriate. Management believes the foregoing actions will effectively remediate the material weaknesses, however, our material weaknesses will not be considered remediated until controls are in place for a period of time, the controls are tested, and management concludes that the controls are properly designed and operating effectively. As a result, the timing of when we will be able to fully remediate the material weaknesses is uncertain. If the steps we take do not remediate the material weaknesses in a timely manner, there could continue to be a reasonable possibility that these control deficiencies or others would result in a material misstatement of our annual or interim financial statements that would not be prevented or detected on a timely basis. This, in turn, could jeopardize our ability to comply with our reporting obligations, limit our ability to access the capital markets and adversely impact our stock price. 
+ 
+ Our independent registered public accounting firm was not required to perform an evaluation of our internal control over financial reporting as of either April 30, 2026 or April 30, 2025 in accordance with the provisions of the Sarbanes-Oxley Act. Accordingly, we cannot assure you that we have identified all, or that we will not in the future have additional, material weaknesses. Material weaknesses may still exist when we report on the effectiveness of our internal control over financial reporting in the future as required by reporting requirements under Section 404 of the Sarbanes-Oxley Act. 
+ 
+ If we are unable to successfully remediate the existing material weaknesses in our internal control over financial reporting, the accuracy and timing of our financial reporting, and our stock price, may be adversely affected and we may be unable to maintain compliance with the applicable stock exchange listing requirements. Implementing any appropriate changes to our internal controls may divert the attention of our officers and employees, entail substantial costs to modify our existing processes and take significant time to complete. These changes may not, however, be effective in maintaining the adequacy of our internal controls, and any failure to maintain that adequacy, or consequent inability to produce accurate financial statements on a timely basis, could increase our operating costs and harm our business. In addition, investors’ perceptions that our internal controls are adequate or that we are unable to produce accurate financial statements on a timely basis may harm our stock price and make it more difficult for us to effectively market and sell our services to new and existing customers. 
+
+ 28
+
+ Table of Contents 
+
+ Risks Related to Our Business and Industry 
+ 
+ Our future success depends on our ability to develop, receive regulatory clearance or approval for, and introduce the MyoVista wav ECG device to the market in a timely manner. If we do not obtain and maintain the regulatory registrations and clearances for our products, we will be unable to market and sell our products in the United States, Europe or other regions. 
+ 
+ In the United States, before we can market a new medical device, or a new use of, new claim for or significant modification to, an existing product, we must first receive either approval of a Premarket Approval Application, or PMA, clearance under Section 510(k), or be granted a De Novo classification, in accordance with the FDCA. For additional information on the PMA or the De Novo classification processes, see “Business—FDA and Other Government Regulation.” 
+ 
+ The FDA can delay, limit or deny clearance or approval of a medical device for many reasons, including: 
+
+ • 
+ we may not be able to demonstrate to the FDA’s satisfaction that our products are safe and effective for its intended use; 
+
+ • 
+ the data from our pre-clinical studies and clinical trials may be insufficient to support clearance or approval, where required; 
+
+ • 
+ the manufacturing process or facilities we use or contract to use may not meet applicable requirements; and 
+
+ • 
+ disruptions at the FDA caused by funding shortages, government shutdowns, organizational changes, or public health emergencies. 
+
+ 29
+
+ Table of Contents 
+
+ We previously submitted an FDA De Novo classification request in December 2019 and, following feedback and communications with the FDA during and since that submission, we have been making modifications to our device, including our proprietary algorithm. We subsequently submitted the MyoVista wav ECG device to the FDA for 510(k) premarket clearance in December 2025 and have licensed or developed additional AI-ECG algorithms that may be submitted for regulatory clearance in the future. The future success of the MyoVista wav ECG device is dependent on obtaining FDA clearance and the integration of an impaired cardiac relaxation (e’) AI-ECG algorithm under development. Following the publication of updated ASE guidelines for the assessment of LVDD, including revised age-based thresholds for cardiac relaxation (e’), we elected to separate the FDA submissions for the MyoVista wavECG device and the impaired cardiac relaxation algorithm. Additional development and validation will be required for the impaired cardiac relaxation algorithm to align with the updated clinical standards. Despite the time, effort and cost, our 510(k) application may not be granted by the FDA in a timely manner or at all. Any delay or failure to obtain necessary regulatory clearances or approvals could harm our business. Furthermore, even if we are granted regulatory clearances or approvals, they may include significant limitations on the indicated uses for our products, which may limit the market for the device in the United States. 
+ 
+ In order to sell the device in member countries of the EEA, our device must comply with the essential requirements of the EU Medical Device Regulation (EU) 2017/745, or EU MDR. Compliance with these requirements is a prerequisite to be able to affix the Conformité Européene, or CE, mark to our device, without which it cannot be sold or marketed in the EEA. For additional information on the PMA or the De Novo classification processes, see “Business—FDA and Other Government Regulation.” 
+ 
+ The Company previously achieved a CE Mark under the MDD in February 2017. The Medical Device Directive was established on June 14, 1993 but the MDD regulatory framework, has since been replaced by EU MDR. In order to sell in member countries of the EEA, our devices must now comply with the essential requirements of the EU MDR. Our CE Mark issued under the MDD lapsed in February 2022 and we will need to establish compliance under EU MDR. An updated CE mark certificate under EU MDR, which we have not yet obtained, would entitle the Company to market the MyoVista wav ECG in the European Economic Area as well as other countries for which CE Mark represents an appropriate regulatory standard. 
+ 
+ Sales of our products outside of the United States and the EEA are also subject to foreign regulatory requirements that vary widely from country to country. Approval procedures vary among countries and can involve additional testing. Complying with foreign regulatory requirements, including obtaining registrations, clearances or approvals, can be expensive a

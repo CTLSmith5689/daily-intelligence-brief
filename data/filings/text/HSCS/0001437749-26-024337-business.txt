@@ -1,0 +1,250 @@
+Item 1. Business. 
+ 
+ Company Overview 
+ 
+ We are a healthcare information technology company focused on advancing electrocardiography (“ECG” or “EKG”) through the integration of artificial intelligence (“AI”). Our first commercial product is MyoVista Insights™, a cloud-native, vendor- and device-agnostic ECG management platform designed to modernize ECG workflows and enable scalable deployment of AI-ECG capabilities across healthcare systems. 
+ 
+ MyoVista Insights™ is classified as a Medical Device Data System (“MDDS”) and is exempt from the FDA 510(k) requirements. The platform is designed to streamline ECG study organization, enhance waveform analysis, and simplify clinical workflows, enabling more efficient interpretation, storage, and management of ECG data. It is also designed to host AI-ECG algorithms from multiple vendors and integrate them directly into clinical workflows, providing a flexible and extensible foundation for the adoption of AI in ECG. 
+ 
+ Following its early adopter launch in 2025, we have implemented phased enhancements to MyoVista Insights™. In March 2026, we released a significant version upgrade for broader deployment across cardiology and healthcare IT environments. This release included mobile device access, enhanced reporting capabilities, and expanded interoperability designed to support integration across large health systems and enterprise environments. 
+ 
+ In March 2026, MyoVista Insights™ received Epic Toolbox designation for the ECG Management System category from Epic Systems Corporation. We believe this designation supports its positioning within enterprise healthcare IT ecosystems and may facilitate adoption within Epic-enabled health systems. 
+ 
+ We expect to generate revenue from installation fees, software-as-a-service (“SaaS”) usage fees, and fees associated with AI-ECG algorithms made available through the platform’s AI-ECG marketplace, including third-party algorithms. 
+ 
+ We have also developed the MyoVista® wavECG™ device, which provides conventional ECG functionality and is designed to host embedded AI-ECG algorithms. We submitted the MyoVista wavECG device to the FDA for 510(k) premarket clearance in December 2025, and the submission remains under FDA review. We cannot provide assurance on the timing or outcome of the FDA’s review, and there can be no assurance that 510(k) clearance will be obtained. 
+ 
+ The future success of the MyoVista wavECG device is dependent on obtaining FDA clearance and the integration of AI-ECG algorithms, including an impaired cardiac relaxation (e’) algorithm under development. Following updated American Society of Echocardiography (“ASE”) guidelines for the assessment of Left Ventricular Diastolic Dysfunction (“LVDD”), including revised age-based thresholds for cardiac relaxation (e’), we elected to separate the FDA submissions for the device and the impaired cardiac relaxation algorithm. Additional development and validation will be required to align the algorithm with the updated clinical standards. 
+ 
+ We will require additional funding to support working capital, continued development and commercialization of MyoVista Insights™, and regulatory clearance of the MyoVista wavECG device and associated AI-ECG algorithms. 
+
+ 4
+
+ Table of Contents 
+
+ Heart Disease Facts and Current ECG Testing Limitations 
+ 
+ Heart disease refers to a variety of conditions that affect the heart, including heart rhythm disorders, valvular disease, congenital defects and vascular diseases such as CAD. It is often referred to as the “silent killer” due to its asymptomatic progression. 
+ 
+ According to the American Heart Association, one in three patients are not diagnosed until after a heart attack occurs, and 50% of men and 64% of women who die suddenly of coronary heart disease had no prior symptoms. Data from the CDC indicate that heart disease is the leading cause of death in the United States across most demographic groups, with one death occurring approximately every 34 seconds. Approximately 20.5 million adults in the United States have CAD, and about one in five heart attacks is silent. 
+ 
+ Globally, cardiovascular disease remains the leading cause of death. The World Health Organization estimates that approximately 19.8 million people died from cardiovascular diseases in 2022, representing 32% of all global deaths. 
+ 
+ Despite its widespread use, the conventional ECG has limited sensitivity for detecting CAD and structural heart disease. As a result, it is not considered a reliable standalone diagnostic tool for early detection of many cardiac conditions. 
+ 
+ AI-ECG algorithms have demonstrated the ability to detect a broader range of cardiac conditions from ECG data than is possible through traditional interpretation, creating the potential to enhance the clinical utility of ECG as a front-line diagnostic tool, and offer the potential for earlier, more effective detection in healthcare settings other than cardiology. 
+
+ 5
+
+ Table of Contents 
+
+ Overuse of Expensive Cardiology-Based Diagnostic Testing 
+ 
+ We believe that the absence of cost-effective front-line or primary-care-based testing has resulted in the over-use of costly cardiology-based diagnostic tests. Noninvasive cardiac tests are significant contributors to healthcare costs, accounting for approximately 20% to 30% of Medicare Part B spending on medical imaging, or approximately $4 to $6 billion annually according to the U.S. Centers for Medicare & Medicaid Services (“CMS”). There are a variety of effective, though expensive, diagnostic tests used for patients to detect heart disease. These diagnostic tests are typically performed in a specialist cardiology or hospital setting and may include: 
+
+ • 
+ Stress ECG testing , a non-invasive diagnostic test with a cost of approximately $200 with, according to the American College of Cardiology, a sensitivity of 68% in the detection of CAD; 
+
+ • 
+ Echocardiogram , or echo, a non-invasive diagnostic imaging test, similar to an ultrasound, which is effective in the detection of heart disease; however, the Medicare cost of an echo in a hospital is approximately $500 in a hospital outpatient setting and can be as much as $3,000 if performed privately; 
+
+ • 
+ Cardiac imaging tests , such as nuclear stress tests and coronary computerized tomography angiograms alternatively can be conducted noninvasively, but typically cost $1,000 or more; or 
+
+ • 
+ Coronary angiogram , an invasive test in which dye that is visible by X-ray is injected into the blood vessels of the heart. A coronary angiogram can cost in excess of $5,000. 
+
+ ECG Usage and AI-ECG Algorithms 
+ 
+ Despite current clinical limitations, the ECG is one of the most widely used diagnostic tests globally, with an estimated 1.5 to 3 million tests performed daily worldwide. The global ECG market is projected to grow significantly, driven by increased demand and technological advancements. 
+ 
+ In recent years, there have been a significant number of clinical publications on AI-based ECG algorithms which demonstrate the ability to detect a wide range of cardiac conditions using an ECG that were not previously possible with human interpretation of the ECG trace and have traditionally required cardiac imaging. These include systolic dysfunction, diastolic dysfunction, hypertrophic cardiomyopathy, heart valve abnormalities, coronary arterial disease, and pulmonary hypertension amongst others. The ability to identify a much broader range of conditions using an ECG offers the prospect of earlier detection of heart disease in healthcare settings other than cardiology. 
+ 
+ In 2022 the American Medical Association (“AMA”) issued new Category III Current Procedural Terminology (CPT®) codes for novel AI assistive algorithmic ECG risk assessment for cardiac dysfunction. In late 2023, the FDA granted clearance for the first AI-ECG algorithm under the De Novo pathway which established a 510(k) predicate pathway under which FDA clearance has been issued for several further AI-ECG algorithms covering a variety of indications for use. In 2025 the Centers for Medicare & Medicaid Services (CMS) included AI-ECG technology in the 2025 Hospital Outpatient Prospective Payment System (OPPS) final rule under assignment APC 5734. This approval allows outpatient settings to receive reimbursement AI-ECG and the payment rate is approximately $136. Clinical adoption of AI-ECG is now commencing, which we expect will become a very significant market opportunity and increase ECG usage. 
+ 
+ MyoVista Insights Platform and Related AI-ECG Algorithms 
+ 
+ MyoVista Insights™ is designed as a cloud-native ECG management and analytics platform that serves as a centralized hub for ECG data, workflow management, and AI-enabled analysis. Key platform capabilities include: 
+
+ • 
+ Centr alized ECG storage and management; 
+
+ • 
+ Advanced waveform visualization and reporting tools; 
+
+ • 
+ Workflow optimization and study organization; 
+
+ • 
+ Interoperabilit y with electron ic medical record systems and ECG devices; and 
+
+ • 
+ Integration of multiple AI-ECG algorithms within clinical workflows. 
+
+ 6
+
+ Table of Contents 
+
+ The platform is designed to support an AI-ECG marketplace, enabling the integration of algorithms developed by both HeartSciences and third parties. This model is intended to expand clinical applications, accelerate deployment, and reduce reliance on internal algorithm development. 
+ 
+ We are in discussion with several third-party AI-ECG algorithm development companies regarding hosting and commercialization arrangements on the platform, including for algorithms that have received FDA or other regulatory clearance, and we expect to enter into one or more such arrangements as the marketplace develops. We also hold multiple license agreements entered into in 2023 with the Icahn School of Medicine at Mount Sinai, New York (“Mount Sinai”) covering a range of AI-ECG algorithms, including an aortic stenosis algorithm that received FDA Breakthrough Device Designation in 2025, and we intend to bring forward selected licensed algorithms based on commercial viability and regulatory pathway. 
+ 
+ In March 2026, we released a significant version upgrade for broader deployment across cardiology and healthcare IT environments. This release included mobile device access, enhanced reporting capabilities, and expanded interoperability designed to support integration across large health systems and enterprise environments. MyoVista Insights™ has also received Epic Toolbox designation for the ECG Management System category from Epic Systems Corporation. We believe this designation supports its positioning within enterprise healthcare IT ecosystems and may facilitate adoption within Epic-enabled health systems. 
+ 
+ We deployed MyoVista Insights™ into several healthcare settings during our early adopter phase, and we are now focused on establishing key commercial reference sites and revenue generating installations. We recently announced commercial customer engagements for MyoVista Insights™ and we are in active discussions regarding additional customer engagements. 
+ 
+ MyoVista wav ECG Device 
+ 
+ The MyoVista wavECG device is a 12-lead ECG system designed to complement the MyoVista Insights™ platform by enabling point-of-care ECG acquisition and analysis. The device includes conventional ECG functionality, including the Glasgow ECG Interpretation Algorithm, and is designed to incorporate embedded AI-ECG algorithms. 
+ 
+ We submitted the MyoVista wavECG device to the FDA for 510(k) premarket clearance in December 2025. The submission remains under FDA review, and we cannot provide assurance on the timing or outcome of the review process. There can be no assurance that 510(k) clearance will be obtained, or that it will be obtained without modifications to the device, additional data requests, or other conditions imposed by the FDA. The future success of the MyoVista wavECG device is dependent on obtaining FDA clearance and the integration of AI-ECG algorithms, including an impaired cardiac relaxation (e’) algorithm under development. Following updated American Society of Echocardiography (“ASE”) guidelines for the assessment of Left Ventricular Diastolic Dysfunction (“LVDD”), including revised age-based thresholds for cardiac relaxation (e’), we elected to separate the FDA submissions for the device and the impaired cardiac relaxation algorithm. Additional development and validation will be required to align the algorithm with updated clinical standards. 
+
+ 7
+
+ Table of Contents 
+
+ Market Opportunity 
+ 
+ Diagnostic Gap 
+ 
+ We believe that one of the most significant unmet needs in cardiovascular care is the early identification of heart disease. Heart disease often remains asymptomatic until advanced stages, contributing to high rates of undiagnosed disease. 
+ 
+ In addition to this clinical gap, we believe there is a structural gap in how ECG data is managed and utilized. Despite being one of the most widely used diagnostic tests, ECG data is often fragmented across systems, limiting its clinical utility and integration into broader care pathways. 
+ 
+ Need for Modernization of ECG Workflows and Infrastructure 
+ 
+ ECG management within healthcare systems is frequently characterized by legacy systems, manual workflows, and limited interoperability. These constraints can lead to inefficiencies in data access, delays in interpretation, and challenges in longitudinal patient analysis. 
+ 
+ MyoVista Insights is designed to address these limitations by providing a centralized, cloud-native ECG management platform that simplifies workflows, standardizes data management, and integrates with existing healthcare IT systems. 
+ 
+ Expansion of Addressable Market Through SaaS Delivery 
+ 
+ We believe that the availability of a cloud-based, SaaS ECG management platform has the potential to expand the overall addressable market beyond institutions currently using traditional ECG management systems. 
+ 
+ In the United States, there are a significant number of healthcare settings that perform ECG testing but do not have centralized ECG management infrastructure, often due to cost constraints, complexity, or IT limitations, and where manual processes or paper-based workflows remain commonplace. MyoVista Insights has been designed to scale from primary care environments through to large health systems, which we believe significantly expands the addressable market. 
+ 
+ A similar dynamic exists in international markets. There are significant regions and countries, including India and other developing healthcare systems, where ECG usage is widespread and cost-effective testing is essential, but where centralized ECG management systems may be limited or not currently in place. In such environments, we believe MyoVista Insights™ may offer a more practical and scalable alternative to traditional systems, or a solution where one does not currently exist. 
+ 
+ We believe that a SaaS-based model, combined with device-agnostic deployment, enables access to these underpenetrated markets and may support broader adoption across a wider range of healthcare providers. 
+ 
+ Interoperability, Cybersecurity and SaaS Adoption 
+ 
+ Healthcare providers are increasingly prioritizing interoperability and data security. Many existing ECG management solutions rely on on-premise or proprietary architectures that can be difficult to integrate and maintain. 
+ 
+ MyoVista Insights™ is designed as a cloud-based platform with interoperability capabilities and centralized data management, which we believe can support improved system integration, data governance, and cybersecurity. In addition, the platform is delivered as a software-as-a-service (“SaaS”) solution, aligning with broader healthcare IT trends toward lower upfront costs, scalability, and reduced internal IT burden. 
+
+ 8
+
+ Table of Contents 
+
+ AI-ECG as an Emerging Layer Within Clinical Workflow 
+ 
+ Advances in AI-ECG algorithms have demonstrated the ability to enhance the diagnostic capability of ECG. However, we believe that widespread adoption will depend on the ability to deploy and manage multiple algorithms within routine clinical workflows. 
+ 
+ MyoVista Insights™ is designed to function as an AI-ECG orchestration platform, enabling healthcare providers to access and deploy multiple algorithms within a single integrated environment. This approach is intended to simplify adoption, support scalability, and enable the use of both proprietary and third-party algorithms. 
+ 
+ Overuse of Expensive Cardiology-Based Diagnostic Testing 
+ 
+ Limitations of conventional ECG contribute to the use of higher-cost diagnostic testing. Non-invasive cardiac tests are estimated to account for approximately 20% to 30% of Medicare Part B imaging spend, approximately $4 to $6 billion annually according to CMS. 
+ 
+ We believe that enhancing ECG through improved data infrastructure and AI-enabled analysis may support more efficient patient triage and reduce reliance on higher-cost diagnostic procedures. 
+ 
+ Growing ECG Market 
+ 
+ ECG remains one of the most widely used diagnostic tests globally, with an estimated 1.5 million to 3.0 million ECGs performed daily worldwide and more than 100 million annually in the United States. 
+ 
+ We believe that improving how ECG data is managed, analyzed, and integrated into clinical workflows can increase its overall clinical and operational value. 
+ 
+ Impetus to Identify Risks Earlier for More Effective Low-Cost Testing 
+ 
+ Healthcare systems are increasingly focused on cost containment and preventative care. We believe that improving ECG-based diagnostics, combined with modern data infrastructure, may support earlier identification of at-risk patients in a cost-effective manner. 
+ 
+ Changing Healthcare Delivery and Reimbursement Models 
+ 
+ The expansion of care into outpatient and alternative settings, together with the growth of value-based care and capitation models, is increasing the importance of efficient, scalable diagnostic solutions. 
+ 
+ We believe that solutions that improve detection, integrate into clinical workflows, and support risk identification may align with these evolving healthcare delivery and reimbursement models. 
+
+ 9
+
+ Table of Contents 
+
+ Competitive Strengths and Market Strategy 
+ 
+ We believe our competitive strengths derive from our platform-centric approach, which focuses on simplifying existing ECG workflows while enabling scalable integration of AI-ECG capabilities. 
+ 
+ Platform-Centric Strategy Focused on Workflow Enablement 
+ 
+ Our strategy is centered on MyoVista Insights™ as a cloud-based ECG management and AI orchestration platform. We are focused on simplifying and improving processes that are already widely performed within healthcare systems, including ECG acquisition, storage, interpretation, and reporting. 
+ 
+ We believe that by improving workflow efficiency, reducing system fragmentation, and simplifying data management, MyoVista Insights™ can deliver operational and economic benefits independent of AI-ECG adoption. This positions the platform as both a foundational ECG management solution and a scalable infrastructure for future innovation. 
+ 
+ Ability to Benefit from AI-ECG Without Dependence on a Single Algorithm 
+ 
+ We are not solely an AI-ECG algorithm development company. While we develop and license algorithms, our platform strategy is designed to enable us to benefit from the broader adoption of AI-ECG regardless of which specific algorithms achieve clinical or commercial success. 
+ 
+ We believe this approach reduces dependency on the development, regulatory approval, and market adoption of any single algorithm and allows us to participate in the growth of the AI-ECG market without bearing the full cost, time, and risk associated with creating that market. 
+ 
+ AI-ECG Orchestration Platform Designed for Clinical Workflow Integration 
+ 
+ Many AI-ECG solutions are delivered as standalone tools or application programming interfaces (APIs), which may require additional integration effort and may not align well with existing clinical workflows. 
+ 
+ MyoVista Insights™ is designed as an AI-ECG orchestration platform that enables multiple algorithms to be deployed, managed, and accessed within a unified clinical environment. By embedding AI-ECG outputs directly into existing workflows, the platform is intended to reduce implementation complexity and support more seamless clinical adoption. 
+ 
+ Vendor- and Device-Agnostic Architecture 
+ 
+ MyoVista Insights™ is designed to operate across a wide range of ECG devices and healthcare IT systems. This vendor- and device-agnostic approach allows healthcare providers to access AI-ECG capabilities without replacing existing infrastructure. 
+ 
+ We believe this flexibility lowers barriers to adoption and supports broader scalability across diverse healthcare environments. 
+ 
+ Marketplace Model Supporting Multiple Algorithms 
+ 
+ The platform is designed to host and integrate multiple AI-ECG algorithms, including third-party solutions. We believe this model enables healthcare providers to access a wider range of diagnostic capabilities and allows the platform to incorporate new algorithms as they emerge. 
+ 
+ This approach is intended to allow MyoVista Insights™ to evolve with advances in AI-ECG technology and to incorporate algorithms that achieve clinical acceptance, rather than being limited to a fixed or internally developed set of solutions. 
+ 
+ Alignment with Healthcare IT Trends 
+ 
+ MyoVista Insights™ is designed as a cloud-native, software-as-a-service platform. We believe this aligns with healthcare providers’ increasing preference for scalable, subscription-based solutions that reduce capital expenditures and internal IT complexity. 
+ 
+ In addition, centralized architecture may support improved data governance, system updates, and cybersecurity management relative to legacy systems. 
+ 
+ Workflow Integration and Interoperability 
+ 
+ The platform is designed to integrate with electronic medical record systems and existing clinical workflows. We believe this integration is critical for adoption, as it enables ECG data and AI-derived insights to be delivered within the systems clinicians already use. 
+ 
+ Complementary Device Strategy 
+ 
+ While our primary focus is on the MyoVista Insights™ platform, the MyoVista wavECG device is designed to complement the platform by enabling integrated ECG acquisition and analysis at the point of care. 
+ 
+ We believe this combined approach provides flexibility in deployment, allowing healthcare providers to adopt our solutions through either existing ECG infrastructure or our proprietary device. 
+
+ 10
+
+ Table of Contents 
+
+ Competition 
+ 
+ The medical device industry is characterized by rapidly advancing technologies, intense competition, and a strong emphasis on proprietary products. There are many medical device companies, biotechnology companies, public and private universities and research organizations actively engaged in the R&D of products that may be similar to HeartSciences AI-ECG algorithms and MyoVista hardware. Competitors could include traditional ECG manufacturers such as GE Healthcare Technologies, Inc., (“GE Healthcare”), Koninklijke Philips N.V. (“Philips”), Baxter International, Inc. (“Baxter”), and Nihon Kohden Corporation that may seek to innovate, and new commercial entrants to the AI-ECG market, such as Anumana, Inc. or companies involved in AI healthcare, such as Tempus Labs, Inc. or VIZ.ai that also see the opportunity to bring innovation in a market that, we believe, has significant need for improved products and technology change. 
+ 
+ Intellectual Property 
+ 
+ Our technology is protected by a patent portfolio as well as trade secrets, which together comprise an important part of the intellectual property protection for our existing and licensed proprietary algorithms (especially when developing proprietary algorithms). We believe that the combination of patents and trade secrets creates valuable competitive barriers in favor of HeartSciences. 
+ 
+ The USPTO has issued nine utility patents and one design patent to us, and a patent allowance for a utility patent exclusively licensed to us. The patent expiration dates range from March 2031 to August 2040. We also have fourteen international design registrations and twenty-five international utility patents granted (with expiration dates ranging from September 2036 to March 2040) in jurisdictions such as China, Canada, Japan, Israel, India, Republic of Korea, the United Kingdom, France, Germany, Spain, Mexico, Italy, Netherlands, the United Arab Emirates, Brazil, and Australia and we currently have one patent allowance in Europe. 
+
+ 11
+
+ Table of Contents 
+
+ In addition, we have entered into two agreements that are material to our rights to the intellectual property utilized in the MyoVista wav ECG: 
+
+ • 
+ In January 2014, we entered into an invention assignment agreement under which certain specified MyoVista wav ECG technology and proprietary and intellectual property rights thereto (including patents, copyright, trademarks, trade secrets and know-how) were transferred and assigned to us by the inventor; and 
+
+ • 
+ In December 2015, we entered the Glasgow Licensing Agreement with The University Court of the University of Glasgow under which we obtained a non-exclusive, worldwide license to software modules for an Android platform for analysis of resting 12-lead electrocardiograms and all intellectual property rights (including patents, copyright, trademarks, trade secrets and know-how) relating to the software modules to be used in the MyoVista wav ECG. 
+
+ Research and Development 
+ 
+ The Company’s R&D staff designs our hardware, software and internally developed AI-ECG algorithms. Hardware development assistance is provided by outside consulting firms. The Company internally develops the software for the device along with th
