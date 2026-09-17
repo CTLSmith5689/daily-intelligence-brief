@@ -1,0 +1,346 @@
+Item
+1. Business. 
+
+ Overview 
+
+ Aeluma, Inc. (together with our subsidiary, “we,”
+“our,” “us,” or the “Company”) develops high-performance photonic and electronic technologies for
+communications and sensing in telecom, artificial intelligence (“AI”) datacom, mobile, defense and aerospace, robotics, automotive,
+augmented reality/virtual reality (“AR/VR”), and quantum applications. Our proprietary platform combines compound semiconductor
+materials with large-diameter substrates to leverage manufacturing infrastructure used in high-volume microelectronics. Our technology
+and product development activities have focused on photodetectors, photodetector arrays, lasers, optical amplifiers, and other technologies.
+Our photodetectors and photodetector arrays can detect near-infrared (“NIR”) and shortwave infrared (“SWIR”) light.
+Our lasers and optical amplifiers are primarily based on quantum dot technology. Aeluma’s platform may also be applied to other
+photonic and electronic devices, including transistors and solar cells. 
+
+ Our headquarters are in Goleta, California. Our
+principal research and development (“R&D”) and manufacturing facility is approximately 9,000 square feet and includes
+a cleanroom and equipment used for epitaxy wafer production, process development, prototyping, wafer-scale testing, and validation. During
+fiscal year 2026, we expanded our internal test and prototyping capabilities through the acquisition of automated and semi-automated wafer
+probers, packaging and prototyping equipment, test and validation instruments, and related facility infrastructure. We have extended the
+lease for our principal facility through March 2031 to support anticipated growth, and we also lease approximately 2,400 square feet of
+additional office space near our headquarters. We may require additional space in the future to support continued growth. 
+
+ We leverage a capital-efficient manufacturing
+model that combines internal materials production, process-development, prototyping, and test capabilities with external fabrication,
+packaging, and integration. We have relationships with production-scale foundries and other supply-chain partners, including relationships
+announced during fiscal year 2026 with Tower Semiconductor and Sumitomo Chemical Advanced Technologies for wafer production and fabrication.
+We expect these external capabilities to be important to our ability to qualify manufacturing processes and increase production capacity
+if substantial customer demand develops. 
+
+ We are transitioning from a predominantly R&D-stage
+business toward commercialization. Our revenue currently consists of government development contracts, with emerging commercial development
+and product revenue. We have delivered wafers, chips, and engineering samples, performed non-recurring engineering projects, and have
+begun accepting initial commercial sales orders. These initial commercial orders have been relatively small, and commercial customers
+generally require extensive evaluation and qualification before committing to production volumes. 
+
+ Plan of Operations 
+
+ Our operating priorities are to advance product
+development, complete customer and manufacturing qualifications, deliver on existing commercial and government contracts, increase manufacturing
+readiness, and convert qualified customer engagements into recurring product revenue. We expect to continue investing in engineering,
+materials growth, wafer fabrication, packaging, testing, quality systems, sales, and business development. 
+
+ We intend to continue supplying engineering samples,
+prototype wafers and chips, small volume products, and development services while customers evaluate our technology. We plan to work directly
+with prospective customers and with system integrators, module manufacturers, Tier-1 suppliers, component suppliers, semiconductor companies,
+and government prime contractors. We also intend to continue working with external foundries, packaging providers, and integration partners
+to establish repeatable, qualified production flows that can support large volumes. 
+
+ The timing and scale of commercialization will
+depend on several factors, including technical performance, reliability testing, customer qualification, product design decisions, supply
+chain readiness, and market demand. We may continue to derive a substantial portion of our revenue from government and customer development
+programs while commercial products progress through qualification. 
+
+ 1 
+
+ Our Strategy 
+
+ Advance a
+differentiated technology platform. 
+
+ We will continue to develop and broaden our heterogeneous
+integration platform across photodetectors, imaging arrays, lasers, nonlinear photonic materials, and other technologies, with an emphasis
+on products for which compound semiconductor performance and microelectronics-scale manufacturing can provide meaningful customer benefits. 
+
+ Focus resources
+on selected high-value markets. 
+
+ Priority applications include AI datacom, mobile
+and consumer electronics, defense and aerospace, and quantum. Adjacent opportunities include robotics, automotive, and AR/VR. We select
+opportunities based on performance requirements, potential production volume, time to qualification, expected economics, and strategic
+fit with our platform. 
+
+ Scale through
+a capital-efficient manufacturing ecosystem. 
+
+ We will continue to maintain internal capabilities
+in materials growth, process development, prototyping, and test, while using established foundries, packaging providers, and integration
+companies for production-scale activities. This model is intended to reduce the capital and time required to access larger-scale manufacturing
+infrastructure, although it also creates dependence on third-party capacity, quality, delivery, and pricing. 
+
+ Leverage
+funded development and strategic relationships. 
+
+ We use government sponsored R&D programs,
+customer funded engineering programs, strategic partnerships, and initial product sales to advance technology readiness and support the
+transition to commercial products. Government programs can help fund development and domestic manufacturing capabilities, but program
+requirements may differ from commercial customer requirements. 
+
+ Protect intellectual
+property and build organizational capability. 
+
+ We seek to continuously expand our patent portfolio,
+protect trade secrets and process know-how, as well as recruit personnel with experience in semiconductor manufacturing, product development,
+supply chain management, and commercialization. 
+
+ Our Technology 
+
+ Our technology is based on heterogeneous integration,
+which combines materials with different physical properties within a single semiconductor platform. We synthesize compound semiconductor
+materials on large-diameter substrates, such as silicon and gallium arsenide (“GaAs”), which are compatible with manufacturing
+infrastructure used for mainstream microelectronics. 
+
+ Compound semiconductors possess optical and electronic
+properties that are either superior to those of or not available from silicon. For example, indium gallium arsenide (“InGaAs”)
+can provide high sensitivity in the NIR and SWIR spectral regions. These characteristics may be useful for three-dimensional sensing,
+low-light imaging, industrial and robotic vision, defense imaging, optical communications, and other applications. Silicon image sensors
+generally offer low-cost and high-volume manufacturing but have declining sensitivity at longer NIR wavelengths and an absorption cutoff
+near 1,100 nanometers. Standard InGaAs devices commonly operate across approximately 900 to 1,700 nanometers, with extended-wavelength
+material systems capable of detecting longer wavelengths. Eye safety depends on wavelength, optical power, exposure duration, beam geometry,
+and applicable safety standards. At certain SWIR wavelengths, applicable exposure limits may permit higher optical power than at shorter
+NIR wavelengths because the radiation does not present the same risk of damage to the retina. Higher illumination levels can improve signal
+strength and signal-to-noise ratio, potentially increasing range, depth accuracy, and performance under bright ambient light or allowing
+shorter exposure times that reduce motion artifacts. These characteristics may benefit applications such as facial authentication and
+other three-dimensional sensing systems. 
+
+ 2 
+
+ InGaAs and similar materials are also commonly
+used for high-speed photodetection at wavelengths commonly used for optical communications. Photodetectors derived from these materials
+enable high-speed communications for telecommunications and AI data center networking. Aeluma’s platform may enable larger volume
+production and wafer-scale integration of such photodetectors. 
+
+ We are also developing quantum dot laser technology
+for optical communications and sensing applications. Silicon is well-suited for passive photonic circuits but does not efficiently generate
+light. Integrating compound semiconductor lasers with silicon can provide an on-chip or closely integrated optical source while retaining
+the scale and integration benefits of silicon manufacturing. Quantum dot lasers are being evaluated in the industry for potential advantages
+that include high power handling, reliability, and low noise, which may be relevant to data center interconnects, co-packaged optics,
+sensing, and quantum applications. 
+
+ In addition, we are developing a nonlinear photonics
+platform for the generation and manipulation of photons used in quantum communication, computing, and sensing. Our development work includes
+integration of compound semiconductor materials with silicon and silicon nitride photonic circuits. Competing nonlinear photonic material
+systems include lithium niobate, aluminum nitride, barium titanate, and other emerging materials. 
+
+ Our technology platform includes materials structures,
+epitaxial processes, device designs, wafer fabrication methods, integration techniques, packaging concepts, and system-level applications.
+Although our current commercial focus is on photonic sensing and communications products, the platform may support a broader range of
+photonic and electronic semiconductor devices. 
+
+ Competition 
+
+ We compete in rapidly evolving semiconductor,
+sensor, and photonics markets. Competition occurs at the device, materials, manufacturing platform, and system levels, and competitiveness
+is based on performance, reliability, power consumption, size, integration, manufacturability, cost, production capacity, supply assurance,
+intellectual property, customer relationships, and time to market. 
+
+ In imaging and sensing, silicon complementary
+metal-oxide semiconductor (“CMOS”) image sensors are widely used in high-volume consumer and automotive applications due to
+their low cost, mature manufacturing ecosystem, and high level of integration. Major suppliers include Sony, Samsung, OmniVision, onsemi,
+STMicroelectronics, Panasonic, Canon, SK hynix, and others. Traditional InGaAs sensor suppliers include Hamamatsu, Sumitomo, Teledyne
+FLIR, Excelitas, and others. Conventional InGaAs photodetectors are generally manufactured on relatively small InP substrates, commonly
+in the two- to four-inch range. Our objective is to compete by enabling compound semiconductor performance at potentially substantially
+lower cost by using large-diameter substrates and large-scale manufacturing methods, which may enable more devices per wafer, larger array
+formats, and access to wafer-scale integration and packaging infrastructure. 
+
+ In lasers and optical communications, we compete
+with established suppliers of InP, GaAs, and other compound semiconductor lasers, vertically integrated optical component manufacturers,
+silicon photonics companies, and emerging providers of integrated light sources. In quantum photonics, our technologies may compete with
+solutions based on lithium niobate, aluminum nitride, barium titanate, silicon, silicon nitride, and other materials, as well as with
+alternative system architectures. 
+
+ We believe our potential competitive advantages
+include the ability to integrate high-performance compound semiconductor materials on large-diameter substrates; a platform that can address
+photodetectors, lasers, and nonlinear photonics; domestic research, development, and wafer-production capabilities; and a capital-efficient
+manufacturing model that can use established foundries and packaging infrastructure. These potential advantages have not yet been demonstrated
+in large-volume commercial production. Existing and potential competitors may have greater name recognition, longer operating histories,
+broader product portfolios, larger customer bases, substantially greater financial, technical, and manufacturing resources, more mature
+quality systems, and stronger relationships with customers and supply chain partners. Competitors may also develop alternative technologies
+that achieve comparable or superior performance or cost. 
+
+ 3 
+
+ Customers 
+
+ Our customers and prospective customers include
+U.S. Government agencies and contractors, semiconductor and optical component companies, system integrators, module manufacturers, Tier-1
+suppliers, and manufacturers of mobile and consumer electronics, data center and communications equipment, defense and aerospace systems,
+and quantum technologies. Our engagements include government R&D contracts, customer-funded non-recurring engineering, wafer development,
+delivery of engineering samples, small-volume chips and wafer sales, and technical evaluations. 
+
+ During fiscal year 2026, we experienced increased
+customer and partner engagement across AI data center communications, mobile and consumer electronics, defense and aerospace, and quantum
+applications. We began receiving requests for price quotations and accepting initial commercial sales orders. These orders have been relatively
+small and may not lead to production orders. Prospective customers typically conduct extensive technical, reliability, manufacturing,
+and supply chain evaluations before selecting a new semiconductor component, manufacturing platform, or supplier. 
+
+ Our commercial strategy includes direct sales
+relationships and strategic partnerships. We may engage with customers directly or through manufacturing, packaging, module, system integration,
+or government prime contractor partners. Many of our customer and partner discussions are subject to confidentiality agreements, which
+can limit the information we publicly disclose regarding specific programs and counterparties. 
+
+ For the customer concentration disclosure, see
+ Concentration of Risk in Note 2 – Summary of Significant Accounting Policies 
+
+ Markets 
+
+ Our technology addresses markets in which system
+performance increasingly depends on the ability to generate, detect, transmit, or process light using compact, energy-efficient, and manufacturable
+semiconductor components. Industry demand is being influenced by growth in AI computing and data center bandwidth, increasing use of optical
+interconnects, the need for improved sensing in consumer and industrial systems, defense demand for advanced domestic semiconductor technologies,
+and continued investment in quantum technologies. 
+
+ AI infrastructure
+and optical communications 
+
+ AI clusters require increasingly high data transfer
+rates among processors, memory, and network equipment. This increases demand for optical transceivers, silicon photonics, lasers, and
+high-speed photodetectors and is driving interest in co-packaged optics and other architectures intended to reduce power consumption and
+improve bandwidth density. Our photodetector and quantum dot laser platforms are being developed for potential use in these applications. 
+
+ Mobile, consumer,
+AR/VR, robotics, and automotive sensing 
+
+ Mobile devices and other consumer products increasingly
+incorporate depth sensing, biometric authentication, low-light imaging, spatial mapping, and other optical functions. Related sensing
+capabilities are also being developed for AR/VR systems, industrial automation, robotics, and automotive applications. Our photodetector
+platform is intended to address applications that require performance beyond conventional silicon sensors while maintaining a path toward
+large-volume manufacturing. 
+
+ Defense and
+aerospace 
+
+ Defense and aerospace systems use high-performance
+photodetectors, imaging arrays, lasers, and optical communications for surveillance, navigation, targeting, electronic warfare, autonomous
+systems, and secure communications. These applications often require high-sensitivity, high-speed, low-size, low-weight, and low-power
+operation in demanding environments and a secure domestic supply chain. Our government-funded programs include development of SWIR imaging,
+high-speed photodetectors, heterogeneous integration, and quantum photonic technologies. 
+
+ 4 
+
+ Quantum technologies 
+
+ Quantum communication, computing, and sensing
+systems require high-quality photon sources, photodetectors, and nonlinear optical materials. The industry is working to transition these
+technologies from laboratory systems to manufacturable photonic integrated circuits. Our quantum dot laser, nonlinear materials, and photodetector
+platforms are intended to support this transition using large-diameter substrates and established photonic integration methods. 
+
+ The timing, size, and growth of these markets
+are uncertain, and broad market forecasts may not be representative of the portion that is addressable by our products. We prioritize
+specific product opportunities based on identifiable customer requirements, expected qualification timelines, potential production volume,
+competitive differentiation, and the resources required to reach commercial readiness. 
+
+ Intellectual
+Property 
+
+ Our intellectual property portfolio includes
+issued patents, pending patent applications, trade secrets, manufacturing know-how, process recipes, device designs, integration methods,
+and other proprietary information. Our portfolio includes approximately 36 issued and pending patents. Our patents and applications cover
+areas that include heterogeneous integration of compound semiconductor materials on large-diameter substrates, scalable manufacturing
+processes, photodetectors and imaging arrays, photonic components, three-dimensional sensing, large-format imaging, quantum dot lasers,
+high-performance semiconductor electronic device platforms, and system integration. 
+
+ We have filed trademark applications for the
+name “Aeluma” and the slogan “Sensing Reimagined.” We also rely on confidentiality agreements, invention-assignment
+agreements, access controls, and other measures to protect trade secrets and proprietary information. Important aspects of our device
+designs and manufacturing processes may be protected as trade secrets rather than disclosed in patent applications. 
+
+ Our Intellectual
+Property Strategy 
+
+ Our strategy is to seek patent protection in
+the United States and selected foreign jurisdictions that represent significant semiconductor markets, manufacturing locations, or customer
+bases. We evaluate whether to seek patent protection or maintain an invention, process, or item of know-how as a trade secret based on
+factors that include the ability to detect infringement, the likelihood that a patent could be designed around, the expected commercial
+life of the technology, and the value of keeping the information confidential. 
+
+ Governmental
+& Environmental Regulations 
+
+ Our primary products are anticipated to be photonics
+and electronics based on high-performance semiconductors. To the extent that our products are or become subject to U.S. export controls
+and regulations, these regulations may limit the export of our products and technology and provision of our services outside of the United
+States, or may require export authorizations, including by license, a license exception, or other appropriate government authorizations
+and conditions, including annual or semi-annual reporting. Export control and economic sanctions laws may also include prohibitions on
+the sale or supply of certain of our products to embargoed or sanctioned countries, regions, governments, persons, and entities. In addition,
+various countries regulate the importation of certain products through import permitting and licensing requirements and have enacted laws
+that could limit our ability to distribute our products. The exportation, re-exportation, and importation of our products and technology
+and the provision of services, including by our partners, must comply with these laws or else we may be adversely affected through reputational
+harm, government investigations, penalties, and a denial or curtailment of our ability to export our products and technology. Complying
+with export control and sanctions laws may be time-consuming and may result in a delay or loss of sales opportunities. Although we take
+precautions to prevent our products and technology from being provided in violation of such laws, our products and technology may have
+previously been, and could in the future be, provided inadvertently in violation of such laws, despite the precautions we take. If we
+are found to be in violation of U.S. sanctions or export control laws, it could result in substantial fines and penalties for us and for
+the individuals working for us. Export or import laws or sanctions policies are subject to rapid change and have been the subject of recent
+U.S. and non-U.S. government actions. Changes in export or import laws or sanctions policies may adversely impact our operations, delay
+the introduction and sale of our products in international markets, or, in some cases, prevent the export or import of our products and
+technology to certain countries, regions, governments, persons, or entities altogether, which could adversely affect our business, financial
+condition, and operating results. 
+
+ 5 
+
+ We seek to comply with all applicable statutory
+and administrative requirements concerning environmental quality. Expenditures for compliance with federal, state, and local environmental
+laws have not had, and are not expected to have, a material effect on our capital expenditures, results of operations, or competitive
+position. 
+
+ In addition, to the extent that our facilities
+and operations are or become subject to the plant and laboratory safety requirements of various environmental and occupational safety
+and health laws in the U.S., we believe we are in compliance with all such laws and regulations, and to date, those regulations have not
+materially restricted or impeded operations. Further, we believe our processes to be highly efficient, generating very low levels of waste
+and emissions. For this reason, we do not view issues surrounding climate change and any currently foreseeable related regulations as
+materially impacting our business and financial statements, beyond any inestimable impact on the macroeconomic environment. 
+
+ We are also generally subject to other industry
+and environmental regulations for electronic and semiconductor products such as the Restriction of Hazardous Substances Directive 2002/95/EC. 
+
+ Manufacturing 
+
+ Our internal operations include semiconductor
+materials and wafer production, process development, quick-turn chip fabrication, prototyping, wafer-level and device-level testing and
+validation. Our equipment includes materials synthesis and semiconductor fabrication tools, automated and semi-automated wafer probers,
+packaging and prototyping equipment, and test and validation instruments. These capabilities allow us to develop process flows, produce
+engineering samples, evaluate externally fabricated wafers, and support customer and manufacturing qualification activities. 
+
+ We also use external foundries, wafer suppliers,
+packaging companies, test providers, and integration partners. During fiscal year 2026, we expanded outsourced wafer fabrication activities
+and announced relationships with Tower Semiconductor and Sumitomo Chemical Advanced Technologies for wafer production and fabrication.
+Our manufacturing strategy is to retain control of core materials, processes, and product know-how while using qualified third parties
+for production-scale processes and capacity. 
+
+ This manufacturing model may allow us to scale
+more efficiently than constructing and operating a fully integrated production facility. However, we depend on third parties for portions
+of our manufacturing flow, and we may encounter capacity constraints, long lead times, process-transfer challenges, yield variability,
+quality issues, cost increases, equipment limitations, or disruptions. We will need to establish repeatable processes, quality systems,
+supplier controls, and customer-approved production flows before supporting material commercial volumes. 
+
+ Sales 
+
+ Our revenue currently consists primarily of government
+development contracts and limited commercial product sales. We have sold small volumes of wafers and chips, delivered engineering samples,
+performed non-recurring engineering and R&D services, and have begun taking initial commercial sales orders. Our commercial products
+are in early stages of customer evaluation and qualification, and we cannot predict whether current engagements or orders will result
+in recurring or high-volume sales. 
+
+ The sales cycle for semiconductor components
+can be lengthy and may include technical evaluation, prototype delivery, reliability testing, manufacturing qualification, system design
+in, and end customer approval. A design win may not result in material revenue, and production volumes can be affected by changes in customer
+products, forecasts, market demand, competing technologies, and supply chain conditions. 
+
+ 6 
+
+ Marketing 
+
+ Our marketing and business development activities
+focus on direct engagement with prospective customers, strategic partners, g

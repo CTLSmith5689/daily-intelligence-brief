@@ -1,0 +1,706 @@
+Aeluma Announces Fourth Quarter and Full Fiscal
+Year 2026 Financial Results 
+
+ Signed CHIPS Letter of Intent for up to $30
+Million for AI and Advanced Computing 
+
+ Executed New Strategic Agreement With Sumitomo
+Chemical Advanced Technologies to Expand Relationship and Increase Wafer Capacity 
+
+ GOLETA, CA – September 16, 2026 – Aeluma,
+Inc. (NASDAQ: ALMU) (“Aeluma” or the “Company”), a semiconductor company specializing in high-performance, scalable
+technologies for AI, mobile and consumer, defense and aerospace, and quantum, today reported financial results for its fourth quarter
+and full fiscal year ended June 30, 2026. 
+
+ Fiscal 2026 and Subsequent Highlights 
+
+ ● CHIPS LOI: Signed a letter of intent (LOI) for up
+to $30 million with the Department of Commerce CHIPS R&D Office for development and commercialization of photonics for AI and Advanced
+Computing. 
+
+ ● Strengthened Relationships with Key Partners: Announced
+partnerships with Tower Semiconductor and Sumitomo Chemical Advanced Technologies to position Aeluma for qualification and scaling. 
+
+ ● Increased Manufacturing Capabilities: Procuring additional
+MOCVD tools for increased wafer production capacity for the Company’s non-indium-phosphide (non-InP) platforms. 
+
+ ● Leadership and Team Expansion: Grew team from 14 to
+more than 30 people, attracting top talent from industry to execute our product development and go-to-market strategy. Added Vice President
+of Engineering, Senior Director of Program and Project Management, and other key hires across the organization. 
+
+ ● Executed New Contracts: Executed six new contracts
+totaling $5.3 million in value, including awards from NASA, the U.S. Navy, and others. Programs accelerate development of Aeluma’s
+photodetector, laser, and quantum technologies. 
+
+ ● Expanded Customer Engagements: Advanced customer discussions
+to multi-million-dollar non-recurring engineering (NRE) negotiations focused on photonics for AI datacom. 
+
+ ● Bolstered Cash Position for Growth: Added $20.1 million
+bringing cash and cash equivalents to $56.0 million at June 30, 2026, to support equipment and capabilities investments, team growth,
+and other commercialization efforts. 
+
+ Management Commentary 
+
+ “The AI Datacom opportunity has grown significantly,
+with some market analysts projecting the Data Center IT Semiconductors and Components market will surpass $1.8 trillion in 2030,”
+said Jonathan Klamkin, Ph.D., Founder and CEO of Aeluma. “With photonic interconnects being an important part of data center investments,
+scalable high-speed photodetectors and quantum dot lasers have become the focus of the Company’s near-term product development.” 
+
+ “After establishing a foundation for commercialization
+in fiscal 2026 that included more than doubling the size of our team, establishing strategic manufacturing partnerships, and bolstering
+cash, the Company is transitioning from early-stage R&D Government contracts to a focus on scale and commercialization. To this end,
+we announced a letter of intent (LOI) with the Department of Commerce CHIPS R&D Office for up to $30 million to accelerate development
+and commercialization for AI and advanced computing, we established relationships with manufacturing supply chain partners, and we advanced
+our customer engagements.” 
+
+ “Fiscal 2027 will focus on technology and
+product development, and expanding our customer engagements. We are in discussions with several important prospective customers in the
+AI datacom industry, negotiating NRE agreements that could support our go-to-market strategy. We will continue to grow our team, we are
+adding MOCVD wafer production capacity, and we executed an important agreement to expand our relationship with supply chain partner Sumitomo
+Chemical Advanced Technologies. We believe it is timely to make these investments given the projected scale of our market opportunities,
+and our customers are aligned with our strategy. Finally, the CHIPS R&D funding, which is subject to definitive agreement negotiations,
+could accelerate our commercialization timeline,” concluded Dr. Klamkin. 
+
+ Fiscal Q4 2026 Financial Results 
+
+ ● Revenue was $0.6 million, compared to $1.3 million in the
+fourth quarter of 2025 and was primarily from R&D contracts. 
+
+ ● Net loss was $4.0 million, or ($0.22) per basic and diluted
+share, compared to a net loss of $0.9 million, or ($0.05) per basic and diluted share, for the same period last year. 
+
+ ● Adjusted EBITDA loss was $2.9 million, compared to a loss
+of $0.1 million in the same period last year. 
+
+ ● Cash and cash equivalents totaled $56.0 million at June 30,
+2026, compared to $37.8 million in the prior quarter. 
+
+ ● Aeluma raised $20.1 million in net proceeds from the original issuance of 830,484 shares at an average
+price of $24.87 under its existing at-the-market offering program. 
+
+ Full Year 2026 Financial Results 
+
+ ● Full year revenue was $4.5 million, compared to $4.7 million in the prior year, and was primarily from
+government R&D contracts. 
+
+ ● Net loss was $9.2 million, or ($0.52) per basic and diluted share, compared to a net loss of $3.0 million,
+or ($0.23) per basic and diluted share, for the prior year. 
+
+ ● Adjusted EBITDA loss was $5.2 million, compared to a gain of $0.2 million in the prior year. 
+
+ ● Net loss and adjusted negative EBITDA increased year-over-year, primarily reflecting investments in strategic
+new hires and manufacturing readiness. 
+
+ Conference Call and Webcast 
+
+ Aeluma will host a conference call at 2:00 p.m.
+Pacific Time / 5:00 p.m. Eastern Time on September 16, 2026, to discuss the Company’s financial results and business outlook. Interested
+participants may access the conference call by dialing (877) 317-6789 (domestic) or (412) 317-6789 (international) and referencing “Aeluma.” 
+
+ A live webcast of the call will be available on
+the “Investors” section of Aeluma’s website and can also be accessed by clicking here. A replay of the conference
+call will be available on Aeluma’s website shortly after the call concludes. 
+
+ 2 
+
+ Annual Meeting of Stockholders 
+
+ Aeluma today announced that its board of directors
+has established November 19, 2026 as the date of its next annual meeting of stockholders (the “Annual Meeting”). The exact
+time and virtual attendance details for the Annual Meeting will be specified in a definitive proxy statement, which will be filed with
+the Securities and Exchange Commission. 
+
+ The date of the Annual Meeting is more than 30
+days before the anniversary of Aeluma’s prior annual meeting of stockholders. Accordingly, stockholders who, in accordance with
+Rule 14a-8 under the Securities Exchange Act of 1934, as amended (the “Exchange Act”), desire to present proposals (other
+than director nominations) for inclusion in Aeluma’s proxy materials relating to the Annual Meeting must follow the procedures provided
+in Rule 14a-8 and our bylaws. To be timely, such proposals must be delivered to or mailed and received by our corporate secretary on or
+before the close of business on September 26, 2026, which is a reasonable time before printing and mailing of our proxy materials for
+the meeting. 
+
+ Stockholders who intend to propose an item of
+business for consideration at the Annual Meeting, but not have it included in Aeluma’s proxy statement, or intending to nominate
+a person for election as a director at the Annual Meeting, must provide timely written notice of such proposal or nomination. To be timely
+under our bylaws, such notice also must be delivered to or mailed and received by our corporate secretary no later than the close of business
+on September 26, 2026, and must contain the information specified in our bylaws. 
+
+ In addition to satisfying the foregoing requirements
+under our bylaws, to comply with the universal proxy rules, stockholders who intend to solicit proxies in support of director nominees
+other than the nominees selected by our board of directors also must provide notice that sets forth the information required by Rule 14a-19
+under the Exchange Act, no later than September 26, 2026. 
+
+ Non - GAAP Financial Measures 
+
+ This press release includes the following non-GAAP financial measures: 
+
+ ● Non-GAAP net income (loss), which is defined as net income (loss) plus stock-based compensation expenses,
+amortization of discount on convertible notes, and changes in fair value of derivative liabilities; and 
+
+ ● Adjusted EBITDA, defined as non-GAAP net income (loss) plus depreciation and amortization expenses, less
+interest income. 
+
+ The presentation of these financial measures is
+not intended to be considered in isolation or as a substitute for the financial information prepared and presented in accordance with
+U.S. generally accepted accounting principles (“GAAP”). We believe that the presentation of these non-GAAP financial measures
+provides important supplemental information to management and investors regarding financial and business trends relating to Aeluma’s
+financial condition and results of operations. We believe that these non-GAAP financial measures provide additional insight into Aeluma’s
+ongoing performance and core operational activities and provide these measures for more consistent and meaningful comparison between periods.
+These measures should only be used to evaluate Aeluma’s results of operations in conjunction with the corresponding GAAP measures. 
+
+ A reconciliation of each non-GAAP financial measure
+to its most directly comparable financial measure calculated and presented in accordance with GAAP is provided in the financial statements
+portion of this press release. 
+
+ 3 
+
+ Forward-Looking Statements 
+
+ This press release contains forward-looking statements
+within the meaning of the safe harbor provisions of the Private Securities Litigation Reform Act of 1995 and other securities laws. All
+statements in this press release that are not historical are forward-looking statements, including, among other things, potential applications
+and resulting benefits of Aeluma’s technology, timing of development and commercialization of Aeluma’s products, anticipated
+demand and markets for Aeluma’s products, whether Aeluma or the U.S. Department of Commerce will enter into definitive award documents
+on acceptable terms, or at all, whether Aeluma will receive or retain any portion of the proposed CHIPS funding, and the potential issuance
+of Company securities to the U.S. Department of Commerce. These statements are not historical facts but rather are based on Aeluma’s
+current expectations, estimates, and projections regarding its business, operations, and other similar or related factors. Words such
+as “anticipate,” “could,” “growing,” “intend,” “may,” “plan,”
+“poised,” “potential,” “will,” “would,” and other similar or related expressions are used
+to identify these forward-looking statements, although not all forward-looking statements contain these words. These forward-looking statements
+are neither promises nor guarantees, and you should not place undue reliance on forward-looking statements because they involve known
+and unknown risks, uncertainties, and assumptions that are difficult or impossible to predict and, in some cases, beyond Aeluma’s
+control. Actual results may differ materially from those in the forward-looking statements as a result of a number of factors, including
+Aeluma’s history of losses and limited operating history, and its ability to achieve or sustain profitability; competitive, technological,
+and market risks affecting the adoption of Aeluma’s semiconductor and photonics products for AI, high-performance computing, and
+other target markets; general economic, geopolitical, and supply-chain conditions affecting the semiconductor industry; uncertainty as
+to whether Aeluma and the U.S. Department of Commerce will establish and execute definitive award documents for the proposed funding on
+acceptable terms, or at all; uncertainty as to whether, when, and in what amount Aeluma will receive or retain any portion of the proposed
+funding; the perceived and actual dilutive effects of the proposed issuance of common stock; impacts of an equity stake by the U.S. government
+in Aeluma, including any related reputational, regulatory, or governance considerations; Aeluma’s ability to satisfy applicable
+milestones associated with the funding; the risk that anticipated benefits of the proposed funding, including acceleration of commercialization
+and scaling of Aeluma’s non-InP photonics platform, may not be realized on the timeline anticipated or at all; changes in U.S. government
+policy, funding priorities, or budgetary constraints that could affect the availability or continuation of CHIPS programs; and other risks
+described in Aeluma’s filings with the U.S. Securities and Exchange Commission. Aeluma undertakes no obligation to revise or update
+information in this release to reflect events or circumstances in the future, even if new information becomes available, except as required
+by law. 
+
+ About Aeluma, Inc. 
+
+ Aeluma (Nasdaq: ALMU) is a transformative semiconductor
+company specializing in high-performance photonic and electronic technologies that scale. The company’s proprietary platform combines
+compound semiconductors with scalable manufacturing used for mass market microelectronics to enable volume production and large-scale
+integration. Applications for Aeluma’s technology include mobile, AI, defense and aerospace, robotics, automotive, AR/VR, and quantum.
+Headquartered in Goleta, California, Aeluma operates state-of-the-art R&D and manufacturing capabilities for semiconductor wafer production,
+quick-turn chip fabrication, rapid prototyping, test and validation. Aeluma also partners with production-scale fabrication foundries,
+packaging, and integration companies. For more information, visit www.aeluma.com. 
+
+ Company: 
+
+ Aeluma, Inc. 
+
+ (805) 351-2707 
+
+ info@aeluma.com 
+
+ Investor Contact: 
+
+ Financial Profiles, Inc. 
+
+ Moira Conlon and Donni Case 
+
+ (310) 622-8224 
+
+ ir@aeluma.com 
+
+ 4 
+
+ Aeluma, Inc. and Subsidiary 
+
+ Condensed Consolidated Balance Sheets 
+
+ ($ in thousands) 
+ June 30, 2026 
+ June 30, 2025 
+ 
+ Assets 
+
+ Current assets: 
+
+ Cash and cash equivalents 
+ $ 56,006 
+ $ 3,628 
+ 
+ Certificate of deposit 
+ - 
+ 12,112 
+ 
+ Accounts receivable 
+ 340 
+ 962 
+ 
+ Prepaids and other current assets 
+ 965 
+ 633 
+ 
+ Total current assets 
+ 57,311 
+ 17,335 
+ 
+ Property and equipment: 
+
+ Equipment 
+ 2,338 
+ 1,692 
+ 
+ Leasehold improvements 
+ 547 
+ 547 
+ 
+ Accumulated depreciation 
+ (1,469 ) 
+ (1,021 ) 
+ 
+ Property and equipment, net 
+ 1,416 
+ 1,218 
+ 
+ Right of use asset - operating 
+ 1,916 
+ 836 
+ 
+ Other assets 
+ 21 
+ 17 
+ 
+ Total assets 
+ $ 60,664 
+ $ 19,406 
+
+ Liabilities and stockholders’ equity 
+
+ Current liabilities: 
+
+ Accounts payable 
+ $ 341 
+ $ 361 
+ 
+ Accrued expenses and other current liabilities 
+ 1,369 
+ 206 
+ 
+ Lease liability - operating, current portion 
+ 180 
+ 138 
+ 
+ Total current liabilities 
+ 1,890 
+ 705 
+ 
+ Lease liability - operating, long-term portion 
+ 1,842 
+ 803 
+ 
+ Total liabilities 
+ 3,732 
+ 1,508 
+ 
+ Commitments and contingencies 
+ - 
+ - 
+ 
+ Stockholders’ equity: 
+
+ Preferred stock 
+ - 
+ - 
+ 
+ Common stock 
+ 2 
+ 2 
+ 
+ Additional paid-in capital 
+ 82,735 
+ 34,542 
+ 
+ Accumulated deficit 
+ (25,805 ) 
+ (16,646 ) 
+ 
+ Total stockholders’ equity 
+ 56,932 
+ 17,898 
+ 
+ Total liabilities and stockholders’ equity 
+ $ 60,664 
+ $ 19,406 
+
+ 5 
+
+ Aeluma, Inc. and Subsidiary 
+
+ Condensed Consolidated Statements of Operations 
+
+ Three Months Ended (unaudited) 
+ Twelve Months Ended 
+ 
+ ($ in thousands, except per share data) 
+ June 30, 2026 
+ March 31, 2026 
+ June 30, 2025 
+ June 30, 2026 
+ June 30, 2025 
+ 
+ Revenue 
+ $ 582 
+ $ 1,222 
+ $ 1,317 
+ $ 4,461 
+ $ 4,665 
+ 
+ Operating expenses: 
+
+ Cost of revenue 
+ 433 
+ 836 
+ 779 
+ 2,889 
+ 1,884 
+ 
+ Research and development 
+ 2,274 
+ 882 
+ 165 
+ 4,668 
+ 1,295 
+ 
+ General and administrative 
+ 2,247 
+ 1,629 
+ 1,342 
+ 7,090 
+ 3,628 
+ 
+ Total operating expenses 
+ 4,954 
+ 3,347 
+ 2,286 
+ 14,647 
+ 6,807 
+ 
+ Loss from operations 
+ (4,372 ) 
+ (2,125 ) 
+ (969 ) 
+ (10,186 ) 
+ (2,142 ) 
+ 
+ Other income (expense): 
+
+ Interest income 
+ 359 
+ 325 
+ 110 
+ 1,027 
+ 113 
+ 
+ Amortization of discount on convertible notes 
+ - 
+ - 
+ - 
+ - 
+ (715 ) 
+ 
+ Changes in fair value of derivative liabilities 
+ - 
+ - 
+ - 
+ - 
+ (278 ) 
+ 
+ Total other income (expense), net 
+ 359 
+ 325 
+ 110 
+ 1,027 
+ (880 ) 
+ 
+ Loss before income tax expense 
+ (4,013 ) 
+ (1,800 ) 
+ (859 ) 
+ (9,159 ) 
+ (3,022 ) 
+ 
+ Income tax expense 
+ - 
+ - 
+ - 
+ - 
+ - 
+ 
+ Net loss 
+ $ (4,013 ) 
+ $ (1,800 ) 
+ $ (859 ) 
+ $ (9,159 ) 
+ $ (3,022 ) 
+ 
+ Net loss per share – basic and diluted 
+ $ (0.22 ) 
+ $ (0.10 ) 
+ $ (0.05 ) 
+ $ (0.52 ) 
+ $ (0.23 ) 
+ 
+ Weighted average common shares outstanding - basic and diluted 
+ 18,603,331 
+ 18,061,402 
+ 15,824,222 
+ 17,665,755 
+ 13,168,345 
+ 
+ Book value per share 
+ $ 3.06 
+ $ 2.22 
+ $ 1.13 
+ $ 3.06 
+ $ 1.13 
+
+ 6 
+
+ Aeluma, Inc. and Subsidiary 
+
+ Condensed Consolidated Statements of Cash Flows 
+
+ Twelve Months Ended June 30, 
+ 
+ ($ in thousands) 
+ 2026 
+ 2025 
+ 
+ Operating activities: 
+
+ Net loss 
+ $ (9,159 ) 
+ $ (3,022 ) 
+ 
+ Adjustments to reconcile net loss to net cash used in operating activities: 
+
+ Amortization of deferred compensation 
+ - 
+ 20 
+ 
+ Stock-based compensation expense 
+ 4,519 
+ 1,893 
+ 
+ Depreciation and amortization expense 
+ 451 
+ 415 
+ 
+ Amortization of discount on convertible notes 
+ - 
+ 715 
+ 
+ Changes in fair value of derivative liabilities 
+ - 
+ 278 
+ 
+ Changes in operating assets and liabilities: 
+
+ Accounts receivable 
+ 622 
+ (902 ) 
+ 
+ Prepaids and other current assets 
+ (332 ) 
+ (611 ) 
+ 
+ Other assets 
+ (7 ) 
+ - 
+ 
+ Accounts payable 
+ (20 ) 
+ 44 
+ 
+ Accrued expenses and other current liabilities 
+ 660 
+ 22 
+ 
+ Net cash used in operating activities 
+ (3,266 ) 
+ (1,148 ) 
+ 
+ Investing activities: 
+
+ Purchase of equipment 
+ (646 ) 
+ (161 ) 
+ 
+ Net cash used in investing activities 
+ (646 ) 
+ (161 ) 
+ 
+ Financing activities: 
+
+ Proceeds from stock option exercise 
+ 104 
+ 25 
+ 
+ Proceeds from stock warrant exercise 
+ 708 
+ - 
+ 
+ Proceeds from convertible notes issuance 
+ - 
+ 3,145 
+ 
+ Proceeds from public offering, net of offering costs 
+ 43,478 
+ 12,588 
+ 
+ Payment for taxes related to net share settlement of stock options and restricted stock units 
+ (112 ) 
+ - 
+ 
+ Net cash provided by financing activities 
+ 44,178 
+ 15,758 
+ 
+ Net change in cash and cash equivalents, and certificate of deposit 
+ 40,266 
+ 14,449 
+ 
+ Cash and cash equivalents, and certificate of deposit, beginning of period 
+ 15,740 
+ 1,291 
+ 
+ Cash and cash equivalents, and certificate of deposit, end of period 
+ $ 56,006 
+ $ 15,740 
+
+ Supplemental non-cash disclosures: 
+
+ Right of use asset - operating obtained in exchange for lease liability - operating 
+ $ 1,014 
+ $ - 
+ 
+ Conversion of convertible notes to stockholders’ equity 
+ $ - 
+ $ 1,667 
+ 
+ Conversion of derivative liabilities to stockholders’ equity 
+ $ - 
+ $ 2,471 
+
+ 7 
+
+ Aeluma, Inc. and Subsidiary 
+
+ Reconciliation of GAAP and Non-GAAP Financial
+Measures (unaudited) 
+
+ Three Months Ended 
+ Twelve Months Ended 
+ 
+ ($ in thousands, except per share data) 
+ June 30, 2026 
+ March 31, 2026 
+ June 30, 2025 
+ June 30, 2026 
+ June 30, 2025 
+ 
+ GAAP net loss 
+ $ (4,013 ) 
+ $ (1,800 ) 
+ $ (859 ) 
+ $ (9,159 ) 
+ $ (3,022 ) 
+ 
+ Non-GAAP adjustments: 
+
+ Stock-based compensation 
+ 1,308 
+ 1,099 
+ 744 
+ 4,519 
+ 1,893 
+ 
+ Consulting and advisory 
+ - 
+ - 
+ 3 
+ - 
+ 20 
+ 
+ Amortization of discount on convertible notes 
+ - 
+ - 
+ - 
+ - 
+ 715 
+ 
+ Changes in fair value of derivative liabilities 
+ - 
+ - 
+ - 
+ - 
+ 278 
+ 
+ Total adjustments to GAAP net loss 
+ 1,308 
+ 1,099 
+ 747 
+ 4,519 
+ 2,906 
+ 
+ Non-GAAP net loss 
+ $ (2,705 ) 
+ $ (701 ) 
+ $ (112 ) 
+ $ (4,640 ) 
+ $ (116 ) 
+ 
+ Depreciation & amortization 
+ 126 
+ 115 
+ 109 
+ 451 
+ 415 
+ 
+ Interest income 
+ (359 ) 
+ (325 ) 
+ (110 ) 
+ (1,027 ) 
+ (113 ) 
+ 
+ Adjusted EBITDA 
+ $ (2,938 ) 
+ $ (911 ) 
+ $ (113 ) 
+ $ (5,216 ) 
+ $ 186 
+
+ GAAP net loss per share – basic and diluted 
+ $ (0.22 ) 
+ $ (0.10 ) 
+ $ (0.05 ) 
+ $ (0.52 ) 
+ $ (0.23 ) 
+ 
+ Non-GAAP adjustments 
+ 0.07 
+ 0.06 
+ 0.04 
+ 0.26 
+ 0.22 
+ 
+ Non-GAAP net loss per share – basic and diluted 
+ $ (0.15 ) 
+ $ (0.04 ) 
+ $ (0.01 ) 
+ $ (0.26 ) 
+ $ (0.01 ) 
+
+ 8

@@ -1,0 +1,629 @@
+Item
+1A. Risk Factors 
+
+ Below are material factors known to us that
+could materially adversely affect our business, operating results, financial condition, prospects or share price. These risks are not
+the only risks we face, and there may be other risks, including risks not known to us or that we currently deem to be immaterial, that
+could materially and adversely affect our business and financial performance. Although these risks are organized by headings, and each
+risk is discussed separately, many are interrelated. 
+
+ Risk Factor Summary 
+
+ This summary of risk factors is not complete
+and should be read in conjunction with the more complete and detailed descriptions of risks that follow. 
+
+ ● 
+ We have a limited operating history
+ and remain in the early development stages. Although we have generated some revenue, we are not in volume production for any of our product
+ offerings. It may be difficult to evaluate our business and prospects based on historical data. 
+
+ ● 
+ We may not raise sufficient additional
+ capital or cash flows necessary to expand our operations and invest in new enterprises, which could reduce our ability to compete successfully
+ and harm our results of operations. 
+
+ ● 
+ Our growth, profitability and
+ cash flows depend upon our ability to successfully implement our growth strategy. 
+
+ ● 
+ We generate a substantial portion
+ of our revenue from contracts with U.S. federal government agencies, which are subject to a number of challenges and risks that may adversely
+ impact our business, prospects, financial condition, and operating results. 
+
+ ● 
+ We rely on our management team
+ and other key employees and will need additional personnel to grow our business. The loss of one or more key employees or our inability
+ to attract and retain qualified personnel could harm our business or opportunities. 
+
+ ● 
+ We expect to depend on a limited
+ number of customers and the loss of one or more of these customers could have a material adverse effect on our business, financial condition,
+ and results of operations. 
+
+ ● 
+ Based on our industry and development
+ stage, information technology systems’ failures or security breaches could have a disproportionate negative impact on Aeluma. 
+
+ ● 
+ If we fail to protect and enforce
+ our intellectual property rights and confidential information, our business and prospects would suffer. 
+
+ ● 
+ Failure to effectively manage
+ growth through operational and financial systems could materially adversely affect our business, prospects, financial condition, and results
+ of operations. 
+
+ ● 
+ Natural disasters, public health
+ crises, political crises, economic downturns, or other unexpected events could cause significant harm to our business operations and facilities,
+ adversely affect our supply chain and customer base, and materially adversely affect our results of operations and financial condition. 
+
+ ● 
+ Dependence on customers in regulated
+ industries and changes in applicable laws and regulations could adversely affect demand for our products and business. 
+
+ ● 
+ Demand for our technologies may
+ not develop as we expect, and evolving regulation and competition could adversely affect our business, financial condition, and results
+ of operations. 
+
+ ● 
+ Because we expect to depend on
+ third-party manufacturers to build portions of our products, we will be susceptible to manufacturing delays and pricing fluctuations that
+ could prevent us from shipping customer orders on time, if at all, or on a cost-effective basis, which may result in the loss of sales,
+ income, and customers. 
+
+ ● 
+ The semiconductor industry is
+ highly cyclical, and significant downturns or upturns in customer demand can materially adversely affect our business and results of operations. 
+
+ 8 
+
+ ● 
+ Export controls, sanctions, and
+ other trade restrictions applicable to semiconductor, photonics, defense, aerospace, AI, and quantum technologies could limit our ability
+ to sell or transfer our products and technology. 
+
+ ● 
+ If we are unable to identify and
+ make the substantial R&D investments required to remain competitive in our business, our business, financial condition, and results
+ of operations may be materially adversely affected. 
+
+ ● 
+ We may be unable to develop new
+ products to satisfy changing customer demands or regulatory requirements, which may materially adversely affect our business and results
+ of operations. 
+
+ ● 
+ The semiconductor industry is
+ highly competitive, and our inability to compete effectively could materially adversely affect our business and results of operations. 
+
+ ● 
+ If we are unable to protect the
+ intellectual property we use, our business, results of operations and financial condition could be materially adversely affected. 
+
+ ● 
+ We have identified material weaknesses
+ in our internal control over financial reporting that, if not properly remediated, could result in material misstatements in our consolidated
+ financial statements in future periods. 
+
+ Risks Relating to Our Business, Growth Prospects
+and Operating Results 
+
+ We have a limited operating history
+and remain in the early development stages. Although we have generated some revenue, we are not in volume production for any of our product
+offerings. Our lack of operating history makes it difficult to evaluate our business and prospects, and may increase the risks associated
+with an investment in our Common Stock. 
+
+ We commenced operations in 2019. Although we
+have generated some revenue, we are subject to the risks involved with any speculative early-stage enterprise. There is no assurance that
+we will successfully develop, manufacture, market and distribute our products or services. We have and may continue to experience continuing
+net losses and negative cash flows from operations. The extent of continuing losses and negative cash flows from operations and the time
+required to reach profitability are highly uncertain. There is no assurance that we will be able to achieve profitability or that profitability,
+if achieved, can be sustained on an ongoing basis. There is no assurance that actual cash requirements will not exceed our estimates.
+Such risks to us include, but are not limited to: 
+
+ ● 
+ an evolving, unpredictable and unproven business model; 
+
+ ● 
+ an intensely competitive developing market; 
+
+ ● 
+ rapidly changing technology; 
+
+ ● 
+ managing development and growth; 
+
+ ● 
+ dependence on key personnel; 
+
+ ● 
+ dependence on outsourced resources, materials and equipment; 
+
+ ● 
+ limited operating capital and limited access to credit; and 
+
+ ● 
+ other unforeseen changes and developments in operations, the
+ product, and markets. 
+
+ In
+order to address these risks, we must, among other things: 
+
+ ● 
+ implement and successfully execute our business strategy; 
+
+ ● 
+ provide superior customer service; 
+
+ ● 
+ respond to competitive developments; 
+
+ ● 
+ attract, retain, and motivate qualified personnel; and 
+
+ ● 
+ respond to unforeseen and changing circumstances. 
+
+ We cannot make an assurance that it will succeed
+in addressing these risks. 
+
+ 9 
+
+ We have entered into a letter of
+intent with the U.S. Department of Commerce for proposed funding under the CHIPS and Science Act, which remains subject to execution of
+definitive award documents and may result in substantial restrictions on our business and operations. 
+
+ We cannot be certain whether we and the U.S.
+Department of Commerce will establish an execute definitive award documents for the proposed funding on acceptable terms, or at all. Even
+then, the award will be tied to eligible project costs, and a portion of the award is expected to be funded on a milestone-based award
+structure tied to technical progress, resulting in uncertainty as to whether, when, and in what amounts we may receive or retain any portion
+of the proposed funding. 
+
+ The perceived and actual dilutive effective of
+the proposed issuance of common stock to the U.S. Department of Commerce pursuant to the award could adversely affect market perception
+or the price of our common stock. Reputational, regulatory, or governance considerations that may accompany a government investment in
+our Company could impose substantial restrictions on our business and operations and could also adversely affect future opportunities. 
+
+ It is also possible that the anticipated benefits
+of the proposed funding, including acceleration of commercialization and scaling of our non-InP photonics platform, may not be realized
+on the timeline anticipated or at all. Further, changes in U.S. government policy, funding priorities, or budgetary constraints could
+affect the availability or continuation of CHIPS and Science Act programs, both before and after definitive award documents have been
+established. 
+
+ Our failure to raise additional capital
+or generate cash flows necessary to expand our operations and invest in new enterprises in the future could reduce our ability to compete
+successfully and harm our results of operations. 
+
+ Historically, we have funded our operations and
+capital expenditures primarily through equity issuances and cash generated from our operations. Although we currently anticipate that
+our existing cash and cash equivalents and cash flow from operations will be sufficient to meet our cash needs for the foreseeable future,
+our business may not always generate sufficient cash flow from operations to fund our activities and we may require additional financing,
+which we may not be able to obtain on favorable terms. If we raise equity financing to fund operations or on an opportunistic basis, our
+stockholders may experience significant dilution of their ownership interests. If we engage in debt financing, we may be required to accept
+terms that restrict our ability to incur additional indebtedness, force us to maintain specified liquidity or other ratios or restrict
+our ability to pay dividends or make acquisitions. Additionally, if we need such financing and it is not available to us, or is not available
+to us on satisfactory terms, our ability to operate and expand our business or to respond to competitive pressures would be limited, and
+we could be required to delay, significantly curtail, or eliminate planned operations or other elements of our growth strategy. Although
+we have a shelf registration statement on file and an at-the-market offering in place, there is no guarantee that we will sell any additional
+shares, that market conditions will be favorable for such sales, or that proceeds of any offering will be sufficient to fund our capital
+requirements. 
+
+ We may not be able to successfully
+implement our growth strategy on a timely basis or at all. Our future growth, profitability and cash flows depend upon our ability to
+successfully implement our growth strategy, which, in turn, is dependent upon a number of factors, including our ability to: 
+
+ ● 
+ expand our eco-system of partners for our technology and products ; 
+
+ ● 
+ acquire new customers; 
+
+ ● 
+ scale our business model, including scaling our technology
+ for commercial deployment; 
+
+ ● 
+ ensure a consistent and timely supply chain; 
+
+ ● 
+ expand our presence within verticals; 
+
+ ● 
+ continue to innovate our product offerings; and 
+
+ ● 
+ selectively pursue strategic and value-enhancing acquisitions. 
+
+ 10 
+
+ There can be no assurance that we can successfully
+achieve any or all of the above initiatives in the manner or time period that we expect. Further, achieving these objectives will require
+investments that may result in short-term costs without generating any current revenue and therefore may be dilutive to our earnings.
+We cannot provide any assurance that we will realize, in full or in part, the anticipated benefits we expect our strategy will achieve.
+The failure to realize those benefits could have a material adverse effect on our business, financial condition, and results of operations. 
+
+ The timelines of adoption for our
+technologies might be longer than we anticipate. 
+
+ As a semiconductor company, we develop technologies
+and components that our customers incorporate into their end-products and systems, which may require development effort that may involve
+development risk for our customers; these products would then be subject to market adoption and selling lead-times. In some cases, there
+may be one or more additional intermediate participants in the supply chain. Collectively, the sequential nature of development and adoption
+of our products may take longer than expected and could potentially delay revenue growth and adversely impact our business. 
+
+ Market opportunity estimates and
+forecasts regarding our target markets may prove inaccurate and should not be viewed as indicative of our future revenue or growth. 
+
+ We rely on third-party market research and internal
+assumptions to evaluate opportunities in mobile and consumer electronics, automotive lidar, AI, silicon photonics, quantum computing,
+and other markets. These estimates are inherently uncertain and may prove inaccurate. Even if these markets grow as expected, we may not
+develop products that address them, win customers in those markets, or achieve meaningful revenue, and investors should not rely on market-size
+estimates or addressable-market estimates as an indication of our future revenue or growth. 
+
+ Changes to federal regulatory agencies
+and policies, including the Department of Commerce, could adversely affect our business operations and financial outlook. 
+
+ On January 20, 2025, President Donald J. Trump
+issued Executive Order No. 14158 entitled “Establishing and Implementing the President’s “Department of Government Efficiency”
+or “DOGE”, which is tasked with making changes to eliminate regulations, cut expenditures, and restructure federal agencies,
+some of which could impact public companies and companies in our industry. Through DOGE or similar recently issued Executive Orders and
+initiatives, it is possible the Trump administration could institute significant changes to certain regulatory agencies. These changes
+could result in a significant reduction in staff and/or federal funding, which may cause backlogs or other interruptions to regulatory
+reviews and approvals causing a delay to our operations and/or special projects. As such, these changes to regulatory agencies could negatively
+impact our business operations and financial outlook. 
+
+ The Department of Commerce is particularly relevant
+to our industry because it administers programs and policies affecting the semiconductor industry, including the CHIPS Program. Changes
+in the administration, funding, eligibility requirements, implementation, or priorities of these programs, as well as changes to other
+Commerce Department policies, including those relating to semiconductor trade and export controls, could affect our access to government
+programs, incentives, approvals, or other resources and could increase regulatory uncertainty or compliance costs. Any such changes, delays,
+or disruptions could adversely affect our ability to execute our business plans and could materially adversely affect our business, financial
+condition, and results of operations. 
+
+ 11 
+
+ Compliance with federal securities
+laws, rules, and regulations, as well as Nasdaq requirements, has become increasingly complex, and the significant attention and expense
+we must devote to those areas may have an adverse impact on our business. 
+
+ Federal securities laws, rules, and regulations,
+as well as Nasdaq rules and regulations, require companies to maintain extensive corporate governance measures, impose comprehensive reporting
+and disclosure requirements, set strict independence and financial expertise standards for audit and other committee members, and impose
+civil and criminal penalties for companies and their chief executive officers, chief financial officers, and directors for securities
+law violations. These laws, rules and regulations have increased, and in the future are expected to continue to increase, the scope, complexity,
+and cost of our corporate governance, reporting and disclosure practices, which could harm our results of operations and divert management’s
+attention from business operations. 
+
+ We generate a substantial portion
+of our revenue from contracts with U.S. federal government agencies, which are subject to a number of challenges and risks that may adversely
+impact our business, prospects, financial condition, and operating results. 
+
+ Contracts with U.S. federal governmental agencies,
+or prime contractors of these agencies, have in the past accounted for, and may in the future account for, a substantial portion of our
+revenue. Contracts with government entities or prime contractors are subject to the following risks: 
+
+ ● 
+ selling to and contracting with
+ governmental agencies can be highly competitive, expensive, and time-consuming, often requiring significant upfront time and expense without
+ any assurance that such efforts will generate sales or revenue. Our existing contracts typically expire after some period of time and
+ must be “re-competed.” There is no guarantee that we will win such re-compete efforts; 
+
+ ● 
+ government certification requirements
+ applicable to our products and services may change, and in doing so, may restrict our ability to sell into the U.S. federal government
+ sector until we have attained the revised certification; 
+
+ ● 
+ government demand and payment
+ for our products and services may be impacted by public sector budgetary cycles and funding authorizations, with funding reductions or
+ delays adversely affecting public sector demand for our products and services; 
+
+ ● 
+ governments can generally terminate
+ our contracts “for convenience”, meaning we could lose part or all of our revenue on short notice. The potential impact of
+ the DOGE on government spending may adversely impact our business and may lead to an increase in the frequency of events of terminating
+ contracts for convenience; 
+
+ ● 
+ governments routinely investigate
+ and audit government contractors’ administrative processes, and any unfavorable audit could result in the government refusing to
+ continue buying our products or services, which would adversely impact our revenue and results of operations, or institute fines or civil
+ or criminal liability if the audit uncovers improper or illegal activities; and 
+
+ ● 
+ when we are a subcontractor, we
+ have less control over the execution and success of the contract with the government. 
+
+ If we were suspended or debarred from contracting
+with the U.S. government, if our reputation or relationship with government agencies was impaired, or if the government otherwise ceased
+doing business with us or significantly decreased the amount of business it does with us, our business, prospects, financial condition,
+and operating results would be materially and adversely affected. 
+
+ 12 
+
+ We rely on our management team and
+other key employees and will need additional personnel to grow our business. The loss of one or more key employees or our inability to
+attract and retain qualified personnel could harm our business. 
+
+ Our future success is substantially dependent
+on our ability to attract, retain, and motivate the members of our management team and other key employees throughout our organization,
+including in technical, engineering, sales, and operational roles. The loss of one or more members of our management team or other key
+employees could materially impact our sales or our R&D programs and materially harm our business, financial condition, results of
+operations, and prospects. We do not maintain key person life insurance policies on any of our management team members or key employees.
+Competition for highly skilled personnel in the semiconductor and photonics industries is intense, particularly for candidates with expertise
+in compound semiconductors, heterogeneous integration, and related technologies. We may not be successful in attracting or retaining qualified
+personnel to fulfill our current or future needs. For positions in our offices near Santa Barbara in particular, we may experience challenges
+hiring new and mid-level employees, in part due to the high local housing costs and cost of living. Our competitors may be successful
+in recruiting and hiring members of our management team or other key employees, and it may be difficult for us to find suitable replacements
+on a timely basis, on competitive terms, or at all. 
+
+ If our estimates or judgments relating
+to our critical accounting policies are based on assumptions that change or prove to be incorrect, our results of operations could fall
+below the expectations of investors, resulting in a decline in the market price of our common stock. 
+
+ The preparation of financial statements in conformity
+with U.S. generally accepted accounting principles (“GAAP”) requires management to make estimates and assumptions that affect
+the amounts reported in our financial statements. Significant assumptions and estimates used in preparing our financial statements include
+those related to assets, liabilities, revenue, expenses, and related disclosures. We base our estimates on historical experience and on
+various other assumptions that we believe to be reasonable under the circumstances, the results of which form the basis for making judgments
+about the carrying values of assets, liabilities, equity, revenue, and expenses that are not readily apparent from other sources. Our
+results of operations may be adversely affected if our assumptions change or if actual circumstances differ from those in our assumptions,
+which could cause our results of operations to fall below the expectations of investors, resulting in a decline in the market price of
+our common stock. 
+
+ Changes in accounting rules and regulations,
+or interpretations thereof, could result in unfavorable accounting charges or require us to change our compensation policies. 
+
+ Accounting methods and policies for companies
+such as ours, including policies governing revenue recognition, leases, R&D and related expenses, and accounting for stock-based compensation,
+are subject to review, interpretation and guidance from our auditors and relevant accounting authorities, including the SEC. Changes to
+accounting methods or policies, or interpretations thereof, may require us to reclassify, restate or otherwise change or revise our historical
+financial statements, including those contained in this report. 
+
+ Our ability to use our net operating
+loss carryforwards and certain other tax attributes may be limited. 
+
+ We do not expect to become profitable in the
+near future and may never achieve profitability. To the extent that we continue to generate taxable losses, unused losses will carry forward
+to offset future taxable income, if any, until such unused losses expire. Under Sections 382 and 383 of the Internal Revenue Code of 1986,
+as amended, if a corporation undergoes an “ownership change,” generally defined as a greater than 50% change (by value) in
+its equity ownership over a three-year period, the corporation’s ability to use its pre-change net operating loss carryforwards
+(“NOLs”), and other pre-change tax attributes (such as research tax credits) to offset its post-change income or taxes may
+be limited. The merger, our prior equity offerings and other changes in our stock ownership may have resulted in ownership changes. In
+addition, we may experience ownership changes in the future as a result of subsequent shifts in our stock ownership, some of which are
+outside of our control. As a result, if we earn net taxable income, our ability to use our pre-change net operating loss carryforwards
+to offset U.S. federal taxable income may be subject to limitations, which could potentially result in increased future tax liability
+to us. In addition, at the state level, there may be periods during which the use of NOLs is suspended or otherwise limited, which could
+accelerate or permanently increase state taxes owed. 
+
+ 13 
+
+ We expect to depend on a limited
+number of customers and the loss of one or more of these customers could have a material adverse effect on our business, financial condition,
+and results of operations. 
+
+ Currently, Aeluma has customer engagements that
+involve R&D, development of wafers, delivery of engineering samples for evaluation, delivery of small volumes of chips, and R&D
+contracts. There is no assurance that any of these potential customers will purchase our product after they complete their analysis, or
+that any customer engagement, engineering sample, evaluation, NRE effort, or development project will result in a design win, binding
+purchase order, volume production, or recurring revenue. Since we cannot predict how many of these evaluations will turn into sales, if
+any, we cannot guarantee that we will generate sufficient revenue to be profitable. 
+
+ In addition, we cannot assure that any of our
+future customers will not cease purchasing products from us in favor of products produced by other suppliers, significantly reduce orders,
+or seek price reductions in the future, and any such event could have a material adverse effect on our revenue, profitability, and results
+of operations. 
+
+ Furthermore, if a significant portion of our
+revenue is derived from customers in certain industries, a downturn or lower sales to customers in such industries could materially adversely
+affect our business and results of operations. If we cannot successfully market our products, we will not receive revenue. 
+
+ Due to the concentration and ongoing consolidation
+within the semiconductor industry, we may also find that over the longer term, our revenues are dependent on relatively few customers.
+If we lose any of these customers, or these customers delay, dispute or fail to pay us or experience budgetary, liquidity, administrative
+or other constraints that impair our ability to collect accounts receivable, our revenues and cash flows could be materially adversely
+affected. 
+
+ Customer concentration could potentially
+result in volatility of revenues and stock prices. 
+
+ While we are targeting a broad and diverse customer
+base of both private and public customers as well as U.S. government agencies across multiple high-volume mass market opportunities, our
+initial phases of volume production may be limited in diversity of customers. As a result, revenues during these phases may be volatile.
+Such revenue volatility may potentially result in higher-than-average volatility in the price of our Common Stock. 
+
+ Some of our business may be dependent
+on a royalty-based business model, which is inherently risky. 
+
+ The long-term success of our business model may
+be dependent on future royalties paid to us by licensee-customers. We will depend on our ability to structure, negotiate and enforce agreements
+for the determination and payment of royalties, as well as upon our licensees’ compliance with their agreements. We face risks inherent
+in a royalty-based model, many of which are outside our control, such as the following: 
+
+ ● 
+ the rate of adoption and incorporation
+ of our technology by semiconductor designers and manufacturers and the manufacturers of semiconductor fabrication equipment; 
+
+ ● 
+ the length of the design cycle and the ability to successfully
+ integrate our technology into manufacturing processes; 
+
+ ● 
+ the demand for products incorporating semiconductors that use
+ our licensed technology; 
+
+ ● 
+ the cyclicality of supply and demand for products using our
+ licensed technology; 
+
+ ● 
+ the impact of economic downturns; and 
+
+ ● 
+ the timing of receipt of royalty reports may not meet our revenue
+ recognition criteria resulting in fluctuation in our results of operations; 
+
+ 14 
+
+ Uncertainties regarding the timing
+and amount of customer orders could lead to excess inventory and write-downs of inventory that could materially adversely affect our financial
+condition and results of operations. 
+
+ We expect that our sales will be typically made
+pursuant to individual purchase orders or customer agreements, and we do not expect to have long-term supply arrangements with our customers
+requiring a commitment to purchase. We expect that the agreements with our customers may allow them to cancel orders prior to shipment
+for standard products and, generally, prior to start of production for custom products without incurring a penalty. We anticipate routinely
+generating inventory based on customers’ estimates of end-user demand for their products, which is difficult to predict. In times
+of undersupply for certain products, some customers could respond by inflating their demand signals. As markets level off and supply capacity
+begins to match actual market demands, we could experience an increased risk of inventory write-downs, which may materially adversely
+affect our results of operations and our financial condition. In addition, our customers may change their inventory practices on short
+notice for any reason. Furthermore, short customer lead times are standard in the industry due to overcapacity. The cancellation or deferral
+of product orders, the return of previously sold products, or overproduction of products due to the failure of anticipated orders to materialize
+could result in excess obsolete inventory, which could result in write-downs of inventory or the incurrence of significant cancellation
+penalties under our arrangements with our raw materials and equipment suppliers. Unsold inventory, canceled orders, and cancellation penalties
+may materially adversely affect our results of operations, and inventory write-downs, which may materially adversely affect our financial
+condition. 
+
+ Our customers may require our products
+to undergo a lengthy and expensive qualification process without any assurance of product sales. 
+
+ Prior to purchasing our products, our customers
+may require that our products undergo an extensive qualification process, which involves testing of the products in the customer’s
+system, as well as rigorous reliability testing. This qualification process may continue for a few months or longer, may require us to
+provide wafers, chips, engineering samples, NRE services, or other support, and we cannot guarantee that products will pass the required
+tests. Customer selection or a “design win,” if any, does not obligate a customer to place purchase orders or to proceed to
+volume production. However, qualification of a product by a customer does not ensure any sales of the product to that customer. Even after
+successful qualification and sales of a product to a customer, a subsequent revision to the product or software, changes in the product’s
+manufacturing process or the selection of a new supplier by us may require a new qualification process, which may result in delays and
+in us holding excess or obsolete inventory. After our products are qualified, additional time may be required before the customer commences
+volume production of components or devices that incorporate our products. Despite these uncertainties, we will devote substantial resources,
+including design, engineering, sales, marketing and management efforts, toward qualifying our products with customers in anticipation
+of sales. If we are unsuccessful or delayed in qualifying any of our products with a customer, such failure or delay would preclude or
+delay sales of such product to the customer, which may impede our growth and cause our business to suffer. 
+
+ Our business operations could suffer
+in the event of information technology systems’ failures or security breaches.  
+
+ While we believe that we have implemented adequate
+security measures within our internal information technology and networking systems, our information technology systems may be subject
+to security breaches, damages from computer viruses, ransomware, phishing attacks, natural disasters, terrorism, power outages, and telecommunication
+failures. The semiconductor industry has been, and may continue to be, the target of cyber attacks, including those aimed at obtaining
+intellectual property, disrupting manufacturing processes, or compromising confidential business information. Any system failure or security
+breach could cause interruptions in our operations in addition to the possibility of losing proprietary information, trade secrets, or
+sensitive customer and partner data. To the extent that any disruption or security breach results in inappropriate disclosure of our confidential
+information, our competitive position may be adversely affected, and we may incur liability, regulatory penalties, or additional costs
+to remedy the damages caused by these disruptions or security breaches. We may also be required to expend significant resources to protect
+against, respond to, and recover from any such attacks or disruptions. 
+
+ 15 
+
+ If we fail to protect and enforce
+our intellectual property rights and our confidential information, our business will suffer. 
+
+ We conduct certain R&D activities and production
+of our products at external partner facilities, which has the potential to expose third parties to elements of our intellectual property.
+We rely primarily on a combination of nondisclosure agreements and other contractual provisions and patent, trade secret and copyright
+laws to protect our technology and intellectual property. If we fail to protect our technology and intellectual property, our customers,
+licensees, and others may seek to use our technology and intellectual property without the payment of license fees and royalties, which
+could weaken our competitive position, reduce our operating results and increase the likelihood of costly litigation. The growth of our
+business depends in large part on our ability to secure intellectual property rights in a timely manner, our ability to convince third
+parties of the applicability of our intellectual property rights, and our ability to enforce our intellectual property rights. In certain
+instances, we attempt to obtain patent protection for portions of our technology, and our agreements may include both issued patents and
+pending patent applications. If we fail to obtain patents in a timely manner or if the patents issued to us do not cover all of the inventions
+disclosed in our patent applications, others could use portions of our technology and intellectual property without the payment of license
+fees and royalties. 
+
+ We also rely on trade secret laws rather than
+patent laws to protect other portions of our proprietary technology. However, trade secrets can be difficult to protect. The misappropriation
+of our trade secrets or other proprietary information could seriously harm our business. We protect our proprietary technology and processes,
+in part, through confidentiality agreements with our employees, consultants, suppliers and customers. We cannot be certain that these
+contracts have not been and will not be breached, that we will be able to timely detect unauthorized use or transfer of our technology
+and intellectual property, that we will have adequate remedies for any breach, or that our trade secrets will not otherwise become known
+or be independently discovered by competitors. If we fail to use these mechanisms to protect our technology and intellectual property,
+or if a court fails to enforce our intellectual property rights, our business will suffer. We cannot be certain that these protection
+mechanisms can be successfully asserted in the future or will not be invalidated or challenged. 
+
+ Further, the laws and enforcement regimes of
+certain countries do not protect our technology and intellectual property to the same extent as do the laws and enforcement regimes of
+the U.S. In certain jurisdictions, we may be unable to protect our technology and intellectual property adequately against unauthorized
+use, which could adversely affect our business. 
+
+ A court invalidation or limitation
+of our key patents could significantly harm our business. 
+
+ Our patent portfolio contains some patents that
+are particularly significant to our technology and other business prospects. If any of these key patents are invalidated, or if a court
+limits the scope of the claims in any of these key patents, the likelihood that companies will take licenses could be significantly reduced.
+The resulting loss in license fees and royalties could significantly harm our business. Moreover, our stock price may fluctuate based
+on developments in the course of ongoing litigation. 
+
+ We may be involved in material legal
+proceedings in the future to enforce or protect our intellectual property rights, which could harm our business. 
+
+ From time to time, we may identify products that
+we believe infringe our patents. In that event, we may initially seek to license the manufacturer of the infringing products; however,
+if the manufacturer is unwilling to enter into a license agreement, we may have to initiate litigation to enforce our patent rights against
+those products. Litigation stemming from disputes could harm our ability to gain new customers, who may postpone commitments to us pending
+the outcome of the litigation or who may, as a result of such litigation, choose not to procure or adopt our technologies. Such litigation
+may also harm our relationships with existing customers, who may, as a result of such litigation, cease making payments to us or challenge
+the validity and enforceability of our patents or the scope of our agreements. 
+
+ 16 
+
+ In addition, the costs associated with legal
+proceedings are typically high, relatively unpredictable, and not completely within our control. These costs may be materially higher
+than expected, which could adversely affect our operating results and lead to volatility in the price of our common stock. Whether or
+not determined in our favor or ultimately settled, litigation diverts our managerial, technical, legal, and financial resources from our
+business operations. Furthermore, an adverse decision in any of these legal actions could result in a loss of our proprietary rights,
+subject us to significant liabilities, require us to seek licenses from others, limit the value of our technology or otherwise negatively
+impact our stock price or our business and consolidated financial position, results of operations and cash flows. 
+
+ Even if we prevail in our legal actions, significant
+contingencies may exist to their settlement and final resolution, including the scope of the liability of each party, our ability to enforce
+judgments against the parties, the ability and willingness of the parties to make any payments owed or agreed upon and the dismissal of
+the legal action by the relevant court, none of which are completely within our control. Parties that may be obligated to pay us royalties
+could be insolvent or decide to alter their business activities or corporate structure, which could affect our ability to collect royalties
+from such parties. 
+
+ Our technologies may infringe on
+the intellectual property rights of others, which could lead to costly disputes or disruptions. 
+
+ The semiconductor industry is characterized by
+frequent allegations of intellectual property infringement. Any allegation of infringement could be time- consuming and expensive to defend
+or resolve, result in substantial diversion of management resources, cause suspension of operations or force us to enter into royalty,
+license, or other agreements rather than dispute the merits of such allegation. Furthermore, third parties making such claims may be able
+to obtain injunctive or other equitable relief that could block our ability to further develop or commercialize some or all of our technologies,
+and the ability of our customers to develop or commercialize their products incorporating our technologies, in the U.S. and abroad. If
+patent holders or other holders of intellectual property initiate legal proceedings, we may be forced into protracted and costly litigation.
+We may not be successful in defending such litigation and may not be able to procure any required royalty or license agreements on acceptable
+terms or at all. 
+
+ If we cannot effectively manage growth
+by implementing and improving its operational and financial systems, our business, prospects, financial condition, and results of operations
+could be materially adversely affected. 
+
+ In order to maximize the potential growth in
+our market opportunities, we may have to expand rapidly and significantly. The impetus for expansion could place a significant strain
+on our management, operational and financial resources. In order to manage growth, we will be required to implement and continually improve
+our operational and financial systems, expand operations, attract and retain superior management and train, manage and expand our employee
+base. We can give no assurance that we will effectively manage our operations, that our system, procedures, or controls will adequately
+support operations or that our management will successfully implement our business plan. If we cannot effectively manage growth, our business,
+prospects, financial condition and results of operations could be materially adversely affected. 
+
+ If our estimates related to expenditures
+are inaccurate, our business may fail. 
+
+ Our success is dependent in part upon the accuracy
+of our management’s estimates of expenditures for the next twelve months and beyond. If such estimates are inaccurate, or we encounter
+unforeseen expenses and delays, we may not be able to carry out our business plan, which could result in the failure of our business. 
+
+ 17 
+
+ Product liability lawsuits, warranty
+claims, and product recalls could result in substantial liabilities and harm our business, results of operations, and financial condition. 
+
+ We face a potential risk of product liability
+as a result of any of the products that we develop, manufacture and/or offer for sale. For example, we may be sued if any pr
