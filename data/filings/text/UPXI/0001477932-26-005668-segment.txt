@@ -1,0 +1,50 @@
+Segment Information 
+ 12 Months Ended 
+ 
+ Jun. 30, 2026 
+ 
+ Segment Information 
+
+ Segment Information 
+ Note 18. Segment Information The Company operates as one operating segment and has one reportable segment. The Company’s Chief Executive Officer is the chief operating decision maker (“CODM”). The Company’s reportable segment includes its digital asset treasury activities and consumer products operations. The accounting policies of the reportable segment are the same as those described in Note 2. Financial information is provided to the CODM on a consolidated basis. The CODM uses consolidated revenue and net loss to assess the Company’s performance, make operating decisions, and allocate resources. The CODM is regularly provided with the consolidated expense information presented in the Company’s consolidated statements of operations. Accordingly, the Company’s segment revenue, significant segment expenses, and net loss are the same as the corresponding amounts presented in the consolidated statements of operations. The Company has no additional significant segment expense categories that are regularly provided to the CODM and included in the measure of segment profit or loss. The CODM also reviews the Company’s assets on a consolidated basis. Accordingly, segment assets are the same as total assets reported in the Consolidated Balance Sheets. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ upxi_SegmentInformationAbstract 
+
+ Namespace Prefix: 
+ upxi_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition Tabular disclosure of the profit or loss and total assets for each reportable segment. An entity discloses certain information on each reportable segment if the amounts (a) are included in the measure of segment profit or loss reviewed by the chief operating decision maker or (b) are otherwise regularly provided to the chief operating decision maker, even if not included in that measure of segment profit or loss. 
+ + References Reference 1: http://fasb.org/us-gaap/role/ref/legacyRef -Name Accounting Standards Codification -Topic 280 -SubTopic 10 -Section 50 -Paragraph 25 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-25 Reference 2: http://fasb.org/us-gaap/role/ref/legacyRef -Name Accounting Standards Codification -Topic 280 -SubTopic 10 -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 3: http://fasb.org/us-gaap/role/ref/legacyRef -Name Accounting Standards Codification -Topic 280 -SubTopic 10 -Section 50 -Paragraph 30 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-30 
+ + Details 
+ 
+ Name: 
+ us-gaap_ScheduleOfSegmentReportingInformationBySegmentTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration

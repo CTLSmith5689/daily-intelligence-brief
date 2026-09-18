@@ -1,0 +1,165 @@
+MANAGEMENT’S
+DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS OF HOST DIGITAL INFRASTRUCTURE LLC 
+
+ The
+following discussion should be read together with Host Digital Infrastructure LLC’s (the “Company”, “we”,
+“our” and “us”) financial statements and the related notes included elsewhere in this Current Report on Form
+8-K. This discussion contains forward-looking statements that involve risks, uncertainties and assumptions, including those described
+under “Risk Factors” and elsewhere in this Current Report on Form 8-K. Actual results may differ materially. Except as required
+by law, the Company undertakes no obligation to update any forward-looking statements. 
+
+ Overview 
+
+ The
+Company is a development-stage entity with no material revenue from operations. The Company was organized to develop, own and operate
+large-scale data center campuses in the United States serving high-performance computing and artificial intelligence workloads. The Company
+has no significant operating history. The Company’s continuing operations did not generate revenue during the periods presented. 
+
+ The
+Company’s initial project is expected to be the development of an approximately 45+ megawatt data center campus in Northeast Oklahoma
+(the “Project Facility”), comprising 45+ megawatts of contracted power capacity, related electrical 
+
+ equipment, and an 80,000+
+square foot building under an exercised acquisition option. In the event that the Company does not complete the acquisition of the Project
+Facility, the Company may instead pursue the lease or acquisition of one or more other facilities with similar power output and other
+characteristics to the Project Facility. 
+
+ In
+February 2026, we acquired T-20 Mining LLC (“T-20”), a Delaware limited liability company that held an Electric Service Agreement
+(“ESA”) with the applicable utility provider for the Project Facility’s location. The ESA provides us with a contractual
+right to a specified level of electrical power capacity at the Project Facility, a critical infrastructure asset for the Project Facility
+to be used as a data center by the tenant as discussed below. The acquisition of T-20 was undertaken specifically to secure power access
+at the Project Facility and is directly related to our intended use of the Project Facility. 
+
+ On
+August 7, 2026, we entered into a 15-year lease with one of the world’s largest privately held cloud infrastructure companies,
+pursuant to which we will provide 43 MW of critical IT load capacity at the Project Facility (the “Lease”). The Lease is
+structured on a take-or-pay basis, which is expected to be backstopped by an investment-grade technology company, with aggregate base-term
+contracted rent of approximately $1.25 billion, inclusive of 3% annual escalators. The Lease may be renewed for a total Lease term of
+30 years. The Project Facility is not currently generating revenue and the Lease is expected to commence in the first quarter of 2027,
+which is when we expect to deliver to the tenant the Project Facility. 
+
+ This
+lease strengthens our ability to obtain project financing for the acquisition of the Project Facility and supports management’s
+plans to address the going concern uncertainty (see Note 1 — Organization and Nature of Operations and Note 2 — Going Concern
+to the Company’s unaudited condensed consolidated financial statements for the three and six months ended July 31, 2026 included
+elsewhere in this Current Report on Form 8-K). 
+
+ The
+Company will not commence material revenue-generating operations until, at the earliest, a lease has been executed, construction of the
+Project Facility or another similar facility has been completed and the tenant has occupied the property. As of the date of this filing
+the Company has executed the Lease, but neither of the other steps has occurred. 
+
+ Plan
+of Operations 
+
+ Because
+the Company has not commenced material revenue-generating operations, its principal activities for the foreseeable future will consist
+of: (i) closing the contemplated project financing described below; (ii) completing construction and commissioning of the Project Facility;
+(iii) achieving tenant occupancy and lease commencement at the Project Facility; and (iv) advancing site control, utility arrangements,
+customer dialogue and design work across future developments. The timing and achievement of each of these milestones is subject to a
+number of risks and uncertainties, including construction risk, supply-chain availability for long-lead-time equipment, utility delivery
+risk, anchor tenant negotiation risk, the timing of the project financing, and capital markets conditions. 
+
+ Results
+of Operations 
+
+ We
+have not generated material revenue from operations during any period presented and do not expect to generate material revenue until,
+at the earliest, the prospective anchor tenant has executed a lease, occupied the Project Facility and commenced rent payments, of which
+only execution of the Lease has occurred. The Company’s operating expenses to date have consisted principally of (i) general and
+administrative expenses, including legal, accounting, audit and tax-advisory fees, (ii) project pre-development costs (including engineering,
+environmental, surveying, permitting, power costs, and pre-construction expenses), (iii) compensation expense, and (iv) costs of pursuing
+its public listing and the contemplated project financing. 
+
+ Liquidity
+and Capital Resources 
+
+ The
+Company’s activities to date have been funded principally through sponsor equity and related-party advances. We have not generated
+material cash from operations during any period presented. As of January 31, 2026, the Company had no cash and incurred a net loss of
+$518,705. In addition, the Company had net cash used in operations of $1,208,046 and a working capital deficit of $1,195,242 as of January
+31, 2026. As of July 31, 2026, the Company had no cash and incurred a net loss of $3,703,223 and $5,039,396 as of the three and six
+months ended July 31, 2026, respectively. In addition, the Company had net cash used in operations of $480,181 and a working capital
+deficit of $27,465,029 as of the six months ended July 31, 2026. 
+
+ The
+Company expect its principal future sources of liquidity to be (i) the net proceeds of a contemplated project financing the proceeds
+of which would fund the balance of the development and construction costs at the Project Facility, together with a debt service reserve
+and cost-overrun protection; (ii) continued sponsor or affiliate funding; and (iii) following tenant occupancy, contracted cash flows
+under the Lease. The pricing and closing of the contemplated project financing is dependent on, among other things, prevailing capital
+markets conditions, interest rates, and the overall progress of the Project Facility’s development. There can be no assurance that
+the financing will be completed on the contemplated terms, or at all. 
+
+ Off-Balance
+Sheet Arrangements 
+
+ As
+of the date of this filing, the Company does not have any off-balance sheet arrangements that have, or are reasonably likely to have,
+a current or future effect on its financial condition, results of operations, liquidity, capital expenditures or capital resources that
+is material to investors. 
+
+ Critical
+Accounting Policies and Estimates 
+
+ The
+preparation of the Company’s financial statements in accordance with U.S. generally accepted accounting principles requires management
+to make estimates, judgments and assumptions. The Company considers the following to be its critical accounting policies: 
+
+ Business
+Combination Accounting 
+
+ The
+Merger was accounted for as a reverse acquisition under GAAP in accordance with Accounting Standards Codification Topic 805, Business
+Combinations . We were identified as the accounting acquirer because its former members hold a majority of the voting rights in the
+combined entity, designate a majority of the board of directors, and appoint senior management. Host Digital Inc. (f/k/a Healthy Choice
+Wellness Corp.) was the accounting acquiree. Under the acquisition method of accounting, the assets and liabilities of Host Digital Inc.
+will be recorded at their estimated fair values as of the acquisition date, and any excess of the purchase price over the fair value
+of the net assets acquired will be recorded as goodwill. The assets and liabilities of the Company will be carried over at their historical
+carrying values, as the combined entity is a continuation of the Company’s financial statements. 
+
+ Asset
+Acquisition Accounting 
+
+ The
+Company accounts for acquisitions of assets or groups of assets that do not meet the definition of a business under ASC 805, Business
+Combinations , as asset acquisitions in accordance with ASC 805-50, Business Combinations — Related Issues . 
+
+ Under
+the asset acquisition model, the total cost of the acquisition, including direct and incremental transaction costs (such as legal, valuation,
+and due diligence fees), is allocated to the identifiable assets acquired and liabilities assumed based on their relative fair values.
+No goodwill is recognized in an asset acquisition. The cost of the acquisition is allocated to the individual assets and liabilities
+based on their relative fair values at the acquisition date. 
+
+ Transaction
+costs directly attributable to the acquisition are capitalized as part of the cost of the assets acquired. The Company determines the
+fair value of acquired assets using appropriate valuation techniques, which may include income approaches (e.g., discounted cash flow
+models), market approaches, or cost approaches, depending on the nature of the assets. 
+
+ Going
+Concern 
+
+ The
+Company has evaluated its ability to continue as a going concern for at least twelve months from the issuance of its consolidated financial
+statements. The ability of the Company to continue its operations is dependent on management’s plans, which include the raising
+of capital through debt and/or equity markets, including as a result of the Company’s access to public capital markets as a result
+of the Merger, with some additional funding from other traditional financing sources, including pursuing project financing, until such
+time that funds provided by operations are sufficient to fund working capital requirements. The Company also believes that execution
+of the Lease strengthens the Company’s ability to obtain project financing in connection with development of the Project Facility
+and supports management’s plans to address the going concern uncertainty. 
+
+ The
+future viability of the Company is dependent on its ability to raise additional capital to finance its operations, which is uncertain.
+The Company has concluded that there is substantial doubt about its ability to continue as a going concern for at least one year after
+the date that the consolidated financial statements are issued. 
+
+ For
+further discussion on the Company’s ability to continue as a going concern, see Note 2 to the Company’s financial statements
+included elsewhere in this Current Report on Form 8-K. 
+
+ Recent
+Accounting Pronouncements 
+
+ For
+a discussion of recently issued accounting pronouncements that may affect the Company, see Note 3 to the Company’s financial statements
+included elsewhere in this Current Report on Form 8-K.

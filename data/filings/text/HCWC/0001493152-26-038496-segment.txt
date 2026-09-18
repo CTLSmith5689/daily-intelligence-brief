@@ -1,0 +1,239 @@
+SEGMENT INFORMATION AND DISAGGREGATION OF REVENUES 
+ 6 Months Ended 
+ 
+ Jun. 30, 2026 
+ 
+ Segment Information And Disaggregation Of Revenues 
+
+ SEGMENT INFORMATION AND DISAGGREGATION OF REVENUES 
+ NOTE
+7. SEGMENT INFORMATION AND DISAGGREGATION OF REVENUES 
+
+ The
+Company operates in two operating segments: Grocery and Wellness. In accordance with ASC 280,Segment Reporting, these segments have been aggregated into
+a single 1 reportable segment because they share similar economic characteristics and meet all aggregation criteria, including similar
+nature of products sold, product acquisition process, customer base, distribution methods, and regulatory environment. 
+
+ The
+Company’s CODM reviews financial results and allocates resources at the consolidated level, as the aggregated segments operate
+as one integrated business unit. No segment-specific financial metrics are used by the CODM to assess performance. 
+
+ The
+following table summarizes the significant segment expenses: 
+
+ SCHEDULE OF SIGNIFICANT SEGMENT EXPENSES 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+
+ Three Months Ended June 30, 
+ Six Months Ended June 30, 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+ 
+ Advertising 
+ $ 60,987 
+ $ 84,061 
+ $ 119,115 
+ $ 241,933 
+ 
+ Payroll and Benefits 
+ 3,518,079 
+ 3,917,799 
+ 7,098,951 
+ 7,814,401 
+ 
+ Occupancy 
+ 1,906,658 
+ 1,859,964 
+ 3,771,158 
+ 3,683,410 
+ 
+ Depreciation and Amortization 
+ 375,187 
+ 434,717 
+ 755,321 
+ 864,627 
+ 
+ Bank Service Charges and Merchant Account Fees 
+ 301,219 
+ 362,079 
+ 624,003 
+ 762,348 
+ 
+ Other selling, general and administrative expenses 
+ 435,174 
+ 485,621 
+ 890,097 
+ 947,538 
+ 
+ Total significant reporting segment expenses 
+ 6,597,304 
+ 7,144,241 
+ 13,258,645 
+ 14,314,257 
+ 
+ Unallocated amount 
+ 2,453,995 
+ 988,167 
+ 4,342,038 
+ 2,079,736 
+ 
+ Total consolidated operating expenses 
+ $ 9,051,299 
+ $ 8,132,408 
+ $ 17,600,683 
+ $ 16,393,993 
+
+ The
+following tables summarize the reconciliations of reportable segment profit or loss and assets to the Company’s consolidated totals: 
+
+ SCHEDULE OF RECONCILIATIONS OF REPORTABLE SEGMENT 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+
+ Three Months Ended June 30, 
+ Six Months Ended June 30, 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+ 
+ Segment net operating income 
+ $ (185,917 ) 
+ $ 949,135 
+ $ 86,588 
+ $ 1,631,028 
+ 
+ Unallocated amount 
+ (2,454,724 ) 
+ (988,167 ) 
+ (4,342,768 ) 
+ (2,079,736 ) 
+ 
+ Consolidated loss from operations 
+ $ (2,640,641 ) 
+ $ (39,032 ) 
+ $ (4,256,180 ) 
+ $ (448,708 ) 
+
+ June 30, 2026 
+ December 31, 2025 
+ 
+ Total reporting segment assets 
+ $ 23,230,053 
+ $ 29,796,419 
+ 
+ Unallocated amount 
+ 4,509,184 
+ 3,701,300 
+ 
+ Consolidated total assets 
+ $ 27,739,237 
+ $ 33,497,719 
+
+ When
+the Company prepares its internal management reporting to evaluate business performance, we disaggregate revenue into the following categories
+that depict how the nature, amount, timing and uncertainty of revenue and cash flows are affected by economic factors, including the
+nature of products sold, product acquisition processes, customer types, distribution methods, and regulatory environments. 
+
+ SCHEDULE DISAGGREGATED REVENUES 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+
+ Three Months Ended June 30, 
+ Six Months Ended June 30, 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+ 
+ Retail Grocery 
+ $ 14,923,446 
+ $ 18,304,905 
+ $ 31,608,365 
+ $ 36,757,772 
+ 
+ Food service/restaurant 
+ 1,686,383 
+ 1,877,421 
+ 3,246,502 
+ 3,664,220 
+ 
+ Online/eCommerce 
+ - 
+ 17,653 
+ - 
+ 37,593 
+ 
+ Total revenue 
+ $ 16,609,829 
+ $ 20,199,979 
+ $ 34,854,867 
+ $ 40,459,585 
+
+ The
+Company does not have significant revenue recognized over time due to the nature of retail store operations. The Company recognizes revenue
+at a point in time when control of goods or services transfers to the customer. Revenue is recognized as follows: 
+
+ ● 
+ Retail
+ Sales: At the point of sale when payment is received, products are physically transferred, and title passes. 
+
+ ● 
+ Advertising
+ Services (CO-OP Revenue): When promotional materials are distributed to end-user customers. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ HCWC_DisclosureSegmentInformationAndDisaggregationOfRevenuesAbstract 
+
+ Namespace Prefix: 
+ HCWC_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition Segment Information And Disaggregation Of Revenue [Text Block] 
+ + References No definition available. 
+ + Details 
+ 
+ Name: 
+ HCWC_SegmentInformationAndDisaggregationOfRevenueTextBlock 
+
+ Namespace Prefix: 
+ HCWC_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration
