@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Midday Update · Friday, May 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'DM Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Syne',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'DM Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--apt-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--apt-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--apt-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--apt-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--apt-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--apt-red); }
+  .story-source { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'DM Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }
+  .insight-label { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--apt-red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--apt-red); }
+  .panel:not(.edge) .panel-title { color:var(--apt-grey); }
+  .panel p { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Syne',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Apterreon</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </a>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Midday Update · Friday, May 01</h1>
+    <div class="meta">01:11 PM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
+    <span class="ts">01:11 PM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {"input_tokens": 14813, "output_tokens": 6368, "total_tokens": 21181, "cost_this_call": 0.0373, "cost_daily_projected": 0.112, "cost_monthly_projected": 3.36};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "Edina police responding to active incident blocks from last week's shooting", "summary": "", "insight": "", "source": "5 EYEWITNESS NEWS", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNeGN1Ri1mWTU5TWQteDdTdFE5TjRpUGpnQW53YVVFb3ItNFpYa1dxdHBmZkpWcWNwaFRsZ0tKOWZIemR3Z1FTT0hnNWdYdGlRSFMxb1N1dzI3NzAzM1lnTWUtRWtEQlN2LWRuX0FxM3RUcWNuNHQ5bWNnN0JIWVBSNkIwNGpURnlMYV9FOVZrZGRHZ0tKRzNVcXBORjNrZEFadkFxRFpOb19UM3FsOXlVeA"}, {"headline": "Iran delivers fresh talks proposal to Pakistani mediators", "summary": "", "insight": "", "source": "DW.com", "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQSXduWGF3bkRmN1o3RlZyNGNIbUN4ZVhUZTFsVTFXTHl3dUJhNklwYXVUdXFJQUtsQ19RMGJXZ0Z0R2Qyc0s2aTFxVUZLQVY3MlRoNTI2TVJqWmYwM2RyUWc4N2M0dTZ5b3htc0xFSE1UWVpIa05TZHB3NWlsLUt0bFJWUUl0bW4zb3pUVWx4bDZUWEItcG4wUQ"}]}, {"name": "Finance & Markets", "stories": [{"headline": "Fed Powell signals rates will remain restrictive longer than expected; no cuts imminent", "summary": "Fed Chair Jerome Powell and the FOMC updated interest rate guidance to signal a hawkish hold, disappointing markets expecting near-term cuts.", "insight": "Terminal rate expectations shifting higher extends the real yield advantage for dollar assets and extends refinancing pain for floating-rate credit, pressuring valuations of leverage-dependent strategies and extending the premium on hard assets.", "source": "The Globe and Mail, Investopedia", "link": "https://news.google.com/rss/articles/CBMioAJBVV95cUxPNGYwQ1ZVNHhvOEFEZFZQaXc0bXk0eGI4RzNZbXdqNWFZV3hDX0xGQ3oyZHpvejVScjZiRy10ZTZYYl9Kbk1xMXFZMk45aV9lTE56TW9CZ3ZuTTlIUV9SQk95aDIzdHF4ZWNDOUlGNzg5SWJTOUo2WUlTRnJoeHMwMUROSVlKekVTcFkxQmJFVnh4UTh5ZTNwYmNHQnZKblpRQ21hZzd1TERqN2lIZ0R6a2k3S1p0WEY1WGJaWG43NkYxSy1CeGZ2al9LQ3g4eGkza05wOEtObnlVYWhVTVd1TEhRaGFlWkp2SEFxbDlsOUpKOXZpemtYY2pucUVyN2ltMm1zV1dZb1hHdVF2RTRneThreVppVDl2bVQtejZHZU4"}, {"headline": "VanEck launches first CLO equity interval fund; Coinbase brings on-chain credit forward", "summary": "VanEck entered the CLO equity market with a new interval fund sub-advised by PineBridge, while Coinbase unveiled its institutional CUSHY credit fund ahead of Q2 launch.", "insight": "Asset managers racing to package credit on-chain and into interval vehicles before rate regime clarifies signals competitive pressure to lock AUM in structured products where asset-liability matching becomes a structural edge in volatile rate environments.", "source": "PR Newswire, crypto.news", "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxNOTVib3ZEdnBzT05XTlJ6SW1Hc2poNmNzT0ZaM1RTQXc5WFM1LTBOcDdHRW41OG9vX0t4dEFzOEFudUNGNHZmMEdfWWJiWUdxS3p5TDFHbEhGcHhsdElhTTFsRkNPUUdpdFRQZVQzQUwyMm1fUkwtRGVRT2k0a1NnaWdQLVNLTE9DX1JQZjNCWWFqa0ZZcnlXdjdVMDJ2M0FNSFk3eWlKbGxYVDFaWGpVM0s1enRVQzI4M2hvX1A1RFlDTnlSVHZIZzg2U0Rodnd0dEZGWQ"}, {"headline": "US national debt exceeds 100% of GDP for first time since WWII; experts flag structural fiscal risk", "summary": "US debt-to-GDP ratio crossed 100 percent as structural deficits and entitlement obligations accelerate against slowing revenue growth.", "insight": "Crossing the 100% threshold removes a psychological barrier and forces allocators to price a higher probability of fiscal dominance over monetary policy, widening spread products and reducing demand for long-duration Treasuries at current yields.", "source": "Baltimore Sun, Audacy", "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNX1RMVk5ha3EtRGVjWWsweGhwR3J1NGF2dEF4cUlEZmVfd3pDaXdYVGxQMzFzeUJCa0c1UC1wOUJNRlpQVmVqNXZzdFhieFBpRlpXVGl5cWtHQkVlUEZZNTVMNnUwdkpwa2w2VTM5N3JieXlHU0dfMm5HNW42aENQeUdnb2pZd3NTMXpTem1xVG4tMGpVWWt2UnVyVWQ5SXUzbWUwX1Zmdk1jU19oOEx3d1N5bXJHQQ"}]}, {"name": "Politics & Policy", "stories": [{"headline": "Trump administration declares Iran war terminated before 60-day deadline; Speaker Johnson signals no active conflict", "summary": "The Trump administration announced the war with Iran has been terminated ahead of the congressional 60-day authorization deadline, with House Speaker Mike Johnson reinforcing the US is not actively at war.", "insight": "Unilateral declaration of war termination without congressional vote establishes executive precedent for conflict framing and exits without statutory constraint, reducing future institutional friction on military commitments and shifting war powers calculus toward executive discretion.", "source": "The Washington Post, NBC News", "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOQWs4bURYYV9td0dBd2RuQUFzSHRXeWRjbVBmdDVad2g5N0R5ekNjZ3QtUzM4N0d1LThtdF96SDRpclFjNmdNcUtxNmhwMkU2clFZX2N3d2Q5cTRtLU1abWhmYlpTVXljbEdRZktFUWV6bHlWWUtscXVaX3FsVW9HanlwREZPQ3ZiaXEtQ1hYamJpcDdHV09obThMTjdJVXVEQmRGdk9zVkk5SzhGa0JIZm1tUEdZbTNjNDRsRmp3"}, {"headline": "Trump expands sanctions on Cuban government amid broader geopolitical repositioning", "summary": "Trump administration tightened economic sanctions targeting the Cuban government as part of escalating pressure across multiple hemispheric actors.", "insight": "Broadening sanctions regimes without new legislative authority signals reliance on executive orders and IEEPA authority, creating regulatory uncertainty for financial institutions managing Cuba exposure and reducing predictability for long-term emerging market positioning.", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOQmEtR3kxSFZRdWJfVmFPSlY0UG1pYk1ncWNObk9Vcmh3VXRKN1hfT3hWdTRyeWQyUFE5YXVjdDZuRVFOOFpwcTJBcHJCTzZCV3NKS1BvSnB0LVFLWUVEcDZnQm4yNk83NGRiVDBOeVlfQ0tDY1ZQSVpPcEc2ZlIyM1doVHE0WGdkdkV6SWM0c2taamotRVhuaVdB"}]}, {"name": "AI & Technology", "stories": [{"headline": "Nebius acquires GPU optimization startup to integrate inference cost reduction into enterprise cloud stack", "summary": "Nebius agreed to acquire a startup focused on making AI models run faster and cheaper, integrating optimization directly into its infrastructure layer.", "insight": "Vertical integration of inference optimization reduces customer switching costs and embeds margin compression at the hyperscaler level, signaling intensifying competition on compute utilization efficiency as the primary battleground after model weights commoditize.", "source": "Bloomberg.com", "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOblhLUmpPQ0RNcWhMU3h6S2hxSEdYSEVrTVowMHFuZ0gyZEVKT2xXeVdhZWFqQTA2T1JxMWVpdW9vbEZFOHMwUk1DZm9RTzd5OTUyOFJoYTlPcHRPNGF4aXdMMU1xSmdwcVhIS0JfQ3cyLVM0YldDR0NTWThLTTZvZ3AwUHM5Y0gzZ3Q0dnJYUmp6SWs3UlhaZFBXMGRESnp6VGd4b094SFpnd281elliRkJR"}, {"headline": "Meta threatens New Mexico service shutdown over child safety law compliance dispute", "summary": "Meta indicated it could shut down services in New Mexico over conflict with state child safety regulations requiring moderation changes Meta contests.", "insight": "Platform threatening regional exit over compliance cost rather than complying signals willingness to weaponize user base withdrawal as regulatory negotiation lever, establishing precedent for state-level regulatory arbitrage and pressuring other jurisdictions to reverse similar mandates.", "source": "The Mercury News", "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPcnVvNTdTVlFZYm5JeWVGSEU4WnVkN1hBekNVSkpTQnJmd3FRS0lwSDBhSTlZcm5GbG9idllCd0NmRkY5WVdieWNXQkF4YTNQaFlsM3BwR252Y3h0cmkyc2ZNZ2oxMzRWeS1HYnJta3JQRDRlOFVhMjBZczJoWTVyamNyOVJiU3pZOTRYR1JQUWg4UG84VGRhTDlkTERlSy1XS3ZlTUo4cV9iNkh0M0ZWd3ZsdnoxZGlNNm9wb056NjNJeFpTTGQ1NHNaRdIB0AFBVV95cUxOVXh5MThHRm02V003V3hqU2trRGVXdE9fVWdiRGc1TzFkR3RocFRnME5fc2pxeTBzYzk4T2hIdVVaVnpuYVQtNjV2Vmt4WVY3RnMwUmlNQVdvSWxUWVZXTDhkVWozOUNfdDZJbFBlSzAtaDZtNC1fSG9YU05xaGQ5RnZSR0V6Y2Vac0lOLW9yVFVFN2VlREtTM2hyenNYVFNLSTZoQTZVclJKQlc0Unp1RFlZMW54WnBLWklrUUpzdVZMejBSLW1ia09vXzd5U3NY"}]}, {"name": "International", "stories": [{"headline": "Iran signals openness to talks through Pakistani mediators as war economic damage accelerates", "summary": "Iran delivered fresh negotiation proposals to Pakistan while economic fallout from recent conflict deepens across manufacturing and energy sectors.", "insight": "De-escalation signal through back channels while publishing war damage creates negotiating space for sanctions relief without formal capitulation, allowing both sides to claim victory and raising probability of near-term sanctions drawdown that would unlock significant commodity and emerging market upside.", "source": "DW.com, Middle East Forum", "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQSXduWGF3bkRmN1o3RlZyNGNIbUN4ZVhUZTFsVTFXTHl3dUJhNklwYXVUdXFJQUtsQ19RMGJXZ0Z0R2Qyc0s2aTFxVUZLQVY3MlRoNTI2TVJqWmYwM2RyUWc4N2M0dTZ5b3htc0xFSE1UWVpIa05TZHB3NWlsLUt0bFJWUUl0bW4zb3pUVWx4bDZUWEItcG4wUQ"}, {"headline": "China now supplies 90% of Russia's sanctioned technology imports as Western restrictions deepen integration", "summary": "China has become the dominant source of sanctioned tech flowing to Russia, accounting for 90 percent of imports as Western export controls accelerate bifurcation.", "insight": "Realignment of technology flows away from Western sources to China-centric supply chains creates structural advantage for Beijing in controlling critical subsystems and reduces effectiveness of secondary sanctions pressure on Russia, embedding longer-term geopolitical decoupling.", "source": "The Moscow Times", "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPYll2OVRHRXhNUVlwcF9nbVFXdW1oUndDZFJORDh1elhYRUNNaE5vUnk1b2ZieU9DTFRzVXJ2TDYycmVQZl90bU1QMGpaaWQwME8wT29VMko4dzZBZGE2aHRKS1FUalRzbzlsRHVNbUZGVjBIemN1a0UtN01NVmZJWHJ5ZEFZZ2otS0ZVdjRxSGVBa2xxYmxMR2FseS15ZzFkWVFmLUtzN1I5WnIzMUMtWHdiWmIyUQ"}]}, {"name": "Culture & Sports", "stories": [{"headline": "Summer 2026 film slate stacked with tentpole IP: 36 major releases compete for 2.5-hour audience attention", "summary": "Major studios are releasing 36 significant films this summer, creating unprecedented content density in a compressed theatrical window.", "insight": "Saturation of opening weekends forces downstream content to rely on franchise loyalty and presold IP rather than discovery, concentrating upside in already-owned franchises while crushing theatrical economics for original properties and accelerating consolidation toward streaming-first windows.", "source": "Rolling Stone", "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNTEJZc2d6LUgyeUZ4ODkzaHo3Wmp4aHBrTUM1QjZ4LXNXMVRJanozYkVIbXFocnVLQ1h2dmtRVWNLZWFMWE16STNmd1FHM1NGTVNTSTc0UjNKakJjd0F2Z1ZQcGEtemtvbWZ6cUptX01nX2lScWVMdWFVSnFRQ2ZfWFQwV2JnR3NBazhnaEt1V3ZvSHM3cFQ1SWVZVFpnUVd1Y0JB"}]}, {"name": "Boston", "stories": [{"headline": "Massachusetts limits pipeline capital spending for local gas utilities amid climate policy shift", "summary": "Massachusetts regulators imposed constraints on pipeline infrastructure investment by gas companies to reduce fossil fuel lock-in.", "insight": "State-level utility capex restrictions create stranded asset risk for gas distribution networks and accelerate retirement of methane infrastructure, pressuring returns for regulated utility investors and signaling regulatory model shift toward managed decline of legacy fuel networks.", "source": "Boston 25 News", "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxObTZNT0Nsa1dpcWx5WGJZNjZzTjM5ZGVySFdpajh1Tlp3VUJzdkl2aTdJajJxSjRPYTA1Vm15MDZwM1BnTVlBWVVxMHNhc0Q2Sm0wcXJvamFnV0xESmxmTTQ2Vm50Sks5V3dhUGhjZnowR1BOUS0tVXdyeldRNVVCMU9tZ0h3QnJoalYxMnBSZ0lDdnFSZWJjUjVTUFZuTVRraEdiNWt6c3JPcUQzUWNYUWhsMEhTdDNvUUVhVlhqQ0xTSGhTSHE00gHbAUFVX3lxTE5LZVd3SnpDUVd0SmpYTkZHaVkwVk4yV24zNFRxMk41aEdoSlZVTldXaTZKZHZuNGhzeWR1NS1iUW9KUk12ZDRJTHBnZzBhV0NWVXRxR2VOUTdfNW9TVlJtcVZPYXl5MXVYY1hRd0stY2EzajV6TkxPb3FQd3E3OXltaFpxalUyaHRWbDJvaW41azZtOG9NT0VnbGJUblhJNlJLTFYwa3BZTnpxRnlldW8zRVJpcVRLMDVmbXhZSTVteThTSXI3SUN0VEt3Wmg0aFM2NVhpWEZzVUUwOA"}, {"headline": "Massachusetts gas prices surge as supply constraints tighten heading into summer; record highs possible", "summary": "Gasoline prices in Massachusetts jumped overnight with forecasters warning record-high pump prices are possible by summer.", "insight": "Pipeline investment caps combined with seasonal demand rebound create artificial supply inelasticity, pushing price discovery higher and concentrating margin expansion in downstream distribution before retail pass-through saturates consumer sensitivity, creating short-term wholesale-to-retail arbitrage.", "source": "Boston 25 News", "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxPY2otUzA3dnFmRWFZdGpWQTUza1VRWElBNHlYczQ5WUpGU2RsMGRBWW5oT2t3b0lzaTVUSGhrRUN5Uy1DSkJrRVFfZ01BLWw4VWRRaTN1b3VFOTl5LThEZk5KNnh2LVdlaFJOby1rNlR5bU43NmNIWG9SVVZVaURvdEE1VlhyeW9UZjZVc3hOZzhYYzBvT0pKSHBXRnZpMENjWW1ZeUlTQUZOUVVhV24wYTIyTjQyVkRmd2Q2YmU0a2lqVUNHUEhqay1GNE1aQUt3NVdNd2RHNTJOWTQ0Q0NmalE5Ym12TGPSAfsBQVVfeXFMUEEwRExxejRIZFotSU9hdXBBNTRLTm5wLXNyQkVubVpYbWEwMHFhM0s2VldnMklFdHd3ZXVmSjNQQjMwWFNieUVDTlJOTWZXdzViOUJzbk5ZTDJlUWRySnNyS2pNMnJEc3ZHdmY1aEk4WkhTUVkyb3REcUlBRjRXNlN1M0NfejAwZjlNZnJyNV9oMUtqYWxCQk1uMXVtZnp2NnJIQjdlOEpfVzBWU2RaaFV0MFRXbWxtSlJjcklxSVNucVdmS2ZxX0JTc2JobURQSWNIdVR0bHJBaExnekZxaVFZa0w2aC1ETEZFekFxYXo0MEVfR3MzMXdFNzA"}]}];
+const edgeText = "The Fed's sustained hawkishness (100%+ debt-to-GDP, no cuts) collides with de-escalation signaling from Iran and infrastructure constraints accelerating commodity prices. Allocators face a trilemma: real yields are attractive but geopolitical optionality is pricing in too much peace risk, while supply-side rigidities (pipeline caps, China tech dominance in Russia, inference cost competition) are locking margins higher in specific subsectors where policy creates artificial scarcity. The arbitrage window closes when either fiscal data force Fed capitulation or geopolitical clarity resets rate expectations.";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "718.66", "change_pct": "0.9950"}, {"ticker": "IWB", "label": "Russell 1000", "price": "392.83", "change_pct": "1.0183"}, {"ticker": "IWM", "label": "Russell 2000", "price": "277.97", "change_pct": "2.1648"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "102.32", "change_pct": "2.3917"}, {"ticker": "FFR", "label": "MM Yield (avg)", "price": "3.64%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Apterreon Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>
