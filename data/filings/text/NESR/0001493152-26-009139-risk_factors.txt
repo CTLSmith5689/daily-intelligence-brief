@@ -1,0 +1,780 @@
+ITEM
+1A. RISK FACTORS 
+
+ An
+investment in our ordinary shares involves a high degree of risk. You should consider carefully the following risk factors, as well as
+the other information contained in this Annual Report, before making an investment in our ordinary shares. Any of the risk factors described
+below could significantly and negatively affect our financial position, results of operations or cash flows. In addition, these risks
+represent important factors that can cause our actual results to differ materially from those anticipated in our forward-looking statements. 
+
+ RISK
+FACTOR SUMMARY 
+
+ Risks
+Related to Our Business and Operations 
+
+ ● 
+ Trends
+ in oil and natural gas prices affect the level of exploration, development, and production activity of our customers and the demand
+ for our services and products, which could have a material adverse effect on our business, results of operations, and financial condition. 
+
+ ● 
+ Our
+ business is dependent on capital spending by our customers, and reductions in capital spending could have a material adverse effect
+ on our business, results of operations, and financial condition. 
+
+ ● 
+ Our
+ assets require capital for maintenance, upgrades and refurbishment and we may require significant capital expenditures for new equipment. 
+
+ ● 
+ The
+ geographic concentration of our operations and customers exposes us to the risks of the regional economy and other regional adverse
+ conditions. 
+
+ ● 
+ We
+ operate in multiple countries across the Middle East, North Africa, and Asia. Therefore, our operations will be subject to political
+ and economic instability and risk of government actions that could have a material adverse effect on our business, results of operations,
+ and financial condition. 
+
+ ● 
+ Conditions
+ in the Middle East, including current uncertainty and instability resulting from the conflict between the United States, Israel and
+ Iran, as well as other regional hostilities could adversely affect our business. 
+
+ ● 
+ The
+ Company is subject to various laws and regulations in the regions in which it operates, and changes in such laws and regulations,
+ failure to comply with existing or future laws and regulations, and disputes regarding compliance with such laws and regulations
+ could adversely affect the Company’s business. 
+
+ ● 
+ Physical
+ dangers are inherent in our operations and may expose us to significant potential liability and losses. Personnel and property may
+ be harmed during the process of drilling for oil and natural gas. 
+
+ ● 
+ If
+ we do not effectively or efficiently integrate the operations of businesses or companies we acquire, including the integration of
+ the operations of our subsidiaries, our future growth will be limited. 
+
+ ● 
+ We
+ compete in a highly competitive industry, and many of our competitors are larger than us and have greater resources than we do. 
+
+ ● 
+ The
+ inability to keep pace with technology developments, including advancements in artificial intelligence, could adversely affect our
+ ability to maintain or grow market share. 
+
+ 15 
+
+ Financial,
+Regulatory, Legal and Compliance Risks 
+
+ ● 
+ Impairment
+ in the carrying value of goodwill could result in the incurrence of impairment charges. 
+
+ ● 
+ We
+ may not be fully indemnified against financial losses in all circumstances where damage to or loss of property, personal injury,
+ death or environmental harm occur. 
+
+ ● 
+ We
+ operate in multiple countries and earn revenue in different currencies and as such may be exposed to risks arising from fluctuating
+ exchange rates and currency control restrictions, which may limit our ability to reinvest earnings from operations in one country
+ to fund the capital needs of our operations in other countries or to repatriate assets from some countries. 
+
+ ● 
+ Changes in international tax laws and the ongoing implementation of global minimum tax rules could increase our tax
+liabilities and compliance costs and adversely affect our results of operations. 
+
+ ● 
+ Lack
+ of consolidation of our fiscal results in a taxpaying jurisdiction prevents offsetting some losses against taxable profits. 
+
+ ● 
+ The
+ owners of NESR ordinary shares are subject to tax risks due to the possibility of changes in tax rules and regulations in foreign
+ countries. 
+
+ ● 
+ If
+ our subsidiaries are unable to comply with the restrictions and covenants in their debt agreements, they could default under the
+ terms of such agreements, which could result in an acceleration of repayment. 
+
+ ● 
+ To
+ service our indebtedness, we may require a significant amount of cash, and our ability to generate cash will depend on many factors
+ beyond our control. 
+
+ ● 
+ Our
+ borrowings under our various loan agreements and other financing arrangements expose us to interest rate risk and such arrangements
+ also include restrictive covenants that may impact our subsidiaries’ ability to make distributions to us. 
+
+ ● 
+ We
+ are exposed to the credit risk of our customers and counterparties, and delay, non-payment, and/or non-performance by our customers
+ could have an adverse effect on our financial condition, results of operations, or cash flows. 
+
+ ● 
+ Limitations
+ on our ability to protect our intellectual property rights, including our trade secrets, could cause a loss in revenue and any competitive
+ advantage. 
+
+ ● 
+ We
+ may be subject to litigation if another party claims that we have infringed upon such third party’s intellectual property rights. 
+
+ ● 
+ Environmental
+ compliance costs and liabilities could reduce our earnings and cash available for operations. 
+
+ ● 
+ We
+ could be subject to substantial liability claims, which could adversely affect our financial condition, results of operations, and
+ cash flows. 
+
+ ● 
+ Demand
+ for our products and services could be reduced by existing and future legislation or regulations. 
+
+ ● 
+ Increased
+ attention to climate change, Environmental, Social, and Governance (“ESG”) matters and conservation measures by regulators
+ and investors may adversely impact our business. 
+
+ ● 
+ Some
+ of our customers require bids for contracts in the form of long-term, fixed pricing contracts that require us to assume additional
+ risks associated with cost over-runs, operating cost inflation, labor availability and productivity, supplier and contractor pricing
+ and performance, and potential claims for liquidated damages. 
+
+ ● 
+ Our
+ failure to comply with complex U.S. and foreign laws and regulations could have a material adverse effect on our operations. 
+
+ ● 
+ We are subject to sanctions and export control regimes adopted by the U.S. and other jurisdictions. 
+
+ ● 
+ Our
+ operations in the Middle East and other countries could require us to incur additional costs in order to comply with U.S., United
+ Kingdom (“UK”) and European Union (“EU”) sanctions-related regulations restricting or prohibiting activities
+ with certain individuals and entities or in certain jurisdictions. 
+
+ ● 
+ We
+ are subject to litigation risks that may not be covered by insurance. 
+
+ ● 
+ We
+ may be unable to obtain, maintain or renew permits necessary for our operations, which could inhibit our ability to do business. 
+
+ ● 
+ We
+ might require additional equity or debt financing to fund operations and/or future acquisitions. 
+
+ ● 
+ As
+ of January 1, 2026, we were no longer a foreign private issuer and we are required to comply
+ with the provisions of the Securities Exchange Act of 1934, as amended (the “Exchange
+ Act”), and the rules of Nasdaq, applicable to U.S. domestic issuers, which will continue
+ to require us to incur significant expenses and expend time and resources. 
+
+ 16 
+
+ Risks
+Related to Our Capital Structure 
+
+ ● 
+ The
+ market price of our ordinary shares may decline. 
+
+ ● 
+ If
+ securities or industry analysts do not publish or cease publishing research or reports about us, our business, or our market, or
+ if they change their recommendations regarding our securities adversely, the price and trading volume of our ordinary shares could
+ decline. 
+
+ ● 
+ We
+ are a holding company. Our sole material asset is our equity interest in our subsidiaries and we are accordingly dependent upon distributions
+ from them to cover our corporate and other overhead expenses. 
+
+ ● 
+ Future
+ sales of our ordinary shares could reduce our stock price, and any additional capital raised by us through the sale of equity or
+ convertible securities may dilute your ownership in us. 
+
+ ● 
+ Because
+ we currently have no approved plans to pay cash dividends on our ordinary shares, you may not receive any return on investment
+ unless you sell your ordinary shares for a price greater than which what you paid for it. 
+
+ Other
+Risks Associated with Our Business 
+
+ ● 
+ Cybersecurity
+ risks and threats could adversely affect our business. 
+
+ ● 
+ We
+ depend on our suppliers to provide services and equipment in a timely manner and any delays, interruptions or failures by suppliers
+ could expose us to increased costs or inability to meet contractual obligations. 
+
+ ● 
+ We
+ have engaged in related party transactions, the termination of which may inhibit business, and such transactions present possible
+ conflicts of interest that could have an adverse effect on us. 
+
+ ● 
+ The
+ loss or unavailability of any of our executive officers or other key employees could have a material adverse effect on our business. 
+
+ ● 
+ Our
+ growth potential and ability to operate could be materially and adversely affected if we cannot employ and retain technical personnel
+ at a competitive cost. 
+
+ ● 
+ An
+ investment in our securities may result in uncertain U.S. federal income tax consequences. 
+
+ ● 
+ Substantially
+ all our assets are located outside the U.S.; therefore, investors may not be able to enforce U.S. federal securities laws or their
+ other legal rights. 
+
+ ● 
+ We
+ are not subject to the supervision of the Financial Services Commission of the BVI and so our shareholders are not protected by any
+ regulatory inspections in the BVI. 
+
+ ● 
+ Investors
+ may face difficulties in protecting their interests, and their ability to protect their rights through the U.S. federal courts may
+ be limited, because we are formed under BVI law. 
+
+ ● 
+ Our
+ Memorandum and Articles of Association, as amended and restated, permit the Board of Directors by resolution to create additional
+ classes of securities, including shares with rights, preferences, designations and limitations as they determine which may have an
+ anti-takeover effect. 
+
+ RISKS
+RELATING TO OUR BUSINESS AND OPERATIONS 
+
+ Trends
+in oil and natural gas prices affect the level of exploration, development, and production activity of our customers and the demand for
+our services and products, which could have a material adverse effect on our business, results of operations, and financial condition . 
+
+ Demand
+for our services and products is sensitive to the level of exploration, development, and production activity of, and the corresponding
+capital spending by, oil and natural gas companies. The level of exploration, development, and production activity is directly affected
+by trends in oil and natural gas prices, which historically have been volatile and are likely to continue to be volatile. Prices for
+oil and natural gas are subject to large fluctuations in response to relatively minor changes in the supply of and demand for oil and
+natural gas, market uncertainty, and a variety of other economic factors that are beyond our control. The following table illustrates
+the high degree of variability in Europe Brent spot prices per barrel over the last three years: 
+
+ Highest
+ Closing Price 
+ Lowest
+ Closing Price 
+ 
+ 2023 
+ $ 97.10 
+ $ 71.03 
+ 
+ 2024 
+ 93.12 
+ 70.31 
+ 
+ 2025 
+ 83.48 
+ 59.93 
+
+ 17 
+
+ A
+prolonged reduction in oil and natural gas prices could lead to depressed levels of exploration, development, and production activity
+and could have a material adverse effect on our business, results of operations and financial condition. Even the perception of longer-term
+lower oil and natural gas prices by oil and natural gas companies can result in the reduction or deferral of major expenditures given
+the long-term nature of many large-scale development projects. 
+
+ Factors
+affecting the prices of oil and natural gas include: 
+
+ ● 
+ the
+ global and regional level of supply and demand for oil and natural gas including liquefied natural gas imports and exports; 
+
+ ● 
+ governmental
+ regulations, including the policies of governments regarding the exploration for and production and development of their oil and
+ natural gas reserves, including environmental regulations; 
+
+ ● 
+ increased
+ attention to ESG matters and conservation measures may adversely impact the oil and natural gas industry; 
+
+ ● 
+ weather
+ conditions, natural disasters, and public health crises and threats; 
+
+ ● 
+ worldwide
+ political, military, and economic conditions; 
+
+ ● 
+ the
+ ability or willingness of the Organization of the Petroleum Exporting Countries and the expanded alliance known
+ as OPEC+ (“OPEC+”) to set and maintain oil production levels and quotas and member country compliance with quotas; 
+
+ ● 
+ the
+ level of oil and natural gas production by non-OPEC+ countries; 
+
+ ● 
+ oil
+ refining capacity and shifts in end-customer preferences toward fuel efficiency and the use of natural gas; 
+
+ ● 
+ the
+ cost of producing and delivering oil and natural gas; 
+
+ ● 
+ technological
+ advances affecting energy consumption; and 
+
+ ● 
+ potential
+ acceleration of the development of alternative fuels. 
+
+ 18 
+
+ Our
+business is dependent on capital spending by our customers, and reductions in capital spending could have a material adverse effect on
+our business, results of operations, and financial condition. 
+
+ Our
+business is directly affected by changes in capital expenditures by our customers and reductions in our customers’ capital spending
+could reduce demand for our services and products and have a material adverse effect on our business, results of operations, and financial
+condition. Most of our contracts can be cancelled or renegotiated by our customers at any time. Some of the items that may impact our
+customers’ capital spending include: 
+
+ ● 
+ oil
+ and natural gas prices, including volatility of oil and natural gas prices and expectations regarding future prices; 
+
+ ● 
+ changes
+ in government incentives and tax regimes; 
+
+ ● 
+ the
+ inability of our customers to access capital on economically favorable terms; 
+
+ ● 
+ customer
+ personnel changes; and 
+
+ ● 
+ adverse
+ developments in the business or operations of our customers, including write-downs of reserves and borrowing base reductions under
+ customer credit facilities. 
+
+ The
+oil and natural gas industry has historically experienced periodic downturns, which have been characterized by diminished demand for
+our products and services and downward pressure on the prices that we are able to charge. Sustained market uncertainty can also result
+in lower demand and pricing for our products and services. A significant industry downturn, sustained market uncertainty, or increased
+availability of economical alternative energy sources could result in a reduction in demand for our products and services, which could
+adversely affect our business, financial condition, results of operations, cash flows and prospects. With respect to national oil company
+(“NOC”) customers, we are also subject to risk of policy, regime, currency and budgetary changes, all of which may affect
+our customers’ capital expenditures. 
+
+ Our
+assets require capital for maintenance, upgrades and refurbishment and we may require significant capital expenditures for new equipment. 
+
+ Our
+revenue is generated principally from providing services and related equipment as well as renting tools and equipment. Our tools and
+equipment require capital investment in maintenance, upgrades and refurbishment to maintain our competitiveness. To the extent we are
+unable to fund such projects, we may have less equipment available for service or our equipment may not be attractive to potential or
+current customers. Additionally, increased demand, competition, advances in technology within our industry, and/or new emissions control,
+safety or other regulatory requirements in the geographies that we operate in may require us to update or replace existing equipment.
+Such demands on our capital or reductions in demand for our equipment and the increase in cost to maintain labor necessary for such maintenance
+and improvement, in each case, could have a material adverse effect on our business, liquidity position, financial condition, prospects
+and results of operations. 
+
+ The
+geographic concentration of our operations and customers exposes us to the risks of the regional economy and other regional adverse conditions.
+The credit risks of our concentrated customer base in the energy industry could result in losses. In addition, we depend on a small number
+of customers for a significant portion of our revenues. Therefore, the loss of any of these customers could result in a decline in our
+revenues and adversely affect our financial condition, results of operations or cash flows. 
+
+ Our
+operations and our primary customers are located in the MENA region and all are in the energy industry. Most of our
+customers are national oil companies (“NOCs”). Given the importance of NOCs, which dominate the petroleum industry in our countries of operation, our business is
+more susceptible to regional economic, budgetary and political conditions than other, more geographically diversified competitors. Any
+changes in market conditions, unforeseen circumstances, or other events affecting the area in which our assets are located could have
+a material adverse effect on our business, operating result, and financial condition. 
+
+ 19 
+
+ Revenues
+from four customers individually accounted for 49%, 9%, 8% and 7% of the Company’s consolidated revenues in the year ended December
+31, 2025, 54%, 9%, 7% and 4% of the Company’s consolidated revenues in the year ended December 31, 2024, and 44%, 8%, 7% and 5%
+of the Company’s consolidated revenues in the year ended December 31, 2023. Under the terms of our customer contracts, there is
+a risk of termination of one or more of such contracts and/or a lack of engagement in the same manner, or to the same level, as has been
+the case historically. The loss of all or even a portion of the business from a major customer, the failure to extend or replace the
+contracts with a major customer, or the extension or replacement of such contracts on less favorable terms, as a result of competition
+or otherwise, could adversely affect our financial condition, results of operations or cash flows. 
+
+ We
+operate in multiple countries across the Middle East, North Africa, and Asia. Therefore, our operations will be subject to political
+and economic instability and risk of government actions that could have a material adverse effect on our business, results of operations,
+and financial condition . 
+
+ We
+are exposed to risks inherent in doing business in each of the countries in which we operate. Our operations are subject to various risks
+unique to each country that could have a material adverse effect on our business, results of operations, and financial condition. With
+respect to any particular country, these risks may include but are not limited to: 
+
+ ● 
+ civil
+ unrest, acts of terrorism, force majeure, war, other armed conflict, and sanctions; 
+
+ ● 
+ recent
+ efforts toward modernization in the region could have unanticipated consequences to cause unrest or political change that could cause
+ loss of contracts; 
+
+ ● 
+ inflation; 
+
+ ● 
+ currency
+ fluctuations, devaluations, and conversion restrictions; 
+
+ ● 
+ government
+ actions that may result in expropriation and nationalization of assets in that country; 
+
+ ● 
+ confiscatory
+ taxation or other adverse tax policies; 
+
+ ● 
+ actions
+ that limit or disrupt markets or our operations, restrict payments, limit the movement of funds or result in the deprivation of contract
+ rights; 
+
+ ● 
+ actions
+ that result in the inability to obtain or retain licenses required for operation; and 
+
+ ● 
+ retaliatory
+ actions that may be taken by one country against other countries in the region. 
+
+ Due
+to the unsettled political conditions in many oil-producing countries, our operations, revenue, and profits may be subject to the adverse
+consequences of war, the effects of terrorism, civil unrest, strikes, currency controls, and governmental actions. These and other risks
+described above could result in the loss of our personnel or assets, cause us to evacuate our personnel from certain countries, cause
+us to increase spending on security, cause us to cease operating in certain countries, disrupt financial and commercial markets, including
+the supply of and pricing for oil and natural gas, disrupt the supply of equipment required to operate in a country, result in labor
+shortages and generate greater political and economic instability in some of the geographic areas in which we operate. In response to certain conflicts, governments may impose additional sanctions,
+export controls, embargoes, and other restrictive measures targeting countries and regions in which we conduct business. These measures
+may lead to further retaliatory actions by impacted jurisdictions and lead to higher operating costs or disruptions in the supply chain
+for our business. Additionally, any possible reprisals
+as a consequence of military or other action, such as acts of terrorism in the Middle East, could have a material adverse effect on our
+business, results of operations, and financial condition. 
+
+ 20 
+
+ Conditions
+in the Middle East, including current uncertainty and instability resulting from the conflict between the United States, Israel and Iran,
+as well as other regional hostilities could adversely affect our business. 
+
+ The
+majority of our operations and facilities are located in the Middle East. Accordingly, political, economic and military conditions in
+the Middle East and the surrounding region directly affect our business and could materially and adversely affect our business, operations,
+or personnel. Most recently, on February 28, 2026, the security situation escalated significantly with the commencement of a major military
+conflict involving the United States, Israel, and Iran. This situation has led to the closure of regional airspace and retaliatory strikes
+impacting multiple nations in the Middle East where we operate, including Saudi Arabia, the UAE and Qatar. 
+
+ Such
+conflict has resulted in, and could continue to result in, supply disruptions, damage to energy infrastructure, increased shipping and
+insurance costs, delays or rerouting of oil and gas cargos, heightened security risks, and increased volatility in oil and gas prices,
+all of which could affect our customers and our ability to do business with them. 
+
+ The
+intensity and duration of this active conflict are difficult to predict. Although the current hostilities have not materially impacted
+our business or operations as of the date of this Annual Report, the conflict is rapidly evolving and developing and it is not possible
+to predict its long-term consequences on us or our customers. Any escalation and expansion of this conflict could have a negative impact
+on both global and regional conditions and may adversely affect our business, financial condition and results of operations. 
+
+ The
+Company is subject to various laws and regulations in the regions in which it operates, and changes in such laws and regulations, failure
+to comply with existing or future laws and regulations, and disputes regarding compliance with such laws and regulations could adversely
+affect the Company’s business. 
+
+ The
+legal risk of doing business in the MENA region and elsewhere could adversely affect the Company’s operations and earnings. Such
+risks include the impact of current laws and regulations, the effect of changes in laws or regulations, and the consequences of litigation
+relating to current or future laws and regulations, all of which could have an adverse impact on the Company’s results of operations.
+In addition, laws in some countries the Company operates in can be vague, inconsistently administered, and retroactively applied, which
+can increase the Company’s exposure to litigation or governmental investigations or proceedings, which can be costly. For example,
+the Company is currently party to litigation in Qatar and the UAE regarding ownership and historical profits of operating subsidiaries
+acquired in the acquisition of NPS. See Note 13, Commitments and Contingencies , to the Company’s financial statements included
+in this Annual Report. Failure to comply with the laws and regulatory requirements of governmental or judicial authorities and rulings
+that go against the Company could result in, among other things, revocation of required licenses, changes in commercial registrations,
+administrative enforcement actions, effects on covenant compliance under the Company’s bank loans, fines, and civil and criminal
+liability, which could then have a material adverse impact on the Company’s operating results and financial position. 
+
+ Physical
+dangers are inherent in our operations and may expose us to significant potential liability and losses. Personnel and property may be
+harmed during the process of drilling for oil and natural gas. 
+
+ Drilling
+for and producing hydrocarbons, and the associated products and services that we provide, include inherent dangers that may lead to property
+damage or damage to geological formations, personal injury or loss of life, or the discharge of hazardous materials into the environment.
+Many of these events are outside our control. Typically, we provide products and services at a well site where our personnel and equipment
+are located together with personnel and equipment of our customer and third parties, such as other service providers. At many sites,
+we depend on other companies and personnel to conduct drilling operations in accordance with appropriate safety standards. From time
+to time, personnel are injured or equipment or property is damaged or destroyed as a result of accidents, failed equipment, faulty products
+or services, failure of safety measures, uncontained formation pressures or other dangers inherent in drilling for oil and natural gas.
+Any of these events can be the result of human error. With increasing frequency, our products and services are deployed on more challenging
+prospects both onshore and offshore, where the occurrence of the types of events mentioned above can have an even more catastrophic impact
+on people, equipment and the environment. These risks could expose us to substantial liability for personal injury, wrongful death, property
+damage, loss of oil and natural gas production, pollution and other environmental damages and could expose us to a variety of claims,
+losses and remedial obligations. In addition, interruption of customer activity as a result of such events could adversely affect our
+financial condition, results of operations and cash flows. 
+
+ If
+we do not effectively or efficiently integrate the operations of businesses or companies we acquire, our future growth will be limited. 
+
+ From time to time, we may evaluate and seek to acquire assets or businesses
+that we believe complement our existing business and related assets. We
+may not achieve expected returns and other benefits as a result of various factors, including integration and collaboration challenges.
+The success of any acquisition is subject to various risks, including: 
+
+ ● 
+ the
+ inability to integrate the operations of recently acquired assets; 
+
+ ● 
+ the
+ diversion of management’s attention from other business concerns; 
+
+ ● 
+ the
+ failure to realize expected volumes, revenues, profitability, or growth; 
+
+ ● 
+ the
+ failure to realize any expected synergies and cost savings; 
+
+ ● 
+ the
+ coordination of geographically disparate organizations, systems, and facilities; 
+
+ ● 
+ the
+ assumption of unknown liabilities; 
+
+ ● 
+ the
+ loss of customers or key employees; and 
+
+ ● 
+ potential
+ environmental or regulatory liabilities and title problems. 
+
+ 21 
+
+ The
+assessment by our management of these risks is inexact and may not reveal or resolve all existing and potential risks. Realization of
+any of these risks could adversely affect our financial condition, results of operations and cash flows. 
+
+ We
+operate in a highly competitive industry, and many of our competitors are larger than us and have greater resources than we do. 
+
+ Several
+of our primary competitors are diversified multinational companies with substantially larger operating staff and greater capital resources.
+These larger competitors’ greater resources could allow them to better withstand industry downturns and to compete more effectively
+on the basis of technology, geographic scope and retained skilled personnel. 
+
+ If
+we are unable to keep pace with technology developments in the industry, including advancements in artificial intelligence, this could adversely affect our ability to maintain or grow
+market share. 
+
+ The
+oilfield service industry is subject to the introduction of new drilling and completion techniques, services using new technologies,
+and emissions control requirements that could yield service innovations, some of which may be subject to patent or other intellectual
+property protections. Some of these new technologies may be disruptive and lead to the rapid replacement of existing technologies. If we do not invest promptly in emerging technology such as artificial
+intelligence or fail to manage these technological advancements appropriately, our business may be adversely affected. We
+intend to introduce and integrate new technologies and procedures used by North American and European based oilfield service companies;
+however, we cannot be certain that we will be able to develop and implement new technologies or services on a timely basis or at an acceptable
+cost. The oilfield service industry is highly competitive and dominated by a few large players that have resources to invest in new technologies.
+Our ability to continually provide competitive technology and services can impact our ability to maintain or increase prices for our
+services, maintain market share, and negotiate acceptable contract terms with our customers. If we are unable to continue to acquire
+or develop competitive technology or deliver it to our customers in a timely and cost-competitive manner in the various markets we serve,
+it could adversely affect our financial condition, results of operations, and cash flows. 
+
+ FINANCIAL,
+REGULATORY, LEGAL AND COMPLIANCE RISKS 
+
+ Impairment
+in the carrying value of goodwill could result in the incurrence of impairment charges. 
+
+ As
+of December 31, 2025, we had goodwill of $645.1 million. We review the carrying value of our goodwill for impairment annually or more
+frequently if certain indicators are present. In the event we determine that the value of goodwill has become impaired, an accounting
+charge for the amount of the impairment during the period in which the determination is made may be recognized. While we have not recorded
+any impairment charge for goodwill for the periods presented in this Annual Report, future changes in our business and operations or
+external market conditions, among other factors, could require us to record an impairment charge for goodwill, which could lead to decreased
+assets and reduced income. If a significant write-down is required, the charge could have a material adverse effect on our financial
+condition and results of operations. 
+
+ We
+may not be fully indemnified against financial losses in all circumstances where damage to or loss of property, personal injury, death
+or environmental harm occur. 
+
+ As
+is customary in our industry, our contracts typically require that our customers indemnify us for claims arising from the injury or death
+of their employees (and those of their other contractors), the loss or damage of their equipment (and that of their other contractors),
+damage to the well or reservoir and environmental impacts originating from the customer’s equipment or from the reservoir (including uncontained
+oil flow from a reservoir) and claims arising from catastrophic events, such as a well blowout, fire, explosion and from environmental impacts below
+the surface. Conversely, we typically indemnify our customers for claims arising from the injury or death of our employees, the loss
+or damage of our equipment (other than equipment lost in the hole) or environmental impacts originating from our equipment above the surface of the
+earth or water. 
+
+ Our
+indemnification arrangements may not protect us in every case. For example, from time to time we may enter into contracts with less favorable
+indemnities or perform work without a contract that protects us. Our indemnity arrangements may also be held to be overly broad in some
+courts and/or contrary to public policy in some jurisdictions, and to that extent unenforceable. Additionally, some jurisdictions which
+permit indemnification nonetheless limit its scope by statute. We may be subject to claims brought by third parties or government agencies
+with respect to which we are not indemnified. Furthermore, the parties from which we seek indemnity may not be solvent, may become bankrupt,
+may lack resources or insurance to honor their indemnities or may not otherwise be able to satisfy their indemnity obligations to us.
+The lack of enforceable indemnification could expose us to significant potential liability and losses. 
+
+ Further,
+our assets generally are not insured against loss from political violence such as war, terrorism or civil unrest. If any of our assets
+are damaged or destroyed as a result of an uninsured cause, we could recognize a loss of those assets. 
+
+ 22 
+
+ We
+operate in multiple countries and earn revenue in different currencies and as such may be exposed to risks arising from fluctuating exchange
+rates and currency control restrictions, which may limit our ability to reinvest earnings from operations in one country to fund the
+capital needs of our operations in other countries or to repatriate assets from some countries. 
+
+ A
+portion of our consolidated revenue and consolidated operating expenses is in foreign currencies. As a result, we will be subject to
+risks, including: 
+
+ ● 
+ foreign
+ currency exchange risks resulting from changes in foreign currency exchange rates and the implementation of exchange controls; and 
+
+ ● 
+ potential
+ limitations that might be imposed on our ability to reinvest earnings from operations in one country to fund the capital needs
+ of our operations in other countries. 
+
+ In
+the future, we may enter into foreign currency hedging contracts to reduce foreign currency volatility. However, we currently do not
+maintain foreign currency hedging contracts with respect to our foreign currencies, and any contracts we may enter into may not fully
+mitigate our foreign currency risk, may prove disadvantageous or may create additional risks. 
+
+ Changes in international tax laws and the ongoing implementation of global minimum tax rules could increase our tax
+liabilities and compliance costs and adversely affect our results of operations. 
+
+ We
+have a presence in over 16 countries. Consequently, we are subject to the jurisdiction of a significant number of taxing
+authorities. The income earned in these various jurisdictions is taxed on differing bases, including income actually earned, income
+deemed earned, and revenue-based tax withholding. The final determination of our income tax liabilities involves the interpretation
+of local tax laws, tax treaties, and related regulations in each jurisdiction, as well as the significant use of estimates and
+assumptions regarding the scope of future operations and the nature of income earned and expenditures incurred. Changes in the
+operating environment, including changes in or new interpretations of tax laws, could impact the determination of our income tax
+liabilities for the year. 
+
+ The
+Organization for Economic Co-operation and Development (“OECD”) has issued a series of reports and guidance addressing base
+erosion and profit shifting (“BEPS”), which are intended to limit perceived tax avoidance by multinational enterprises. These
+initiatives have driven significant changes in tax laws and regulations in many of the jurisdictions in which we operate, increased scrutiny
+by tax authorities, and reduced the ability of multinational enterprises to engage in tax planning strategies historically available
+to them. 
+
+ A
+central component of the OECD’s BEPS initiative is the global minimum tax framework, commonly referred to as Pillar Two, which
+is intended to ensure that large multinational groups are subject to a minimum effective tax rate of 15% on a jurisdiction-by-jurisdiction
+basis. In October 2021, more than 130 jurisdictions agreed in principle to the Pillar Two framework, and a growing number of countries
+have enacted, or are in the process of enacting, legislation to implement these rules. 
+
+ During
+2025, certain jurisdictions in which we operate, including the UAE, Kuwait, Bahrain, and Qatar, introduced Domestic
+Minimum Top-Up Taxes (“DMTT”), which are designed to ensure that income earned locally is subject to a minimum effective
+tax rate. In addition, Qatar and Oman have implemented Income Inclusion Rules
+(“IIR”), which permit tax authorities to impose top-up tax at the level of a parent entity where the effective tax rate of
+constituent entities in other jurisdictions falls below the minimum threshold. Further, other jurisdictions in which we have a presence,
+including the UK, the Netherlands, and Indonesia, have implemented Undertaxed Profits Rules (“UTPR”), which may
+result in additional top-up taxes being allocated to those jurisdictions where income is not otherwise subject to tax under a qualified
+IIR or DMTT. 
+
+ The
+implementation of these rules significantly increases the complexity of our global tax structure and may result in increased current
+tax liabilities, reduced cash flows, higher compliance and administrative costs, and increased volatility in our effective tax rate.
+The application of the Pillar Two framework involves complex calculations, significant judgments, and reliance on financial information
+from multiple jurisdictions, which increases the risk of errors, inconsistent interpretations, and disputes with tax authorities. In
+addition, differences in how jurisdictions interpret, enact, and administer these rules, as well as changes in guidance over time, may
+result in unexpected tax exposures, double taxation, and/or additional top-up taxes that we may not be able to mitigate through tax credits
+or other relief mechanisms. 
+
+ We
+continue to evaluate the potential impact of these developments; however, we cannot predict with certainty the manner, or the full
+extent to which Pillar Two rules will apply to us. As a result, these developments could materially increase the amount of taxes
+we are required to pay and adversely affect our results of operations, financial condition, and cash flows. 
+
+ Lack
+of consolidation of our fiscal results in a taxpaying jurisdiction prevents offsetting some losses against taxable profits. 
+
+ As a result of
+our legal entity structure, annual fiscal losses in one of our subsidiaries may not be eligible to be offset against profits in another
+subsidiary within the same jurisdiction to reduce consolidated tax liabilities. 
+
+ The
+owners of NESR ordinary shares are subject to tax risks due to the possibility of changes in tax rules and regulations in foreign countries. 
+
+ Holders of our ordinary shares may be subject to taxation in multiple jurisdictions,
+including the jurisdictions in which we operate and in which our subsidiaries are organized. Changes in tax laws, regulations, treaties,
+or administrative interpretations in any relevant jurisdiction, including changes in the tax treatment of dividends, capital gains, withholding
+taxes, or other distributions, could adversely affect the tax consequences of an investment in our ordinary shares. In addition, changes
+to cross-border tax rules, anti-avoidance measures, minimum tax regimes, or information-reporting requirements could increase compliance
+burdens or result in additional taxes for shareholders. These developments may reduce the after-tax return on an investment in our ordinary
+shares and could adversely affect the market price of our shares. Prospective investors are urged to consult their own tax advisors regarding
+the tax consequences of an investment in our ordinary shares in light of their particular circumstances. 
+
+ If
+our subsidiaries are unable to comply with the restrictions and covenants in their debt agreements, they could default under the
+terms of such agreements, which could result in an acceleration of repayment. 
+
+ If
+our subsidiaries are unable to comply with the restrictions and covenants in their debt agreements, they could default under the
+terms of these agreements. Our subsidiaries’ ability to comply with these restrictions and covenants, including meeting
+financial ratios and tests, may be affected by events beyond their control. As a result, we cannot assure that our subsidiaries will
+be able to comply with these restrictions and covenants or meet such financial ratios and tests. 
+
+ 23 
+
+ If
+our subsidiaries are unable to generate sufficient cash flow and are otherwise unable to obtain funds necessary to meet required
+payments of principal, premium (if any), and interest on their indebtedness, or if they otherwise fail to comply with the various
+covenants, including financial and operating covenants in the instruments governing their indebtedness they could default under the
+terms of the agreements governing

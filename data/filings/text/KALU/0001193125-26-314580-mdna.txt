@@ -1,0 +1,1321 @@
+Item 2. Management ’ s Discussion and Analysis of Financial Condition and Results of Operations Forward-Looking Statements This Quarterly Report on Form 10-Q contains statements which constitute “forward-looking statements” within the meaning of the Private Securities Litigation Reform Act of 1995. These statements appear throughout this Report and can be identified by the use of forward-looking terminology such as “believes,” “expects,” “may,” “estimates,” “will,” “should,” “plans” or “anticipates,” or the negative of the foregoing or other variations of comparable terminology, or by discussions of strategy. Readers are cautioned that any such forward‑looking statements are not guarantees of future performance and involve significant risks and uncertainties and that actual results may vary from those in the forward-looking statements as a result of various factors. These factors include: (i) the effectiveness of management’s strategies and decisions, including strategic investments, capital spending strategies, cost reduction initiatives, sourcing strategies, processes and countermeasures implemented to address operational and supply chain challenges and the execution of those strategies; (ii) the execution and timing of strategic investments; (iii) general economic and business conditions, including higher interest rates, the impact of geopolitical factors and governmental and other actions taken in response, tariffs, cyclicality, reshoring, sanctions and export controls, labor challenges, supply interruptions, energy price volatility, scrap availability and pricing, customer operation disruptions, including as a result of regulatory actions, customer inventory imbalances and supply chain issues, regional aluminum premium volatility, and other conditions that impact demand drivers in the Aero/HS Products, Packaging, GE Products, and Automotive Extrusions end markets we serve; (iv) our ability to participate in mature and anticipated new automotive programs expected to launch in the future and successfully launch new automotive programs, including electric vehicle platforms; (v) changes or shifts in defense spending due to competing national priorities; (vi) pricing, market conditions and our ability to effectively execute commercial and labor strategies, pass through cost increases, including the institution of surcharges, and flex costs in response to inflation, volatile commodity costs, regional aluminum premiums and energy prices, and changing economic conditions; (vii) developments in technology, including cybersecurity and artificial intelligence threats; (viii) the impact of our future earnings, cash flows, financial condition, capital requirements and other factors on our financial strength and flexibility; (ix) new or modified statutory or regulatory requirements, including evolving climate-related disclosure regimes, state-level climate programs, and packaging and recycled content laws; (x) the successful integration of acquired operations and technologies; (xi) the views of our stakeholders, including regulators and customers, regarding our sustainability goals and initiatives and the impact of factors outside of our control on such goals and initiatives, including potential greenwashing or consumer protection claims; and (xii) other factors discussed in Part I, Item 1A. “Risk Factors” of our Annual Report on Form 10-K for the year ended December 31, 2025, and in other filings we make with the SEC from time to time. No assurance can be given that these are all of the factors that could cause actual results to vary materially from the forward-looking statements. Readers are urged to consider these factors carefully in evaluating any forward-looking statements and are cautioned not to place undue reliance on such statements. We undertake no obligation to update or revise any forward-looking statements, except as required by law. The following discussion and analysis of our financial condition and results of operations should be read in conjunction with Part I, Item 1. “Financial Statements” of this Report and our consolidated financial statements and related notes included in Part II, Item 8. “Financial Statements and Supplementary Data” of our Annual Report on Form 10-K for the year ended December 31, 2025. Unless otherwise noted, dollars in tables are presented in millions. Business Overview We manufacture and sell semi-fabricated specialty aluminum mill products, including flat-rolled (plate, sheet, and coil), extruded (rod, bar, hollows, and shapes), drawn (rod, bar, pipe, tube, and wire), and certain cast aluminum products. We strategically focus our business on select end markets with demanding applications and high barriers to entry, where we believe we have sustainable competitive advantages that allow us to earn premium pricing and generate long-term profitable growth. The end market applications on which we have historically focused include: (i) Aero/HS Products; (ii) Packaging; (iii) GE Products; and (iv) Automotive Extrusions. These technically challenging applications leverage our core metallurgical and process technology capabilities to produce highly engineered mill products with differentiated characteristics that are required for the particular end uses. Within the global market for flat-rolled aluminum mill products, our focus is on two primary product categories: (i) heat treat plate, sheet and coil products and (ii) packaging coil products. Heat treat plate, sheet and coil products, which are produced at Trentwood, serve the global Aero/HS and primarily North America GE end markets and are designed for applications requiring higher strength and other specialized attributes that cannot be achieved by common alloy rolled products. Packaging coil products, which are produced at Warrick and sold primarily in North America are for demanding food and beverage can package applications. Our focus is primarily on coated packaging applications, which includes a range of colors and widths, depending on customer specifications, in addition to bare coil products. In the areas of aluminum extrusions, we focus on demanding Aero/HS Products, GE Products, and Automotive Extrusions that require high strength, machinability, or other specialized attributes. Our 10 extrusion/drawing facilities, nine of which are in the United States and one of which is in Canada, primarily serve North American demand for aerospace, general engineering, and automotive applications. Additionally, we operate a facility in Columbia, New Jersey that focuses on multi-material advanced manufacturing 
+ 22 
+
+ methods and techniques, including multi-axis computer numerical control machining, additive manufacturing, welding and fabrication for demanding aerospace and defense, high technology, general industrial, and automotive applications. We employed approximat ely 3,800 peop le at June 30, 2026. We have long-standing relationships with our customers, which consist primarily of blue-chip companies, including leading aerospace and automotive manufacturers, tier one aerospace and automotive suppliers, leading beverage and food companies, beverage and food packaging manufacturers, and metal service centers. Approximately 70% of our shipments are sold direct to manufacturers or tier one suppliers and approximately 30% are sold to metal service centers. In our se rved markets, we seek to be the supplier of choice by pursuing “Best in Class” customer satisfaction driven by quality, availability, service and delivery performance. We believe we differentiate our product portfolio through our broad product offering and our Kaiser Select ® products, which are engineered and manufactured to deliver enhanced product characteristics with improved consistency, so as to result in better performance, lower waste and, in many cases, lower production cost for our customers. Non-GAAP Financial Measures This information contains certain non-GAAP financial measures. A non-GAAP financial measure is defined as a numerical measure of a company’s financial performance that excludes or includes amounts so as to be different than the most directly comparable measure calculated and presented in accordance with US GAAP in the statements of income, balance sheets, or statements of cash flows of the company. We have provided a reconciliation of non-GAAP financial measures to the most directly comparable financial measure in the accompanying tables. We have also provided a discussion of the reasons we believe that presentation of the non-GAAP financial measures provides useful information to investors, as well as any additional ways in which we use the non-GAAP financial measures. The non-GAAP financial measures used in the following discussions are Conversion Revenue (defined as Net Sales less the Hedged Cost of Alloyed Metal, see below in “Metal Pricing Policies” discussion) and Adjusted EBITDA. These measures are presented because management uses this information to monitor and evaluate financial results and trends and believes this information to also be useful for investors. In the discussion of operating results below, we refer to certain items as “non-run-rate items.” For purposes of such discussion, non-run-rate items are items that, while they may recur from period-to-period: (i) are particularly material to results; (ii) affect costs primarily as a result of external market factors; and (iii) may not recur in future periods if the same level of underlying performance were to occur. Non-run-rate items are part of our business and operating environment but are worthy of being highlighted for the benefit of readers of our financial statements. Our intent is to allow users of the financial statements to consider our results both in light of and separately from such items. For a reconciliation of Conversion Revenue to Net sales and Adjusted EBITDA to Net income, see below in “Results of Operations - Selected Operational and Financial Information.” Metal Pricing Policies A fundamental aspect of our business model is to maintain relative neutrality to fluctuations in the market prices of aluminum and certain alloying elements ("metal price neutrality"). We generally achieve this objective by structuring customer pricing to pass through changes in the underlying index-based cost of aluminum and certain alloys. In instances where metal price neutrality is not fully achieved through customer pricing actions for certain alloying elements, we manage these exposures through a combination of supply arrangements, and hedging activities. Despite these pass-through mechanisms, our results of operations may be affected by timing differences between when metal costs are incurred and when those costs are reflected in customer pricing. As a result, our reported operating results may be impacted by favorable or unfavorable fluctuations in metal prices, the timing and magnitude of such fluctuations, and other market factors that could influence metal prices. Over the long term, however, our business model is designed to generate earnings primarily from the conversion of aluminum into value-added semi-fabricated products rather than from changes in underlying metal prices. In order to allow users of our financial statements to consider the impact of aluminum and alloy cost on our Net sales, we disclose Net sales as well as Conversion Revenue, which is Net sales less the Hedged Cost of Alloyed Metal. As used in this discussion, “Hedged Cost of Alloyed Metal” is the cost of aluminum at the average MWTP plus the cost of alloying elements and any realized gains and/or losses on settled hedges related to the metal sold in the referenced period. The average MWTP of aluminum reflects the primary aluminum supply/demand dynamics in North America. For a reconciliation of Conversion Revenue to Net sales, see below in “Results of Operations - Selected Operational and Financial Information.” Highlights for the quarter ended June 30, 2026: • Net sale s $1.26 billion; Conversion Reven ue $437.0 million; • Net inc ome $96.8 million; Net income per diluted share $5.72; and 
+ 23 
+
+ • Cash dividends and dividend equivalents of $0.77 per share, o r $12.8 million, paid during the quarter ended June 30, 2026. Results of Operations Consolidated Results of Operations Net Sales. The following table sets forth, for the quarters ended June 30, 2026 and June 30, 2025, shipments (in millions of pounds) and Net sales by end market applications and the respective fluctuations. 
+
+ Quarter Ended June 30, 
+
+ 2026 
+ 
+ 2025 
+
+ Shipments 
+ 
+ Net sales 
+ 
+ Shipments 
+ 
+ Net sales 
+ 
+ Shipment Change 
+ 
+ % Increase (Decrease) 
+ 
+ Net sales Change 
+ 
+ % Increase (Decrease) 
+
+ Aero/HS Products 
+ 
+ 60.8 
+ 
+ $ 
+ 305.3 
+ 
+ 59.9 
+ 
+ $ 
+ 227.9 
+
+ 0.9 
+
+ 2 
+ % 
+ $ 
+ 77.4 
+
+ 34 
+ % 
+
+ Packaging 
+ 
+ 155.8 
+
+ 580.4 
+ 
+ 141.1 
+
+ 340.9 
+
+ 14.7 
+
+ 10 
+ % 
+ 
+ 239.5 
+
+ 70 
+ % 
+
+ GE Products 
+ 
+ 67.7 
+
+ 280.7 
+ 
+ 63.4 
+
+ 185.4 
+
+ 4.3 
+
+ 7 
+ % 
+ 
+ 95.3 
+
+ 51 
+ % 
+
+ Automotive Extrusions 
+ 
+ 21.4 
+
+ 90.2 
+
+ 24.0 
+
+ 68.9 
+
+ (2.6 
+ ) 
+ 
+ (11 
+ %) 
+ 
+ 21.3 
+
+ 31 
+ % 
+
+ Total 
+
+ 305.7 
+ 
+ $ 
+ 1,256.6 
+
+ 288.4 
+ 
+ $ 
+ 823.1 
+
+ 17.3 
+
+ 6 
+ % 
+ $ 
+ 433.5 
+
+ 53 
+ % 
+ 
+ The increase in Net sales primarily reflects $1.26 per pound (44%) increase in the average realized sales price and 17.3 million pound (6%) increase in shipment volume. The following table sets forth, for the six months ended June 30, 2026 and June 30, 2025, shipments (in millions of pounds) and Net sales by end market applications and the respective fluctuations. 
+
+ Six Months Ended June 30, 
+
+ 2026 
+ 
+ 2025 
+
+ Shipments 
+ 
+ Net sales 
+ 
+ Shipments 
+ 
+ Net sales 
+ 
+ Shipment Change 
+ 
+ % Increase (Decrease) 
+ 
+ Net sales Change 
+ 
+ % Increase (Decrease) 
+
+ Aero/HS Products 
+ 
+ 122.4 
+ 
+ $ 
+ 592.1 
+ 
+ 116.2 
+ 
+ $ 
+ 442.6 
+
+ 6.2 
+
+ 5 
+ % 
+ $ 
+ 149.5 
+
+ 34 
+ % 
+
+ Packaging 
+ 
+ 302.4 
+
+ 1,078.8 
+ 
+ 271.3 
+
+ 655.1 
+
+ 31.1 
+
+ 11 
+ % 
+ 
+ 423.7 
+
+ 65 
+ % 
+
+ GE Products 
+ 
+ 131.8 
+
+ 521.0 
+ 
+ 128.5 
+
+ 367.0 
+
+ 3.3 
+
+ 3 
+ % 
+ 
+ 154.0 
+
+ 42 
+ % 
+
+ Automotive Extrusions 
+ 
+ 43.6 
+
+ 171.5 
+
+ 48.0 
+
+ 135.8 
+
+ (4.4 
+ ) 
+ 
+ (9 
+ %) 
+ 
+ 35.7 
+
+ 26 
+ % 
+
+ Total 
+
+ 600.2 
+ 
+ $ 
+ 2,363.4 
+
+ 564.0 
+ 
+ $ 
+ 1,600.5 
+
+ 36.2 
+
+ 6 
+ % 
+ $ 
+ 762.9 
+
+ 48 
+ % 
+ 
+ The increase in Net sales primarily reflects $1.10 per pound (39%) increase in the average realized sales price and 36.2 million pound (6%) increase in shipment volume. COGS. COGS for the quarter ended June 30, 2026 totaled $1,057.6 million, or 84% of Net sales, compared to $722.8 million, or 88% of Net sales, for the quarter ended June 30, 2025. The total increase reflected the following: 
+
+ Quarter Ended June 30, 
+
+ 2026 
+ 
+ 2025 
+ 
+ Change 
+ 
+ % Increase (Decrease) 
+
+ Hedged Cost of Alloyed Metal 
+ 
+ $ 
+ 819.6 
+ 
+ $ 
+ 448.9 
+ 
+ $ 
+ 370.7 
+
+ 83 
+ % 
+
+ Manufacturing costs 
+
+ 151.5 
+
+ 191.9 
+
+ (40.4 
+ ) 
+ 
+ (21 
+ %) 
+
+ Plant overhead 
+
+ 47.9 
+
+ 44.0 
+
+ 3.9 
+
+ 9 
+ % 
+
+ Freight costs 
+
+ 28.0 
+
+ 21.2 
+
+ 6.8 
+
+ 32 
+ % 
+
+ Other cost of products sold 
+
+ 10.6 
+
+ 16.8 
+
+ (6.2 
+ ) 
+ 
+ (37 
+ %) 
+
+ Total 
+ 
+ $ 
+ 1,057.6 
+ 
+ $ 
+ 722.8 
+ 
+ $ 
+ 334.8 
+
+ 46 
+ % 
+ 
+ Of the $370.7 million increase in Hedged Cost of Alloyed Metal, $343.8 million was primarily due to an increase in hedged metal prices and $26.9 million was due to an increase in shipment volume (see above in our “Net Sales” discussion for further details). The $40.4 million decrease in manufacturing costs was primarily due to favorable metal consumption and valuation impacts, partially offset by higher operating costs. The $6.8 million increase in freight costs was primarily attributable to higher fuel costs, as well as higher shipment volumes. The $6.2 million decrease in other cost of products sold was primarily driven by a decrease in major maintenance costs. For a further discussion of the comparative results of operations for the quarters ended June 30, 2026 and June 30, 2025, see below in “Selected Operational and Financial Information.” 
+ 24 
+
+ COGS for the six months ended June 30, 2026 totaled $2,000.8 million, or 85% of Net sales, compared to $1,396.2 million, or 87% of Net sales, for the six months ended June 30, 2025. The total increase reflected the following: 
+
+ Six Months Ended June 30, 
+
+ 2026 
+ 
+ 2025 
+ 
+ Change 
+ 
+ % Increase (Decrease) 
+
+ Hedged Cost of Alloyed Metal 
+ 
+ $ 
+ 1,522.0 
+ 
+ $ 
+ 863.1 
+ 
+ $ 
+ 658.9 
+
+ 76 
+ % 
+
+ Manufacturing costs 
+
+ 313.7 
+
+ 373.7 
+
+ (60.0 
+ ) 
+ 
+ (16 
+ %) 
+
+ Plant overhead 
+
+ 95.2 
+
+ 90.1 
+
+ 5.1 
+
+ 6 
+ % 
+
+ Freight costs 
+
+ 50.3 
+
+ 42.0 
+
+ 8.3 
+
+ 20 
+ % 
+
+ Other cost of products sold 
+
+ 19.6 
+
+ 27.3 
+
+ (7.7 
+ ) 
+ 
+ (28 
+ %) 
+
+ Total 
+ 
+ $ 
+ 2,000.8 
+ 
+ $ 
+ 1,396.2 
+ 
+ $ 
+ 604.6 
+
+ 43 
+ % 
+ 
+ Of the $658.9 million increase in Hedged Cost of Alloyed Metal, $603.6 million was primarily due to an increase in hedged metal prices and $55.3 million was due to an increase in shipment volume (see above in our “Net Sales” discussion for further details). The $60.0 million decrease in manufacturing costs was primarily due to favorable metal consumption and valuation impacts, partially offset by higher operating costs. The $8.3 million increase in freight costs was primarily attributable to higher fuel costs, as well as higher shipment volumes. The $7.7 million decrease in other cost of products sold was primarily driven by a decrease in major maintenance costs. For a further discussion of the comparative results of operations for the six months ended June 30, 2026 and June 30, 2025, see below in “Selected Operational and Financial Information.” Selling, General, Administrative, Research and Development ( “ SG&A and R&D ” ). SG&A and R&D expense totaled $35.7 million and $32.6 million for the quarters ended June 30, 2026 and June 30, 2025, respectively. The increase in employee costs was primarily driven by higher incentive costs. The total increase in SG&A and R&D reflected the following: 
+
+ Quarter Ended June 30, 
+
+ 2026 
+ 
+ 2025 
+ 
+ Change 
+ 
+ % Increase (Decrease) 
+
+ Research and development costs 
+ 
+ $ 
+ 0.7 
+ 
+ $ 
+ 0.3 
+ 
+ $ 
+ 0.4 
+
+ 133 
+ % 
+
+ Employee costs 
+
+ 26.1 
+
+ 22.7 
+
+ 3.4 
+
+ 15 
+ % 
+
+ Other selling, general and administrative costs 
+
+ 8.9 
+
+ 9.6 
+
+ (0.7 
+ ) 
+ 
+ (7 
+ %) 
+
+ Total 
+ 
+ $ 
+ 35.7 
+ 
+ $ 
+ 32.6 
+ 
+ $ 
+ 3.1 
+
+ 10 
+ % 
+ 
+ SG&A and R&D expense totaled $71.1 million and $63.4 million for the six months ended June 30, 2026 and June 30, 2025, respectively. The increase in employee costs was primarily driven by higher incentive costs. The total increase in SG&A and R&D reflected the following: 
+
+ Six Months Ended June 30, 
+
+ 2026 
+ 
+ 2025 
+ 
+ Change 
+ 
+ % Increase (Decrease) 
+
+ Research and development costs 
+ 
+ $ 
+ 1.3 
+ 
+ $ 
+ 0.6 
+ 
+ $ 
+ 0.7 
+
+ 117 
+ % 
+
+ Employee costs 
+
+ 52.8 
+
+ 45.2 
+
+ 7.6 
+
+ 17 
+ % 
+
+ Other selling, general and administrative costs 
+
+ 17.0 
+
+ 17.6 
+
+ (0.6 
+ ) 
+ 
+ (3 
+ %) 
+
+ Total 
+ 
+ $ 
+ 71.1 
+ 
+ $ 
+ 63.4 
+ 
+ $ 
+ 7.7 
+
+ 12 
+ % 
+ 
+ Restructuring Costs. During the quarter ended March 31, 2025, we initiated a plan to reduce certain operating costs (the “2025 Restructuring Plan”). In the quarter and six months ended June 30, 2025, restructuring costs of $0.1 million and $6.8 million, respectively, represented severance and related benefits under the plan. Substantially all costs associated with the 2025 Restructuring Plan were incurred and expensed as of December 31, 2025, and no restructuring costs were incurred during the quarter or six months ended June 30, 2026. Interest Expense. See Note 5 of Notes to Interim Consolidated Financial Statements included in this Report for a discussion of our debt and credit facilities that were in effect during the quarters and six months ended June 30, 2026 and June 30, 2025 and interest expense capitalized as part of construction in progress. Other Income, Net. See Note 8 of Notes to Interim Consolidated Financial Statements included in this Report for details. 
+ 25 
+
+ Income Tax Provision. See Note 9 of Notes to Interim Consolidated Financial Statements included in this Report for disclosure regarding our income tax provision. Selected Operational and Financial Information The following data should be read in conjunction with our consolidated financial statements and the notes thereto included in Part I, Item 1. “Financial Statements” of this Report. Interim results are not necessarily indicative of those for a full year. The table below provides selected operational and financial information: 
+
+ Quarter Ended June 30, 
+
+ Six Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Net income 
+ 
+ $ 
+ 96.8 
+
+ $ 
+ 23.2 
+
+ $ 
+ 159.3 
+
+ $ 
+ 44.8 
+
+ Interest expense 
+
+ 14.5 
+
+ 12.5 
+
+ 28.9 
+
+ 23.7 
+
+ Other income, net 
+
+ (7.1 
+ ) 
+
+ (4.4 
+ ) 
+
+ (6.1 
+ ) 
+
+ (3.0 
+ ) 
+
+ Income tax provision 
+
+ 29.5 
+
+ 6.7 
+
+ 49.4 
+
+ 13.9 
+
+ Depreciation and amortization 
+
+ 29.6 
+
+ 29.6 
+
+ 60.0 
+
+ 59.6 
+
+ Non-run-rate items: 
+
+ Restructuring costs 
+
+ — 
+
+ 0.1 
+
+ — 
+
+ 1.9 
+
+ Environmental expenses 1 
+
+ 0.1 
+
+ — 
+
+ 0.1 
+
+ 0.2 
+
+ Loss on disposition of operating property, plant and equipment 
+
+ 2.9 
+
+ — 
+
+ 3.2 
+
+ — 
+
+ Total non-run-rate items 
+
+ 3.0 
+
+ 0.1 
+
+ 3.3 
+
+ 2.1 
+
+ Adjusted EBITDA 2 
+ 
+ $ 
+ 166.3 
+
+ $ 
+ 67.7 
+
+ $ 
+ 294.8 
+
+ $ 
+ 141.1 
+
+ 1. Non-run-rate environmental expenses are related to legacy contingencies from activities at operating facilities prior to July 6, 2006. See Note 6 of Notes to Interim Consolidated Financial Statements included in this Report for additional information relating to the environmental expenses. 2. Adjusted EBITDA includes favorable Metal Price Lag of approximately $27.0 million and approximately $14.0 million for the quarters ended June 30, 2026 and June 30, 2025, respectively, and favorable Metal Price Lag of approximately $64.0 million and approximately $36.0 million for the six months ended June 30, 2026 and June 30, 2025, respectively. Adjusted EBITDA for the quarter ended June 30, 2026 w as $98.6 million higher th an Adjusted EBITDA for the quarter ended June 30, 2025. Adjusted EBITDA for the quarter ended June 30, 2026 was favorably impacted by: (i) higher sales volume; (ii) improved product pricing and mix; (iii) favorable metal consumption and valuation impacts; and (iv) lower major maintenance costs. This was partially offset by: (i) higher operating costs and (ii) higher employee and employee-related costs. See above in “Consolidated Results of Operations” for further details. Adjusted EBITDA for the six months ended June 30, 2026 w as $153.7 million higher th an Adjusted EBITDA for the six months ended June 30, 2025. Adjusted EBITDA for the six months ended June 30, 2026 was favorably impacted by: (i) higher sales volume; (ii) improved product pricing and mix; (iii) favorable metal consumption and valuation impacts; and (iv) lower major maintenance costs. This was partially offset by: (i) higher operating costs and (ii) higher employee and employee-related costs. See above in “Consolidated Results of Operations” for further details. 
+ 26 
+
+ The following table provides our shipment and Conversion Revenue information (in millions of dollars, except shipments and Conversion Revenue per pound) by end market applications: 
+
+ Quarter Ended June 30, 
+
+ Six Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Aero/HS Products: 
+
+ Shipments (mmlbs) 
+ 
+ 60.8 
+
+ 59.9 
+
+ 122.4 
+
+ 116.2 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ Net sales 
+ 
+ $ 
+ 305.3 
+
+ $ 
+ 5.02 
+
+ $ 
+ 227.9 
+
+ $ 
+ 3.80 
+
+ $ 
+ 592.1 
+
+ $ 
+ 4.84 
+
+ $ 
+ 442.6 
+
+ $ 
+ 3.81 
+
+ Less: Hedged Cost of Alloyed Metal 
+
+ (169.5 
+ ) 
+
+ (2.79 
+ ) 
+
+ (100.7 
+ ) 
+
+ (1.68 
+ ) 
+
+ (325.8 
+ ) 
+
+ (2.66 
+ ) 
+
+ (194.9 
+ ) 
+
+ (1.68 
+ ) 
+
+ Conversion Revenue 
+ 
+ $ 
+ 135.8 
+
+ $ 
+ 2.23 
+
+ $ 
+ 127.2 
+
+ $ 
+ 2.12 
+
+ $ 
+ 266.3 
+
+ $ 
+ 2.18 
+
+ $ 
+ 247.7 
+
+ $ 
+ 2.13 
+
+ Packaging: 
+
+ Shipments (mmlbs) 
+ 
+ 155.8 
+
+ 141.1 
+
+ 302.4 
+
+ 271.3 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ Net sales 
+ 
+ $ 
+ 580.4 
+
+ $ 
+ 3.73 
+
+ $ 
+ 340.9 
+
+ $ 
+ 2.42 
+
+ $ 
+ 1,078.8 
+
+ $ 
+ 3.57 
+
+ $ 
+ 655.1 
+
+ $ 
+ 2.41 
+
+ Less: Hedged Cost of Alloyed Metal 
+
+ (406.4 
+ ) 
+
+ (2.61 
+ ) 
+
+ (211.2 
+ ) 
+
+ (1.50 
+ ) 
+
+ (747.4 
+ ) 
+
+ (2.47 
+ ) 
+
+ (398.0 
+ ) 
+
+ (1.46 
+ ) 
+
+ Conversion Revenue 
+ 
+ $ 
+ 174.0 
+
+ $ 
+ 1.12 
+
+ $ 
+ 129.7 
+
+ $ 
+ 0.92 
+
+ $ 
+ 331.4 
+
+ $ 
+ 1.10 
+
+ $ 
+ 257.1 
+
+ $ 
+ 0.95 
+
+ GE Products: 
+
+ Shipments (mmlbs) 
+ 
+ 67.7 
+
+ 63.4 
+
+ 131.8 
+
+ 128.5 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ Net sales 
+ 
+ $ 
+ 280.7 
+
+ $ 
+ 4.15 
+
+ $ 
+ 185.4 
+
+ $ 
+ 2.92 
+
+ $ 
+ 521.0 
+
+ $ 
+ 3.95 
+
+ $ 
+ 367.0 
+
+ $ 
+ 2.86 
+
+ Less: Hedged Cost of Alloyed Metal 
+
+ (185.1 
+ ) 
+
+ (2.74 
+ ) 
+
+ (99.7 
+ ) 
+
+ (1.57 
+ ) 
+
+ (338.0 
+ ) 
+
+ (2.56 
+ ) 
+
+ (197.8 
+ ) 
+
+ (1.54 
+ ) 
+
+ Conversion Revenue 
+ 
+ $ 
+ 95.6 
+
+ $ 
+ 1.41 
+
+ $ 
+ 85.7 
+
+ $ 
+ 1.35 
+
+ $ 
+ 183.0 
+
+ $ 
+ 1.39 
+
+ $ 
+ 169.2 
+
+ $ 
+ 1.32 
+
+ Automotive Extrusions: 
+
+ Shipments (mmlbs) 
+ 
+ 21.4 
+
+ 24.0 
+
+ 43.6 
+
+ 48.0 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ Net sales 
+ 
+ $ 
+ 90.2 
+
+ $ 
+ 4.21 
+
+ $ 
+ 68.9 
+
+ $ 
+ 2.87 
+
+ $ 
+ 171.5 
+
+ $ 
+ 3.93 
+
+ $ 
+ 135.8 
+
+ $ 
+ 2.83 
+
+ Less: Hedged Cost of Alloyed Metal 
+
+ (58.6 
+ ) 
+
+ (2.73 
+ ) 
+
+ (37.3 
+ ) 
+
+ (1.55 
+ ) 
+
+ (110.8 
+ ) 
+
+ (2.54 
+ ) 
+
+ (72.4 
+ ) 
+
+ (1.51 
+ ) 
+
+ Conversion Revenue 
+ 
+ $ 
+ 31.6 
+
+ $ 
+ 1.48 
+
+ $ 
+ 31.6 
+
+ $ 
+ 1.32 
+
+ $ 
+ 60.7 
+
+ $ 
+ 1.39 
+
+ $ 
+ 63.4 
+
+ $ 
+ 1.32 
+
+ Total: 
+
+ Shipments (mmlbs) 
+ 
+ 305.7 
+
+ 288.4 
+
+ 600.2 
+
+ 564.0 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ $ 
+
+ $ / lb 
+
+ Net sales 
+ 
+ $ 
+ 1,256.6 
+
+ $ 
+ 4.11 
+
+ $ 
+ 823.1 
+
+ $ 
+ 2.85 
+
+ $ 
+ 2,363.4 
+
+ $ 
+ 3.94 
+
+ $ 
+ 1,600.5 
+
+ $ 
+ 2.84 
+
+ Less: Hedged Cost of Alloyed Metal 1 
+
+ (819.6 
+ ) 
+
+ (2.68 
+ ) 
+
+ (448.9 
+ ) 
+
+ (1.55 
+ ) 
+
+ (1,522.0 
+ ) 
+
+ (2.54 
+ ) 
+
+ (863.1 
+ ) 
+
+ (1.53 
+ ) 
+
+ Conversion Revenue 
+ 
+ $ 
+ 437.0 
+
+ $ 
+ 1.43 
+
+ $ 
+ 374.2 
+
+ $ 
+ 1.30 
+
+ $ 
+ 841.4 
+
+ $ 
+ 1.40 
+
+ $ 
+ 737.4 
+
+ $ 
+ 1.31 
+
+ 1. The total Hedged Cost of Alloyed Metal includes cost of aluminum at the MWTP and the cost of alloying elements used in the production process. This metric is net of metal price exposure on shipments that we hedged with realized gains upon settlement of $11.4 million and $0.6 million for the quarters ended June 30, 2026 and June 30, 2025, respectively, and $18.9 million and $5.2 million for the six months ended June 30, 2026 and June 30, 2025, respectively. See Note 4 of Notes to Interim Consolidated Financial Statements included in this Report for the total realized gains and losses on aluminum hedges for which we hedged the metal price exposure externally. Outlook We continue to believe we are well positioned going into the second half of 2026. Demand continues to strengthen across most of our key end markets, customer activity remains robust, and bookings now extend well into next year in several areas of the business. From an end market perspective, Aero/HS Products continues to recover and grow, Packaging is delivering the benefits of our transformation at Warrick, GE Products is increasingly benefiting from solid, structural demand drivers along with restocking at service centers, and Automotive Extrusions demand along with our planned investments will provide future growth in our targeted applications. 
+ 27 
+
+ Our outlook for the rest of the year assumes: • neutral metal price impact through the end of the year without a continuation of metal tailwinds recorded to date; • continued focus on improving operational efficiencies; and • leveraging recent capital investments to support continued margin expansion. Accordingly, we expect a 10% to 15% year-over-year improvement in Conversion Revenue and a 45% to 55% year-over-year growth in Adjusted EBITDA for the full year 2026. Liquidity and Capital Resources Summary The following table summarizes our liquidity: 
+
+ As of June 30, 2026 
+
+ As of December 31, 2025 
+
+ Available cash and cash equivalents 
+ 
+ $ 
+ 58.5 
+
+ $ 
+ 7.0 
+
+ Borrowing availability under Revolving Credit Facility, net of letters of credit 1 
+
+ 569.9 
+
+ 540.2 
+
+ Total liquidity 
+ 
+ $ 
+ 628.4 
+
+ $ 
+ 547.2 
+
+ 1. Borrowing availability under the Revolving Credit Facility was determined by a borrowing base calculated as of June 30, 2026 and December 31, 2025. We place our cash in bank deposits with high credit quality financial institutions. See Note 11 of Notes to Interim Consolidated Financial Statements included in this Report for information regarding restricted cash at June 30, 2026. We had no outstanding borrowings under the Revolving Credit Facility as of June 30, 2026. During the six months ended June 30, 2026, we repaid $420.1 million of borrowings, consisting of the full repayment of the $22.3 million outstanding balance as of December 31, 2025 and $397.8 million of borrowings incurred during the six months ended June 30, 2026. See below in “Sources of Liquidity” for a further discussion of subsequent borrowing activity. See Note 5 of Notes to Interim Consolidated Financial Statements included in this Report. Cash Flows The following table summarizes our cash flows from operating, investing, and financing activities: 
+
+ Six Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ Total cash provided by (used in): 
+
+ Operating activities 
+ 
+ $ 
+ 147.4 
+
+ $ 
+ 72.9 
+
+ Investing activities 
+ 
+ $ 
+ (36.7 
+ ) 
+ 
+ $ 
+ (81.9 
+ ) 
+
+ Financing activities 
+ 
+ $ 
+ (59.2 
+ ) 
+ 
+ $ 
+ 4.0 
+
+ Cash provided by operating activities for the six months ended June 30, 2026 reflected results of business activity described above in our “Consolidated Results of Operations” discussion, as well as the following working capital cha nges: (i) an increase in accounts payable of $229.0 million, primarily due to timing of payments and higher metal costs; (ii) an increase in receivables of $151.8 million, primarily due to increased metal prices and higher shipment volume; (iii) an increase in inventory of $123.6 million, due to higher metal costs; and (iv) a decrease in accrued liabilities of $48.8 million, primarily due to timing . Cash provided by operating activities for the six months ended June 30, 2025 reflected results of business activity described above in our “Consolidated Results of Operations” discussion, as well as the following working capital changes: (i) an increase in receivables of $75.9 million, primarily due to increased metal prices; (ii) a decrease in accrued liabilities of $26.0 million, primarily due to timing of uncleared cash disbursements; (iii) an increase in accounts payable of $45.7 million, primarily due to the timing of payments and higher metal cost; and (iv) a decrease in inventory of $6.3 million, primarily due to a reduction in total inventory pounds in connection with our continued focus on inventory management, offset by increased metal prices. See Statements of Consolidated Cash Flows included in this Report for further details on our cash flows from operating, investing, and financing activities for the six months ended June 30, 2026 and 2025. 
+ 28 
+
+ Sources of Liquidity Our most significant sources of liquidity include available cash and cash equivalents, available credit under the Revolving Credit Facility, and funds generated from operations. We believe we have sufficient liquidity to fund our operations and meet our short-term and long-term obligations. Our Revolving Credit Facility and outstanding Senior Notes have covenants that, we believe, allow us to operate our business with limited restrictions and significant flexibility for the foreseeable future. We believe the covenants contained in the Revolving Credit Facility will not limit our ability to raise additional debt or equity to satisfy our foreseeable liquidity needs during the next 12 months, should we choose to do so. We also do not believe it is likely that, during the next 12 months, we will trigger the availability threshold that would require measuring and maintaining a fixed charge coverage ratio. At July 20, 2026, we had no outstanding borro wings under the Revolving Credit Facility. See Note 9 of Notes to Consolidated Financial Statements included in our Annual Report on Form 10-K for the year ended December 31, 2025 for a description of our Revolving Credit Facility. We engage in certain customer-based supply chain financing programs to accelerate the receipt of payment for outstanding accounts receivable from certain customers. Costs of these programs are typically reimbursed to us by the customer. Receivables transferred under these customer-based supply chain financing programs generally meet the requirements to be accounted for as sales resulting in the derecognition of such receivables from our consolidated balance sheets. Receivables involved with these customer‑based supply chain finance programs for the quarter ended June 30, 2026 constituted approximate ly 27% of our N et sales. See Note 8 of Notes to Interim Consolidated Financial Statements included in this Report for further details with respect to these supply chain financing programs. Material Cash Requirements See Note 9 of Notes to Consolidated Financial Statements included in Part II, Item 8. “Financial Statements and Supplementary Data” in our Annual Report on Form 10-K for the year ended December 31, 2025 for mandatory principal and cash interest payments on the outstanding borrowings. We do not believe that covenants in the indentures governing the Senior Notes are reasonably likely to limit our ability to obtain additional debt or equity financing should we choose to do so during the next 12 months. Except as otherwise disclosed in this Report, there has been no material change in our material cash requirements from significant contractual obligations, commercial commitments, or off-balance sheet arrangements other than in the ordinary course of business since December 31, 2025. Capital Expenditures and Investments We strive to strengthen our competitive position across our end markets through strategic capital investment aimed at increasing our capacity and expanding our manufacturing capabilities. While some of our recent capital projects have focused on further enhancing manufacturing cost efficiency, improving product quality, and promoting operational security, a significant portion over the past several years related to our investment in a fourth coating line at Warrick to increase our capacity for higher margin coated aluminum material for packaging applications and the Trentwood modernization projects, which focused on equipment upgrades throughout the process flow to reduce conversion costs, increase efficiency and process flow for heat-treated plate to achieve Kaiser Select ® quality enhancements for Aero/HS Products and GE Products, and further improve our competitive cost position on all products produced at Trentwood. These improvements have allowed us to gain incremental manufacturing capacity and product performance to enable future sales growth. Our capital investment plans remain focused on supporting demand growth through capacity expansion, sustaining our operations, enhancing product quality and increasing operating efficiencies. We anticipate total capital spending in 2026 of approximate ly $120.0 million to $130.0 million. We ex pect to continue to deploy capital thoughtfully so that investment decisions align with demand expectations in order to maximize the earnings potential of the business and maintain financial strength and flexibility. Capital investments will be funded using cash generated from operations, available cash and cash equivalents, borrowings under the Revolving Credit Facility and/or other third-party financing arrangements. The level of anticipated capital expenditures may be adjusted from time to time depending on our business plans, our price outlook for fabricated aluminum products, our ability to maintain adequate liquidity, and other factors. No assurance can be provided as to the timing of any such expenditures or the operational benefits expected therefrom. 
+ 29 
+
+ Dividends We have consistently paid a quarterly cash dividend since the second quarter of 2007 to holders of our common stock, including holders of restricted stock. Nevertheless, as in the past, the future declaration and payment of dividends, if any, will be at the discretion of our Board of Directors and will depend on a number of factors, including our financial and operating results, including the availability of surplus and/or net profits, liquidity position, anticipated cash requirements and contractual restrictions under our Revolving Credit Facility, the indentures for our Senior Notes or other indebtedness we may incur in the future. We can give no assurance that dividends will be declared and paid in the future. We also pay quarterly dividend equivalents to the holders of certain restricted stock units. Holders of performance shares are not paid a quarterly dividend equivalent, but instead are entitled to receive, in connection with the issuance of underlying shares of common stock for performance shares that ultimately vest, a one-time payment equal to the dividends such holders would have received if the number of such shares of common stock so issued had been held of record by such holders from the date of grant of such performance shares through the date of such issuance. See our Statements of Consolidated Stockholders’ Equity and Note 13 of Notes to Interim Consolidated Financial Statements included in this Report for information regarding dividends paid during the quarters ended June 30, 2026 and June 30, 2025, and declared subsequent to June 30, 2026. Repurchases of Common Stock We have not completed any share repurchases since March 2020. We will continue to assess share repurchases as a part of our capital allocation priorities and strategic investment opportunities identified to support further growth in our business. At June 30, 20 26, $93.1 million remain ed authorized and available for future repurchases of common stock under our stock repurchase program. See our Statements of Consolidated Stockholders’ Equity included in this Report for information regarding minimum statutory tax withholding obligations arising during the quarters ended June 30, 2026 and June 30, 2025 in connection with the vesting of non‑vested shares, restricted stock units, and performance shares. Critical Accounting Estimates and Policies Our consolidated financial statements are prepared in accordance with GAAP. In connection with the preparation of our financial statements, we are required to make assumptions and estimates about future events and apply judgments that affect the reported amounts of assets, liabilities, revenue and expenses and the related disclosures. We base our assumptions, estimates and judgments on historical experience, current trends and other factors that management believes to be relevant at the time our consolidated financial statements are prepared. On a regular basis, management reviews the accounting policies, assumptions, estimates and judgments to ensure that our financial statements are presented fairly and in accordance with GAAP. However, because future events and their effects cannot be determined with certainty, actual results could differ from our assumptions and estimates and such differences could be material. Our significant accounting policies are discussed in Note 1 of Notes to Consolidated Financial Statements included in our Annual Report on Form 10-K for the year ended December 31, 2025. We discuss our critical accounting estimates in Part II, Item 7. “Management’s Discussion and Analysis of Financial Condition and Results of Operations” of our Annual Report on Form 10‑K for the year ended December 31, 2025. There have been no material changes in our critical accounting estimates and policies since December 31, 2025. New Accounting Pronouncements Information regarding new accounting pronouncements is included in Note 1 of our Interim Consolidated Financial Statements in this Form 10-Q. 
+ 30 
+
+ Availability of Information We file Annual Reports on Form 10-K, Quarterly Reports on Form 10-Q, Current Reports on Form 8-K, Proxy Statements, any amendments to those reports and statements and other information with the SEC. You may obtain the documents that we file electronically from the SEC’s website at http://www.sec.gov . Our filings with the SEC are made available free of charge on our website at http://www.kaiseraluminum.com as soon as reasonably practicable after we file or furnish the materials with the SEC. News releases, announcements of upcoming earnings calls and events in which our management participates or hosts with members of the investment community and an archive of webcasts of such earnings calls and investor events and related investor presentations, are also available on our website. Information on our website is not incorporated into this Form 10-Q unless expressly noted.

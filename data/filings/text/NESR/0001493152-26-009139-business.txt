@@ -1,0 +1,404 @@
+ITEM
+1. BUSINESS 
+
+ National
+Energy Services Reunited Corp. (“NESR,” the “Company,” “we,” “our,” “us”
+or similar terms) is one of the largest oilfield services providers in the Middle East and North Africa (“MENA”)
+region. The Company’s business consists primarily of upstream and midstream oilfield services with oil and natural
+gas companies as customers. NESR’s revenues are primarily derived by providing production services (“Production Services”)
+such as hydraulic fracturing, coiled tubing, stimulation and pumping, cementing, nitrogen services, filtration services, pipelines and
+industrial services, production assurance, artificial lift services, completions and integrated production management. NESR also provides
+drilling and evaluation services (“Drilling and Evaluation Services”) such as rigs and integrated services, fishing and downhole
+tools, thru-tubing intervention, tubular running services, directional drilling, drilling and completion fluids, pressure control, well
+testing services, wireline logging services, and slickline services. NESR has significant operations throughout the MENA region including
+Saudi Arabia, Oman, Kuwait, United Arab Emirates (“UAE”), Iraq, Algeria, Egypt and Libya. 
+
+ Formed
+in January 2017, NESR filed a registration statement for its initial public offering in May 2017. In November 2017, NESR announced the
+acquisition of two oilfield services companies in the MENA region. On June 6, 2018, NESR acquired all of the issued and outstanding equity
+interests of NPS Holdings Limited (“NPS”) and Gulf Energy S.A.O.C. (“GES”) (collectively, the “NPS/GES
+Business Combination”). On June 1, 2020, and May 5, 2021, respectively, NESR further expanded its footprint within the MENA region
+when its NPS subsidiary acquired Sahara Petroleum Services Company S.A.E. (“SAPESCO”) and specific oilfield service lines
+of Action Energy Company W.L.L. (“Action”) (collectively with the NPS/GES Business Combination, the “Business Combinations”).
+On July 1, 2022, NESR acquired a minority stake in W. D. Von Gonten Engineering LLC (“WDVGE” or the “WDVGE Investment”)
+a premier Reservoir Characterization and Geological & Geophysical (“G&G”) laboratory and consulting business formed
+from the merger of W. D. Von Gonten Laboratories LLC and W. D. Von Gonten & Co. Petroleum Engineering Consulting. See Note 8, Goodwill,
+Intangible, and Other Assets , to the consolidated financial statements included in Item 8, “ Financial Statements and Supplementary
+Data ,” of this Annual Report on Form 10-K (“Annual Report”) for further discussion of our most recent investments. 
+
+ 4 
+
+ Principal
+Markets 
+
+ The
+Company’s operations and activities are located within certain geographies, primarily in the MENA region. The revenue earned by
+geographic area, based on drilling location, was as follows for the periods presented (in US$ thousands): 
+
+ Year
+ ended 
+
+ December
+ 31, 2025 
+ December
+ 31, 2024 
+ December
+ 31, 2023 
+ 
+ Geographic
+ Area: 
+
+ Domestic
+ (BVI) 
+ $ - 
+ $ - 
+ $ - 
+ 
+ MENA 
+ 1,315,939 
+ 1,282,923 
+ 1,132,321 
+ 
+ Rest
+ of World 
+ 8,108 
+ 18,781 
+ 13,594 
+ 
+ Total
+ revenue 
+ $ 1,324,047 
+ $ 1,301,704 
+ $ 1,145,915 
+
+ Principal
+Activities 
+
+ Production
+Services . Our Production Services segment includes the results of operations from services that are generally offered and
+performed during the completion and production stages of a well’s lifecycle. These services include, but are not limited to,
+the following: 
+
+ ● 
+ Hydraulic
+ Fracturing – Hydraulic fracturing services are performed to enhance production of oil and natural gas from formations with low
+ permeability and restricted flow of hydrocarbons. The process of hydraulic fracturing involves pumping a viscous, pressurized
+ fracturing fluid, typically a mixture of water, chemicals and proppant, into a well casing or tubing and through perforations in
+ order to fracture underground mineral formations. These fractures release trapped hydrocarbon particles and free a channel for the
+ oil or natural gas to flow to the wellbore for extraction. Fracturing fluid mixtures include proppant that becomes lodged in
+ the cracks created by the hydraulic fracturing process, “propping” them open to facilitate the flow of hydrocarbons
+ upward through the well. Our hydraulic fracturing operations employ real-time monitoring of surface equipment and downhole pressure, to effectuate
+predictive maintenance and evaluate the efficacy of the fluid treatment. 
+
+ ●
+ 
+ Coiled
+ Tubing – We provide various coiled tubing services ranging from nitrogen lifting, fishing, milling, clean-out, scale
+ removal and other complex well applications. We employ design software to predict the performance of coiled tubing string and fluid
+ behavior. The work history and integrity of each coiled tubing work string is constantly monitored in real-time to allow our engineers
+ to continually evaluate developments in coiled tubing applications. Our coiled tubing units are suitable for both onshore and offshore. 
+
+ ● 
+ Stimulation
+ and Pumping – We employ stimulation and pumping services in our operations. We currently offer acidization of wells, cleaning
+ jobs, the release of stuck drill pipe and tubing, well pressure testing and inhibition jobs on gas wells. 
+
+ ● 
+ Cementing
+ – We have over 25 years of experience in primary and remedial cementing services across the MENA region. Our cementing solutions
+ include cementing equipment with complete automated density control capabilities, large volume batch mixers allowing larger volume
+ of slurries to be mixed and pumped at homogeneous density and customized cement systems for specific applications such as gas migration,
+ ultra-light weight, flexible cement, HTHP (high-temperature/high-pressure) and self-healing cement. We also have an extensive database
+ of knowledge and experience, in addition to laboratory and research support of field activity. 
+
+ ● 
+ Nitrogen
+ Services – We offer a complete nitrogen service package through our nitrogen fleets. Our equipment incorporates a combination
+ of low, intermediate, and high-rate pumping units. Our operational capabilities range from stand-alone nitrogen services such as
+ freeing stuck drill pipe and unloading or cleaning out wellbores, to integrating with other service lines such as coiled tubing,
+ stimulation and cementing, with the essential gaseous components necessary for various
+ applications. 
+
+ ● 
+ Filtration
+ Services – We provide filtration services through our two-stage, skid mounted, easy to handle filtration vessels. The primary
+ and secondary filtration stages are usually carried out together. We have filtered thousands of barrels of drilling fluid on rig
+ sites to mitigate wellbore damage as well as to support UBD (Under Balanced Drilling) operations. We also provide fluid storage
+ tanks and pumping units as necessary. 
+
+ ● 
+ Pipelines
+ and Industrial Services – We provide pipeline services to plants and refineries including water filling and hydro testing,
+ nitrogen purging, de-gassing and pressure testing, as well as cutting/welding and pipe cooling/vessels systems. Our equipment
+ and resources include an existing fleet of inert gas pump units, pig launchers and receivers, intelligent pigs, high-rate pumping
+ units at high and low pressure, and pipeline inspection services. 
+
+ 5 
+
+ ● 
+ Production
+ Assurance – Our fleet of water well drilling rigs and portfolio of conventional water treatment technologies (chemicals and
+ filtration) allow us to serve the full water cycle. This includes the sourcing and treatment of water for oil and natural gas,
+ municipal and industrial use and the injection disposal of water into selected reservoirs. We also provide a portfolio of production
+ assurance chemicals to assist hydrocarbon production from specific reservoirs to enhance hydrocarbon productivity. This is achieved
+ by collaborating with select chemical companies and academic institutes on fit-for-purpose solutions, leveraging our established
+ in-house technical team of engineers and laboratory capabilities. 
+
+ ● 
+ Artificial
+ Lift Services – We provide vertical, deviated and horizontal rod pumping systems, analysis and optimization recommendations
+ for fluid level and dynamometer testing, artificial lift optimization and data interpretation, long-term monitoring and optimization,
+ and associated field services. We also provide gas lift systems and downhole monitoring systems. We maintain a downhole pump workshop
+ that is equipped with up-to-date equipment and tools, including pump testers, barrel honing and API beam pump gauges. 
+
+ ● 
+ Completions
+ – We provide surface and subsurface safety systems, high-pressure packer systems, flow controls, service tools, expandable
+ liner technology, VIT (Vacuum Insulated Tubing) technology for steam applications, and engineering capabilities with manufacturing
+ and testing capacity. We focus on in-country value by taking a locally-driven systems approach to well
+ completions for maximum recovery in addition to intelligent completion architectures. 
+
+ ● 
+ Integrated
+ Production Management – These projects are focused on developing and managing production on behalf of the Company’s customers
+ under long-term agreements. The Company invests its own services and products, and in some cases cash, into the field development
+ activities and operations. Although in certain arrangements the Company is paid for a portion of the services or products it provides,
+ generally the Company is not paid at the time of providing its services or upon delivery of its products. Instead, the Company is
+ compensated based upon cash flow generated. 
+
+ NESR
+Environmental and Decarbonization Applications (“NEDA”) . The Company launched its NEDA service line, part of the Production Services segment, in 2024, a reorganization
+of the prior ESG IMPACT service line that was first introduced in 2021. NEDA is comprised of a portfolio of technology partnerships,
+early-stage equity investments, and in-house research and development encompassing key focus areas such as water recovery and mineral
+extraction, gas emissions monitoring, flare abatement and gas reuse, and energy capture solutions. The aim
+of the segment is to help the upstream value chain decarbonization operations and improve water stewardship, primarily by streamlining
+the piloting and commercialization of technologies both native to the oil and gas industry and also adapted from other industries. 
+
+ In 2025, NEDA continued to build out its circular water and mineral extraction portfolio, having successfully completed
+a first-in-country Direct Lithium Extraction pilot campaign with a key Middle East customer. The NEDA team also piloted its
+real-time emissions monitoring solution with a large national oil company in the region. 
+
+ As
+the frontier opportunities within NEDA are novel to the oil and gas industry, many of the technologies and applications are still in
+early development and are dependent on regulation and other sustainability-related drivers for future commercial viability.
+NESR’s strategy is to take a low-risk, capital-light approach to its NEDA investments and development projects, with the aim
+of proving technologies that have significant growth potential over the long-term. 
+
+ 6 
+
+ The
+results of NEDA were not material to our Consolidated Statements of Operations for the years ended December 31, 2025, December 31, 2024,
+or December 31, 2023. 
+
+ Drilling
+and Evaluation Services. Our Drilling and Evaluation Services segment includes the results of operations from services that are
+generally offered and performed during the well construction stage of a well’s lifecycle and related mainly to the operation
+of drilling rigs. These services include, but are not limited to, the following: 
+
+ ● 
+ Rigs
+ and Integrated Services – Our fleet of rigs range from 200 horsepower (HP) to 1,500 HP and offer drilling capabilities for all
+ types of wells with depths up to 4,000 meters. Our fleet includes 750 HP truck-mounted, agile rigs, which are ideal for both light
+ and heavy work over campaigns as these rigs are equipped with complete mud systems that can handle normal drilling activities. In
+ addition, we provide a “one-stop solution” that encompasses integrated drilling services, including the provision of the rig
+to wellbore construction and well testing. 
+
+ ●
+ 
+ Fishing
+ and Downhole – We provide highly innovative and reliable drilling tools and machine shop services for conventional and unconventional
+ drilling applications. Our manufacturing capabilities include manufacturing flanges, subs, pup joints, pony drill collars and all
+ types of crossovers. We also have the provision of threading and repair services for the oil and natural gas industry including
+ the re-cutting of tubing and casing, repair of drilling and production tubulars and well heads. 
+
+ ●
+ 
+ Thru-Tubing
+ Intervention – We provide comprehensive oilfield solutions for all thru-tubing intervention requirements, from milling to fishing and thru-tubing well intervention. 
+
+ ●
+ 
+ Tubular
+ Running Services – We provide traditional Tubular Running Services operated by highly trained personnel focused on safety,
+ quality, efficiency and well integrity. Our Casing Running Tool service enables simultaneous connection make-up, break-out, circulation
+ and rotation, increasing the probability of successful, first-attempt casing string placement, while mitigating safety and service quality risk. 
+
+ ●
+ 
+ Directional
+ Drilling – Our directional drilling services provide a suite of solutions from conventional to unconventional drilling applications,
+ including directional drilling, measurement while drilling, logging while drilling, drilling optimization, drilling engineering,
+ borehole surveying, and surface mud logging. Directional Drilling includes our growing Roya™
+ family of advanced drilling technologies, discussed below. 
+
+ ● 
+ Drilling
+ and Completion Fluids – We provide drilling fluid systems and related technologies for a number of projects, including development
+ drilling, exploration drilling and high-pressure/high-temperature drilling, in accordance with international standards and regulations
+ for both onshore and offshore projects. 
+
+ ● 
+ Pressure
+ Control – With a full range of wellhead products, flow control equipment and stimulation pressure control equipment, we can
+ provide safe and efficient drilling, completion, and production activities. Our capabilities include pre-engineered products, in
+ addition to fit-for-purpose fully customized designs, encompassing a wide variety of applications. 
+
+ ● 
+ Well
+ Testing Services – Our well testing services are used to measure solids, gas, oil and water produced from a well. We offer
+ integrated well testing services across the exploration, appraisal and development phases of oil and gas wells. Our aim is to
+ provide newer, faster and more precise testing results through ongoing innovation and superior service quality, and our services
+ include surface well testing onshore and offshore, flow back packages, sand management, burner boom stack for gas flaring, smokeless
+ burner, multi-phase flow meters (MPFM), zero-flaring packages, and water treatment and filtration. 
+
+ ● 
+ Wireline
+ Logging Services – Our fleet of logging trucks, offshore units, logging tools and pressure control equipment provides a wide
+ variety of cased-hole logging services to our clients, including production and injection performance evaluation, stimulation performance
+ evaluation, water shutoff determination, tubing and multiple casing integrity, acoustic leak detection, perforation, pipe recovery,
+ cased hole formation evaluation, and interval isolation and borehole seal. 
+
+ ● 
+ Slickline
+ Services – Our slickline services cover a range of applications including descaling, wax and sand cleanout, plug setting, gas lift valve changeout, fishing and other complex well applications. 
+
+ 7 
+
+ Directional
+Drilling and Roya™ Technology Portfolio. Technology enhancement and expansion within the Drilling and Evaluation Services segment
+continues to be a strategic focus for the Company. Since 2021, the Company has entered into several strategic Drilling and Evaluation
+Services partnerships with other technology providers to bring enhanced technologies to its customers. Key partnerships include PHX Energy
+Services Corp., to bring leading directional drilling capabilities from North America to the MENA region; Beyond Energy Services &
+Technology Corp., to offer managed pressure drilling services; and Kinetic Pressure Control Limited, to develop its Kinetic Blowout Stopper
+(“KBOS”) technology in the MENA region and through which the commercial fleet of KBOS units expanded further in 2025. 
+
+ In
+2025, the Company continued the technical and commercial buildout of its Roya™ advanced directional drilling technology
+platform to penetrate the high-end directional drilling market beyond the Company’s existing Drilling and Evaluation Services
+offerings. The Roya™ advanced drilling platform is comprised of NESR’s RoyaStream™ measurement-while-drilling
+tool, its RoyaSeek™ logging-while-drilling tool, and its RoyaSteer™ rotary-steerable system. Through 2025, the Company executed successful drilling campaigns with various combinations of its Roya™ solutions across
+the Middle East. Previously, NESR had secured multi-year directional drilling “platform” contracts for this technology in Kuwait,
+Oman and Saudi Arabia, and ongoing techno-commercial development involves the iterative improvement of Roya™ for selective directional
+drilling applications within these countries. While Roya™ represents a significant, strategic growth opportunity for the Company
+in the coming years, management expects to deploy this technology deliberately to ensure reliability and commercial success. 
+
+ Customers 
+
+ NESR’s
+primary customers are national oil companies, large integrated oil companies, and independent operators. Revenues from four customers
+individually accounted for 49%, 9%, 8% and 7% of the Company’s consolidated revenues in the year ended December 31, 2025, 54%,
+9%, 7% and 4% of the Company’s consolidated revenues in the year ended December 31, 2024, and 44%, 8%, 7% and 5% of the Company’s
+consolidated revenues in the year ended December 31, 2023. 
+
+ Marketing
+Channels 
+
+ We
+sell our products and services through both direct and indirect channels. Our primary sales channel is our direct sales force, which
+operates with a strong country-level focus and maintains close relationships with customers through locally based teams. This structure
+enables us to respond quickly to customer needs, tailor solutions to local market conditions, and build long-term strategic partnerships. 
+
+ Competition 
+
+ We
+operate in highly competitive markets across the MENA region, where our competitors include both large multinational corporations and
+smaller local service providers. Our revenues and earnings are influenced by various factors, including competitive dynamics, fluctuations
+in drilling and completion activity, changes in customer spending patterns, expectations of future oil and natural gas prices, government
+regulations, weather-related disruptions, and general economic conditions. 
+
+ We
+believe that the principal factors affecting competition in our industry include price, operational performance, product and service
+quality, safety record, responsiveness, technological capability, and the breadth of available products and services. NESR seeks to differentiate
+itself through superior execution, reliability, and a commitment to safety and innovation across all operating segments. 
+
+ 8 
+
+ Seasonality 
+
+ Seasonal
+changes in weather and significant weather events affect the demand and price of oil and therefore the demand for our services. These seasonal and weather-related factors may result in fluctuations in
+our revenue and operating results from quarter to quarter. Additionally,
+customer spending patterns in the oilfield services industry often lead to higher levels of activity in the fourth quarter of each year,
+as clients seek to fully utilize their annual budgets before year-end. 
+
+ Human
+Capital 
+
+ As
+of December 31, 2025, 2024, and 2023, we employed 7,352, 6,554, and 6,231 employees and independent contractors, respectively, of over
+60 different nationalities. Our employees are at the forefront of NESR’s strategy. We believe that our long-term success depends
+on our ability to attract, retain, and motivate highly qualified and committed professionals. NESR places strong emphasis on cultivating
+a motivated and skilled workforce by identifying and developing key capabilities and aligning them with our business needs. We invest
+heavily in training and professional development through a mix of on-the-job learning, online programs, and classroom instruction. Our
+structured career development framework defines the core competencies and skills required for advancement, enabling employees to progress
+in both seniority and responsibility. By fostering a culture of continuous learning and growth, NESR ensures that our people remain empowered
+to deliver operational excellence and sustain our competitive advantage. 
+
+ The
+Company provides a comprehensive range of welfare and benefit programs consistent with local laws and market practices in the
+countries in which it operates. These programs generally include medical, dental, and vision coverage; medical and dependent care
+flexible spending accounts; short- and long-term disability insurance; and life insurance. In addition, the Company maintains an
+annual bonus plan for key employees whose decisions, activities, and performance have a material impact on business results. Target
+bonus levels are determined individually, taking into account employee performance objectives, competitive compensation practices, and
+prevailing market conditions. Bonus eligibility and payout levels are primarily linked to the achievement of Company and individual
+performance objectives over the annual period, reinforcing a culture of accountability and performance excellence. 
+
+ The
+Company has no history of prolonged labor disputes or work stoppages and thus believes that relations with employees are good. With the
+exception of certain of our employees in Oman, none of our employees are currently represented by unions or covered by collective bargaining
+agreements. 
+
+ Sources
+and Availability of Raw Materials 
+
+ We
+purchase various component parts in connection with delivering our products and services. These materials are generally, but not
+always, available from multiple sources and may be subject to price volatility. While we generally do not experience significant
+long-term shortages of these materials, we have from time to time experienced temporary shortages of particular component parts. We
+are always seeking ways to ensure the availability of resources, as well as managing costs of component parts. 
+
+ Capital
+Expenditures 
+
+ During
+the three most recent fiscal years, the Company’s capital expenditures were $316.8 million in the aggregate, comprising $143.5
+million during the year ended December 31, 2025, $105.1 million during the year ended December 31, 2024, and $68.2 million during
+the year ended December 31, 2023. The primary geographies for the Company’s capital expenditures were Saudi Arabia, Oman,
+Kuwait, and UAE. The Company has utilized these capital expenditures predominantly to purchase equipment to support revenue
+growth. For more information on our capital expenditures and requirements, see “ Liquidity and Capital Resources ”
+within Item 7, “ Management’s Discussion and Analysis of Financial Condition and Results of
+Operations .” 
+
+ Additionally,
+the Company’s Integrated Production Management (“IPM”) projects are focused on developing and managing production on
+behalf of the Company’s customers under long-term agreements. The Company invests its own services and products, and in some cases
+cash, into the field development activities and operations. Although in certain arrangements the Company is paid for a portion of the
+services or products it provides, generally the Company is not paid at the time of providing its services or upon delivery of its products.
+Instead, the Company is compensated based upon cash flow generated. The Company invested $0 (zero) million, $0 (zero) million, and $16.0
+million in IPM projects during the years ended December 31, 2025, 2024, and 2023, respectively. The Company has no plans for additional
+IPM capital expenditures as of the date of this filing. 
+
+ 9 
+
+ Since
+March 2023, and continuing through December 31, 2026, the Company’s Chief Financial Officer (“CFO”) was given final
+responsibility for the Company’s capital expenditure process, under the supervision of the Board of Directors. 
+
+ Research
+and Development 
+
+ To
+date, the Company has not incurred significant expenditures on research and development activities, other than through strategic
+investments and partnerships intended to expand its NEDA and
+Drilling and Evaluation portfolios. These investments are individually insignificant but in the aggregate totaled $25.2 million and
+$24.3 million as of December 31, 2025 and December 31, 2024, respectively. 
+
+ The
+Company accounts for these investments under the measurement alternative in Accounting Standards Codification (“ASC”) 321 ,
+Investments – Equity Securities , and records them at cost, net of impairment, as none of the investments have readily determinable
+fair values. In accordance with ASC 321, the Company monitors these investments for indicators of impairment, including recent transactions
+involving the investees, liquidity position, operating performance, and other qualitative and quantitative factors. 
+
+ For
+the year ended December 31, 2025, the Company recorded an impairment charge of $5.1 million related to one investment that is expected
+to exhaust its remaining cash during 2026 and currently has limi

@@ -1,0 +1,610 @@
+ITEM
+2. MANAGEMENT’S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS 
+
+ The
+following discussion and analysis should be read in conjunction with the condensed consolidated financial statements and related
+notes included in this Quarterly Report on Form 10-Q (“Quarterly Report”). In addition, such analysis should be read in
+conjunction with the audited condensed consolidated financial statements, the related notes, and the other information included in
+the Company’s Annual Report on Form 10-K for the year ended December 31, 2025 (“2025 Annual Report”). The
+following discussion and analysis contain forward-looking statements that reflect our future plans, estimates, beliefs and expected
+performance. Please read “Cautionary Note Regarding Forward-Looking Statements” below. 
+
+ National
+Energy Services Reunited Corp. (the “Company,” “NESR,” “we,” “our,” “us”
+or similar terms) is one of the largest oilfield services providers in the Middle East and North Africa (“MENA”) region.
+The Company’s business consists primarily of upstream and midstream oilfield services with oil and natural gas companies as customers.
+NESR’s revenues are primarily derived by providing production services (“Production Services”) such as hydraulic fracturing,
+coiled tubing, stimulation and pumping, cementing, nitrogen services, filtration services, pipelines and industrial services, production
+assurance, artificial lift services, completions and integrated production management. NESR also provides drilling and evaluation services
+(“Drilling and Evaluation Services”) such as rigs and integrated services, fishing and downhole tools, thru-tubing intervention,
+tubular running services, directional drilling, drilling and completion fluids, pressure control, well testing services, wireline logging
+services, and slickline services. NESR has significant operations throughout the MENA region including Saudi Arabia, Oman, Kuwait, United
+Arab Emirates, Iraq, Algeria, Egypt and Libya. 
+
+ EXECUTIVE
+OVERVIEW 
+
+ Drivers
+of Our Financial Condition and Results of Operations 
+
+ As of the end of the three-month and six-month periods covered by this
+Quarterly Report, the conflict involving the United States, Israel and Iran, and the associated volatility in Brent crude oil prices,
+have not had a material adverse impact on our results of operations or financial condition. Demand for our services has remained resilient,
+supported in large part by continued customer investment in Saudi Arabia, including the Jufurah unconventional field, as well as sustained
+activity in certain of our other operating locations. However, the duration, scope and ultimate trajectory of the conflict remain uncertain,
+and any de-escalation or further escalation of the conflict, as well as related sanctions, supply disruptions or other geopolitical developments,
+could materially affect commodity prices, customer capital spending, and our results of operations and financial condition in future periods. For a full discussion
+of the drivers of our financial condition and results of operations, see the section entitled “ Drivers of Our Financial Condition
+and Results of Operations ” in Part II, Item 7 of our 2025 Annual Report. 
+
+ Key
+Performance Indicators 
+
+ As
+of the end of the three-month and six-month periods covered by this Quarterly Report, there have been no material changes regarding our
+key performance indicators. The following table shows rig count (Source: Baker Hughes Published Rig Count
+Data) and oil prices (Source: U.S. Energy Information Administration - Brent – Europe) as of the dates indicated. For a full discussion
+of our key performance indicators, see the section entitled “ Key Performance Indicators ” in Part II, Item 7 of our
+2025 Annual Report. 
+
+ As
+ of 
+
+ June
+ 30, 2026 
+ December
+ 31, 2025 
+ 
+ Rig
+ count: 
+
+ MENA 
+ 549 
+ 565 
+ 
+ Rest
+ of World – outside of North America 
+ 524 
+ 500 
+ 
+ Total
+ International Rig Count 
+ 1,073 
+ 1,065 
+
+ Brent
+ Crude (per barrel) 
+ $ 70.46 
+ $ 61.35 
+
+ 17 
+
+ RESULTS
+OF OPERATIONS 
+
+ We
+operate our business through two operating segments and report our results of operations through two reporting segments, Production Services
+and Drilling and Evaluation Services, which aggregate services performed during distinct stages of a typical life-cycle of an oil well. 
+
+ Production
+Services . Our Production Services segment includes the results of operations from services that are generally offered and performed
+during the production stage of a well’s lifecycle. These services mainly include hydraulic fracturing, coiled tubing, stimulation
+and pumping, cementing, nitrogen services, filtration services, pipelines and industrial services, production assurance, artificial lift
+services, completions and integrated production management. Our Production Services accounted for 63%, 63%, 62%, and 62% of our revenues
+for the three-month period ended June 30, 2026, the three-month period ended June 30, 2025, the six-month period ended June 30, 2026,
+and the six-month period ended June 30, 2025, respectively. 
+
+ Drilling
+and Evaluation Services . Our Drilling and Evaluation Services segment includes the results of operations from services that are generally
+offered and performed during pre-production stages of a well’s lifecycle and related mainly to the operation of oil rigs. The services
+mainly include rigs and integrated services, fishing and downhole tools, thru-tubing intervention, tubular running services, directional
+drilling, drilling and completion fluids, pressure control, well testing services, wireline logging services and slickline services.
+Our Drilling and Evaluation Services accounted for 37%, 37%, 38%, and 38%, of our revenues for the three-month period ended June 30,
+2026, the three-month period ended June 30, 2025, the six-month period ended June 30, 2026, and the six-month period ended June 30, 2025,
+respectively. 
+
+ For
+a full discussion of our reportable segments, see the section entitled “ Business ” in Part I, Item 1 of our 2025 Annual
+Report. 
+
+ Key
+Components of Revenues and Expenses 
+
+ As
+of the end of the three-month and six-month periods covered by this Quarterly Report, there have been no material changes to our key
+components of revenues and expenses. See the section entitled “ Key Components of Revenues and Expenses ” in Part II,
+Item 7 of our 2025 Annual Report for more information. 
+
+ 2026
+compared to 2025 
+
+ The
+following table presents our Condensed Consolidated Statements of Operations (Unaudited) data for the periods indicated (in US$
+thousands): 
+
+ For
+ the three-month period ended 
+ For
+ the six-month period ended 
+ 
+ Description 
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+
+ Revenues 
+ $ 520,752 
+ $ 327,368 
+ $ 925,338 
+ $ 630,470 
+ 
+ Cost
+ of services 
+ (439,460 ) 
+ (283,484 ) 
+ (792,215 ) 
+ (549,131 ) 
+ 
+ Gross
+ profit 
+ 81,292 
+ 43,884 
+ 133,123 
+ 81,339 
+ 
+ Selling,
+ general and administrative expenses (excluding Amortization) 
+ (12,018 ) 
+ (12,099 ) 
+ (23,121 ) 
+ (23,920 ) 
+ 
+ Amortization 
+ (4,433 ) 
+ (4,694 ) 
+ (9,126 ) 
+ (9,387 ) 
+ 
+ Operating
+ income 
+ 64,841 
+ 27,091 
+ 100,876 
+ 48,032 
+ 
+ Interest
+ expense, net 
+ (7,038 ) 
+ (8,562 ) 
+ (13,581 ) 
+ (16,846 ) 
+ 
+ Other
+ income / (expense), net 
+ 1,115 
+ 940 
+ 2,564 
+ 1,999 
+ 
+ Income
+ before income tax 
+ 58,918 
+ 19,469 
+ 89,859 
+ 33,185 
+ 
+ Income
+ tax expense 
+ (14,901 ) 
+ (4,268 ) 
+ (22,015 ) 
+ (7,593 ) 
+ 
+ Net
+ income 
+ $ 44,017 
+ $ 15,201 
+ $ 67,844 
+ $ 25,592 
+
+ Revenue .
+ Revenue was $520.8 million for the three-month period ended June 30, 2026, compared to $327.4 million for the three-month period
+ended June 30, 2025, and $925.3 million for the six-month period ended June 30, 2026, compared to $630.5 million for the six-month period
+ended June 30, 2025. 
+
+ The
+table below presents our revenue by segment for the periods indicated (in US$ thousands): 
+
+ For
+ the three-month period ended 
+ For
+ the six-month period ended 
+
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+ 
+ Reportable
+ Segment: 
+
+ Production
+ Services 
+ $ 329,732 
+ $ 205,061 
+ $ 570,777 
+ $ 393,148 
+ 
+ Drilling
+ and Evaluation Services 
+ 191,020 
+ 122,307 
+ 354,561 
+ 237,322 
+ 
+ Total
+ revenue 
+ $ 520,752 
+ $ 327,368 
+ $ 925,338 
+ $ 630,470 
+
+ 18 
+
+ Production
+Services revenue was $329.7 million for the three-month period ended June 30, 2026, compared to $205.1 million for the three-month period
+ended June 30, 2025, and $570.8 million for the six-month period ended June 30, 2026, compared to $393.1 million for the six-month period
+ended June 30, 2025. The change in revenue was primarily due to increased hydraulic fracturing stages in Saudi Arabia. 
+
+ Drilling
+and Evaluation Services revenue was $191.0 million for the three-month period ended June 30, 2026, compared to $122.3 million for the
+three-month period ended June 30, 2025, and $354.6 million for the six-month period ended June 30, 2026, compared to $237.3 million for
+the six-month period ended June 30, 2025. The change in revenue was primarily due to increased well testing and to a lesser extent, wireline
+logging activity in Saudi Arabia. 
+
+ Cost
+of services. Cost of services was $439.5 million for the three-month period ended June 30, 2026, compared to $283.5 million for
+the three-month period ended June 30, 2025, and $792.2 million for the six-month period ended June 30, 2026, compared to $549.1 million
+for the six-month period ended June 30, 2025. Cost of services as a percentage of total revenue was 84.4%, 86.6%, 85.6% and 87.1% for
+the three-month period ended June 30, 2026, the three-month period ended June 30, 2025, the six-month period ended June 30, 2026, and
+the six-month period ended June 30, 2025, respectively. The change in cost of services as a percentage of total revenue is mainly due
+to increased activity levels in the period ended June 30, 2026, as compared to the prior year period, reflecting improved cost absorption
+as revenue scaled. Cost of services included depreciation expense of $31.7 million, $29.3 million, $60.8 million and $58.8 million for
+the three-month period ended June 30, 2026, the three-month period ended June 30, 2025, the six-month period ended June 30, 2026, and
+the six-month period ended June 30, 2025, respectively. 
+
+ Gross
+profit . Gross profit was $81.3 million for the three-month period ended June 30, 2026, compared to $43.9 million for the three-month
+period ended June 30, 2025, and $133.1 million for the six-month period ended June 30, 2026, compared to $81.3 million for the six-month
+period ended June 30, 2025. Gross profit as a percentage of total revenue was 15.6%, 13.4%, 14.4% and 12.9% for the three-month period
+ended June 30, 2026, the three-month period ended June 30, 2025, the six-month period ended June 30, 2026, and the six-month period ended
+June 30, 2025, respectively. The change in trend is described under “Revenue” and “Cost of services.” 
+
+ SG&A
+expense. SG&A expense, which represents costs associated with managing and supporting our operations, was $12.0 million for
+the three-month period ended June 30, 2026, compared to $12.1 million for the three-month period ended June 30, 2025, and $23.1 million
+for the six-month period ended June 30, 2026, compared to $23.9 million for the six-month period ended June 30, 2025. SG&A expense
+as a percentage of total revenue was 2.3%, 3.7%, 2.5% and 3.8% for the three-month period ended June 30, 2026, the three-month period
+ended June 30, 2025, the six-month period ended June 30, 2026, and the six-month period ended June 30, 2025, respectively. The decrease
+in SG&A expense in the six months ended June 30, 2026, was primarily attributable to lower spending on activities related to the
+remediation of the Company’s material weakness, as the Company completed remediation as of June 30, 2025, and therefore incurred
+significant remediation-related costs during the six-month period ended June 30, 2025. 
+
+ Amortization
+expense . Amortization expense was $4.4 million for the three-month period ended June 30, 2026, compared to $4.7 million for the
+three-month period ended June 30, 2025, and $9.1 million for the six-month period ended June 30, 2026, compared to $9.4 million for the
+six-month period ended June 30, 2025. Amortization expense is driven mainly by acquired intangible assets resulting from acquisitions. 
+
+ Interest
+expense, net . Interest expense, net, was $7.0 million for the three-month period ended June 30, 2026, compared to $8.6 million
+for the three-month period ended June 30, 2025, and $13.6 million for the six-month period ended June 30, 2026, compared to $16.8 million
+for the six-month period ended June 30, 2025. Interest expense, net, decreased period-over-period, due to lower debt levels during 2026
+as compared to 2025. 
+
+ Other
+income, net . Other income, net, was $1.1 million for the three-month period ended June 30, 2026, compared to $0.9 million for
+the three-month period ended June 30, 2025, and $2.6 million for the six-month period ended June 30, 2026, compared to $2.0 million for
+the six-month period ended June 30, 2025. 
+
+ Income
+tax expense. Income tax expense was $14.9 million for the three-month period ended June 30, 2026, compared to $4.3 million
+for the three-month period ended June 30, 2025, and $22.0 million for the six-month period ended June 30, 2026, compared to $7.6
+million for the six-month period ended June 30, 2025. The period-on-period increase in the effective tax rate is primarily driven by
+changes in geographic earnings mix, as well as higher pre-tax income relative to adjustments related to the Company’s
+uncertain tax positions and unrecognized tax benefits. See Note 7, Income Taxes , to our condensed consolidated financial
+statements included in Item 1, “Financial Statements,” of this Quarterly Report. 
+
+ 19 
+
+ Net
+income . Net income was $44.0 million for the three-month period ended June 30, 2026, compared to $15.2 million for the three-month
+period ended June 30, 2025, and $67.8 million for the six-month period ended June 30, 2026, compared to $25.6 million for the six-month
+period ended June 30, 2025. 
+
+ Supplemental
+Segment Operating Income Discussion 
+
+ For
+ the three-month period ended 
+ For
+ the six-month period ended 
+ 
+ (in
+ US$ thousands) 
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+ 
+ Reportable
+ Segment: 
+
+ Production
+ Services 
+ $ 60,232 
+ $ 22,696 
+ $ 92,969 
+ $ 42,725 
+ 
+ Drilling
+ and Evaluation Services 
+ 21,703 
+ 20,714 
+ 39,885 
+ 36,861 
+
+ Production
+Services operating income was $60.2 million for the three-month period ended June 30, 2026, compared to $22.7 million for the three-month
+period ended June 30, 2025, and $93.0 million for the six-month period ended June 30, 2026, compared to $42.7 million for the six-month
+period ended June 30, 2025. The change in supplemental segment operating income was primarily due to increased hydraulic fracturing stages
+in Saudi Arabia with a significant portion of incremental revenue translating into segment operating income. 
+
+ Drilling
+and Evaluation operating income was $21.7 million for the three-month period ended June 30, 2026, compared to $20.7 million for the three-month
+period ended June 30, 2025, and $39.9 million for the six-month period ended June 30, 2026, compared to $36.9 million for the six-month
+period ended June 30, 2025. The change in supplemental segment operating income was primarily due to additional well testing, and to
+a lesser extent, wireline logging, activity in Saudi Arabia with a share of incremental revenue contributing to segment operating income. 
+
+ LIQUIDITY
+AND CAPITAL RESOURCES 
+
+ Our
+objective in financing our business is to maintain sufficient liquidity, adequate financial resources and financial flexibility to fund
+the requirements of our business. We had cash and cash equivalents of $175.0 million as of June 30, 2026, and $124.8 million as of December
+31, 2025. Our outstanding borrowings were $274.6 million as of June 30, 2026, and $310.1 million as of December 31, 2025. Current available
+borrowing capacity totaled $21.3 million and $146.9 million, as of June 30, 2026, and December 31, 2025, respectively. Borrowing capacity
+decreased in the six-month period ended June 30, 2026, reflecting the Company’s decision not to extend its $59.2 million Secured
+Revolving Credit Facility beyond February 4, 2026, given sufficient operating cash flow and liquidity, as well as a $41.2 million reduction
+in the Working Capital Facility following the scheduled expiration of one tranche of availability within the lender syndicate as partially
+offset by new commitments. Subsequent to June 30, 2026, the Company received additional working capital commitments totaling $18.0 million,
+further increasing available liquidity. The Company is currently working with its lenders to refinance and extend the 2021 Secured Facilities
+Agreement. We believe that our cash on hand, cash flows generated from operations, and liquidity available through our credit facilities
+will provide sufficient liquidity to manage our global cash needs. See “Capital Requirements” below. 
+
+ Cash
+Flows 
+
+ Cash
+flows provided by (used in) each type of activity were as follows for the periods presented (in US$ thousands): 
+
+ For
+ the six-month period ended 
+
+ June
+ 30, 2026 
+ June
+ 30, 2025 
+
+ Cash
+ provided by (used in): 
+
+ Operating
+ Activities 
+ $ 204,758 
+ $ 118,971 
+ 
+ Investing
+ Activities 
+ (109,560 ) 
+ (62,429 ) 
+ 
+ Financing
+ Activities 
+ (43,552 ) 
+ (32,696 ) 
+ 
+ Effect
+ of exchange rate changes on cash 
+ - 
+ - 
+ 
+ Net
+ change in cash and cash equivalents 
+ $ 51,646 
+ $ 23,846 
+
+ 20 
+
+ Operating
+Activities 
+
+ Cash
+flows provided by operating activities were $204.8 million for the six-month period ended June 30, 2026, compared to cash flows provided
+by operating activities of $119.0 million for the six-month period ended June 30, 2025. The difference between periods was primarily
+driven by higher net income and improved working capital management year-over-year, and in particular more closely controlling timing
+of payments on Accounts payable and accrued expenses in relation to payment terms. 
+
+ Investing
+Activities 
+
+ Cash
+flows used in investing activities were $109.6 million for the six-month period ended June 30, 2026, compared to cash flows used in investing
+activities of $62.4 million for the six-month period ended June 30, 2025. The difference between periods was primarily due to higher
+cash paid for capital expenditures period-over-period to support growth in our operations. Our principal recurring investing activity
+is the funding of capital expenditures to ensure that we have the appropriate levels and types of machinery and equipment in place to
+generate revenue from operations. 
+
+ Financing
+Activities 
+
+ Cash
+flows used in financing activities were $43.6 million for the six-month period ended June 30, 2026, compared to cash flows used in financing
+activities of $32.7 million for the six-month period ended June 30, 2025. The difference between periods was primarily attributable to
+lower short-term borrowings. 
+
+ Credit
+Facilities 
+
+ Our
+principal credit facilities and instruments outstanding or available as of June 30, 2026, are discussed in Note 6, Debt , to
+the condensed consolidated financial statements included in Item 1, “Financial Statements,” of this Quarterly
+Report. 
+
+ Capital
+Requirements 
+
+ As
+of the end of the three-month and six-month periods covered by this Quarterly Report, there have been no material changes to our capital
+requirements. See the section entitled “ Capital Requirements ” in Part II, Item 7 of our 2025 Annual Report for more
+information. 
+
+ Off-Balance
+Sheet Arrangements 
+
+ Our
+off-balance sheet arrangements, including letters of credit and guarantees, are discussed in Note 8, Commitments and
+Contingencies , to the condensed consolidated financial statements included in Item 1, “Financial Statements,” of
+this Quarterly Report. 
+
+ Contractual
+Obligations and Commitments 
+
+ As
+of the end of the three-month and six-month periods covered by this Quarterly Report, there have been no material changes to our contractual
+obligations. See the section entitled “ Contractual Obligations and Commitments ” in Part II, Item 7 of our 2025 Annual
+Report for more information. 
+
+ Other
+Factors Affecting Liquidity 
+
+ Shelf
+registration statement. On May 26, 2026, the Company filed a shelf registration statement on Form S-3 with the SEC that
+automatically became effective the same day. The shelf registration statement gives the Company the ability to sell the ordinary
+shares from time to time in one or more offerings. The specific terms, including the amount, of any ordinary shares to be sold in
+any such offering, if it does occur, would be described in supplemental filings with the SEC. The shelf registration statement
+currently provides flexibility for strategic opportunities, financing initiatives, and other corporate purposes. The shelf
+registration statement will expire in 2029. 
+
+ Capital
+expenditure commitments . The Company was committed to incur capital expenditures of $70.6 million and $45.6 million at June 30,
+2026, and December 31, 2025, respectively. Substantially all of the commitments outstanding as of June 30, 2026, are expected to be settled
+during 2026 and 2027. 
+
+ Capital
+return program. In May 2026, the Company approved a capital return program consisting of (i) a quarterly cash dividend, anticipated
+to commence in the fourth quarter of 2026, at an expected rate of $0.10 per ordinary share, and (ii) authorization for the repurchase
+of up to $50.0 million of the Company’s ordinary shares from time to time through open market transactions, privately negotiated
+transactions, or otherwise, at prevailing market prices and subject to market conditions, applicable legal requirements, and liquidity
+considerations. 
+
+ 21 
+
+ As
+of the end of the three-month and six-month periods covered by this Quarterly Report, there have been no material changes to other factors
+affecting our liquidity except as described above. See the section entitled “ Other Factors Affecting Liquidity ” in
+Part II, Item 7 of our 2025 Annual Report for more information. 
+
+ CRITICAL
+ACCOUNTING POLICIES AND ESTIMATES 
+
+ As
+of the end of the three-month and six-month periods covered by this Quarterly Report, there have been no material changes to our critical
+accounting policies and estimates. See the section entitled “ Critical Accounting Policies and Estimates ” in Part II,
+Item 7 of our 2025 Annual Report for more information. 
+
+ CAUTIONARY
+NOTE REGARDING FORWARD-LOOKING STATEMENTS 
+
+ This
+Quarterly Report contains forward-looking statements (as such term is defined in Section 27A of the Securities Act of 1933, as amended,
+(the “Securities Act”), and Section 21E of the Securities Exchange Act of 1934, as amended (the “Exchange Act”)).
+Any and all statements contained in this Quarterly Report that are not statements of historical fact may be deemed forward-looking statements.
+Terms such as “may,” “might,” “would,” “should,” “could,” “project,”
+“estimate,” “predict,” “potential,” “strategy,” “anticipate,” “attempt,”
+“develop,” “plan,” “help,” “believe,” “continue,” “intend,” “expect,”
+“future,” and terms of similar import (including the negative of any of these terms) may identify forward-looking statements.
+However, not all forward-looking statements may contain one or more of these identifying terms. Forward-looking statements in this Quarterly
+Report may include, without limitation, the plans and objectives of management for future operations, projections of income or loss,
+earnings or loss per share, capital expenditures, dividends, capital structure or other financial items, our future financial performance,
+including any such statement contained in a discussion and analysis of financial condition by management or in the results of operations
+included pursuant to the rules and regulations of the Securities and Exchange Commission (“SEC”), expansion plans and opportunities,
+completion and integration of acquisitions and the assumptions underlying or relating to any such statement. 
+
+ The
+forward-looking statements are not meant to predict or guarantee actual results, performance, events or circumstances and may not be
+realized because they are based upon our current projections, plans, objectives, beliefs, expectations, estimates and assumptions and
+are subject to a number of risks and uncertainties and other influences, many of which we have no control over, including the impact
+of the extent of any material weakness or significant deficiencies in our internal control over financial reporting. Actual results and
+the timing of certain events and circumstances may differ materially from those described by the forward-looking statements as a result
+of these risks and uncertainties. Factors that may influence or contribute to the accuracy of the forward-looking statements or cause
+actual results to differ materially from expected or desired results may include, without limitation: 
+
+ ● 
+ Changing
+ commodity prices, market volatility and other market trends that affect our customers’ demand for our services; 
+
+ ● 
+ Public
+ health crises and other catastrophic events; 
+
+ ● 
+ The
+ level of capital spending by our customers; 
+
+ ● 
+ Political,
+ market, financial and regulatory risks, including those related to the geographic concentration of our operations and customers; 
+
+ ● 
+ Our
+ operations, including maintenance, upgrades and refurbishment of our assets, may require significant capital expenditures, which
+ may or may not be available to us; 
+
+ ● 
+ Operating
+ hazards inherent in our industry and the ability to secure sufficient indemnities and insurance; 
+
+ ● 
+ Our
+ ability to successfully integrate acquisitions; 
+
+ ● 
+ Conditions
+ in the Middle East, including current uncertainty and instability resulting from the conflict between the United States, Israel and
+ Iran, as well as other regional hostilities that could adversely affect our business; and 
+
+ ● 
+ Other
+ risks and uncertainties set forth in Part I, Item 1A, “ Risk Factors ,” included in this Quarterly Report and our
+ 2025 Annual Report. 
+
+ Readers
+are cautioned not to place undue reliance on forward-looking statements because of the risks and uncertainties related to them and to
+the risk factors. The Company disclaims any obligation to update the forward-looking statements contained in this Quarterly Report to
+reflect any new information or future events or circumstances or otherwise, except as required by law. Readers should read this Quarterly
+Report in conjunction with other documents which the Company may file or furnish from time to time with the SEC. 
+
+ 22
