@@ -16,87 +16,117 @@ disconfirmation: 0
 horizon_days: 252
 target_price: 300.00
 review_by: 2026-12-12
-key_claim: The price embeds a revenue reacceleration the filings do not yet show, and the foldable cycle is the only candidate explanation, which this dataset cannot assess.
-falsifier: Revenue acceleration turns positive in either of the next two quarters, or revenue growth exceeds 18 percent in a quarter that includes a full foldable launch.
+key_claim: Apple makes the iPhone and other hardware, and it sells services. Its share price only makes sense if its sales growth, which is slowing, speeds back up, and Apple's reports do not show that yet. I am only watching Apple: the new foldable iPhone is the one possible reason I can see, and I have no figures to judge it.
+falsifier: In either of Apple's next two quarterly reports, sales growth compared with the same quarter a year earlier is faster than in the quarter before. Or, in a report covering a full quarter of foldable iPhone sales, sales over the past 12 months are more than 18 percent above the 12 months before.
+conditions:
+  - Apple's sales growth, compared with the same quarter a year earlier, is no faster than in the quarter before. [check: revenue_acceleration <= 0]
+  - In a report covering a full quarter of foldable iPhone sales, sales over the past 12 months are no more than 18 percent above the 12 months before.
 data_caveats:
-  - no consensus estimates exist anywhere in this pipeline, so I cannot tell whether 14.2 percent revenue growth is a beat or a miss, which is most of what moves this stock
-  - no unit volumes, no average selling prices, no segment split between Products and Services
-  - no filing text collected for AAPL; there is no management commentary and no guidance
-  - the product cycle claim rests on filtered headlines, which were checked for relevance but not verified
-  - the panel price was 3.6 percent stale; the close series is used instead
-  - gross_margin_trend has no peer percentile, so the Growth sleeve rests on four fields rather than five
+  - No analyst forecasts are available, so I cannot tell whether Apple's 14 percent sales growth beat or missed what analysts expected, and that is most of what moves the shares.
+  - I have no figures on how many devices Apple sells or the average price it gets, and no split of its sales between products and services.
+  - I have no text from Apple's own reports, so I have nothing from its managers and no forecast from the company.
+  - What I know about the new foldable iPhone comes from news headlines that were checked to be about Apple but not checked for accuracy.
+  - The stored share price was 3.6 percent out of date, so I use the latest closing price instead.
+  - One growth measure, the change in what Apple keeps from each $1 of sales, has no comparison with similar companies, so I compare four measures instead of five.
 ---
 
-## WHAT IS PRICED IN
+Apple makes the iPhone and other technology hardware, and it also sells services. News reports say
+Apple, under a new chief executive, has unveiled its first foldable iPhone, priced well above its
+other iPhones.
 
-At $326.57 Apple trades on `pe` 36.20, a recomputed `ev_ebitda` of 27.53 and an `fcf_yield` of
-**3.0%**, sitting at 88% of its 52-week range after `return_52w` of +37.6%.
+## WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE
 
-A 3.0% free cash flow yield is the clearest statement in the dossier. It prices cash flows that
-**grow**, and grow for a long time. Against that, `revenue_acceleration` is **&minus;11.5%**, the 9th
-percentile of its peer group: revenue is still growing at +14.2% but the rate is falling.
+Apple's shares closed at $326.57, about 37 times its profit per share over the past 12 months. The
+shares rose about 38% over the past year and sit near the top of their range for the year.
 
-So the market is paying a growth multiple for a business whose reported growth rate is decelerating.
-That is not incoherent. It means the price embeds a reacceleration that the filings do not yet show.
+At that price, Apple makes about $3 of spare cash a year for every $100 of stock. Buying at that price
+pays off only if Apple's cash grows, and keeps growing for years.
 
-## WHERE I DIFFER
+Apple's sales are still growing, up 14% over the past 12 months. But the growth is slowing fast. In
+the latest quarter, growth compared with a year earlier was more than 11 percentage points lower than
+in the quarter before. Among 11 similar hardware companies, only one did worse on this measure.
 
-I don't, and the reason is specific rather than a shrug.
+If the slowdown continues, the years of growth a buyer is paying for will not arrive. So the price
+only makes sense if sales growth speeds back up, and Apple's reports do not show that yet.
 
-The screen surfaced this name on exactly that tension and asked the right question: anticipation, or
-has momentum detached? **Name the inflection if you think there is one.** The filtered headlines name
-a candidate: Apple has unveiled its first foldable, at a reported price point well above the current
-iPhone range, with a new chief executive.
+## WHERE I DISAGREE
 
-That is a genuine product cycle and it is a plausible reason for the market to look through a
-decelerating trailing number. **I cannot assess it.** Judging a hardware cycle needs unit volumes,
-average selling prices, and a view on whether a higher price point expands revenue or cannibalises
-the existing range. None of those are in this dataset and none of them are inferable from what is.
+I have no firm view that the price is wrong. The foldable iPhone could bring a real wave of sales,
+and it is the one thing I can see that would justify the price. I cannot judge whether it will.
 
-So the honest position is that the tension has a candidate explanation, the explanation is
-unfalsifiable with the data available, and I have no edge over a market of 38 covering analysts who
-have models for exactly this. `variant_perception` scores **0**.
+To judge it, I would need to know how many Apple sells, at what price, and whether buyers simply
+switch from cheaper iPhones. I have none of those figures.
 
-## WHAT CLOSES THE GAP
+The 38 analysts who follow Apple study exactly this, and I know nothing they don't. So there may be a
+good reason for the price, and I cannot test it.
 
-The first quarter that contains a full foldable launch. `revenue_acceleration` is the observable and
-this pipeline already records it, so the claim becomes checkable without a new data source.
+## WHAT WOULD SETTLE IT
 
-Direction is **watch** rather than a position. That is not the same as no view: it says this name
-stays on the list, the question is well formed, and the answer arrives on a known date.
+The first quarterly report that covers a full quarter of foldable iPhone sales will settle it. It
+will show whether Apple's sales growth has turned back up. Apple stays on my list because the
+question is clear and a scheduled report will answer it.
 
-## VALUATION
+## WHAT THE SHARES COULD BE WORTH
 
-Not building a range. At 36x trailing with a 3.0% FCF yield, the valuation is almost entirely a
-function of the reacceleration I have just said I cannot assess, so a bear, base and bull would be
-three restatements of that one unknown.
+I am not giving a bad, middle and good case. What the shares are worth depends almost entirely on
+whether growth speeds back up, which I cannot judge.
 
-`target_price` is logged at **$300**, roughly 8% below spot, which is where the multiple lands near
-33x on unchanged earnings. It expresses mild valuation discomfort rather than a forecast. Because
-the direction is "watch", this note produces **no row in `predictions.csv`** and will not be graded.
+My target price is $300, about 8% below the latest close. At $300, with profit unchanged, the shares
+would cost about 34 times profit per share. I chose it because today's price seems a
+little high to me. I am not forecasting that the shares will fall to it.
 
-## WHAT PROVES ME WRONG
+I keep a record of how my target prices turn out. Because I am only watching Apple, this one will not
+go on that record.
 
-`revenue_acceleration` turning positive in either of the next two quarters, or `revenue_growth_yoy`
-exceeding **18%** in a quarter that includes a full foldable launch.
+## WHAT WOULD PROVE ME WRONG
 
-Either would mean the market was anticipating correctly and the deceleration was a trough rather
-than a trend, and the multiple was the right one to pay. Checkable from the panel itself, quarter by
-quarter. **Not yet checkable.**
+I doubt the price because Apple's reports do not yet show sales growth speeding back up. Two results
+would prove that doubt wrong.
 
-`disconfirmation` scores 0. The strongest case against me is that Apple's trailing revenue growth
-has decelerated before, repeatedly, ahead of a cycle, and that paying a premium through those
-troughs has been correct for two decades. I have no answer to that beyond noting that it is a
-statement about the past, and neither of us can see the unit economics of this particular cycle.
+The first: in either of Apple's next two quarterly reports, sales growth compared with a year
+earlier is faster than in the quarter before. The second: a report covering a full quarter of
+foldable iPhone sales shows sales over the past 12 months more than 18% above the 12 months before.
+That figure is 14% now.
+
+Either would mean buyers at this price were right, and the slowdown was a dip that ended. Neither can
+be checked yet.
+
+The strongest argument against my doubt is Apple's own history. Its sales growth has slowed many
+times before a new model arrived, and paying a high price through those dips has been right for two
+decades. I have no answer to that, except that it describes the past. Neither side can see how many
+foldables Apple will sell, or what it will make on each.
 
 ## WHAT I DON'T KNOW
 
-- **No consensus estimates.** For a name with 38 analysts, the entire short-run question is whether
-  a print beats or misses, and this pipeline cannot see the bar.
-- **No unit volumes or average selling prices**, so the foldable's revenue arithmetic is unavailable.
-- **No Products versus Services split.** Services carries a different margin and deserves a
-  different multiple, and the mix shift is most of the long-run story.
-- No filing text, so no guidance and no management framing of the cycle.
-- The product cycle claim rests on headlines the dossier filtered for relevance but did not verify.
-  **I have not read a filing on this.**
-- `gross_margin_trend` has no peer percentile, so the Growth sleeve rests on four of five fields.
+- No analyst forecasts are available, so I cannot tell whether results beat or missed what analysts
+  expected. For Apple, that is most of what matters in the short run.
+- I have no figures on how many devices Apple sells or at what average price.
+- I cannot split Apple's sales between products and services. Services keep a different share of each
+  sale as profit, and the shift between them is most of Apple's long-run story.
+- I have no text from Apple's own reports, so no company forecast and nothing from its managers.
+- What I know about the foldable comes from headlines checked to be about Apple but not checked for
+  accuracy. I have not read an Apple report on it.
+- One growth measure, the change in what Apple keeps from each $1 of sales after making its products,
+  has no comparison with similar companies. So I compare Apple on four growth measures instead of five.
+
+## WHERE THE NUMBERS COME FROM
+
+Each row shows where a number in the note came from.
+
+| In the note | What it means | Source | Exact value |
+|---|---|---|---|
+| $326.57 | latest closing share price | close 2026-09-10 | 326.57 |
+| about 37 times | share price divided by profit per share over the past 12 months, at the latest close | calc: close $326.57 / `ttm_eps_diluted` $8.71 | 37.49 |
+| about 38% | share price change over the past year | `return_52w` | +37.6% |
+| near the top of their range for the year | where the latest close sits between the lowest and highest closes of the past year | calc: (close $326.57 - low $233.21) / (high $339.79 - low $233.21) | 88% |
+| about $3 | spare cash a year for every $100 of stock | `fcf_yield` | +3.0% |
+| 14%; 14 percent | sales over the past 12 months against the 12 months before | `revenue_growth_yoy` | +14.2% |
+| more than 11 percentage points | latest quarter's sales growth against a year earlier, minus the same figure for the quarter before | `revenue_acceleration` | -11.5 percentage points |
+| Among 11 similar hardware companies, only one did worse on this measure | Apple's rank on that measure among 11 hardware companies, where a higher rank means growth held up better | `revenue_acceleration`, rank against similar companies | 9th percentile; 1 of 11 lower |
+| 38 | analysts who follow Apple | `analyst_count` | 38 |
+| $300 | my target price | my choice | 300.00 |
+| about 8% | how far the target is below the latest close | calc: $300 / close $326.57 - 1 | -8.1% |
+| about 34 times | target price divided by profit per share over the past 12 months, with profit unchanged | calc: $300 / `ttm_eps_diluted` $8.71 | 34.44 |
+| 18%; 18 percent | growth in sales over the past 12 months that would prove me wrong | my choice | 18% |
+| 3.6 percent | how far the stored share price was from the latest close | calc: close $326.57 / stored `price` $315.34 - 1 | +3.6% |
+| four measures instead of five | growth measures compared with similar companies; one has no comparison | `gross_margin_trend`, no rank against similar companies | 4 of 5 |

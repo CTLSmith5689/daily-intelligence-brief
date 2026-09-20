@@ -16,100 +16,135 @@ disconfirmation: 1
 horizon_days: 126
 target_price: 22.00
 review_by: 2026-12-12
-key_claim: The growth line is the least reliable number in this dossier, because the revenue that is accelerating is the revenue that is being regulated away.
-falsifier: Gross margin improves year over year in either of the next two quarterly releases, or revenue growth stays above 20 percent two quarters after the compounding restrictions bind.
+key_claim: Hims & Hers Health sells health care services by subscription, and part of its sales come from pharmacy-made copies of weight-loss drugs. Its fast sales growth is the figure I trust least, because I think the sales that are speeding up are the ones regulators are cutting off. I would stay away from the stock.
+falsifier: Hims & Hers keeps more of each $1 of sales, after the cost of its products, than a year earlier in either of its next two quarterly reports. The other test is its sales still growing more than 20 percent compared with a year earlier, two quarters after limits on pharmacy-made copies of weight-loss drugs take effect.
+conditions:
+  - Hims & Hers keeps no more of each $1 of sales, after the cost of its products, than it did a year earlier. [check: gross_margin_trend <= 0]
+  - Two quarters after limits on pharmacy-made copies of weight-loss drugs take effect, Hims & Hers' sales grow no more than 20 percent compared with a year earlier.
+add_if: I would be more confident if the next quarterly results show that pharmacy-made copies of weight-loss drugs make up a large part of Hims & Hers' sales.
+if_wrong_price: 38.00
 data_caveats:
-  - no consensus estimates exist anywhere in this pipeline, so nothing here is calibrated against what the market expects
-  - no filing text collected for HIMS; there is no management commentary in this dossier and no segment split
-  - the revenue mix between compounded GLP-1 and the rest of the business is the crux and is not in the dataset
-  - shares_outstanding reads 0 against a market_cap of 6.6B, so per-share figures cannot be checked against the cap
-  - insider data not collected below the top 600 by market cap
-  - the panel price was 1.6 percent stale; the close series is used instead
+  - No analyst forecasts are available, so I cannot tell whether results beat or missed what analysts expected.
+  - I have no text from Hims & Hers' own reports, so I have nothing from management and no split of its sales by business.
+  - I do not know how much of Hims & Hers' sales come from pharmacy-made copies of weight-loss drugs, and my view turns on that figure.
+  - The number of Hims & Hers shares is missing from my records, so I cannot check per-share figures against the $6.6 billion value of all its shares.
+  - I have no record of executives or directors buying or selling Hims & Hers shares, because I collect that only for the largest companies.
+  - The stored share price was 1.6 percent out of date, so I use the latest closing price instead.
 ---
 
-## WHAT IS PRICED IN
+Hims & Hers Health sells health care services to customers who pay by subscription. Part of its sales come from pharmacy-made copies of the newer weight-loss drugs, and the rest
+from its other subscriptions.
 
-At $27.44 the shares sit 55.5% below the 52-week high and at the **0th percentile of their
-peer group on every one of the five momentum fields**: `return_12_2` &minus;38.6%,
-`return_1m` &minus;12.2%, `high52w_proximity` &minus;55.5%, `rel_strength_sp500` &minus;62.0%.
-`max_drawdown_1y` is &minus;76.9%. That is not a market that has overlooked something. It is
-a market that has decided.
+## WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE
 
-What it has decided is legible from the headlines the dossier kept: JPMorgan resumed
-coverage at neutral on GLP-1 compounding headwinds, the FTC and two states are pursuing the
-subscription and health-data practices, and there are securities class actions following the
-FTC filing. The price is asserting that the regulatory picture takes both the revenue and
-the margin.
+Hims & Hers shares closed at $27.44, about 56% below their highest price of the past year. Over the
+past month, and over the year before that, they fell further than those of any of 21 similar
+companies.
 
-## WHERE I DIFFER
+The news shows why. JPMorgan analysts advised neither buying nor selling, citing the risk to the
+weight-loss copies. The Federal Trade Commission and two states are going after the company's
+subscription and health-data practices. Shareholders have also sued.
 
-I don't. This is the contrarian slot and the honest answer is that the bear case looks right.
+The price only makes sense if this trouble cuts both Hims & Hers' sales and how much it keeps from
+each $1 of sales after the cost of its products.
 
-What I can add is narrower and worth writing down anyway, because it is the thing a screen
-would get wrong. **The Growth sleeve reads &minus;0.19, which looks unremarkable, and it is
-hiding a 91-point split.** `revenue_growth_yoy` is +28.0% at the **91st percentile** and
-`revenue_acceleration` is +14.1% at the **95th**. Meanwhile `gross_margin_trend` is
-&minus;10.0pp, `eps_growth_yoy` &minus;179.7% and `fcf_growth_yoy` &minus;48.4%, all at the
-**0th percentile**.
+## WHERE I DISAGREE
 
-A factor screen sorting on revenue growth would surface this name as a fast grower trading
-on 2.78x `ev_revenue`. It is not. Revenue is accelerating into a regulatory cutoff, and
-accelerating revenue with collapsing gross margin is the signature of a business buying its
-last quarters of growth.
+I think the trouble facing Hims & Hers is real, and I expect its shares to fall further. I have no
+checkable reason, specific to this company, why they have not already fallen that far. So I gave
+myself no credit for disagreeing in my confidence score.
 
-That is not a variant perception and I have scored it 0. It is a warning about a column.
+I can add one narrower point. Sales grew 28% over the past year, faster than at most similar
+companies, and growth is speeding up. Yet three other figures got worse than at any similar company.
+Out of each $1 of sales, Hims & Hers kept 10 cents less after the cost of its products than a year
+earlier. Its spare cash fell by about half, and its profit per share turned into a loss.
 
-## WHAT CLOSES THE GAP
+Faster sales with less kept from each sale looks to me like a company giving up profit to grow while
+it still can. I think that growth comes from the copies, which I expect new limits to cut off. So I
+would not trust the sales growth figure on its own.
 
-Nothing needs to close. The question is whether the revenue line breaks as well as the
-margin, and that is answerable at the next release rather than argued now. The observable is
-the segment split: what share of the $2.6B `ttm_revenue` is compounded GLP-1. **That number
-is not in this dataset and the 8-K EX-99.1 is the first place it could appear.** Filing
-collection began 2026-09-12 and runs forward, so the next quarter is the first time this is
-checkable at all.
+## WHAT WOULD SETTLE IT
 
-## VALUATION
+The open question is whether sales fall as well as the amount kept from each sale. The figure that
+would show it is how much of the $2.6 billion of sales over the past 12 months came from the copies.
+I don't have it, and the next quarterly results are the first place it could appear.
 
-No P/E: `ttm_eps_diluted` is &minus;$0.63, so the panel withholds it, correctly. `roe_ttm` is
-&minus;32.0% and `price_book` 20.28 sits at the 5th percentile of the peer group, which is to
-say expensive, on a book that losses are shrinking.
+## WHAT THE SHARES COULD BE WORTH
 
-On `ev_revenue` 2.78x against $2.6B of revenue:
+Hims & Hers made a loss of $0.63 per share over the past year, so I compare the price with sales.
+Buying the whole company, counting its debt minus its cash, would cost about 2.8 times its sales.
 
-- **Bear $16.** 1.6x revenue, roughly where the group's weakest names trade, if the GLP-1
-  revenue rolls off and growth goes negative.
-- **Base $22.** 2.2x revenue. Revenue flattens rather than falls, margins stay impaired.
-- **Bull $38.** 3.9x. The non-GLP-1 subscription base proves durable and margin recovers.
+- Bad case, $16, at 1.6 times sales, roughly where the weakest similar companies are: sales from the
+  copies disappear and total sales shrink.
+- Middle case, $22, at 2.2 times sales: sales flatten rather than fall, and the share kept from each
+  sale stays low.
+- Good case, $38, at 3.9 times sales: the rest of the subscription business holds up, and the share
+  kept from each sale recovers.
 
-The range is wide because the input that would narrow it, the segment mix, is missing. I am
-logging **$22** as the graded number. Direction is avoid rather than short: `volatility_1y`
-is 93.2% and `beta_1y` 2.80, and a name that has already fallen 77% from its high can rally
-40% on a single regulatory headline without the thesis being wrong.
+The range is wide because I don't know how sales split between the copies and the rest. I will be
+scored on my middle case, $22, about 20% below the latest close, over about 4 months.
 
-## WHAT PROVES ME WRONG
+I would stay away rather than bet against the stock, because the shares swing widely. At their lowest
+this past year, they were 77% below an earlier high. One piece of news about regulators could lift
+them 40% without my view being wrong.
 
-Gross margin improving year over year in either of the next two quarterly releases, or
-revenue growth holding above 20% two quarters after the compounding restrictions bind.
+## WHAT WOULD PROVE ME WRONG
 
-Either would mean the margin damage was transitional rather than structural, or that the
-business underneath the GLP-1 revenue is larger than I am assuming. Checkable from the 8-K
-EX-99.1 and the 10-Q income statement. **Not yet checkable.**
+Two results would prove me wrong. One is Hims & Hers keeping more of each $1 of sales than a year
+earlier, in either of its next two quarterly reports. The other is sales still growing more than 20%
+compared with a year earlier, two quarters after new limits on the copies take effect, a date I don't
+know yet. Either would mean the damage was temporary, or that the rest of the business is bigger than
+I assume. Neither can be checked yet.
 
-The strongest case against me: `accruals_ratio` is &minus;14.7% at the 86th percentile, so
-what earnings there are, are cash-backed rather than accrual-inflated, and `net_debt_ebitda`
-of 3.09 at the 32nd percentile is not a balance sheet in distress. This is a company with a
-revenue problem ahead of it, not a solvency problem. That is why the direction is avoid and
-the conviction is 3 rather than 5.
+The strongest argument against me is that Hims & Hers is in no financial danger, because its debt is
+manageable. My view survives, because the problem I see is in sales. The argument is why I would stay away rather than bet against
+the stock, and why my confidence is 3 out of 5.
 
 ## WHAT I DON'T KNOW
 
-- **The segment split.** What fraction of revenue is compounded GLP-1. This is the entire
-  question and it is not in the dataset.
-- **No consensus estimates**, so I cannot tell whether +28% revenue growth is a beat or a
-  miss, which is most of what moves a name like this.
-- **No filing text.** No management commentary on the transition, no guidance.
-- `shares_outstanding` reads 0 against a `market_cap` of $6.6B, so I cannot reconcile
-  per-share figures against the capitalisation.
-- No insider data: Form 4 is fetched only for roughly the 600 largest by market cap.
-- The legal exposure is known only from headlines, which the dossier filtered for relevance
-  but did not verify. I have not read the FTC complaint.
+- How much of Hims & Hers' sales come from the copies. My view turns on this figure.
+- When limits on the copies will take effect.
+- No analyst forecasts are available, so I cannot tell whether results beat or missed what analysts
+  expected.
+- I have nothing from management on the change in the business, and no company forecast.
+- The number of shares is missing from my records, so I cannot check per-share figures against the
+  $6.6 billion value of all the shares.
+- I have no record of executives or directors buying or selling shares.
+- I know about the legal problems only from unchecked news headlines, and I have not read the Federal
+  Trade Commission's complaint.
+
+## WHERE THE NUMBERS COME FROM
+
+Each row shows a number from the note and where it came from.
+
+| In the note | What it means | Source | Exact value |
+|---|---|---|---|
+| $27.44 | latest closing share price | close 2026-09-10 | 27.44 |
+| about 56% | how far the shares are below their highest price of the past year | `high52w_proximity` | -55.5% |
+| 21 | similar health care services companies, not counting Hims & Hers | calc: comparison group of 22 - 1 | 21 |
+| fell further than those of any of 21 | share price change over the past month, and over the year up to a month ago; last in the group on both | `return_1m`, `return_12_2` | -12.2%, last; -38.6%, last |
+| 28% | sales growth over the past year | `revenue_growth_yoy` | +28.0% |
+| faster than at most similar companies | rank on sales growth | `revenue_growth_yoy` | above 91% of the group |
+| growth is speeding up | latest sales growth rate minus the one before | `revenue_acceleration` | +14.1 points, above 95% of the group |
+| 10 cents | change in what is left of each $1 of sales after the cost of its products, against a year earlier | `gross_margin_trend` | -10.0 points, last in the group |
+| about half | change in spare cash over the past year | `fcf_growth_yoy` | -48.4%, last in the group |
+| turned into a loss | change in profit per share over the past year; below -100% means it went from profit to loss | `eps_growth_yoy` | -179.7%, last in the group |
+| $2.6 billion | sales over the past 12 months | `ttm_revenue` | $2.6B |
+| $0.63 | loss per share over the past year | `ttm_eps_diluted` | -0.63 |
+| about 2.8 times | cost of the whole company, counting debt minus cash, divided by a year of sales | `ev_revenue` | 2.78 |
+| $16 | bad-case price | calc: close $27.44 x 1.6 / `ev_revenue` 2.78 | 15.79 |
+| 1.6 times | bad-case cost of the whole company divided by sales | my choice | 1.6 |
+| $22 | middle-case price, and the target I am scored on | calc: close $27.44 x 2.2 / `ev_revenue` 2.78; target my choice | 21.72; target 22.00 |
+| 2.2 times | middle-case cost of the whole company divided by sales | my choice | 2.2 |
+| $38 | good-case price | calc: close $27.44 x 3.9 / `ev_revenue` 2.78 | 38.49 |
+| 3.9 times | good-case cost of the whole company divided by sales | my choice | 3.9 |
+| about 20% | how far the $22 target is below the latest close | calc: $22 / close $27.44 - 1 | -19.8% |
+| 77% | biggest fall from an earlier high to a low over the past year | `max_drawdown_1y` | -76.9% |
+| 40% | a possible jump in the shares on one piece of news | my choice | 40% |
+| 20%; 20 percent | sales growth, two quarters after limits take effect, that would prove me wrong | my choice | 20% |
+| debt is manageable | debt after using cash, divided by a year of earnings | `net_debt_ebitda` | 3.09 |
+| 3 out of 5 | my confidence score, the sum of four parts | calc: evidence 1 + clear test 1 + disagreement 0 + counter-argument 1 | 3 |
+| $6.6 billion | value of all the shares, at the older stored price | `market_cap` | $6.6B |
+| number of shares is missing | share count in my records, where 0 means missing | `shares_outstanding` | 0 |
+| 1.6 percent | how far the latest close was below the older stored share price | calc: close $27.44 / stored `price` 27.90 - 1 | -1.6% |
+| advised neither buying nor selling; Federal Trade Commission and two states; shareholders have sued | news headlines, not checked | headline: Seeking Alpha, McDermott Will & Schulte, PR Newswire | "resumed at JP Morgan at neutral on GLP-1 compounding headwinds"; "FTC, two states take aim at Hims & Hers' subscription and health-data practices"; "Faces Securities Class Action After FTC Lawsuit Reveal" |

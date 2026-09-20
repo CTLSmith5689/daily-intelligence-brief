@@ -8,111 +8,134 @@ entry_price: 135.11
 entry_source: close_series 2026-09-10
 slot: screen
 direction: long
-conviction: 3
+conviction: 2
 evidence_base: 1
 falsifier_specific: 1
-variant_perception: 1
+variant_perception: 0
 disconfirmation: 0
 horizon_days: 252
 target_price: 152.00
 review_by: 2027-01-12
-key_claim: A commodity producer with almost no debt and a 9 percent free cash flow yield is less exposed to where the cycle goes than the multiple implies, and cyclicals are priced by people who do not look at the balance sheet.
-falsifier: Net debt to EBITDA rises above 1.5x in either of the next two quarters, or free cash flow yield falls below 5 percent while the share count fails to decline.
+key_claim: CF Industries makes nitrogen fertiliser, and its shares sit near a one-year high. At about 10 times last year's profit per share, the price only makes sense if those profits do not last. I would own it for a rise to $152 in about 8 months, because I think CF's almost-zero debt and spare cash leave its shares less room to fall.
+falsifier: The view is wrong if, in either of CF's next two quarterly reports, CF would need more than 1.5 years of earnings to pay off its debt after using its cash. It is also wrong if, in those reports, CF's spare cash falls below $5 a year for every $100 of stock and its number of shares does not fall.
+conditions:
+  - CF would need no more than 1.5 years of earnings to pay off its debt after using its cash. [check: net_debt_ebitda <= 1.5]
+  - CF's spare cash stays at $5 or more a year for every $100 of stock, or its number of shares falls.
+add_if: I would be more confident if CF's next quarterly reports show its number of shares falling.
+if_wrong_price: 47.00
+next_check: 2026-11-04
 data_caveats:
-  - no consensus estimates exist anywhere in this pipeline, so nothing here is calibrated against what the market expects
-  - the peer group has only 5 members, so field-level percentiles are unavailable and the sleeve z-scores rest on a cohort too small to be stable
-  - no nitrogen or natural gas price series exists in this dataset, and gas is the single largest input cost
-  - no filing text collected for CF; there is no management commentary and no segment split
-  - insider data not collected for this name
-  - the panel price was 2.2 percent stale; the close series is used instead
+  - No analyst forecasts are available, so I cannot tell whether CF's results beat or missed what analysts expected.
+  - CF is compared with a group of only five similar companies, which is too few for those comparisons to be reliable.
+  - I have no figures on nitrogen fertiliser or natural gas prices, and gas is CF's largest cost.
+  - I have no text from CF's reports, so I have nothing from management and no split of sales between its businesses.
+  - I have no record of CF's executives or directors buying or selling its shares.
+  - The stored share price was 2.2 percent out of date, so I use the latest closing price instead.
 ---
 
-## WHAT IS PRICED IN
+CF Industries makes nitrogen fertiliser for farming, and natural gas is its largest cost. CF earns the
+gap between what its fertiliser sells for and what the gas costs.
 
-At $135.11 CF trades on `pe` 10.26, a recomputed `ev_ebitda` of 6.10 and an `fcf_yield` of
-**9.1%**, while sitting at `high52w_proximity` &minus;0.8%, effectively on its 52-week high after
-`return_52w` of +63.7%.
+## WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE
 
-That combination is the whole question. A stock does not usually reach its high on ten times
-earnings unless the market believes those earnings are temporary. The price is not saying CF is
-cheap. It is saying **these are peak-cycle earnings and the multiple should be low against them.**
+CF's shares closed at $135.11, within a few percent of their highest price of the past year. That is
+only about 10 times CF's profit per share over the past year.
 
-Nitrogen fertiliser is a spread business between ammonia prices and natural gas. The panel shows
-the spread widening hard: `revenue_growth_yoy` +20.0%, `eps_growth_yoy` +76.4%,
-`revenue_acceleration` +28.9% and `gross_margin_trend` **+13.4pp**. Those are cycle numbers, not
-company numbers, in exactly the way MPC's are.
+Over the past year, CF's sales grew 20% and its profit per share rose 76%. Those figures point to the
+gap between fertiliser and gas prices widening sharply.
 
-## WHERE I DIFFER
+At about 10 times last year's profit per share, the price only makes sense if those profits do not
+last.
 
-The market is pricing where the cycle goes. I think the balance sheet means that matters less here
-than the multiple implies.
+## WHERE I DISAGREE
 
-`net_debt_ebitda` is **0.29x** and `roe_ttm` is 46.7%. A commodity producer carrying almost no debt
-at a 9.1% free cash flow yield does not need the cycle to cooperate in order to survive it, and it
-converts a downcycle into share count rather than distress. `earnings_consistency` of 71.4% is high
-for a cyclical, which says the spread has not been as violent as the category's reputation.
+I think CF's low debt means a fall in profit would hurt its shares less than their low price would
+lead you to expect.
 
-**Why the error persists:** cyclicals are screened out by quality investors on principle, and the
-people who do trade them are calling the commodity, not reading the balance sheet. Nobody whose
-process would reward a 0.29x leverage ratio is looking at this name. That is a structural reason for
-the gap to stay open rather than a claim that the market has simply not noticed.
+CF would need less than a third of a year's earnings to pay off its debt after using its cash. It also
+makes about $9 of spare cash a year for every $100 of stock. So CF could get through a slump without
+trouble paying its debts, and still have cash to buy back its own shares.
 
-`beta_1y` is **&minus;0.96**, so this has been moving against the market. Whatever is driving it is
-not the same thing driving the index.
+I have no evidence for why the price has not already risen to reflect CF's low debt. So I cannot
+rule out that buyers have already weighed the debt and still expect profits to fall. That is part of
+why my confidence score is low.
 
-## WHAT CLOSES THE GAP
+## WHAT WOULD SETTLE IT
 
-Capital returned. At a 9.1% FCF yield against a $20.9B market cap, free cash flow is roughly $1.9B a
-year. Retiring even half of that shrinks `shares_outstanding` from 151,338,130 by around 4.5%
-annually, and does so faster when the price is low. The observable is the share count on the next
-two 10-Q cover pages. **That is a number this pipeline already records**, so the claim is checkable
-without a new data source.
+CF makes roughly $1.9 billion of spare cash a year. If it spent even half of that buying back shares,
+its number of shares would fall by about 4.5% a year, and faster when the share price is low.
 
-Horizon is 252 days rather than 126, because a capital-allocation thesis needs more than two
-quarters to show up.
+CF's next two quarterly reports will show whether its number of shares is falling. I give the view
+about 8 months, because I think a falling number of shares takes longer than two quarters to lift the
+share price.
 
-## VALUATION
+## WHAT THE SHARES COULD BE WORTH
 
-On `ttm_eps_diluted` of $13.46:
+The middle and good cases use CF's profit per share over the past year, $13.46.
 
-- **Bear $94.** 7x. The spread reverts, earnings halve toward mid-cycle, and the multiple does not
-  expand to compensate.
-- **Base $152.** 11.3x. Earnings ease from here and the multiple holds, with buybacks doing the
-  rest.
-- **Bull $215.** 16x. The spread holds long enough that the market re-rates this as a cash
-  generator rather than a commodity.
+- Bad case, about $47, or 7 times $6.73. The gap between fertiliser and gas prices narrows, and
+  profit per share halves to $6.73.
+- Middle case, $152, or 11.3 times $13.46. I picked this price by judgement: profit eases, and buying
+  back shares does the rest.
+- Good case, $215, or 16 times $13.46. The gap between fertiliser and gas prices stays wide long
+  enough that CF keeps making this much spare cash for years.
 
-The range is enormous because the input that would narrow it, a nitrogen or natural gas price
-series, is not in this dataset. I am logging **$152** as the graded number. Note it implies only
-+12.5% from spot over a year, which is deliberately modest: I am not forecasting the cycle, I am
-arguing the downside is smaller than the multiple suggests.
+The range is wide because I have no figures on fertiliser or gas prices. I will be scored on $152,
+about 13% above the latest close, within about 8 months. The target is modest on purpose, because I
+make no forecast of fertiliser prices.
 
-## WHAT PROVES ME WRONG
+## WHAT WOULD PROVE ME WRONG
 
-`net_debt_ebitda` rising above **1.5x** in either of the next two quarters, or `fcf_yield` falling
-below **5%** while `shares_outstanding` fails to decline.
+Either of two results in CF's next two quarterly reports would prove me wrong. One is CF needing more
+than 1.5 years of earnings to pay off its debt after using its cash. That would mean low debt is not
+protecting CF the way I claim. The other is spare cash below $5 a year for every $100 of stock, with no
+fall in the number of shares. That would mean the cash is not reaching shareholders, which removes the
+only way this view pays off. Neither can be checked yet.
 
-The first would mean the balance sheet is not the shock absorber I am claiming. The second would
-mean the cash flow is going somewhere other than shareholders, which removes the only mechanism by
-which the thesis pays. Checkable from the 10-Q cover page and cash flow statement. **Not yet
-checkable.**
-
-I have scored `disconfirmation` **0** and should be explicit about why. The strongest case against
-me is that peak-cycle earnings on a ten multiple at the 52-week high is the single most reliable
-value trap in commodities, and my answer, that the balance sheet absorbs it, only establishes that
-the company survives. Surviving is not the same as being a good investment at this price. **I have
-not answered that objection, only acknowledged it**, and the conviction reflects that rather than
-papering over it.
+The strongest argument against me is that CF looks cheap only because its profits are at a high
+point, and the shares could fall as those profits drop. My answer, that low debt lets CF get through
+that fall, shows only that CF survives. Surviving does not make the shares a good buy at this price,
+and I have no answer to that, so my confidence score is lower. I would still own the shares, because
+the target is modest and rests on CF buying back shares.
 
 ## WHAT I DON'T KNOW
 
-- **No nitrogen or natural gas price series.** Gas is the largest input cost and the spread is the
-  entire business. The central variable is absent.
-- **The peer group has five members**, so every field-level percentile in the dossier is blank and
-  the sleeve z-scores rest on a cohort too small to be stable. The Value and Quality readings should
-  be treated as directional, not precise.
-- No consensus estimates, so I cannot tell whether +20% revenue growth is a beat or a miss.
-- No filing text, so no management commentary on capital allocation intent. **The buyback is the
-  mechanism of this thesis and I am inferring it from free cash flow rather than from anything
-  management has said.**
-- No insider data at this market cap tier.
+- I have no figures on nitrogen fertiliser or natural gas prices, and the gap between them drives the
+  whole business.
+- CF is compared with only five similar companies, so any reading of CF as cheap or well run next to
+  them is rough.
+- No analyst forecasts are available, so I cannot tell whether results beat or missed what analysts
+  expected. That includes the 20% sales growth.
+- I have nothing from CF's managers about what they plan to do with the cash. This view depends on CF
+  buying back shares, and I infer that only from its spare cash.
+- I have no record of CF's executives or directors buying or selling its shares.
+- I don't know why the price has not already risen to reflect CF's low debt.
+
+## WHERE THE NUMBERS COME FROM
+
+| In the note | What it means | Source | Exact value |
+|---|---|---|---|
+| $135.11 | latest closing share price | close 2026-09-10 | 135.11 |
+| within a few percent of their highest price | how far the latest close is below the highest close of the past year | calc: close $135.11 / highest close of the past year $139.27 - 1 | -3.0% |
+| about 10 times | share price divided by profit per share over the past year | calc: close $135.11 / `ttm_eps_diluted` $13.46 | 10.04 |
+| 20% | sales growth over the past year | `revenue_growth_yoy` | +20.0% |
+| 76% | growth in profit per share over the past year | `eps_growth_yoy` | +76.4% |
+| less than a third of a year's earnings | debt after using cash, in years of earnings | `net_debt_ebitda` | 0.29 |
+| about $9 | spare cash a year for every $100 of stock | `fcf_yield` | +9.1% |
+| $1.9 billion | spare cash a year | calc: `fcf_yield` 9.1% x `market_cap` $20.9B | $1.90B |
+| half | share of spare cash spent buying back shares | my choice | 0.5 |
+| 4.5% | yearly fall in the number of shares if half the spare cash buys back shares | calc: 0.5 x $1.90B / `market_cap` $20.9B | 4.55% |
+| $13.46 | profit per share over the past year | `ttm_eps_diluted` | 13.46 |
+| 7 times | bad-case price divided by last year's profit per share | my choice | 7 |
+| about $47 | bad-case price, with profit per share halved | calc: $6.73 x 7 | 47.11 |
+| $6.73 | half of last year's profit per share, the bad case | calc: `ttm_eps_diluted` $13.46 x 0.5 | 6.73 |
+| halves | bad-case profit compared with last year's | my choice | 0.5 |
+| $152 | middle-case price and my target | my choice | 152.00 |
+| 11.3 times | middle-case price divided by last year's profit per share | calc: $152 / `ttm_eps_diluted` $13.46 | 11.29 |
+| 16 times | good-case price divided by profit per share | my choice | 16 |
+| $215 | good-case price | calc: `ttm_eps_diluted` $13.46 x 16 | 215.36 |
+| about 13% | how far the target is above the latest close | calc: $152 / close $135.11 - 1 | +12.5% |
+| more than 1.5 years | debt after using cash, in years of earnings, that would prove me wrong | my choice | 1.5 |
+| $5 | spare cash a year for every $100 of stock that, with no fall in the number of shares, would prove me wrong | my choice | 5% |
+| only five similar companies | size of the group CF is compared with | calc: group size printed with CF's figures, n=5 | 5 |
+| 2.2 percent | how far the latest close was below the stored share price | calc: close $135.11 / stored `price` $138.11 - 1 | -2.17% |
