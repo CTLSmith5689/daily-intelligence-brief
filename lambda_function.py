@@ -1879,6 +1879,11 @@ SITE_CSS = """
   --border:rgba(255,255,255,0.06); --border-bright:rgba(255,255,255,0.12);
   --apt-red:#FF1F3D; --apt-red-deep:#CC0028; --apt-rose:#FF7A85; --apt-amber:#FFB347;
   --text-1:#FFFFFF; --text-2:#E2E5EC; --text-3:#9CA3AF; --text-4:#6B7280; --text-5:#3F4654;
+  /* Up and down as TEXT colours. Dark keeps the site green and red (9.0:1 and
+     4.7:1 on --bg-2). Light needs deeper values: #34D27A is unreadable on cream,
+     and #256B3E / #A82C0C measure 4.8:1 and 5.2:1 on --bg-2, 5.3:1 and 5.7:1 on
+     --bg-base. --text-4 and --text-5 are for decoration only, never for words. */
+  --up-text:#34D27A; --down-text:#FF1F3D;
   /* Theme-tunable surface tints (used by topnav, cards, table). Dark default.
      These were written as --surface-1:var(--surface-1), which is a self-reference.
      CSS treats that as invalid at computed-value time, so in dark mode all three
@@ -1898,6 +1903,7 @@ SITE_CSS = """
   /* Brand reds stay; soften apt-rose for light backgrounds */
   --apt-red:#FF4A1C; --apt-red-deep:#C4350F; --apt-rose:#E2725B; --apt-amber:#C77A18;
   --text-1:#17140F; --text-2:#3A342B; --text-3:#6B6152; --text-4:#A2988A; --text-5:#B8AF9E;
+  --up-text:#256B3E; --down-text:#A82C0C;
   --surface-1:rgba(245,241,232,0.80); --surface-2:rgba(245,241,232,0.94); --surface-3:rgba(237,232,220,0.96);
   --grid-line:rgba(20,18,14,0.08); --chart-axis:rgba(20,18,14,0.55); --chart-value:rgba(20,18,14,0.85);
   --plexus-opacity:0.18;
@@ -2610,12 +2616,23 @@ body.page-stocks .lib-h { display:none; }
 .wn-w i { font-style:normal; color:var(--text-3); }
 @media (max-width:700px) { .wn-row { grid-template-columns:1fr; gap:3px; } }
 .stk-th { display:inline-block; width:7px; height:7px; border-radius:50%; margin-left:7px; vertical-align:middle; flex:0 0 auto; }
-.stk-th-long { background:var(--apt-red); }
-.stk-th-avoid { background:transparent; border:1.5px solid var(--apt-red); }
-.stk-th-short { background:transparent; border:1.5px solid var(--apt-red); }
-.stk-th-watch { background:var(--text-4); }
-.stk-th-no-view { background:transparent; border:1.5px solid var(--text-4); }
-.stk-th-none { background:var(--text-5); }
+/* Current rating on a covered row: direction word, five pips, Thesis button. */
+.stk-rt { display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; align-self:center; }
+.stk-rt-d { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-1); }
+.stk-rt-quiet .stk-rt-d { color:var(--text-3); }
+.stk-rt-p { display:inline-flex; gap:2px; }
+.stk-rt-p i { display:block; width:5px; height:5px; border-radius:50%; border:1px solid var(--text-4); }
+.stk-rt-p i.on { background:var(--apt-red); border-color:var(--apt-red); }
+.stk-rt-btn { flex:0 0 auto; align-self:center; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.2px;
+  text-transform:uppercase; color:var(--text-1); background:transparent; border:1px solid var(--border-bright);
+  padding:2px 7px; cursor:pointer; }
+.stk-rt-btn:hover { border-color:var(--text-1); }
+.stk-rt-btn:focus-visible { outline:2px solid var(--apt-red); outline-offset:2px; }
+.stk-sr { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+@media (max-width:780px) {
+  .stk-id { flex-wrap:wrap; row-gap:4px; }
+  .stk-rt-d { display:none; }
+}
 .stk-row { border-bottom:1px solid var(--border); background:transparent; align-items:center; }
 .stk-row:hover { background:var(--surface-1); }
 .stk-rank { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-4); }
@@ -2785,38 +2802,6 @@ body.page-stocks .lib-h { display:none; }
 .ch-canvas { width:100%; height:160px; display:block; }
 
 /* News card per ticker (lazy-loaded on row expand) */
-/* Thesis card. Sits above the score breakdown because the view is the point and
-   the factors are the evidence for it. The falsifier is the only element wearing
-   the brand accent: on this page the thing that could kill the thesis outranks
-   the conclusion. */
-.th-card { margin-top:14px; padding:16px 18px; border:1px solid var(--border); border-top:2px solid var(--text-1); }
-.th-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-.th-h-date { color:var(--text-4); letter-spacing:1px; margin-left:auto; text-transform:none; }
-.th-loading { font-size:9px; color:var(--text-5); text-transform:none; letter-spacing:1px; font-style:italic; }
-.th-empty { font-size:12px; color:var(--text-3); line-height:1.6; }
-.th-top { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
-.th-dir { font-family:'Instrument Serif',Georgia,serif; font-size:26px; line-height:1; color:var(--text-1); }
-.th-dir-noview { color:var(--text-3); }
-.th-pips { display:inline-flex; gap:3px; align-items:center; }
-.th-pip { width:10px; height:10px; border-radius:50%; border:1.5px solid var(--text-4); }
-.th-pip-on { background:var(--apt-red); border-color:var(--apt-red); }
-.th-nums { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); display:flex; gap:0; flex-wrap:wrap; }
-.th-nums span { padding-right:12px; margin-right:12px; border-right:1px solid var(--border); }
-.th-nums span:last-child { border-right:0; margin-right:0; padding-right:0; }
-.th-nums b { color:var(--text-1); font-weight:400; }
-.th-claim { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.42; color:var(--text-1); margin:0 0 14px; max-width:62ch; }
-.th-fals { border:1px solid var(--apt-red); border-left:3px solid var(--apt-red); padding:11px 14px; margin-bottom:14px; max-width:62ch; }
-.th-fals-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--apt-red-deep); display:block; margin-bottom:6px; }
-.th-fals-t { font-size:13px; line-height:1.55; color:var(--text-2); }
-.th-drift { border:1px solid var(--apt-amber); border-left:3px solid var(--apt-amber); padding:10px 13px; margin-bottom:14px; font-size:12px; line-height:1.55; color:var(--text-2); max-width:62ch; }
-.th-drift b { color:var(--text-1); }
-.th-cav { font-size:12px; color:var(--text-3); line-height:1.6; margin-bottom:14px; max-width:62ch; }
-.th-cav-k { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-4); display:block; margin-bottom:5px; }
-.th-hist { border-top:1px solid var(--border); padding-top:11px; font-family:'Space Mono',monospace; font-size:10.5px; color:var(--text-3); }
-.th-hist-row { display:flex; gap:10px; padding:3px 0; flex-wrap:wrap; }
-.th-hist-row span:first-child { color:var(--text-4); min-width:82px; }
-.th-note-link { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); margin-top:10px; }
-.th-note-link a { color:var(--text-3); }
 .co-card { margin-top:14px; padding:16px 18px; border:1px solid var(--border); }
 .co-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-3); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:10px; }
 .co-h-src { color:var(--text-4); letter-spacing:1px; margin-left:auto; text-transform:none; }
@@ -3063,7 +3048,9 @@ body.page-research .scr-page-body { max-width:1060px; margin:0 auto; padding:0 2
 .rs-select { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-2); background:var(--bg-base); border:1px solid var(--border-bright); padding:5px 9px; }
 
 .rs-list { display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-top:0; }
-.rs-card { background:var(--bg-base); padding:22px 24px; }
+/* One library entry per covered name. The id is the ticker, so research.html#CF
+   lands on the entry even with scripting off; the margin clears the sticky bar. */
+.rs-card { background:var(--bg-base); padding:22px 24px; scroll-margin-top:72px; }
 .rs-top { display:flex; align-items:baseline; gap:11px; flex-wrap:wrap; margin-bottom:12px; }
 .rs-tk { font-family:'Space Mono',monospace; font-size:15px; letter-spacing:1px; color:var(--text-1); text-decoration:none; border-bottom:1px solid var(--border-bright); }
 .rs-tk:hover { border-bottom-color:var(--apt-red); }
@@ -3072,12 +3059,13 @@ body.page-research .scr-page-body { max-width:1060px; margin:0 auto; padding:0 2
 .rs-status-due { color:var(--apt-amber); border-color:var(--apt-amber); }
 .rs-status-open { color:var(--text-2); border-color:var(--text-4); }
 .rs-status-graded { color:var(--apt-red); border-color:var(--apt-red); }
-.rs-dirline { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+.rs-dirline { display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-bottom:12px; }
 .rs-dir { font-family:'Instrument Serif',Georgia,serif; font-size:28px; line-height:1; color:var(--text-1); }
 .rs-dir-no-view, .rs-dir-watch { color:var(--text-4); }
 .rs-pips { display:inline-flex; gap:3px; align-items:center; }
 .rs-pip { width:9px; height:9px; border-radius:50%; border:1.5px solid var(--text-5); }
 .rs-pip-on { background:var(--apt-red); border-color:var(--apt-red); }
+.rs-conv { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); }
 .rs-comps { display:flex; gap:6px; flex-wrap:wrap; }
 .rs-comp { font-family:'Space Mono',monospace; font-size:9.5px; letter-spacing:0.5px; color:var(--text-5); border:1px solid var(--border); padding:3px 7px; }
 .rs-comp b { color:var(--text-4); font-weight:400; }
@@ -3087,33 +3075,42 @@ body.page-research .scr-page-body { max-width:1060px; margin:0 auto; padding:0 2
 .rs-claim { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.45; color:var(--text-1); max-width:62ch; margin-bottom:14px; }
 .rs-claim-none { color:var(--text-4); font-size:16px; }
 .rs-drift { border:1px solid var(--apt-amber); border-left:3px solid var(--apt-amber); padding:9px 12px; margin-bottom:13px; font-size:12px; line-height:1.55; color:var(--text-2); max-width:62ch; }
-.rs-nums { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); display:flex; flex-wrap:wrap; margin-bottom:14px; font-variant-numeric:tabular-nums; }
+.rs-nums { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); display:flex; flex-wrap:wrap; row-gap:4px; margin-bottom:16px; font-variant-numeric:tabular-nums; }
 .rs-nums span { padding-right:12px; margin-right:12px; border-right:1px solid var(--border); }
 .rs-nums span:last-child { border-right:0; margin-right:0; padding-right:0; }
 .rs-nums b { color:var(--text-1); font-weight:400; }
 .rs-move { font-style:normal; }
-.rs-up { color:var(--apt-red); }
-.rs-down { color:var(--text-4); }
-.rs-fals { border:1px solid var(--apt-red); border-left:3px solid var(--apt-red); padding:11px 14px; margin-bottom:14px; max-width:62ch; }
-.rs-fals .rs-k { color:var(--apt-red-deep); margin-bottom:5px; }
-.rs-fals div { font-size:12.5px; line-height:1.55; color:var(--text-2); }
-.rs-screen { margin-bottom:14px; }
-.rs-sleeves { display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
-.rs-sl { display:inline-flex; align-items:center; gap:7px; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-4); }
-.rs-sl i { font-style:normal; color:var(--text-4); width:10px; }
-.rs-sl b { color:var(--text-2); font-weight:400; font-variant-numeric:tabular-nums; min-width:38px; text-align:right; }
-.rs-sl-track { width:88px; height:7px; background:var(--surface-3); border:1px solid var(--border); position:relative; }
-.rs-sl-zero { position:absolute; top:-2px; bottom:-2px; left:50%; width:1px; background:var(--text-5); }
-.rs-sl-fill { position:absolute; top:0; bottom:0; background:var(--apt-red); }
-.rs-sl-neg { background:var(--text-4); }
-.rs-links { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding-top:12px; border-top:1px solid var(--border); font-family:'Space Mono',monospace; font-size:10px; }
-.rs-links a { color:var(--text-2); }
-.rs-meta { color:var(--text-5); margin-left:auto; letter-spacing:0.5px; }
+/* The evolution timeline: one row per note, newest first, on a rule with a dot
+   per note. The current note's dot is filled. */
+.rs-evo-wrap { padding-top:14px; border-top:1px solid var(--border); }
+.rs-evo-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.rs-evo-head .rs-k { margin-bottom:0; color:var(--text-3); }
+.rs-evo-n { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-3); letter-spacing:0.5px; }
+.rs-evo { list-style:none; margin:0 0 0 5px; padding:0 0 0 14px; border-left:1px solid var(--border-bright); display:flex; flex-direction:column; gap:2px; }
+.rs-evo-row { position:relative; display:grid; grid-template-columns:88px minmax(0,1fr) auto; gap:4px 16px; align-items:baseline; padding:9px 10px; }
+.rs-evo-row::before { content:''; position:absolute; left:-20px; top:13px; width:9px; height:9px; border-radius:50%; background:var(--bg-base); border:1.5px solid var(--text-4); }
+.rs-evo-current { background:var(--surface-1); }
+.rs-evo-current::before { background:var(--apt-red); border-color:var(--apt-red); }
+.rs-evo-d { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); font-variant-numeric:tabular-nums; }
+.rs-evo-h { display:flex; align-items:center; gap:4px 10px; flex-wrap:wrap; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-3); }
+.rs-evo-h b { font-weight:400; color:var(--text-1); }
+.rs-evo-h em { font-style:normal; color:var(--apt-red); }
+.rs-evo-h .rs-pips { gap:2px; }
+.rs-evo-h .rs-pip { width:6px; height:6px; border-width:1px; }
+.rs-evo-t { margin-top:5px; font-size:13px; line-height:1.55; color:var(--text-2); max-width:62ch; }
+.rs-evo-act { display:flex; align-items:baseline; gap:12px; font-family:'Space Mono',monospace; font-size:10px; white-space:nowrap; }
+.rs-open { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-1); background:transparent; border:1px solid var(--border-bright); padding:4px 11px; cursor:pointer; }
+.rs-open:hover { border-color:var(--apt-red); }
+.rs-open[hidden] { display:none; }
+.rs-open:focus-visible, .rs-src:focus-visible, .rs-tk:focus-visible { outline:2px solid var(--apt-red); outline-offset:2px; }
+.rs-src { color:var(--text-3); letter-spacing:0.5px; }
+.rs-src:hover { color:var(--text-1); }
 @media (max-width:700px) {
   .rs-h1 { font-size:38px; }
   .rs-card { padding:18px 15px; }
   .rs-status { margin-left:0; }
-  .rs-meta { margin-left:0; width:100%; }
+  .rs-evo-row { grid-template-columns:1fr; padding:9px 8px; }
+  .rs-evo-act { margin-top:4px; }
 }
 """
 
@@ -3199,18 +3196,24 @@ STORIES_JS_TEMPLATE = """
 """
 
 
-RESEARCH_JS_TEMPLATE = """
+RESEARCH_JS_TEMPLATE = r"""
 (function() {
-  // The cards are already in the DOM, server-rendered. This only hides and
-  // reorders them, so the page is readable with scripting off.
+  // The library entries and their timelines are already in the DOM, rendered by
+  // the generator, so the page reads fully with scripting off. This only hides
+  // and reorders entries, reveals the Open buttons and wires them to the popup.
   var list = document.getElementById('rs-list');
   if (!list) return;
   var cards = Array.prototype.slice.call(list.querySelectorAll('.rs-card'));
   var state = { dir: 'all', status: 'all', sort: 'status' };
+  var ORDER = { due: 0, open: 1, watching: 2, graded: 3 };
+  // Today's screen row for each covered name, trimmed to what the popup reads:
+  // name, sector, price, earnings date, the four sleeve scores, and any field a
+  // note's conditions check. Serialised with < > & escaped, so it cannot close
+  // this script element.
+  var STOCKS = __RS_STOCKS_JSON__;
 
-  function count(sel, val) {
-    return cards.filter(function(c) { return c.dataset[sel] === val; }).length;
-  }
+  var byTicker = Object.create(null);
+  cards.forEach(function(c) { byTicker[c.getAttribute('data-ticker')] = c; });
 
   var SORTS = {
     status:   function(a, b) { return (ORDER[a.dataset.status] - ORDER[b.dataset.status])
@@ -3220,7 +3223,6 @@ RESEARCH_JS_TEMPLATE = """
     convict:  function(a, b) { return (+b.dataset.conv) - (+a.dataset.conv); },
     move:     function(a, b) { return (+b.dataset.move) - (+a.dataset.move); }
   };
-  var ORDER = { due: 0, open: 1, watching: 2, graded: 3 };
 
   function apply() {
     var shown = 0;
@@ -3238,14 +3240,18 @@ RESEARCH_JS_TEMPLATE = """
     if (empty) empty.hidden = shown > 0;
   }
 
+  function setFilter(group, val) {
+    state[group] = val;
+    document.querySelectorAll('[data-filter="' + group + '"]').forEach(function(b) {
+      var on = b.getAttribute('data-value') === val;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
   document.querySelectorAll('[data-filter]').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      var group = btn.dataset.filter, val = btn.dataset.value;
-      state[group] = val;
-      document.querySelectorAll('[data-filter="' + group + '"]').forEach(function(b) {
-        b.classList.toggle('on', b === btn);
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-      });
+      setFilter(btn.getAttribute('data-filter'), btn.getAttribute('data-value'));
       apply();
     });
   });
@@ -3254,6 +3260,737 @@ RESEARCH_JS_TEMPLATE = """
     state.sort = sortEl.value; apply();
   });
   apply();
+
+  var popup = window.AptThesis;
+  if (!popup) return;
+  popup.setStockLookup(function(t) {
+    return Object.prototype.hasOwnProperty.call(STOCKS, t) ? STOCKS[t] : null;
+  });
+
+  // Each timeline row's Open button opens that note. Without scripting they stay
+  // hidden and the row's source link is the way in.
+  list.querySelectorAll('.rs-open').forEach(function(b) { b.hidden = false; });
+  list.addEventListener('click', function(e) {
+    var b = e.target.closest ? e.target.closest('.rs-open') : null;
+    if (!b || !list.contains(b)) return;
+    popup.open(b.getAttribute('data-open'), {
+      noteIndex: parseInt(b.getAttribute('data-note'), 10) || 0, opener: b });
+  });
+
+  // research.html#CF opens CF's current note. Only a ticker that has an entry
+  // here counts; anything else in the hash is ignored.
+  function hashTicker() {
+    var h = String(location.hash || '').replace(/^#/, '');
+    if (!h) return '';
+    try { h = decodeURIComponent(h); } catch (err) { return ''; }
+    h = h.trim().toUpperCase();
+    return byTicker[h] ? h : '';
+  }
+  function openFromHash() {
+    var t = hashTicker();
+    if (!t) return;
+    popup.open(t, { noteIndex: 0, opener: byTicker[t].querySelector('.rs-open[data-note="0"]') });
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+
+  // The popup's Research link, followed from this page, closes the popup and
+  // comes back to the entry instead of reloading the page.
+  document.addEventListener('apt-thesis-here', function(e) {
+    var t = e.detail && e.detail.ticker;
+    var card = t ? byTicker[t] : null;
+    if (!card || (e.detail && e.detail.page !== 'rs-list')) return;
+    if (card.hidden) { setFilter('dir', 'all'); setFilter('status', 'all'); apply(); }
+    if (window.history && history.replaceState) {
+      history.replaceState(null, '', '#' + encodeURIComponent(t));
+    }
+    card.scrollIntoView({ block: 'start' });
+  });
+})();
+"""
+
+
+# The thesis popup: one note rendered as a modal, shared by the stocks list and
+# the research library. Both constants are plain strings with no placeholders,
+# appended after any template substitution, so nothing in them is ever replaced.
+THESIS_POPUP_CSS = r"""
+/* Up and down use --up-text and --down-text from SITE_CSS, which are checked at
+   4.5:1 or better on --bg-base and --bg-2 in both themes. Words use --text-3 or
+   stronger; --text-4 and --text-5 are kept for decoration (pip rings, dividers). */
+.tp-linkset { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+html.tp-open, html.tp-open body { overflow:hidden; }
+.tp-dlg { margin:auto; padding:0; border:1px solid var(--border-bright); background:var(--bg-base);
+  color:var(--text-1); width:calc(100vw - 32px); max-width:1060px; max-height:90vh;
+  box-shadow:0 18px 60px rgba(0,0,0,0.35); overflow:hidden; font-family:'Space Grotesk',sans-serif; }
+.tp-dlg[open] { display:flex; flex-direction:column; }
+.tp-dlg::backdrop { background:rgba(5,5,9,0.62); }
+:root[data-theme="light"] .tp-dlg::backdrop { background:rgba(23,20,15,0.42); }
+@media (prefers-reduced-motion:no-preference) {
+  .tp-dlg[open] { animation:tpIn .18s ease-out; }
+}
+@keyframes tpIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.tp-bar { flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px 20px;
+  flex-wrap:wrap; padding:10px 22px 10px 36px; border-bottom:1px solid var(--border-bright); background:var(--bg-2); }
+.tp-eb, .tp-crumb, .tp-links a, .tp-close { font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1.8px; text-transform:uppercase; color:var(--text-3); }
+.tp-crumb i { font-style:normal; color:var(--text-5); padding:0 6px; }
+.tp-crumb a { color:var(--text-3); }
+.tp-crumb a:hover, .tp-links a:hover { color:var(--text-1); }
+.tp-links { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+.tp-close { background:transparent; border:1px solid var(--border-bright); color:var(--text-1);
+  padding:5px 10px; cursor:pointer; }
+.tp-close:hover { border-color:var(--text-1); }
+.tp-dlg a:focus-visible, .tp-dlg button:focus-visible, .tp-tk:focus-visible { outline:2px solid var(--apt-red); outline-offset:2px; }
+.tp-scroll { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+.tp-grid { display:grid; grid-template-columns:minmax(0,1fr) 340px; align-items:stretch; }
+.tp-main { padding:28px 36px 34px; border-right:1px solid var(--border-bright); min-width:0; }
+.tp-rail { padding:28px 26px 34px; background:var(--bg-2); min-width:0; }
+.tp-head { display:flex; align-items:baseline; gap:8px 12px; flex-wrap:wrap; }
+.tp-tk { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:30px; line-height:1;
+  color:var(--text-1); border-bottom:1.5px solid var(--text-1); padding-bottom:2px; margin:0; }
+.tp-tk:focus { outline:none; }
+.tp-co { font-size:13px; color:var(--text-3); }
+.tp-dirwrap { display:inline-flex; align-items:baseline; gap:9px; margin-left:6px; }
+.tp-dir { font-family:'Instrument Serif',Georgia,serif; font-size:30px; line-height:1; color:var(--text-1); }
+.tp-dir-quiet { color:var(--text-3); }
+.tp-pips { display:inline-flex; gap:4px; align-items:center; }
+.tp-pips i { display:block; width:8px; height:8px; border-radius:50%; border:1px solid var(--text-4); }
+.tp-pips i.on { background:var(--apt-red); border-color:var(--apt-red); }
+.tp-conv { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); }
+.tp-old { margin:14px 0 0; padding:9px 12px; border:1px solid var(--apt-amber); font-size:12px; line-height:1.5; color:var(--text-2); }
+.tp-old button { background:none; border:0; padding:0; color:var(--text-1); text-decoration:underline; cursor:pointer; font:inherit; }
+.tp-since { margin:14px 0 24px; padding:9px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  font-family:'Space Mono',monospace; font-size:11px; line-height:1.6; color:var(--text-2); }
+.tp-since .tp-eb { margin-right:10px; }
+.tp-sec { margin:0 0 26px; }
+.tp-sec > .tp-eb { display:block; padding-bottom:7px; margin-bottom:12px; border-bottom:1px solid var(--border); }
+.tp-eb-warn { color:var(--down-text) !important; }
+.tp-p { font-size:14px; line-height:1.65; color:var(--text-2); margin:0; max-width:68ch; }
+.tp-src { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-3); white-space:nowrap; }
+.tp-gap { font-size:13px; line-height:1.6; color:var(--text-3); font-style:italic; margin:0; }
+.tp-claim { font-family:'Instrument Serif',Georgia,serif; font-size:24px; line-height:1.38; color:var(--text-1); margin:0; max-width:40em; }
+.tp-evo { display:grid; gap:2px; }
+.tp-evo-i { display:grid; grid-template-columns:88px minmax(0,1fr); gap:4px 14px; align-items:baseline; width:100%;
+  text-align:left; background:transparent; border:0; border-left:2px solid transparent; padding:8px 10px; cursor:pointer;
+  color:var(--text-2); font:inherit; }
+.tp-evo-i:hover { background:var(--surface-1); }
+.tp-evo-i[aria-current="true"] { border-left-color:var(--apt-red); background:var(--surface-1); cursor:default; }
+.tp-evo-d { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); }
+.tp-evo-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-1); }
+.tp-evo-h em { font-style:normal; color:var(--text-3); margin-left:8px; }
+.tp-evo-t { grid-column:2; font-size:13px; line-height:1.55; color:var(--text-2); }
+.tp-cond { display:grid; grid-template-columns:minmax(0,1fr) 84px; gap:4px 14px; align-items:baseline; padding:10px 0;
+  border-bottom:1px solid var(--border); }
+.tp-cond:first-of-type { padding-top:0; }
+.tp-cond-t { font-size:14px; line-height:1.6; color:var(--text-1); }
+.tp-cond-c { grid-column:1; font-family:'Space Mono',monospace; font-size:10px; color:var(--text-3); }
+.tp-st { grid-column:2; grid-row:1; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px;
+  text-transform:uppercase; text-align:right; }
+.tp-st-ok { color:var(--up-text); }
+.tp-st-no { color:var(--down-text); }
+.tp-trig { font-size:14px; line-height:1.6; color:var(--text-2); margin:0 0 10px; }
+.tp-trig b { font-family:'Space Mono',monospace; font-size:10px; font-weight:400; letter-spacing:1.2px;
+  text-transform:uppercase; margin-right:10px; }
+.tp-trig-w b { color:var(--down-text); }
+.tp-trig-s b { color:var(--up-text); }
+.tp-md { font-size:14px; line-height:1.68; color:var(--text-2); max-width:70ch; }
+.tp-md p, .tp-md ul, .tp-md .md-table { margin:0 0 12px; }
+.tp-md ul { padding-left:18px; }
+.tp-md li { margin-bottom:5px; }
+.tp-md strong { color:var(--text-1); font-weight:700; }
+.tp-md code { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); background:var(--surface-1);
+  padding:0 4px; border:1px solid var(--border); }
+.tp-md a { color:var(--text-1); text-decoration:underline; text-decoration-color:var(--apt-red); }
+.tp-md .md-table { display:block; overflow-x:auto; border-collapse:collapse; font-family:'Space Mono',monospace; font-size:11px; }
+.tp-md .md-table th, .tp-md .md-table td { padding:5px 10px 5px 0; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
+.tp-md .md-table th { color:var(--text-3); font-weight:400; }
+.tp-note-h { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--text-3); margin:18px 0 8px; }
+.tp-note-h:first-of-type { margin-top:0; }
+.tp-cav { margin:0; padding-left:18px; font-size:13px; line-height:1.6; color:var(--text-3); }
+.tp-cav li { margin-bottom:5px; }
+.tp-rsec { margin:0 0 22px; padding-top:13px; border-top:1px solid var(--border-bright); }
+.tp-rsec:first-child { padding-top:0; border-top:0; }
+.tp-rsec > .tp-eb { display:block; margin-bottom:11px; }
+.tp-kv { display:grid; grid-template-columns:1fr auto; gap:6px 10px; font-family:'Space Mono',monospace; font-size:12px; color:var(--text-3); }
+.tp-kv b { color:var(--text-1); font-weight:400; text-align:right; }
+.tp-kv-split { margin-top:9px; padding-top:9px; border-top:1px solid var(--border); }
+.tp-up { color:var(--up-text) !important; }
+.tp-dn { color:var(--down-text) !important; }
+.tp-cap { font-family:'Space Mono',monospace; font-size:10px; line-height:1.55; color:var(--text-3); margin:9px 0 0; }
+.tp-z { display:grid; grid-template-columns:74px minmax(0,1fr) 46px; gap:8px; align-items:center;
+  font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); margin-bottom:9px; }
+.tp-z-t { position:relative; display:block; height:6px; background:var(--border-bright); }
+.tp-z-t::after { content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--text-3); }
+.tp-z-t em { position:absolute; top:0; bottom:0; display:block; }
+.tp-z-t em.up { background:var(--up-text); }
+.tp-z-t em.dn { background:var(--down-text); }
+.tp-z b { font-weight:400; text-align:right; color:var(--text-3); }
+.tp-sp { margin-bottom:12px; }
+.tp-sp-h { display:flex; justify-content:space-between; gap:8px; font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); }
+.tp-sp-h b { color:var(--text-1); font-weight:400; }
+.tp-sp-h i { font-style:normal; color:var(--text-3); margin-left:6px; }
+.tp-sp svg { display:block; width:100%; height:34px; margin-top:3px; overflow:visible; }
+.tp-docs { display:grid; gap:6px; }
+.tp-doc { display:grid; grid-template-columns:minmax(0,1fr) auto 78px; gap:8px; font-family:'Space Mono',monospace;
+  font-size:11px; color:var(--text-2); }
+.tp-doc span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tp-doc a { color:var(--text-2); }
+.tp-doc a:hover { color:var(--text-1); text-decoration:underline; }
+.tp-doc span:nth-child(2) { color:var(--text-3); }
+.tp-doc span:last-child { color:var(--text-3); text-align:right; }
+.tp-loading { padding:40px 36px; font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); }
+@media (max-width:820px) {
+  .tp-dlg { width:calc(100vw - 16px); max-height:94vh; }
+  .tp-grid { grid-template-columns:1fr; }
+  .tp-main { border-right:0; border-bottom:1px solid var(--border-bright); padding:22px 20px 26px; }
+  .tp-rail { padding:22px 20px 28px; }
+  .tp-bar { padding:10px 14px 10px 20px; }
+  .tp-tk, .tp-dir { font-size:26px; }
+  .tp-claim { font-size:21px; }
+  .tp-evo-i { grid-template-columns:1fr; }
+  .tp-evo-t { grid-column:1; }
+}
+"""
+
+
+THESIS_POPUP_JS = r"""
+(function() {
+  'use strict';
+  if (window.AptThesis) return;
+  // Security contract with write_thesis_views: section.html is the only field
+  // rendered by the generator and trusted as markup. Every other value, note
+  // text, company text and filing metadata alike, goes through esc().
+  var REPO = 'https://github.com/CTLSmith5689/daily-intelligence-brief/blob/main/';
+  var FILINGS = 'data/filings/';
+  // Escapes rather than literal characters: the Python source stays ASCII.
+  var MINUS = '\u2212', DOT = ' \u00b7 ', NE = ' \u2197', ELL = '\u2026', TIMES = '\u00d7';
+  // Mirrors _news_filename in lambda_function.py and newsFilename on the stocks
+  // page: every per-ticker JSON is written under that name, so CON is _CON.json.
+  var RESERVED = ['CON','PRN','AUX','NUL','COM1','COM2','COM3','COM4','COM5','COM6','COM7',
+    'COM8','COM9','LPT1','LPT2','LPT3','LPT4','LPT5','LPT6','LPT7','LPT8','LPT9'];
+  function fileFor(t) {
+    var u = String(t || '').toUpperCase();
+    return (RESERVED.indexOf(u) >= 0 ? '_' + u : u) + '.json';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function num(v) {
+    if (v == null || v === '' || typeof v === 'boolean') return null;
+    var n = Number(v);
+    return isFinite(n) ? n : null;
+  }
+  function px(v) { var n = num(v); return n == null ? '' : n.toFixed(2); }
+  function signed(n, d) {
+    if (n == null) return '';
+    return (n > 0 ? '+' : n < 0 ? MINUS : '') + Math.abs(n).toFixed(d == null ? 1 : d);
+  }
+  function pct(a, b) { return (a == null || b == null || b === 0) ? null : (a / b - 1) * 100; }
+  function upDn(n) { return (n == null || n === 0) ? '' : (n > 0 ? 'tp-up' : 'tp-dn'); }
+  function dirWord(d) {
+    var s = String(d || '').trim();
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'No direction';
+  }
+  function pipsHtml(c) {
+    var n = num(c), h = '<span class="tp-pips" aria-hidden="true">';
+    for (var i = 1; i <= 5; i++) h += '<i' + (n != null && i <= n ? ' class="on"' : '') + '></i>';
+    return h + '</span>';
+  }
+  // Repo-relative paths only, each segment encoded, so a stored path can never
+  // become a javascript: or off-site link. The prefix is a fixed https URL.
+  function repoHref(path) {
+    var segs = String(path || '').split('/').filter(function(p) { return p && p !== '.' && p !== '..'; });
+    return segs.length ? REPO + segs.map(encodeURIComponent).join('/') : '';
+  }
+  function extLink(href, text, cls) {
+    if (!/^https:\/\//.test(href)) return esc(text);
+    return '<a' + (cls ? ' class="' + cls + '"' : '') + ' href="' + esc(href)
+      + '" target="_blank" rel="noopener noreferrer">' + esc(text) + '</a>';
+  }
+  function gap(text) { return '<p class="tp-gap">' + esc(text) + '</p>'; }
+  // Today as YYYY-MM-DD in the reader's own time zone, to compare with ISO dates.
+  function todayIso() {
+    var d = new Date(), p = function(x) { return (x < 10 ? '0' : '') + x; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  function eyebrow(text, extra) {
+    return '<span class="tp-eb' + (extra ? ' ' + extra : '') + '">' + esc(text) + '</span>';
+  }
+
+  var cache = {};
+  function getJson(kind, t) {
+    var key = kind + '/' + t;
+    if (!cache[key]) {
+      cache[key] = fetch('./' + kind + '/' + encodeURIComponent(fileFor(t)), { cache: 'no-store' })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .catch(function() { return null; })
+        .then(function(v) { if (!v) delete cache[key]; return v || null; });
+    }
+    return cache[key];
+  }
+
+  var stockLookup = null;
+  function stockFor(t, opts) {
+    if (opts && opts.stock) return opts.stock;
+    if (stockLookup) { try { return stockLookup(t) || null; } catch (e) { return null; } }
+    return null;
+  }
+
+  // A thesis view published before notes[] existed still opens: the top-level
+  // scalars are the newest note's, so they make a one-note history.
+  function legacyNote(v) {
+    return { date: v.written_on, kind: v.kind, direction: v.direction, conviction: v.conviction,
+             entry_price: v.entry_price, target_price: v.target_price, if_wrong_price: null,
+             horizon_days: v.horizon_days, review_by: v.review_by, next_check: null,
+             key_claim: v.key_claim, falsifier: v.falsifier, add_if: null, conditions: [],
+             data_caveats: v.data_caveats, since_last_note: null, sections: [], path: v.note_path };
+  }
+
+  function shortText(s, max) {
+    s = String(s || '').replace(/\s+/g, ' ').trim();
+    if (s.length <= max) return s;
+    var cut = s.slice(0, max), stop = cut.lastIndexOf('. ');
+    if (stop >= 120) return cut.slice(0, stop + 1);
+    var sp = cut.lastIndexOf(' ');
+    return (sp > 60 ? cut.slice(0, sp) : cut) + ELL;
+  }
+
+  var OPS = {
+    '>=': [function(a, b) { return a >= b; }, 'at least'],
+    '<=': [function(a, b) { return a <= b; }, 'at most'],
+    '>':  [function(a, b) { return a > b; }, 'above'],
+    '<':  [function(a, b) { return a < b; }, 'below']
+  };
+  function plainNum(n) {
+    var a = Math.abs(n);
+    var s = a >= 1000 ? a.toFixed(0) : a >= 10 ? a.toFixed(2) : a.toFixed(3);
+    s = s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
+    return (n < 0 ? MINUS : '') + s;
+  }
+
+  // "What has to be true" rows. A status is printed only when the note gives a
+  // machine check and today's stock row carries that field as a number;
+  // anything short of that prints the condition with no verdict at all.
+  function conditionHtml(c, s) {
+    var text = typeof c === 'string' ? c : (c && c.text) || '';
+    var ck = c && typeof c === 'object' ? c.check : null;
+    var st = '', line = '';
+    if (ck && ck.field && OPS[ck.op] && s) {
+      var have = s[ck.field], want = num(ck.value);
+      if (typeof have === 'number' && isFinite(have) && want != null) {
+        var ok = OPS[ck.op][0](have, want);
+        st = '<span class="tp-st ' + (ok ? 'tp-st-ok' : 'tp-st-no') + '">' + (ok ? 'holding' : 'not met') + '</span>';
+        line = '<span class="tp-cond-c">on the screen today: ' + esc(String(ck.field).replace(/_/g, ' '))
+          + ' is ' + esc(plainNum(have)) + ', needs ' + esc(OPS[ck.op][1]) + ' ' + esc(plainNum(want)) + '</span>';
+      }
+    }
+    return '<div class="tp-cond"><span class="tp-cond-t">' + esc(text) + '</span>' + st + line + '</div>';
+  }
+
+  // The body heading that holds the note's argument against its own view. The
+  // note contract (theses/PROMPTS.md) fixes the body headings, and the one that
+  // argues against the call is WHAT WOULD PROVE ME WRONG (older notes used WHAT
+  // PROVES ME WRONG). The other patterns cover wording a future note format may
+  // use. When the note wording changes, update this list and AGAINST_NAMES
+  // together, and nothing else.
+  var AGAINST = [/^\s*what (would )?proves? (me|us|this|the (view|call|thesis)) wrong\b/i, /case against/i,
+    /against (this|the|my) (view|note|thesis|call)/i, /bear case/i, /counter.?case/i, /steel.?man/i];
+  var AGAINST_NAMES = 'What would prove me wrong or The case against';
+  function isAgainst(title) {
+    var t = String(title || '');
+    return AGAINST.some(function(re) { return re.test(t); });
+  }
+
+  function mainHtml(v, notes, i, n, s, co) {
+    var h = '';
+    var coLine = [s && s.name, s && s.sector].filter(Boolean).map(esc).join(DOT);
+    var conv = num(n.conviction);
+    var quiet = /^(no view|watch)$/i.test(String(n.direction || '').trim());
+    h += '<div class="tp-head"><h2 class="tp-tk" id="tp-title" tabindex="-1">' + esc(state.ticker) + '</h2>'
+      + (coLine ? '<span class="tp-co">' + coLine + '</span>' : '')
+      + '<span class="tp-dirwrap"><span class="tp-dir' + (quiet ? ' tp-dir-quiet' : '') + '">'
+      + esc(dirWord(n.direction)) + '</span>' + pipsHtml(conv)
+      + '<span class="tp-conv">' + (conv == null ? 'conviction not set' : 'conviction ' + conv + ' of 5')
+      + '</span></span></div>';
+    if (i > 0) {
+      h += '<div class="tp-old">This is an earlier note, written ' + esc(n.date || 'on an unknown date')
+        + '. The view may have changed since. <button type="button" data-tp-note="0">Read the current note</button></div>';
+    }
+    h += '<div class="tp-since">' + eyebrow('Since last note')
+      + (n.since_last_note ? esc(n.since_last_note) : 'not recorded for this note') + '</div>';
+
+    // What the company does, in its own words, with where the words came from.
+    var biz = co && co.business;
+    h += '<section class="tp-sec">' + eyebrow('What the company does');
+    if (biz && biz.excerpt) {
+      var srcText = 'ITEM 1, 10-K ' + (biz.filed || '');
+      var srcHref = biz.text_path ? repoHref(FILINGS + biz.text_path) : '';
+      h += '<p class="tp-p">' + esc(shortText(biz.excerpt, 440)) + ' '
+        + (srcHref ? extLink(srcHref, srcText, 'tp-src') : '<span class="tp-src">' + esc(srcText) + '</span>') + '</p>';
+    } else {
+      h += gap('No description of the business has been collected from its annual report yet.');
+    }
+    h += '</section>';
+
+    h += '<section class="tp-sec">' + eyebrow('Thesis')
+      + (n.key_claim ? '<p class="tp-claim">' + esc(n.key_claim) + '</p>' : gap('This note does not state its key claim.'))
+      + '</section>';
+
+    h += '<section class="tp-sec">' + eyebrow('Evolution') + '<div class="tp-evo">'
+      + notes.map(function(x, k) {
+          x = x || {};
+          var head = esc(dirWord(x.direction))
+            + (num(x.conviction) != null ? DOT + 'conviction ' + num(x.conviction) : '')
+            + (px(x.target_price) ? DOT + 'target ' + px(x.target_price) : '');
+          return '<button type="button" class="tp-evo-i" data-tp-note="' + k + '"'
+            + (k === i ? ' aria-current="true"' : '') + '>'
+            + '<span class="tp-evo-d">' + esc(x.date || '') + '</span>'
+            + '<span class="tp-evo-h">' + head + '<em>' + esc(x.kind || 'note')
+            + (k === 0 ? DOT + 'current' : '') + (k === i ? DOT + 'showing' : '') + '</em></span>'
+            + '<span class="tp-evo-t">' + esc(x.since_last_note || 'change not recorded') + '</span></button>';
+        }).join('')
+      + '</div><p class="tp-cap">One entry per note, newest first. Choose one to read that note.</p></section>';
+
+    var conds = Array.isArray(n.conditions) ? n.conditions : [];
+    h += '<section class="tp-sec">' + eyebrow('What has to be true')
+      + (conds.length ? conds.map(function(c) { return conditionHtml(c, s); }).join('')
+                      : gap('This note does not list conditions that have to hold.'))
+      + '</section>';
+
+    h += '<section class="tp-sec">' + eyebrow('Wrong if / stronger if')
+      + '<p class="tp-trig tp-trig-w"><b>Wrong if</b>'
+      + (n.falsifier ? esc(n.falsifier) : '<span class="tp-gap">The note does not say what would prove it wrong.</span>')
+      + '</p><p class="tp-trig tp-trig-s"><b>Stronger if</b>'
+      + (n.add_if ? esc(n.add_if) : '<span class="tp-gap">The note does not say what would make the view stronger.</span>')
+      + '</p></section>';
+
+    var secs = (Array.isArray(n.sections) ? n.sections : []).filter(function(x) { return x && typeof x.html === 'string'; });
+    var against = null;
+    secs.forEach(function(x) { if (!against && isAgainst(x.title)) against = x; });
+    h += '<section class="tp-sec">' + eyebrow('The case against')
+      + (against ? '<h3 class="tp-note-h">' + esc(against.title) + '</h3><div class="tp-md">' + against.html + '</div>'
+                 : gap('This note has no section headed ' + AGAINST_NAMES + ', so there is no argument against its view to show.'))
+      + '</section>';
+
+    var body = secs.filter(function(x) { return x !== against; });
+    h += '<section class="tp-sec">' + eyebrow('The full note')
+      + (body.length ? body.map(function(x) {
+            // The opening paragraph sits before the first heading and has no title.
+            return (x.title ? '<h3 class="tp-note-h">' + esc(x.title) + '</h3>' : '')
+              + '<div class="tp-md">' + x.html + '</div>';
+          }).join('')
+        : gap('The body of this note was not published.'))
+      + '</section>';
+
+    var cav = (Array.isArray(n.data_caveats) ? n.data_caveats : []).filter(Boolean);
+    h += '<section class="tp-sec">' + eyebrow('What the analyst could not know')
+      + (cav.length ? '<ul class="tp-cav">' + cav.map(function(c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>'
+                    : gap('The note does not list anything it could not know.'))
+      + '</section>';
+    return h;
+  }
+
+  function kv(label, valueHtml, cls) {
+    return '<span>' + esc(label) + '</span><b' + (cls ? ' class="' + cls + '"' : '') + '>' + valueHtml + '</b>';
+  }
+
+  function money(v) {
+    var a = Math.abs(v), sg = v < 0 ? MINUS : '';
+    if (a >= 1e12) return sg + (a / 1e12).toFixed(2) + 'T';
+    if (a >= 1e9) return sg + (a / 1e9).toFixed(1) + 'B';
+    if (a >= 1e6) return sg + (a / 1e6).toFixed(0) + 'M';
+    return sg + a.toFixed(0);
+  }
+
+  // One line per series on its own scale. Width stretches with the rail, so the
+  // stroke is non-scaling and no dot is drawn (it would stretch into an oval);
+  // the last value is printed as text above the line instead.
+  function spark(vals) {
+    var pts = vals.filter(function(x) { return x != null; });
+    var lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);
+    if (lo === hi) { lo -= 1; hi += 1; }
+    var W = 100, H = 34;
+    var x = function(k) { return vals.length < 2 ? 0 : (k / (vals.length - 1)) * W; };
+    var y = function(val) { return H - 3 - ((val - lo) / (hi - lo)) * (H - 6); };
+    var d = '', on = false;
+    vals.forEach(function(val, k) {
+      if (val == null) { on = false; return; }
+      d += (on ? ' L' : ' M') + x(k).toFixed(2) + ' ' + y(val).toFixed(2);
+      on = true;
+    });
+    var zero = (lo < 0 && hi > 0)
+      ? '<line x1="0" x2="' + W + '" y1="' + y(0).toFixed(2) + '" y2="' + y(0).toFixed(2)
+        + '" stroke="var(--border-bright)" stroke-width="1" vector-effect="non-scaling-stroke"/>' : '';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+      + zero + '<path d="' + d.trim() + '" fill="none" stroke="var(--apt-red)" stroke-width="1.6" '
+      + 'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
+  }
+
+  function railHtml(v, n, s, co) {
+    var h = '';
+    // The call. "Now" is the screen's price, else the last published close.
+    var entry = num(n.entry_price), target = num(n.target_price), wrong = num(n.if_wrong_price);
+    var nowP = (s && typeof s.price === 'number' && isFinite(s.price)) ? s.price : null, nowCap = '';
+    if (nowP == null && v.last_close && num(v.last_close.close) != null) {
+      nowP = num(v.last_close.close);
+      nowCap = 'Now is the close on ' + (v.last_close.date || 'the last recorded day') + '.';
+    }
+    var move = pct(nowP, entry);
+    var base = nowP != null ? nowP : entry;
+    var toT = pct(target, base), toW = pct(wrong, base);
+    if (nowP == null) nowCap = 'No current price is loaded, so the moves below are measured from entry.';
+    var horizon = num(n.horizon_days);
+    h += '<div class="tp-rsec">' + eyebrow('The call') + '<div class="tp-kv">'
+      + kv('entry', px(entry) || 'not set')
+      + kv('now', nowP == null ? 'no price'
+          : px(nowP) + (move == null ? '' : ' <span class="' + upDn(move) + '">' + signed(move) + '%</span>'))
+      + kv('target', px(target) || 'not set')
+      + kv('if wrong', px(wrong) || 'not set')
+      + kv('horizon', horizon == null ? 'not set' : horizon.toFixed(0) + ' days')
+      + kv('review by', n.review_by ? esc(n.review_by) : 'not set')
+      + '</div><div class="tp-kv tp-kv-split">'
+      + kv('to target', toT == null ? 'not set' : signed(toT) + '%', upDn(toT))
+      + kv('to if wrong', toW == null ? 'not set' : signed(toW) + '%', upDn(toW))
+      + '</div>' + (nowCap ? '<p class="tp-cap">' + esc(nowCap) + '</p>' : '') + '</div>';
+
+    // Next check, falling back to the earnings date the screen already knows.
+    // The screen keeps the last known earnings date, which is often one that has
+    // already passed, so it only stands in when it is today or later and not
+    // before the note was written.
+    var nc = n.next_check ? String(n.next_check) : '', ncCap = '';
+    if (!nc) {
+      var ed = (s && s.earnings_date) ? String(s.earnings_date).slice(0, 10) : '';
+      var noteDay = n.date ? String(n.date).slice(0, 10) : '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(ed) && ed >= todayIso() && (!noteDay || ed >= noteDay)) {
+        nc = ed;
+        ncCap = 'The note sets no check date, so this is the next earnings report. ';
+      } else {
+        ncCap = 'The note sets no check date and the next earnings date is not known. ';
+      }
+    }
+    h += '<div class="tp-rsec">' + eyebrow('Next check') + '<div class="tp-kv">'
+      + kv('next check', nc ? esc(nc) : 'not set') + kv('cadence', 'not set') + '</div>'
+      + '<p class="tp-cap">' + esc(ncCap + 'The note does not say how often it is checked.') + '</p></div>';
+
+    // Screen position: today's sleeve z-scores, the same scale as the list bars.
+    var Z = [['Growth', 'g'], ['Value', 'v'], ['Momentum', 'm'], ['Quality', 'q']];
+    var anyZ = s && Z.some(function(z) { return typeof s[z[1]] === 'number' && isFinite(s[z[1]]); });
+    h += '<div class="tp-rsec">' + eyebrow('Screen position');
+    if (anyZ) {
+      h += Z.map(function(z) {
+        var val = s[z[1]];
+        if (typeof val !== 'number' || !isFinite(val)) {
+          return '<div class="tp-z"><span>' + z[0] + '</span><span class="tp-z-t"></span><b>none</b></div>';
+        }
+        var mag = (Math.min(Math.abs(val) / 1.5, 1) * 50).toFixed(1);
+        var style = val >= 0 ? 'left:50%;width:' + mag + '%' : 'right:50%;width:' + mag + '%';
+        return '<div class="tp-z"><span>' + z[0] + '</span><span class="tp-z-t"><em class="' + (val >= 0 ? 'up' : 'dn')
+          + '" style="' + style + '"></em></span><b class="' + upDn(val) + '">' + signed(val, 2) + '</b></div>';
+      }).join('')
+        + '<p class="tp-cap">Standard deviations from the ' + esc((s && s.sector) || 'sector')
+        + ' average, zero at the tick. These are today&#39;s scores, not the scores when the note was written.</p>';
+    } else {
+      h += gap(s ? 'This company has no screen scores today.' : 'Screen scores are not loaded on this page.');
+    }
+    h += '</div>';
+
+    // Reported: up to twelve fiscal years as filed.
+    var ann = (co && co.reported && Array.isArray(co.reported.annual)) ? co.reported.annual.slice(-12) : [];
+    h += '<div class="tp-rsec">' + eyebrow('Reported' + DOT + (ann.length >= 2 ? ann.length : 12) + ' years');
+    if (ann.length >= 2) {
+      var SERIES = [['Revenue', 'revenue', money],
+                    ['Operating margin', 'operating_margin', function(x) { return signed(x * 100).replace(/^\+/, '') + '%'; }],
+                    ['Free cash flow', 'fcf', money]];
+      h += SERIES.map(function(sr) {
+        var vals = ann.map(function(r) { var x = r && r[sr[1]]; return (typeof x === 'number' && isFinite(x)) ? x : null; });
+        var last = -1;
+        vals.forEach(function(x, k) { if (x != null) last = k; });
+        var count = vals.filter(function(x) { return x != null; }).length;
+        if (count < 2) {
+          return '<div class="tp-sp"><div class="tp-sp-h"><span>' + sr[0] + '</span><b>not reported</b></div></div>';
+        }
+        var yr = String((ann[last] && ann[last].period_end) || '').slice(0, 4);
+        return '<div class="tp-sp"><div class="tp-sp-h"><span>' + sr[0] + '</span><b>' + esc(sr[2](vals[last]))
+          + '<i>' + esc(yr) + '</i></b></div>' + spark(vals) + '</div>';
+      }).join('')
+        + '<p class="tp-cap">Annual figures as filed with the SEC, ' + esc(String(ann[0].period_end || '').slice(0, 4))
+        + ' to ' + esc(String(ann[ann.length - 1].period_end || '').slice(0, 4))
+        + '. A break in a line is a year the filing did not tag.</p>';
+    } else {
+      h += gap('No reported annual figures have been collected for this company yet.');
+    }
+    h += '</div>';
+
+    // Documents read: what was on file by the note's date.
+    var files = (co && Array.isArray(co.filings)) ? co.filings : null;
+    h += '<div class="tp-rsec">' + eyebrow('Documents read');
+    if (!files || !files.length) {
+      h += gap('No filing documents have been collected for this company.');
+    } else {
+      var held = files.filter(function(f) { return f && f.filed && (!n.date || String(f.filed) <= String(n.date)); })
+        .sort(function(a, b) { return String(b.filed).localeCompare(String(a.filed)); });
+      if (!held.length) {
+        h += gap('No filing documents had been collected by ' + (n.date || 'this note') + '.');
+      } else {
+        h += '<div class="tp-docs">' + held.slice(0, 14).map(function(f) {
+          var kind = String(f.doc_kind || 'document').replace(/_/g, ' ');
+          var href = f.text_path ? repoHref(FILINGS + f.text_path) : '';
+          return '<div class="tp-doc"><span>' + (href ? extLink(href, kind) : esc(kind)) + '</span>'
+            + '<span>' + esc(f.form || '') + '</span><span>' + esc(f.filed) + '</span></div>';
+        }).join('') + '</div>'
+          + (held.length > 14 ? '<p class="tp-cap">and ' + (held.length - 14) + ' older documents.</p>' : '')
+          + '<p class="tp-cap">Filings on file by the note&#39;s date, which the analyst could read. A note need not use every one.</p>';
+      }
+    }
+    h += '</div>';
+    return h;
+  }
+
+  var dlg = null, state = null, opener = null, token = 0;
+
+  function ensure() {
+    if (dlg) return dlg;
+    dlg = document.createElement('dialog');
+    dlg.className = 'tp-dlg';
+    dlg.setAttribute('aria-labelledby', 'tp-title');
+    dlg.innerHTML = '<div class="tp-bar"><div class="tp-crumb" id="tp-crumb"></div>'
+      + '<div class="tp-links"><span class="tp-linkset" id="tp-linkset"></span>'
+      + '<button type="button" class="tp-close" data-tp-close aria-label="Close the thesis">Close ' + TIMES + '</button>'
+      + '</div></div><div class="tp-scroll" id="tp-scroll"></div>';
+    dlg.addEventListener('click', function(e) {
+      if (e.target === dlg) {
+        // Only the backdrop reports the dialog itself as the target, but check
+        // the point too so a click that lands on the border never closes it.
+        var r = dlg.getBoundingClientRect();
+        if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlg.close();
+        return;
+      }
+      if (e.target.closest('[data-tp-close]')) { dlg.close(); return; }
+      var here = e.target.closest('a[data-tp-here]');
+      if (here) {
+        // A modified click still opens the link in a new tab or window.
+        if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var page = here.getAttribute('data-tp-here');
+        if (!document.getElementById(page)) return;
+        e.preventDefault();
+        var t = state ? state.ticker : '';
+        dlg.close();
+        try {
+          document.dispatchEvent(new CustomEvent('apt-thesis-here', { detail: { ticker: t, page: page } }));
+        } catch (err) {}
+        return;
+      }
+      var pick = e.target.closest('[data-tp-note]');
+      if (pick && state && state.thesis) {
+        var i = parseInt(pick.getAttribute('data-tp-note'), 10);
+        if (i !== state.index) showNote(i);
+      }
+    });
+    // A modal dialog already closes on Escape. This also covers browsers with no
+    // showModal, where the fallback open attribute gives no Escape handling.
+    dlg.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && dlg.open) { e.preventDefault(); dlg.close(); }
+    });
+    dlg.addEventListener('close', function() {
+      document.documentElement.classList.remove('tp-open');
+      document.body.style.paddingRight = '';
+      token++;
+      var o = opener;
+      opener = null;
+      if (!(o && o.isConnected) && state && window.CSS && CSS.escape) {
+        o = document.querySelector('[data-thesis-open="' + CSS.escape(state.ticker) + '"]');
+      }
+      if (o && typeof o.focus === 'function') {
+        try { o.focus({ preventScroll: true }); } catch (err) { o.focus(); }
+      }
+    });
+    document.body.appendChild(dlg);
+    return dlg;
+  }
+
+  function focusTitle() {
+    var h = document.getElementById('tp-title');
+    if (h) { try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } }
+  }
+
+  // The library entry for this ticker. data-tp-here names an element that only
+  // exists on the target page: followed from that page, the link closes the
+  // popup and announces apt-thesis-here rather than reloading the same page.
+  function researchLink(t) {
+    return '<a href="research.html#' + esc(encodeURIComponent(t)) + '" data-tp-here="rs-list">Research</a>';
+  }
+
+  function renderMessage(t, msg) {
+    document.getElementById('tp-crumb').innerHTML = researchLink(t) + '<i>/</i>' + esc(t);
+    document.getElementById('tp-linkset').innerHTML = '';
+    document.getElementById('tp-scroll').innerHTML = '<div class="tp-loading">'
+      + '<h2 class="tp-tk" id="tp-title" tabindex="-1">' + esc(t) + '</h2>'
+      + '<p class="tp-gap" style="margin-top:16px">' + esc(msg) + '</p></div>';
+  }
+
+  function showNote(i) {
+    var v = state.thesis;
+    if (!v) {
+      renderMessage(state.ticker, 'No thesis has been published for ' + state.ticker
+        + '. Coverage is a few names a week, so most companies will never have one.');
+      focusTitle();
+      return;
+    }
+    var notes = Array.isArray(v.notes) && v.notes.length ? v.notes : [legacyNote(v)];
+    if (!(i >= 0 && i < notes.length)) i = 0;
+    state.index = i;
+    var n = notes[i] || {};
+    document.getElementById('tp-crumb').innerHTML = researchLink(state.ticker)
+      + '<i>/</i>' + esc(state.ticker) + '<i>/</i>' + esc(n.kind || 'note') + ' ' + esc(n.date || '');
+    document.getElementById('tp-linkset').innerHTML = '<a href="stocks.html" data-tp-here="stk-list">Screen' + NE + '</a>'
+      + extLink(repoHref('theses/ledger/events.csv'), 'Ledger' + NE)
+      + (n.path ? extLink(repoHref(n.path), 'Source .md' + NE) : '');
+    var scroll = document.getElementById('tp-scroll');
+    scroll.innerHTML = '<div class="tp-grid"><div class="tp-main">'
+      + mainHtml(v, notes, i, n, state.stock, state.company)
+      + '</div><aside class="tp-rail" aria-label="The call and the numbers">'
+      + railHtml(v, n, state.stock, state.company) + '</aside></div>';
+    scroll.scrollTop = 0;
+    focusTitle();
+  }
+
+  function open(ticker, opts) {
+    opts = opts || {};
+    var t = String(ticker || '').trim().toUpperCase();
+    if (!t) return;
+    var d = ensure();
+    if (!d.open) opener = opts.opener || document.activeElement;
+    var my = ++token;
+    state = { ticker: t, index: Math.max(0, parseInt(opts.noteIndex, 10) || 0),
+              noteDate: opts.noteDate || null, stock: stockFor(t, opts), thesis: null, company: null };
+    renderMessage(t, 'Loading the note for ' + t + ELL);
+    if (!d.open) {
+      var gutter = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.classList.add('tp-open');
+      if (gutter > 0) document.body.style.paddingRight = gutter + 'px';
+      if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+    }
+    focusTitle();
+    Promise.all([getJson('thesis', t), getJson('company', t)]).then(function(res) {
+      if (my !== token) return;
+      state.thesis = res[0];
+      state.company = res[1];
+      var idx = state.index;
+      if (state.noteDate && res[0] && Array.isArray(res[0].notes)) {
+        res[0].notes.forEach(function(x, k) { if (x && x.date === state.noteDate) idx = k; });
+      }
+      showNote(idx);
+    });
+  }
+
+  window.AptThesis = {
+    open: open,
+    close: function() { if (dlg && dlg.open) dlg.close(); },
+    setStockLookup: function(fn) { stockLookup = typeof fn === 'function' ? fn : null; },
+    filename: fileFor
+  };
 })();
 """
 
@@ -3435,15 +4172,35 @@ STOCKS_JS_TEMPLATE = """
     return true;
   }
 
-  // A direction is a word, so the dot is never the only carrier: it has a title
-  // and the detail card underneath spells the view out in full.
-  function thesisDot(ticker) {
+  // The current rating, readable without opening anything: the direction as a
+  // word and conviction as five pips. The button beside it opens the full note
+  // in the thesis popup, and the list click handler routes it before the row
+  // toggle so it never also expands the row.
+  function thesisRating(ticker) {
     const v = THESIS_INDEX[ticker];
     if (!v) return '';
-    const cls = 'stk-th-' + String(v.d || 'none').replace(/\s+/g, '-');
-    const conv = v.c == null ? '' : ', conviction ' + v.c + ' of 5';
-    return '<span class="stk-th ' + cls + '" title="' + escapeHtml(v.d || 'view')
-         + conv + ', written ' + escapeHtml(v.w || '') + '"></span>';
+    const d = String(v.d || '').trim();
+    const word = d ? d.charAt(0).toUpperCase() + d.slice(1) : 'View';
+    const conv = (v.c == null || isNaN(v.c)) ? null : Math.max(0, Math.min(5, Math.round(v.c)));
+    let pips = '';
+    for (let i = 1; i <= 5; i++) pips += '<i' + (conv != null && i <= conv ? ' class="on"' : '') + '></i>';
+    const label = word + (conv == null ? '' : ', conviction ' + conv + ' of 5')
+      + (v.w ? ', written ' + v.w : '');
+    const quiet = /^(no view|watch)$/i.test(d) ? ' stk-rt-quiet' : '';
+    return '<span class="stk-rt' + quiet + '" title="' + escapeHtml(label) + '">'
+      + '<span class="stk-rt-d" aria-hidden="true">' + escapeHtml(word) + '</span>'
+      + '<span class="stk-rt-p" aria-hidden="true">' + pips + '</span>'
+      + '<span class="stk-sr">' + escapeHtml(label) + '</span></span>'
+      + '<button type="button" class="stk-rt-btn" data-thesis-open="' + escapeHtml(ticker)
+      + '" aria-haspopup="dialog" aria-label="Open the thesis for ' + escapeHtml(ticker) + '">Thesis</button>';
+  }
+
+  function openThesis(ticker, opener) {
+    if (!window.AptThesis) return;
+    window.AptThesis.open(ticker, { stock: ALL.find(x => x.ticker === ticker) || null, opener: opener });
+  }
+  if (window.AptThesis) {
+    window.AptThesis.setStockLookup(t => ALL.find(x => x.ticker === t) || null);
   }
 
   function escapeHtml(s) {
@@ -3806,17 +4563,13 @@ STOCKS_JS_TEMPLATE = """
     const newsCard = '<div class="nws-card" id="nws-' + escapeHtml(s.ticker) + '">'
       + '<div class="nws-h">News <span class="nws-loading">loading…</span></div>'
       + '</div>';
-    // Thesis placeholder, populated lazily by fetchThesisFor. First in the detail:
-    // the view is the point and the factor cards are the evidence for it.
-    const thesisCard = '<div class="th-card" id="th-' + escapeHtml(s.ticker) + '">'
-      + '<div class="th-h">Thesis <span class="th-loading">loading…</span></div>'
-      + '</div>';
-    // Reported facts, populated lazily by fetchCompanyFor. Sits under the thesis
-    // and above the computed factors: filings are what the view is argued from.
+    // The thesis is no longer inline: the row's Thesis button opens it in the
+    // popup. Reported facts, populated lazily by fetchCompanyFor, lead the detail
+    // and sit above the computed factors: filings are what a view is argued from.
     const companyCard = '<div class="co-card" id="co-' + escapeHtml(s.ticker) + '">'
       + '<div class="co-h">Reported <span class="co-loading">loading…</span></div>'
       + '</div>';
-    return '<div class="stk-detail">' + thesisCard + companyCard + scoreCard + buildWarnings(s) + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
+    return '<div class="stk-detail">' + companyCard + scoreCard + buildWarnings(s) + '<div class="fp-grid">'+groups+'</div>' + metaPanel + chartCard + signalsRow + newsCard + benfordCard + '</div>';
   }
 
   // ── Signals row: Neglect (Lynch) on the left, Insider Movement (Seyhun) on the right ──
@@ -4296,8 +5049,6 @@ STOCKS_JS_TEMPLATE = """
     return WIN_RESERVED.has(t) ? '_' + t + '.json' : t + '.json';
   }
 
-  const thesisCache = {};
-
   // ── Reported: what the filings say, as opposed to what the panel computes ──
   // The panel holds five dates of derived ratios. This holds a decade of what
   // the company actually filed, plus the documents it was taken from. Loaded
@@ -4487,83 +5238,6 @@ STOCKS_JS_TEMPLATE = """
     el.innerHTML = html;
   }
 
-  function fetchThesisFor(ticker) {
-    if (thesisCache[ticker] !== undefined) { renderThesis(ticker, thesisCache[ticker]); return; }
-    fetch('./thesis/' + encodeURIComponent(newsFilename(ticker)), { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(v => { thesisCache[ticker] = v || null; renderThesis(ticker, thesisCache[ticker]); })
-      .catch(() => { thesisCache[ticker] = null; renderThesis(ticker, null); });
-  }
-
-  function renderThesis(ticker, v) {
-    const el = document.getElementById('th-' + ticker);
-    if (!el) return;
-    if (!v) {
-      el.innerHTML = '<div class="th-h">Thesis</div>'
-        + '<div class="th-empty">No thesis written for this ticker. Coverage is deliberately '
-        + 'partial: the screen surfaces a few names a week out of roughly a thousand eligible, '
-        + 'so most names will never have one.</div>';
-      return;
-    }
-    const conv = parseInt(v.conviction, 10);
-    let pips = '<span class="th-pips">';
-    for (let i = 1; i <= 5; i++) pips += '<span class="th-pip' + (i <= conv ? ' th-pip-on' : '') + '"></span>';
-    pips += '</span>';
-
-    const noView = (v.direction || '') === 'no view';
-    const nums = [];
-    if (v.target_price) nums.push('<span>target <b>' + escapeHtml(v.target_price) + '</b></span>');
-    if (v.entry_price) nums.push('<span>at <b>' + escapeHtml(v.entry_price) + '</b></span>');
-    if (v.horizon_days) nums.push('<span><b>' + escapeHtml(v.horizon_days) + 'd</b></span>');
-    if (v.review_by) nums.push('<span>review <b>' + escapeHtml(v.review_by) + '</b></span>');
-
-    let html = '<div class="th-h">Thesis <span class="th-h-date">' + escapeHtml(v.kind || '')
-      + ' &middot; ' + escapeHtml(v.written_on || '')
-      + (v.note_count > 1 ? ' &middot; ' + v.note_count + ' notes' : '') + '</span></div>';
-
-    html += '<div class="th-top"><span class="th-dir' + (noView ? ' th-dir-noview' : '') + '">'
-      + escapeHtml(v.direction || '?') + '</span>' + pips
-      + '<span class="th-nums">' + nums.join('') + '</span></div>';
-
-    if (v.claim_changed_ever) {
-      html += '<div class="th-drift"><b>This thesis has been revised with direction and '
-        + 'conviction unchanged.</b> That is the shape thesis drift takes: the position '
-        + 'survives while the reasoning is replaced. Read the history before trusting the '
-        + 'current view.</div>';
-    }
-    if (v.key_claim) html += '<p class="th-claim">' + escapeHtml(v.key_claim) + '</p>';
-    if (v.falsifier) {
-      html += '<div class="th-fals"><span class="th-fals-k">What would prove this wrong</span>'
-        + '<div class="th-fals-t">' + escapeHtml(v.falsifier) + '</div></div>';
-    }
-    const cav = Array.isArray(v.data_caveats) ? v.data_caveats : [];
-    if (cav.length) {
-      html += '<div class="th-cav"><span class="th-cav-k">What the analyst could not know ('
-        + cav.length + ')</span>' + cav.map(escapeHtml).join(' &middot; ') + '</div>';
-    }
-    const hist = Array.isArray(v.history) ? v.history.slice().reverse() : [];
-    if (hist.length > 1) {
-      html += '<div class="th-hist">';
-      hist.forEach(function (h) {
-        let c = escapeHtml(h.conviction || '');
-        if (h.prior_conviction && h.prior_conviction !== h.conviction) {
-          c = escapeHtml(h.prior_conviction) + '&rarr;' + c;
-        }
-        html += '<div class="th-hist-row"><span>' + escapeHtml(h.date || '') + '</span>'
-          + '<span>' + escapeHtml(h.kind || '') + '</span>'
-          + '<span>' + escapeHtml(h.direction || '') + ' ' + c + '</span>'
-          + '<span>' + escapeHtml(h.trigger || '') + '</span></div>';
-      });
-      html += '</div>';
-    }
-    if (v.note_path) {
-      html += '<div class="th-note-link"><a href="https://github.com/CTLSmith5689/'
-        + 'daily-intelligence-brief/blob/main/' + escapeHtml(v.note_path) + '" target="_blank" '
-        + 'rel="noopener">' + escapeHtml(v.note_path) + '</a></div>';
-    }
-    el.innerHTML = html;
-  }
-
   function fetchNewsFor(ticker) {
     if (newsCache[ticker]) {
       renderNews(ticker, newsCache[ticker]);
@@ -4692,7 +5366,7 @@ STOCKS_JS_TEMPLATE = """
       return '<div class="stk-row" data-ticker="'+escapeHtml(s.ticker)+'">'
         + '<div class="stk-rank">'+String(idx + 1).padStart(2, '0')+'</div>'
         + '<div class="stk-id"><span class="stk-tk">'+escapeHtml(s.ticker||'')+'</span>'
-          + thesisDot(s.ticker)
+          + thesisRating(s.ticker)
           + '<span class="stk-nm">'+escapeHtml(s.name||'')+'</span></div>'
         + '<div class="stk-sector" title="'+escapeHtml(s.sector||'')+'">'+escapeHtml(s.sector||'')+'</div>'
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
@@ -4907,6 +5581,14 @@ STOCKS_JS_TEMPLATE = """
       }
       return;
     }
+    // The Thesis button sits inside the row, so it is routed here, ahead of the
+    // row toggle, and returns before the row can expand or collapse.
+    const thBtn = e.target.closest('[data-thesis-open]');
+    if (thBtn) {
+      e.stopPropagation();
+      openThesis(thBtn.dataset.thesisOpen, thBtn);
+      return;
+    }
     const row = e.target.closest('.stk-row');
     if (!row) return;
     const t = row.dataset.ticker;
@@ -4915,7 +5597,6 @@ STOCKS_JS_TEMPLATE = """
     if (wasOpen) expanded.delete(t); else expanded.add(t);
     render();
     if (!wasOpen) {
-      fetchThesisFor(t);
       fetchCompanyFor(t);
       fetchNewsFor(t);
       // Defer to next frame so the canvas elements exist in the DOM.
@@ -6970,7 +7651,7 @@ def render_footer(meta=""):
     )
 
 
-def render_page(title, body_html, active_nav="", extra_scripts=""):
+def render_page(title, body_html, active_nav="", extra_scripts="", extra_css=""):
     """Wrap body content in the shared site shell (head, plexus canvas, topnav, body, footer, scripts)."""
     topnav = render_topnav(active_nav)
     footer = render_footer()
@@ -7003,6 +7684,7 @@ def render_page(title, body_html, active_nav="", extra_scripts=""):
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 {SITE_CSS}
+{extra_css}
 </style>
 </head>
 <body class="page-{active_nav or 'home'} scr-page">
@@ -12162,7 +12844,7 @@ FILTER_PANEL = [
 ]
 
 
-def render_screener_page(title, body_html, extra_scripts=""):
+def render_screener_page(title, body_html, extra_scripts="", extra_css=""):
     """Full-bleed shell for the screener, transcribed from the design.
 
     Deliberately not render_page: that wrapper centres content in an article
@@ -12190,6 +12872,7 @@ def render_screener_page(title, body_html, extra_scripts=""):
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 {SITE_CSS}
+{extra_css}
 </style>
 </head>
 <body class="page-stocks scr-page">
@@ -12253,9 +12936,9 @@ def generate_stocks_page(universe):
                 conv = int(str(fm.get("conviction", "")).strip())
             except (TypeError, ValueError):
                 conv = None
-            thesis_index[tdir.name] = {"d": (fm.get("direction") or "").strip(),
+            thesis_index[tdir.name] = {"d": _note_scalar(fm, "direction") or "",
                                        "c": conv,
-                                       "w": (fm.get("written_on") or "").strip()}
+                                       "w": _note_scalar(fm, "written_on") or ""}
 
     # The sector lenses name the fields that mislead in each sector. The factor
     # grid below a row shows those fields as numbers with no warning attached,
@@ -12362,7 +13045,7 @@ def generate_stocks_page(universe):
             <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase">Research</span>
           </summary>
           <div style="padding:2px 20px 15px" class="lib-chips" id="stk-research-chips">{research_chips}</div>
-          <p style="padding:0 20px 14px;margin:0;font-size:10.5px;line-height:1.5;color:var(--text-4)">A written view exists for a few names a week out of {n_universe}. The dot beside a ticker marks one.</p>
+          <p style="padding:0 20px 14px;margin:0;font-size:10.5px;line-height:1.5;color:var(--text-4)">A written view exists for a few names a week out of {n_universe}. The rating beside a ticker marks one, and its Thesis button opens the note.</p>
         </details>
         <div id="stk-filter-panel">{rail_html}</div>
         <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
@@ -12497,7 +13180,12 @@ def generate_stocks_page(universe):
                  .replace("__THESIS_INDEX_JSON__", json.dumps(thesis_index, separators=(",", ":")))
                  .replace("__SECTOR_WARNINGS_JSON__", json.dumps(sector_warnings, separators=(",", ":")))
                  .replace("__INDEXES_JSON__", indexes_json))
-    html = render_screener_page("Stocks, Apterreon", body, extra_scripts=stocks_js)
+    # The popup script goes first so window.AptThesis exists when the page script
+    # runs. Both are joined after substitution, so the popup text is never
+    # searched for placeholders.
+    html = render_screener_page("Stocks, Apterreon", body,
+                                extra_scripts=THESIS_POPUP_JS + "\n" + stocks_js,
+                                extra_css=THESIS_POPUP_CSS)
     (DOCS_DIR / "stocks.html").write_text(html, encoding="utf-8")
 
 
@@ -12564,8 +13252,435 @@ def _parse_front_matter(text):
     return out
 
 
+# --- note rendering -----------------------------------------------------------
+#
+# The note popup and the research library need every note on a name, not only
+# the newest, and they need the body as well as the front-matter. The body is
+# markdown written by an agent that reads untrusted filing text, so it is treated
+# as untrusted too: everything is escaped first and only a small subset is turned
+# back into markup. Rendering happens here, once, so the browser never parses
+# markdown and there is a single renderer to audit.
+
+# Named entities the notes type literally ("&minus;0.8%"). Escaping turns them
+# into "&amp;minus;", which prints the entity name, so exactly these are mapped
+# back to their characters. Any other entity stays escaped and prints as typed.
+_NOTE_ENTITIES = {"minus": "\u2212", "mdash": "\u2014", "ndash": "\u2013",
+                  "rarr": "\u2192", "larr": "\u2190", "middot": "\u00b7",
+                  "nbsp": "\u00a0", "times": "\u00d7", "asymp": "\u2248"}
+_NOTE_ENTITY_RAW = re.compile(r"&(" + "|".join(_NOTE_ENTITIES) + r");")
+_NOTE_ENTITY_ESCAPED = re.compile(r"&amp;(" + "|".join(_NOTE_ENTITIES) + r");")
+_MD_TABLE_SEP = re.compile(r"^\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)*\|?$")
+# A condition the page can evaluate ends in "[check: FIELD OP NUMBER]". The
+# minus sign may arrive as the entity, already decoded to U+2212 by then.
+_CONDITION_CHECK = re.compile(
+    r"\s*\[check:\s*([A-Za-z_][\w.]*)\s*(>=|<=|>|<)\s*"
+    r"([-+\u2212]?(?:\d+(?:\.\d*)?|\.\d+))\s*\]\s*$")
+_DOC_KIND_WORDS = {
+    "business": ("business description", "business descriptions"),
+    "risk_factors": ("risk factors section", "risk factors sections"),
+    "segment_note": ("segment note", "segment notes"),
+    "earnings_release": ("earnings release", "earnings releases"),
+}
+_THESIS_NOTE_SUMMARY_KEYS = ("date", "kind", "direction", "conviction",
+                             "target_price", "key_claim", "since_last_note",
+                             "path")
+
+
+def _decode_note_entities(text):
+    """Plain text with the whitelisted entities turned into characters.
+
+    For front-matter values, which the page escapes itself. Returns the input
+    unchanged when it is not a string."""
+    if not isinstance(text, str):
+        return text
+    return _NOTE_ENTITY_RAW.sub(lambda m: _NOTE_ENTITIES[m.group(1)], text)
+
+
+def _md_bold(esc):
+    # Both ends must touch a non-space, so a lone or unclosed "**" stays literal.
+    return re.sub(r"\*\*(?=\S)(.+?)(?<=\S)\*\*", r"<strong>\1</strong>", esc)
+
+
+def _md_inline(esc):
+    """Inline markup over text that is ALREADY escaped: code, links, bold."""
+    codes, links = [], []
+
+    def _code(m):
+        codes.append("<code>" + m.group(1) + "</code>")
+        return "\x00" + str(len(codes) - 1) + "\x00"
+
+    def _link(m):
+        # The URL is escaped text, so a quote in it is &quot; and cannot close
+        # the attribute. Only http and https reach this branch at all.
+        links.append('<a href="' + m.group(2) + '" target="_blank" '
+                     'rel="noopener noreferrer">' + _md_bold(m.group(1)) + "</a>")
+        return "\x01" + str(len(links) - 1) + "\x01"
+
+    out = re.sub(r"`([^`\n]+)`", _code, esc)
+    out = re.sub(r"\[([^\[\]\n]+)\]\((https?://[^\s()<>]+)\)", _link, out)
+    out = _md_bold(out)
+    out = re.sub(r"\x01(\d+)\x01", lambda m: links[int(m.group(1))], out)
+    out = re.sub(r"\x00(\d+)\x00", lambda m: codes[int(m.group(1))], out)
+    return out
+
+
+def _md_table_cells(line):
+    s = line.strip()
+    if s.startswith("|"):
+        s = s[1:]
+    if s.endswith("|"):
+        s = s[:-1]
+    return [c.strip() for c in s.split("|")]
+
+
+def _md_table(rows):
+    head, body = None, rows
+    if len(rows) >= 2 and _MD_TABLE_SEP.match(rows[1].strip()):
+        head, body = _md_table_cells(rows[0]), rows[2:]
+    parts = ['<table class="md-table">']
+    if head:
+        parts.append("<thead><tr>" + "".join(
+            "<th>" + _md_inline(c) + "</th>" for c in head) + "</tr></thead>")
+    parts.append("<tbody>")
+    for row in body:
+        parts.append("<tr>" + "".join(
+            "<td>" + _md_inline(c) + "</td>" for c in _md_table_cells(row)) + "</tr>")
+    parts.append("</tbody></table>")
+    return "".join(parts)
+
+
+def _md_to_html(text):
+    """Safe markdown subset to HTML.
+
+    Escapes everything first, then allows only: paragraphs split on blank lines,
+    "- " bullet lists (wrapped lines continue the item), **bold**, `code`,
+    [text](url) where the url is http or https, and pipe tables. The entity
+    whitelist in _NOTE_ENTITIES is restored as characters. Nothing else in the
+    input can produce a tag or an attribute."""
+    if not text:
+        return ""
+    src = str(text).replace("\r\n", "\n").replace("\r", "\n")
+    # The inline pass uses these two as placeholders, so input cannot carry them.
+    src = src.replace("\x00", "").replace("\x01", "")
+    esc = _html.escape(src, quote=True)
+    out, para, items, table = [], [], [], []
+
+    def flush():
+        if para:
+            out.append("<p>" + _md_inline(" ".join(para)) + "</p>")
+            para.clear()
+        if items:
+            out.append("<ul>" + "".join(
+                "<li>" + _md_inline(" ".join(i)) + "</li>" for i in items) + "</ul>")
+            items.clear()
+        if table:
+            out.append(_md_table(table))
+            table.clear()
+
+    for raw in esc.split("\n"):
+        line = raw.strip()
+        if not line:
+            flush()
+            continue
+        if line.startswith("|"):
+            if not table:
+                flush()
+            table.append(line)
+            continue
+        if table:
+            flush()
+        if line.startswith("- "):
+            if para:
+                flush()
+            items.append([line[2:].strip()])
+            continue
+        if items:
+            items[-1].append(line)
+            continue
+        para.append(line)
+    flush()
+    return _NOTE_ENTITY_ESCAPED.sub(lambda m: _NOTE_ENTITIES[m.group(1)], "".join(out))
+
+
+def _note_scalar(fm, key):
+    """A front-matter scalar as a stripped string, or None when absent or empty."""
+    v = fm.get(key)
+    if v is None or isinstance(v, list):
+        return None
+    v = str(v).strip()
+    return v or None
+
+
+def _note_int(fm, key):
+    v = _note_scalar(fm, key)
+    if v is None:
+        return None
+    try:
+        return int(v)
+    except ValueError:
+        try:
+            f = float(v)
+        except ValueError:
+            return None
+        return int(f) if math.isfinite(f) and f.is_integer() else None
+
+
+def _note_float(fm, key):
+    v = _note_scalar(fm, key)
+    if v is None:
+        return None
+    try:
+        f = float(v.replace(",", "").lstrip("$"))
+    except ValueError:
+        return None
+    return f if math.isfinite(f) else None
+
+
+def _parse_condition(item):
+    """One conditions item as {text, check}; check is None unless computable."""
+    s = (_decode_note_entities(str(item or "")) or "").strip()
+    m = _CONDITION_CHECK.search(s)
+    if not m:
+        return {"text": s, "check": None}
+    try:
+        value = float(m.group(3).replace("\u2212", "-"))
+    except ValueError:
+        return {"text": s, "check": None}
+    return {"text": s[:m.start()].strip(),
+            "check": {"field": m.group(1), "op": m.group(2), "value": value}}
+
+
+def _note_body(text):
+    """Everything after the closing front-matter fence."""
+    if not text.startswith("---"):
+        return text
+    end = text.find("\n---", 3)
+    if end == -1:
+        return text
+    nl = text.find("\n", end + 4)
+    return "" if nl == -1 else text[nl + 1:]
+
+
+def _note_sections(body):
+    """[{title, html}] split on "## " headings. title is plain text, html is safe."""
+    sections, title, buf = [], None, []
+    for line in (body or "").split("\n"):
+        m = re.match(r"^##\s+(.+?)\s*$", line)
+        if m:
+            chunk = "\n".join(buf).strip()
+            if title is not None or chunk:
+                sections.append({"title": _decode_note_entities(title or ""),
+                                 "html": _md_to_html(chunk)})
+            title, buf = m.group(1), []
+            continue
+        buf.append(line)
+    chunk = "\n".join(buf).strip()
+    if title is not None or chunk:
+        sections.append({"title": _decode_note_entities(title or ""),
+                         "html": _md_to_html(chunk)})
+    return sections
+
+
+def _read_filings_rows():
+    """ticker -> every row in data/filings/*.csv, or None when there is no data.
+
+    Shared by the company views and the thesis views so both count the same
+    documents. None (no directory, no CSVs) is different from an empty dict:
+    only when the data exists can a note say that nothing new was collected."""
+    if not FILINGS_CSV_DIR.is_dir():
+        return None
+    paths = sorted(FILINGS_CSV_DIR.glob("*.csv"))
+    if not paths:
+        return None
+    out = {}
+    for path in paths:
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                for row in csv.DictReader(fh):
+                    tk = (row.get("ticker") or "").upper()
+                    if tk:
+                        out.setdefault(tk, []).append(row)
+        except Exception as exc:
+            print(f"filings: could not read {path.name} ({exc}).")
+    return out
+
+
+def _docs_between(rows, after, upto):
+    """{doc_kind: count} of documents first collected in (after, upto].
+
+    Collected means recorded_at, falling back to filed. A document re-recorded
+    by a later run is counted once, at the first time it was collected."""
+    if not after or not upto:
+        return None
+    dated = []
+    for r in rows or []:
+        when = (r.get("recorded_at") or "")[:10] or (r.get("filed") or "")[:10]
+        if when:
+            dated.append((when, r))
+    dated.sort(key=lambda x: x[0])
+    seen, counts = set(), {}
+    for when, r in dated:
+        key = (r.get("doc_kind"), r.get("accession"))
+        if key in seen:
+            continue
+        seen.add(key)
+        if after < when <= upto:
+            kind = (r.get("doc_kind") or "").strip() or "document"
+            counts[kind] = counts.get(kind, 0) + 1
+    return counts
+
+
+def _doc_kind_phrase(kind, n):
+    one, many = _DOC_KIND_WORDS.get(kind) or (kind.replace("_", " "),
+                                              kind.replace("_", " ") + "s")
+    return f"{n} {one if n == 1 else many}"
+
+
+def _since_last_note(prev, cur, docs=None):
+    """One plain sentence saying what changed from the previous note."""
+    if prev is None:
+        return "first note, no prior view"
+    parts = []
+    pd, cd = prev.get("direction"), cur.get("direction")
+    if (pd or "") != (cd or ""):
+        parts.append(f"direction changed from {pd or 'none'} to {cd or 'none'}")
+    pc, cc = prev.get("conviction"), cur.get("conviction")
+    if pc != cc:
+        if pc is None:
+            parts.append(f"conviction set at {cc}")
+        elif cc is None:
+            parts.append(f"conviction no longer recorded (was {pc})")
+        else:
+            parts.append(f"conviction {'raised' if cc > pc else 'lowered'} "
+                         f"from {pc} to {cc}")
+    pt, ct = prev.get("target_price"), cur.get("target_price")
+    if pt != ct:
+        if pt is None:
+            parts.append(f"target set at {ct:.2f}")
+        elif ct is None:
+            parts.append(f"target dropped (was {pt:.2f})")
+        else:
+            parts.append(f"target {'raised' if ct > pt else 'lowered'} "
+                         f"from {pt:.2f} to {ct:.2f}")
+    # A reworded claim under an unchanged rating is what thesis drift looks
+    # like, so "view unchanged" must not be printed over it.
+    pk = " ".join((prev.get("key_claim") or "").split())
+    ck = " ".join((cur.get("key_claim") or "").split())
+    if pk != ck:
+        parts.append("key claim added" if not pk else
+                     "key claim dropped" if not ck else "key claim rewritten")
+    sentence = ", ".join(parts) if parts else "view unchanged"
+    if docs is not None:
+        total = sum(docs.values())
+        if total:
+            detail = ", ".join(_doc_kind_phrase(k, n) for k, n in
+                               sorted(docs.items(), key=lambda x: (-x[1], x[0])))
+            sentence += (f"; {total} document{'s' if total != 1 else ''} collected "
+                         f"since the previous note ({detail})")
+        else:
+            sentence += "; no new documents collected since the previous note"
+    return sentence
+
+
+def _thesis_note_record(path, ticker):
+    """One note as the popup reads it, or None when it has no front-matter."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except Exception as exc:
+        print(f"thesis: could not read {path.name} ({exc}); skipped.")
+        return None
+    fm = _parse_front_matter(text)
+    if not fm:
+        return None
+    date = _note_scalar(fm, "written_on")
+    if not date and re.match(r"^\d{4}-\d{2}-\d{2}", path.name):
+        date = path.name[:10]
+    conditions = fm.get("conditions")
+    if isinstance(conditions, str):
+        conditions = [conditions] if conditions.strip() else []
+    caveats = fm.get("data_caveats")
+    if isinstance(caveats, str):
+        caveats = [caveats] if caveats.strip() else []
+    rec = {
+        "path": f"theses/notes/{ticker}/{path.name}",
+        "date": date,
+        "kind": _note_scalar(fm, "kind"),
+        "direction": _note_scalar(fm, "direction"),
+        "conviction": _note_int(fm, "conviction"),
+        "evidence_base": _note_int(fm, "evidence_base"),
+        "falsifier_specific": _note_int(fm, "falsifier_specific"),
+        "variant_perception": _note_int(fm, "variant_perception"),
+        "disconfirmation": _note_int(fm, "disconfirmation"),
+        "entry_price": _note_float(fm, "entry_price"),
+        "target_price": _note_float(fm, "target_price"),
+        "if_wrong_price": _note_float(fm, "if_wrong_price"),
+        "horizon_days": _note_int(fm, "horizon_days"),
+        "review_by": _note_scalar(fm, "review_by"),
+        "next_check": _note_scalar(fm, "next_check"),
+        "key_claim": _decode_note_entities(_note_scalar(fm, "key_claim")),
+        "falsifier": _decode_note_entities(_note_scalar(fm, "falsifier")),
+        "add_if": _decode_note_entities(_note_scalar(fm, "add_if")),
+        "conditions": [_parse_condition(c) for c in (conditions or [])
+                       if str(c).strip()],
+        "data_caveats": [_decode_note_entities(str(c)) for c in (caveats or [])
+                         if str(c).strip()],
+        "since_last_note": None,
+        "sections": _note_sections(_note_body(text)),
+    }
+    return rec
+
+
+def _thesis_notes_for(tdir, filings=None):
+    """Every readable note for one ticker, NEWEST FIRST, each with since_last_note.
+
+    The one place notes are read for both the thesis views and the research
+    page, so the popup and the library cannot describe a note differently.
+    filings is the _read_filings_rows() result; None leaves document counts out."""
+    ticker = tdir.name
+    recs = [r for r in (_thesis_note_record(p, ticker) for p in sorted(tdir.glob("*.md")))
+            if r]
+    rows = None if filings is None else (filings.get(ticker.upper()) or [])
+    prev = None
+    for rec in recs:            # oldest first, so each note sees the one before it
+        docs = None
+        if prev is not None and rows is not None:
+            docs = _docs_between(rows, prev.get("date"), rec.get("date"))
+        rec["since_last_note"] = _since_last_note(prev, rec, docs)
+        prev = rec
+    recs.reverse()
+    return recs
+
+
+def _thesis_note_summary(rec):
+    """The subset of a note record the research library timeline needs."""
+    return {k: rec.get(k) for k in _THESIS_NOTE_SUMMARY_KEYS}
+
+
+def _last_close(ticker):
+    """{date, close} of the newest close in docs/prices/{TICKER}.json, or None."""
+    try:
+        blob = json.loads((PRICES_DIR / _news_filename(ticker)).read_text(encoding="utf-8"))
+        closes = [c for c in (blob.get("closes") or [])
+                  if isinstance(c, (list, tuple)) and len(c) >= 2 and c[1] is not None]
+    except Exception:
+        return None
+    if not closes:
+        return None
+    try:
+        close = float(closes[-1][1])
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(close):
+        return None
+    return {"date": closes[-1][0], "close": close}
+
+
 def write_thesis_views():
-    """One JSON per ticker holding the current view and its history."""
+    """One JSON per ticker holding the current view, its history and every note.
+
+    The top-level scalars are the newest note's front-matter and are read by the
+    stocks page as they are. "notes" holds every note newest first, rendered
+    for the note popup; "last_close" is the newest close the build could see."""
     notes_dir = THESES_DIR / "notes"
     if not notes_dir.is_dir():
         return 0
@@ -12578,6 +13693,7 @@ def write_thesis_views():
         except Exception as exc:
             print(f"thesis: could not read events.csv ({exc}); history omitted.")
 
+    filings = _read_filings_rows()
     THESIS_VIEW_DIR.mkdir(parents=True, exist_ok=True)
     written = 0
     for tdir in sorted(notes_dir.iterdir()):
@@ -12588,7 +13704,12 @@ def write_thesis_views():
         if not notes:
             continue
         latest = notes[-1]          # filenames lead with the date, so this is current
-        fm = _parse_front_matter(latest.read_text(encoding="utf-8"))
+        try:
+            fm = _parse_front_matter(latest.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"thesis: could not read {ticker}/{latest.name} "
+                  f"({type(exc).__name__}: {exc}); skipped.")
+            continue
         if not fm:
             print(f"thesis: {latest.name} has no front-matter; skipped.")
             continue
@@ -12607,6 +13728,8 @@ def write_thesis_views():
         # Surfaced on the card: a revision that kept direction and conviction while
         # swapping the claim is what thesis drift looks like.
         view["claim_changed_ever"] = any(e.get("claim_changed") == "yes" for e in hist)
+        view["notes"] = _thesis_notes_for(tdir, filings)
+        view["last_close"] = _last_close(ticker)
         (THESIS_VIEW_DIR / _news_filename(ticker)).write_text(
             json.dumps(view, separators=(",", ":")), encoding="utf-8")
         written += 1
@@ -12686,18 +13809,7 @@ def _company_period(row):
 
 def _company_filings():
     """ticker -> the most recent filing rows, newest first, text path kept."""
-    out = {}
-    if not FILINGS_CSV_DIR.is_dir():
-        return out
-    for path in sorted(FILINGS_CSV_DIR.glob("*.csv")):
-        try:
-            with path.open(encoding="utf-8", newline="") as fh:
-                for row in csv.DictReader(fh):
-                    tk = (row.get("ticker") or "").upper()
-                    if tk:
-                        out.setdefault(tk, []).append(row)
-        except Exception as exc:
-            print(f"company: could not read {path.name} ({exc}).")
+    out = _read_filings_rows() or {}
     trimmed = {}
     for tk, rows in out.items():
         rows.sort(key=lambda r: (r.get("filed") or "", r.get("accession") or ""),
@@ -12962,15 +14074,11 @@ def _research_price(ticker, entry_price):
 
     Reads the same docs/prices/{TICKER}.json the screener charts use. Absent in
     a local run that has not fetched prices; the page renders a dash."""
-    try:
-        blob = json.loads((PRICES_DIR / _news_filename(ticker)).read_text(encoding="utf-8"))
-        closes = [c for c in (blob.get("closes") or []) if c and c[1] is not None]
-    except Exception:
+    lc = _last_close(ticker)
+    if not lc:
         return {}
-    if not closes:
-        return {}
-    last_date, last = closes[-1][0], float(closes[-1][1])
-    out = {"last": round(last, 2), "as_of": last_date}
+    last = lc["close"]
+    out = {"last": round(last, 2), "as_of": lc["date"]}
     try:
         entry = float(entry_price)
     except (TypeError, ValueError):
@@ -13004,6 +14112,7 @@ def _research_views(stocks_by_ticker, today):
     pred_by_ticker = {}
     for p in preds:
         pred_by_ticker.setdefault(p.get("ticker"), []).append(p)
+    filings = _read_filings_rows()
 
     out = []
     for tdir in sorted(notes_dir.iterdir()):
@@ -13014,10 +14123,15 @@ def _research_views(stocks_by_ticker, today):
         if not notes:
             continue
         latest = notes[-1]
-        fm = _parse_front_matter(latest.read_text(encoding="utf-8"))
+        try:
+            fm = _parse_front_matter(latest.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"research: could not read {ticker}/{latest.name} "
+                  f"({type(exc).__name__}: {exc}); skipped.")
+            continue
         if not fm:
             continue
-        direction = (fm.get("direction") or "").strip()
+        direction = _note_scalar(fm, "direction") or ""
         mine = pred_by_ticker.get(ticker) or []
         open_preds = [p for p in mine if p.get("prediction_id") not in scored]
         if direction not in GRADEABLE_DIRECTIONS:
@@ -13026,7 +14140,7 @@ def _research_views(stocks_by_ticker, today):
             status = "graded"
         else:
             status = "open"
-        review_by = (fm.get("review_by") or "").strip()
+        review_by = _note_scalar(fm, "review_by") or ""
         days_to_review = None
         if review_by:
             try:
@@ -13067,7 +14181,7 @@ def _research_views(stocks_by_ticker, today):
             except (TypeError, ValueError):
                 rec[k] = None
         for k in ("kind", "written_on", "key_claim", "falsifier", "slot", "thesis_id"):
-            rec[k] = (fm.get(k) or "").strip()
+            rec[k] = _note_scalar(fm, k) or ""
         hist = [e for e in events if e.get("ticker") == ticker]
         rec["history"] = [{"date": e.get("date"), "kind": e.get("kind"),
                            "direction": e.get("direction"),
@@ -13076,6 +14190,17 @@ def _research_views(stocks_by_ticker, today):
                            "prior_conviction": e.get("prior_conviction"),
                            "trigger": e.get("trigger")} for e in hist]
         rec["claim_changed_ever"] = any(e.get("claim_changed") == "yes" for e in hist)
+        # Every note on the name, newest first, for the library timeline. Built by
+        # the same helper as docs/thesis/{TICKER}.json so the two cannot drift.
+        full_notes = _thesis_notes_for(tdir, filings)
+        rec["notes"] = [_thesis_note_summary(n) for n in full_notes]
+        # The screen fields any note's conditions test, so the research page can
+        # hand the popup those values and it can print HOLDING or NOT MET there.
+        rec["check_fields"] = sorted({
+            str(c["check"]["field"]) for n in full_notes
+            for c in (n.get("conditions") or [])
+            if isinstance(c, dict) and isinstance(c.get("check"), dict)
+            and c["check"].get("field")})
         # Equal weight, and labelled as such on the page. The screener's own
         # composite depends on slider weights the reader sets, so there is no
         # single number to quote here; the four sleeve percentiles are.
@@ -13129,25 +14254,91 @@ def _research_record(views):
     }
 
 
-def _research_sleeve_bar(label, z, span=2.0):
-    """One diverging bar for a sector z-score, zero at the centre.
+_NOTE_REPO_URL = "https://github.com/CTLSmith5689/daily-intelligence-brief/blob/main/"
 
-    The sign is carried by the number as well as by the direction and colour, so
-    the bar never has to be read on colour alone."""
-    frac = max(-1.0, min(1.0, (z or 0.0) / span))
-    half = abs(frac) * 50.0
-    left = 50.0 - half if frac < 0 else 50.0
-    cls = " rs-sl-neg" if frac < 0 else ""
-    return (f'<span class="rs-sl"><i>{_html.escape(label)}</i>'
-            f'<span class="rs-sl-track">'
-            f'<span class="rs-sl-zero"></span>'
-            f'<span class="rs-sl-fill{cls}" style="left:{left:.1f}%;width:{half:.1f}%">'
-            f'</span></span>'
-            f'<b>{z:+.2f}</b></span>')
+
+def _note_repo_href(path):
+    """GitHub URL for a repo-relative path, each segment encoded, or ""."""
+    import urllib.parse as _up
+    segs = [s for s in str(path or "").split("/") if s and s not in (".", "..")]
+    return _NOTE_REPO_URL + "/".join(_up.quote(s, safe="") for s in segs) if segs else ""
+
+
+def _research_word(value, empty):
+    """A lowercase front-matter word as it reads in a sentence: 'long' -> 'Long'."""
+    s = str(value or "").strip()
+    return (s[0].upper() + s[1:]) if s else empty
+
+
+def _research_pips(conv, cls="rs-pips"):
+    n = conv if isinstance(conv, int) else None
+    return (f'<span class="{cls}" aria-hidden="true">'
+            + "".join(f'<span class="rs-pip{" rs-pip-on" if n and i <= n else ""}"></span>'
+                      for i in range(1, 6))
+            + '</span>')
+
+
+def _research_timeline(v):
+    """The evolution of one name: every note, newest first, each with Open.
+
+    Server-rendered so it reads with scripting off. The Open buttons ship hidden
+    and the page script reveals them; the source link beside each works anyway.
+    Every value is note text or front matter, so every value is escaped."""
+    e = _html.escape
+    ticker = v["ticker"]
+    notes = [n for n in (v.get("notes") or []) if isinstance(n, dict)]
+    count = len(notes)
+    head = ('<div class="rs-evo-head"><h3 class="rs-k">Evolution</h3>'
+            f'<span class="rs-evo-n">{count} note{"" if count == 1 else "s"} on this name, '
+            'newest first</span></div>')
+    if not notes:
+        return (f'<div class="rs-evo-wrap">{head}<p class="rs-note">The notes on this name '
+                'could not be read, so there is no timeline to show.</p></div>')
+    rows = []
+    for idx, n in enumerate(notes):
+        date = str(n.get("date") or "")
+        kind = _research_word(n.get("kind"), "Note")
+        direction = _research_word(n.get("direction"), "No direction")
+        conv = n.get("conviction") if isinstance(n.get("conviction"), int) else None
+        target = n.get("target_price")
+        # Each bit is its own element: bare text runs inside a flex row merge
+        # into one item and the gap between them disappears.
+        bits = [f'<b>{e(direction)}</b>', _research_pips(conv),
+                ("<span>conviction not set</span>" if conv is None
+                 else f"<span>conviction {conv} of 5</span>")]
+        if isinstance(target, (int, float)) and not isinstance(target, bool) \
+                and math.isfinite(target):
+            bits.append(f"<span>target <b>{target:.2f}</b></span>")
+        else:
+            bits.append("<span>no target</span>")
+        if idx == 0:
+            bits.append("<em>current</em>")
+        since = str(n.get("since_last_note") or "").strip()
+        since = (since[0].upper() + since[1:]) if since else "What changed was not recorded."
+        label = (f"Open the {kind.lower()} note on {ticker}"
+                 + (f" from {date}" if date else ""))
+        href = _note_repo_href(n.get("path"))
+        src = (f'<a class="rs-src" href="{e(href)}" target="_blank" '
+               f'rel="noopener noreferrer">Source .md</a>' if href else "")
+        rows.append(
+            f'<li class="rs-evo-row{" rs-evo-current" if idx == 0 else ""}">'
+            f'<span class="rs-evo-d">{e(date) if date else "undated"}</span>'
+            f'<div><div class="rs-evo-h"><span>{e(kind)}</span>{"".join(bits)}</div>'
+            f'<p class="rs-evo-t">{e(since)}</p></div>'
+            f'<div class="rs-evo-act">'
+            f'<button type="button" class="rs-open" data-open="{e(ticker)}" data-note="{idx}" '
+            f'aria-haspopup="dialog" aria-label="{e(label)}" hidden>Open note</button>{src}</div>'
+            f'</li>')
+    return (f'<div class="rs-evo-wrap">{head}'
+            f'<ol class="rs-evo">{"".join(rows)}</ol></div>')
 
 
 def _research_cards(views):
-    """Server-rendered cards. The page must be readable before its JS runs."""
+    """Server-rendered library entries. The page must be readable before its JS runs.
+
+    One entry per covered name. The rating, claim and numbers are the current
+    note's, which is what the filters and sort act on; the timeline under them
+    is every note on the name."""
     e = _html.escape
     if not views:
         return ('<div class="rs-empty">No notes have been written yet. The analyst '
@@ -13156,9 +14347,6 @@ def _research_cards(views):
     parts = []
     for v in views:
         conv = v.get("conviction")
-        pips = "".join(
-            f'<span class="rs-pip{" rs-pip-on" if conv and i <= conv else ""}"></span>'
-            for i in range(1, 6))
         comps = []
         for key, short, hi in (("evidence_base", "evidence", 2),
                                ("falsifier_specific", "falsifier", 1),
@@ -13177,39 +14365,19 @@ def _research_cards(views):
         if price.get("last") is not None:
             mv = price.get("move")
             cls = ""
-            if mv is not None:
-                cls = " rs-up" if mv >= 0 else " rs-down"
+            if mv:
+                cls = " tp-up" if mv > 0 else " tp-dn"
             moved = f' <i class="rs-move{cls}">{mv * 100:+.1f}%</i>' if mv is not None else ""
             nums.append(f'<span>now <b>{price["last"]:.2f}</b>{moved}</span>')
         if v.get("target_price") is not None:
             nums.append(f'<span>target <b>{v["target_price"]:.2f}</b></span>')
         if v.get("horizon_days"):
-            nums.append(f'<span>horizon <b>{v["horizon_days"]}d</b></span>')
+            nums.append(f'<span>horizon <b>{v["horizon_days"]} days</b></span>')
         d2r = v.get("days_to_review")
         if d2r is not None:
-            word = f"in {d2r}d" if d2r >= 0 else f"{abs(d2r)}d ago"
+            word = (f"in {d2r} day{'' if d2r == 1 else 's'}" if d2r >= 0
+                    else f"{abs(d2r)} day{'' if d2r == -1 else 's'} ago")
             nums.append(f'<span>review <b>{e(word)}</b></span>')
-
-        sleeves = v.get("sleeves") or {}
-        screen_line = ""
-        if len(sleeves) == 4:
-            # These are z-scores against the sector, not percentiles: measured
-            # range across the universe is -2.05 to +1.87 with 55 percent of
-            # names below zero. Rendering them as a left-anchored 0-100 bar
-            # clamped every negative sleeve to empty and printed HIMS as
-            # "-39 of 100", which is not a quantity that exists.
-            bars = "".join(_research_sleeve_bar(lbl, sleeves[k])
-                           for k, lbl in (("g", "G"), ("v", "V"),
-                                          ("m", "M"), ("q", "Q")))
-            ew = v.get("equal_weight")
-            screen_line = (
-                '<div class="rs-screen"><span class="rs-k">Where the screen puts it</span>'
-                f'<div class="rs-sleeves">{bars}</div>'
-                f'<div class="rs-note">Standard deviations from the '
-                f'{e(v["sector"] or "sector")} mean, one bar per sleeve, zero at the '
-                f'tick. Equal-weighted across the four that is <b>{ew:+.2f}</b>. '
-                f'The screener\'s own composite moves with the weights you set there, '
-                f'so there is no single number to quote.</div></div>')
 
         drift = ('<div class="rs-drift">A revision kept the direction and the conviction '
                  'and changed the claim. That is what thesis drift looks like.</div>'
@@ -13217,10 +14385,11 @@ def _research_cards(views):
         claim = (f'<p class="rs-claim">{e(v["key_claim"])}</p>' if v.get("key_claim")
                  else '<p class="rs-claim rs-claim-none">No claim recorded. The note '
                       'declined to take a view.</p>')
-        fals = (f'<div class="rs-fals"><span class="rs-k">What would prove it wrong</span>'
-                f'<div>{e(v["falsifier"])}</div></div>' if v.get("falsifier") else "")
+        who = " &middot; ".join(e(x) for x in (v.get("name"), v.get("sector")) if x)
+        rating = (f"{_research_word(v['direction'], 'No view')}, "
+                  + ("conviction not set" if conv is None else f"conviction {conv} of 5"))
         parts.append(
-            f'<article class="rs-card" data-dir="{e(v["direction"])}" '
+            f'<article class="rs-card" id="{e(v["ticker"])}" data-dir="{e(v["direction"])}" '
             f'data-status="{e(v["status"])}" data-conv="{conv if conv is not None else 0}" '
             f'data-move="{(price.get("move") if price.get("move") is not None else 0):.4f}" '
             f'data-review="{e(v.get("review_by") or "")}" '
@@ -13228,27 +14397,21 @@ def _research_cards(views):
             f'data-ticker="{e(v["ticker"])}">'
             f'<div class="rs-top">'
             f'<a class="rs-tk" href="./stocks.html#{e(v["ticker"])}">{e(v["ticker"])}</a>'
-            f'<span class="rs-nm">{e(v["name"])}</span>'
+            f'<span class="rs-nm">{who}</span>'
             f'<span class="rs-status rs-status-{e(v["status"])}">{e(v["status"])}</span>'
             f'</div>'
-            f'<div class="rs-dirline">'
+            f'<div class="rs-dirline" title="{e(rating)}">'
             f'<span class="rs-dir rs-dir-{e(v["direction"].replace(" ", "-"))}">'
-            f'{e(v["direction"])}</span>'
-            f'<span class="rs-pips" title="conviction {conv if conv is not None else "?"} of 5">'
-            f'{pips}</span>'
+            f'{e(_research_word(v["direction"], "No view"))}</span>'
+            f'{_research_pips(conv)}'
+            f'<span class="rs-conv">'
+            f'{"conviction not set" if conv is None else f"conviction {conv} of 5"}</span>'
             f'<span class="rs-comps">{"".join(comps)}</span>'
             f'</div>'
             f'{drift}{claim}'
             f'<div class="rs-nums">{"".join(nums)}</div>'
-            f'{fals}{screen_line}'
-            f'<div class="rs-links">'
-            f'<a href="https://github.com/CTLSmith5689/daily-intelligence-brief/blob/main/'
-            f'{e(v["note_path"])}" target="_blank" rel="noopener">Read the note</a>'
-            f'<span class="rs-meta">{e(v.get("kind") or "note")} '
-            f'{e(v.get("written_on") or "")}'
-            + (f' &middot; {v["note_count"]} notes on this name' if v["note_count"] > 1 else "")
-            + (f' &middot; surfaced by the {e(v["slot"])} slot' if v.get("slot") else "")
-            + '</span></div></article>')
+            f'{_research_timeline(v)}'
+            f'</article>')
     return "".join(parts)
 
 
@@ -13337,8 +14500,12 @@ def generate_research(universe):
         '</section>'
         + _research_record_html(record) +
         '<section class="rs-views">'
-        '<div class="rs-h2row"><h2 class="rs-h2">The views</h2>'
+        '<div class="rs-h2row"><h2 class="rs-h2">The library</h2>'
         '<span class="rs-count" id="rs-count"></span></div>'
+        '<p class="rs-note" style="margin:-4px 0 18px">Every note kept on each name, '
+        'newest first, so you can see how a view changed over time. The direction, '
+        'status and sort controls use each name\'s current note. Open any note in the '
+        'timeline to read it in full, or read the source file it was published from.</p>'
         '<div class="rs-controls">'
         f'<div class="rs-group"><span class="rs-k">Direction</span>{chips("dir", dirs)}</div>'
         f'<div class="rs-group"><span class="rs-k">Status</span>{chips("status", statuses)}</div>'
@@ -13358,8 +14525,33 @@ def generate_research(universe):
         'manufacture a track record out of abstentions.</p>'
         '</section>')
 
+    # The popup reads a stock row for price, sector, screen scores, the earnings
+    # date and whatever fields the notes' conditions check. This page has no
+    # screen data loaded, so it carries those few values for covered names only.
+    base_fields = ("name", "sector", "sub_industry", "price", "earnings_date",
+                   "g", "v", "m", "q")
+    stock_rows = {}
+    for v in views:
+        s = stocks.get(v["ticker"]) or {}
+        row = {}
+        for k in base_fields + tuple(v.get("check_fields") or ()):
+            val = s.get(k)
+            if isinstance(val, bool):
+                continue
+            if isinstance(val, (int, float)) and math.isfinite(val):
+                row[k] = val
+            elif isinstance(val, str) and val.strip():
+                row[k] = val.strip()
+        stock_rows[v["ticker"]] = row
+    stocks_js_value = (json.dumps(stock_rows, separators=(",", ":"), ensure_ascii=True)
+                       .replace("<", "\\u003c").replace(">", "\\u003e")
+                       .replace("&", "\\u0026"))
+    research_js = RESEARCH_JS_TEMPLATE.replace("__RS_STOCKS_JSON__", stocks_js_value)
+    # The popup script goes first so window.AptThesis exists when the page script
+    # runs, and is joined after substitution so it is never searched.
     html = render_page("Research, Apterreon", body, active_nav="research",
-                       extra_scripts=RESEARCH_JS_TEMPLATE)
+                       extra_scripts=THESIS_POPUP_JS + "\n" + research_js,
+                       extra_css=THESIS_POPUP_CSS)
     (DOCS_DIR / "research.html").write_text(html, encoding="utf-8")
     print(f"research: wrote research.html ({len(views)} names, "
           f"{record['open']} open, {record['graded']} graded).")
@@ -13385,14 +14577,30 @@ def generate_site(briefs, universe=None):
     # Derived from theses/, which the scheduled analyst writes and which is the
     # source of truth. Regenerated every run so the published view cannot drift
     # from the notes.
-    n_thesis = write_thesis_views()
+    #
+    # Each writer is wrapped: one odd note must not fail the run, because in
+    # daily mode that would skip the data commit and lose the panel row.
+    n_thesis = n_company = n_views = 0
+    try:
+        n_thesis = write_thesis_views()
+    except Exception as exc:
+        print(f"thesis: view writing failed ({type(exc).__name__}: {exc}); "
+              f"the rest of the site is unaffected.")
     # Same shape, different author: these come from the filings and companyfacts
     # passes rather than from the analyst. The scored stock dicts carry
     # sub_industry and ttm_revenue, which is what peer share is computed from.
-    n_company = write_company_views(universe.get("stocks") or [])
+    try:
+        n_company = write_company_views(universe.get("stocks") or [])
+    except Exception as exc:
+        print(f"company: view writing failed ({type(exc).__name__}: {exc}); "
+              f"the rest of the site is unaffected.")
     # After the view writers, because it reads the same theses/ tree and the log
     # line below reports all three together.
-    n_views = generate_research(universe)
+    try:
+        n_views = generate_research(universe)
+    except Exception as exc:
+        print(f"research: page generation failed ({type(exc).__name__}: {exc}); "
+              f"the rest of the site is unaffected.")
     print("Wrote docs/index.html, today.html, stories.html, stocks.html, "
           f"research.html ({n_views} names), manifest.json"
           + (f", {n_thesis} thesis views" if n_thesis else "")
