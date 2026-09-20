@@ -15380,10 +15380,13 @@ def lambda_handler(event, context):
     # next run's four-day window. So nothing in here is allowed to cost the day
     # its row, or the site its rebuild.
     try:
-        cik_to_ticker = {}
+        cik_to_ticker, _ticker_to_cik = {}, {}
         for _tkr, _cik in (fetch_edgar_ticker_cik_map() or {}).items():
             try:
                 cik_to_ticker.setdefault(int(_cik), _tkr)
+                # Both directions are kept. Two share classes share one CIK, so
+                # inverting cik_to_ticker would lose GOOG behind GOOGL.
+                _ticker_to_cik[_tkr] = int(_cik)
             except (TypeError, ValueError):
                 continue
         _entries, _reported = collect_earnings_filings(cik_to_ticker,
@@ -15401,7 +15404,6 @@ def lambda_handler(event, context):
         #     up with the documents the earnings path only collects going forward.
         #     Inside the same guard and after it, so a failure here costs the pack
         #     and nothing else.
-        _ticker_to_cik = {_tkr: _cik for _cik, _tkr in cik_to_ticker.items()}
         _pack_names = reading_pack_tickers()
         _pack = collect_reading_packs(_pack_names, _ticker_to_cik)
         if _pack:
