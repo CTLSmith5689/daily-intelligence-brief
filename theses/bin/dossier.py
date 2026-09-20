@@ -60,6 +60,37 @@ def item_excerpt(kind, text, path):
                   f"thesis turns on something this excerpt cuts off.")
 
 
+# Management's discussion runs from 20,000 characters (Apple) to well over 120,000
+# (CF, which repeats every table per product). Two parts of it carry most of what
+# a note needs: the opening, where management says what moved sales and profit,
+# and the liquidity section, which is where cash, debt and share buybacks are.
+# The rest is a file read away, like the 10-K items.
+_MDNA_OPENING_CAP = 24000
+_MDNA_LIQUIDITY_CAP = 9000
+_MDNA_LIQUIDITY = re.compile(r"liquidity\s+and\s+capital\s+resources", re.I)
+
+
+def mdna_excerpt(text, path):
+    """[(label, excerpt)] for management's discussion, and a note on what was cut."""
+    if len(text) <= _MDNA_OPENING_CAP + _MDNA_LIQUIDITY_CAP:
+        return [("", text)], ""
+    cut = text.rfind(". ", 0, _MDNA_OPENING_CAP)
+    parts = [("The opening", text[:cut + 1] if cut > _MDNA_OPENING_CAP * 0.6
+              else text[:_MDNA_OPENING_CAP])]
+    # The first mention past the opening. Earlier ones are the list of contents
+    # most discussions begin with.
+    m = _MDNA_LIQUIDITY.search(text, len(parts[0][1]))
+    if m:
+        end = text.rfind(". ", m.start(), m.start() + _MDNA_LIQUIDITY_CAP)
+        parts.append(("From \"Liquidity and Capital Resources\"",
+                      text[m.start():end + 1] if end > m.start() else
+                      text[m.start():m.start() + _MDNA_LIQUIDITY_CAP]))
+    shown = sum(len(p[1]) for p in parts)
+    return parts, (f"Showing {shown:,} of {len(text):,} characters. The whole discussion is "
+                   f"in the checkout at `data/filings/{path}`. Read it if the thesis turns "
+                   f"on a product line, a cost or a plan these excerpts leave out.")
+
+
 def sector_lens(sector):
     """The lens body for a sector, or "" when none is written."""
     if not sector:
@@ -292,7 +323,10 @@ def filings_for(ticker):
         text = raw.decode("utf-8", "replace") if raw else None
         if text and kind == "segment_note":
             text = _XBRL_TAIL.split(text, 1)[0].rstrip()
-        out[kind] = (row, text[:MAX_FILING_CHARS] if text else None)
+        # Management's discussion is excerpted from two places, so it arrives whole.
+        if text and kind != "mdna":
+            text = text[:MAX_FILING_CHARS]
+        out[kind] = (row, text or None)
     return out
 
 
@@ -539,15 +573,30 @@ def main():
           f"{fy[-1]['period_end'][:4]}. The panel itself holds five dates and cannot "
           f"describe a cycle; this can.")
         w("")
-        w("| FY | Revenue | Op income | Net income | EPS | OCF | Capex |")
-        w("|---|---|---|---|---|---|---|")
+        w("| FY | Revenue | Op income | Op margin | Net income | EPS | OCF | Capex | Diluted shares |")
+        w("|---|---|---|---|---|---|---|---|---|")
+        derived_ni = False
         for r in fy[-10:]:
             g = lambda k: num(r.get(k))
+            margin = (g("operating_income") / g("revenue")
+                      if g("operating_income") is not None and g("revenue") else None)
+            margin_s = "—" if margin is None else f"{margin*100:.1f}%"
+            shares = g("shares_diluted")
+            shares_s = "—" if shares is None else f"{shares/1e6:,.1f}M"
+            # Rows collected before 2026-09-19 have no net income where the filer
+            # does not tag NetIncomeLoss. EPS times diluted shares is the same
+            # figure by construction: CF FY2025 gives $1,455M against $1,455M filed.
+            ni_s = fmt(g("net_income"), "ttm_net_income")
+            if g("net_income") is None and g("eps_diluted") is not None and shares:
+                ni_s = fmt(g("eps_diluted") * shares, "ttm_net_income") + "*"
+                derived_ni = True
             w(f"| {r['period_end'][:4]} | {fmt(g('revenue'),'ttm_revenue')} | "
-              f"{fmt(g('operating_income'),'ttm_operating_income')} | "
-              f"{fmt(g('net_income'),'ttm_net_income')} | "
+              f"{fmt(g('operating_income'),'ttm_operating_income')} | {margin_s} | {ni_s} | "
               f"{fmt(g('eps_diluted'),'ttm_eps_diluted')} | "
-              f"{fmt(g('ocf'),'ttm_fcf')} | {fmt(g('capex'),'ttm_fcf')} |")
+              f"{fmt(g('ocf'),'ttm_fcf')} | {fmt(g('capex'),'ttm_fcf')} | {shares_s} |")
+        if derived_ni:
+            w("")
+            w("\\* Not tagged in the filing data held. Worked out as EPS times diluted shares.")
         # The panel's ttm_revenue and the filer's own reported revenue should
         # agree within a quarter's growth. When they do not, the panel picked the
         # wrong XBRL tag and caught a fragment of revenue rather than the whole
@@ -582,6 +631,24 @@ def main():
             w(f"EPS over that span ranges {min(eps):,.2f} to {max(eps):,.2f}, against "
               f"{eps[-1]:,.2f} most recently. **Before describing current earnings as high or "
               f"low, say where they sit in this range.**")
+            # A typical year, as an anchor for the bad, middle and good cases. The
+            # median, because one boom year moves a mean and says nothing about
+            # what the company usually earns.
+            mid = sorted(eps)[len(eps) // 2] if len(eps) % 2 else \
+                sum(sorted(eps)[len(eps) // 2 - 1:len(eps) // 2 + 1]) / 2
+            w("")
+            w(f"The median year earned **{mid:,.2f}** a share. A case for what the shares "
+              f"could be worth should say which of these years it resembles, rather than "
+              f"scaling the latest year by a round number.")
+        sh = [(r["period_end"][:4], num(r.get("shares_diluted"))) for r in fy[-10:]
+              if num(r.get("shares_diluted"))]
+        if len(sh) >= 4:
+            change = sh[-1][1] / sh[0][1] - 1
+            w("")
+            w(f"Diluted shares went from {sh[0][1]/1e6:,.1f}M in {sh[0][0]} to "
+              f"{sh[-1][1]/1e6:,.1f}M in {sh[-1][0]}, a change of **{change*100:+.0f}%**. A "
+              f"falling count is the company buying back its own shares, and it lifts profit "
+              f"per share without any rise in profit. A rising count is the reverse.")
         if qh:
             w("")
             w(f"{len(qh)} quarters are also held, {qh[0]['period_end']} to "
@@ -686,6 +753,40 @@ def main():
         w("No Item 1A collected yet.")
         caveats.append("no 10-K Item 1A; the company's own stated risks are not available")
 
+    # --- management's discussion ----------------------------------------------
+    md_row, md_text = docs.get("mdna", (None, None))
+    w("")
+    w("## What management says happened")
+    w("")
+    if md_row and md_text:
+        md_parts, md_cut = mdna_excerpt(md_text, md_row.get("text_path", ""))
+        w(f"Management's discussion, {md_row.get('form')} Item {md_row.get('items')}, filed "
+          f"**{md_row.get('filed')}**. {len(md_text):,} characters.")
+        if md_cut:
+            w("")
+            w(md_cut)
+        w("")
+        w("This is the company explaining its own results: what it sold, at what price, what "
+          "it cost, and what it did with the cash. It is the first place to look for a figure "
+          "the panel does not carry, such as a selling price per unit, an input cost, or the "
+          "shares bought back in the quarter. It is management's account, so it says what "
+          "happened more reliably than why.")
+        for label, body in md_parts:
+            w("")
+            if label:
+                w(f"**{label}**")
+                w("")
+            w("```text")
+            w(body)
+            w("```")
+    else:
+        w("No management's discussion collected for this ticker. Either the pipeline has not "
+          "topped this name up yet, or the filing keeps the discussion under headings the "
+          "extractor does not recognise, or includes it by reference to an exhibit. **You do "
+          "not have the company's own account of what moved its sales, costs and cash.**")
+        caveats.append("no management's discussion (10-Q Item 2 or 10-K Item 7); the company's "
+                       "own explanation of its latest results is not in this dossier")
+
     # --- the filing ----------------------------------------------------------
     row, text = docs.get("earnings_release", (None, None))
     w("")
@@ -705,9 +806,10 @@ def main():
         w(text)
         w("```")
     else:
-        w("No earnings release collected for this ticker yet. Collection began 2026-09-12 and "
-          "runs forward only, so a company that last reported before then will have nothing "
-          "here until its next quarter.")
+        w("No earnings release collected for this ticker. Releases are collected as they are "
+          "filed, and the latest one is fetched for any name the pipeline expects the analyst "
+          "to be handed. Either this name was not among them yet, or its latest results 8-K "
+          "carries no press release exhibit.")
         caveats.append("no earnings release text available; there is no management commentary "
                        "in this dossier")
 

@@ -10241,12 +10241,15 @@ def _edgar_get(url, accept=None, tries=3):
     return None
 
 
-def _filing_to_text(raw):
+def _filing_to_text(raw, limit=None):
     """Strip a filing document to readable text.
 
     The ix:header removal is not optional. An inline-XBRL filing carries a
     couple of KB of taxonomy context at the top, and naive tag-stripping turns
-    it into a wall of 'http://fasb.org/us-gaap/2025#LongTermDebtNoncurrent'."""
+    it into a wall of 'http://fasb.org/us-gaap/2025#LongTermDebtNoncurrent'.
+
+    `limit` overrides _FILING_MAX_TEXT for a caller that needs a section from
+    deep in a long filing, which is where a 10-K keeps Item 7."""
     try:
         text = raw.decode("utf-8", "replace")
     except Exception:
@@ -10269,7 +10272,7 @@ def _filing_to_text(raw):
         pass
     if m:
         text = text[m.end():].lstrip()
-    return text[:_FILING_MAX_TEXT]
+    return text[:limit or _FILING_MAX_TEXT]
 
 
 def _daily_index_filings(date_iso, want_form="8-K"):
@@ -10428,19 +10431,18 @@ def _segment_note_file(cik, accession):
     return best if best else (None, None)
 
 
-def _fetch_segment_note(cik, ticker):
+def _fetch_segment_note(cik, ticker, rec=None):
     """Latest 10-Q or 10-K segment note as text.
 
     Returns (accession, form, filing_date, name, text). The date is the periodic
     filing's own, not the date of the 8-K that triggered the fetch: the note
     describes the quarter the 10-Q covers, and stamping it with today's date
-    would make a note from August read as current on the page."""
-    raw = _edgar_get(EDGAR_SUBMISSIONS_URL.format(cik=cik))
-    if not raw:
-        return None
-    try:
-        rec = json.loads(raw).get("filings", {}).get("recent", {})
-    except Exception:
+    would make a note from August read as current on the page.
+
+    `rec` is the submissions listing when the caller already holds it."""
+    if rec is None:
+        rec = _submissions_recent(cik)
+    if not rec:
         return None
     forms, accs = rec.get("form", []), rec.get("accessionNumber", [])
     dates = rec.get("filingDate", [])
@@ -10476,12 +10478,18 @@ def _fetch_segment_note(cik, ticker):
 # offset 19,100 while the body's Item 1 begins at 22,374. Measured on 25 filers,
 # Item 1A extracted cleanly for 24. Item 7 managed 18, and its failures are not
 # a parsing problem: APH and MOS incorporate MD&A by reference to an exhibit, so
-# there is nothing in the 10-K to extract. Item 7 is therefore not collected.
-_ITEM_MAX = {"business": 26000, "risk_factors": 42000}
+# there is nothing in the 10-K to extract. Item 7 is therefore not collected on
+# the earnings path. The reading pack further down does collect management's
+# discussion, for the few names the analyst is about to write up, and says why.
+_ITEM_MAX = {"business": 26000, "risk_factors": 42000,
+             "mdna_10q": 120000, "mdna_10k": 120000}
 _ITEM_MIN = 1500
 # A real section runs at least this far before the next item heading. Table of
 # contents entries are a few hundred characters apart at most.
 _ITEM_SECTION_MIN = 3000
+# See _extract_item. The widest table-of-contents gap measured was 104 characters.
+_ITEM_TOC_GAP = 300
+_ITEM_INTRO_NAMES_NEXT = {"mdna_10q", "mdna_10k"}
 # Both patterns key on the "Item 1." / "Item 1A." prefix, which is a convention
 # rather than a requirement: a filer may organise the 10-K however it likes so
 # long as a cross-reference index maps the items. Intel does exactly that, using
@@ -10499,6 +10507,13 @@ _ITEM_BOUNDS = {
                      r"item\s*1a\s*[\.\:\-–—]?\s*risk\s*factors"),
     "risk_factors": (r"item\s*1a\s*[\.\:\-–—]?\s*risk\s*factors",
                      r"item\s*(1b|2)\s*[\.\:\-–—]?\s*(unresolved|propert)"),
+    # Management's discussion. Part I Item 2 of a 10-Q, Item 7 of a 10-K. The
+    # apostrophe is matched loosely because filers use ', ’ and nothing at all.
+    "mdna_10q":     (r"item\s*2\s*[\.\:\-–—]?\s*management.{0,3}s\s*discussion",
+                     r"item\s*3\s*[\.\:\-–—]?\s*quantitative"),
+    "mdna_10k":     (r"item\s*7\s*[\.\:\-–—]?\s*management.{0,3}s\s*discussion",
+                     r"item\s*7a\s*[\.\:\-–—]?\s*quantitative"
+                     r"|item\s*8\s*[\.\:\-–—]?\s*financial\s*statements"),
 }
 
 
@@ -10558,6 +10573,16 @@ def _extract_item(text, kind):
         after = [e for e in ends if e > st]
         if not after:
             continue
+        if kind in _ITEM_INTRO_NAMES_NEXT and after[0] - st >= _ITEM_TOC_GAP:
+            # Management's discussion opens with a forward-looking-statements
+            # paragraph, and MPC's names the next item in it: "particularly Item 2.
+            # ... and Item 3. Quantitative and Qualitative Disclosures", 555
+            # characters in. Read as the end of the section, that left nothing. A
+            # table-of-contents entry has its next item within a line, so a mention
+            # further off than that but too near to close a real section is prose.
+            after = [e for e in after if e - st >= _ITEM_SECTION_MIN]
+            if not after:
+                continue
         span = after[0] - st
         if span >= _ITEM_SECTION_MIN and _opens_a_section(text, st, en):
             best, best_len = st, span
@@ -10568,14 +10593,24 @@ def _extract_item(text, kind):
     return body if len(body) >= _ITEM_MIN else None
 
 
-def fetch_10k_items(cik, ticker):
-    """Item 1 and Item 1A from the latest 10-K. Returns [(kind, accession, filed, text)]."""
-    raw = _edgar_get(EDGAR_SUBMISSIONS_URL.format(cik=cik))
+def _submissions_recent(cik):
+    """A company's recent filings from the submissions API, newest first, or None."""
+    raw = _edgar_get(EDGAR_SUBMISSIONS_URL.format(cik=int(cik)))
     if not raw:
-        return []
+        return None
     try:
-        rec = json.loads(raw).get("filings", {}).get("recent", {})
+        return json.loads(raw).get("filings", {}).get("recent", {})
     except Exception:
+        return None
+
+
+def fetch_10k_items(cik, ticker, rec=None):
+    """Item 1 and Item 1A from the latest 10-K. Returns [(kind, accession, filed, text)].
+
+    `rec` is the submissions listing when the caller already holds it."""
+    if rec is None:
+        rec = _submissions_recent(cik)
+    if not rec:
         return []
     forms = rec.get("form", [])
     idx = next((i for i, f in enumerate(forms) if f == "10-K"), None)
@@ -10598,6 +10633,243 @@ def fetch_10k_items(cik, ticker):
     return out
 
 
+# --- the reading pack -------------------------------------------------------
+#
+# Everything above is collected when a company reports, forward from 2026-09-12.
+# That leaves the analyst blind on any name that last reported before then, which
+# a week later was most of them. CF's note said it had no fertiliser or gas
+# prices and nothing from management about buying back shares. CF's 10-Q of
+# 2026-08-06 prints the selling price per ton, the gas cost per MMBtu and the
+# shares bought back in the quarter. None of it had been fetched.
+#
+# So the names the analyst is about to be handed are topped up here: the latest
+# earnings release however old, management's discussion from the latest periodic
+# filing, and the 10-K items and segment note where the earnings path never ran.
+# A dozen names a day, and a name already held costs one request to confirm.
+#
+# Item 7 was measured at 18 of 25 above and left out. It is collected here for
+# two reasons. The 10-Q's Item 2 is the source three quarters of the year and is
+# almost never incorporated by reference. And a miss costs nothing: the dossier
+# says the discussion is absent, which is what it said for every name before.
+_PACK_TIME_BUDGET_S = 600
+_PACK_SCREEN_SLOTS = 12        # the analyst takes 4; the rest cover a changed panel
+_PACK_PERIODIC_TEXT = 1_500_000
+_PACK_STATE = STATE_DIR / "reading_pack.json"
+
+
+def fetch_mdna(cik, rec):
+    """Management's discussion from the newest periodic filing that yields one.
+
+    Returns (accession, form, filed, text), or (None, tried) where `tried` lists
+    the accessions that were read and gave nothing, so the caller can avoid
+    downloading the same multi-megabyte filing again tomorrow. Only the two
+    newest filings are tried: anything older describes a different year."""
+    forms = rec.get("form", [])
+    docs = rec.get("primaryDocument") or [None] * len(forms)
+    tried = []
+    for i, f in enumerate(forms):
+        if f not in ("10-Q", "10-K"):
+            continue
+        if len(tried) == 2:
+            break
+        acc = rec["accessionNumber"][i]
+        tried.append(acc)
+        if not docs[i]:
+            continue
+        raw_doc = _edgar_get(EDGAR_ARCHIVE_URL.format(cik=int(cik), nod=acc.replace("-", ""),
+                                                      name=docs[i]))
+        if not raw_doc:
+            continue
+        body = _extract_item(_filing_to_text(raw_doc, limit=_PACK_PERIODIC_TEXT),
+                             "mdna_10q" if f == "10-Q" else "mdna_10k")
+        if body:
+            return (acc, f, rec["filingDate"][i], body), tried
+    return None, tried
+
+
+def fetch_latest_earnings_release(cik, rec):
+    """The newest 8-K carrying item 2.02, however old.
+
+    Returns (accession, filed, items, exhibit, text) or None. The earnings path
+    reads the daily index and so only ever sees the last few days."""
+    forms = rec.get("form", [])
+    items = rec.get("items") or [""] * len(forms)
+    tried = 0
+    for i, f in enumerate(forms):
+        if f != "8-K" or _EARNINGS_ITEM not in (items[i] or ""):
+            continue
+        tried += 1
+        if tried > 2:
+            break
+        acc = rec["accessionNumber"][i]
+        hdr_items, exhibit = _filing_header(int(cik), acc)
+        if not exhibit:
+            continue
+        doc = _edgar_get(EDGAR_ARCHIVE_URL.format(cik=int(cik), nod=acc.replace("-", ""),
+                                                  name=exhibit))
+        if not doc:
+            continue
+        text = _filing_to_text(doc)
+        if len(text) < 400:
+            continue
+        return acc, rec["filingDate"][i], hdr_items or items[i], exhibit, text
+    return None
+
+
+def _filing_accessions_held():
+    """Every accession in every month's index.
+
+    Every month, because the index is filed under the month a document was
+    recorded, and a 10-K collected in September is still the current 10-K in
+    January. filing_accessions_recorded reads one month and would miss it."""
+    accessions = set()
+    for path in sorted(FILINGS_CSV_DIR.glob("*.csv")):
+        try:
+            with path.open(encoding="utf-8", newline="") as fh:
+                accessions |= {r.get("accession", "") for r in csv.DictReader(fh)}
+        except Exception as exc:
+            print(f"pack: could not read {path.name} ({type(exc).__name__}: {exc}).")
+    return accessions
+
+
+def reading_pack_tickers():
+    """The names the analyst is likely to be handed next, and every name it has written up.
+
+    The screen is run as the analyst's own prepare.py runs it, asked for more
+    slots than the analyst takes: it reads the pushed panel, which during a daily
+    run is one session behind the row being written, so the four it names today
+    are not always the four it names on Monday."""
+    tickers = []
+    wl = THESES_DIR / "watchlist.txt"
+    if wl.exists():
+        for line in wl.read_text(encoding="utf-8").splitlines():
+            line = line.split("#", 1)[0].strip().upper()
+            if line:
+                tickers.append(line)
+    notes = THESES_DIR / "notes"
+    if notes.is_dir():
+        tickers += sorted(p.name for p in notes.iterdir() if p.is_dir())
+    try:
+        import sys
+        out = subprocess.run([sys.executable, str(THESES_DIR / "bin" / "screen.py")],
+                             capture_output=True, text=True, timeout=300,
+                             env={**os.environ, "THESES_SLOTS": str(_PACK_SCREEN_SLOTS)})
+        if out.returncode == 0:
+            tickers += [s["ticker"] for s in json.loads(out.stdout).get("slots", [])]
+        else:
+            print(f"pack: the screen failed, so only the watchlist and covered names are "
+                  f"topped up. {out.stderr.strip()[-300:]}")
+    except Exception as exc:
+        print(f"pack: could not run the screen ({type(exc).__name__}: {exc}).")
+    seen, ordered = set(), []
+    for t in tickers:
+        if t and t not in seen:
+            seen.add(t)
+            ordered.append(t)
+    return ordered
+
+
+def collect_reading_packs(tickers, ticker_to_cik, budget_s=_PACK_TIME_BUDGET_S):
+    """Top up the filing text held for `tickers`. Returns index rows for record_filings."""
+    started = time.time()
+    accessions = _filing_accessions_held()
+    try:
+        state = json.loads(_PACK_STATE.read_text(encoding="utf-8"))
+    except Exception:
+        state = {}
+    misses = state.setdefault("misses", {})
+    today = datetime.now(tz=timezone.utc).date().isoformat()
+    entries, checked = [], 0
+
+    def keep(ticker, cik, rel, text, row):
+        path = FILINGS_CSV_DIR / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        accessions.add(row["accession"])
+        entries.append({"ticker": ticker, "cik": int(cik), "exhibit": "", "text_path": rel,
+                        "text_chars": len(text), **row})
+
+    for ticker in tickers:
+        if time.time() - started > budget_s:
+            print(f"pack: time budget reached after {checked} names; the rest wait a day.")
+            break
+        cik = ticker_to_cik.get(ticker)
+        if not cik:
+            continue
+        rec = _submissions_recent(cik)
+        if not rec:
+            continue
+        checked += 1
+        forms, accs = rec.get("form", []), rec.get("accessionNumber", [])
+        items = rec.get("items") or [""] * len(forms)
+        periodic = [a for i, a in enumerate(accs) if forms[i] in ("10-Q", "10-K")]
+        annual = [a for i, a in enumerate(accs) if forms[i] == "10-K"]
+        releases = [a for i, a in enumerate(accs)
+                    if forms[i] == "8-K" and _EARNINGS_ITEM in (items[i] or "")]
+        # A key is settled once it is held or once it was read and gave nothing.
+        # A filing never changes, so neither answer is worth asking for twice.
+        settled = lambda key: key in accessions or key in misses
+
+        # Management's discussion, from the two newest periodic filings.
+        if periodic and not settled(f"{periodic[0]}-mdna"):
+            got, tried = fetch_mdna(cik, rec)
+            if got:
+                acc, form, filed, text = got
+                keep(ticker, cik, f"text/{ticker}/{acc}-mdna.txt", text,
+                     {"filed": filed, "form": form, "doc_kind": "mdna",
+                      "items": "2" if form == "10-Q" else "7", "accession": f"{acc}-mdna"})
+            for a in tried:
+                if not got or a != got[0]:
+                    misses[f"{a}-mdna"] = today
+
+        # The latest earnings release, however long ago it was filed. The earnings
+        # path stores a release under its bare accession, so that is the key.
+        if releases and not settled(releases[0]):
+            got = fetch_latest_earnings_release(cik, rec)
+            if got and got[0] not in accessions:
+                acc, filed, r_items, exhibit, text = got
+                keep(ticker, cik, f"text/{ticker}/{acc}.txt", text,
+                     {"filed": filed, "form": "8-K", "doc_kind": "earnings_release",
+                      "items": r_items, "accession": acc, "exhibit": exhibit})
+            if not got or got[0] != releases[0]:
+                misses[releases[0]] = today
+
+        # The 10-K items and the segment note, where the earnings path never ran.
+        if annual and not (settled(f"{annual[0]}-business")
+                           or settled(f"{annual[0]}-risk_factors")):
+            found = fetch_10k_items(cik, ticker, rec=rec)
+            for kind, k_acc, k_filed, k_text in found:
+                if f"{k_acc}-{kind}" not in accessions:
+                    keep(ticker, cik, f"text/{ticker}/{k_acc}-{kind}.txt", k_text,
+                         {"filed": k_filed, "form": "10-K", "doc_kind": kind,
+                          "items": "1" if kind == "business" else "1A",
+                          "accession": f"{k_acc}-{kind}"})
+            if not found:
+                misses[f"{annual[0]}-business"] = today
+        if periodic and not (settled(periodic[0]) or settled(f"{periodic[0]}-segment")):
+            seg = _fetch_segment_note(cik, ticker, rec=rec)
+            if seg and seg[0] not in accessions:
+                s_acc, s_form, s_filed, s_name, s_text = seg
+                keep(ticker, cik, f"text/{ticker}/{s_acc}-segment.txt", s_text,
+                     {"filed": s_filed, "form": s_form, "doc_kind": "segment_note",
+                      "items": s_name[:60], "accession": s_acc})
+            if not seg:
+                misses[f"{periodic[0]}-segment"] = today
+
+    try:
+        _PACK_STATE.parent.mkdir(parents=True, exist_ok=True)
+        _PACK_STATE.write_text(json.dumps(state, indent=1, sort_keys=True), encoding="utf-8")
+    except Exception as exc:
+        print(f"pack: could not save {_PACK_STATE.name} ({type(exc).__name__}: {exc}).")
+    kinds = {}
+    for e in entries:
+        kinds[e["doc_kind"]] = kinds.get(e["doc_kind"], 0) + 1
+    detail = ", ".join(f"{v} {k}" for k, v in sorted(kinds.items())) or "nothing new"
+    print(f"pack: {detail} for {checked} of {len(tickers)} names, "
+          f"{time.time() - started:.0f}s.")
+    return entries
+
+
 # --- reported history -----------------------------------------------------
 #
 # companyfacts carries every XBRL fact a company has filed, back to 2009 for
@@ -10614,7 +10886,12 @@ _FIN_CONCEPTS = {
                          "Revenues", "SalesRevenueNet"],
     "gross_profit":     ["GrossProfit"],
     "operating_income": ["OperatingIncomeLoss"],
-    "net_income":       ["NetIncomeLoss"],
+    # CF has not tagged NetIncomeLoss since 2011 and every year after it came back
+    # blank. It tags the figure for common shareholders instead. ProfitLoss is
+    # last because it includes the share of profit owed to minority partners,
+    # which for CF is a fifth of the total.
+    "net_income":       ["NetIncomeLoss", "NetIncomeLossAvailableToCommonStockholdersBasic",
+                         "ProfitLoss"],
     "eps_diluted":      ["EarningsPerShareDiluted"],
     "ocf":              ["NetCashProvidedByUsedInOperatingActivities",
                          "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
@@ -10703,6 +10980,19 @@ def fetch_financial_history(cik, ticker):
         for r in _fin_periods(facts, lo, hi, n):
             rows.append({"ticker": ticker, "cik": int(cik), "period": label, **r})
     return rows
+
+
+def financials_tickers_held():
+    """Tickers with any reported period on file."""
+    path = FINANCIALS_CSV_DIR / "reported.csv"
+    if not path.exists():
+        return set()
+    try:
+        with path.open(encoding="utf-8", newline="") as fh:
+            return {r.get("ticker", "") for r in csv.DictReader(fh)}
+    except Exception as exc:
+        print(f"csv: could not read reported.csv ({type(exc).__name__}: {exc}).")
+        return set()
 
 
 def record_financials(rows, observed_at):
@@ -14812,6 +15102,22 @@ def lambda_handler(event, context):
         _fin = []
         for _t, _c in _reported.items():
             _fin.extend(fetch_financial_history(_c, _t))
+        # 5c. The reading pack: the names the analyst is about to be handed, topped
+        #     up with the documents the earnings path only collects going forward.
+        #     Inside the same guard and after it, so a failure here costs the pack
+        #     and nothing else.
+        _ticker_to_cik = {_tkr: _cik for _cik, _tkr in cik_to_ticker.items()}
+        _pack_names = reading_pack_tickers()
+        _pack = collect_reading_packs(_pack_names, _ticker_to_cik)
+        if _pack:
+            record_filings(_pack, observed_at)
+        # Reported history rides on the earnings event too, so a pack name that has
+        # not reported since collection began has no decade to read. Once it has
+        # one, the earnings path adds each new period as it is reported.
+        _have_fin = financials_tickers_held()
+        for _t in _pack_names:
+            if _t not in _reported and _t not in _have_fin and _ticker_to_cik.get(_t):
+                _fin.extend(fetch_financial_history(_ticker_to_cik[_t], _t))
         if _fin:
             record_financials(_fin, observed_at)
     except Exception as exc:

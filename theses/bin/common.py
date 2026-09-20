@@ -6,7 +6,10 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 THESES = REPO / "theses"
 LEDGER = THESES / "ledger"
-RAW = "https://raw.githubusercontent.com/CTLSmith5689/daily-intelligence-brief/main"
+# APTERREON_RAW points the data reads somewhere else, a file:// URL included, so a
+# change to what is collected can be read by a dossier before it has been pushed.
+RAW = (os.environ.get("APTERREON_RAW")
+       or "https://raw.githubusercontent.com/CTLSmith5689/daily-intelligence-brief/main")
 PAGES = os.environ.get("APTERREON_PAGES") or "https://ctlsmith5689.github.io/daily-intelligence-brief"
 # The same files, served straight from the branch GitHub Pages publishes. A cloud
 # session's egress proxy refuses github.io but allows raw.githubusercontent.com,
