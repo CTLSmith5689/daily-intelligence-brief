@@ -239,17 +239,47 @@ def peer_share(row, scored):
             "leader": ranked[0]["ticker"], "leader_share": (num(ranked[0].get("ttm_revenue")) or 0) / total}
 
 
+FILINGS_START = (2026, 9)     # the first month data/filings/ has an index for
+
+
+def _filing_index_months():
+    """Every month that can hold a filing index, oldest first.
+
+    The index is filed under the month a document was RECORDED, not the month it
+    was filed with the SEC: a 10-K filed in February and collected in September
+    sits in 2026-09.csv for good. Reading only this month and last, as this used
+    to, would have dropped every 10-K description from every dossier on the first
+    of November without anything failing."""
+    today = datetime.now(tz=timezone.utc).date()
+    y, m = FILINGS_START
+    months = []
+    while (y, m) <= (today.year, today.month):
+        months.append(f"{y:04d}-{m:02d}")
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    return months
+
+
+# The segment note is taken from the filing's XBRL viewer page, which follows the
+# note with the tag's own definition and a list of accounting-standard references.
+# That tail was 54% of all segment text collected by 2026-09-19 and says nothing
+# about the company.
+_XBRL_TAIL = re.compile(r"\n\s*X\s*\n\s*\n?\s*- (?:References|Definition)")
+
+
 def filings_for(ticker):
     """Latest collected document of each kind for this ticker.
 
     Returns {doc_kind: (index_row, text)}. Kinds today are earnings_release
-    (the 8-K EX-99.1) and segment_note (the segment note from the last periodic
-    filing). The segment note is here because three of the first four theses
-    named the segment split as the thing they could not see."""
-    today = datetime.now(tz=timezone.utc).date()
+    (the 8-K EX-99.1), business and risk_factors (10-K Items 1 and 1A) and
+    segment_note (the segment note from the last periodic filing). The segment
+    note is here because three of the first four theses named the segment split
+    as the thing they could not see.
+
+    A kind with nothing collected is absent from the result. There is
+    deliberately no "most recent document of any kind" fallback: there was one,
+    and it printed CF's 10-Q segment note under the earnings release heading."""
     rows = []
-    for m in (today.strftime("%Y-%m"),
-              (today.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")):
+    for m in _filing_index_months():
         raw = fetch(f"{RAW}/data/filings/{m}.csv")
         if raw:
             rows += [r for r in csv.DictReader(io.StringIO(raw.decode("utf-8", "replace")))
@@ -258,29 +288,12 @@ def filings_for(ticker):
     for kind in {r.get("doc_kind") or "earnings_release" for r in rows}:
         of_kind = [r for r in rows if (r.get("doc_kind") or "earnings_release") == kind]
         row = max(of_kind, key=lambda r: r.get("filed", ""))
-        text = fetch(f"{RAW}/data/filings/{row.get('text_path', '')}")
-        out[kind] = (row, text.decode("utf-8", "replace")[:MAX_FILING_CHARS] if text else None)
+        raw = fetch(f"{RAW}/data/filings/{row.get('text_path', '')}")
+        text = raw.decode("utf-8", "replace") if raw else None
+        if text and kind == "segment_note":
+            text = _XBRL_TAIL.split(text, 1)[0].rstrip()
+        out[kind] = (row, text[:MAX_FILING_CHARS] if text else None)
     return out
-
-
-def latest_filing(ticker):
-    """Most recent earnings release text collected by the pipeline."""
-    today = datetime.now(tz=timezone.utc).date()
-    for m in (today.strftime("%Y-%m"),
-              (today.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")):
-        raw = fetch(f"{RAW}/data/filings/{m}.csv")
-        if not raw:
-            continue
-        rows = [r for r in csv.DictReader(io.StringIO(raw.decode("utf-8", "replace")))
-                if r.get("ticker") == ticker]
-        if not rows:
-            continue
-        row = max(rows, key=lambda r: r.get("filed", ""))
-        text = fetch(f"{RAW}/data/filings/{row.get('text_path', '')}")
-        if text:
-            return row, text.decode("utf-8", "replace")[:MAX_FILING_CHARS]
-        return row, None
-    return None, None
 
 
 def main():
@@ -675,8 +688,6 @@ def main():
 
     # --- the filing ----------------------------------------------------------
     row, text = docs.get("earnings_release", (None, None))
-    if row is None:
-        row, text = latest_filing(ticker)
     w("")
     w("## Latest earnings release (8-K item 2.02, EX-99.1)")
     w("")
