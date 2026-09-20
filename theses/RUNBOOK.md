@@ -249,20 +249,47 @@ eight seconds. Into each dossier it puts:
 | Peer percentiles | Computed per field, sub-industry where the cohort has 20+, else sector | |
 | Tensions | `tensions.py`, 8 detectors | Questions, not rankings |
 | A year of daily closes | `docs/prices/{TICKER}.json` | |
-| Reported history | `data/financials/reported.csv` | A decade, annual and quarterly |
+| Reported history | `data/financials/reported.csv` | A decade, annual and quarterly, with operating margin, the diluted share count, and the median year's profit per share |
 | Peer revenue share | Computed across the gated universe | |
-| Segment names | 10-Q or 10-K segment note | Names only, never revenue |
+| Segment note | 10-Q or 10-K segment note | The note's own text and tables |
 | 10-K Item 1 and Item 1A | `data/filings/text/` | The business and its stated risks |
-| 8-K EX-99.1 | `data/filings/text/` | When one was filed |
+| Management's discussion | `data/filings/text/`, `-mdna.txt` | 10-Q Item 2 or 10-K Item 7: what was sold, at what price, what it cost, and where the cash went. Two excerpts, with the path to the whole |
+| 8-K EX-99.1 | `data/filings/text/` | The latest results announcement, however long ago it was filed |
 | Filtered headlines | `docs/news/{TICKER}.json` | With a kept/total count |
 | Sector lens | `theses/lenses/{sector}.md` | How to read all of the above for this kind of business |
 | Track record | `ledger/scores.csv` via `hit_rate()` | The agent cannot remember it otherwise |
 | Data caveats | Assembled from what is stale or missing | |
 
+### Where the filing text comes from
+
+Filings are collected two ways, both inside the daily pipeline run.
+
+1. **When a company reports.** The run reads the SEC's daily index for the last
+   four days and, for every 8-K with results in it, keeps the announcement, the
+   10-K items, the segment note and the reported history. This only ever looks
+   forward from the day it was switched on, 2026-09-12.
+2. **For the names the analyst is about to be handed.** `collect_reading_packs`
+   tops up the watchlist, every company already written up, and the screen's top
+   twelve: the latest results announcement however old, management's discussion
+   from the latest 10-Q or 10-K, and anything in (1) that a company is missing
+   because it last reported before 2026-09-12. It was added on 2026-09-19, after
+   the first CF note listed as unknowable three figures that CF's own 10-Q prints.
+
+Measured on ten companies: ten of ten announcements, eight of ten discussions.
+The misses are filings that keep the discussion under headings with no "Item 2"
+(JPMorgan, Slide Insurance). A filing that yields nothing is remembered in
+`state/reading_pack.json` and is not downloaded again, and the dossier says the
+discussion is missing.
+
+To read a change to the collection before it is pushed, point a dossier at a
+local copy of the data: `APTERREON_RAW=file:///path/to/root python3
+theses/bin/dossier.py CF`, where the root holds a `data/` directory.
+
 The dossier also states what is NOT available, because a model that is not told
 what is missing will fill the gap. There are no consensus estimates anywhere in
-this pipeline, no forward guidance as data, no price targets, no unit volumes,
-no segment revenue, and no commodity price series.
+this pipeline, no forward guidance as data, no price targets, and no commodity
+price series. Unit volumes, selling prices and segment revenue exist only as
+text, where a company's own filings print them, and never as data columns.
 
 ## Why a sector lens and not retrieval
 
