@@ -3459,6 +3459,9 @@ html.tp-open, html.tp-open body { overflow:hidden; }
 .tp-md ul { padding-left:18px; }
 .tp-md li { margin-bottom:5px; }
 .tp-md strong { color:var(--text-1); font-weight:700; }
+.tp-md blockquote { margin:0 0 12px; padding:2px 0 2px 14px; border-left:3px solid var(--border-bright);
+  color:var(--text-3); font-style:italic; }
+.tp-md blockquote p { margin:0; }
 .tp-md code { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-1); background:var(--surface-1);
   padding:0 4px; border:1px solid var(--border); }
 .tp-md a { color:var(--text-1); text-decoration:underline; text-decoration-color:var(--apt-red); }
@@ -13778,8 +13781,10 @@ def _md_to_html(text):
     """Safe markdown subset to HTML.
 
     Escapes everything first, then allows only: paragraphs split on blank lines,
-    "- " bullet lists (wrapped lines continue the item), **bold**, `code`,
-    [text](url) where the url is http or https, and pipe tables. The entity
+    "- " bullet lists (wrapped lines continue the item), "> " quoted lines,
+    **bold**, `code`, [text](url) where the url is http or https, and pipe
+    tables. A revision has to quote the claim it replaces word for word, and
+    without the quote it ran into the analyst's own sentences. The entity
     whitelist in _NOTE_ENTITIES is restored as characters. Nothing else in the
     input can produce a tag or an attribute."""
     if not text:
@@ -13788,12 +13793,15 @@ def _md_to_html(text):
     # The inline pass uses these two as placeholders, so input cannot carry them.
     src = src.replace("\x00", "").replace("\x01", "")
     esc = _html.escape(src, quote=True)
-    out, para, items, table = [], [], [], []
+    out, para, items, table, quote = [], [], [], [], []
 
     def flush():
         if para:
             out.append("<p>" + _md_inline(" ".join(para)) + "</p>")
             para.clear()
+        if quote:
+            out.append("<blockquote><p>" + _md_inline(" ".join(quote)) + "</p></blockquote>")
+            quote.clear()
         if items:
             out.append("<ul>" + "".join(
                 "<li>" + _md_inline(" ".join(i)) + "</li>" for i in items) + "</ul>")
@@ -13813,6 +13821,14 @@ def _md_to_html(text):
             table.append(line)
             continue
         if table:
+            flush()
+        # The text is already escaped, so a quoted line starts with the entity.
+        if line.startswith("&gt;"):
+            if not quote:
+                flush()
+            quote.append(line[4:].strip())
+            continue
+        if quote:
             flush()
         if line.startswith("- "):
             if para:
@@ -13964,20 +13980,21 @@ def _doc_kind_phrase(kind, n):
 def _since_last_note(prev, cur, docs=None):
     """One plain sentence saying what changed from the previous note."""
     if prev is None:
-        return "first note, no prior view"
+        return "first note on this company"
     parts = []
     pd, cd = prev.get("direction"), cur.get("direction")
     if (pd or "") != (cd or ""):
-        parts.append(f"direction changed from {pd or 'none'} to {cd or 'none'}")
+        say = lambda d: (_VIEW_WORDS.get(str(d or "").strip().lower()) or "no view given").lower()
+        parts.append(f"the view changed from {say(pd)} to {say(cd)}")
     pc, cc = prev.get("conviction"), cur.get("conviction")
     if pc != cc:
         if pc is None:
-            parts.append(f"conviction set at {cc}")
+            parts.append(f"confidence set at {cc} of 5")
         elif cc is None:
-            parts.append(f"conviction no longer recorded (was {pc})")
+            parts.append(f"confidence no longer given (was {pc} of 5)")
         else:
-            parts.append(f"conviction {'raised' if cc > pc else 'lowered'} "
-                         f"from {pc} to {cc}")
+            parts.append(f"confidence {'raised' if cc > pc else 'lowered'} "
+                         f"from {pc} to {cc} of 5")
     pt, ct = prev.get("target_price"), cur.get("target_price")
     if pt != ct:
         if pt is None:
@@ -13992,9 +14009,9 @@ def _since_last_note(prev, cur, docs=None):
     pk = " ".join((prev.get("key_claim") or "").split())
     ck = " ".join((cur.get("key_claim") or "").split())
     if pk != ck:
-        parts.append("key claim added" if not pk else
-                     "key claim dropped" if not ck else "key claim rewritten")
-    sentence = ", ".join(parts) if parts else "view unchanged"
+        parts.append("main claim added" if not pk else
+                     "main claim dropped" if not ck else "main claim rewritten")
+    sentence = ", ".join(parts) if parts else "the view is unchanged"
     if docs is not None:
         total = sum(docs.values())
         if total:
@@ -14787,8 +14804,11 @@ def _research_timeline(v):
             f'<div><div class="rs-evo-h"><span>{e(kind)}</span>{"".join(bits)}</div>'
             f'<p class="rs-evo-t">{e(since)}</p></div>'
             f'<div class="rs-evo-act">'
-            f'<button type="button" class="rs-open" data-open="{e(ticker)}" data-note="{idx}" '
-            f'aria-haspopup="dialog" aria-label="{e(label)}" hidden>Open note</button>{src}</div>'
+            # The current note is printed in full above, so only earlier ones open.
+            + ("" if idx == 0 else
+               f'<button type="button" class="rs-open" data-open="{e(ticker)}" data-note="{idx}" '
+               f'aria-haspopup="dialog" aria-label="{e(label)}" hidden>Open note</button>')
+            + f'{src}</div>'
             f'</li>')
     return (f'<div class="rs-evo-wrap">{head}'
             f'<ol class="rs-evo">{"".join(rows)}</ol></div>')
