@@ -485,6 +485,38 @@ def main():
              ("ttm_eps_diluted", "high52w_proximity"), ("analyst_count", "return_52w")]
     for a, b in pairs:
         w(f"| `{a}` | {fmt(num(me.get(a)), a)} | | `{b}` | {fmt(num(me.get(b)), b)} |")
+    # What the company owes and holds. net_debt_ebitda alone gives a ratio, and
+    # the first two-part note had to say it did not know how much CF owed.
+    debt, cash = num(me.get("total_debt")), num(me.get("cash_and_investments"))
+    if debt is not None or cash is not None:
+        w("")
+        line = (f"Total debt `total_debt` {fmt(debt, 'total_debt')}, cash and investments "
+                f"`cash_and_investments` {fmt(cash, 'cash_and_investments')}")
+        # The three debt fields come from different tags and need not agree. CF's
+        # panel cash is $290M against the $2,480M its 10-Q states, which puts debt
+        # after cash at 1.06 years of EBITDA beside a stored net_debt_ebitda of
+        # 0.29. Printing the subtraction as a fact would hand the note a wrong
+        # number with a field name on it.
+        ebitda, stored = num(me.get("ttm_ebitda")), num(me.get("net_debt_ebitda"))
+        if debt is not None and cash is not None:
+            implied = (debt - cash) / ebitda if ebitda else None
+            if implied is not None and stored is not None \
+                    and abs(implied - stored) > max(0.25, 0.25 * abs(stored)):
+                w(line + ".")
+                w("")
+                w(f"**These do not agree with each other.** Debt less cash is "
+                  f"{fmt(debt - cash, 'total_debt')}, or {implied:.2f} years of `ttm_ebitda`, "
+                  f"but `net_debt_ebitda` is stored as {stored:.2f}. At least one of the three "
+                  f"was read from the wrong tag. Take debt and cash from the balance sheet "
+                  f"figures in management's discussion, and do not quote these.")
+                caveats.append("the panel's debt and cash fields disagree with its own "
+                               "net_debt_ebitda; use the figures in management's discussion")
+            elif debt >= cash:
+                w(line + f", so debt after using the cash is {fmt(debt - cash, 'total_debt')}.")
+            else:
+                w(line + f", so it holds {fmt(cash - debt, 'total_debt')} more cash than it owes.")
+        else:
+            w(line + ".")
 
     # --- insider, only when it is real ---------------------------------------
     ins_age = age_days((me.get("insider_updated") or "").strip(), panel_date)
@@ -576,7 +608,7 @@ def main():
         w("| FY | Revenue | Op income | Op margin | Net income | EPS | OCF | Capex | Diluted shares |")
         w("|---|---|---|---|---|---|---|---|---|")
         derived_ni = False
-        for r in fy[-10:]:
+        for r in fy:
             g = lambda k: num(r.get(k))
             margin = (g("operating_income") / g("revenue")
                       if g("operating_income") is not None and g("revenue") else None)
@@ -640,7 +672,7 @@ def main():
             w(f"The median year earned **{mid:,.2f}** a share. A case for what the shares "
               f"could be worth should say which of these years it resembles, rather than "
               f"scaling the latest year by a round number.")
-        sh = [(r["period_end"][:4], num(r.get("shares_diluted"))) for r in fy[-10:]
+        sh = [(r["period_end"][:4], num(r.get("shares_diluted"))) for r in fy
               if num(r.get("shares_diluted"))]
         if len(sh) >= 4:
             change = sh[-1][1] / sh[0][1] - 1

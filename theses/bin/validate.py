@@ -336,7 +336,12 @@ JARGON = [
 ]
 JARGON = [(label, re.compile(p), plain, hard) for label, p, plain, hard in JARGON]
 
-SOURCE_KIND = re.compile(r"^(?:`[a-z][a-z0-9_]*`|close\b|filing\b|headline\b|calc\b|my choice\b)", re.I)
+# "history" is the dossier's reported history table: a decade of the company's own
+# filed figures, and the source the business sections lean on most. It had no
+# name here, so the first two-part note labelled fifteen rows "dossier reported
+# history", failed on all of them, and settled on "filing reported history in the
+# checkout" as a guess at what was wanted.
+SOURCE_KIND = re.compile(r"^(?:`[a-z][a-z0-9_]*`|close\b|filing\b|history\b|headline\b|calc\b|my choice\b)", re.I)
 _MONTHS = r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?"
 # Units whose numbers are always claims: dollars, percent, "times", percentage
 # points, cents. A missing row for one of these FAILS. A bare count only warns,
@@ -503,7 +508,11 @@ def _numbers_in(text):
     """Numeric values a reader would want sourced, each as ((value, unit), shown).
     Dates, years, form codes, product and rule names, plain durations ("126
     trading days") and the fixed phrases "each $1" and "every $100" are left out."""
-    t = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", " ", text)
+    # A wrapped line is one sentence. Without this, "39\npercent" reads as a bare
+    # count of 39 with no unit, which no row for "39 percent" can satisfy, and the
+    # writer is told a sourced number is unsourced.
+    t = re.sub(r"[ \t]*\n[ \t]*", " ", text)
+    t = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", " ", t)
     t = re.sub(rf"\b{_MONTHS}\s+\d{{1,2}}(?:,\s*\d{{4}})?\b|\b\d{{1,2}}\s+{_MONTHS}(?:\s+\d{{4}})?", " ", t)
     t = re.sub(r"\b(?:Q[1-4]|\d+-[KQ]|EX-\d+(?:\.\d+)?|Form \d+|S&P \d+|Russell \d+|iPhone \d+|Phase \d"
                r"|Chapter \d+|Section \d+)\b", " ", t)
@@ -930,7 +939,7 @@ def _numbers_table(numbers, writing, words, F, W):
             continue
         if not SOURCE_KIND.match(r[2]):
             F(f"{NUMBERS_SECTION} row {r[0]!r}: source {r[2][:40]!r} must start with a `field_name`, "
-              f"or with close, filing, headline, calc or my choice.")
+              f"or with close, filing, history, headline, calc or my choice.")
         if re.match(r"`price`", r[2]):
             W(f"{NUMBERS_SECTION} row {r[0]!r} cites the stored `price`, which can be days old. "
               f"Use close and its date.")

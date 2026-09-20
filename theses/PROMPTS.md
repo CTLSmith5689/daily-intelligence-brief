@@ -189,7 +189,8 @@ SENTENCES AND NUMBERS
 - Use "I" for your view and the company's name for the company. Tickers go in the table only.
 - The business part carries the numbers a reader needs to picture the company, one or two to a
   sentence. The view rests on two or three numbers. Do not repeat a number to fill space.
-- Round to whole numbers, or one decimal place below 10.
+- Round to whole numbers, or one decimal place below 10. Keep share prices, profit per share and
+  a cost for each unit as the filing prints them: "$3.37 for each unit", "$8.97 a share".
 - Say what each number means: "sales grew 14% over the past year". Write "36 times", never "36x".
 - Give time spans in calendar terms. horizon_days counts calendar days, so 126 days is about 4
   months and 252 days is about 8 months.
@@ -280,13 +281,20 @@ These repeat the body and add no number, price or date it does not support. vali
   earnings_date. The stored date is often the last report, so use it only if it is after the note's
   date.
 
+One required field has no other rule. **review_by** is the date this name gets looked at again
+whatever has happened, as YYYY-MM-DD. Set it just after the event in WHAT WOULD SETTLE IT should be
+public. When there is no such event, use four months after the note's date.
+
 THE NUMBERS TABLE
 
 After at most one short sentence, the table has the columns In the note, What it means, Source and
 Exact value. Every number in the body and the front-matter text gets a row, except dates and spans of
 time. "In the note" shows the number as the sentence does: "about 38 times". Source starts with a
-field name in backticks such as `ttm_eps_diluted`, or with the plain words close and its date,
-filing, headline, calc: and the sum, or my choice (no backticks on those).
+field name in backticks such as `ttm_eps_diluted`, or with one of these plain words (no backticks):
+close and its date; filing and which one, such as "filing: quarterly report, management's
+discussion"; history for the dossier's reported history table; headline; calc: and the sum; or my
+choice. On a revision, the prior key claim you quote on lines starting with > is left out of this
+table and out of the writing checks, because it has to be quoted word for word.
 
 BEFORE AND AFTER
 

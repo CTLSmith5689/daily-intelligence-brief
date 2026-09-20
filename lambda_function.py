@@ -10613,8 +10613,11 @@ def _fetch_segment_note(cik, ticker, rec=None):
 # there is nothing in the 10-K to extract. Item 7 is therefore not collected on
 # the earnings path. The reading pack further down does collect management's
 # discussion, for the few names the analyst is about to write up, and says why.
+# Management's discussion is kept nearly whole. At 120,000 characters CF's was cut
+# mid-sentence in the paragraph on its senior notes, which is where the total it
+# owes is stated, and the note written from it had to say it did not know.
 _ITEM_MAX = {"business": 26000, "risk_factors": 42000,
-             "mdna_10q": 120000, "mdna_10k": 120000}
+             "mdna_10q": 200000, "mdna_10k": 200000}
 _ITEM_MIN = 1500
 # A real section runs at least this far before the next item heading. Table of
 # contents entries are a few hundred characters apart at most.

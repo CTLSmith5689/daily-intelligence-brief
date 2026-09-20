@@ -20,6 +20,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import num
 
 
+def _ordinal(n):
+    """91 -> '91st'. The headline read "91th percentile"."""
+    n = int(n)
+    if 10 <= n % 100 <= 20:
+        return f"{n}th"
+    return f"{n}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th') }"
+
+
 def _pct(row, sleeve, pool):
     vals = sorted(r["_sleeves"][sleeve] for r in pool
                   if r["_sleeves"].get(sleeve) is not None)
@@ -38,7 +46,7 @@ def detect(row, pool):
     if (qp or 0) >= 75 and (vp or 0) >= 75:
         out.append({
             "key": "quality_vs_value",
-            "headline": f"Quality {qp}th percentile, valuation {vp}th, inside its own sub-industry",
+            "headline": f"Quality {_ordinal(qp)} percentile, valuation {_ordinal(vp)}, inside its own sub-industry",
             "question": "A good business priced cheaply against its direct peers. Either the "
                         "market knows something the panel does not, or nobody is looking. "
                         "Which, and what would distinguish them?",
@@ -71,7 +79,7 @@ def detect(row, pool):
     if ac is not None and ac <= 6 and (qp or 0) >= 70:
         out.append({
             "key": "neglect_vs_quality",
-            "headline": f"Quality {qp}th percentile with {ac:.0f} analyst"
+            "headline": f"Quality {_ordinal(qp)} percentile with {ac:.0f} analyst"
                         f"{'s' if ac != 1 else ''} covering it",
             "question": "The Lynch case, and Hong-Lim-Stein found momentum strongest where "
                         "coverage is thinnest. But thin coverage usually means small, "
