@@ -51,7 +51,15 @@ link, and anything skipped and why.
 The analyst runs as **Research Agent**, a scheduled task on claude.ai: Opus 5,
 "Skip all approvals", and "Require this computer" unchecked, so it runs whether
 or not the Mac is awake. Keep it manual until one run has gone end to end, then
-set it weekly. `trig_019GEQVFFZa8RbMuwNH8Tjyn` is a disabled test routine left
+set it weekly.
+
+It has run once, on 2026-09-13, and delivered four notes to Drive in 39 minutes,
+about 25 of them spent uploading files and downloading them again to compare.
+That delivery was later removed from Drive and was never ingested: its dossiers
+had no prices, because the cloud proxy refused the published site (fixed the
+same day in `common.fetch_site`), and its notes were in the old style. To see
+what a run did, use the routine's run log: routine
+`trig_01FvCss6qQ6ZsAwwjeSisKeh` at claude.ai/code/routines. `trig_019GEQVFFZa8RbMuwNH8Tjyn` is a disabled test routine left
 over from setting this up and can be deleted in the Scheduled tasks page.
 
 ### Why it delivers to Drive instead of pushing
@@ -130,9 +138,11 @@ newline included.
    required. Without it Drive converts the upload into a Google Doc, which the
    pipeline refuses.
 
-6. Upload each dossier as `dossier-{TICKER}.md` the same way. These are for a
-   person reading the folder and are not ingested, so if one fails, note it and
-   carry on.
+6. Do not upload the dossiers. This step used to, for a person reading the
+   folder. A dossier is now about 90,000 characters, and an upload through the
+   connector means writing the whole file out as the call's content: four of
+   them cost more than the four notes did. Anyone who wants one can rebuild it
+   with `python3 theses/bin/dossier.py TICKER`.
 
 7. Confirm the delivery:
 
