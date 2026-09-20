@@ -208,14 +208,14 @@ FIGURE_HARD = re.compile(
     r"\bvalue traps?\b|\bfalling kni(?:fe|ves)\b|\bdead money\b|\bcoiled spring\b"
     r"|\bmelting ice cubes?\b|\bcash cows?\b|\bcrown jewels?\b|\bwar chests?\b|\bdry powder\b"
     r"|\bfortress balance sheet\b|\bkitchen[- ]sink\w*\b|\bpriced (?:for|to) perfection\b"
-    r"|\bbaked in(?:to)?\b|\bcanary in the coal ?mine\b|\belephant in the room\b"
+    r"|\bcanary in the coal ?mine\b|\belephant in the room\b"
     r"|\bdouble-edged sword\b|\bperfect storm\b|\bgreen shoots\b|\bsea change\b"
-    r"|\bunder the hood\b|\bat the end of the day\b|\bpaper(?:s|ed|ing)? over\b"
+    r"|\bat the end of the day\b|\bpaper(?:s|ed|ing)? over\b"
     r"|\bjury is (?:still )?out\b|\blow-hanging fruit\b|\bmov(?:e|es|ed|ing) the needle\b"
-    r"|\bsecret sauce\b|\brocket ?ship\b|\bhouse of cards\b|\bthin ice\b|\btip of the iceberg\b"
+    r"|\bsecret sauce\b|\brocket ?ship\b|\bhouse of cards\b|\btip of the iceberg\b"
     r"|\bsilver (?:bullet|lining)\b|\bgame[- ]changers?\b|\bnorth star\b|\bholy grail\b"
     r"|\b(?:economic |competitive |wide |narrow |deep )?moats?\b|\bskin in the game\b"
-    r"|\bhead ?fake\b|\bsmoking gun\b|\bbelow the radar\b|\bunder the radar\b", re.I)
+    r"|\bhead ?fake\b|\bsmoking gun\b", re.I)
 # WARN: usually a figure of speech, but a wind farm has tailwinds and a parts maker
 # sells shock absorbers.
 FIGURE_SOFT = re.compile(
@@ -224,7 +224,11 @@ FIGURE_SOFT = re.compile(
     r"|\bstory stock\b|\bre-?rat(?:e|es|ed|ing)\b|\bunlock(?:s|ed|ing)? value\b|\bhidden gems?\b"
     r"|\bbleed(?:s|ing)? cash\b|\bhaemorrhag\w+|\bhemorrhag\w+|\bfiring on all cylinders\b"
     r"|\bin the driver'?s seat\b|\bback of the envelope\b|\bcushion\b|\bbackstop\b"
-    r"|\bcooperat(?:e|es|ed|ing)\b|\bred flags?\b", re.I)
+    r"|\bcooperat(?:e|es|ed|ing)\b|\bred flags?\b"
+    # Figures of speech nearly every time, but a bakery's bread is baked in stores
+    # and a defence supplier sells radar. A FAIL refuses a whole delivery, so a
+    # phrase with an honest literal use only warns.
+    r"|\bbaked in(?:to)?\b|\bunder the hood\b|\bthin ice\b|\b(?:below|under) the radar\b", re.I)
 
 # Hinting that something is hidden, overlooked or about to be revealed. FAIL. If
 # there is a fact, state it and say where it comes from.

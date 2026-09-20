@@ -3347,13 +3347,18 @@ RESEARCH_JS_TEMPLATE = r"""
     h = h.trim().toUpperCase();
     return byTicker[h] ? h : '';
   }
-  function openFromHash() {
+  // research.html#CF is a link to the entry, which prints the current note in
+  // full. It used to open that note in the popup as well, so every row of
+  // Current views raised a dialog over the thing it had just scrolled to. The
+  // one case still handled is an entry the filters have hidden.
+  function showFromHash() {
     var t = hashTicker();
-    if (!t) return;
-    popup.open(t, { noteIndex: 0, opener: byTicker[t].querySelector('.rs-open[data-note="0"]') });
+    if (!t || !byTicker[t].hidden) return;
+    setFilter('dir', 'all'); setFilter('status', 'all'); apply();
+    byTicker[t].scrollIntoView({ block: 'start' });
   }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
+  showFromHash();
+  window.addEventListener('hashchange', showFromHash);
 
   // The popup's Research link, followed from this page, closes the popup and
   // comes back to the entry instead of reloading the page.
@@ -10339,6 +10344,12 @@ _FILINGS_TIME_BUDGET_S = 900
 FILINGS_DAYS_BACK = 4
 
 
+# Fetches that failed for a reason other than "no such document". A caller that
+# must tell "could not read it" from "read it, nothing there" compares this
+# before and after: both cases return None.
+_EDGAR_FETCH_FAILURES = [0]
+
+
 def _edgar_get(url, accept=None, tries=3):
     """Throttled EDGAR fetch returning decoded bytes, or None.
 
@@ -10368,11 +10379,14 @@ def _edgar_get(url, accept=None, tries=3):
             if exc.code == 404:
                 return None          # weekend, holiday, or no such document
             if attempt == tries - 1:
+                _EDGAR_FETCH_FAILURES[0] += 1
                 return None
         except Exception:
             if attempt == tries - 1:
+                _EDGAR_FETCH_FAILURES[0] += 1
                 return None
         time.sleep(1.0 * (3 ** attempt))
+    _EDGAR_FETCH_FAILURES[0] += 1
     return None
 
 
@@ -10854,8 +10868,15 @@ def fetch_latest_earnings_release(cik, rec):
     return None
 
 
+_PACK_MISS_DAYS = 14          # a recorded miss is asked again after this long
+
+
 def _filing_accessions_held():
-    """Every accession in every month's index.
+    """Every (ticker, accession) in every month's index.
+
+    With the ticker, because two share classes share one CIK and so one set of
+    accessions: Alphabet's documents filed under GOOGL would otherwise read as
+    held for GOOG, whose dossier looks its documents up by ticker and finds none.
 
     Every month, because the index is filed under the month a document was
     recorded, and a 10-K collected in September is still the current 10-K in
@@ -10864,7 +10885,8 @@ def _filing_accessions_held():
     for path in sorted(FILINGS_CSV_DIR.glob("*.csv")):
         try:
             with path.open(encoding="utf-8", newline="") as fh:
-                accessions |= {r.get("accession", "") for r in csv.DictReader(fh)}
+                accessions |= {(r.get("ticker", ""), r.get("accession", ""))
+                               for r in csv.DictReader(fh)}
         except Exception as exc:
             print(f"pack: could not read {path.name} ({type(exc).__name__}: {exc}).")
     return accessions
@@ -10917,13 +10939,17 @@ def collect_reading_packs(tickers, ticker_to_cik, budget_s=_PACK_TIME_BUDGET_S):
         state = {}
     misses = state.setdefault("misses", {})
     today = datetime.now(tz=timezone.utc).date().isoformat()
+    # A miss is only believed for a while. One that was recorded wrongly, or for a
+    # filing whose layout a later fix can read, heals itself.
+    miss_cutoff = (datetime.now(tz=timezone.utc).date()
+                   - timedelta(days=_PACK_MISS_DAYS)).isoformat()
     entries, checked = [], 0
 
     def keep(ticker, cik, rel, text, row):
         path = FILINGS_CSV_DIR / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
-        accessions.add(row["accession"])
+        accessions.add((ticker, row["accession"]))
         entries.append({"ticker": ticker, "cik": int(cik), "exhibit": "", "text_path": rel,
                         "text_chars": len(text), **row})
 
@@ -10931,7 +10957,7 @@ def collect_reading_packs(tickers, ticker_to_cik, budget_s=_PACK_TIME_BUDGET_S):
         if time.time() - started > budget_s:
             print(f"pack: time budget reached after {checked} names; the rest wait a day.")
             break
-        cik = ticker_to_cik.get(ticker)
+        cik = ticker_to_cik.get(ticker) or ticker_to_cik.get(ticker.replace(".", "-"))
         if not cik:
             continue
         rec = _submissions_recent(cik)
@@ -10946,52 +10972,64 @@ def collect_reading_packs(tickers, ticker_to_cik, budget_s=_PACK_TIME_BUDGET_S):
                     if forms[i] == "8-K" and _EARNINGS_ITEM in (items[i] or "")]
         # A key is settled once it is held or once it was read and gave nothing.
         # A filing never changes, so neither answer is worth asking for twice.
-        settled = lambda key: key in accessions or key in misses
+        settled = lambda key: ((ticker, key) in accessions
+                               or misses.get(key, "") >= miss_cutoff)
+        # A miss means the filing was READ and had nothing usable. A download that
+        # failed says nothing about the filing, and recording it as a miss let one
+        # bad ten minutes at www.sec.gov suppress a company's whole pack for good.
+        failures = lambda: _EDGAR_FETCH_FAILURES[0]
 
         # Management's discussion, from the two newest periodic filings.
         if periodic and not settled(f"{periodic[0]}-mdna"):
+            before = failures()
             got, tried = fetch_mdna(cik, rec)
-            if got:
+            # The older of the two may already be held: it is what the dossier has
+            # been showing while the newest one would not extract.
+            if got and (ticker, f"{got[0]}-mdna") not in accessions:
                 acc, form, filed, text = got
                 keep(ticker, cik, f"text/{ticker}/{acc}-mdna.txt", text,
                      {"filed": filed, "form": form, "doc_kind": "mdna",
                       "items": "2" if form == "10-Q" else "7", "accession": f"{acc}-mdna"})
-            for a in tried:
-                if not got or a != got[0]:
-                    misses[f"{a}-mdna"] = today
+            if failures() == before:
+                for a in tried:
+                    if not got or a != got[0]:
+                        misses[f"{a}-mdna"] = today
 
         # The latest earnings release, however long ago it was filed. The earnings
         # path stores a release under its bare accession, so that is the key.
         if releases and not settled(releases[0]):
+            before = failures()
             got = fetch_latest_earnings_release(cik, rec)
-            if got and got[0] not in accessions:
+            if got and (ticker, got[0]) not in accessions:
                 acc, filed, r_items, exhibit, text = got
                 keep(ticker, cik, f"text/{ticker}/{acc}.txt", text,
                      {"filed": filed, "form": "8-K", "doc_kind": "earnings_release",
                       "items": r_items, "accession": acc, "exhibit": exhibit})
-            if not got or got[0] != releases[0]:
+            if (not got or got[0] != releases[0]) and failures() == before:
                 misses[releases[0]] = today
 
         # The 10-K items and the segment note, where the earnings path never ran.
         if annual and not (settled(f"{annual[0]}-business")
                            or settled(f"{annual[0]}-risk_factors")):
+            before = failures()
             found = fetch_10k_items(cik, ticker, rec=rec)
             for kind, k_acc, k_filed, k_text in found:
-                if f"{k_acc}-{kind}" not in accessions:
+                if (ticker, f"{k_acc}-{kind}") not in accessions:
                     keep(ticker, cik, f"text/{ticker}/{k_acc}-{kind}.txt", k_text,
                          {"filed": k_filed, "form": "10-K", "doc_kind": kind,
                           "items": "1" if kind == "business" else "1A",
                           "accession": f"{k_acc}-{kind}"})
-            if not found:
+            if not found and failures() == before:
                 misses[f"{annual[0]}-business"] = today
         if periodic and not (settled(periodic[0]) or settled(f"{periodic[0]}-segment")):
+            before = failures()
             seg = _fetch_segment_note(cik, ticker, rec=rec)
-            if seg and seg[0] not in accessions:
+            if seg and (ticker, seg[0]) not in accessions:
                 s_acc, s_form, s_filed, s_name, s_text = seg
                 keep(ticker, cik, f"text/{ticker}/{s_acc}-segment.txt", s_text,
                      {"filed": s_filed, "form": s_form, "doc_kind": "segment_note",
                       "items": s_name[:60], "accession": s_acc})
-            if not seg:
+            if not seg and failures() == before:
                 misses[f"{periodic[0]}-segment"] = today
 
     try:
@@ -13605,7 +13643,13 @@ def generate_stocks_page(universe):
                  .replace("__FIELD_STATUS_JSON__", json.dumps(FIELD_STATUS))
                  .replace("__REFRESH_CLASSES_JSON__", json.dumps(REFRESH_CLASSES))
                  .replace("__SECTORS_JSON__", sectors_json)
-                 .replace("__THESIS_INDEX_JSON__", json.dumps(thesis_index, separators=(",", ":")))
+                 .replace("__THESIS_INDEX_JSON__",
+                          # Inside a <script>, so "<" is written as an escape: json.dumps
+                          # leaves "</script>" alone, and this text comes from notes an
+                          # agent writes after reading filings nobody vetted.
+                          json.dumps(thesis_index, separators=(",", ":"), ensure_ascii=True)
+                          .replace("<", "\\u003c").replace(">", "\\u003e")
+                          .replace("&", "\\u0026"))
                  .replace("__SECTOR_WARNINGS_JSON__", json.dumps(sector_warnings, separators=(",", ":")))
                  .replace("__INDEXES_JSON__", indexes_json))
     # The popup script goes first so window.AptThesis exists when the page script
@@ -13704,10 +13748,12 @@ _CONDITION_CHECK = re.compile(
     r"\s*\[check:\s*([A-Za-z_][\w.]*)\s*(>=|<=|>|<)\s*"
     r"([-+\u2212]?(?:\d+(?:\.\d*)?|\.\d+))\s*\]\s*$")
 _DOC_KIND_WORDS = {
-    "business": ("business description", "business descriptions"),
-    "risk_factors": ("risk factors section", "risk factors sections"),
-    "segment_note": ("segment note", "segment notes"),
-    "earnings_release": ("earnings release", "earnings releases"),
+    "business": ("annual report description of the business",
+                 "annual report descriptions of the business"),
+    "risk_factors": ("annual report section on risks", "annual report sections on risks"),
+    "segment_note": ("note on its lines of business", "notes on its lines of business"),
+    "earnings_release": ("results announcement", "results announcements"),
+    "mdna": ("management discussion of results", "management discussions of results"),
 }
 _THESIS_NOTE_SUMMARY_KEYS = ("date", "kind", "direction", "conviction",
                              "target_price", "key_claim", "since_last_note",
@@ -13823,9 +13869,10 @@ def _md_to_html(text):
         if table:
             flush()
         # The text is already escaped, so a quoted line starts with the entity.
-        if line.startswith("&gt;"):
-            if not quote:
-                flush()
+        # Only "> text", and only opening a block or continuing a quote: a wrapped
+        # line of prose can begin with ">= 5 percent", and read as a quotation it
+        # lost its sign and split the sentence.
+        if (line == "&gt;" or line.startswith("&gt; ")) and (quote or not (para or items)):
             quote.append(line[4:].strip())
             continue
         if quote:

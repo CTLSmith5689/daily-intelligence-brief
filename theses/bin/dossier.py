@@ -65,8 +65,9 @@ def item_excerpt(kind, text, path):
 # a note needs: the opening, where management says what moved sales and profit,
 # and the liquidity section, which is where cash, debt and share buybacks are.
 # The rest is a file read away, like the 10-K items.
-_MDNA_OPENING_CAP = 24000
-_MDNA_LIQUIDITY_CAP = 9000
+_MDNA_OPENING_CAP = 16000
+_MDNA_LIQUIDITY_CAP = 7000
+_RELEASE_CAP_WITH_MDNA = 14000
 _MDNA_LIQUIDITY = re.compile(r"liquidity\s+and\s+capital\s+resources", re.I)
 
 
@@ -77,9 +78,18 @@ def mdna_excerpt(text, path):
     cut = text.rfind(". ", 0, _MDNA_OPENING_CAP)
     parts = [("The opening", text[:cut + 1] if cut > _MDNA_OPENING_CAP * 0.6
               else text[:_MDNA_OPENING_CAP])]
-    # The first mention past the opening. Earlier ones are the list of contents
-    # most discussions begin with.
-    m = _MDNA_LIQUIDITY.search(text, len(parts[0][1]))
+    # The first mention past the opening that is the heading itself. Earlier ones
+    # are the list of contents, and CF's next three are pointers of the form
+    # See "Liquidity and Capital Resources—Debt—Senior Notes," below: taking the
+    # first of those printed 8,751 characters on interest income under this label.
+    hits = list(_MDNA_LIQUIDITY.finditer(text, len(parts[0][1])))
+
+    def pointer(h):
+        before = text[max(0, h.start() - 3):h.start()].rstrip()
+        after = text[h.end():h.end() + 2].lstrip()[:1]
+        return before.endswith(("\u201c", '"', "\u2018", "'")) or after in ("\u2014", "\u2013", "-", ",", "\u201d", '"')
+
+    m = next((h for h in hits if not pointer(h)), hits[0] if hits else None)
     if m:
         end = text.rfind(". ", m.start(), m.start() + _MDNA_LIQUIDITY_CAP)
         parts.append(("From \"Liquidity and Capital Resources\"",
@@ -506,9 +516,10 @@ def main():
                 w("")
                 w(f"**These do not agree with each other.** Debt less cash is "
                   f"{fmt(debt - cash, 'total_debt')}, or {implied:.2f} years of `ttm_ebitda`, "
-                  f"but `net_debt_ebitda` is stored as {stored:.2f}. At least one of the three "
-                  f"was read from the wrong tag. Take debt and cash from the balance sheet "
-                  f"figures in management's discussion, and do not quote these.")
+                  f"but `net_debt_ebitda` is stored as {stored:.2f}. That ratio comes from the "
+                  f"data vendor and the other figures from the filing's own tags, so either a tag "
+                  f"was misread or the two count debt differently, leases for example. Where "
+                  f"management's discussion gives debt and cash, use those, and do not quote these.")
                 caveats.append("the panel's debt and cash fields disagree with its own "
                                "net_debt_ebitda; use the figures in management's discussion")
             elif debt >= cash:
@@ -657,8 +668,27 @@ def main():
                     f"reported for FY{fy[-1]['period_end'][:4]}; every revenue-derived field "
                     f"is unreliable here")
 
+        # Filings state each year's share count and profit per share as filed, with
+        # no adjustment for a later split. Read across a split, NVDA's count "rose
+        # 4,254%", Apple's "+145%" though it retired shares every year, and a
+        # 1-for-10 reverse split reads as a buyback. A jump this size between two
+        # adjacent years is never buying or issuing, so nothing per share is
+        # compared across it.
+        counts = [num(r.get("shares_diluted")) for r in fy]
+        split = any(a and b and not 0.7 <= b / a <= 1.4 for a, b in zip(counts, counts[1:]))
         eps = [num(r.get("eps_diluted")) for r in fy if num(r.get("eps_diluted")) is not None]
-        if len(eps) >= 5:
+        if split:
+            w("")
+            w("**The share count jumps by more than 40 percent between two adjacent years.** "
+              "That is a stock split, a reverse split or a change of units in the filing, and "
+              "the figures above are as filed, not adjusted for it. Do not compare profit per "
+              "share or the share count across those years, and do not describe the change "
+              "in share count as buying back or issuing shares. Compare net income and "
+              "revenue, which a split does not touch, and take buybacks from management's "
+              "discussion.")
+            caveats.append("the reported history crosses a stock split, so profit per share "
+                           "and share counts are not comparable across years")
+        elif len(eps) >= 5:
             w("")
             w(f"EPS over that span ranges {min(eps):,.2f} to {max(eps):,.2f}, against "
               f"{eps[-1]:,.2f} most recently. **Before describing current earnings as high or "
@@ -674,7 +704,7 @@ def main():
               f"scaling the latest year by a round number.")
         sh = [(r["period_end"][:4], num(r.get("shares_diluted"))) for r in fy
               if num(r.get("shares_diluted"))]
-        if len(sh) >= 4:
+        if len(sh) >= 4 and not split:
             change = sh[-1][1] / sh[0][1] - 1
             w("")
             w(f"Diluted shares went from {sh[0][1]/1e6:,.1f}M in {sh[0][0]} to "
@@ -834,8 +864,17 @@ def main():
               "carry forward guidance and half do not; Apple, for one, gives it only on the "
               "call. Do not infer guidance that is not here.")
             w("")
+        # Beside management's discussion the release mostly repeats it, and at full
+        # length the pair put a dossier near 120,000 characters, four to a run.
+        shown = text
+        if md_text and len(text) > _RELEASE_CAP_WITH_MDNA:
+            cut = text.rfind(". ", 0, _RELEASE_CAP_WITH_MDNA)
+            shown = text[:cut + 1] if cut > _RELEASE_CAP_WITH_MDNA * 0.6 else text[:_RELEASE_CAP_WITH_MDNA]
+            w(f"Showing {len(shown):,} of {len(text):,} characters. The "
+              f"whole release is in the checkout at `data/filings/{row.get('text_path', '')}`.")
+            w("")
         w("```text")
-        w(text)
+        w(shown)
         w("```")
     else:
         w("No earnings release collected for this ticker. Releases are collected as they are "
