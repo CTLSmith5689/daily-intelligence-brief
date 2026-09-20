@@ -2616,27 +2616,25 @@ body.page-stocks .lib-h { display:none; }
 .wn-w i { font-style:normal; color:var(--text-3); }
 @media (max-width:700px) { .wn-row { grid-template-columns:1fr; gap:3px; } }
 .stk-th { display:inline-block; width:7px; height:7px; border-radius:50%; margin-left:7px; vertical-align:middle; flex:0 0 auto; }
-/* Current rating on a covered row: direction word, five pips, Thesis button. */
-.stk-rt { display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; align-self:center; }
-.stk-rt-d { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-1); }
-.stk-rt-quiet .stk-rt-d { color:var(--text-3); }
-.stk-rt-p { display:inline-flex; gap:2px; }
-.stk-rt-p i { display:block; width:5px; height:5px; border-radius:50%; border:1px solid var(--text-4); }
-.stk-rt-p i.on { background:var(--apt-red); border-color:var(--apt-red); }
-.stk-rt-btn { flex:0 0 auto; align-self:center; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.2px;
-  text-transform:uppercase; color:var(--text-1); background:transparent; border:1px solid var(--border-bright);
-  padding:2px 7px; cursor:pointer; }
+/* A covered row carries one pill: the view in plain words. It is the button that
+   opens the note. It used to be a direction word, five pips and a separate
+   Thesis button, which together were wider than the company column and ran over
+   the sector beside it. The name gives way instead: it is the only part of the
+   cell that can shrink. */
+.stk-rt-btn { flex:0 0 auto; align-self:center; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
+  text-transform:uppercase; white-space:nowrap; color:var(--text-1); background:transparent;
+  border:1px solid var(--border-bright); border-left:3px solid var(--text-4); padding:2px 7px; cursor:pointer; }
+.stk-rt-long { border-left-color:var(--up-text); }
+.stk-rt-avoid, .stk-rt-short { border-left-color:var(--down-text); }
 .stk-rt-btn:hover { border-color:var(--text-1); }
+.stk-rt-long:hover { border-left-color:var(--up-text); }
+.stk-rt-avoid:hover, .stk-rt-short:hover { border-left-color:var(--down-text); }
 .stk-rt-btn:focus-visible { outline:2px solid var(--apt-red); outline-offset:2px; }
 .stk-sr { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
-@media (max-width:780px) {
-  .stk-id { flex-wrap:wrap; row-gap:4px; }
-  .stk-rt-d { display:none; }
-}
 .stk-row { border-bottom:1px solid var(--border); background:transparent; align-items:center; }
 .stk-row:hover { background:var(--surface-1); }
 .stk-rank { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-4); }
-.stk-id { display:flex; align-items:baseline; gap:9px; min-width:0; }
+.stk-id { display:flex; align-items:baseline; gap:9px; min-width:0; overflow:hidden; }
 .stk-tk { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1.1; color:var(--text-1); }
 .stk-nm { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden;
   text-overflow:ellipsis; min-width:0; }
@@ -2655,13 +2653,13 @@ body.page-stocks .lib-h { display:none; }
 .stk-f-t em.dn { background:var(--text-4); }
 .stk-f b { display:block; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px;
   color:var(--text-5); font-weight:400; margin-top:3px; }
-.stk-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.8fr) 74px 68px minmax(0,2.1fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
+.stk-head { display:grid; grid-template-columns:26px minmax(0,2fr) minmax(0,0.8fr) 74px 68px minmax(0,1.6fr) 82px 74px; gap:10px; padding:8px 4px; border-bottom:1px solid var(--text-1); background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-4); text-transform:uppercase; position:sticky; top:0; z-index:3; }
 .stk-th { cursor:pointer; user-select:none; transition:color .15s; }
 .stk-th:nth-child(n+4) { text-align:right; }
 .stk-th:hover { color:var(--text-1); }
 .stk-th.asc::after { content:' \\2191'; color:var(--apt-rose); margin-left:4px; }
 .stk-th.desc::after { content:' \\2193'; color:var(--apt-rose); margin-left:4px; }
-.stk-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.8fr) 74px 68px minmax(0,2.1fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
+.stk-row { display:grid; grid-template-columns:26px minmax(0,2fr) minmax(0,0.8fr) 74px 68px minmax(0,1.6fr) 82px 74px; gap:10px; padding:9px 4px; cursor:pointer; align-items:center; }
 .stk-row:hover { background:var(--bg-1); }
 .stk-ticker { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:var(--apt-rose); letter-spacing:0.02em; padding-top:1px; }
 .stk-name { font-size:13px; color:var(--text-1); line-height:1.35; }
@@ -3080,6 +3078,69 @@ body.page-research .scr-page-body { max-width:1060px; margin:0 auto; padding:0 2
 .rs-nums span:last-child { border-right:0; margin-right:0; padding-right:0; }
 .rs-nums b { color:var(--text-1); font-weight:400; }
 .rs-move { font-style:normal; }
+/* Current views: one line per covered company, linking to its note below. */
+.rs-now { padding:28px 0 6px; }
+.rs-now-list { border-top:1px solid var(--border); margin-top:12px; }
+.rs-now-row { display:grid; grid-template-columns:64px minmax(0,1.4fr) 124px minmax(0,1fr) minmax(0,1.1fr);
+  gap:6px 14px; align-items:baseline; padding:11px 4px; border-bottom:1px solid var(--border);
+  text-decoration:none; color:var(--text-2); }
+.rs-now-row:hover { background:var(--surface-1); }
+.rs-now-tk { font-family:'Space Mono',monospace; font-size:13px; letter-spacing:1px; color:var(--text-1); }
+.rs-now-nm { font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rs-now-v { font-family:'Instrument Serif',Georgia,serif; font-size:19px; line-height:1; color:var(--text-1); }
+.rs-now-long { color:var(--up-text); }
+.rs-now-avoid, .rs-now-short { color:var(--down-text); }
+.rs-now-watch, .rs-now-no-view { color:var(--text-3); }
+.rs-now-t, .rs-now-d { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); }
+.rs-now-d { text-align:right; }
+/* One company: the recommendation, the tests the note sets itself, then the note
+   in full. The edge colour says which way the view points; the words say it too. */
+.rs-card { padding:30px 28px 26px; }
+.rs-rec { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:22px 34px;
+  padding:20px 22px 22px; margin:4px 0 22px; border:1px solid var(--border-bright);
+  border-left:4px solid var(--text-4); background:var(--surface-1); }
+.rs-rec-long { border-left-color:var(--up-text); }
+.rs-rec-avoid, .rs-rec-short { border-left-color:var(--down-text); }
+.rs-verdict { font-family:'Instrument Serif',Georgia,serif; font-size:46px; line-height:1.02; color:var(--text-1); }
+.rs-confline { display:flex; align-items:center; gap:10px; margin:10px 0 16px; }
+.rs-rec .rs-claim { font-size:20px; margin-bottom:0; }
+.rs-call { align-self:start; border-top:1px solid var(--border-bright); }
+.rs-call-row { display:grid; grid-template-columns:minmax(0,0.9fr) minmax(0,1.3fr); gap:4px 12px;
+  padding:9px 0; border-bottom:1px solid var(--border); font-size:12.5px; line-height:1.5; color:var(--text-3); }
+.rs-call-row > span:first-child { font-family:'Space Mono',monospace; font-size:9.5px; letter-spacing:1.3px;
+  text-transform:uppercase; padding-top:2px; }
+.rs-call-row b { color:var(--text-1); font-weight:400; font-family:'Space Mono',monospace; font-size:13px; }
+.rs-call-row i { font-style:normal; display:block; font-size:11.5px; color:var(--text-3); }
+.rs-tests { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:18px 30px; margin-bottom:16px; }
+.rs-test p, .rs-test li { font-size:13.5px; line-height:1.62; color:var(--text-2); margin:0; }
+.rs-test ul { margin:0; padding-left:17px; }
+.rs-test li + li { margin-top:6px; }
+.rs-conf-d, .rs-src-d { border:1px solid var(--border); padding:10px 14px; margin:0 0 8px; }
+.rs-conf-d summary, .rs-src-d summary { cursor:pointer; font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); }
+.rs-conf-d[open] summary, .rs-src-d[open] summary { margin-bottom:10px; }
+.rs-conf-d ul { margin:0; padding:0; list-style:none; }
+.rs-conf-d li, .rs-conf-d p { font-size:13px; line-height:1.6; color:var(--text-2); margin:0 0 5px; }
+.rs-conf-d li b { font-family:'Space Mono',monospace; font-size:11px; font-weight:400; color:var(--text-1);
+  display:inline-block; min-width:52px; }
+.rs-conf-d p { color:var(--text-3); margin-top:9px; max-width:70ch; }
+.rs-part { margin:34px 0 18px; padding-bottom:9px; border-bottom:1px solid var(--text-1); }
+.rs-part .rs-k { margin-bottom:3px; }
+.rs-part h3 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:30px; line-height:1.1; color:var(--text-1); }
+.rs-sec { margin:0 0 24px; max-width:72ch; }
+.rs-sec-h { font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; color:var(--text-1); margin:0 0 8px; }
+.rs-body .tp-md { font-size:15px; line-height:1.72; }
+.rs-src-d { margin-top:6px; }
+.rs-src-d .tp-md { max-width:none; font-size:13px; }
+.rs-src-d .md-table td { white-space:normal; }
+.rs-foot { margin-top:18px; }
+@media (max-width:760px) {
+  .rs-card { padding:24px 16px 22px; }
+  .rs-rec { grid-template-columns:1fr; padding:16px 16px 18px; }
+  .rs-verdict { font-size:38px; }
+  .rs-now-row { grid-template-columns:54px minmax(0,1fr) auto; }
+  .rs-now-t, .rs-now-d { display:none; }
+}
 /* The evolution timeline: one row per note, newest first, on a rule with a dot
    per note. The current note's dot is filled. */
 .rs-evo-wrap { padding-top:14px; border-top:1px solid var(--border); }
@@ -3235,7 +3296,7 @@ RESEARCH_JS_TEMPLATE = r"""
     var sorted = cards.slice().sort(SORTS[state.sort] || SORTS.status);
     sorted.forEach(function(c) { list.appendChild(c); });
     var n = document.getElementById('rs-count');
-    if (n) n.textContent = shown + (shown === 1 ? ' name' : ' names');
+    if (n) n.textContent = shown + (shown === 1 ? ' company' : ' companies');
     var empty = document.getElementById('rs-noresult');
     if (empty) empty.hidden = shown > 0;
   }
@@ -3440,7 +3501,33 @@ html.tp-open, html.tp-open body { overflow:hidden; }
 .tp-doc span:nth-child(2) { color:var(--text-3); }
 .tp-doc span:last-child { color:var(--text-3); text-align:right; }
 .tp-loading { padding:40px 36px; font-family:'Space Mono',monospace; font-size:11px; color:var(--text-3); }
-@media (max-width:820px) {
+/* The recommendation: the view in plain words, then the claim it rests on. The
+   edge colour says which way the view points, and the words say it too. */
+.tp-when { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-3); margin-left:auto; }
+.tp-rec { margin:18px 0 26px; padding:16px 18px 18px; border:1px solid var(--border-bright);
+  border-left:4px solid var(--text-4); background:var(--surface-1); }
+.tp-rec-long { border-left-color:var(--up-text); }
+.tp-rec-avoid, .tp-rec-short { border-left-color:var(--down-text); }
+.tp-rec > .tp-eb { display:block; margin-bottom:8px; }
+.tp-verdict { font-family:'Instrument Serif',Georgia,serif; font-size:38px; line-height:1.05; color:var(--text-1); }
+.tp-conf { display:flex; align-items:center; gap:9px; margin:9px 0 14px; font-family:'Space Mono',monospace;
+  font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); }
+.tp-rec .tp-claim { font-size:21px; }
+/* The note itself. Part headings split the business from the view; section
+   headings are sentences, set as headings a reader can scan. */
+.tp-part { margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--text-1); }
+.tp-part h3 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:26px; line-height:1.1;
+  color:var(--text-1); margin:4px 0 0; }
+.tp-nsec { margin:0 0 22px; }
+.tp-nsec .tp-note-h { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; letter-spacing:0;
+  text-transform:none; color:var(--text-1); margin:0 0 8px; }
+.tp-src-d { margin:6px 0 28px; border:1px solid var(--border); padding:10px 14px; }
+.tp-src-d summary { cursor:pointer; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--text-3); }
+.tp-src-d[open] summary { margin-bottom:12px; }
+.tp-src-d .md-table td { white-space:normal; }
+.tp-z { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 84px; }
+@media (max-width:980px) {
   .tp-dlg { width:calc(100vw - 16px); max-height:94vh; }
   .tp-grid { grid-template-columns:1fr; }
   .tp-main { border-right:0; border-bottom:1px solid var(--border-bright); padding:22px 20px 26px; }
@@ -3489,9 +3576,26 @@ THESIS_POPUP_JS = r"""
   }
   function pct(a, b) { return (a == null || b == null || b === 0) ? null : (a / b - 1) * 100; }
   function upDn(n) { return (n == null || n === 0) ? '' : (n > 0 ? 'tp-up' : 'tp-dn'); }
+  // The view in the words the notes themselves use (theses/PROMPTS.md, PLAIN
+  // WORDS). "Long" and "avoid" are the analyst's shorthand, not the reader's.
+  var VIEW_WORDS = { 'long': 'Own it', 'short': 'Bet against it', 'avoid': 'Stay away',
+                     'watch': 'Keep watching', 'no view': 'No view' };
   function dirWord(d) {
-    var s = String(d || '').trim();
-    return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'No direction';
+    var s = String(d || '').trim().toLowerCase();
+    return VIEW_WORDS[s] || (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'No view given');
+  }
+  // Note headings are written in capitals. Read as a sentence they are calmer,
+  // and "I" is the one word that has to be put back.
+  function sentenceCase(t) {
+    t = String(t || '').toLowerCase();
+    return (t.charAt(0).toUpperCase() + t.slice(1)).replace(/\bi\b/g, 'I');
+  }
+  function addDays(iso, days) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    if (!m || days == null) return '';
+    var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    d.setUTCDate(d.getUTCDate() + days);
+    return d.toISOString().slice(0, 10);
   }
   function pipsHtml(c) {
     var n = num(c), h = '<span class="tp-pips" aria-hidden="true">';
@@ -3573,6 +3677,21 @@ THESIS_POPUP_JS = r"""
   // "What has to be true" rows. A status is printed only when the note gives a
   // machine check and today's stock row carries that field as a number;
   // anything short of that prints the condition with no verdict at all.
+  // What a checked figure measures, in the notes' own plain words. A field with
+  // no entry here is named as stored, underscores removed.
+  var FIELD_WORDS = {
+    net_debt_ebitda: 'years of earnings needed to pay off its debt after using its cash',
+    fcf_yield: 'spare cash a year, as a share of what the stock costs',
+    pe: 'share price divided by profit per share',
+    revenue_growth_yoy: 'sales growth over the past year',
+    eps_growth_yoy: 'growth in profit per share over the past year',
+    gross_margin: 'share of sales left after the cost of the product',
+    operating_margin: 'share of sales left as operating profit',
+    roe_ttm: 'profit as a share of shareholders\' money',
+    price: 'share price'
+  };
+  var PCT_FIELDS = { fcf_yield: 1, revenue_growth_yoy: 1, eps_growth_yoy: 1, gross_margin: 1,
+                     operating_margin: 1, roe_ttm: 1 };
   function conditionHtml(c, s) {
     var text = typeof c === 'string' ? c : (c && c.text) || '';
     var ck = c && typeof c === 'object' ? c.check : null;
@@ -3581,114 +3700,115 @@ THESIS_POPUP_JS = r"""
       var have = s[ck.field], want = num(ck.value);
       if (typeof have === 'number' && isFinite(have) && want != null) {
         var ok = OPS[ck.op][0](have, want);
+        var show = function(x) { return PCT_FIELDS[ck.field] ? plainNum(x * 100) + '%' : plainNum(x); };
         st = '<span class="tp-st ' + (ok ? 'tp-st-ok' : 'tp-st-no') + '">' + (ok ? 'holding' : 'not met') + '</span>';
-        line = '<span class="tp-cond-c">on the screen today: ' + esc(String(ck.field).replace(/_/g, ' '))
-          + ' is ' + esc(plainNum(have)) + ', needs ' + esc(OPS[ck.op][1]) + ' ' + esc(plainNum(want)) + '</span>';
+        line = '<span class="tp-cond-c">Latest figure: '
+          + esc(FIELD_WORDS[ck.field] || String(ck.field).replace(/_/g, ' '))
+          + ' is ' + esc(show(have)) + '. The view needs ' + esc(OPS[ck.op][1]) + ' ' + esc(show(want)) + '.</span>';
       }
     }
     return '<div class="tp-cond"><span class="tp-cond-t">' + esc(text) + '</span>' + st + line + '</div>';
   }
 
-  // The body heading that holds the note's argument against its own view. The
-  // note contract (theses/PROMPTS.md) fixes the body headings, and the one that
-  // argues against the call is WHAT WOULD PROVE ME WRONG (older notes used WHAT
-  // PROVES ME WRONG). The other patterns cover wording a future note format may
-  // use. When the note wording changes, update this list and AGAINST_NAMES
-  // together, and nothing else.
-  var AGAINST = [/^\s*what (would )?proves? (me|us|this|the (view|call|thesis)) wrong\b/i, /case against/i,
-    /against (this|the|my) (view|note|thesis|call)/i, /bear case/i, /counter.?case/i, /steel.?man/i];
-  var AGAINST_NAMES = 'What would prove me wrong or The case against';
-  function isAgainst(title) {
-    var t = String(title || '');
-    return AGAINST.some(function(re) { return re.test(t); });
+  // The two parts of a note written from 2026-09-19 (theses/bin/validate.py,
+  // BUSINESS_SECTIONS). Earlier notes have only the view, and open with an
+  // untitled paragraph on what the company does.
+  var BUSINESS = ['WHAT THE COMPANY DOES', 'HOW IT MAKES MONEY', 'THE LAST TEN YEARS',
+                  'WHAT MANAGEMENT DOES WITH THE CASH'];
+  var NUMBERS = 'WHERE THE NUMBERS COME FROM';
+
+  function noteSection(x) {
+    return '<section class="tp-nsec">'
+      + (x.title ? '<h3 class="tp-note-h">' + esc(sentenceCase(x.title)) + '</h3>' : '')
+      + '<div class="tp-md">' + x.html + '</div></section>';
   }
 
+  // The reading order is the recommendation, the tests it sets itself, then the
+  // note exactly as written. An earlier layout pulled the argument against the
+  // view out of its place and showed it before the reasoning it argues against.
   function mainHtml(v, notes, i, n, s, co) {
     var h = '';
     var coLine = [s && s.name, s && s.sector].filter(Boolean).map(esc).join(DOT);
     var conv = num(n.conviction);
-    var quiet = /^(no view|watch)$/i.test(String(n.direction || '').trim());
+    var d = String(n.direction || '').trim().toLowerCase();
     h += '<div class="tp-head"><h2 class="tp-tk" id="tp-title" tabindex="-1">' + esc(state.ticker) + '</h2>'
       + (coLine ? '<span class="tp-co">' + coLine + '</span>' : '')
-      + '<span class="tp-dirwrap"><span class="tp-dir' + (quiet ? ' tp-dir-quiet' : '') + '">'
-      + esc(dirWord(n.direction)) + '</span>' + pipsHtml(conv)
-      + '<span class="tp-conv">' + (conv == null ? 'conviction not set' : 'conviction ' + conv + ' of 5')
-      + '</span></span></div>';
+      + (n.date ? '<span class="tp-when">written ' + esc(n.date) + '</span>' : '') + '</div>';
     if (i > 0) {
       h += '<div class="tp-old">This is an earlier note, written ' + esc(n.date || 'on an unknown date')
         + '. The view may have changed since. <button type="button" data-tp-note="0">Read the current note</button></div>';
     }
-    h += '<div class="tp-since">' + eyebrow('Since last note')
-      + (n.since_last_note ? esc(n.since_last_note) : 'not recorded for this note') + '</div>';
 
-    // What the company does, in its own words, with where the words came from.
-    var biz = co && co.business;
-    h += '<section class="tp-sec">' + eyebrow('What the company does');
-    if (biz && biz.excerpt) {
-      var srcText = 'ITEM 1, 10-K ' + (biz.filed || '');
-      var srcHref = biz.text_path ? repoHref(FILINGS + biz.text_path) : '';
-      h += '<p class="tp-p">' + esc(shortText(biz.excerpt, 440)) + ' '
-        + (srcHref ? extLink(srcHref, srcText, 'tp-src') : '<span class="tp-src">' + esc(srcText) + '</span>') + '</p>';
-    } else {
-      h += gap('No description of the business has been collected from its annual report yet.');
-    }
-    h += '</section>';
-
-    h += '<section class="tp-sec">' + eyebrow('Thesis')
-      + (n.key_claim ? '<p class="tp-claim">' + esc(n.key_claim) + '</p>' : gap('This note does not state its key claim.'))
+    h += '<section class="tp-rec tp-rec-' + esc(d.replace(/\s+/g, '-')) + '">' + eyebrow('Recommendation')
+      + '<div class="tp-verdict">' + esc(dirWord(n.direction)) + '</div>'
+      + '<div class="tp-conf">' + pipsHtml(conv) + '<span>'
+      + (conv == null ? 'confidence not given' : 'confidence ' + conv + ' of 5') + '</span></div>'
+      + (n.key_claim ? '<p class="tp-claim">' + esc(n.key_claim) + '</p>'
+                     : gap('This note does not give its main claim.'))
       + '</section>';
 
-    h += '<section class="tp-sec">' + eyebrow('Evolution') + '<div class="tp-evo">'
-      + notes.map(function(x, k) {
-          x = x || {};
-          var head = esc(dirWord(x.direction))
-            + (num(x.conviction) != null ? DOT + 'conviction ' + num(x.conviction) : '')
-            + (px(x.target_price) ? DOT + 'target ' + px(x.target_price) : '');
-          return '<button type="button" class="tp-evo-i" data-tp-note="' + k + '"'
-            + (k === i ? ' aria-current="true"' : '') + '>'
-            + '<span class="tp-evo-d">' + esc(x.date || '') + '</span>'
-            + '<span class="tp-evo-h">' + head + '<em>' + esc(x.kind || 'note')
-            + (k === 0 ? DOT + 'current' : '') + (k === i ? DOT + 'showing' : '') + '</em></span>'
-            + '<span class="tp-evo-t">' + esc(x.since_last_note || 'change not recorded') + '</span></button>';
-        }).join('')
-      + '</div><p class="tp-cap">One entry per note, newest first. Choose one to read that note.</p></section>';
-
+    h += '<section class="tp-sec">' + eyebrow('What would prove it wrong')
+      + (n.falsifier ? '<p class="tp-p">' + esc(n.falsifier) + '</p>'
+                     : gap('The note does not say what would prove it wrong.'))
+      + '</section>';
     var conds = Array.isArray(n.conditions) ? n.conditions : [];
-    h += '<section class="tp-sec">' + eyebrow('What has to be true')
-      + (conds.length ? conds.map(function(c) { return conditionHtml(c, s); }).join('')
-                      : gap('This note does not list conditions that have to hold.'))
-      + '</section>';
-
-    h += '<section class="tp-sec">' + eyebrow('Wrong if / stronger if')
-      + '<p class="tp-trig tp-trig-w"><b>Wrong if</b>'
-      + (n.falsifier ? esc(n.falsifier) : '<span class="tp-gap">The note does not say what would prove it wrong.</span>')
-      + '</p><p class="tp-trig tp-trig-s"><b>Stronger if</b>'
-      + (n.add_if ? esc(n.add_if) : '<span class="tp-gap">The note does not say what would make the view stronger.</span>')
-      + '</p></section>';
+    if (conds.length) {
+      h += '<section class="tp-sec">' + eyebrow('What has to stay true')
+        + conds.map(function(c) { return conditionHtml(c, s); }).join('') + '</section>';
+    }
+    if (n.add_if) {
+      h += '<section class="tp-sec">' + eyebrow('What would make the view stronger')
+        + '<p class="tp-p">' + esc(n.add_if) + '</p></section>';
+    }
 
     var secs = (Array.isArray(n.sections) ? n.sections : []).filter(function(x) { return x && typeof x.html === 'string'; });
-    var against = null;
-    secs.forEach(function(x) { if (!against && isAgainst(x.title)) against = x; });
-    h += '<section class="tp-sec">' + eyebrow('The case against')
-      + (against ? '<h3 class="tp-note-h">' + esc(against.title) + '</h3><div class="tp-md">' + against.html + '</div>'
-                 : gap('This note has no section headed ' + AGAINST_NAMES + ', so there is no argument against its view to show.'))
-      + '</section>';
+    var numbers = null, opening = null, business = [], view = [];
+    secs.forEach(function(x) {
+      var t = String(x.title || '').trim().toUpperCase();
+      if (!t && !opening) opening = x;
+      else if (t === NUMBERS) numbers = x;
+      else if (BUSINESS.indexOf(t) >= 0) business.push(x);
+      else view.push(x);
+    });
+    if (business.length) {
+      h += '<div class="tp-part">' + eyebrow('Part one') + '<h3>The business</h3></div>'
+        + business.map(noteSection).join('')
+        + '<div class="tp-part">' + eyebrow('Part two') + '<h3>The view</h3></div>'
+        + view.map(noteSection).join('');
+    } else if (opening || view.length) {
+      h += '<div class="tp-part">' + eyebrow('The note') + '</div>'
+        + (opening ? noteSection({ title: 'What the company does', html: opening.html }) : '')
+        + view.map(noteSection).join('');
+    } else {
+      h += gap('The body of this note was not published.');
+    }
+    if (numbers) {
+      h += '<details class="tp-src-d"><summary>Where the numbers come from</summary>'
+        + '<div class="tp-md">' + numbers.html + '</div></details>';
+    }
 
-    var body = secs.filter(function(x) { return x !== against; });
-    h += '<section class="tp-sec">' + eyebrow('The full note')
-      + (body.length ? body.map(function(x) {
-            // The opening paragraph sits before the first heading and has no title.
-            return (x.title ? '<h3 class="tp-note-h">' + esc(x.title) + '</h3>' : '')
-              + '<div class="tp-md">' + x.html + '</div>';
+    if (notes.length > 1) {
+      h += '<section class="tp-sec">' + eyebrow('Every note on this company') + '<div class="tp-evo">'
+        + notes.map(function(x, k) {
+            x = x || {};
+            var head = esc(dirWord(x.direction))
+              + (num(x.conviction) != null ? DOT + 'confidence ' + num(x.conviction) + ' of 5' : '')
+              + (px(x.target_price) ? DOT + 'target ' + px(x.target_price) : '');
+            return '<button type="button" class="tp-evo-i" data-tp-note="' + k + '"'
+              + (k === i ? ' aria-current="true"' : '') + '>'
+              + '<span class="tp-evo-d">' + esc(x.date || '') + '</span>'
+              + '<span class="tp-evo-h">' + head + '<em>'
+              + (k === 0 ? 'current' : 'earlier') + (k === i ? DOT + 'showing' : '') + '</em></span>'
+              + '<span class="tp-evo-t">' + esc(x.since_last_note || 'What changed was not recorded.') + '</span></button>';
           }).join('')
-        : gap('The body of this note was not published.'))
-      + '</section>';
+        + '</div><p class="tp-cap">Newest first. Choose one to read that note.</p></section>';
+    }
 
     var cav = (Array.isArray(n.data_caveats) ? n.data_caveats : []).filter(Boolean);
-    h += '<section class="tp-sec">' + eyebrow('What the analyst could not know')
-      + (cav.length ? '<ul class="tp-cav">' + cav.map(function(c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>'
-                    : gap('The note does not list anything it could not know.'))
-      + '</section>';
+    if (cav.length) {
+      h += '<section class="tp-sec">' + eyebrow('What the analyst could not see')
+        + '<ul class="tp-cav">' + cav.map(function(c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul></section>';
+    }
     return h;
   }
 
@@ -3742,18 +3862,25 @@ THESIS_POPUP_JS = r"""
     var toT = pct(target, base), toW = pct(wrong, base);
     if (nowP == null) nowCap = 'No current price is loaded, so the moves below are measured from entry.';
     var horizon = num(n.horizon_days);
-    h += '<div class="tp-rsec">' + eyebrow('The call') + '<div class="tp-kv">'
-      + kv('entry', px(entry) || 'not set')
+    var by = addDays(n.date, horizon);
+    // A target is a call only when the view takes a side. A note that is watching
+    // may still name a price, and printing it as a target would show an
+    // abstention as a call. The research page draws the same line.
+    var takesSide = /^(long|short|avoid)$/i.test(String(n.direction || '').trim());
+    h += '<div class="tp-rsec">' + eyebrow('The prices') + '<div class="tp-kv">'
+      + kv('when written', px(entry) || 'not given')
       + kv('now', nowP == null ? 'no price'
           : px(nowP) + (move == null ? '' : ' <span class="' + upDn(move) + '">' + signed(move) + '%</span>'))
-      + kv('target', px(target) || 'not set')
-      + kv('if wrong', px(wrong) || 'not set')
-      + kv('horizon', horizon == null ? 'not set' : horizon.toFixed(0) + ' days')
-      + kv('review by', n.review_by ? esc(n.review_by) : 'not set')
-      + '</div><div class="tp-kv tp-kv-split">'
-      + kv('to target', toT == null ? 'not set' : signed(toT) + '%', upDn(toT))
-      + kv('to if wrong', toW == null ? 'not set' : signed(toW) + '%', upDn(toW))
-      + '</div>' + (nowCap ? '<p class="tp-cap">' + esc(nowCap) + '</p>' : '') + '</div>';
+      + (takesSide ? kv('target', px(target) || 'not given') + kv('target date', by ? esc(by) : 'not given')
+                   : kv('target', 'none, no call made'))
+      + (takesSide || wrong != null ? kv('if the view is wrong', px(wrong) || 'not given') : '')
+      + kv('look again by', n.review_by ? esc(n.review_by) : 'not given')
+      + '</div>'
+      + (takesSide ? '<div class="tp-kv tp-kv-split">'
+          + kv('from now to the target', toT == null ? 'not given' : signed(toT) + '%', upDn(toT))
+          + kv('from now to the wrong price', toW == null ? 'not given' : signed(toW) + '%', upDn(toW))
+          + '</div>' : '')
+      + (nowCap ? '<p class="tp-cap">' + esc(nowCap) + '</p>' : '') + '</div>';
 
     // Next check, falling back to the earnings date the screen already knows.
     // The screen keeps the last known earnings date, which is often one that has
@@ -3765,44 +3892,48 @@ THESIS_POPUP_JS = r"""
       var noteDay = n.date ? String(n.date).slice(0, 10) : '';
       if (/^\d{4}-\d{2}-\d{2}$/.test(ed) && ed >= todayIso() && (!noteDay || ed >= noteDay)) {
         nc = ed;
-        ncCap = 'The note sets no check date, so this is the next earnings report. ';
+        ncCap = 'The note gives no date, so this is the next results date the stock list holds.';
       } else {
-        ncCap = 'The note sets no check date and the next earnings date is not known. ';
+        ncCap = 'The note gives no date, and the next results date is not known.';
       }
     }
-    h += '<div class="tp-rsec">' + eyebrow('Next check') + '<div class="tp-kv">'
-      + kv('next check', nc ? esc(nc) : 'not set') + kv('cadence', 'not set') + '</div>'
-      + '<p class="tp-cap">' + esc(ncCap + 'The note does not say how often it is checked.') + '</p></div>';
+    h += '<div class="tp-rsec">' + eyebrow('Next results') + '<div class="tp-kv">'
+      + kv('next quarterly report', nc ? esc(nc) : 'not known') + '</div>'
+      + (ncCap ? '<p class="tp-cap">' + esc(ncCap) + '</p>' : '') + '</div>';
 
-    // Screen position: today's sleeve z-scores, the same scale as the list bars.
-    var Z = [['Growth', 'g'], ['Value', 'v'], ['Momentum', 'm'], ['Quality', 'q']];
+    // How the company compares with its sector today. The same four readings as
+    // the bars in the stock list, in words: the numbers behind them are distances
+    // from the sector average, which mean nothing to a reader without the scale.
+    var Z = [['Growth', 'g'], ['Price against profits', 'v'], ['Share price trend', 'm'], ['Business quality', 'q']];
     var anyZ = s && Z.some(function(z) { return typeof s[z[1]] === 'number' && isFinite(s[z[1]]); });
-    h += '<div class="tp-rsec">' + eyebrow('Screen position');
+    h += '<div class="tp-rsec">' + eyebrow('Against its sector today');
     if (anyZ) {
       h += Z.map(function(z) {
         var val = s[z[1]];
         if (typeof val !== 'number' || !isFinite(val)) {
-          return '<div class="tp-z"><span>' + z[0] + '</span><span class="tp-z-t"></span><b>none</b></div>';
+          return '<div class="tp-z"><span>' + z[0] + '</span><span class="tp-z-t"></span><b>no reading</b></div>';
         }
         var mag = (Math.min(Math.abs(val) / 1.5, 1) * 50).toFixed(1);
         var style = val >= 0 ? 'left:50%;width:' + mag + '%' : 'right:50%;width:' + mag + '%';
+        var word = val >= 0.5 ? 'better' : val <= -0.5 ? 'worse' : 'about average';
         return '<div class="tp-z"><span>' + z[0] + '</span><span class="tp-z-t"><em class="' + (val >= 0 ? 'up' : 'dn')
-          + '" style="' + style + '"></em></span><b class="' + upDn(val) + '">' + signed(val, 2) + '</b></div>';
+          + '" style="' + style + '"></em></span><b class="' + (word === 'about average' ? '' : upDn(val)) + '">' + word + '</b></div>';
       }).join('')
-        + '<p class="tp-cap">Standard deviations from the ' + esc((s && s.sector) || 'sector')
-        + ' average, zero at the tick. These are today&#39;s scores, not the scores when the note was written.</p>';
+        + '<p class="tp-cap">A bar to the right of the line is better than the average '
+        + esc((s && s.sector) || 'sector') + ' company, and to the left is worse. These are today&#39;s readings, '
+        + 'which may differ from the day the note was written.</p>';
     } else {
-      h += gap(s ? 'This company has no screen scores today.' : 'Screen scores are not loaded on this page.');
+      h += gap(s ? 'This company has no readings today.' : 'The stock list is not loaded on this page.');
     }
     h += '</div>';
 
     // Reported: up to twelve fiscal years as filed.
     var ann = (co && co.reported && Array.isArray(co.reported.annual)) ? co.reported.annual.slice(-12) : [];
-    h += '<div class="tp-rsec">' + eyebrow('Reported' + DOT + (ann.length >= 2 ? ann.length : 12) + ' years');
+    h += '<div class="tp-rsec">' + eyebrow('The last ' + (ann.length >= 2 ? ann.length : 12) + ' years, as reported');
     if (ann.length >= 2) {
-      var SERIES = [['Revenue', 'revenue', money],
-                    ['Operating margin', 'operating_margin', function(x) { return signed(x * 100).replace(/^\+/, '') + '%'; }],
-                    ['Free cash flow', 'fcf', money]];
+      var SERIES = [['Sales', 'revenue', money],
+                    ['Operating profit from each $1 of sales', 'operating_margin', function(x) { return signed(x * 100).replace(/^\+/, '') + '%'; }],
+                    ['Spare cash', 'fcf', money]];
       h += SERIES.map(function(sr) {
         var vals = ann.map(function(r) { var x = r && r[sr[1]]; return (typeof x === 'number' && isFinite(x)) ? x : null; });
         var last = -1;
@@ -3815,33 +3946,39 @@ THESIS_POPUP_JS = r"""
         return '<div class="tp-sp"><div class="tp-sp-h"><span>' + sr[0] + '</span><b>' + esc(sr[2](vals[last]))
           + '<i>' + esc(yr) + '</i></b></div>' + spark(vals) + '</div>';
       }).join('')
-        + '<p class="tp-cap">Annual figures as filed with the SEC, ' + esc(String(ann[0].period_end || '').slice(0, 4))
+        + '<p class="tp-cap">Yearly figures from the company&#39;s filings, ' + esc(String(ann[0].period_end || '').slice(0, 4))
         + ' to ' + esc(String(ann[ann.length - 1].period_end || '').slice(0, 4))
-        + '. A break in a line is a year the filing did not tag.</p>';
+        + '. Spare cash is what is left after paying for equipment. A break in a line is a year with no figure.</p>';
     } else {
-      h += gap('No reported annual figures have been collected for this company yet.');
+      h += gap('No yearly figures have been collected for this company yet.');
     }
     h += '</div>';
 
     // Documents read: what was on file by the note's date.
+    var DOC_WORDS = { business: 'Annual report: the business', risk_factors: 'Annual report: the risks',
+                      segment_note: 'Lines of business', earnings_release: 'Results announcement',
+                      mdna: 'Management on its results' };
     var files = (co && Array.isArray(co.filings)) ? co.filings : null;
-    h += '<div class="tp-rsec">' + eyebrow('Documents read');
+    h += '<div class="tp-rsec">' + eyebrow('Filings the analyst could read');
     if (!files || !files.length) {
-      h += gap('No filing documents have been collected for this company.');
+      h += gap('No filings have been collected for this company.');
     } else {
-      var held = files.filter(function(f) { return f && f.filed && (!n.date || String(f.filed) <= String(n.date)); })
-        .sort(function(a, b) { return String(b.filed).localeCompare(String(a.filed)); });
+      // By the day it was collected, not the day it was filed. CF's 10-Q was filed
+      // in August and collected a week after its first note, which never saw it.
+      var held = files.filter(function(f) {
+          return f && f.filed && (!n.date || String(f.collected || f.filed) <= String(n.date));
+        }).sort(function(a, b) { return String(b.filed).localeCompare(String(a.filed)); });
       if (!held.length) {
-        h += gap('No filing documents had been collected by ' + (n.date || 'this note') + '.');
+        h += gap('No filings had been collected by ' + (n.date || 'this note') + '.');
       } else {
         h += '<div class="tp-docs">' + held.slice(0, 14).map(function(f) {
-          var kind = String(f.doc_kind || 'document').replace(/_/g, ' ');
+          var kind = DOC_WORDS[f.doc_kind] || String(f.doc_kind || 'document').replace(/_/g, ' ');
           var href = f.text_path ? repoHref(FILINGS + f.text_path) : '';
           return '<div class="tp-doc"><span>' + (href ? extLink(href, kind) : esc(kind)) + '</span>'
             + '<span>' + esc(f.form || '') + '</span><span>' + esc(f.filed) + '</span></div>';
         }).join('') + '</div>'
           + (held.length > 14 ? '<p class="tp-cap">and ' + (held.length - 14) + ' older documents.</p>' : '')
-          + '<p class="tp-cap">Filings on file by the note&#39;s date, which the analyst could read. A note need not use every one.</p>';
+          + '<p class="tp-cap">Filings that had been collected by the day the note was written. The note did not have to use every one.</p>';
       }
     }
     h += '</div>';
@@ -4172,27 +4309,22 @@ STOCKS_JS_TEMPLATE = """
     return true;
   }
 
-  // The current rating, readable without opening anything: the direction as a
-  // word and conviction as five pips. The button beside it opens the full note
-  // in the thesis popup, and the list click handler routes it before the row
-  // toggle so it never also expands the row.
+  // The current view in plain words, as one pill that opens the note. The list
+  // click handler routes it before the row toggle, so it never also expands the
+  // row. The words are the ones the notes use (theses/PROMPTS.md, PLAIN WORDS).
+  const VIEW_WORDS = { 'long': 'Own it', 'short': 'Bet against', 'avoid': 'Stay away',
+                       'watch': 'Watching', 'no view': 'No view' };
   function thesisRating(ticker) {
     const v = THESIS_INDEX[ticker];
     if (!v) return '';
-    const d = String(v.d || '').trim();
-    const word = d ? d.charAt(0).toUpperCase() + d.slice(1) : 'View';
+    const d = String(v.d || '').trim().toLowerCase();
+    const word = VIEW_WORDS[d] || 'Note';
     const conv = (v.c == null || isNaN(v.c)) ? null : Math.max(0, Math.min(5, Math.round(v.c)));
-    let pips = '';
-    for (let i = 1; i <= 5; i++) pips += '<i' + (conv != null && i <= conv ? ' class="on"' : '') + '></i>';
-    const label = word + (conv == null ? '' : ', conviction ' + conv + ' of 5')
-      + (v.w ? ', written ' + v.w : '');
-    const quiet = /^(no view|watch)$/i.test(d) ? ' stk-rt-quiet' : '';
-    return '<span class="stk-rt' + quiet + '" title="' + escapeHtml(label) + '">'
-      + '<span class="stk-rt-d" aria-hidden="true">' + escapeHtml(word) + '</span>'
-      + '<span class="stk-rt-p" aria-hidden="true">' + pips + '</span>'
-      + '<span class="stk-sr">' + escapeHtml(label) + '</span></span>'
-      + '<button type="button" class="stk-rt-btn" data-thesis-open="' + escapeHtml(ticker)
-      + '" aria-haspopup="dialog" aria-label="Open the thesis for ' + escapeHtml(ticker) + '">Thesis</button>';
+    const label = 'Read the note on ' + ticker + ': ' + word.toLowerCase()
+      + (conv == null ? '' : ', confidence ' + conv + ' of 5') + (v.w ? ', written ' + v.w : '');
+    return '<button type="button" class="stk-rt-btn stk-rt-' + escapeHtml(d.replace(/\\s+/g, '-'))
+      + '" data-thesis-open="' + escapeHtml(ticker) + '" aria-haspopup="dialog" title="'
+      + escapeHtml(label) + '" aria-label="' + escapeHtml(label) + '">' + escapeHtml(word) + '</button>';
   }
 
   function openThesis(ticker, opener) {
@@ -14114,9 +14246,12 @@ def _company_filings():
                 chars = int(r.get("text_chars") or 0)
             except ValueError:
                 chars = 0
+            # collected is the day the pipeline fetched it, which can be months after
+            # it was filed. A note could only have read what was collected by then.
             keep.append({"filed": r.get("filed"), "form": r.get("form"),
                          "doc_kind": r.get("doc_kind"), "items": r.get("items"),
                          "accession": r.get("accession"),
+                         "collected": (r.get("recorded_at") or "")[:10],
                          "text_path": r.get("text_path"), "text_chars": chars})
             if len(keep) >= _COMPANY_MAX_FILINGS:
                 break
@@ -14484,6 +14619,8 @@ def _research_views(stocks_by_ticker, today):
         # the same helper as docs/thesis/{TICKER}.json so the two cannot drift.
         full_notes = _thesis_notes_for(tdir, filings)
         rec["notes"] = [_thesis_note_summary(n) for n in full_notes]
+        # The current note whole, sections included: the page prints it in full.
+        rec["current"] = full_notes[0] if full_notes else None
         # The screen fields any note's conditions test, so the research page can
         # hand the popup those values and it can print HOLDING or NOT MET there.
         rec["check_fields"] = sorted({
@@ -14568,8 +14705,40 @@ def _research_pips(conv, cls="rs-pips"):
             + '</span>')
 
 
+# The view in the words the notes themselves use (theses/PROMPTS.md, PLAIN WORDS).
+# "Long" and "avoid" are the analyst's shorthand, not the reader's.
+_VIEW_WORDS = {"long": "Own it", "short": "Bet against it", "avoid": "Stay away",
+               "watch": "Keep watching", "no view": "No view"}
+_STATUS_WORDS = {"open": "Open call", "watching": "Watching", "graded": "Checked",
+                 "due": "Review due"}
+# The two parts of a note written from 2026-09-19 (theses/bin/validate.py).
+_NOTE_BUSINESS = ("WHAT THE COMPANY DOES", "HOW IT MAKES MONEY", "THE LAST TEN YEARS",
+                  "WHAT MANAGEMENT DOES WITH THE CASH")
+_NOTE_NUMBERS = "WHERE THE NUMBERS COME FROM"
+
+
+def _view_word(direction):
+    d = str(direction or "").strip().lower()
+    return _VIEW_WORDS.get(d) or _research_word(d, "No view given")
+
+
+def _long_date(iso):
+    """'2027-01-12' as '12 January 2027', or the input when it is not a date."""
+    try:
+        d = datetime.strptime(str(iso)[:10], "%Y-%m-%d")
+    except (TypeError, ValueError):
+        return str(iso or "")
+    return f"{d.day} {d:%B %Y}"
+
+
+def _sentence_case(title):
+    """A note heading, written in capitals, as a sentence. "I" is put back."""
+    t = str(title or "").strip().lower()
+    return re.sub(r"\bi\b", "I", t[:1].upper() + t[1:])
+
+
 def _research_timeline(v):
-    """The evolution of one name: every note, newest first, each with Open.
+    """Every note on one name, newest first, each with Open. Nothing for a single note.
 
     Server-rendered so it reads with scripting off. The Open buttons ship hidden
     and the page script reveals them; the source link beside each works anyway.
@@ -14578,24 +14747,23 @@ def _research_timeline(v):
     ticker = v["ticker"]
     notes = [n for n in (v.get("notes") or []) if isinstance(n, dict)]
     count = len(notes)
-    head = ('<div class="rs-evo-head"><h3 class="rs-k">Evolution</h3>'
-            f'<span class="rs-evo-n">{count} note{"" if count == 1 else "s"} on this name, '
-            'newest first</span></div>')
-    if not notes:
-        return (f'<div class="rs-evo-wrap">{head}<p class="rs-note">The notes on this name '
-                'could not be read, so there is no timeline to show.</p></div>')
+    if count < 2:
+        # The one note is printed in full above. A timeline of one repeats it.
+        return ""
+    head = ('<div class="rs-evo-head"><h3 class="rs-k">Every note on this company</h3>'
+            f'<span class="rs-evo-n">{count} notes, newest first</span></div>')
     rows = []
     for idx, n in enumerate(notes):
         date = str(n.get("date") or "")
         kind = _research_word(n.get("kind"), "Note")
-        direction = _research_word(n.get("direction"), "No direction")
+        direction = _view_word(n.get("direction"))
         conv = n.get("conviction") if isinstance(n.get("conviction"), int) else None
         target = n.get("target_price")
         # Each bit is its own element: bare text runs inside a flex row merge
         # into one item and the gap between them disappears.
         bits = [f'<b>{e(direction)}</b>', _research_pips(conv),
-                ("<span>conviction not set</span>" if conv is None
-                 else f"<span>conviction {conv} of 5</span>")]
+                ("<span>confidence not given</span>" if conv is None
+                 else f"<span>confidence {conv} of 5</span>")]
         if isinstance(target, (int, float)) and not isinstance(target, bool) \
                 and math.isfinite(target):
             bits.append(f"<span>target <b>{target:.2f}</b></span>")
@@ -14623,61 +14791,171 @@ def _research_timeline(v):
             f'<ol class="rs-evo">{"".join(rows)}</ol></div>')
 
 
-def _research_cards(views):
-    """Server-rendered library entries. The page must be readable before its JS runs.
+def _research_call(v, note):
+    """The numbers behind a recommendation as [(label, html value)]. Plain labels.
 
-    One entry per covered name. The rating, claim and numbers are the current
-    note's, which is what the filters and sort act on; the timeline under them
-    is every note on the name."""
+    A target is a graded call only for a view that takes a side. A note that is
+    watching may still name a price, but printing it as a target would present an
+    abstention as a call."""
+    e = _html.escape
+    rows = []
+    price = v.get("price") or {}
+    last, entry, target = price.get("last"), v.get("entry_price"), v.get("target_price")
+    now = last if last is not None else entry
+    # With no current price the gap is measured from the day the note was written,
+    # and says so.
+    against = "the price now" if last is not None else "the price when written"
+
+    def gap_to(level):
+        if level is None or not now:
+            return ""
+        g = level / now - 1
+        return (f' <i class="rs-move">{abs(g) * 100:.0f}% {"above" if g >= 0 else "below"} '
+                f'{against}</i>')
+
+    if entry is not None:
+        rows.append(("Price when written", f'<b>${entry:,.2f}</b> on {e(_long_date(v.get("written_on")))}'))
+    if last is not None:
+        mv = price.get("move")
+        cls = " tp-up" if mv and mv > 0 else " tp-dn" if mv and mv < 0 else ""
+        moved = f' <i class="rs-move{cls}">{mv * 100:+.1f}% since</i>' if mv is not None else ""
+        rows.append(("Price now", f'<b>${last:,.2f}</b>{moved}'))
+    if target is not None and v["direction"] in GRADEABLE_DIRECTIONS:
+        by = ""
+        if v.get("horizon_days") and v.get("written_on"):
+            try:
+                due = (datetime.strptime(v["written_on"], "%Y-%m-%d")
+                       + timedelta(days=v["horizon_days"]))
+                by = f' by {e(_long_date(due.strftime("%Y-%m-%d")))}'
+            except ValueError:
+                pass
+        rows.append(("Target price", f'<b>${target:,.2f}</b>{by}{gap_to(target)}'))
+    wrong = (note or {}).get("if_wrong_price")
+    if isinstance(wrong, (int, float)) and not isinstance(wrong, bool) and math.isfinite(wrong):
+        rows.append(("If the view is wrong", f'<b>about ${wrong:,.2f}</b>{gap_to(wrong)}'))
+    if (note or {}).get("next_check"):
+        rows.append(("Next quarterly report", f'<b>{e(_long_date(note["next_check"]))}</b>'))
+    if v.get("review_by"):
+        rows.append(("Look again by", f'<b>{e(_long_date(v["review_by"]))}</b>'))
+    return rows
+
+
+def _research_confidence(v):
+    """The four parts of the confidence score, each as a sentence a reader can check."""
+    e = _html.escape
+    conv = v.get("conviction")
+    if conv is None:
+        return ""
+    ev = {0: "It rests on headlines or on inference.",
+          1: "It rests on reported figures and the share price history.",
+          2: "It rests on something management said about the period ahead."}
+    lines = [(v.get("evidence_base"), 2, ev.get(v.get("evidence_base"), "")),
+             (v.get("falsifier_specific"), 1,
+              "It names a test with a number and a date." if v.get("falsifier_specific")
+              else "It names no test with a number and a date."),
+             (v.get("variant_perception"), 1,
+              "It gives a checkable reason the price is wrong." if v.get("variant_perception")
+              else "It gives no checkable reason the price is wrong."),
+             (v.get("disconfirmation"), 1,
+              "It answers the strongest argument against it." if v.get("disconfirmation")
+              else "It does not answer the strongest argument against it.")]
+    items = "".join(f'<li><b>{got if got is not None else "?"} of {hi}</b> {e(text)}</li>'
+                    for got, hi, text in lines)
+    return ('<details class="rs-conf-d"><summary>How the confidence score is worked out</summary>'
+            f'<ul>{items}</ul><p>The score is the total. It is worked out from the note, not '
+            'felt, so that a score on one note means the same as on another.</p></details>')
+
+
+def _research_note_html(note):
+    """The current note in full: the business, then the view, then its sources, folded.
+
+    section["html"] comes from _md_to_html, which escapes the note's text and emits
+    only its own tags, so it is printed as it stands. Titles are escaped here."""
+    e = _html.escape
+    secs = [s for s in ((note or {}).get("sections") or [])
+            if isinstance(s, dict) and isinstance(s.get("html"), str)]
+    opening, numbers, business, view = None, None, [], []
+    for s in secs:
+        t = str(s.get("title") or "").strip().upper()
+        if not t and opening is None:
+            opening = s
+        elif t == _NOTE_NUMBERS:
+            numbers = s
+        elif t in _NOTE_BUSINESS:
+            business.append(s)
+        else:
+            view.append(s)
+
+    def sec(title, html):
+        head = f'<h4 class="rs-sec-h">{e(_sentence_case(title))}</h4>' if title else ""
+        return f'<section class="rs-sec">{head}<div class="tp-md">{html}</div></section>'
+
+    def part(eyebrow, title):
+        return (f'<div class="rs-part"><span class="rs-k">{e(eyebrow)}</span>'
+                f'<h3>{e(title)}</h3></div>')
+
+    out = []
+    if business:
+        out.append(part("Part one", "The business"))
+        out += [sec(s.get("title"), s["html"]) for s in business]
+        out.append(part("Part two", "The view"))
+        out += [sec(s.get("title"), s["html"]) for s in view]
+    elif opening or view:
+        # A note from before 2026-09-19 has only the view, and opens with an
+        # untitled paragraph on what the company does.
+        out.append(part("The note", "The view"))
+        if opening:
+            out.append(sec("What the company does", opening["html"]))
+        out += [sec(s.get("title"), s["html"]) for s in view]
+    else:
+        out.append('<p class="rs-note">The body of this note could not be read.</p>')
+    if numbers:
+        out.append('<details class="rs-src-d"><summary>Where the numbers come from</summary>'
+                   f'<div class="tp-md">{numbers["html"]}</div></details>')
+    return "".join(out)
+
+
+def _research_cards(views):
+    """Server-rendered, one entry per covered name: its current note in full.
+
+    The recommendation comes first, then the tests the note sets itself, then the
+    note as written, then any earlier notes. The page must be readable before its
+    JS runs, and the filters and sort act on the data attributes."""
     e = _html.escape
     if not views:
-        return ('<div class="rs-empty">No notes have been written yet. The analyst '
-                'writes to <code>theses/notes/</code> and this page is built from '
-                'that directory.</div>')
+        return ('<div class="rs-empty">No notes have been written yet. This page is built '
+                'from the notes the analyst writes, and there are none so far.</div>')
     parts = []
     for v in views:
         conv = v.get("conviction")
-        comps = []
-        for key, short, hi in (("evidence_base", "evidence", 2),
-                               ("falsifier_specific", "falsifier", 1),
-                               ("variant_perception", "variant", 1),
-                               ("disconfirmation", "counter-case", 1)):
-            got = v.get(key)
-            on = " rs-comp-on" if got else ""
-            comps.append(f'<span class="rs-comp{on}" title="{e(key)} scores '
-                         f'{got if got is not None else "?"} of {hi}">'
-                         f'{e(short)} <b>{got if got is not None else "?"}</b>'
-                         f'<i>/{hi}</i></span>')
-        nums = []
-        if v.get("entry_price") is not None:
-            nums.append(f'<span>entry <b>{v["entry_price"]:.2f}</b></span>')
+        note = v.get("current") or {}
         price = v.get("price") or {}
-        if price.get("last") is not None:
-            mv = price.get("move")
-            cls = ""
-            if mv:
-                cls = " tp-up" if mv > 0 else " tp-dn"
-            moved = f' <i class="rs-move{cls}">{mv * 100:+.1f}%</i>' if mv is not None else ""
-            nums.append(f'<span>now <b>{price["last"]:.2f}</b>{moved}</span>')
-        if v.get("target_price") is not None:
-            nums.append(f'<span>target <b>{v["target_price"]:.2f}</b></span>')
-        if v.get("horizon_days"):
-            nums.append(f'<span>horizon <b>{v["horizon_days"]} days</b></span>')
-        d2r = v.get("days_to_review")
-        if d2r is not None:
-            word = (f"in {d2r} day{'' if d2r == 1 else 's'}" if d2r >= 0
-                    else f"{abs(d2r)} day{'' if d2r == -1 else 's'} ago")
-            nums.append(f'<span>review <b>{e(word)}</b></span>')
-
-        drift = ('<div class="rs-drift">A revision kept the direction and the conviction '
-                 'and changed the claim. That is what thesis drift looks like.</div>'
-                 if v.get("claim_changed_ever") else "")
-        claim = (f'<p class="rs-claim">{e(v["key_claim"])}</p>' if v.get("key_claim")
-                 else '<p class="rs-claim rs-claim-none">No claim recorded. The note '
-                      'declined to take a view.</p>')
+        d_cls = e(v["direction"].replace(" ", "-"))
         who = " &middot; ".join(e(x) for x in (v.get("name"), v.get("sector")) if x)
-        rating = (f"{_research_word(v['direction'], 'No view')}, "
-                  + ("conviction not set" if conv is None else f"conviction {conv} of 5"))
+        claim = (f'<p class="rs-claim">{e(v["key_claim"])}</p>' if v.get("key_claim")
+                 else '<p class="rs-claim rs-claim-none">The note gives no main claim.</p>')
+        call = "".join(f'<div class="rs-call-row"><span>{e(k)}</span><span>{val}</span></div>'
+                       for k, val in _research_call(v, note))
+        drift = ('<div class="rs-drift">A later note kept the same view and the same '
+                 'confidence but changed the main claim. Check that the reason for the view '
+                 'has not been swapped for a different one.</div>'
+                 if v.get("claim_changed_ever") else "")
+
+        tests = []
+        if v.get("falsifier"):
+            tests.append('<div class="rs-test"><h4 class="rs-k">What would prove it wrong</h4>'
+                         f'<p>{e(v["falsifier"])}</p></div>')
+        conds = [c for c in (note.get("conditions") or []) if isinstance(c, dict) and c.get("text")]
+        if conds:
+            tests.append('<div class="rs-test"><h4 class="rs-k">What has to stay true</h4><ul>'
+                         + "".join(f'<li>{e(c["text"])}</li>' for c in conds) + '</ul></div>')
+        if note.get("add_if"):
+            tests.append('<div class="rs-test"><h4 class="rs-k">What would make the view stronger'
+                         f'</h4><p>{e(note["add_if"])}</p></div>')
+
+        href = _note_repo_href(v.get("note_path"))
+        source = (f'<a class="rs-src" href="{e(href)}" target="_blank" rel="noopener noreferrer">'
+                  'The note as a file</a>' if href else "")
         parts.append(
             f'<article class="rs-card" id="{e(v["ticker"])}" data-dir="{e(v["direction"])}" '
             f'data-status="{e(v["status"])}" data-conv="{conv if conv is not None else 0}" '
@@ -14688,29 +14966,53 @@ def _research_cards(views):
             f'<div class="rs-top">'
             f'<a class="rs-tk" href="./stocks.html#{e(v["ticker"])}">{e(v["ticker"])}</a>'
             f'<span class="rs-nm">{who}</span>'
-            f'<span class="rs-status rs-status-{e(v["status"])}">{e(v["status"])}</span>'
+            f'<span class="rs-status rs-status-{e(v["status"])}">'
+            f'{e(_STATUS_WORDS.get(v["status"], v["status"]))}</span>'
             f'</div>'
-            f'<div class="rs-dirline" title="{e(rating)}">'
-            f'<span class="rs-dir rs-dir-{e(v["direction"].replace(" ", "-"))}">'
-            f'{e(_research_word(v["direction"], "No view"))}</span>'
-            f'{_research_pips(conv)}'
-            f'<span class="rs-conv">'
-            f'{"conviction not set" if conv is None else f"conviction {conv} of 5"}</span>'
-            f'<span class="rs-comps">{"".join(comps)}</span>'
+            f'<div class="rs-rec rs-rec-{d_cls}">'
+            f'<div class="rs-rec-main"><span class="rs-k">Recommendation</span>'
+            f'<div class="rs-verdict">{e(_view_word(v["direction"]))}</div>'
+            f'<div class="rs-confline">{_research_pips(conv)}<span class="rs-conv">'
+            f'{"confidence not given" if conv is None else f"confidence {conv} of 5"}</span></div>'
+            f'{claim}</div>'
+            f'<div class="rs-call">{call}</div>'
             f'</div>'
-            f'{drift}{claim}'
-            f'<div class="rs-nums">{"".join(nums)}</div>'
+            f'{drift}'
+            f'<div class="rs-tests">{"".join(tests)}</div>'
+            f'{_research_confidence(v)}'
+            f'<div class="rs-body">{_research_note_html(note)}</div>'
             f'{_research_timeline(v)}'
+            f'<div class="rs-foot">{source}</div>'
             f'</article>')
     return "".join(parts)
 
 
+def _research_now(views):
+    """The current views at a glance, each linking to its note further down."""
+    e = _html.escape
+    rows = []
+    for v in views:
+        target = (f'target ${v["target_price"]:,.2f}'
+                  if v.get("target_price") is not None and v["direction"] in GRADEABLE_DIRECTIONS
+                  else "no target")
+        rows.append(
+            f'<a class="rs-now-row" href="#{e(v["ticker"])}">'
+            f'<span class="rs-now-tk">{e(v["ticker"])}</span>'
+            f'<span class="rs-now-nm">{e(v.get("name") or "")}</span>'
+            f'<span class="rs-now-v rs-now-{e(v["direction"].replace(" ", "-"))}">'
+            f'{e(_view_word(v["direction"]))}</span>'
+            f'<span class="rs-now-t">{e(target)}</span>'
+            f'<span class="rs-now-d">written {e(_long_date(v.get("written_on")))}</span></a>')
+    return ('<section class="rs-now"><h2 class="rs-h2">Current views</h2>'
+            f'<div class="rs-now-list">{"".join(rows)}</div></section>') if rows else ""
+
+
 def _research_record_html(rec):
     e = _html.escape
-    tiles = [("Names covered", str(rec["tickers"])),
+    tiles = [("Companies covered", str(rec["tickers"])),
              ("Open calls", str(rec["open"])),
-             ("Watching, not graded", str(rec["watching"])),
-             ("Graded", str(rec["graded"]))]
+             ("Watching, no call made", str(rec["watching"])),
+             ("Calls checked", str(rec["graded"]))]
     tile_html = "".join(
         f'<div class="rs-tile"><span class="rs-tile-v">{e(v)}</span>'
         f'<span class="rs-tile-k">{e(k)}</span></div>' for k, v in tiles)
@@ -14722,30 +15024,26 @@ def _research_record_html(rec):
     if rec["scored"]:
         verdict = ""
     else:
-        when = (f' The first call matures on {e(rec["earliest_maturity"])}.'
+        when = (f' The first one comes due on {e(_long_date(rec["earliest_maturity"]))}.'
                 if rec.get("earliest_maturity") else "")
         verdict = (
-            '<p class="rs-note rs-note-loud">No call has been graded yet, so the two '
-            'right-hand columns are empty and the hit rate is unknown.' + when +
-            ' Until then this page records what was claimed and when, which is the '
-            'part that cannot be reconstructed later.</p>')
+            '<p class="rs-note rs-note-loud">No call has reached its target date yet, so '
+            'the last two columns are empty and nobody knows how good these calls are.'
+            + when + ' Until then this page keeps what was said and when it was said.</p>')
     return (
         '<section class="rs-record">'
         '<h2 class="rs-h2">The record</h2>'
         f'<div class="rs-tiles">{tile_html}</div>'
         '<table class="rs-tiers"><thead><tr>'
-        '<th>Conviction</th><th>Names</th><th>Open</th><th>Watching</th><th>Graded</th>'
-        '<th>Hit rate</th><th>vs peers</th></tr></thead>'
+        '<th>Confidence</th><th>Companies</th><th>Open</th><th>Watching</th><th>Checked</th>'
+        '<th>Right</th><th>Against similar companies</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
         f'{verdict}'
-        '<p class="rs-note">Conviction is not a feeling. It is the sum of four '
-        'checkable properties of the note, shown on every card below: whether the '
-        'claim rests on filings or only on factors, whether the falsifier carries a '
-        'number and a date, whether the view differs from what the price already '
-        'says, and whether the note engaged with the best case against itself. '
-        'The only reason to track it is this table: if the high-conviction calls do '
-        'not beat the low-conviction ones, the judgement is adding nothing and the '
-        'table is the only place that shows it.</p>'
+        '<p class="rs-note">Each call is checked on its target date: was it right, and did '
+        'the shares do better than similar companies over the same months. The table '
+        'splits the calls by confidence, from 0 to 5, because the score is only useful if '
+        'the confident calls turn out better than the cautious ones. If they do not, this '
+        'table is where that will show.</p>'
         '</section>')
 
 
@@ -14773,7 +15071,8 @@ def generate_research(universe):
             on = " on" if i == 0 else ""
             n = "" if val == "all" else (
                 f' <i>{sum(1 for v in views if v[key] == val)}</i>')
-            label = "all" if val == "all" else val
+            words = _VIEW_WORDS if group == "dir" else _STATUS_WORDS
+            label = "All" if val == "all" else words.get(val, val)
             out.append(f'<button type="button" class="rs-chip{on}" data-filter="{e(group)}" '
                        f'data-value="{e(val)}" aria-pressed="{"true" if i == 0 else "false"}">'
                        f'{e(label)}{n}</button>')
@@ -14782,38 +15081,34 @@ def generate_research(universe):
     body = (
         '<section class="rs-head">'
         '<h1 class="rs-h1">Research</h1>'
-        '<p class="rs-lede">Written views on individual names, and the record of '
-        'whether they were right. The screen next door ranks 5,354 companies by '
-        'arithmetic and surfaces about four a week for a written opinion, so almost '
-        'every name on it will never appear here. That is the intended behaviour of '
-        'a screen, not a gap in coverage.</p>'
+        '<p class="rs-lede">A written view on one company at a time. Each note explains the '
+        'business first: what it sells, what decides its profit, and what it has earned over '
+        'ten years. Then it says whether the shares look worth owning, with a target price '
+        'and a date, so the call can be checked later. About four companies are written up '
+        'each week, out of the thousands in the stock list.</p>'
         '</section>'
-        + _research_record_html(record) +
+        + _research_now(views) +
         '<section class="rs-views">'
-        '<div class="rs-h2row"><h2 class="rs-h2">The library</h2>'
+        '<div class="rs-h2row"><h2 class="rs-h2">The notes</h2>'
         '<span class="rs-count" id="rs-count"></span></div>'
-        '<p class="rs-note" style="margin:-4px 0 18px">Every note kept on each name, '
-        'newest first, so you can see how a view changed over time. The direction, '
-        'status and sort controls use each name\'s current note. Open any note in the '
-        'timeline to read it in full, or read the source file it was published from.</p>'
         '<div class="rs-controls">'
-        f'<div class="rs-group"><span class="rs-k">Direction</span>{chips("dir", dirs)}</div>'
+        f'<div class="rs-group"><span class="rs-k">View</span>{chips("dir", dirs)}</div>'
         f'<div class="rs-group"><span class="rs-k">Status</span>{chips("status", statuses)}</div>'
-        '<div class="rs-group"><label class="rs-k" for="rs-sort">Sort</label>'
+        '<div class="rs-group"><label class="rs-k" for="rs-sort">Order</label>'
         '<select id="rs-sort" class="rs-select">'
         '<option value="status">Status, then newest</option>'
-        '<option value="written">Newest written</option>'
-        '<option value="review">Review date</option>'
-        '<option value="convict">Conviction</option>'
-        '<option value="move">Move since written</option>'
+        '<option value="written">Newest first</option>'
+        '<option value="review">Look-again date</option>'
+        '<option value="convict">Confidence</option>'
+        '<option value="move">Price move since written</option>'
         '</select></div></div>'
         f'<div class="rs-list" id="rs-list">{_research_cards(views)}</div>'
-        '<div class="rs-empty" id="rs-noresult" hidden>Nothing matches those filters.</div>'
-        '<p class="rs-note">A name shows as <b>watching</b> when the note declined to '
-        'take a position. Those produce no row in the prediction ledger and are never '
-        'graded, which is deliberate: scoring a "no view" against the market would '
-        'manufacture a track record out of abstentions.</p>'
-        '</section>')
+        '<div class="rs-empty" id="rs-noresult" hidden>No note matches those choices.</div>'
+        '<p class="rs-note">A company shows as <b>watching</b> when the note decided not to '
+        'take a side. Those notes make no call, so they are never checked. Counting them as '
+        'right or wrong would build a record out of decisions not to decide.</p>'
+        '</section>'
+        + _research_record_html(record))
 
     # The popup reads a stock row for price, sector, screen scores, the earnings
     # date and whatever fields the notes' conditions check. This page has no
