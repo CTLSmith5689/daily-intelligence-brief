@@ -1,0 +1,253 @@
+Item 1A. 
+
+ Risk Factors. 
+
+ Although risk factors are described elsewhere in this Form 10-K together with the Disclosures Regarding Forward-looking Statements, the following is a summary of the principal risks associated with an investment in the Trust’s units. 
+
+ BUSINESS AND OPERATIONAL RISKS 
+
+ Oil and natural gas prices fluctuate due to a number of factors, and declines in commodity prices will reduce Net Proceeds available to the Trust and distributions to Trust unitholders. 
+
+ Net Proceeds and the Trust’s quarterly distributions are heavily influenced by commodity prices realized from the sale of natural gas, and any material decrease in such prices could reduce the amount of Trust distributions. Natural gas prices can fluctuate widely on a month-to-month basis in response to a variety of factors that are beyond the control of the Trust and the Working Interest Owners. Factors that contribute to price fluctuation include, among others: 
+
+ • 
+
+ political conditions worldwide, in particular sanctions, political disruption, war and other armed conflicts that affect oil and gas supply and transportation, including current hostilities in the Middle East and Ukraine; 
+
+ • 
+
+ worldwide economic conditions, including conditions affecting interest rates and availability of financing; 
+
+ • 
+
+ OPEC+ production plans and actions impacting global supply and demand; 
+
+ • 
+
+ weather conditions; 
+
+ • 
+
+ the supply and price of foreign natural gas; 
+
+ • 
+
+ the level of consumer demand; 
+
+ • 
+
+ the price and availability of alternative fuels; 
+
+ • 
+
+ trade barriers and tariffs; 
+
+ • 
+
+ the proximity to, and capacity of, transportation facilities; 
+
+ • 
+
+ the effect of worldwide energy conservation measures; and 
+
+ • 
+
+ the occurrence or threat of epidemic or pandemic diseases or any government response to such occurrence or threat. 
+
+ Moreover, government regulations, such as regulation of natural gas transportation, regulation of greenhouse gas and other emissions associated with fossil fuel combustion, and price controls, can affect product prices in the long-term. 
+
+ Crude oil prices have been historically volatile and fell sharply during the pandemic. Oil demand rebounded in the second half of 2020, and prices increased in 2021 and 2022, decreased in 2023, increased slightly in 2024 and decreased in 2025. Crude oil prices increased sharply above $100 per barrel in connection with Middle East hostilities in March 2026. The NYMEX crude oil spot prices per Bbl were $57.42 and $71.72 as of December 31, 2025 and December 30, 2024, respectively. As of March 25, 2026, the price was $90.32 per Bbl. Prices have been volatile, driven by ongoing geopolitical tensions. The Trust cannot predict the timing or the duration of any economic cycle or other adverse events and, depending on the prices realized, the financial condition of the Trust could be materially adversely affected. When natural gas prices decline, the Trust is affected in two ways. First, net royalties are reduced. Second, exploration and development activity on the underlying properties may decline as some projects may become uneconomic and are either delayed or eliminated. The volatility of energy prices reduces the predictability of future cash distributions to unitholders. Based on information provided by the Working Interest Owners, natural gas and natural gas liquids produced from the Royalty Properties may be sold under short-term or multi-month contracts or on the spot market. Depending on the contractual arrangements and pricing applicable to production by the Working Interest Owners, the Trust may not benefit from increases in commodity prices as reported on the spot markets. 
+
+ 15 
+
+ TABLE OF CONTENTS 
+
+ Any decreases in prices of natural gas on the spot market, or in prices reported by Working Interest Owners under applicable contractual arrangements, may materially and adversely affect cash generated from operations, results of operations and reduce Net Proceeds available to the Trust and distributions to Trust unitholders. 
+
+ Natural gas prices have been historically volatile and fell sharply during the pandemic. During the five years prior to December 31, 2025, Henry Hub natural gas prices have ranged from a high of $23.86 per MMBtu in 2021 to a low of $1.21 per MMBtu in 2024. Eliminating the unusually high prices in 2021 which were due to extreme winter weather, the natural gas prices ranged from a high of $9.86 per MMBtu in 2025 to a low of $1.21 per MMBtu in 2024. On December 31, 2025, the Henry Hub Natural Gas Spot Price was $4.00 per MMBtu. The spike in price on January 17, 2025 to $9.86 per MMBtu was due to extremely cold weather throughout both the northern and southern states, including widespread snow in the south, thus increasing demand. Increases in natural gas prices in 2025 were driven by stronger demand both at home and globally. Declines in natural gas prices may be caused by many factors, including increases in natural gas production and reserves from unconventional (shale) reservoirs, without an offsetting increase in demand. Any increase in natural gas production could cause the prices for natural gas to fall to lower levels. If prices for natural gas remain depressed for lengthy periods, the Trustee may be required to write down the value of the Trust’s oil and gas properties. In addition, sustained low prices for gas will negatively impact the value of the Trust’s estimated reserves and reduce Net Proceeds and the amount of cash the Trustee would otherwise have available to pay cash distributions to unitholders. 
+
+ Any decreases in prices of natural gas on the spot market, or in prices reported by Working Interest Owners under applicable contractual arrangements, may materially and adversely affect cash generated from operations, results of operations and reduce Net Proceeds available to the Trust and distributions to Trust unitholders. 
+
+ Natural gas and natural gas liquids produced from the Royalty Properties may be sold by the Working Interest Owners on the spot market or at prices determined by contract, including at fixed or variable prices. To the extent prices are determined by fixed price contracts, any increases in spot prices may not result in a corresponding increase in Net Proceeds received by the Trust or in the amount of cash available to pay cash distributions to unitholders. Depending on the contractual arrangements and pricing applicable to production by the Working Interest Owners, the Trust may not benefit from increases in commodity prices as reported on the spot markets. 
+
+ Increased production and development costs for the Royalty have resulted in substantial accumulated excess production costs, which will result in decreased Trust distributions, and in some periods may result in no Trust distributions. 
+
+ Production and development costs attributable to the Royalty are deducted in the calculation of the Trust’s share of Net Proceeds. Production and development costs are impacted by increases in commodity prices both directly, through commodity-price dependent costs such as electricity, and indirectly, as a result of demand-driven increases in costs of oil field goods and services. Accordingly, higher or lower production and development costs, without concurrent increases in revenues, directly decrease or increase the amount received by the Trust for the Royalty. 
+
+ If development and production costs of the Royalty exceed the proceeds of production from the Royalty Properties, the Trust will not receive Net Proceeds for those properties until future proceeds from production exceed the total of the excess costs plus accrued interest during the deficit period. Development activities may not generate sufficient additional revenue to repay the costs. Accordingly, there may not be sufficient Net Proceeds to make a particular distribution. 
+
+ Total excess production costs increased to $938,738 at December 31, 2025 from $793,838 at December 31, 2024, as reported by the Working Interest Owners. Please see Note 5 — Excess Production Costs in the Notes to Financial Statements under Item 8 of this Form 10-K. 
+
+ Trust assets are depleting assets and, if the Working Interest Owners or other operators of the Royalty Properties do not perform additional development projects, the assets may deplete faster than expected. 
+
+ The Net Proceeds payable to the Trust are derived from the sale of depleting assets. Accordingly, the portion of the distributions to unitholders attributable to depletion may be considered a return of capital. 
+
+ 16 
+
+ TABLE OF CONTENTS 
+
+ Future maintenance and development projects on the Royalty Properties will affect the quantity of proved reserves. The timing and size of any such projects will depend on the market prices of natural gas, and, if undertaken, such projects will result in added costs that will reduce Net Proceeds payable to the Trust. If the Working Interest Owners do not implement additional maintenance and development projects, the future rate of production decline of proved reserves may be higher than the rate currently expected by the Trust. For federal income tax purposes, depletion is reflected as a deduction. Please see the section entitled “Business — Description of the Units — Federal Income Tax Matters” under Item 1 of this Form 10-K. 
+
+ Because the Net Proceeds payable to the Trust are derived from the sale of depleting assets, the portion of distributions to unitholders attributable to depletion may be considered a return of capital as opposed to a return on investment. Distributions that are a return of capital will ultimately diminish the depletion tax benefits available to the Trust unitholders, which could reduce the market value of the Trust units over time. Eventually, properties underlying the Trust’s Royalty will cease to produce in commercial quantities and the Trust will, therefore, cease to receive any distributions of Net Proceeds therefrom. 
+
+ Trust reserve estimates depend on many assumptions that may prove to be inaccurate, which could cause both estimated reserves and estimated future revenues to be too high or too low. 
+
+ The value of the units of beneficial interest of the Trust depends upon, among other things, the amount of reserves attributable to the Royalty and the estimated future value of the reserves. Estimating reserves is inherently uncertain. Ultimately, actual production, revenues and expenditures for the underlying properties will vary from estimates and those variations could be material. Petroleum engineers consider many factors and make assumptions in estimating reserves. Those factors and assumptions include: 
+
+ • 
+
+ historical production from the area compared with production rates from similar producing areas; 
+
+ • 
+
+ the assumed effect of governmental regulation; 
+
+ • 
+
+ assumptions about future commodity prices, production and development costs, severance and excise taxes, and capital expenditures; 
+
+ • 
+
+ the availability of enhanced recovery techniques; and 
+
+ • 
+
+ relationships with landowners, working interest partners, pipeline companies and others. 
+
+ Changes in these factors and assumptions can materially change reserve estimates and future net revenue estimates. 
+
+ The reserve quantities attributable to the Royalty and revenues are based on estimates of reserves and revenues for the underlying properties. The method of allocating a portion of those reserves to the Trust is further complicated because the Trust holds an interest in the Royalty and does not own a specific percentage of the natural gas reserves. Ultimately, actual production, revenues and expenditures for the underlying properties, and therefore actual Net Proceeds payable to the Trust, will vary from estimates and those variations could be material. Results of drilling, testing and production after the date of those estimates may require substantial downward revisions or write-off of reserves. 
+
+ The quantities of reserves attributable to the Royalty Properties and the Royalty interest increased in 2025 and may decrease in the future as a result of decreases in the price of oil, natural gas or natural gas liquids or other factors. 
+
+ The Trustee relies entirely on reserve estimates and related information prepared by Miller and Lents based on information provided by the Working Interest Owners. While the Trustee has no reason to believe the reserve estimates included in this report are not accurate, to the extent additional information exists that could affect their reserve estimates, the estimated reserves in these reports could also be too low. 
+
+ Certain Royalty Properties are not currently profitable and may not generate future net proceeds to the Trust 
+
+ The assessment of proved oil and gas reserves, which is a key input for the determination of amortization of net overriding royalty interests in oil and gas properties, was identified by the Trust’s auditors as a critical audit matter. See Report of Independent Registered Public Accounting Firm included in this Form 10-K. 
+
+ 17 
+
+ TABLE OF CONTENTS 
+
+ The Trust has no control over the operations or development of the underlying Royalty Properties and is dependent on the third-party operators to determine production levels, allocate capital and manage operating costs. If the Working Interest Owners elect to shift investment away from certain properties or if production becomes uneconomical, the Trust’s cash flows and ability to make distributions to unitholders could be materially and adversely affected. 
+
+ Operating risks for the Working Interest Owners’ interests in the Royalty Properties can adversely affect Trust distributions. 
+
+ There are operational risks and hazards associated with the production and transportation of natural gas, including without limitation natural disasters, blowouts, explosions, fires, leakage of natural gas, releases of other hazardous materials, mechanical failures, cratering and pollution. Any of these or similar occurrences could result in the interruption or cessation of operations, personal injury or loss of life, property damage, damage to productive formations or equipment, or damage to the environment or natural resources, and associated cleanup obligations. The occurrence of drilling, production or transportation accidents and other natural disasters at any of the Royalty Properties will reduce Trust distributions by the amount of uninsured costs. These occurrences include blowouts, cratering, explosives and other environmental damage that may result in personal injuries, property damage, and damage to productive formations or equipment and environmental damages. Any uninsured costs would be deducted as a production cost in calculating Net Proceeds payable to the Trust. Any disruptions to natural gas pipelines or transportation lines, or increases in transportation costs for production from these properties, could also adversely affect the Trust. 
+
+ Further, the present value of future net cash flows from proved reserves may not be the current market value of estimated natural gas and oil reserves attributable to the Royalty. In accordance with SEC definitions, estimated future net revenues from proved reserves were computed using the unweighted arithmetic twelve-month average of the first-day-of-the-month price for each month in 2025. Price differentials were calculated for each Working Interest Owner based on the monthly average price received and the monthly average historical benchmark prices and were applied on a constant basis for gas, condensate, and NGLs. The average prices, after appropriate adjustments, and the average operating costs were held constant throughout the life of the properties. Actual future prices and costs may differ materially from those used in the net present value estimate, and future net present value estimates using then current prices and costs may be significantly less than the current estimate. In addition, the 10% discount factor used when calculating discounted future net cash flows for reporting requirements in compliance with the FASB in Accounting Standards Codification 932 may not be the most appropriate discount factor based on interest rates in effect from time to time and risks associated with us or the natural gas and oil industry in general. 
+
+ Trust unitholders and the Trustee have no influence or control over the operation or development of the Royalty Properties. 
+
+ Neither the Trustee nor the unitholders can influence or control the operation or future development of the underlying properties. The Royalty Properties are owned by the Working Interest Owners, who are independent from the Trust. The Working Interest Owners manage the underlying properties and handle receipt and payment of funds relating to the Royalty Properties and payments to the Trust for the Royalty. Additionally, the Working Interest Owners have the ability to enter into contractual arrangements at their discretion that may not be advantageous to the Trust, depending on future commodity pricing. For example, Simcoe previously informed the Trustee that some of the natural gas produced from the San Juan Basin — Colorado Properties was being sold pursuant to fixed price contracts. To the extent prices are determined by fixed price contracts, any increases in spot prices may not result in a corresponding increase in Net Proceeds received by the Trust or in the amount of cash available to pay cash distributions to unitholders. 
+
+ The failure of an operator to conduct its operations, discharge its obligations, deal with regulatory agencies or comply with laws, rules and regulations, including environmental laws and regulations, in a proper manner could have an adverse effect on the Net Proceeds payable to the Trust. Additionally, the Working Interest Owners are under no obligation to continue operating the Royalty Properties. Neither the Trustee nor the unitholders have the right to replace an operator. 
+
+ 18 
+
+ TABLE OF CONTENTS 
+
+ The Trustee relies upon the Working Interest Owners for information regarding the Royalty Properties. 
+
+ The Trustee relies on the Working Interest Owners for all operating and financial information regarding the Royalty Properties. The Working Interest Owners control (i) historical operating data and estimates, including production volumes, marketing of products, operating and capital expenditures, environmental and other liabilities, effects of regulatory changes and the number of producing wells and acreage, (ii) plans for future operating and capital expenditures, (iii) geological data relating to reserves, as well as related projections regarding production, operating expenses and capital expenses used in connection with the preparation of the reserve report, (iv) forward-looking information and estimates relating to production and drilling plans, (v) cybersecurity related to the Royalty Properties, and (vi) information regarding the Royalty Properties responsive to litigation claims. While the Trustee requests material information for use in periodic reports as part of its disclosure controls and procedures, the Trustee does not control this information and relies entirely on the Working Interest Owners to provide accurate and timely information when requested for use in the Trust’s periodic reports. Information regarding operations and financial results has been subject to errors and adjustments in the past. Accordingly, the Trustee cannot assure unitholders that other errors or adjustments by the Working Interest Owners, whether historical or future, will not affect Royalty income and distributions by the Trust. 
+
+ Under the terms of the Trust Indenture, the Trustee is entitled to rely, and in fact relies on certain experts in good faith. This reliance includes the use of an independent petroleum engineering consultant to prepare estimates of net proved reserves attributable to the Trust. This independent petroleum engineering consultant in turn relies on information provided to it by the Working Interest Owners. While the Trustee has no reason to believe its reliance on experts is unreasonable, this reliance on experts and limited access to information may be viewed as a weakness as compared to the management and oversight of entity forms other than trusts. 
+
+ The owner of any Royalty Property may abandon any property, terminating the related Royalty. 
+
+ The Working Interest Owners may at any time transfer all or part of the Royalty Property to another unrelated third party. Unitholders are not entitled to vote on any transfer, and the Trust will not receive any proceeds of any such transfer. Following any transfer, the Royalty Properties will continue to be subject to the Royalty, but the Net Proceeds from the transferred property would be calculated separately and paid by the transferee. The transferee would be responsible for all of the obligations relating to calculating, reporting and paying to the Trust the Royalty on the transferred portion of the Royalty Properties, and the current owner of the Royalty Properties would have no continuing obligation to the Trust for those properties. 
+
+ The Working Interest Owners or any transferee may abandon any well or property if it reasonably believes that the well or property can no longer produce in commercially economic quantities. This could result in termination of the Royalty relating to the abandoned well. 
+
+ Terrorism and continued hostilities across the world could decrease Trust distributions or the market price of the units of beneficial interest of the Trust. 
+
+ Warfare, terrorist attacks and the threat of terrorist attacks, whether domestic or foreign, as well as military or political actions taken in response, cause instability in the global financial and energy markets. Terrorism and sustained military campaigns, including political turmoil, warfare or continuing attacks in Ukraine and in the Middle East, such as the recent closure of the Strait of Hormuz and recent hostilities in the Middle East region, could adversely affect Trust distributions or the market price of the units in unpredictable ways, including through inflationary pressures, the disruption of supply chains and markets, increased volatility in natural gas prices, or the possibility that the infrastructure on which the operators developing the underlying properties rely could be a direct target or an indirect casualty of a cyber-attack or an act of terror. Political and military events in Ukraine, the Middle East and other countries, including warfare between Ukraine and Russia, hostilities and geopolitical risk in the Middle East and global trading sanctions and tariffs may also have an adverse impact on Trust distributions or the market price of the units and may negatively affect our results of operations. 
+
+ 19 
+
+ TABLE OF CONTENTS 
+
+ Cyber-attacks or other failures in telecommunications or information technology systems could result in information theft, data corruption and significant disruption of the business operations of the Working Interest Owners. 
+
+ The Working Interest Owners rely on information technology (“IT”) systems and networks in connection with various business activities, including exploration, development and production activities. The Working Interest Owners rely on digital technology, including information systems and related infrastructure, as well as cloud applications and services, to, among other things, estimate quantities of oil and natural gas reserves, analyze seismic and drilling information, process and record financial and operating data and communicate with employees and third parties. As dependence on digital technologies has increased, cyber incidents, including deliberate attacks and attempts to gain unauthorized access to computer systems and networks, have increased in frequency and sophistication. These threats pose a risk to the security of the systems and networks of the Working Interest Owners, the confidentiality, availability and integrity of their data and the physical security of employees and assets. The Working Interest Owners may not be successful in preventing cyber-attacks or mitigating their effect. Any cyber-attack could have a material adverse effect on the reputation, competitive position, business, financial condition and results of operations of the Working Interest Owners, and could have a material adverse effect on the Trust. Cyber-attacks or security breaches also could result in litigation or regulatory action, as well as significant additional expense to the Working Interest Owners to implement further data protection measures. 
+
+ In addition to the risks presented to the systems and networks of the Working Interest Owners, cyber-attacks affecting oil and natural gas distribution systems maintained by third parties, or the networks and infrastructure on which they rely, could delay or prevent delivery to markets. A cyber-attack of this nature would be outside the ability of the Working Interest Owners to control, but could have a material adverse effect on the business, financial condition and results of operations of the Working Interest Owners, and could have a material adverse effect on the Trust. 
+
+ Cyber-attacks or other failures in telecommunications or IT systems could result in information theft, data corruption and significant disruption of the Trustee’s operations. 
+
+ The Trustee depends heavily upon IT systems and networks in connection with its business activities. Despite a variety of security measures implemented by the Trustee, events such as the loss or theft of back-up tapes or other data storage media could occur, and the Trustee’s computer systems could be subject to physical and electronic break-ins, cyber-attacks and similar disruptions from unauthorized tampering, including threats that may come from external factors, such as governments, organized crime, hackers and third parties to whom certain functions are outsourced, or may originate internally from within the respective companies. 
+
+ If a cyber-attack were to occur, it could potentially jeopardize the confidential, proprietary and other information processed and stored in, and transmitted through, the Trustee’s computer systems and networks, or otherwise cause interruptions or malfunctions in the operations of the Trust, which could result in litigation, increased costs and regulatory penalties. Although steps are taken to prevent and detect such attacks, it is possible that a cyber incident will not be discovered for some time after it occurs, which could increase exposure to these consequences. 
+
+ LEGAL, ENVIRONMENTAL AND REGULATORY RISKS 
+
+ The Working Interest Owners are subject to extensive governmental regulation. 
+
+ Oil and gas operations have been, and in the future will be, affected by federal, state and local laws and regulations and other political developments, such as price or gathering rate controls, climate regulations and environmental protection regulations. These regulations and changes in regulations could have a material adverse effect on Royalty income payable to the Trust. Please read “Business — Regulation and Prices” under Item 1 of this Form 10-K. 
+
+ 20 
+
+ TABLE OF CONTENTS 
+
+ The Working Interest Owners’ operations are subject to environmental, health and safety laws and regulations that may expose the Working Interest Owners to penalties, damages or costs of remediation or compliance which could adversely affect Trust distributions. 
+
+ The Working Interest Owners’ operations are subject to federal, regional, state and local laws and regulations relating to protection of natural resources and the environment, health and safety aspects of oil and gas operations and waste management, including the transportation and disposal of waste and other materials. These laws and regulations may impose numerous obligations on such operations, including the acquisition of permits to conduct regulated activities, the incurrence of capital expenditures to mitigate or prevent releases of materials from facilities, the imposition of substantial liabilities for pollution resulting from operations and the application of specific health and safety criteria addressing worker protection. Failure to comply with these laws and regulations could result in restrictions or orders suspending well operations, the assessment of administrative, civil and criminal penalties, the revocation of permits and the issuance of corrective action orders. 
+
+ There is inherent risk of environmental costs and liabilities in the oil and gas business as a result of the handling of petroleum hydrocarbons and oilfield and industrial wastes, air emissions and wastewater discharges related to current operations as well as historical industry operations and waste disposal practices. Some environmental laws and regulations may impose strict liability which means that in some situations the Working Interest Owners could be exposed to liability as a result of conduct that was without fault or lawful at the time it occurred or as a result of the conduct of, or conditions caused by, prior operators or other third parties. Clean-up costs and other damages arising as a result of environmental laws and costs associated with changes in environmental laws and regulations could be substantial and could have a material adverse effect on Trust distributions. 
+
+ Laws protecting the environment generally have become more stringent over time and are expected to continue to do so, which could lead to material increases in costs for future environmental compliance and remediation. The modification or interpretation of existing laws or regulations, or the adoption of new laws or regulations, could curtail exploratory or developmental drilling for oil and natural gas. The Working Interest Owners may not be able to recover some or any of such costs of compliance with these laws and regulations from insurance. 
+
+ Please read “Business — Regulation and Prices — Environmental Matters” under Item 1 of this Form 10-K for more information on the environmental laws and government regulations that may be applicable to the Working Interest Owners’ operations. 
+
+ Physical effects of climate and extreme weather have the potential to damage the facilities of the Working Interest Owners, disrupt production activities on the Royalty Properties, and cause the Working Interest Owners to incur significant costs in preparing for or responding to those effects and can adversely affect Trust distributions as a result. 
+
+ Scientific studies and government reports indicate that global, regional or local effects on climate and the severity of weather (including hurricanes, floods and droughts), sea levels, arability of farmland, and water availability and quality, including predicted effects on areas in which the Royalty Properties are located. If such effects were to occur, exploration and production operations of the Royalty Properties have the potential to be adversely affected. Potential adverse effects could include damages to the facilities of the Working Interest Owners or disruption of production activities associated with weather related events, scale-backs in operations on the Royalty Properties due to the threat of such climatic effects, and increases in costs of operation potentially arising from such climatic effects, less efficient or nonroutine operating practices necessitated by climatic effects or increased costs for insurance coverage. The Working Interest Owners may not be able to recover through insurance some or any of the damages, losses or costs that may result from potential physical effects of climate change and can adversely affect Trust distributions as a result. 
+
+ Climate change legislation or regulations restricting or regulating emissions of greenhouse gases could result in increased operating and administrative costs and could adversely affect Trust distributions. 
+
+ The EPA has adopted various regulations under the federal Clean Air Act addressing emissions of greenhouse gases that may affect the oil and gas industry, including mandatory reporting and emission 
+
+ 21 
+
+ TABLE OF CONTENTS 
+
+ reduction. Such changes will affect state air permitting programs in states that administer the federal Clean Air Act under a delegation of authority, including states in which the Royalty Properties are located. Some states have also indicated an intent to regulate or impose restrictions or costs on greenhouse gas emissions or fossil fuels. The adoption and implementation of any international treaty or of any federal or state legislation or regulations imposing restrictions on emissions of greenhouse gases could require the Working Interest Owners to incur costs to comply with such requirements and possibly require the reduction or limitation of emissions of greenhouse gases associated with the Working Interest Owners’ operations or could impose costs on other sources of emissions within the industrial or energy sectors. Such legislation or regulations could adversely affect demand for the production of oil and natural gas and increase operating costs by requiring additional expenditures to operate and maintain equipment and facilities, inventory emissions, install emissions controls, acquire allowances or pay taxes and fees relating to emissions, which could adversely affect Trust distributions. In March 2024, the SEC adopted rules that would require public issuers to disclose specific climate-related information in their filings with the SEC which would increase administrative and reporting costs for public filers such as the Trust if the rules are implemented. While the SEC under the current administration has announced it is not defending the regulations in pending legal challenges to the rules, many states, such as California, have promulgated similar rules. Environmental, social, and governance (“ESG”) goals and programs have also become an increasing focus of investors, especially in the energy industry. Over time, ESG initiatives might make it more difficult and costly for the Working Interest Owners to secure funds for exploration, development and production activities. Furthermore, any changes in climate or weather, such as storms, floods, wildfires, drought and other climatic events, could have adverse physical effects on the Working Interest Owners’ operations or physical assets. 
+
+ Please read “Business — Regulation and Prices — Environmental Matters” under Item 1 of this Form 10-K for more information on the environmental laws and government regulations that may be applicable to the Working Interest Owners’ operations. 
+
+ Federal and state legislation and regulatory initiatives relating to hydraulic fracturing could result in increased costs and additional operating restrictions or delays on the Royalty Properties in which the Trust holds an interest. 
+
+ Hydraulic fracturing is an important and commonly used process in the completion of unconventional natural gas wells in shale and coal formations, as well as tight conventional formations including many of those Royalty Properties in which the Trust holds an interest. This process involves the injection of water, sand and chemicals under pressure into rock formations to stimulate natural gas production. Some states have adopted and others are considering legislation to restrict hydraulic fracturing. Several states including those where Royalty Properties are located have adopted legislation requiring the public disclosure of hydraulic fracturing chemicals, which could make it easier for third parties opposing the hydraulic fracturing process to initiate legal proceedings based on allegations that specific chemicals used in the fracturing process could adversely affect groundwater. In addition, hydraulic fracturing requires large amounts of water. This water, along with any produced water, is often sent to injection wells for disposal. This activity has been associated with earthquakes and some states, particularly Oklahoma, have limited injection well activity. Any additional level of regulation could lead to operational delays or increased operating costs and could result in additional regulatory burdens that could make it more difficult to perform hydraulic fracturing and increase the Working Interest Owners’ costs of compliance and doing business and required disclosure without protection for trade secret or proprietary products could discourage service companies from using such products and as a result impact the degree to which some oil and gas wells may be efficiently and economically completed or brought into production. 
+
+ RISKS RELATED TO OWNERSHIP OF THE TRUST’S UNITS 
+
+ The trading price of the units is substantially related to commodity prices and the Trust’s Royalty income. If the Trust’s Royalty income experiences a sustained decline, the Trust may be terminated. In addition, Royalty interests may be sold. 
+
+ The trading price of the units is substantially related to commodity prices and the Trust’s Royalty income. The Trust will be terminated and the Trustee must sell all of the Royalty if holders of a majority of the units of beneficial interest of the Trust approve the sale or vote to terminate the Trust, or if the Trust’s Royalty income for each of two successive years is less than $250,000 per year. Following any such termination 
+
+ 22 
+
+ TABLE OF CONTENTS 
+
+ and liquidation, the Net Proceeds of any such sale will be distributed to the unitholders, and the unitholders will receive no further distributions from the Trust. The Trustee may also enter into one or more transactions, subject to any required unitholder approval, by which a portion of the Royalty is sold, which could ultimately result in the termination of the Trust if the remaining Royalty does not generate sufficient income to maintain the $250,000 threshold. No assurances can be made that any such sale will be on terms acceptable to all unitholders. The sale of the remaining Royalty interests and the termination of the Trust would be taxable events to the Trust unitholders. 
+
+ Unitholders have limited voting rights. 
+
+ Voting rights as a unitholder are more limited than those of stockholders of most public corporations. For example, there is no requirement for annual meetings of unitholders or for an annual or other periodic re-election of the Trustee. Additionally, Trust unitholders have no voting rights in any of the Working Interest Owners. Unlike corporations which are generally governed by boards of directors elected by their equity holders, the Trust is administered by a corporate Trustee in accordance with the Trust Indenture and other organizational documents. The Trustee has extremely limited discretion in its administration of the Trust. 
+
+ Unitholders have limited ability to enforce the Trust’s rights against the current or future owners of the Royalty Properties. 
+
+ The Trust Indenture and related trust law permit the Trustee and the Trust to sue the Working Interest Owners to compel them to fulfill the terms of the Conveyance of the Royalty. If the Trustee does not take appropriate action to enforce provisions of the Conveyance, the Trust Indenture limits and conditions the rights of the unitholders to assert any claims against the Trustee. Unitholders have limited ability to enforce the Trust’s rights against a Working Interest Owner. 
+
+ The limited liability of the Trust unitholders is uncertain. 
+
+ The Trust unitholders are not protected from the liabilities of the Trust to the same extent that a shareholder would be protected from a corporation’s liabilities. The structure of the Trust does not include the interposition of a limited liability entity such as a corporation or a limited partnership which would provide further limited liability protection to Trust unitholders. While the Trustee is liable for any excess liabilities incurred if the Trustee fails to insure that such liabilities are to be satisfied only out of Trust assets, under the laws of Texas, which are unsettled on this point, a holder of units may be jointly and severally liable for any liability of the Trust if the satisfaction of such liability was not contractually limited to the assets of the Trust and available assets of the Trust and the Trustee are not adequate to satisfy such liability. As a result, Trust unitholders may be exposed to personal liability. 
+
+ The Trust has established a cash reserve for contingent liabilities and to pay expenses in accordance with the Trust Indenture and intends to increase such Contingent Reserve from $1.0 million to a total of $2.0 million, which will reduce Net Proceeds available to the Trust and distributions to Trust unitholders. 
+
+ The Trust’s sole source of capital is the Royalty income received from its share of the Net Proceeds from the Royalty Properties. Pursuant to the Trust Indenture, the Trust may establish a cash reserve through the withholding of cash for contingent liabilities and to pay future Trust expenses. The Trustee has established a cash reserve for contingent liabilities and expenses in accordance with the Trust Indenture, which will reduce Net Proceeds available to the Trust and distributions to Trust unitholders. The Trustee intends to increase the Contingent Reserve from $1.0 million to a total of $2.0 million, which will reduce Net Proceeds available to the Trust and distributions to Trust unitholders. The amount and timing of the addition to the Contingent Reserve will be determined by the Trustee on a monthly basis and is expected to vary in future periods depending on circumstances at the time. 
+
+ The future financial condition of Working Interest Owners or other operators of the underlying properties could impede the operation of wells. 
+
+ The value of the Royalty and the Trust’s ultimate cash available for distribution is highly dependent on the financial condition of the oper

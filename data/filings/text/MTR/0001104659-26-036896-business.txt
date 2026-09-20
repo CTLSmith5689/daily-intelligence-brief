@@ -1,0 +1,139 @@
+Item 1. 
+
+ Business. 
+
+ DESCRIPTION OF THE TRUST 
+
+ The Trust, created under the laws of the State of Texas, maintains its offices at the office of the Trustee, The Bank of New York Mellon Trust Company, N.A., (the “Trustee”), 601 Travis Street, Floor 16, Houston, Texas 77002. The telephone number of the Trust is 713-483-6020. The Trust has no employees. Administrative functions of the Trust are performed by the Trustee. The Trustee maintains a website for the Trust that makes available, free of charge, filings by the Trust with the SEC and other information. Any reports filed with the SEC are accessible free of charge through the Trust’s website as soon as reasonably practicable after the Trustee electronically files such material with, or furnishes it to, the SEC. The Trust’s website is http://mtr.q4web.com/home/default.aspx. Information contained on, or that can be accessed through the Trust’s website, is not incorporated by reference into this Form 10-K, and you should not consider information on the Trust’s website to be part of this Form 10-K. The SEC maintains a website at www.sec.gov that contains reports and other information regarding SEC registrants, including the Trust. 
+
+ Trust Corpus Description. The Mesa Royalty Trust (the “Trust”) was created on November 1, 1979, and is now governed by the Mesa Royalty Trust Indenture (as amended, the “Trust Indenture”). Through a series of conveyances, assignments, and acquisitions, the Trust currently owns an overriding royalty interest (the “Royalty”) equal to 11.44% of 90% of the Net Proceeds (as defined in the Conveyance and described below) attributable to the specified interest in certain producing oil and gas properties located in the: 
+
+ • 
+
+ Hugoton field of Kansas (the “Hugoton Royalty Properties”); 
+
+ • 
+
+ San Juan Basin field of New Mexico (the “San Juan Basin — New Mexico Properties”); and 
+
+ • 
+
+ San Juan Basin field of Colorado (the “San Juan Basin — Colorado Properties”, and together with the “San Juan Basin — New Mexico Properties, the “San Juan Basin Royalty Properties”, and together with the Hugoton Royalty Properties, the “Royalty Properties”). 
+
+ Trust Corpus Conveyance History. On November 1, 1979, Mesa Petroleum Co., predecessor to Mesa Limited Partnership (“MLP”), which was the predecessor to MESA Inc., conveyed to the Trust the Royalty equal to 90% of the Net Proceeds (as defined in the Conveyance and described below) attributable to the specified interests in properties conveyed by the assignor on that date (the “Subject Interests”). The Subject Interests consisted of interests in the Royalty Properties described above. The Royalty is evidenced by counterparts of an Overriding Royalty Conveyance, dated as of November 1, 1979 (the “Conveyance”). In 1985, the Trust Indenture was amended and the Trust conveyed to an affiliate of Mesa Petroleum Co. 88.5571% of the original Royalty (such transfer, the “1985 Assignment”). The effect of the 1985 Assignment was an overall reduction of approximately 88.56% in the size of the Trust. As a result, the Trust is now entitled to receive 11.44% of 90% of the Net Proceeds attributable to each month. 
+
+ Hugoton Royalty Properties. On November 22, 2019, Riviera Resources, Inc. completed the sale of its interest in its remaining properties located in the Hugoton Basin to Scout Energy Group V, LP (“Scout”). Since November 23, 2019, Scout has operated the Hugoton Royalty Properties. 
+
+ San Juan Basin — Colorado Properties. The Trust’s interest in the San Juan Basin Royalty Properties was conveyed from a working interest in 31,328 net producing acres in northwestern New Mexico and southwestern Colorado. ConocoPhillips sold the portion of its interests in the San Juan Basin — Colorado Properties to MarkWest Energy Partners, Ltd. (effective January 1, 1993) and Red Willow Production Company (“Red Willow”) (effective April 1, 1992). On October 26, 1994, MarkWest Energy Partners, Ltd. sold substantially all of its interest in the San Juan Basin — Colorado Properties to BP Amoco Company (“BP”), a subsidiary of BP p.l.c. On February 28, 2020, BP completed the sale of all of its interest in the San Juan Basin — Colorado Properties to SIMCOE LLC (“Simcoe”), an affiliate of IKAV Energy Inc. BP, under a transition services agreement with Simcoe, operated the properties until December 1, 2020. On September 16, 2025, Mach Natural Resources LP (Mach) completed the purchase of all membership interests 
+
+ 1 
+
+ TABLE OF CONTENTS 
+
+ of Simcoe, which included the interest in the San Juan — Colorado Properties. . Simcoe, now a subsidiary of Mach, and Red Willow currently operate the San Juan Basin — Colorado Properties. 
+
+ San Juan Basin — New Mexico Properties. Starting from the date of the San Juan Basin Sale and ending on July 31, 2017, ConocoPhillips operated substantially all of the San Juan Basin — New Mexico Properties, except a small number of properties that had been assigned to XTO Energy, Inc. (“XTO”) effective January 1, 2005. On July 31, 2017, ConocoPhillips sold its San Juan Basin assets to Hilcorp San Juan LP (“Hilcorp”), an affiliate of Hilcorp Energy Company. On March 29, 2018, XTO sold to Hilcorp its interests in the San Juan Basin — New Mexico Properties. Hilcorp currently operates all of the San Juan Basin — New Mexico Properties. 
+
+ As used in this report, Scout refers to the current operator of the Hugoton Royalty Properties, Hilcorp refers to the current operator of the San Juan Basin — New Mexico Properties, and Simcoe and Red Willow refer to the current co-operators of certain tracts of land included in the San Juan Basin — Colorado Properties, unless otherwise indicated. Scout, Mach, Red Willow and Hilcorp are each individually referred to herein as “Working Interest Owner” or collectively as the “Working Interest Owners.” 
+
+ The Royalty Properties are required to be operated by the Working Interest Owners in accordance with reasonable and prudent business judgment and good oil and gas field practices. Each Working Interest Owner has the right to abandon any well or lease if, in its opinion, such well or lease ceases to produce or is not capable of producing oil, gas or other minerals in commercial quantities. Each Working Interest Owner markets the production on terms determined by it under the circumstances. See “Contracts”. The Trustee has no power or authority to exercise any control over the operation of the Royalty Properties or the marketing of production therefrom. In addition, the Trust does not undertake or control any capital projects or capital expenditures related to any of the Royalty Properties. 
+
+ Trustee and Terms of Trust Indenture. The Trust is a passive entity whose purposes are limited to: (1) converting the Royalty to cash, either by retaining it and collecting the proceeds of production (until production has ceased or the Royalty is otherwise terminated) or by selling or otherwise disposing of the Royalty and (2) distributing such cash, net of amounts for payments of liabilities to the Trust, to the unitholders. The Trust has no sources of liquidity or capital resources other than the revenues, if any, attributable to the Royalties and interest on cash held by the Trustee as a reserve for liabilities or for distribution. The terms of the Trust, the Trust Indenture and agreements with the Working Interest Owners provide, among other things, that: 
+
+ (a) the Trust cannot engage in any business or investment activity or purchase any assets; 
+
+ (b) the Royalty can be sold in part or in total for cash upon approval by the unitholders; 
+
+ (c) the Trustee can establish cash reserves, place cash reserves in interest bearing accounts or certificates, and borrow funds to pay liabilities of the Trust and can pledge assets of the Trust to secure payment of the borrowings; 
+
+ (d) the Trustee will make cash distributions to the unitholders in January, April, July and October each year as discussed more fully in Note 2 of the Notes to Financial Statements contained in Item 8 of this Form 10-K; 
+
+ (e) the Trust will terminate upon the first to occur of the following events: (i) at such time as the Trust’s Royalty income for two successive years is less than $250,000 per year or (ii) a vote by the unitholders in favor of termination. Upon termination of the Trust, the Trustee will sell for cash all the assets held in the Trust estate and make a final distribution to unitholders of any funds remaining after all Trust liabilities have been satisfied; and 
+
+ (f) Scout, Hilcorp and Simcoe, now a subsidiary of Mach, will reimburse the Trust for 59.34%, 27.45% and 1.77%, respectively, for general and administrative expenses of the Trust. 
+
+ Discussion of Net Proceeds. The Conveyance provides for a monthly computation of Net Proceeds. Net Proceeds is defined in the Conveyance as the “Gross Proceeds” received by the Working Interest Owners during a particular period, minus certain production and capital costs for such period. “Gross Proceeds” is defined in the Conveyance as the amount received by the Working Interest Owners from the sale of “Subject 
+
+ 2 
+
+ TABLE OF CONTENTS 
+
+ Minerals”, subject to certain adjustments. “Subject Minerals” means all oil, gas and other minerals, whether similar or dissimilar, in and under, and which may be produced, saved and sold from, and which accrue and are attributable to, the Subject Interests from and after November 1, 1979. “Production costs” means, generally, costs incurred on an accrual basis by the Working Interest Owners in operating the Royalty Properties, including capital and non-capital costs. If production and capital costs exceed Gross Proceeds for any month, the excess, plus interest thereon at 120% of the prime rate of Bank of America, is recovered out of future Gross Proceeds prior to the making of further payment to the Trust. The Trust, however, is generally not liable for any operating costs or other costs or liabilities attributable to the Royalty Properties or minerals produced therefrom. The Trust is not obligated to return any Royalty income received in any period. 
+
+ The Working Interest Owners are required to maintain books and records sufficient to determine the amounts payable under the Royalty. Additionally, in the event of a controversy between a Working Interest Owner and any purchaser as to the correct sales price for any production, amounts received by such Working Interest Owner and promptly deposited by it with an escrow agent are not considered to have been received by such Working Interest Owner, and, therefore, are not subject to being payable with respect to the Royalty until the controversy is resolved; but all amounts thereafter paid to such Working Interest Owner by the escrow agent will be considered amounts received from the sale of production. Similarly, operating costs include any amounts a Working Interest Owner is required to pay whether as a refund, interest or penalty to any purchaser because the amount initially received by such Working Interest Owner as the sales price was in excess of that permitted by the terms of any applicable contract, statute, regulation, order, decree or other obligation. Within 30 days following the close of each calendar quarter, the Working Interest Owners are required to deliver to the Trustee a statement of the computation of Net Proceeds attributable to such quarter. 
+
+ The brief discussions of the Trust Indenture and the Conveyance contained herein are qualified in their entirety by reference to the Trust Indenture and the Conveyance themselves, which are exhibits to this Form 10-K and are available upon request from the Trustee. 
+
+ DESCRIPTION OF THE UNITS 
+
+ Each unit of beneficial interest is evidenced by a transferable certificate issued by the Trustee or book-entry notation maintained by the Trust’s transfer agent. Each unit ranks equally for purposes of distributions and has one vote on any matter submitted to unitholders. A total of 1,863,590 units were outstanding at March 24, 2026. 
+
+ Distributions 
+
+ The Trustee determines for each month the amount of cash available for distribution to unitholders for such month (the “Monthly Distribution Amount”), which consists of the cash received from the Royalty during such month, minus the obligations of the Trust paid during such month as adjusted for changes during such month in any cash reserves established for the payment of contingent or future obligations of the Trust made by the Trustee. The Monthly Distribution Amount for each month is payable to unitholders of record on the monthly record date, which is the close of business on the last business day of such month or such other date as the Trustee determines is required to comply with legal or stock exchange requirements. However, pursuant to the Trust Indenture and in order to reduce the administrative expenses of the Trust, the Trustee does not distribute cash monthly. Instead, the Trustee makes distributions, if any, during January, April, July and October of each year. While distributions are scheduled to be made four times per calendar year, the Trustee distributes to each person who was a unitholder of record on one or more of the immediately preceding three monthly record dates, an amount equal to the Monthly Distribution Amount for the month or months that such holder was a unitholder of record plus interest earned on such Monthly Distribution Amount from the Monthly Record Date to the payment date. Under the terms of the Trust Indenture, interest is earned at a rate of 1.5% below the greater of (i) the prime rate charged by The Bank of New York Mellon Trust Company, N.A. or (ii) the interest rate which The Bank of New York Mellon Trust Company, N.A. pays in the normal course of business on amounts placed with it. Interest income may vary significantly across different payment dates. 
+
+ 3 
+
+ TABLE OF CONTENTS 
+
+ The Working Interest Owners reimburse the Trust for portions of the total expenses incurred each month. The portions of expenses incurred by the Trustee without reimbursement from the Working Interest Owners are unreimbursed expenses. Unreimbursed expenses for any reporting period are included in general and administrative expenses, which results in a reduction of distributable income. As of December 31, 2025, there were $0 of unreimbursed expenses. 
+
+ The terms of the Trust Indenture provide, among other things, that the Trustee may establish cash reserves and borrow funds to pay liabilities of the Trust and may pledge assets of the Trust to secure payment of the borrowings in accordance with the Trust Indenture. At any given time, the amount reserved for such future unknown contingent liabilities and expenses (the “Contingent Reserve”) is included in cash and short-term investments. Liability of Unitholders 
+
+ The Trust unitholders are not protected from the liabilities of the Trust to the same extent that a shareholder would be protected from a corporation’s liabilities. In regard to the unitholders, the Trustee may generally be held liable for any excess liabilities incurred if the Trustee incurs any liability without ensuring that such liability will be satisfiable only out of the Trust’s assets (regardless of whether the assets are adequate to satisfy the liability) and not out of amounts distributed to, or other assets owned by, the unitholders. However, under Texas law, it is unclear whether a unitholder would be jointly and severally liable for any liability of the Trust in the event that all of the following conditions were to occur: (1) the satisfaction of such liability was not by contract limited to the assets of the Trust, (2) the assets of the Trust were insufficient to discharge such liability, and (3) the assets of the Trustee were insufficient to discharge such liability. As a result, Trust unitholders may be exposed to personal liability. 
+
+ Federal Income Tax Matters 
+
+ This section is a summary of federal income tax matters of general application, which addresses the material tax consequences of the ownership and sale of the Trust’s units. Except where indicated, the discussion below describes general federal income tax considerations applicable to individuals who are citizens or residents of the U.S. Accordingly, the following discussion has limited application to domestic corporations, foreign persons and persons subject to specialized federal income tax treatment, such as regulated investment companies and insurance companies. It is impractical to comment on all aspects of federal, state, local and foreign laws that may affect the tax consequences of the transactions contemplated hereby and of an investment in the units as they relate to the particular circumstances of every unitholder. Each unitholder should consult its own tax advisor with respect to its particular circumstances. 
+
+ Classification of the Trust 
+
+ In a technical advice memorandum dated February 26, 1982, the National Office of the Internal Revenue Service (the “IRS”) advised the Dallas District Director that the Trust is classifiable as a grantor trust and not as an association taxable as a corporation. As a grantor trust, the Trust incurs no federal income tax liability and each unitholder is subject to tax on such unitholder’s pro rata share of the income and expense of the Trust as if such unitholder were the direct owner of a pro rata share of the Trust’s assets. In addition, there is no state tax liability for the period. 
+
+ The Trustee assumes that some Trust units are held by a middleman, as such term is broadly defined in U.S. Treasury Regulations (and includes custodians, nominees, certain joint owners, and brokers holding an interest for a custodian in street name). Therefore, the Trustee considers the Trust to be a non-mortgage widely held fixed investment trust (“WHFIT”) for U.S. federal income tax purposes. Notwithstanding the foregoing, the middlemen holding units on behalf of unitholders, and not the Trustee of the Trust, are solely responsible for complying with the information reporting requirements under the Treasury Regulations (as defined below) with respect to such units, including the issuance of IRS Forms 1099 and certain written tax statements. Unitholders whose units are held by middlemen should consult with such middlemen regarding the information that will be reported to them by the middlemen with respect to the units. 
+
+ Available Trust Tax Information 
+
+ The Bank of New York Mellon Trust Company, N.A., 601 Travis Street, Floor 16, Houston, Texas 77002, telephone number 713-483-6020, is the representative of the Trust that will provide tax 
+
+ 4 
+
+ TABLE OF CONTENTS 
+
+ information in accordance with applicable Treasury Regulations governing the information reporting requirements of the Trust as a WHFIT. In compliance with the Treasury Regulations reporting requirements for WHFITs and the dissemination of Trust tax reporting information, the Trustee provides a tax information reporting booklet which is intended to be used only to assist Trust unitholders in the preparation of their federal income tax returns. This tax information booklet can be obtained at http://mtr.q4web.com/home/default.aspx. 
+
+ This summary is based on current provisions of the Internal Revenue Code of 1986, as amended (“Code”), existing and proposed Internal Revenue Treasury Regulations (“Treasury Regulations”) thereunder and current administrative rulings and court decisions, all of which are subject to changes that may or may not be retroactively applied. No assurance can be provided that the statements set forth herein (which do not bind the IRS or any court) will not be challenged by the IRS or will be sustained by any court if challenged. 
+
+ Income and Depletion 
+
+ Royalty income, net of depletion and severance taxes, is portfolio income. Subject to certain exceptions and transitional rules, Royalty income cannot be offset by passive losses. Additionally, interest income is portfolio income. 
+
+ Generally, prior to the Revenue Reconciliation Act of 1990, the transferee of an oil and gas property could not claim percentage depletion with respect to production from the property if it was “proved” at the time of the transfer. This rule is not applicable in the case of transfers of properties after October 11, 1990. Thus, eligible unitholders who acquired units after that date are entitled to claim an allowance for percentage depletion with respect to Royalty income attributable to such units to the extent that this allowance exceeds cost depletion as computed for the applicable period. 
+
+ Backup Withholding 
+
+ Distributions from the Trust are generally subject to backup withholding at a current rate of 24%. Backup withholding will not normally apply to distributions to a unitholder unless the unitholder fails to properly provide to the Trust its taxpayer identification number or the IRS notifies the Trust that the taxpayer identification number provided by the unitholder is incorrect. 
+
+ Sale of Units 
+
+ Generally, except for recapture items, the sale, exchange or other disposition of a unit will result in capital gain or loss measured by the difference between the tax basis in the unit and the amount realized. Effective for property placed in service after December 31, 1986, the amount of gain, if any, realized upon the disposition of oil and gas property is treated as ordinary income up to the amount of intangible drilling and development costs incurred with respect to the property and depletion claimed to the extent it reduced the taxpayer’s basis in the property. Under this provision, depletion attributable to a unit acquired after 1986 will be subject to recapture as ordinary income upon disposition of the unit or upon disposition of the oil and gas property to which the depletion is attributable. The balance of any gain or any loss will be capital gain or loss if the unit was held by the unitholder as a capital asset, either long-term or short-term depending on the holding period of the unit. This capital gain or loss will be long-term if a unitholder’s holding period exceeds one year at the time of sale or exchange. Under current law, the highest marginal U.S. federal income tax rate applicable to long-term capital gains of individuals is 20%. Moreover, this rate is subject to change by new legislation at any time. The deductibility of capital losses is subject to certain limitations. Capital gain or loss will be short-term if the unit has not been held for more than one year at the time of sale or exchange. 
+
+ Additional Tax on Net Investment Income 
+
+ Individuals, estates, and trusts with income above certain thresholds are subject under Section 1411 of the Code to an additional 3.8% tax — also known as the Net Investment Income Tax (“NIIT”) — on their net investment income. Grantor trusts such as Mesa Royalty Trust are not subject to the NIIT; however, the unitholders may be subject to the tax. For these purposes, investment income would generally include 
+
+ 5 
+
+ TABLE OF CONTENTS 
+
+ certain income derived from investments, such as the Royalty income derived from the units and gain realized by a unitholder from a sale of the units. 
+
+ Non-U.S. Unitholders 
+
+ In general, a unitholder who is a nonresident alien individual or which is a foreign corporation, each a “non-U.S. unitholder” for purposes of this discussion, will be subject to tax on the gross income (without taking into account any deductions, such as depletion) produced by the Royalty at a rate equal to 30% or, if applicable, at a lower treaty rate. This tax will be withheld by the Trustee and remitted directly to the U.S. Treasury Department. A non-U.S. unitholder may elect to treat Royalty income as effectively connected with the conduct of a U.S. trade or business under provisions of the Code or pursuant to any similar provisions of applicable treaties. Upon making this election, a non-U.S. unitholder is entitled to claim all deductions with respect to that income, but he must file a U.S. federal income tax return to claim these deductions. This election once made is irrevocable unless an applicable treaty allows the election to be made annually. 
+
+ The Code and the Treasury Regulations thereunder treat the publicly traded Trust as if it were a U.S. real property holding corporation. Accordingly, a non-U.S. unitholder may be subject to U.S. withholding and federal income tax on the gain on the disposition of his units if he meets certain ownership thresholds. 
+
+ In addition, if a foreign corporation elects under provisions of the Code to treat Royalty income as effectively connected with the conduct of a U.S. trade or business, the corporation may also be subject to the U.S. branch profits tax at a rate of 30%. This tax is imposed on U.S. branch profits of a foreign corporation that are not reinvested in the U.S. trade or business and is in addition to the tax on effectively connected income. The branch profits tax may be either reduced or eliminated by treaty. Federal income taxation of a non-U.S. unitholder is a highly complex matter which may be affected by many considerations. Therefore, each non-U.S. unitholder is encouraged to consult with his own tax advisor with respect to its ownership of Trust units. 
+
+ Pursuant to the Foreign Account Tax Compliance Act (commonly referred to as “FATCA”), distributions from the Trust to “foreign financial institutions” and certain other “non-financial foreign entities” may be subject to U.S. withholding taxes. Specifically, certain “withholdable payments” (including certain royalties, interest and other income from U.S. sources) made to a foreign financial institution or non-financial foreign entity will generally be subject to the withholding tax unless the foreign financial institution or non-financial foreign entity complies with certain information reporting, withholding, identification, certification and related requirements imposed by FATC

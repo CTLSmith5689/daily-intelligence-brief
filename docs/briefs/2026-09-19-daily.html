@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<title>Daily Brief · Saturday, September 19</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg-base:#050810; --bg-surface:#0D0F18; --bg-elevated:#111420; --bg-deep:#070A0F;
+    --border-dim:#1A2030; --border-red:#3A0A0A;
+    --apt-red:#CC0000; --apt-dark-red:#7A1010; --apt-grey:#888888;
+    --text-primary:#E0E8F0; --text-body:#CCD4DC; --text-dim:#9AA8B8; --text-muted:#6A7888; --text-faint:#4A5A6A;
+  }
+  html { background:var(--bg-base); color:var(--text-primary); font-family:'Space Mono',ui-monospace,Menlo,Consolas,monospace; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg-base); min-height:100vh; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-dim); border-radius:2px; }
+  a { color:inherit; text-decoration:none; }
+
+  .topnav {
+    position:sticky; top:0; z-index:100; height:52px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border-dim); display:flex; align-items:center;
+    padding:0 24px; gap:14px;
+  }
+  .topnav .back {
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; transition:color .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topnav .back:hover { color:var(--text-primary); }
+  .topnav .lockup { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .topnav .lockup .dm { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:11px; letter-spacing:4px; color:var(--text-primary); text-transform:uppercase; }
+  .topnav .lockup .prod { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; }
+  .topnav .suite { display:none; font-size:9px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  @media (min-width:720px) { .topnav .suite { display:inline; } }
+
+  .container { max-width:760px; margin:0 auto; padding:32px 24px 96px; }
+
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-dim); }
+  .header .tag { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--apt-red); text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:800; letter-spacing:0.5px; color:#FFFFFF; line-height:1.2; }
+  .header .meta { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:10px; }
+
+  .market-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;
+    margin-bottom:32px;
+  }
+  .market-card {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    padding:14px 12px; text-align:center;
+  }
+  .market-card .label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+  .market-card .price { font-family:'Space Mono',monospace; font-size:18px; font-weight:500; color:var(--text-primary); margin:6px 0 4px; }
+  .market-card .change { font-family:'Space Mono',monospace; font-size:11px; }
+  .market-card .change.up { color:#5599CC; }
+  .market-card .change.down { color:var(--apt-red); }
+
+  .usage-banner {
+    background:var(--bg-deep); border:1px solid var(--border-dim);
+    padding:12px 16px; margin-bottom:24px;
+  }
+  .usage-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .usage-label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+  .usage-status { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; font-weight:500; text-transform:uppercase; }
+  .usage-bar { background:var(--bg-elevated); height:2px; overflow:hidden; margin-bottom:8px; }
+  .usage-bar-fill { height:2px; transition:width 0.3s; }
+  .usage-details { font-family:'Space Mono',monospace; font-size:10px; color:var(--text-dim); }
+
+  .widgets { display:flex; flex-direction:column; gap:14px; }
+
+  .widget {
+    background:var(--bg-surface); border:1px solid var(--border-dim);
+    transition:border-color .2s;
+  }
+  .widget.active { border-color:var(--text-muted); }
+  .widget[data-tier="1"] { border-bottom:2px solid var(--apt-red); }
+  .widget[data-tier="2"] { border-bottom:2px solid var(--apt-dark-red); }
+  .widget[data-tier="3"] { border-bottom:2px solid var(--apt-grey); }
+
+  .widget-header { display:flex; align-items:flex-start; padding:18px 22px; cursor:pointer; gap:18px; transition:background .15s; }
+  .widget-header:hover { background:rgba(255,255,255,0.02); }
+  .widget-num { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-muted); flex-shrink:0; padding-top:2px; }
+  .widget-info { flex:1; min-width:0; }
+  .widget-title { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .widget-headlines { margin:8px 0 0; padding:0; list-style:none; }
+  .widget-headlines li { font-family:'Space Mono',monospace; font-size:11px; color:var(--text-dim); line-height:1.55; padding:3px 0; padding-left:14px; position:relative; word-wrap:break-word; }
+  .widget-headlines li::before { content:'·'; position:absolute; left:2px; color:var(--text-muted); }
+  .widget-count { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); flex-shrink:0; padding-top:2px; }
+  .widget-chevron { color:var(--text-muted); font-size:14px; transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .widget.active .widget-chevron { transform:rotate(90deg); color:var(--apt-red); }
+
+  .widget-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .widget.active .widget-body { max-height:4000px; }
+
+  .widget-stories { padding:0 22px 20px; border-top:1px solid var(--border-dim); }
+
+  .story { padding:18px 0; border-top:1px solid var(--border-dim); cursor:pointer; }
+  .story:first-child { border-top:none; }
+  .story-headline { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; color:var(--text-primary); line-height:1.4; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-headline .arrow { font-size:11px; color:var(--text-muted); transition:transform .2s,color .2s; flex-shrink:0; padding-top:4px; }
+  .story.open .story-headline .arrow { transform:rotate(90deg); color:var(--apt-red); }
+  .story-source { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; }
+
+  .story-details { max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .story.open .story-details { max-height:600px; }
+
+  .story-summary { font-family:'Space Mono',monospace; font-size:13px; color:var(--text-body); margin:14px 0 12px; line-height:1.65; }
+  .story-insight { font-family:'Space Mono',monospace; font-size:12px; color:var(--text-body); line-height:1.65; padding:14px 16px; background:var(--bg-deep); border-left:2px solid var(--apt-red); }
+  .insight-label { font-family:'Space Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:3px; color:var(--apt-red); margin-bottom:8px; }
+  .story-link { display:inline-block; margin-top:12px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--apt-red); text-transform:uppercase; }
+  .story-link:hover { color:#FFFFFF; }
+
+  .panel { margin-top:32px; padding:22px 24px; background:var(--bg-deep); border:1px solid var(--border-dim); }
+  .panel.edge { border-left:3px solid var(--apt-red); }
+  .panel-title { font-family:'Space Mono',monospace; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:4px; margin-bottom:12px; }
+  .panel.edge .panel-title { color:var(--apt-red); }
+  .panel:not(.edge) .panel-title { color:var(--apt-grey); }
+  .panel p { font-family:'Space Mono',monospace; font-size:13px; color:var(--text-body); line-height:1.7; }
+
+  .footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer .brand { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:800; letter-spacing:4px; color:var(--text-muted); text-transform:uppercase; }
+  .footer .ts { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-muted); }
+
+  @media (max-width:560px) {
+    .container { padding:24px 16px 64px; }
+    .header h1 { font-size:24px; }
+    .widget-header { padding:16px 18px; gap:14px; }
+    .widget-stories { padding:0 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="back" href="../index.html" title="Apterreon home"><span>&#9664;</span> Home</a>
+  <a class="lockup" href="../index.html" style="text-decoration:none;color:inherit">
+    <svg width="20" height="27" viewBox="0 0 90 120" style="filter:drop-shadow(0 0 5px rgba(204,0,0,0.45));flex-shrink:0"><polygon points="12.6,25.0 45.9,41.0 52.0,118.0" fill="#888888"/><polygon points="38.0,18.0 66.0,42.0 52.0,118.0" fill="#7A1010"/><polygon points="64.4,17.8 85.2,48.2 52.0,118.0" fill="#CC0000"/></svg>
+    <div>
+      <div class="dm">Apterreon</div>
+      <div class="prod">Daily Intelligence Brief</div>
+    </div>
+  </a>
+</nav>
+
+<div class="container">
+  <div id="usage"></div>
+  <div class="header">
+    <div class="tag">Daily Intelligence Brief</div>
+    <h1>Daily Brief · Saturday, September 19</h1>
+    <div class="meta">08:10 PM ET &middot; Tap any section to expand</div>
+  </div>
+
+  <div id="market-bar" class="market-bar"></div>
+  <div id="widgets" class="widgets"></div>
+  <div id="edge"></div>
+  <div id="tomorrow"></div>
+
+  <div class="footer">
+    <span class="brand">Apterreon</span>
+    <span class="tagline">Explore what&#8217;s out there.</span>
+    <span class="ts">08:10 PM ET</span>
+  </div>
+</div>
+
+<script>
+const usageInfo = {};
+const rawSections = [{"name": "Breaking News", "stories": [{"headline": "Magnitude 5.6 earthquake rattles Northern California: Some injuries reported, thousands lose power - KCRA", "summary": "", "insight": "", "source": "KCRA", "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPaE5qTjNubERTdHVBSWNjc0JST3doQy1iMDVsOUc5c2NXYWdCaFdlWldEZl9xVWJpcUs1VGYyajQwN1ViVTNMU1NrME9pNFVVMUVlel91enBUbXRXTGg1dEt5a2FFelJBSldRMTg1TW9HVjB1SnZsVDdMZTNFY2RCaXpkdVFnX2hTd3FZ?oc=5"}, {"headline": "Ukraine News Today: Breaking Updates & Live Coverage - September 20, 2026 from Kyiv Post - Kyiv Post", "summary": "", "insight": "", "source": "Kyiv Post", "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFAwVTdMOWd1R2RDRG41eF9ZYmotcDdoR3h2cklkdjBLd3R0enc0UmcxMHZJYlRrcnB3ZGFfZzF3TFRXRWhCVkgwc1pmeHpnZw?oc=5"}, {"headline": "Trump says he hasn't made a final decision on Iran, 'not happy' with current negotiations - ABC News - Breaking News, Latest News and Videos", "summary": "", "insight": "", "source": "ABC News - Breaking News, Latest News and Videos", "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOQ3pick5FZVhrc1dGYUptUjZWbl84MVJmREJSN3J4Wm9PVmVmR3JmZ2d3VFhwMVE5THlFd0poeTgzT3V3TkF3UlF4Q1N0Z1NNdno4Z19ZXzFtenBBSUJFX0JNRUF1RXdUd1NpMENpSXJ3QV82bDh4bmRtTE9KbDlndlgzVG5oMEJHaEFYVG4zVERQY01pR3U1LW1uc9IBoAFBVV95cUxNdjQ4WUJTYUkyNUZ6ZlNOcFRqMzVSbWpQSVpmOE1vVVczODVseER2Tmg1ejlfdlVuQmh2aDZBUDVHcF9QTnVfbzFjTU1VdlZSSkFhUXhZSVNoTUlDOEtkdXZka2swUkc1eGFLV2Nxd28weVFqZVFTTUR4WjdWNS1UdFlKWUtDeVZqVVVzbzFINlJ6ckw4MzltVEdNRTFxd0Jy?oc=5"}, {"headline": "Breaking News - Rickey Stokes News", "summary": "", "insight": "", "source": "Rickey Stokes News", "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5KQTNzX1E4a2ItTFBCaFRFYzJrUVFDSndkdEd5dnJPMnlwZkg2eGVmcWtBTGhjNE4yb0MtNVgwZXRyUm9UdkJGZTFTcFp0MmNEWjNlRGJ2cUViZFZaellZdUlR?oc=5"}]}, {"name": "Finance & Markets", "stories": [{"headline": "U.S. Treasury Yields Fall as Fed Regains Trust, BOE Leaves Rates Unchanged - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNVER1UFJ0ZVpGNjRWcnkxSU96Z01OUHY4MVVqQmcyZDYwZVhkNFdpMWlyU1NnNjhSQmZpSG5FODhMLXktd1laTjRESnhfc2pLenBvckhkWmRSNDFxMEw0Yi1DenJEc3l0bzExaGVZaDc3RDFUT3FkN2dmZGEzOVI4WkxadmZ4ZGtaaFVNUGFPeHhlNnQ5UkZXQkx0OVFPcWdVWWtVR0FISmRXb0s5dUI4aThxSmQ2dGktYTdySlJFcldQMEhOWkE?oc=5"}, {"headline": "Goldman Sachs: Can the S&P 500 Rally as Treasury Yields Rise? - The Dark Side Of The Boom", "summary": "", "insight": "", "source": "The Dark Side Of The Boom", "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNaUQ3ekpHWDZXM3U4ZHViRVJ2Q0NKbUpfcGNrWnpwUTBPNGU2c3B6UXcxVl9ROEEyeXZkay12QnBPcGc2NXF1MHFZWGJITEZKcmljWjRLdkJJOWJwX1RrMW5ZdlVLd3pORzhsQlNkWUNucWViNXhvdGxfZVZlSlF2SmFHaw?oc=5"}, {"headline": "The S&P 500 Yields Just 1.1% While 10-Year Treasury Yields Have Surged to 5%. This Dividend Stock Provides a Middle Ground for Long-Term Investors. - The Motley Fool", "summary": "", "insight": "", "source": "The Motley Fool", "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNakd0YUl4Z0Q4eUU0VEhJWHlLVFJYdnVRQWVFbFM3RENFcHo3RUlVTkRacE5TOGxYNFNObDl1Zm10ZmdCa2I0LTdzRHJIN095bG12ckxoZW41dUN0aHpkdkM5UUJmcUpFOU9LQll4bnVPdFVsV2xjUlNoQWR4TUIxYmJuZk9Zek54aUZYdHJWVlJoeTY3LVRrNA?oc=5"}, {"headline": "The 1-Minute Market Report September 19, 2026 (NYSEARCA:VOO) - Seeking Alpha", "summary": "", "insight": "", "source": "Seeking Alpha", "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQb29oQmdoMndJTHFTRFZKZGdfclA1LW42RnZHc1BkV3dHZThCRDRoVjhTb1Q0UktXOTBSU3YwcXUyYnFId21kTy1aT0ZkS1F4T21fRzhCUU9nd3d3dkdGZnlzZWR5WDNsdmROTlN1SzdrSTNUT3dSeTlUNWg4aFU3MjhmN3JwLUNjc1d2X21n?oc=5"}, {"headline": "Ten days that changed the course of AI - Reuters", "summary": "", "insight": "", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxON2xmamNtUmNHeDRtbGtQS0FQWnJSZF9uWG1MVHNQRTBkMmt0Q3dkN1A1N1ZoSWo1MHBKQVhJZFB3aEhUQ3MtYmVfaTRPZ09DZzBKVWpUMjFTVktCNGxoSEFhbnhCb3lyclgxS2RfM3BpQjVCaVBPNzBOdkxEU1JCOWhpMnVjeE1MbXhRczNDNldCeXp2?oc=5"}, {"headline": "Canada optimistic about concluding trade talks with India by year-end, minister says - Reuters", "summary": "", "insight": "", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPMl9oZE1jdTY1X182U1NIUDkxdEVqa3k5TUM0UGw2M0VRQnpURWlSRzRkakpzTUFQSFZKNF9iOWZZNkZUTFBsazlYSVBMZ1VGemM3SV9fRk9lMXpDbVljaF9tQy1hLWJVVXF6THktLS1hZjV3SFA3VTh3bEdGR2FxS013a1lKUWo1dlVab0lOczNYU0ZGV0RQdHZhdG1BRW5zX2ZWQkw4T285SDhjOUlocnVncDFHdkJnNlFjSEZhbnY2U0dkc3I4dzJ5cw?oc=5"}, {"headline": "TotalEnergies' offshore project in Suriname on track for first output in mid-2028 - Reuters", "summary": "", "insight": "", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxPUkZTYzNld3NfOWtBYnlZVGtoZ2NRYzh1T1A3eXk4eUpZUjFFZGlJZVpoTTJkY2UtRkg4aGtTR0pOYzZqTHlVZFdjcHctcGVac2VWMGZhMXl2WDc4SlRQaDNqX094Z3VsaDljZUtJQU05Tm9NRjFFMXlUNUtqSXRmOE5SNmM0V2syRXJRN0N6cVNHRV91V2NKeTNUeXRLRDRGT1h0SnI1N0lUWVp2TVBTenUtWEJhMVNtVTNr?oc=5"}, {"headline": "US Treasury's Bessent, China's He to meet on Sunday at JPMorgan headquarters - Reuters", "summary": "", "insight": "", "source": "Reuters", "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQQVRma05lOURVMXowWlB5cGxUakN3b09nZEgtbExsVUgxSml2dUE2Um9TVnZQa3JHSFU3WDZJMl85R183c2NyS0FFT1FZcXlFYUg2S0F3M2hTNk4yNnhwNlJhWGdYOV9fM3ludkZodlB0VVR6Z1VpQnBvb0pxME56TUU4VUlTMlFVS2tLWnhnMEg5VEZ4MFFzbnNsQ1lrSUt1clpCY3pXSF9uODJ5WXRaeU5heGQyR3Ns?oc=5"}, {"headline": "Hormuz Oil Shipments Hit Six-Month High, US Commander Says - Bloomberg", "summary": "", "insight": "", "source": "Bloomberg", "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOc1Q2aFBHd1FEVFduUFA0cWt2VTloSTc5bmJWeDBCU195UHNueTZ5Z3ZyRTBaWWp3TkY4NFVTUnphWFlqbVpLMzNkRUttd05tLWZtZFA2Um9oQl9fRXNOa1N2a1NrVTl3RzBEcUI4ZE0ydFh1OXJxa0JuSl9oUXZ3TVNmTjdLd2o2SXE5WDZpcG9Wd1lJcVYwcU9ldzdPSDd2R0pYTzRuMVRSLW4y?oc=5"}, {"headline": "Mamdani\u2019s Consumer Cop to Begin Tech Oversight Push Within Weeks - Bloomberg", "summary": "", "insight": "", "source": "Bloomberg", "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQSEt1d0ZnVm1lZ0dkZ0VpbjBaNzUxcHo2ajRjOWhQVHNsLU1VMF93ZHhMNmd4ejhBaDhWWWFHUGNILWFmNzFFUzZlazIwbXkzWTl1akppNUo4d1VWVFZISU5WOUZwbm1jamJnVzhhZzdSTXBTbTI2RkZUMmVxV1h5WDBEM2c2NE5VNzN4Qi0ybHl4RlFEMk5vRlJXd0lLaFI2WkVMM3MwVEhwQUFPZ2c2VncwaHRSdw?oc=5"}, {"headline": "Trump to Name AI Czar While Rejecting Safety Risks as a Hoax - Bloomberg", "summary": "", "insight": "", "source": "Bloomberg", "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxONnpQSHVoTnh2Z2VyendUc2gzRHB2eGxIM3lDNHozZ25hM1Y4Tmx0azByeFRHdFpJbDZFN0t2QVRaSXhXamRXX0hZSnRORlJKeVMxOTRuMmVPdlNTNVlkc0dLY214WDhKaXB3SS1JLXJkclpwNV9uVkxycHMzU2t5V2xqTEZvVmZzOFQxUldnT1VmX1RlcUJzSjZhNmJjc3ozQkFkRGpLMmVZck9DbnN3cA?oc=5"}, {"headline": "Companies Avoid Selling the Bonds Investors Crave: Credit Weekly - Bloomberg", "summary": "", "insight": "", "source": "Bloomberg", "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPSWZkVDhfRHlpMHNxUFhKQmVMMC1iR3ZZeEdIVjBrNFZsS2Z4QVNwMGhVcjRuS1pGdU5Vd0dHVjJkYXdZZ0tnT3VwQjhXNGRyU1pQdk1xRHg2akJrblNRVlQxNGFJRTZXcVVpbUV1ZTNxWWM4UkQwQUpwZ18wUjVfOWEyV1ZmQ3ZTdlF4aGxzS3lxOEVpTVRqVUVQQU82MlRISlo4REVxVTJjRHRQVEQ1amVCVUY?oc=5"}, {"headline": "U.S. Treasury Yields Fall as Fed Regains Trust, BOE Leaves Rates Unchanged - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNVER1UFJ0ZVpGNjRWcnkxSU96Z01OUHY4MVVqQmcyZDYwZVhkNFdpMWlyU1NnNjhSQmZpSG5FODhMLXktd1laTjRESnhfc2pLenBvckhkWmRSNDFxMEw0Yi1DenJEc3l0bzExaGVZaDc3RDFUT3FkN2dmZGEzOVI4WkxadmZ4ZGtaaFVNUGFPeHhlNnQ5UkZXQkx0OVFPcWdVWWtVR0FISmRXb0s5dUI4aThxSmQ2dGktYTdySlJFcldQMEhOWkE?oc=5"}, {"headline": "Eurozone Trade Surplus Widened in July - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQdW5LMXgwVUNJYUV0ME0wc01QVjlib2EyaF9od2JlQWwxMzFkdFBsMFlxd2IzeTlOSWp1Z2FGZ0xnTU1DcTluRWlBV2k3QzQtNW1ialFtNlp2eEFFSGxqaHBmQklqTDdJRkVMN1dnbFNReDgzYnpadGdhc3hnZy1IazJOUjMyejRN?oc=5"}, {"headline": "Brazil\u2019s Central Bank Lowers For Fifth Straight Meeting as Inflation Cools - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPNC1tN3hCWUsyLUdEOTRXd3lxNHFnSmVCWkR3R2ViVE5EaUxFam8xamRFdjRUYmRlNWtWaHF6Y0xhdV9PM1FBaWI1OGoxdzNnZ3Z5d1NPV2tFRkFvNlAxOW9TTWJ0YmxQQkF6VFg2cnZWUkp5Z1F4blgtMmdaTkdJOGZFeWx2cXdvTDRNMkNzUTZXc0hUbm9JM0VrN3BYTllzMWxFRFRwN1N2Y2tGMUZsRlZMV0pJbnptQWFqbm03V2tncFVM?oc=5"}, {"headline": "Bank of Canada Flags Need for Rate Boost Should High Fuel Costs Spill Over, Minutes Say - WSJ", "summary": "", "insight": "", "source": "WSJ", "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxOcC1wMjZRUVAzajVibUxEa2hScVZsYlNVRzRDaHBSeGNDTWJZZ2JXQWk2UkhsZ013N2J6VUFLVXQtcjBxOEhPb1V5M05ZcHVjQmNvM2dlZmFKOF9XT0dsMjg5eVJxdWNpYjBJcEstY1NlbElOOU8zN1owQ1dRR1djYXRpSmhqQ0JHaW1wT3dJZXdtaVM5NnJzV1VWLU1zMm0zb3JFWUpmQXBrLU4xUnFjZnc4NEJYMXpFNU9zQ3htRHl4T1M5N2wxUFFMbl9lQ1BFRVRkVTZiTQ?oc=5"}, {"headline": "Donald Trump bans major US news outlets from White House - Financial Times", "summary": "", "insight": "", "source": "Financial Times", "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPYkVWeWhfYzJoM1ZNcm9XMjVKTVhHQnAzNENSWlEzUjdHS2hDR295Tmo5b0JQbXpnT0ExNUw2bGs1d25QZmx2Ty00Rjg4YWtocnJuNnF3bEthQjJ3cXFfemFuZXZVQl9sNjhhOFJUYUhyRENMcUZrZ3ZyWm1CSkdIUG9QNFI?oc=5"}]}, {"name": "Politics & Policy", "stories": [{"headline": "MS NOW journalists denied entry to White House on day after Trump bans them in First Amendment test - MS NOW", "summary": "", "insight": "", "source": "MS NOW", "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFA4WlZUY3ItUjJPeEdrRUNVWGFEbDU4cTQyc0hLUTJNV0h1OUo2dE9pdFk3RnZ5ejRGY015UE4xaHVpNkpHc2lIS0Y0SGYxUHhLY3IyQ1VleC05cFZDVFI4NmJQY0ZpQ0VXWGE1S1pmbkFwVjQ?oc=5"}, {"headline": "CNN, MS NOW, Politico reporters denied access to White House following Trump ban - NPR", "summary": "", "insight": "", "source": "NPR", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE9qeEVXa1ROejI2NDJ4cjdNYWNlMDZpSFVCQ29DWkZuTk5VdkN3SWJfMnN4Unpoa005NnJyMF9jVDY0MWtZcWRBWGxrUE85eXBIQjF5ZnhWOVMxTlJoN05xX2pvckFQel8zanQzV0JHNy14YXF5SDVNOC1XN0E2Zw?oc=5"}, {"headline": "White House faces mounting legal backlash after barring journalists from CNN, MS NOW and Politico - NBC News", "summary": "", "insight": "", "source": "NBC News", "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPRkZSdjJQYTZia2FNSU1CMHNhWVMwRklFYWtiZ0JsME95aDRtLVZudWFsZS16aTVOSHlULWlpQzhVU0xZT3ZzZWVGZzNadFpSVHFaTzRVREtsU29KalNJRFJ0U1YzOWJVSmpCeGRlZnJiTE8xX1dCQkhtUzJia0ZkT3RJX2J1enVVUjVHS3NKUlp5b0RGVDVUcFRJdG9JaVZKTTdWSGZtc0pHUWRieVZmRG1haktpZkFmUVk4NA?oc=5"}, {"headline": "CNN, MS NOW, Politico say journalists blocked from White House after Trump announces ban - The Washington Post", "summary": "", "insight": "", "source": "The Washington Post", "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOdGJkU1ctMlBmRjBIWUlJQkpUVUFXVjdqUHM4MGQ0b29iZXF6SHh0eTdWWGx1TXdrSGhhNi03NU1IU3VNcXJTdW5BX0N0dUhMd3lRTFdmaTE2VUs4OUJDRFhuNkJfVW5RUWQzUHB2MlpXVUVDaGpXMG04TE1aVEY3OVVsRFNIcVFLMHpZRHIzTjVSNnBTeF9FVmxWZmpHMHIxTU4zenRyQm9xSE9ZV0F1WC00STI4NUkwY0ZEeWdn?oc=5"}]}, {"name": "AI & Technology", "stories": [{"headline": "Lawsuit says Anthropic, OpenAI, SpaceXAI and Google made illegal agreement on AI slowdown - PBS", "summary": "", "insight": "", "source": "PBS", "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQM004SUlSWllLZDZJYVJFUnpDek0tb25KZ2I3S0UtRWl0NXRIeHpWblkxakRuT2ZOV1llSGEwNHNmQm5jSGZHbjZYd0V4OFNCMmZNSzMxck5tbUV6Wm4wM1lGeFVIZVhleHFWWWpCWUtGOUtqdVFKYVlYcHFlQWk4a3pPNEtWVHNia1VJNzZOMFlTdHE1QnpVSE5rQVNFSmpFelhBeExDRFZFMjVQUEdOS2VoZ3U4U1hwM0FqQzE1bjg?oc=5"}, {"headline": "Lawsuit alleges Meta, Luxottica violate right to repair law with Meta smart glasses - Top Class Actions", "summary": "", "insight": "", "source": "Top Class Actions", "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNajN2QWlhNmtmX3JGblZTS2lWbmhlOFFOWTd2RzR5Vkl4dnY3Nng0QWJSM0ticjFyMHg3eXEtdDFQV2RzN19jU0NFMmpIa014ZWFiNl9oakExZ2FuMmdwY0d6NzFMMjl0bXZyVFU0RkRaanRYVncyQy02bHQ3TWRaMnRwdUpVSW5GWndNdVMzb3I1cjFERUQ4VGVJaEh5eEpqLWtpUnVxUUNzOXo3U3NzRjFzbkJ1RnUyd3RzQ2o1WlItdTJvZjR0cGw4ei1lSFB3c21XZVFpaTZ3TE5n?oc=5"}, {"headline": "Albanese visits Apple HQ, warns Australia can't sit on sidelines of AI race - ABC News & Headlines \u2013 Australian Broadcasting Corporation", "summary": "", "insight": "", "source": "ABC News & Headlines \u2013 Australian Broadcasting Corporation", "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE1FVzZTdWpuRUlvWHhtanNRa3RQMUpkWjJ6ZWVha3AtSVI1dFRrV2tzUFI5WEVwdXBwcEhjMVBfR1JPRm1RNDhBS2dFZ1FZTWxVUmlDX09BUmVPVFZncW9kTTA2aFYyUTNRQ2JSY0ZRcl9ydG1TTkpCWjZQdzNJdw?oc=5"}, {"headline": "'Proud moment': what tech giants told PM on social ban - Yahoo News Australia", "summary": "", "insight": "", "source": "Yahoo News Australia", "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE9TeXAtN2VJa0JGSnVqSkUyRkZtbXBZRUxBNDdPV24wUVJyQ1pqLU5tQmd4djJ4Nm5YT0VreEJjOXZSWjJOYkVWUmRsTkNoaHBtdFZsMVpJX3lyeWhMX3Q5YnB2eXI4NFluQ2k3cTM2ajRJemYtaElVd2lB?oc=5"}]}, {"name": "International", "stories": [{"headline": "Average gas price around San Diego now over $6 after 31st increase in 32 days - Times of San Diego", "summary": "", "insight": "", "source": "Times of San Diego", "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQYzUyemJEOG1XQ0dIWXk1dGd2aEdOSWFZVF9qTUlUT0lLZEdDYTVxTzNpSVF1U2o2TWJmN2txLVgtOXhySFVYT1NUeEhHaUxyY2M0SEg0bGF0cUVCYVEtNzFvRVlNa3lRVkZ4TlZKUUN6WGFlZVhKSzJnWmN0WTk4LXJCWVpzeFNPLUpoVjBZVDlhQi1aM0s4aUVqOGtTWjAtcUVlZ0tvb0MxcnJ2SWVHT3VqU3hnTWlnR1Q1OXdlYThGNWJDRmE0eEhENA?oc=5"}, {"headline": "Average LA, Orange County Gas Prices Rise For 32nd Straight Day - mynewsla.com", "summary": "", "insight": "", "source": "mynewsla.com", "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOZ0FTblhYSkhqbU1RLXpyRVBhajBRaThZSVN2cHIxOXZERDBENnJ1NjdvMHdlUkh0OVZvRnZWV2lKS1Q3bmltZnNGWVNhcUZQcVVOU1BXbk4tRkdnLUlzU1JfQzVsUWVUeWl2LVNqUWpsOFBZc1FuUnN4NjFFSXNjb1k3SEVnUEN0Nzk2aHJNaDFDSjY1cmlJM29DeERXZkk5WTM0NEJLbXNzMUI2Nnc?oc=5"}, {"headline": "Europe Outbids Asia for LNG as Prices Surge 150% - Crude Oil Prices Today | OilPrice.com", "summary": "", "insight": "", "source": "Crude Oil Prices Today | OilPrice.com", "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOb1BROWxLdjQ3dHQ3UVhMNTFqYUctRmdfcE96TkFId2VRaE56RUgxd3JJdkQ4SC1hak43RGh4NVBrNFZsSS1fdkxkOVpBVjR3WUhLVUhuejBJa1Fva2ZqRkpHUjFBcEpkbWREZjZkUF9TVjhwQjZ2d2tPNXlkaW55UkpmRlFIeWNmdHNYdXVmRGRvSzdrbWlr0gGcAUFVX3lxTE1kOWVuTjg2WGwzbmxhZmNKd0FPUllEWnROREZtZ28wYUNhS0RuSVlJNEVEYnk0Yl9CQTQ2SldhaGpIM0ZUQ3BDMHFlWFV2enA5SEVPaXVEaVVMeWF1Z3pRaExQbFhPTEU0Q3dhcXF2YnY4RXdXc1VBaS1FQkpWOVpXWW5aV2VIcUxtc3BOOXNTOFlMZjNxcG1WaElYZg?oc=5"}, {"headline": "What AI Anxiety Looks Like in China - The Atlantic", "summary": "", "insight": "", "source": "The Atlantic", "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQOUprN3U3UXNRWjBkcXFyZFFOWFJPX05IVzlQanhabW1fWGxaa0pEbGtuamtDQUdmNEljbHVSclB1R3Znemt3a1RHRjR2Vl9wNzgycFI5Sk9nN09wZV9qR1hHVXJhYkF5QUZhY2ZYdU5mSTUwSTRDODZKUzRwRUJ2b0V2VVBEellLZ3o4V0FKc29ZR3ZZ?oc=5"}, {"headline": "Trump-Xi Showdown Casts a Shadow Over the Global Economy - Bloomberg", "summary": "", "insight": "", "source": "Bloomberg", "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOVUJfNVhNNWFzZllHa2x4bFJva2tSdDB6MU9Bd1hKYWxxM3o1S0VudFdkOXhlbkZla2hvcTl0cVJtdmpyR3hkM29rWll1OVpVVmJIX3R0dThxQmEwM1E3RkFEdEVGeE9UZGxtdlcwa1JOVVBmQTQ4TVMxZ1gxQVRia0lFSkdlMElqckluSkFISFVGNWJLcHpqY054RFhUTU5JQno5enFSTjh6aFZuMUNrX0QyVFhkaTA?oc=5"}, {"headline": "China Has Made Its Biggest Breakthrough Yet In Homegrown Chip Manufacturing - bgr.com", "summary": "", "insight": "", "source": "bgr.com", "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOYmRrZXphem1uejctcG9kUDZQN0lTMzhuZEFjenZ4TFJiclFvekNTanA5WnpYdmozTktEVFRoZ2RheUROeWR1RVZzblpJZS0xZ0h0TXhYTlVSV0xXa2pLaHBWQkJ3RF9abWlXbHAxYjNYM1R2ak51U05UbFA3TW1UMVk4VHNyOW9WM2pwM0tZMlk4dTlZTGVSZEpBQ3BvVmEyLUE?oc=5"}, {"headline": "Trump says he will create \u2018AI Force\u2019, name AI tsar - South China Morning Post", "summary": "", "insight": "", "source": "South China Morning Post", "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxORHdWY21IYWFhM0dWY0oyZFo3X2ZGOTVsb1pJNExjNGZNTGdJVTNaUHBRMzJmUmgwU0JtVm1KQi0tcnF6LWdPdTFoX1hnX3hqamdIWkZPYUJVOTNVTnViUWRQdFRYLVFBemlxc3Z6c05FdHp4VG1pUlVaUUNQcFhwU3pwenJOQjV0LURQSXZqT1o2Q09Uak5GOURYMVIwQXZlUFp6QmhUY3NlYzZ5VFZpWmpveDBCTEHSAbcBQVVfeXFMTzh3SXNtbFJ6NVhxNWhRRnRTM1l0STAyNTcyMURjQ2Z5bm1rVkRvdTJQQzFqTFZtRFM5MFlBd1loeFlFZXA5eTdfdmpWbkxVYkR1MWtUaFVaa0RaTGlmRGRrQTE5YXNVSVR5b1VwOTRXSTh4SU9EaWo1UUNsWUVtTHZKcjJrdnhWZVRVU0YyQlNCM2d2X05HSEg4ckN6a3BOTnBJY0NZMU9xa3pMR2IzZTFOWS15WWxr?oc=5"}]}, {"name": "Culture & Sports", "stories": [{"headline": "Shaky Knees Music Festival paused due to severe weather, Piedmont Park evacuated - Atlanta News First", "summary": "", "insight": "", "source": "Atlanta News First", "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQSHZVMHVnZ0FISGJ1RVczRnV2MzZQYW1WeXUzMWNYaFZVcktJQ2xLdEtKY3ZVeEpudzFTMThmNWpGdW1VaGdTUGsyS0t5OW5ZYURocXhFblRSSWpXQ1ZRVkM4Q09iNVpuSU5ua1JPbjNRSEE3eXE0ZXdScVBHRjRQQS1TZlNvUC1BVmdKRk04ek05N1NuZUFqUHVHMkV2Q1RXcnRlSVRVNFZJTW9kMFg3SjNCSWY0WHJCT0N2amRn?oc=5"}, {"headline": "LIVE! A Music Calendar: Quiet Riot \u2018feels the noize\u2019 in West Siloam Springs - Northwest Arkansas Democrat-Gazette", "summary": "", "insight": "", "source": "Northwest Arkansas Democrat-Gazette", "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQNUFncjlqWXEzWnUzc0tNUDI4Sm5hanN6TVJaVXFPeVR3OHpoRkQweHNjejV6UWp2TTZXTlFfLUVaUUlOZUh0WUJ0M2xLQW9kX3VmMk1YNVlzYU5YSGN1QUQ5bzdMTVZDYjdhTWtXUy1Tc01HeDRVZUg4M3huWjlqdmxGdG5hSGdTWUdpNmlMMzZ4T1pyWU5z?oc=5"}, {"headline": "Soundscapes pairs students with established music mentors in Luminary program - The Virginian-Pilot", "summary": "", "insight": "", "source": "The Virginian-Pilot", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNV0lZRUducnFFOGctSXpmdlBpN0pxNHJHM3pMNHVBVE85SkZ4cWxPSkRSRXBLQnB6SEo3R0txeW1VTExGOW9xejJ0X0J3NEgxblN4X3IwUzNXU2RDTGFxYmI0bXJRSWg4VkRzTTlrNUpTTl94MzZzOXA5UEprY0dlMHgzNC1hRlNYRFlJNVpwY0xOQVN5Y1E?oc=5"}, {"headline": "Music & the Spoken Word: The lower lights - Church News", "summary": "", "insight": "", "source": "Church News", "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNbnhHdzFEaDZjWnE5MUpOR0tkaWVPLUY4T0pnQjY2a2NTeEtZS21VSnNxNzdLSVpsc2E4NlFtbEdZYzZiS2FmSFQ1bFBmTHp6Vkl3QUhtZmtvRjczVDZ5UjJxTlBfc0ZzSVN1NS1RT1FzcmdiYnJ4NkRzX05COXVPdXhJWWhzZHNNaWh0MkNGNklEVGJ0QnBvcVRMbW5aMWxSbEtoWVFvWDBobkhpcG1DQktFVTFVT0ZmdWc?oc=5"}, {"headline": "Bracket, tiebreakers and more: Here is the current playoff picture - MLB.com", "summary": "", "insight": "", "source": "MLB.com", "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5SZ2JBSi1VOUxsQ2xLS3hZbEVmRnRuWUhLaTNvRENNQm5FZGhzOHpoX01odGxidzJ5c0g2OXFObW9SWUlCdXZLWG1YeWJMcnBuazdBbGRKeUlJTTA5MG15NklkTHlZUlRtVXYtMzl30gF6QVVfeXFMTVo4QWpUaTZzMXNwM2lhUEhWWVExemxSTnZHQklPVG1EUlJIY291RkNvaXFqTzVvZ2JKTzdyOHlUbDZWdGkxS1IyaE5RbnJFMU5nelFaU2lZNDM1Sms0UGd6X2NrdUx0Ylh6VnEyOFZIVjF2SDhMcW8zMWc?oc=5"}, {"headline": "Week 3: Saturday College Football Schedule and Open Thread - Yahoo Sports", "summary": "", "insight": "", "source": "Yahoo Sports", "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQMlV4c25LaWx1RzQ5QTUwR0d1OHREYjJnNHY2U0owMnc3UVFYRUJabU9ZNDQ3OVhXRWF5S1VGT09NR3lZaWk1QVBrYzJzZF9vcW9rY3NFeUl0U09PbWpvMkotbVdsVklWMFQxX0t6clk4MVItQzExbmo0YWp1NV9EQjBIQUlPczJN?oc=5"}, {"headline": "2026 Week 2 NFL score predictions, best picks today: Expert reveals exact scores for every NFL game - CBS Sports", "summary": "", "insight": "", "source": "CBS Sports", "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPanJ2cDRBZGplMWZMN09XV05JcDVBSFZZckVEZUo5aVBNdHl3d0VLRXlqVXhSOHNkWlVTN1JSUk50M3E2bHlfYnFPeGU5blJUX0Q4NkRhNkJXMlU5djVETnVfOWUxWTZWX2FCb19jc0NnXzhQSjhub0tJZ0o2MDhFdEYxOHRtM3p0SEFtZzNBNG0tZWhOUkRWRFlualBqRjJ3Y1l1TVVjeW8wbVh1VGwtdE8xZHhBbGw4TnRSQzF6cjBxYUsxNzdOQjRB?oc=5"}, {"headline": "Football scores: USA TODAY Sports Super 15 regional teams, Week 5 - Central Oregon Daily", "summary": "", "insight": "", "source": "Central Oregon Daily", "link": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxPNTdDNlZvbzcwWGVCdHBDQXFCWXJ5aHQ2WlJMeGNNczNsY0pUME0tSmZ6VDdJRkpxdTRkWEpBRHpmVkxXMWNsQ003QU1CWmk1NXk3WG1FaTVjVzFSUnR0dENFSWs5YWI0aHlnT0RvMkNvVTJRQS1JYU9YTjFYc21sSklOX1Q2SHlsY3NYc2l5cHlaSmRvZmVSMzdiYTJiQVZsYnlRYjNUN0dZMU1BSzNoeWtnRlZxcjM0amNLMW93NkRiUC1YUlROVFhUMVRlUDJNVk1YNGFWcGlQOWt1eVB3TmdLRVM1N016TWs4?oc=5"}]}, {"name": "Boston", "stories": [{"headline": "Popular drive-thru coffee chain to open 2 more Mass. locations - Boston 25 News", "summary": "", "insight": "", "source": "Boston 25 News", "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPZzMzaDRSU2U4ZkIzSm4tSDZpekJmNHYzc3Q3bFhVTHIzcjB6LU1Tc3FvbXR5VXJ2cl82QWR0WXNfZTFnV1Z4SFdCS2RSQWdaRlBCRmk5LUtxTldmNE1sY1BENklzM0Zpa3IwUndQTjU2RW1kenkyVTRBOUVoZ0hpOTZGWHRJZUEwejJMTm05ZERWMlRRSnNKU0FNVkdRSUJyenFPaDdWX0U2RGxLN19saEdwTUJYZlNpVmxLZm1tT21oTzZa0gHYAUFVX3lxTE5mNHlTVk1BbDdmQnA0WURNUS1rZ09kOXVVZDl1S2d1QjVCMjlpNzVNSGRxRno3Ykt2eDdaeDNMcjFfdUEtX09TY2NGMnE4SjZnOUtRendyOXphTld0RF9CRDB0UEk1UTRWRmk0RHVEVlMwTHIyWUJMUGNPMjVWR2dJUjRFUm5kQy1RQVRQWmxMR3U3V1JVRFpuLWtIVjVrMktIclZsb3VIcnpfZ25TY0VQSWZmX3kzQWtzOGJpRXhqLU5ROWJHSS1XSVp4dDhlZ1lJX0I5MnV3Qw?oc=5"}, {"headline": "Bruins\u2019 wing facing contract uncertainty with smile - Boston Herald", "summary": "", "insight": "", "source": "Boston Herald", "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOQ1Bza2V4YS1TX2Fja1dRaGR0NjNLOGdPSkZnMzh3akg5c1NZR1EySHJESG9tbHVhLVNKQ0VTblZzUU8yempQOGV5X1lGQWQ5MlFHZ3NVS2xvNm5jTEF1Sm1NY2wwN1dhX0hhdDJzQjhhWWl2b1lDLWFFUkZIUkhxamVJMmVzUUNkcU04Y2l4SGZ4ZWwxY2c?oc=5"}, {"headline": "Fast-growing coffee chain to open 2 more Mass. locations - The Business Journals", "summary": "", "insight": "", "source": "The Business Journals", "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOT25uQUZ5X0RfUV9vYWU2TVh4VjRoOENaNURmbzRkcGxRdjRqcTBJMEF2Z29qUFFoalpMaGdpU3FKMlpENUVTTjlUV3h2STBVSEtzd1dRcWlJdFNEN3l0UmxkZEwxUE5hUEtIWTZMZ241S095RXBIX2VBOTU3UkY0ZTNidEZwNk5OMHBRekpnNDJVNVVvWUZ0T3h5NTJ6Z2hYdmtSV3pEdw?oc=5"}, {"headline": "Popular Florida cafe chain coming to Mass. for first time - The Business Journals", "summary": "", "insight": "", "source": "The Business Journals", "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNd3lObHdhM1BsRWZCOE1LTDB4c21pU0NNVVBtcjNXWUV3X203T3VwSGxZTlNVVEVadnhXY2piUWkwTThTb0RCS1JHbnhVekgzLWVldWQ0ZGI0cmRsdHdIUGJYenlfRVhxdTBiZlUtTnNGMVZfTEFNZ29WMVJfdnBmekx4NE8tV3ZqRmRtVU5sLTJoeVBibXZfZHotQ3MwUi0wN2Uwd2F6aFdwQQ?oc=5"}]}];
+const edgeText = "";
+const tomorrowText = "";
+const colors = {"Breaking News": "#CC0000", "Finance & Markets": "#CC0000", "Politics & Policy": "#7A1010", "AI & Technology": "#7A1010", "International": "#888888", "Culture & Sports": "#888888", "Boston": "#888888"};
+const quotes = [{"ticker": "SPY", "label": "S&P 500", "price": "761.69", "change_pct": "0.1284", "trading_day": "2026-09-18"}, {"ticker": "IWB", "label": "Russell 1000", "price": "416.02", "change_pct": "0.0240", "trading_day": "2026-09-18"}, {"ticker": "IWM", "label": "Russell 2000", "price": "284.10", "change_pct": "-0.4660", "trading_day": "2026-09-18"}, {"ticker": "EFA", "label": "MSCI EAFE", "price": "104.97", "change_pct": "-1.0091", "trading_day": "2026-09-18"}, {"ticker": "SPAXX", "label": "SPAXX 7d Yield", "price": "3.33%", "change_pct": "0", "is_yield": true}, {"ticker": "FZFXX", "label": "FZFXX 7d Yield", "price": "3.34%", "change_pct": "0", "is_yield": true}];
+const sectionOrder = ["Breaking News", "Finance & Markets", "Politics & Policy", "AI & Technology", "International", "Culture & Sports", "Boston"];
+const noInsight = ["Breaking News"];
+
+const TIER_BY_COLOR = { '#CC0000':1, '#7A1010':2, '#888888':3 };
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Usage banner
+if (usageInfo && usageInfo.cost_monthly_projected !== undefined) {
+  const monthly = usageInfo.cost_monthly_projected;
+  const cost = usageInfo.cost_this_call || 0;
+  const tokens = usageInfo.total_tokens || 0;
+  const budget = 10.0;
+  const pct = Math.min(100, (monthly / budget) * 100);
+  let barColor, status;
+  if (monthly < 2)      { barColor = '#5599CC'; status = 'LOW'; }
+  else if (monthly < 5) { barColor = '#888888'; status = 'MODERATE'; }
+  else                  { barColor = '#CC0000'; status = 'HIGH'; }
+
+  document.getElementById('usage').innerHTML =
+    '<div class="usage-banner">' +
+      '<div class="usage-row">' +
+        '<span class="usage-label">API Usage</span>' +
+        '<span class="usage-status" style="color:' + barColor + '">' + status + '</span>' +
+      '</div>' +
+      '<div class="usage-bar"><div class="usage-bar-fill" style="background:' + barColor + ';width:' + pct.toFixed(0) + '%"></div></div>' +
+      '<div class="usage-details">$' + cost.toFixed(4) + ' this brief &middot; ' + tokens.toLocaleString() + ' tokens &middot; $' + monthly.toFixed(2) + '/mo projected &middot; $10.00 budget</div>' +
+    '</div>';
+}
+
+// Market bar
+const marketBar = document.getElementById('market-bar');
+quotes.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'market-card';
+  if (q.is_yield) {
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change" style="color:#888888">7d yield</div>';
+  } else {
+    const change = parseFloat(q.change_pct) || 0;
+    const dir = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    card.innerHTML =
+      '<div class="label">' + escapeHtml(q.label) + '</div>' +
+      '<div class="price">' + escapeHtml(q.price) + '</div>' +
+      '<div class="change ' + dir + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</div>';
+  }
+  marketBar.appendChild(card);
+});
+
+// Build sections in fixed order
+const sectionsMap = {};
+rawSections.forEach(s => { sectionsMap[s.name] = s; });
+const widgetsContainer = document.getElementById('widgets');
+
+sectionOrder.forEach((secName, idx) => {
+  const section = sectionsMap[secName] || { name: secName, stories: [] };
+  const color = colors[secName] || '#888888';
+  const tier = TIER_BY_COLOR[color] || 3;
+  const stories = section.stories || [];
+  const skipInsight = noInsight.includes(secName);
+  const num = String(idx + 1).padStart(2, '0');
+
+  let headlineBullets;
+  if (stories.length > 0) {
+    headlineBullets = '<ul class="widget-headlines">' +
+      stories.map(s => '<li>' + escapeHtml(s.headline) + '</li>').join('') +
+    '</ul>';
+  } else {
+    headlineBullets = '<ul class="widget-headlines"><li>No major stories this cycle</li></ul>';
+  }
+
+  const widget = document.createElement('div');
+  widget.className = 'widget';
+  widget.dataset.tier = tier;
+
+  const header = document.createElement('div');
+  header.className = 'widget-header';
+  header.innerHTML =
+    '<span class="widget-num">' + num + ' &middot;</span>' +
+    '<div class="widget-info">' +
+      '<div class="widget-title" style="color:' + color + '">' + escapeHtml(secName) + '</div>' +
+      headlineBullets +
+    '</div>' +
+    '<span class="widget-count">' + stories.length + '</span>' +
+    '<span class="widget-chevron">&#9656;</span>';
+  header.addEventListener('click', () => widget.classList.toggle('active'));
+
+  const body = document.createElement('div');
+  body.className = 'widget-body';
+  const storiesDiv = document.createElement('div');
+  storiesDiv.className = 'widget-stories';
+
+  stories.forEach(story => {
+    const storyEl = document.createElement('div');
+    storyEl.className = 'story';
+    const headlineHtml = escapeHtml(story.headline);
+    const sourceHtml = escapeHtml(story.source || '');
+    const linkHtml = story.link
+      ? '<a class="story-link" href="' + escapeHtml(story.link) + '" target="_blank" rel="noopener">Read source &#8594;</a>'
+      : '';
+    if (skipInsight) {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        linkHtml;
+    } else {
+      storyEl.innerHTML =
+        '<div class="story-headline"><span>' + headlineHtml + '</span><span class="arrow">&#9656;</span></div>' +
+        '<div class="story-source">' + sourceHtml + '</div>' +
+        '<div class="story-details">' +
+          '<div class="story-summary">' + escapeHtml(story.summary || '') + '</div>' +
+          '<div class="story-insight">' +
+            '<div class="insight-label">Apterreon Insight</div>' +
+            escapeHtml(story.insight || '') +
+          '</div>' +
+          linkHtml +
+        '</div>';
+      storyEl.addEventListener('click', e => {
+        if (e.target.tagName === 'A') return;
+        e.stopPropagation();
+        storyEl.classList.toggle('open');
+      });
+    }
+    storiesDiv.appendChild(storyEl);
+  });
+
+  body.appendChild(storiesDiv);
+  widget.appendChild(header);
+  widget.appendChild(body);
+  widgetsContainer.appendChild(widget);
+});
+
+if (edgeText) {
+  document.getElementById('edge').innerHTML =
+    '<div class="panel edge"><div class="panel-title">The Edge</div><p>' + escapeHtml(edgeText) + '</p></div>';
+}
+
+if (tomorrowText) {
+  document.getElementById('tomorrow').innerHTML =
+    '<div class="panel"><div class="panel-title">Tomorrow Watch</div><p>' + escapeHtml(tomorrowText) + '</p></div>';
+}
+</script>
+</body>
+</html>

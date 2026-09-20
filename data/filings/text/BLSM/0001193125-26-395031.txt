@@ -1,0 +1,444 @@
+BlossomHill Therapeutics Reports Second Quarter 2026 Financial Results 
+ Strengthened balance sheet with successful completion of upsized $168.3 million initial public offering 
+ Announced FDA Fast Track designation for BH-30643 for the treatment of advanced 
+ EGFR C797S-positive NSCLC SAN DIEGO,
+September 18, 2026 – BlossomHill Therapeutics, Inc. (Nasdaq: BLSM), a clinical-stage biopharmaceutical company applying an intentional, chemistry-based approach to design and develop innovative small
+molecule medicines for the treatment of cancer, today announced financial results for the second quarter 2026 and highlighted recent progress. 
+ “We’ve achieved meaningful progress across our pipeline, as well as our significant corporate milestones, since the beginning of the second
+quarter,” said Jean Cui, Ph.D., Founder, President and Chief Executive Officer of BlossomHill Therapeutics. “In April, we presented our first preclinical data from our pseudo-irreversible pan-KRAS 
+inhibitor BH-501284, built on a novel chemical scaffold, at AACR where we highlighted the sustained target engagement leading to tumor regression at low dose levels. At ASCO in early June we presented the
+preliminary safety, PK and antitumor activities of BH-30643 in Phase 1 dose escalation of the SOLARA trial, along with the initial efficacy data in C797S-positive NSCLC. More recently we announced that BH-30643 received Fast Track designation, an important regulatory milestone that reflects the FDA’s recognition of the potential for this molecule. We also presented encouraging safety data and early signs of
+anti-leukemic activity observed with BH-30236, our novel macrocyclic CLK inhibitor, both as a monotherapy and in combination with venetoclax, at EHA in the middle of June. We are now looking forward to our end-of-phase 1 meeting with the FDA later this year. With a strong balance sheet following our successful initial public offering in August, we believe we are well positioned
+to deliver important clinical and regulatory milestones over the coming quarters as we continue advancing our intentionally designed medicines that address significant unmet medical needs in cancer treatment.” 
+ Recent Business Highlights and Corporate Updates: 
+
+ • 
+ 
+ Strengthened the balance sheet with approximately $168.3 million in gross proceeds from the initial public
+offering (IPO) in August 2026 
+
+ • 
+ 
+ Announced the U.S. Food and Drug Administration (FDA) granted Fast Track designation to BH-30643, a macrocyclic OMNI-EGFR ™ inhibitor, for the treatment of adult patients with advanced or metastatic epidermal growth factor
+receptor (EGFR) C797S-positive non-small cell lung cancer (NSCLC) after prior treatment with a third-generation EGFR tyrosine kinase inhibitor (TKI) 
+
+ • 
+ 
+ Presented preliminary results of BH-30643 from dose escalation and
+backfill cohorts in the ongoing Phase 1/2 SOLARA trial in advanced or metastatic EGFR-mutant NSCLC at the American Society of Clinical Oncology (ASCO) 2026 annual meeting, and additional follow up data at IASLC 2026 World Conference on Lung Cancer,
+which highlighted a 45% objective response rate and 88% disease control rate observed in patients with C797S resistance to prior TKIs, with or without concurrent T790M mutation 
+
+ • 
+ 
+ Presented the first preclinical data from the pseudo-irreversible
+ pan-KRAS inhibitor BH-501284, built on a novel chemical scaffold, at the American Association for Cancer Research (AACR) 2026 annual meeting 
+
+ • 
+ 
+ Presented initial clinical data from the ongoing
+ first-in-human Phase 1/1b trial of BH-30236, an orally bioavailable, macrocyclic CDC-like 
+kinase (CLK) inhibitor, in relapsed or refractory acute myeloid leukemia (R/R AML) and higher-risk myelodysplastic syndromes (HR-MDS) at the European Hematology Association (EHA) 2026 Congress
+
+ • 
+ 
+ Expanded the Company’s Board of Directors with the appointments of Sheila Gujrathi, M.D., and John Schmid
+ Anticipated Upcoming Milestones: 
+ BH-30643 
+
+ • 
+ 
+ Q4 2026: End of Phase 1 meeting regarding a recommended Phase 2 dose selection and a potential accelerated
+approval pathway in C797S resistance 
+
+ • 
+ 
+ Q1 2027: First patient dosed in anticipated pivotal Phase 2 trial 
+
+ • 
+ 
+ 1H 2027: Updated Phase 1 data, including C797S durability 
+
+ • 
+ 
+ 2H 2027: Updated Phase 1 data on TKI-naive durability and initial chemo
+combo cohort data BH-501284 
+
+ • 
+ 
+ Q1 2027: Investigational New Drug submission 
+ BH-30236 
+
+ • 
+ 
+ 1H 2027: Updated Phase 1 data on safety and anti-leukemic effect 
+ Second Quarter 2026 Financial Results Research and
+development (R&D) expenses for the second quarter of 2026 were $21.4 million, compared with $12.5 million for the same period in 2025. The increase was primarily due to greater clinical development expenses driven
+by the SOLARA trial, expenses to support IND-enabling studies for BH-501284, and greater costs related to personnel, facilities and other overhead. 
+ General and administrative (G&A) expenses for the second quarter of 2026 were $3.3 million, compared with $1.6 million
+for the same period in 2025. The increase was primarily due to greater legal expenses, personnel-related expenses and overhead. Net
+loss for the second quarter of 2026 was $23.8 million, or $(8.75) per basic and diluted share, compared with a net loss of $13.2 million, or $(5.51) per basic and diluted share for the same period in 2025. The increase
+in net loss was primarily attributable to increased operating expenses. Cash and cash equivalents totaled
+$95.4 million as of June 30, 2026. BlossomHill subsequently completed its IPO in August 2026 in which it sold 10,516,240 shares of its common stock, including partial exercise of the over-allotment option, for gross proceeds of
+$168.3 million. BlossomHill believes that its cash and cash equivalents as of June 30, 2026, together with the proceeds from its IPO, will be sufficient to fund its operations into the second quarter of 2028. 
+
+ About BH-30643 
+ BH-30643 is an investigational, novel, orally bioavailable, non-covalent, 
+macrocyclic, brain active, mutant-selective, OMNI-EGFR ™ inhibitor for the treatment of EGFR -mutant NSCLC. BH-30643 was designed to overcome the
+limitations of currently approved EGFR inhibitors, which were discovered over a decade ago without the current, modern understanding of the structure and protein dynamics of mutant EGFRs. In preclinical studies,
+ BH-30643 demonstrated potent inhibitory activity across diverse EGFR mutation categories – classical mutations, on-target resistance mutations such as C797S
+with or without T790M, atypical mutations and exon 20 insertions – while maintaining marked selectivity over wild-type EGFR. BH-30643 has received Fast Track designation and is being evaluated in SOLARA,
+a global Phase 1/2, first-in-human clinical trial spanning more than 40 sites in 10 countries. Ongoing dose expansion cohorts are enrolling in both TKI-pretreated and TKI-naive settings, including a C797S resistance cohort. For additional information on SOLARA, including a list of study sites and how to enroll, please
+visit clinicaltrials.gov ( NCT06706076 ). About BH-30236 
+ BH-30236 is an investigational orally bioavailable, macrocyclic inhibitor of the CDC-like kinase (CLK) family. BH-30236 was
+intentionally designed to potently inhibit CLK, leading to modulation of aberrant alternative splicing in cancerous tissue, targeting the same aberrant splicing machinery that drives relapsed or refractory (R/R) acute myeloid leukemia (AML) and
+higher-risk myelodysplastic syndromes (HR-MDS) disease biology and that cancer cells exploit to develop resistance to venetoclax, FLT3 inhibitors and cytarabine.
+ BH-30236 is being evaluated in a Phase 1/1b multicenter, open-label, first-in-human dose escalation and expansion trial in adults
+with R/R AML and HR-MDS. The U.S. Food and Drug Administration (FDA) has granted orphan drug designation to BH-30236 for the treatment of AML. For additional information
+on this trial, including a list of study sites and how to enroll, please visit clinicaltrials.gov ( NCT06501196 ). About BH-501284 BH-501284 is an investigational, orally bioavailable pan-KRAS inhibitor, which utilizes a novel Switch-II chemical scaffold to achieve prolonged, potent and selective inhibition of KRAS mutations. We believe this molecule, which uses a non-covalent scaffold, is unique in
+its potential to achieve tight and durable binding, a feature described as “pseudo-irreversible” binding. In preclinical studies, BH-501284 has achieved pseudo-irreversible binding characteristics
+with high binding affinity, while maintaining high selectivity for KRAS. About BlossomHill Therapeutics 
+ BlossomHill Therapeutics, Inc. is a clinical-stage biopharmaceutical company applying an intentional, chemistry-based approach to design and develop innovative
+small molecule medicines that address significant unmet medical needs in cancer treatment. Founded and led by industry veteran J. Jean Cui, Ph.D., with her proven track record in oncology drug design and development – including three FDA-approved drugs – BlossomHill Therapeutics applies cutting-edge science with a goal to address key oncogenic drivers and improve patient outcomes in difficult-to-treat cancers. The company’s lead clinical program is BH-30643, an investigational, non-covalent, 
+macrocyclic, brain active, mutant-selective OMNI-EGFR TM inhibitor for the treatment of EGFR-mutant non-small cell lung cancer (NSCLC), which has received
+Fast Track designation for the C797S resistance population after 3rd generation EGFR TKI treatment. The company is also conducting clinical development of BH-30236, an investigational macrocyclic CDC-like kinase (CLK) inhibitor initially being studied in a clinical trial for the treatment of relapsed or refractory acute myeloid leukemia (R/R AML) and higher-risk myelodysplastic syndromes (HR-MDS). The company’s pipeline also includes BH-501284, a preclinical, non-covalent, selective,
+ pan-KRAS Switch-II inhibitor for potential future development in diverse KRAS-mutant tumors. 
+
+ BlossomHill Therapeutics is headquartered in San Diego, California. For more information,
+visit bhtherapeutics.com and follow us on LinkedIn and X . Cautionary Note Regarding Forward-Looking
+Statements This press release contains forward-looking statements within the meaning of the Private Securities Litigation Reform Act of 1995, as
+amended, and other federal securities laws, including, without limitation, statements regarding: the therapeutic potential, clinical benefits, safety and potential competitive differentiation of the company’s product candidates, including BH-30643, BH-30236 and BH-501284; the anticipated benefits of regulatory designations received, or that may be received, by the
+company’s product candidates; the design, enrollment, timing, progress and results of the company’s clinical trials and preclinical studies; the company’s planned regulatory interactions and submissions; anticipated program
+milestones, including the timing of program and data updates; the period over which the company estimates its existing cash and cash equivalents, together with the net proceeds from its initial public offering, will be sufficient to fund its current
+operating plan; statements by the company’s management; and the company’s development plans and continued advancement of its pipeline. The words “anticipate,” “believe,” “could,”
+“estimate,” “expect,” “intend,” “may,” “plan,” “potential,” “predict,” “project,” “should,” “target,” “upcoming,”
+“will,” “would” and similar expressions are intended to identify forward-looking statements, although not all forward-looking statements contain these identifying words. 
+ Any forward-looking statements in this press release are based on management’s current expectations and beliefs and are subject to a number of risks,
+uncertainties and important factors that may cause actual events or results to differ materially, including, without limitation: the company’s limited operating history, history of significant losses and the early stage of development of its
+product candidates; the risk that preliminary and interim clinical data are subject to further analysis and may not be predictive of, may be inconsistent with, or may be more favorable than, data generated as clinical trials continue or data from
+future clinical trials; uncertainties inherent in the initiation, timing, design and enrollment of clinical trials, and the availability and timing of data from ongoing and future trials; the company’s ability to successfully demonstrate the
+safety and efficacy of its product candidates and to obtain and maintain regulatory approvals; the timing and outcome of planned interactions with, and submissions to, the FDA and other regulatory authorities, including whether an accelerated
+approval pathway will be available to the company; the risk that regulatory designations, including Fast Track and orphan drug designation, may not result in a faster development, review or approval process, may not increase the likelihood of
+regulatory approval, and may be withdrawn; competition from third parties that are developing products for similar indications; the prior success of the company’s management team may not be indicative of future success; the company’s
+reliance on third parties, including contract research organizations and contract manufacturing organizations; the company’s ability to obtain, maintain and protect its intellectual property; and the company’s need for additional
+financing and its estimates regarding operating expenses and capital requirements. These and other risks are described in greater detail under the heading “Risk Factors” in the company’s filings with the Securities and Exchange
+Commission (the “SEC”), its Quarterly Report on Form 10-Q for the quarter ended June 30, 2026, which will be filed with the SEC later today, as well as in the company’s subsequent
+filings with the SEC. Any forward-looking statements represent the company’s views only as of the date of this press release, and the company expressly disclaims any obligation to update any forward-looking statements, except as required by
+law. 
+
+ Company Contact: 
+ Michael Moore, BlossomHill Therapeutics 
+ michael.moore@bhtherapeutics.com Media: 
+ Ashlea Kosikowski, 1AB ashlea@1abmedia.com 
+
+ BLOSSOMHILL THERAPEUTICS, INC. 
+ UNAUDITED CONDENSED BALANCE SHEETS 
+ (in thousands, except share and par value data) 
+
+ June 30, 2026 
+
+ December 31, 2025 
+
+ (unaudited) 
+
+ Assets 
+
+ Current Assets: 
+
+ Cash and cash equivalents 
+ 
+ $ 
+ 95,376 
+
+ $ 
+ 136,682 
+
+ Prepaid expenses and other current assets 
+
+ 5,592 
+
+ 2,144 
+
+ Total current assets 
+
+ 100,968 
+
+ 138,826 
+
+ Property and equipment, net 
+
+ 1,489 
+
+ 1,726 
+
+ Operating lease
+ right-of-use assets 
+
+ 19,197 
+
+ 19,921 
+
+ Other assets 
+
+ 2,477 
+
+ 2,495 
+
+ Total assets 
+ 
+ $ 
+ 124,131 
+
+ $ 
+ 162,968 
+
+ Liabilities, convertible preferred stock and stockholders’ deficit 
+
+ Current liabilities: 
+
+ Accounts payable 
+ 
+ $ 
+ 3,930 
+
+ $ 
+ 2,314 
+
+ Accrued expenses 
+
+ 9,194 
+
+ 8,431 
+
+ Accrued compensation 
+
+ 3,539 
+
+ 4,730 
+
+ Other current liabilities 
+
+ 809 
+
+ —  
+
+ Operating lease liability, current 
+
+ 1,149 
+
+ 5 
+
+ Total current liabilities 
+
+ 18,621 
+
+ 15,480 
+
+ Operating lease liability, non-current 
+
+ 22,222 
+
+ 22,393 
+
+ Other long-term liabilities 
+
+ 1,245 
+
+ —  
+
+ Total liabilities 
+
+ 42,088 
+
+ 37,873 
+
+ Convertible preferred stock, $0.0001 par value; 85,552,612 shares authorized at June 30, 2026
+and December 31, 2025; 18,258,960 shares issued and outstanding at June 30, 2026 and December 31, 2025; $257,153 aggregate liquidation preference at June 30, 2026 and December 31, 2025 
+
+ 256,823 
+
+ 256,823 
+
+ Stockholders’ deficit: 
+
+ Common stock, $0.0001 par value; 110,000,000 shares authorized at June 30, 2026 and
+December 31, 2025; 2,767,848 and 2,548,659 shares issued and outstanding as of June 30, 2026 and December 31, 2025, respectively 
+
+ 1 
+
+ 1 
+
+ Additional paid-in capital 
+
+ 5,014 
+
+ 3,300 
+
+ Accumulated deficit 
+
+ (179,795 
+ ) 
+
+ (135,029 
+ ) 
+
+ Total stockholders’ deficit 
+
+ (174,780 
+ ) 
+
+ (131,728 
+ ) 
+
+ Total liabilities, convertible preferred stock and stockholders’ deficit 
+ 
+ $ 
+ 124,131 
+
+ $ 
+ 162,968 
+
+ BLOSSOMHILL THERAPEUTICS, INC. 
+ UNAUDITED CONDENSED STATEMENTS OF OPERATIONS 
+ (in thousands, except share and per share data) 
+
+ Three Months Ended June 30, 
+
+ Six Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Operating expenses: 
+
+ Research and development 
+ 
+ $ 
+ 21,355 
+
+ $ 
+ 12,530 
+
+ $ 
+ 41,256 
+
+ $ 
+ 22,102 
+
+ General and administrative 
+
+ 3,315 
+
+ 1,573 
+
+ 5,521 
+
+ 3,455 
+
+ Total operating expenses 
+
+ 24,670 
+
+ 14,103 
+
+ 46,777 
+
+ 25,557 
+
+ Loss from operations 
+
+ (24,670 
+ ) 
+
+ (14,103 
+ ) 
+
+ (46,777 
+ ) 
+
+ (25,557 
+ ) 
+ 
+ Other income (expense), net: 
+
+ Interest income, net 
+
+ 915 
+
+ 859 
+
+ 2,017 
+
+ 1,835 
+
+ Other expense, net 
+
+ (3 
+ ) 
+
+ —  
+
+ (6 
+ ) 
+
+ —  
+
+ Total other income, net 
+
+ 912 
+
+ 859 
+
+ 2,011 
+
+ 1,835 
+
+ Net loss 
+ 
+ $ 
+ (23,758 
+ ) 
+ 
+ $ 
+ (13,244 
+ ) 
+ 
+ $ 
+ (44,766 
+ ) 
+ 
+ $ 
+ (23,722 
+ ) 
+
+ Net loss per share, basic and diluted 
+ 
+ $ 
+ (8.75 
+ ) 
+ 
+ $ 
+ (5.51 
+ ) 
+ 
+ $ 
+ (16.91 
+ ) 
+ 
+ $ 
+ (9.90 
+ ) 
+
+ Weighted average common shares outstanding, basic and diluted 
+
+ 2,713,696 
+
+ 2,405,140 
+
+ 2,646,721 
+
+ 2,395,789
