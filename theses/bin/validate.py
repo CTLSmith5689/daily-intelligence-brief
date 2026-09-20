@@ -41,9 +41,21 @@ SECTIONS = ["WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE", "WHERE I DISAGREE
             "WHAT WOULD PROVE ME WRONG", "WHAT I DON'T KNOW"]
 NUMBERS_SECTION = "WHERE THE NUMBERS COME FROM"
 
-# Prose length, not counting WHERE THE NUMBERS COME FROM. The target is about 700
-# words. A note that runs long is almost always explaining terms it should drop.
-PROSE_WARN, PROSE_FAIL = 800, 1100
+# A note written on or after this date has two parts. The business comes first:
+# four sections that say how the company makes money, before the six above ask
+# the reader to trust a view on its price. The first notes had only the view, and
+# the owner, who reads them to learn how a business works, was given a price
+# target for a fertiliser maker without being told what decides its profit.
+# The four 2026-09-12 notes keep the one-part shape they were written in.
+TWO_PART_FROM = "2026-09-19"
+BUSINESS_SECTIONS = ["WHAT THE COMPANY DOES", "HOW IT MAKES MONEY", "THE LAST TEN YEARS",
+                     "WHAT MANAGEMENT DOES WITH THE CASH"]
+BUSINESS_MIN_WORDS = 300
+
+# Prose length, not counting WHERE THE NUMBERS COME FROM: (shortest, warn, fail,
+# target). A note that runs long is almost always explaining terms it should drop.
+PROSE_ONE_PART = (220, 800, 1100, 700)
+PROSE_TWO_PART = (700, 1800, 2300, 1500)
 
 # Front-matter the website's thesis popup reads besides key_claim and falsifier
 # (lambda_function.py, _thesis_note_record). None is required; each is checked
@@ -183,6 +195,51 @@ ANTITHESIS = re.compile(
 FILLER_SOFT = re.compile(
     r"\bto be clear\b|\bit is worth (?:saying|noting)\b|\bthe whole story\b"
     r"|\bthat is the (?:point|question)\b|\bthe honest answer is\b|\bin other words\b", re.I)
+
+# Figures of speech. The owner's main complaint about the first notes was their
+# tone: a picture where the fact should be ("the balance sheet is the shock
+# absorber") and a hint that something is hidden where a source should be. A
+# picture makes the reader translate it back, and he has no finance background to
+# translate with. Say what literally happens: "low debt means CF can keep paying
+# its bills if profit falls".
+#
+# FAIL: phrases with no literal use in a note about a company.
+FIGURE_HARD = re.compile(
+    r"\bvalue traps?\b|\bfalling kni(?:fe|ves)\b|\bdead money\b|\bcoiled spring\b"
+    r"|\bmelting ice cubes?\b|\bcash cows?\b|\bcrown jewels?\b|\bwar chests?\b|\bdry powder\b"
+    r"|\bfortress balance sheet\b|\bkitchen[- ]sink\w*\b|\bpriced (?:for|to) perfection\b"
+    r"|\bbaked in(?:to)?\b|\bcanary in the coal ?mine\b|\belephant in the room\b"
+    r"|\bdouble-edged sword\b|\bperfect storm\b|\bgreen shoots\b|\bsea change\b"
+    r"|\bunder the hood\b|\bat the end of the day\b|\bpaper(?:s|ed|ing)? over\b"
+    r"|\bjury is (?:still )?out\b|\blow-hanging fruit\b|\bmov(?:e|es|ed|ing) the needle\b"
+    r"|\bsecret sauce\b|\brocket ?ship\b|\bhouse of cards\b|\bthin ice\b|\btip of the iceberg\b"
+    r"|\bsilver (?:bullet|lining)\b|\bgame[- ]changers?\b|\bnorth star\b|\bholy grail\b"
+    r"|\b(?:economic |competitive |wide |narrow |deep )?moats?\b|\bskin in the game\b"
+    r"|\bhead ?fake\b|\bsmoking gun\b|\bbelow the radar\b|\bunder the radar\b", re.I)
+# WARN: usually a figure of speech, but a wind farm has tailwinds and a parts maker
+# sells shock absorbers.
+FIGURE_SOFT = re.compile(
+    r"\b(?:tail|head)winds?\b|\bshock absorbers?\b|\bflywheels?\b|\brunway\b|\blevers?\b to pull"
+    r"|\b(?:growth|turnaround|recovery|equity|bull|bear|long-run|real) story\b|\bthe narrative\b"
+    r"|\bstory stock\b|\bre-?rat(?:e|es|ed|ing)\b|\bunlock(?:s|ed|ing)? value\b|\bhidden gems?\b"
+    r"|\bbleed(?:s|ing)? cash\b|\bhaemorrhag\w+|\bhemorrhag\w+|\bfiring on all cylinders\b"
+    r"|\bin the driver'?s seat\b|\bback of the envelope\b|\bcushion\b|\bbackstop\b"
+    r"|\bcooperat(?:e|es|ed|ing)\b|\bred flags?\b", re.I)
+
+# Hinting that something is hidden, overlooked or about to be revealed. FAIL. If
+# there is a fact, state it and say where it comes from.
+MYSTIQUE = re.compile(
+    r"\bwhat (?:nobody|no one|everyone|the market|the street) (?:is )?(?:asking|watching|missing|misses"
+    r"|missed|has missed|talking about|sees|see)\b"
+    r"|\b(?:beneath|below|under) the surface\b|\bthe (?:real|deeper|bigger|actual) (?:story|question|issue)\b"
+    r"|\btells? a different story\b|\bhiding in plain sight\b|\bin plain sight\b|\bit turns out\b"
+    r"|\bhere(?: is|'s|’s) the thing\b|\blurk(?:s|ing)?\b|\bthe truth is\b|\blook closer\b"
+    r"|\bon closer inspection\b|\bscratch the surface\b|\bthe dirty secret\b|\bopen secret\b", re.I)
+# Adverbs that tell the reader how to feel about a fact. WARN.
+DRAMA = re.compile(
+    r"\b(?:crucially|strikingly|remarkably|tellingly|notably|importantly|interestingly|curiously"
+    r"|surprisingly|famously|quietly|dramatically|ominously|critically|fundamentally|ultimately)\b",
+    re.I)
 
 # Finance and industry terms the owner will not know: (label, pattern, plain
 # wording, hard). The plain wording matches the glossary in the writing rules.
@@ -501,6 +558,21 @@ def _style(text, where, F, W, body=False):
     m = FILLER_HARD.search(text)
     if m:
         F(f"{where}: filler emphasis: {m.group(0)!r}. Delete it and let the fact stand.")
+    # Every distinct hit, not the first: a note in the wrong tone has a dozen of
+    # these, and naming one per run would take a dozen runs to clear.
+    found = lambda rx: sorted({m.group(0).lower() for m in rx.finditer(text)})[:8]
+    if found(FIGURE_HARD):
+        F(f"{where}: figure(s) of speech: {', '.join(map(repr, found(FIGURE_HARD)))}. Say what "
+          f"literally happens instead of giving the reader a picture to translate.")
+    if found(MYSTIQUE):
+        F(f"{where}: hints at something hidden instead of stating it: "
+          f"{', '.join(map(repr, found(MYSTIQUE)))}. State the fact and where it comes from.")
+    if found(FIGURE_SOFT):
+        W(f"{where}: possible figure(s) of speech: {', '.join(map(repr, found(FIGURE_SOFT)))}. "
+          f"Keep one only where it is literally what the company makes or does.")
+    if found(DRAMA):
+        W(f"{where}: adverb(s) telling the reader how to feel: "
+          f"{', '.join(map(repr, found(DRAMA)))}. Delete them and let the fact stand.")
 
     for rx, what in ((GENERALIZE, "a general claim about investors or stocks"),
                      (ANTITHESIS, "a 'not X, it is Y' construction"), (FILLER_SOFT, "filler")):
@@ -575,28 +647,42 @@ def _plain_body(text, fm, body, kind, F, W):
 
     heads = [(hm.start(), hm.end(), _head_name(hm.group(1))) for hm in HEADING.finditer(body)]
     names = [h[2] for h in heads]
+    two_part = _fm_text(fm.get("written_on")) >= TWO_PART_FROM
+    wanted = (BUSINESS_SECTIONS if two_part else []) + SECTIONS
 
     # Required headings written with the wrong number of # signs, by name.
     wrong_level = {_head_name(hm.group(1)): len(hm.group(0)) - len(hm.group(0).lstrip("#"))
                    for hm in ANY_HEADING.finditer(body)}
-    for s in SECTIONS + [NUMBERS_SECTION]:
+    for s in wanted + [NUMBERS_SECTION]:
         if s not in names and s in wrong_level:
             F(f"the heading {s} starts with {wrong_level[s]} # signs. Start it with exactly two, "
               f"as in '## {s}'. The website only starts a new section at two # signs.")
         elif s not in names:
             F(f"body is missing the heading: {s} (it must be a heading line of its own)")
-    present = [n for n in names if n in SECTIONS]
-    if present != [s for s in SECTIONS if s in present]:
-        W("sections are out of order. Use: " + " / ".join(SECTIONS) + " / " + NUMBERS_SECTION)
-    known = [h for h in heads if h[2] in SECTIONS or h[2] == NUMBERS_SECTION]
+    present = [n for n in names if n in wanted]
+    if present != [s for s in wanted if s in present]:
+        W("sections are out of order. Use: " + " / ".join(wanted) + " / " + NUMBERS_SECTION)
+    known = [h for h in heads if h[2] in wanted or h[2] == NUMBERS_SECTION]
     if NUMBERS_SECTION in names and known[-1][2] != NUMBERS_SECTION:
         F(f"{NUMBERS_SECTION} must be the last section of the body.")
 
-    # A title line above the opening paragraph is not counted against it.
-    opening = ANY_HEADING.sub("", body[:known[0][0]]) if known else body
-    if _words(opening) < 20:
-        F(f"the note opens with {_words(opening)} words before its first section. Open with a "
-          f"plain paragraph of at least 20 words saying what the company does.")
+    if two_part:
+        # The business part, up to the first section of the view. It is what the
+        # owner reads to learn how the company works, so a token paragraph under
+        # each heading does not count as having written it.
+        first_view = next((h[0] for h in heads if h[2] in SECTIONS), len(body))
+        start = next((h[0] for h in heads if h[2] in BUSINESS_SECTIONS), first_view)
+        business = _words(ANY_HEADING.sub("", body[start:first_view]))
+        if business < BUSINESS_MIN_WORDS:
+            F(f"the four business sections come to {business} words. Write at least "
+              f"{BUSINESS_MIN_WORDS}: what the company sells and to whom, what decides its "
+              f"profit, its last ten years, and what management does with the cash.")
+    else:
+        # A title line above the opening paragraph is not counted against it.
+        opening = ANY_HEADING.sub("", body[:known[0][0]]) if known else body
+        if _words(opening) < 20:
+            F(f"the note opens with {_words(opening)} words before its first section. Open with "
+              f"a plain paragraph of at least 20 words saying what the company does.")
 
     numbers, prose = "", body
     for i, (start, end, name) in enumerate(heads):
@@ -621,14 +707,15 @@ def _plain_body(text, fm, body, kind, F, W):
               f"from the plain-writing checks.")
 
     words = _words(prose)
-    if words < 220:
+    shortest, warn_at, fail_at, target = PROSE_TWO_PART if two_part else PROSE_ONE_PART
+    if words < shortest:
         F(f"body is {words} words, not counting {NUMBERS_SECTION}. Too short to have shown any reasoning.")
-    elif words > PROSE_FAIL:
-        F(f"body is {words} words, not counting {NUMBERS_SECTION}, over the {PROSE_FAIL:,}-word limit. "
-          f"The target is about 700. Cut ideas the argument does not need rather than explaining them.")
-    elif words > PROSE_WARN:
-        W(f"body is {words} words, not counting {NUMBERS_SECTION}, over {PROSE_WARN}. The target is "
-          f"about 700. Cut ideas the argument does not need rather than explaining them.")
+    elif words > fail_at:
+        F(f"body is {words} words, not counting {NUMBERS_SECTION}, over the {fail_at:,}-word limit. "
+          f"The target is about {target:,}. Cut ideas the argument does not need rather than explaining them.")
+    elif words > warn_at:
+        W(f"body is {words} words, not counting {NUMBERS_SECTION}, over {warn_at:,}. The target is "
+          f"about {target:,}. Cut ideas the argument does not need rather than explaining them.")
 
     _style(prose, "body", F, W, body=True)
     kc = _fm_text(fm.get("key_claim"))

@@ -27,14 +27,16 @@ of which a reader can check against the text:
 
 | Component | Range | What earns it |
 |---|---|---|
-| `evidence_base` | 0-2 | 2 = management's own words from the 8-K EX-99.1; 1 = panel factors and price history; 0 = headlines or inference |
+| `evidence_base` | 0-2 | 2 = the view rests on something management said about the period ahead, in the earnings release or management's discussion: its own forecast, or a plan with an amount and a date; 1 = reported figures, the filings' account of the past, and price history; 0 = headlines or inference |
 | `falsifier_specific` | 0-1 | the falsifier names an observable, a threshold and a date known before `horizon_end` |
 | `variant_perception` | 0-1 | the note says what it believes makes the price wrong AND gives a checkable, company-specific reason the price has not already moved |
 | `disconfirmation` | 0-1 | the strongest counter-case was engaged and the falsifier survived it |
 
 `validate.py` checks the arithmetic and rejects a conviction of 4 or more resting on
 `evidence_base` 0. Most notes should score `evidence_base` 1: only 9 of 20 large caps
-tested carry real forward guidance in their earnings release.
+tested carry real forward guidance in their earnings release. Since 2026-09-19 nearly
+every dossier carries management's discussion, so having read management's words no
+longer earns the 2. Resting the view on what management said about the period ahead does.
 
 **And it is used as a gate, not a weight.** The PM requires conviction >= 3 for a name to be
 eligible and then sizes purely on volatility. Multiplying a weight by a self-graded number would
@@ -119,9 +121,14 @@ THE SHAPE OF A NOTE
 
 A dull answer to the dossier's question is a finished piece of work, and "no view" is a fine result.
 
-After the front-matter, write an opening paragraph with no heading: two to four sentences, at least 20
-words, on what the company sells and who buys it. Then use these headings, in order:
+A note has two parts. The first explains the business, so the owner knows how the company makes
+money before he is asked to trust a view on its price. The second is the view. Use these headings,
+in this order, straight after the front-matter:
 
+    ## WHAT THE COMPANY DOES
+    ## HOW IT MAKES MONEY
+    ## THE LAST TEN YEARS
+    ## WHAT MANAGEMENT DOES WITH THE CASH
     ## WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE
     ## WHERE I DISAGREE
     ## WHAT WOULD SETTLE IT
@@ -130,9 +137,32 @@ words, on what the company sells and who buys it. Then use these headings, in or
     ## WHAT I DON'T KNOW
     ## WHERE THE NUMBERS COME FROM
 
-Aim for about 700 words, not counting the last section. validate.py (step 7) warns over 800 and fails over 1,100.
-The note has no glossary.
+Aim for about 1,500 words, not counting the last section: roughly 700 on the business and 800 on
+the view. validate.py (step 7) warns over 1,800 and fails over 2,300. It fails a business part under
+300 words. The note has no glossary.
 
+The business part comes from the company's own filings in the dossier: the 10-K's description of the
+business, the reported history table, the segment note, management's discussion and the earnings
+release. If the dossier says one of these is missing, say in the section what you could not read.
+Where the dossier shows only an excerpt and names the full file, read the file when the section
+needs it.
+
+- **WHAT THE COMPANY DOES.** What it sells, who buys it, and where. Two short paragraphs. Use the
+  company's description of its products and customers. Leave out its mission statement and its
+  plans: "CF Industries turns natural gas into nitrogen fertiliser and sells it to farm co-operatives
+  and distributors, mostly in North America."
+- **HOW IT MAKES MONEY.** The two or three things that decide whether profit goes up or down, such
+  as the selling price, the amount sold and the main cost. Give the latest figure for each from
+  management's discussion, and say how it changed from a year earlier: "CF sold ammonia for $677 a
+  ton, up from $452 a year earlier. Its gas cost $3.37 for each unit, about the same as a year
+  earlier." If the company has more than one line of business, say which one earns the most.
+- **THE LAST TEN YEARS.** Sales and profit per share over the reported history: the best year, the
+  worst year, the typical year, and where the latest year sits among them. Say whether profit moves
+  a lot from year to year, and why, if the filings say why.
+- **WHAT MANAGEMENT DOES WITH THE CASH.** How much cash the business makes after paying for its
+  equipment, and where that cash goes: paying down debt, dividends, buying back shares, building
+  something. Use the share count in the reported history and the buyback figures in management's
+  discussion. Say how much debt there is compared with a year's earnings.
 - **WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE.** Say what would make the latest close a fair
   price: "At 38 times last year's profit per share, the price only makes sense if sales growth speeds
   back up."
@@ -141,8 +171,10 @@ The note has no glossary.
   in a full sentence and set direction to "no view" or "watch".
 - **WHAT WOULD SETTLE IT.** Name a dated event, such as a quarterly report or a loan coming due.
 - **WHAT THE SHARES COULD BE WORTH.** Give a bad, middle and good case, each with its profit or cash
-  figure, how many times that figure the stock would cost, and the price. Then give the target price
-  you will be scored on and its distance from the latest close. If a range would mean nothing, say why.
+  figure, how many times that figure the stock would cost, and the price. Tie each profit figure to
+  the company's own record: "the bad case is a year like 2020, when CF earned $1.47 a share". Then
+  give the target price you will be scored on and its distance from the latest close. If a range
+  would mean nothing, say why.
 - **WHAT WOULD PROVE ME WRONG.** Give one condition with a number and a date, then the strongest
   argument against your view and whether your view survives it.
 - **WHAT I DON'T KNOW.** List every gap that matters, always including: "No analyst forecasts
@@ -155,11 +187,30 @@ SENTENCES AND NUMBERS
 - Put one idea in each sentence. Aim for 20 words, and split anything over 30. validate.py (step 7)
   fails a sentence over 40.
 - Use "I" for your view and the company's name for the company. Tickers go in the table only.
-- Use few numbers. Most arguments rest on two or three.
+- The business part carries the numbers a reader needs to picture the company, one or two to a
+  sentence. The view rests on two or three numbers. Do not repeat a number to fill space.
 - Round to whole numbers, or one decimal place below 10.
 - Say what each number means: "sales grew 14% over the past year". Write "36 times", never "36x".
 - Give time spans in calendar terms. horizon_days counts calendar days, so 126 days is about 4
   months and 252 days is about 8 months.
+
+TONE
+
+Write the way you would explain the company to a friend across a table. The owner's main complaint
+about the first notes was their tone, so this matters more than any other rule here.
+
+- Say what literally happens. Do not give the reader a picture to translate. "The balance sheet is
+  the shock absorber" becomes "CF has so little debt that it can keep paying its bills if profit
+  falls". This covers every figure of speech: moats, tailwinds, headwinds, runways, flywheels, value
+  traps, stories, things being baked in. validate.py (step 7) fails the common ones.
+- Do not hint. Never suggest that something is hidden, overlooked or about to be revealed: "what
+  nobody is asking", "beneath the surface", "the real question". If you know a fact, state it and say
+  which filing it is in. If you do not know it, it goes in WHAT I DON'T KNOW.
+- Do not tell the reader how to feel. Leave out "crucially", "strikingly", "remarkably", "tellingly",
+  "notably" and "quietly". State the fact and move on.
+- Do not sound clever. A short plain sentence that a reader can check is worth more than a neat one.
+  If a sentence would work as a slogan, rewrite it.
+- Do not claim to know what other people think. You have no data on what investors expect.
 
 WORDS AND HABITS TO AVOID
 
@@ -277,13 +328,17 @@ model asked to rate its own conviction clusters at 3 to 4 however the prompt is
 worded. Score four properties of the note instead, each of which a reader can
 check against the text.
 
-  evidence_base       0-2   2 = management's own words, from the 8-K EX-99.1
-                            text in the dossier
-                            1 = panel factors and price history only
+  evidence_base       0-2   2 = the view rests on something management said
+                            about the period ahead, in the earnings release or
+                            management's discussion in the dossier: its own
+                            forecast, or a plan with an amount and a date
+                            1 = reported figures, the filings' account of the
+                            past, and price history
                             0 = headlines or inference
-                            MOST NOTES SCORE 1. Only 9 of 20 large caps tested
-                            carry real guidance in their release, so a 2 is
-                            genuinely uncommon and should stay that way.
+                            MOST NOTES SCORE 1. Nearly every dossier now carries
+                            management's discussion, so having read it earns
+                            nothing. Only 9 of 20 large caps tested give a real
+                            forecast, so a 2 is uncommon and should stay so.
 
   falsifier_specific  0-1   1 if the falsifier names an observable with a
                             threshold and a date that will be known before
@@ -320,6 +375,12 @@ checkable. Use at least two of:
   c. Spare cash: $X of spare cash a year for every $100 of stock, with spare
      cash flat, gives roughly an X percent return a year before growth.
 
+Whichever you use, take each case's profit or cash figure from the company's own
+reported history, and say which year or years it resembles. The dossier gives the
+best, worst and median year. Do not get a case by multiplying the latest year by
+a round number: the first CF note called half of a record year its bad case, and
+that was what CF had earned in an ordinary year two years before.
+
 Write the method and any adjustment against similar companies in plain words in
 the body, or in the numbers table. Never write it as a percentile.
 
@@ -348,9 +409,15 @@ disconfirmation, horizon_days, target_price, review_by, key_claim, falsifier,
 data_caveats (a list), conditions (a list), and where the note supports them
 add_if, if_wrong_price and next_check.
 
-Body: the opening paragraph and the seven headings from step 2, in that order.
+Body: the eleven headings from step 2, in that order.
 
-=== 7. VALIDATE AND WRITE THE RUN MANIFEST ===
+=== 7. READ IT BACK, VALIDATE, AND WRITE THE RUN MANIFEST ===
+
+Before validating, read each note once more as the owner would: someone smart who
+has never worked in finance. For every sentence ask three things. Would I say
+this to a friend across a table? Does it state a fact, or does it give a picture
+or a hint in place of one? Could he check it? Rewrite any sentence that fails.
+validate.py catches the common figures of speech, but it cannot hear tone.
 
   python3 theses/bin/validate.py theses/notes/*/{RUN_DATE}-*.md
 
