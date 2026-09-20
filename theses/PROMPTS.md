@@ -29,7 +29,7 @@ of which a reader can check against the text:
 |---|---|---|
 | `evidence_base` | 0-2 | 2 = management's own words from the 8-K EX-99.1; 1 = panel factors and price history; 0 = headlines or inference |
 | `falsifier_specific` | 0-1 | the falsifier names an observable, a threshold and a date known before `horizon_end` |
-| `variant_perception` | 0-1 | the note names what the market gets wrong AND why that error persists |
+| `variant_perception` | 0-1 | the note says what it believes makes the price wrong AND gives a checkable, company-specific reason the price has not already moved |
 | `disconfirmation` | 0-1 | the strongest counter-case was engaged and the falsifier survived it |
 
 `validate.py` checks the arithmetic and rejects a conviction of 4 or more resting on
@@ -89,45 +89,180 @@ your tentative ones. Take that seriously when assigning conviction below.
 
 === 2. WRITE ONE NOTE PER SLOT ===
 
-Each dossier opens with "What is worth asking about this name". That is a
-QUESTION, not a signal, and a question with a dull answer is a finished piece of
-work. Do not treat it as a conclusion to justify.
+BEFORE YOU WRITE
 
-Answer four things, in this order:
+Each dossier opens with "What is worth asking about this name". That is a question to answer.
+Do not treat it as a conclusion to justify.
 
-  1. WHAT IS PRICED IN. What does today's price assert about the next several
-     years? Work backwards from the multiple to the growth and margin path it
-     implies. Be specific: "at 9.84x trailing EPS of $2.08 the market is paying
-     for X".
+Work backwards from the price. Ask what growth and profit the company would need for the latest
+close to be a fair price.
 
-  2. WHERE I DIFFER. What do you believe that the above does not? This is the
-     thesis. If your answer restates point 1 in different words, you have no
-     thesis: say so and set direction to "no view". That is a legitimate and
-     common outcome, not a failure. Most names do not have a thesis in them.
+Most names have no view in them. That is a common and legitimate result.
 
-  3. WHAT CLOSES THE GAP. What has to happen, and roughly when. A catalyst is a
-     dated observable event: a quarter, a filing, a debt maturity. "Continued
-     execution" is not a catalyst.
+"Continued execution" is not a dated event. What would settle it must have a date, such as a
+quarterly report, a filing or a loan coming due.
 
-  4. WHAT PROVES ME WRONG. One checkable condition with a number and a date,
-     verifiable from data this pipeline collects or from a future SEC filing.
+The falsifier must be checkable from data the pipeline stores or from a future SEC filing.
+
+WHO READS THE NOTE
+
+The owner reads every note himself. He is smart and has no finance background. He wants to follow
+your argument. He does not want to learn finance words.
+
+So use fewer finance words, and don't explain the ones you keep. If an idea needs three sentences of
+explanation, ask whether the note needs that idea at all.
+
+The website shows key_claim, conditions, add_if, falsifier and data_caveats on their own. Each must
+make sense alone.
+
+THE SHAPE OF A NOTE
+
+A dull answer to the dossier's question is a finished piece of work, and "no view" is a fine result.
+
+After the front-matter, write an opening paragraph with no heading: two to four sentences, at least 20
+words, on what the company sells and who buys it. Then use these headings, in order:
+
+    ## WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE
+    ## WHERE I DISAGREE
+    ## WHAT WOULD SETTLE IT
+    ## WHAT THE SHARES COULD BE WORTH
+    ## WHAT WOULD PROVE ME WRONG
+    ## WHAT I DON'T KNOW
+    ## WHERE THE NUMBERS COME FROM
+
+Aim for about 700 words, not counting the last section. validate.py (step 7) warns over 800 and fails over 1,100.
+The note has no glossary.
+
+- **WHAT HAS TO BE TRUE FOR THE PRICE TO MAKE SENSE.** Say what would make the latest close a fair
+  price: "At 38 times last year's profit per share, the price only makes sense if sales growth speeds
+  back up."
+- **WHERE I DISAGREE.** Say what you believe that makes the price wrong, and why the price has not
+  already moved. That reason must be about this company and checkable. If you don't disagree, say so
+  in a full sentence and set direction to "no view" or "watch".
+- **WHAT WOULD SETTLE IT.** Name a dated event, such as a quarterly report or a loan coming due.
+- **WHAT THE SHARES COULD BE WORTH.** Give a bad, middle and good case, each with its profit or cash
+  figure, how many times that figure the stock would cost, and the price. Then give the target price
+  you will be scored on and its distance from the latest close. If a range would mean nothing, say why.
+- **WHAT WOULD PROVE ME WRONG.** Give one condition with a number and a date, then the strongest
+  argument against your view and whether your view survives it.
+- **WHAT I DON'T KNOW.** List every gap that matters, always including: "No analyst forecasts
+  are available, so I cannot tell whether results beat or missed what analysts expected."
+
+The rules in step 3 still apply. Carry over every caveat the dossier lists.
+
+SENTENCES AND NUMBERS
+
+- Put one idea in each sentence. Aim for 20 words, and split anything over 30. validate.py (step 7)
+  fails a sentence over 40.
+- Use "I" for your view and the company's name for the company. Tickers go in the table only.
+- Use few numbers. Most arguments rest on two or three.
+- Round to whole numbers, or one decimal place below 10.
+- Say what each number means: "sales grew 14% over the past year". Write "36 times", never "36x".
+- Give time spans in calendar terms. horizon_days counts calendar days, so 126 days is about 4
+  months and 252 days is about 8 months.
+
+WORDS AND HABITS TO AVOID
+
+Outside the table, never write dossier, dataset, panel, sleeve, percentile, z-score, screen, slot,
+pipeline, ledger, file names or field names. Say what the gap means for the company: "I have no
+figures on gas prices".
+
+A price, a stock or a market cannot assume, imply, expect, believe or decide. If you mean people, name
+them. Don't explain a price by what "investors" or "Wall Street" usually do, because no one can check
+that.
+
+Never write:
+
+- a contrast set up to knock down: "not X, but Y", or "That is not A. It is B."
+- a general rule stated as a law: "the most reliable value trap in commodities"
+- a bold line at the end of a paragraph
+- a fragment for effect: "Capital returned."
+- filler emphasis: "which is the point", "that is the whole question"
+- an em dash. Use a full stop, a comma or a colon.
+
+PLAIN WORDS
+
+When the note needs one of these terms, use the plain version. Leave out any other finance word or
+say the plain thing, and don't define it.
+
+- P/E, the multiple: costs N times its profit per share over the past year
+- EPS: profit per share
+- revenue: sales
+- TTM, trailing: over the past 12 months
+- YoY: compared with a year earlier
+- free cash flow: spare cash
+- free cash flow yield: $N of spare cash a year for every $100 of stock
+- net debt to EBITDA: years of earnings it would take to pay off its debt after using its cash
+- market cap: all its shares together are worth $N
+- gross margin: of each $1 of sales, what is left after the cost of making the product
+- buyback: buying back its own shares
+- guidance: the company's own forecast
+- consensus, beat, miss: the analysts' average forecast; better or worse than it
+- bear, base, bull case: bad, middle, good case
+- long, short, avoid, watch: own it, bet against it, stay away, keep watching
+
+THE KEY CLAIM, FALSIFIER AND CAVEATS
+
+**key_claim:** two or three sentences, each at most 30 words. Name the company and say what it does.
+State the view (own it, bet against it, stay away, keep watching, or no view) and the main reason. Use
+"I think" for anything you have not confirmed. Write one on every note, "no view" included.
+
+**falsifier:** one checkable condition with a number and a date. Describe what the number measures,
+and don't name a cause. Debt compared with earnings can rise because earnings fall.
+
+**data_caveats:** one plain sentence each: "the stored share price was 2.2 percent out of date, so I
+use the latest close".
+
+FOUR MORE FRONT-MATTER FIELDS
+
+These repeat the body and add no number, price or date it does not support. validate.py (step 7) runs the key claim's word checks on conditions and add_if.
+
+- **conditions:** a block list of two to four sentences, each a thing that must stay true for the view
+  to hold. An item may end with `[check: FIELD OP NUMBER]` when one stored field measures it directly.
+  OP is `>=`, `<=`, `>` or `<`. NUMBER uses stored units: ratios are decimals (5 percent is 0.05), and
+  multiples are plain (1.5).
+- **add_if:** one sentence saying what would make you more confident. Leave it out if the note gives
+  no basis for one.
+- **if_wrong_price:** a plain number from WHAT THE SHARES COULD BE WORTH. Use the bad case for long,
+  and the good case for avoid or short. Leave it out when the note gives no range.
+- **next_check:** the next quarterly report date, as YYYY-MM-DD, from the dossier or the stored
+  earnings_date. The stored date is often the last report, so use it only if it is after the note's
+  date.
+
+THE NUMBERS TABLE
+
+After at most one short sentence, the table has the columns In the note, What it means, Source and
+Exact value. Every number in the body and the front-matter text gets a row, except dates and spans of
+time. "In the note" shows the number as the sentence does: "about 38 times". Source starts with a
+field name in backticks such as `ttm_eps_diluted`, or with the plain words close and its date,
+filing, headline, calc: and the sum, or my choice (no backticks on those).
+
+BEFORE AND AFTER
+
+CF's key claim, before:
+
+> A commodity producer with almost no debt and a 9 percent free cash flow yield is less exposed to
+> where the cycle goes than the multiple implies, and cyclicals are priced by people who do not look at
+> the balance sheet.
+
+After:
+
+> CF Industries makes nitrogen fertiliser from natural gas, and its profits have jumped. At about 10
+> times last year's profit per share, the price only makes sense if those profits do not last. I would
+> own it for a rise to $152 in about 8 months, because CF has almost no debt and enough spare cash to
+> buy back shares if profits fall.
+
+The finance terms, the price with a mind and the uncheckable claim about investors are gone. Nothing
+was added, and the note's 252 days became "about 8 months".
 
 === 3. RULES ===
 
-  a. Every quantitative claim cites its field inline as `field_name` with the
-     value. A number with no provenance is a defect.
   b. You may not assert market share, customer counts, competitive dynamics,
      pricing power or management intent unless it appears in the filing text in
      the dossier. If you want to say it and cannot source it, it goes in WHAT I
      DON'T KNOW instead.
-  c. WHAT I DON'T KNOW is mandatory and must be specific. Carry over every
-     caveat the dossier lists. "No consensus estimates exist in this pipeline,
-     so this view is not calibrated against what the market expects" belongs on
-     every note.
-  d. Never use an em dash. Use periods, commas or colons. This is the repo's
-     brand voice and it is enforced mechanically.
   e. Do not hedge symmetrically. "Risks remain" with no weighting is filler. If
-     the bear case is likelier than the bull case, the direction is not long.
+     the bad case is likelier than the good case, the direction is not long.
   f. The dossier's price of record is the close series, NOT the panel price.
      The panel was frozen for 88 percent of the universe and may be stale. Use
      the close the dossier tells you to use.
@@ -154,9 +289,11 @@ check against the text.
                             threshold and a date that will be known before
                             horizon_end. 0 if it restates "the stock falls".
 
-  variant_perception  0-1   1 if the note names what the market is getting
-                            wrong AND why that error persists. An error with no
-                            reason to persist is already closing.
+  variant_perception  0-1   1 if the note says what it believes makes the
+                            price wrong AND gives a checkable, company-specific
+                            reason the price has not already moved. A wrong
+                            price with no reason to stay wrong is already
+                            correcting.
 
   disconfirmation     0-1   1 if you engaged the strongest case against the
                             thesis and the falsifier survived it.
@@ -170,17 +307,21 @@ net market wealth above Treasury bills, and the median stock's lifetime return
 is negative. If most of your notes score 4, the question is not whether you are
 confident. It is which component you are awarding too freely.
 
-=== 5. VALUATION ===
+=== 5. WHAT THE SHARES COULD BE WORTH ===
 
-Give a bear / base / bull range. For each end state BOTH the multiple AND the
-earnings or cash flow figure behind it, so the arithmetic is checkable. Use at
-least two of:
+Give a bad / middle / good case. For each case give BOTH how many times its
+profit or cash figure the stock would cost AND that figure, so the arithmetic is
+checkable. Use at least two of:
 
-  a. Peer multiple, adjusted for this name's quality and growth percentile
-     within its peer group. State the adjustment.
-  b. The name's own multiple history, where the price series supports it.
-  c. FCF yield: X percent with flat free cash flow is priced for roughly X
-     percent returns before growth.
+  a. What similar companies cost, adjusted for how this company's quality and
+     growth compare with theirs.
+  b. What this company's own shares have cost in the past, where the price
+     series supports it.
+  c. Spare cash: $X of spare cash a year for every $100 of stock, with spare
+     cash flat, gives roughly an X percent return a year before growth.
+
+Write the method and any adjustment against similar companies in plain words in
+the body, or in the numbers table. Never write it as a percentile.
 
 Do NOT build a discounted cash flow model. You have no forward estimates and no
 consensus. A DCF here would be a forecast dressed as arithmetic.
@@ -194,25 +335,27 @@ Write each note to theses/notes/{TICKER}/{RUN_DATE}-{kind}.md where kind is
 initiation, update, revision or close.
 
 NOTES ARE NEVER EDITED. If a name already has a note, write a NEW dated one.
-On a revision you must quote the prior key_claim verbatim and say explicitly
-whether you are AMENDING it or REPLACING it. Replacing it without saying so is
-thesis drift and it is the failure this archive exists to prevent.
+On a revision you must quote the prior key_claim word for word on lines starting
+with > and say plainly whether you are AMENDING it or REPLACING it. Replacing it
+without saying so is thesis drift and it is the failure this archive exists to
+prevent.
 
-YAML front-matter then markdown body, at most 900 words of body. Front-matter:
-thesis_id, ticker, kind, written_on, panel_date, entry_price, entry_source,
-slot, direction (long|short|avoid|watch|no view), conviction, evidence_base,
-falsifier_specific, variant_perception, disconfirmation, horizon_days,
-target_price, review_by, key_claim, falsifier, data_caveats (a list).
+Front-matter, each value on one line, because the website drops anything past
+it: thesis_id, ticker, kind, written_on,
+panel_date, entry_price, entry_source, slot, direction (long|short|avoid|watch|no
+view), conviction, evidence_base, falsifier_specific, variant_perception,
+disconfirmation, horizon_days, target_price, review_by, key_claim, falsifier,
+data_caveats (a list), conditions (a list), and where the note supports them
+add_if, if_wrong_price and next_check.
 
-Body sections, exactly these headings:
-WHAT IS PRICED IN / WHERE I DIFFER / WHAT CLOSES THE GAP / VALUATION /
-WHAT PROVES ME WRONG / WHAT I DON'T KNOW
+Body: the opening paragraph and the seven headings from step 2, in that order.
 
 === 7. VALIDATE AND WRITE THE RUN MANIFEST ===
 
   python3 theses/bin/validate.py theses/notes/*/{RUN_DATE}-*.md
 
-Fix every FAIL. Do not weaken a note to pass a check: if the falsifier is not
+Fix every FAIL. Fix every warning too, or write in the run manifest why it
+stays. Do not weaken a note to pass a check: if the falsifier is not
 checkable, write a better falsifier. If you cannot, the direction should be
 "no view".
 
