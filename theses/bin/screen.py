@@ -39,6 +39,32 @@ def recompute_ev_ebitda(r):
     return ev / ebitda if ev > 0 else None
 
 
+def usable_pe(r):
+    """The panel's pe, or None when its profit per share contradicts the filings.
+
+    pe is price over ttm_eps_diluted, so it inherits every error in that field.
+    On the 2026-09-18 panel 161 of the 2,029 gated names carry a profit per share
+    that disagrees with their own net income over shares, 31 of them printing a
+    pe under 15: ALIT at 0.34 after a 1-for-20 reverse split the vendor never took
+    up, BKNG at 1.0, CHTR at 3.3. Ranked on Value those read as the cheapest names
+    in their peer group on a number that is simply wrong.
+
+    Dropping it leaves the other four Value fields, which is the count the config
+    already requires, so the name is still scored, just not on this."""
+    pe, eps = num(r.get("pe")), num(r.get("ttm_eps_diluted"))
+    ni, sh = num(r.get("ttm_net_income")), num(r.get("shares_outstanding"))
+    if pe is None:
+        return None
+    if eps is None or ni is None or not sh:
+        return pe
+    implied = ni / sh
+    if abs(implied) < 0.01:
+        return pe
+    if (eps > 0) != (implied > 0) or abs(eps - implied) / abs(implied) >= 0.5:
+        return None
+    return pe
+
+
 def core_universe(rows):
     """Gate to names where peer-relative work is actually supportable.
 
@@ -56,12 +82,17 @@ def core_universe(rows):
             continue
         r = dict(r)
         r["_ev_ebitda"] = recompute_ev_ebitda(r)
+        r["_pe"] = usable_pe(r)
         out.append(r)
     return out
 
 
 def value_of(r, field):
-    return r["_ev_ebitda"] if field == "ev_ebitda" else num(r.get(field))
+    if field == "ev_ebitda":
+        return r["_ev_ebitda"]
+    if field == "pe":
+        return r["_pe"]
+    return num(r.get(field))
 
 
 def peer_key(r, groups):

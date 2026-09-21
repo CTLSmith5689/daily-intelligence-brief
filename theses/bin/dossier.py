@@ -676,6 +676,39 @@ def main():
         # compared across it.
         counts = [num(r.get("shares_diluted")) for r in fy]
         split = any(a and b and not 0.7 <= b / a <= 1.4 for a, b in zip(counts, counts[1:]))
+        # The same check on profit per share, which is the number a price is most
+        # often quoted against. ALIT's panel row says it earned $34.37 a share
+        # while its own filings report a loss of $5.87, because a 1-for-20 reverse
+        # split on 2026-06-30 was never carried into the vendor's figure. On the
+        # 2026-09-18 panel 231 of 3,585 rows disagree in sign and 450 more by over
+        # half, and 138 print a positive pe against a real loss. pe is price over
+        # this number, so a wrong one reads as the cheapest stock in its peer group:
+        # ALIT shows pe 0.34 at the 100th percentile.
+        panel_eps = num(me.get("ttm_eps_diluted"))
+        ni, sh = num(me.get("ttm_net_income")), num(me.get("shares_outstanding"))
+        filed_eps = num(fy[-1].get("eps_diluted")) if fy else None
+        implied = (ni / sh) if ni is not None and sh else None
+        ref = implied if implied is not None else filed_eps
+        if panel_eps is not None and ref is not None and abs(ref) >= 0.01:
+            flipped = (panel_eps > 0) != (ref > 0)
+            if flipped or abs(panel_eps - ref) / abs(ref) >= 0.5:
+                where = ("its own reported net income divided by its shares"
+                         if implied is not None else "the last year it filed")
+                w("")
+                w(f"**The panel's profit per share does not match the filings.** "
+                  f"`ttm_eps_diluted` is {panel_eps:,.2f}, against {ref:,.2f} from {where}"
+                  + (". The two disagree about whether the company made money at all."
+                     if flipped else ".") +
+                  f" A reverse split that the vendor's figure never took up does this. "
+                  f"`pe` is the price divided by that number, so it is wrong by the same "
+                  f"factor and its peer ranking with it. **Do not quote `pe` or "
+                  f"`ttm_eps_diluted` for this company.** Use the profit per share in the "
+                  f"reported history above, and the price against it.")
+                caveats.append(
+                    f"the panel's profit per share ({panel_eps:,.2f}) contradicts the "
+                    f"company's own filings ({ref:,.2f}), so pe and every reading built on "
+                    f"it, including the Value score, are unusable here")
+
         eps = [num(r.get("eps_diluted")) for r in fy if num(r.get("eps_diluted")) is not None]
         if split:
             w("")
