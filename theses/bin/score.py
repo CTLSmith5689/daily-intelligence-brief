@@ -15,7 +15,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (LEDGER, RAW, PAGES, fetch, fetch_site, num, read_csv_rows, append_csv, load_panel)
+from common import (LEDGER, RAW, PAGES, fetch, fetch_site, num, read_csv_rows, append_csv, load_panel,
+                    is_operating)
 
 SCORE_COLUMNS = ["prediction_id", "scored_on", "horizon_end", "exit_price", "abs_return",
                  "spy_return", "rel_spy", "peer_median_return", "rel_peer", "peers_used",
@@ -106,17 +107,22 @@ def peer_return(ticker, panel, start, end):
 
     This is the benchmark that tests stock picking. Beating SPY on a refiner
     while every refiner rallied is a sector call that happened to be right, and
-    only the peer comparison can tell those apart."""
+    only the peer comparison can tell those apart.
+
+    Peers are operating companies only. Asset managers were benchmarked against
+    ARCC's sub-industry set, which held the closed-end fund CSQ; a fund's return
+    is its portfolio's, not a competitor's."""
     me = panel.get(ticker)
     if not me:
         return None, 0
+    peers = {t: r for t, r in panel.items() if t != ticker and is_operating(r)}
     sub = (me.get("sub_industry") or "").strip()
-    cohort = [t for t, r in panel.items()
-              if t != ticker and (r.get("sub_industry") or "").strip() == sub]
+    cohort = [t for t, r in peers.items()
+              if (r.get("sub_industry") or "").strip() == sub]
     if len(cohort) < 3:
         sec = (me.get("sector") or "").strip()
-        cohort = [t for t, r in panel.items()
-                  if t != ticker and (r.get("sector") or "").strip() == sec]
+        cohort = [t for t, r in peers.items()
+                  if (r.get("sector") or "").strip() == sec]
     cohort = sorted(cohort, key=lambda t: -(num(panel[t].get("market_cap")) or 0))[:MAX_PEERS]
     rets = []
     for t in cohort:

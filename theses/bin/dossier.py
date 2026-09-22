@@ -13,7 +13,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (SLEEVES, THESES, RAW, PAGES, fetch, fetch_site, num, load_panel,
-                    read_csv_rows, CONTAMINATED, NEWS_FIX_DATE)
+                    read_csv_rows, CONTAMINATED, NEWS_FIX_DATE, security_type,
+                    NON_OPERATING)
 import screen
 import tensions
 
@@ -347,6 +348,19 @@ def main():
     ticker = sys.argv[1].upper()
 
     panel_date, rows = load_panel()
+    # Refused before anything is assembled. A note ticker resolves to its
+    # parent's CIK, so its panel row carries the parent's EPS and shares: with
+    # the gate below fixed, AFGB (a baby bond) built a dossier at a P/E of 1.94
+    # with no word that it was a bond, and CCD (a closed-end fund) read as the
+    # cheapest name in Financials. Nonzero, so prepare.py records it as failed.
+    raw_row = next((r for r in rows if r.get("ticker") == ticker), None)
+    if raw_row is not None and security_type(raw_row) in NON_OPERATING:
+        print(f"dossier: {ticker} is not an operating company (security_type "
+              f"{security_type(raw_row)}: {raw_row.get('name', '')}). Its figures describe "
+              f"a parent issuer, a fund portfolio or a blank-check trust, not a business "
+              f"of its own, so no dossier is built.",
+              file=sys.stderr)
+        return 3
     core = screen.core_universe(rows)
     scored = screen.score(core)
     me = next((r for r in scored if r["ticker"] == ticker), None)
@@ -360,9 +374,14 @@ def main():
                    "_composite": None, "_scorable": False,
                    "_sleeves": {k: None for k in SLEEVES},
                    "_sleeve_n": {k: 0 for k in SLEEVES},
-                   "_ev_ebitda": screen.recompute_ev_ebitda(raw)})
+                   "_ev_ebitda": screen.recompute_ev_ebitda(raw),
+                   # screen.value_of reads r["_pe"] for pe. core_universe sets it
+                   # (commit c0e57ad) and this fallback did not, so every name
+                   # outside the gate raised KeyError: '_pe'.
+                   "_pe": screen.usable_pe(raw)})
         gate_note = ("**This name fails the screen's own gate** (needs market cap over $1B, "
-                     "a sector, and revenue). It is here because it is on the watchlist. "
+                     "a sector, and revenue). It is here because it was asked for by name, "
+                     "from the watchlist or by hand. "
                      "Peer comparisons below are unavailable or thin.")
     else:
         gate_note = ""

@@ -31,6 +31,15 @@ import random
 import zlib
 from pathlib import Path
 
+# The listing classifier (operating company, SPAC, note, fund) lives in its own
+# stdlib-only module beside this file so theses/bin can import the same rules
+# without importing the pipeline. `python lambda_function.py` already puts this
+# directory on the path; the insert covers an import from anywhere else.
+import sys as _sys
+if str(Path(__file__).resolve().parent) not in _sys.path:
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+import security_type as sectype
+
 # ── Config ──────────────────────────────────────────────────────────────────
 
 SMTP_USER = "ctlsmith@me.com"  # Apple ID for SMTP auth (must match the APTERREON_ICLOUD_APP_PASSWORD owner)
@@ -520,8 +529,11 @@ def _panel_gate(stocks, session, session_confirmed, now_et):
 
 
 TICKERS_CSV = DATA_DIR / "tickers.csv"
+# security_type is last so the existing columns keep their positions. The file is
+# rewritten whole each run, so the column is complete from the first save.
 TICKER_COLUMNS = ["ticker", "name", "sector", "sub_industry", "index",
-                  "first_seen", "last_seen_in_index", "status", "dropped_on"]
+                  "first_seen", "last_seen_in_index", "status", "dropped_on",
+                  "security_type"]
 
 # How long to keep collecting data for a ticker after it leaves every index.
 # The registry row is kept forever; this only bounds how long we keep paying to
@@ -593,6 +605,9 @@ def update_ticker_registry(current, today, previously_known=None):
             "last_seen_in_index": today,
             "status": "active",
             "dropped_on": "",
+            # Never empty, because `or` above cannot clear a value: the label is
+            # always one of security_type.SECURITY_TYPES.
+            "security_type": s.get("security_type") or row.get("security_type", ""),
         })
 
     dropped, retained = [], []
@@ -622,7 +637,14 @@ def _days_between(start_iso, end_iso):
 
 def save_ticker_registry(registry):
     """Rewritten in full each run: small (a few thousand rows) and always sorted,
-    so the git diff shows exactly which names entered or left."""
+    so the git diff shows exactly which names entered or left.
+
+    A row with no security_type yet (a name dropped before the column existed,
+    and past its retention window, so no run labels it from data) gets the
+    name-only label, which is the part of the classifier that needs no data."""
+    for r in registry.values():
+        if not r.get("security_type"):
+            r["security_type"] = sectype.classify_row(r)
     rows = [{c: r.get(c, "") for c in TICKER_COLUMNS}
             for r in sorted(registry.values(), key=lambda r: r["ticker"])]
     _atomic_write_csv(TICKERS_CSV, TICKER_COLUMNS, rows)
@@ -2708,6 +2730,12 @@ body.page-stocks .lib-h { display:none; }
 .stk-rt-long:hover { border-left-color:var(--up-text); }
 .stk-rt-avoid:hover, .stk-rt-short:hover { border-left-color:var(--down-text); }
 .stk-rt-btn:focus-visible { outline:2px solid var(--apt-red); outline-offset:2px; }
+/* What kind of listing a row is (security_type). Quiet for the labeled but scored
+   kinds (LP, BDC, TRUST), and outlined in the down colour for the kinds that are
+   not businesses (SPAC, NOTE, UNITS, CEF), which only appear when opted in. */
+.stk-st { flex:0 0 auto; align-self:center; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1px;
+  white-space:nowrap; color:var(--text-3); border:1px solid var(--border-bright); padding:1px 5px; cursor:help; }
+.stk-st-nonop { color:var(--down-text); border-color:var(--down-text); }
 .stk-sr { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 .stk-row { border-bottom:1px solid var(--border); background:transparent; align-items:center; }
 .stk-row:hover { background:var(--surface-1); }
@@ -4307,6 +4335,38 @@ STOCKS_JS_TEMPLATE = """
 
   const filters = {};      // {field: {min, max}} in DATA UNITS
   let onlyEnriched = false;
+  // Notes, funds and blank-check shells are hidden unless the reader opts in.
+  // Named so the default is falsy: a saved view from before this existed has no
+  // key and restores to hidden, Reset restores hidden, and the default state is
+  // not counted as an active filter (only opting in is).
+  let includeNonOperating = false;
+  // Generated from security_type.NON_OPERATING, so the page and the pipeline
+  // cannot disagree about what counts. A row with no label reads as operating.
+  const NON_OPERATING = new Set(__NON_OPERATING_JSON__);
+  function isNonOperating(s) { return NON_OPERATING.has(s.security_type || ''); }
+  let nonOpTotal = null;   // counted once per load; ALL never changes after boot
+  function nonOperatingTotal() {
+    if (nonOpTotal === null) nonOpTotal = ALL.reduce(function(n, s) { return n + (isNonOperating(s) ? 1 : 0); }, 0);
+    return nonOpTotal;
+  }
+  const TYPE_BADGE = { spac: 'SPAC', debt: 'NOTE', structured: 'NOTE', equity_units: 'UNITS',
+                       cef: 'CEF', lp: 'LP', bdc: 'BDC', royalty_trust: 'TRUST' };
+  const TYPE_TITLE = {
+    spac: 'Blank-check shell: no business until its merger closes. Not scored.',
+    debt: 'Exchange-traded note or bond. Its issuer\\'s figures are withheld. Not scored.',
+    structured: 'Repackaged trust certificate. Its issuer\\'s figures are withheld. Not scored.',
+    equity_units: 'Mandatory-convertible units of a listed parent. The parent\\'s figures are withheld. Not scored.',
+    cef: 'Closed-end fund. Vendor P/E and margins are withheld. Not scored.',
+    lp: 'Partnership units of an operating business. Scored like any company.',
+    bdc: 'Business development company, a listed lender. Scored within Financials.',
+    royalty_trust: 'Royalty trust, passing royalty income through. Scored within its sector.',
+  };
+  function typeBadge(s) {
+    const t = s.security_type || '';
+    if (!TYPE_BADGE[t]) return '';
+    return '<span class="stk-st' + (NON_OPERATING.has(t) ? ' stk-st-nonop' : '') + '" title="'
+      + escapeHtml(TYPE_TITLE[t] || '') + '">' + TYPE_BADGE[t] + '</span>';
+  }
 
   function parseFilterInput(raw, field) {
     if (raw == null) return null;
@@ -4340,6 +4400,7 @@ STOCKS_JS_TEMPLATE = """
       if (f.max != null) c++;
     }
     if (onlyEnriched) c++;
+    if (includeNonOperating) c++;
     if (typeof benfordFilter !== 'undefined' && benfordFilter) c++;
     if (typeof coverageMin !== 'undefined') {
       for (const dim of ['Growth','Value','Momentum','Quality']) {
@@ -4368,6 +4429,9 @@ STOCKS_JS_TEMPLATE = """
   }
 
   function passesFilters(s) {
+    // First, and here rather than in currentFiltered, so the list, the chart,
+    // the map and the picklist all hide the same rows.
+    if (!includeNonOperating && isNonOperating(s)) return false;
     if (onlyEnriched && s.market_cap == null) return false;
     for (const [field, range] of Object.entries(filters)) {
       const v = s[field];
@@ -5585,6 +5649,7 @@ STOCKS_JS_TEMPLATE = """
         + '<div class="stk-rank">'+String(idx + 1).padStart(2, '0')+'</div>'
         + '<div class="stk-id"><span class="stk-tk">'+escapeHtml(s.ticker||'')+'</span>'
           + thesisRating(s.ticker)
+          + typeBadge(s)
           + '<span class="stk-nm">'+escapeHtml(s.name||'')+'</span></div>'
         + '<div class="stk-sector" title="'+escapeHtml(s.sector||'')+'">'+escapeHtml(s.sector||'')+'</div>'
         + '<div class="stk-cap">'+fmtCap(s.market_cap)+'</div>'
@@ -5716,14 +5781,31 @@ STOCKS_JS_TEMPLATE = """
     const scoredVisible = filtered.reduce(function(n, s) { return n + (s.scorable ? 1 : 0); }, 0);
     const scoreNote = document.getElementById('stk-score-note');
     if (scoreNote) {
+      // Opted-in notes, funds and shells are unscored by design, not for want
+      // of data, so they are named apart from the rows that lack data.
+      const nonOpVisible = filtered.reduce(function(n, s) { return n + (isNonOperating(s) ? 1 : 0); }, 0);
+      const lacking = filtered.length - scoredVisible - nonOpVisible;
       scoreNote.textContent = scoredVisible === filtered.length
         ? ''
-        : scoredVisible.toLocaleString() + ' of ' + filtered.length.toLocaleString() +
-          ' scored · the rest lack data on at least two of the four factors';
+        : scoredVisible.toLocaleString() + ' of ' + filtered.length.toLocaleString() + ' scored · ' +
+          (nonOpVisible
+            ? nonOpVisible.toLocaleString() + ' not operating companies' +
+              (lacking > 0 ? ', ' + lacking.toLocaleString() + ' lacking data on at least two of the four factors' : '')
+            : 'the rest lack data on at least two of the four factors');
     }
-    countEl.textContent = filtered.length === ALL.length
-      ? String(ALL.length) + ' stocks'
-      : String(filtered.length) + ' of ' + String(ALL.length) + ' stocks';
+    // The denominator is what the reader has asked to see. Against ALL.length
+    // the first load read "N of 5,380", which looks like a filter the reader
+    // never set. The hidden rows are counted out loud instead of vanishing.
+    const hiddenNonOp = includeNonOperating ? 0 : nonOperatingTotal();
+    const baseN = ALL.length - hiddenNonOp;
+    countEl.textContent = (filtered.length === baseN
+      ? baseN.toLocaleString() + ' stocks'
+      : filtered.length.toLocaleString() + ' of ' + baseN.toLocaleString() + ' stocks')
+      + (hiddenNonOp ? ' \\u00b7 ' + hiddenNonOp.toLocaleString() + ' hidden' : '');
+    countEl.title = hiddenNonOp
+      ? hiddenNonOp.toLocaleString() + ' notes, funds and blank-check shells are hidden. '
+        + 'Tick "Include notes, funds and blank-check shells" under Hygiene to show them.'
+      : '';
     if (filtered.length === 0) {
       listEl.innerHTML = '<div class="empty-state">No matches. Adjust filters or clear search.</div>';
       // The chart and the radar have to be told about an empty result too. This
@@ -5886,6 +5968,7 @@ STOCKS_JS_TEMPLATE = """
   const filterReset = document.getElementById('stk-filter-reset')
     || document.getElementById('stk-reset');
   const onlyEnrichedEl = document.getElementById('stk-only-enriched');
+  const includeNonOpEl = document.getElementById('stk-include-nonop');
 
   function syncFilterCount() {
     const c = activeFilterCount();
@@ -5980,11 +6063,23 @@ STOCKS_JS_TEMPLATE = """
     });
   }
 
+  // Same handling as the market-cap toggle: one flag read by passesFilters.
+  if (includeNonOpEl) {
+    includeNonOpEl.addEventListener('change', () => {
+      includeNonOperating = includeNonOpEl.checked;
+      syncFilterCount();
+      render();
+    });
+  }
+
   if (filterReset) {
     filterReset.addEventListener('click', () => {
       for (const k of Object.keys(filters)) delete filters[k];
       onlyEnriched = false;
       if (onlyEnrichedEl) onlyEnrichedEl.checked = false;
+      // Reset means the default view, and the default hides these.
+      includeNonOperating = false;
+      if (includeNonOpEl) includeNonOpEl.checked = false;
       benfordFilter = '';
       const benSel = document.getElementById('stk-benford-fit');
       if (benSel) benSel.value = '';
@@ -6092,7 +6187,7 @@ STOCKS_JS_TEMPLATE = """
     return {
       query, activeSector, activeIndex,
       filters: JSON.parse(JSON.stringify(filters)),
-      onlyEnriched, benfordFilter,
+      onlyEnriched, benfordFilter, includeNonOperating,
       weights: { Growth: weights.Growth, Value: weights.Value, Momentum: weights.Momentum, Quality: weights.Quality },
       coverageMin: { Growth: coverageMin.Growth, Value: coverageMin.Value, Momentum: coverageMin.Momentum, Quality: coverageMin.Quality },
       sortKey, sortDir,
@@ -6131,6 +6226,9 @@ STOCKS_JS_TEMPLATE = """
     // Toggles + select
     onlyEnriched = !!v.onlyEnriched;
     if (onlyEnrichedEl) onlyEnrichedEl.checked = onlyEnriched;
+    // Absent in views saved before the toggle existed, which restores hidden.
+    includeNonOperating = !!v.includeNonOperating;
+    if (includeNonOpEl) includeNonOpEl.checked = includeNonOperating;
     benfordFilter = v.benfordFilter || '';
     if (benfordSelect) benfordSelect.value = benfordFilter;
     // Coverage thresholds (Data Hygiene)
@@ -6241,6 +6339,11 @@ STOCKS_JS_TEMPLATE = """
       const type  = el.dataset.statType || 'ratio';
       let mn = Infinity, mx = -Infinity, n = 0;
       for (const s of ALL) {
+        // Computed once at boot, so it cannot follow the toggle. It describes
+        // the default universe: a note's parent-sized market cap or a fund's
+        // vendor P/E would otherwise set the "Universe" bounds from rows the
+        // reader cannot see.
+        if (isNonOperating(s)) continue;
         const v = s[field];
         if (v == null || !isFinite(v)) continue;
         if (v < mn) mn = v;
@@ -6512,7 +6615,9 @@ STOCKS_JS_TEMPLATE = """
     }
     if (hint) {
       hint.textContent = picks.length === 1
-        ? (picks[0].name || '') + (picks[0].sector ? ' \u00b7 ' + picks[0].sector
+        ? (picks[0].name || '') + (isNonOperating(picks[0])
+            ? ' \u00b7 not an operating company, so no peer group'
+            : picks[0].sector ? ' \u00b7 ' + picks[0].sector
             : ' \u00b7 no sector, so no peer group')
         : 'Add up to ' + RADAR_MAX + '. Each is ranked inside its own sector.';
     }
@@ -7103,7 +7208,9 @@ STOCKS_JS_TEMPLATE = """
     const cv = document.getElementById('stk-map-canvas');
     if (!cv || !cv.clientWidth) return;
     if (tetraPts === null) {
-      tetraPts = ALL.filter(function(s) { return s.scorable; })
+      // The pipeline never marks a non-operating row scorable; the second test
+      // keeps a cache from before the label from bending the p97 scale.
+      tetraPts = ALL.filter(function(s) { return s.scorable && !isNonOperating(s); })
                     .map(function(s) { return { s: s, p: tetraPos(s) }; });
       tetraMatch = currentFiltered().length;
       const ds = tetraPts.map(function(p) {
@@ -9371,6 +9478,11 @@ FIELD_STATUS = {
     "deferred_budget": "The fetch pass ran out of time this run and will reach it next run.",
     "not_meaningful": "The inputs make this arithmetic meaningless, such as a multiple on negative earnings.",
     "source_error": "The source was reachable but the fetch or parse failed.",
+    # Stamped by apply_security_types on every field it blanks. Distinct from
+    # not_meaningful, which is about arithmetic on a real company's inputs.
+    "not_applicable": "Does not apply to this kind of security. A note, a fund or a "
+                      "blank-check shell has no business of its own, and any figure "
+                      "here would describe its issuer or its placeholder instead.",
 }
 
 FIELD_METHODS = {
@@ -9572,6 +9684,23 @@ FIELD_METHODS = {
                 "NAMES. It is not licensed GICS, which is a commercial product of "
                 "S&P Dow Jones Indices and MSCI and is not publicly available. "
                 "The names match; the classifications are Yahoo's.",
+    },
+    "security_type": {
+        "label": "Security Type", "units": "text", "source": "index",
+        "refresh": "static", "asof": "last_updated",
+        "formula": "security_type.classify_row(name, index, sub_industry, EDGAR footprint)",
+        "note": "What the listing is: operating, lp, bdc, royalty_trust, spac, "
+                "debt, structured, equity_units or cef. Read from the exchange "
+                "security name, then corrected from data: Yahoo's Shell "
+                "Companies industry marks a blank-check shell, an Asset "
+                "Management filer with net income but no revenue line is a BDC, "
+                "and one with no EDGAR filings at all is a fund. Real reported "
+                "revenue turns a shell, fund or BDC label back into operating. "
+                "S&P 1500 constituents are always operating. The last five "
+                "are not businesses: they are left out of sector peer groups "
+                "and scoring, and issuer numbers they would otherwise inherit "
+                "are withheld as not applicable. Recomputed every run, because "
+                "a SPAC becomes a company when its merger closes.",
     },
 }
 
@@ -11079,13 +11208,17 @@ def _filing_accessions_held():
     return accessions
 
 
-def reading_pack_tickers():
+def reading_pack_tickers(stocks=None):
     """The names the analyst is likely to be handed next, and every name it has written up.
 
     The screen is run as the analyst's own prepare.py runs it, asked for more
     slots than the analyst takes: it reads the pushed panel, which during a daily
     run is one session behind the row being written, so the four it names today
-    are not always the four it names on Monday."""
+    are not always the four it names on Monday.
+
+    Given today's universe, non-operating listings are left out. A note ticker
+    maps to its parent's CIK, so a pack for DUKU would file Duke Energy's 10-K
+    and financial history under the note's symbol."""
     tickers = []
     wl = THESES_DIR / "watchlist.txt"
     if wl.exists():
@@ -11108,11 +11241,17 @@ def reading_pack_tickers():
                   f"topped up. {out.stderr.strip()[-300:]}")
     except Exception as exc:
         print(f"pack: could not run the screen ({type(exc).__name__}: {exc}).")
-    seen, ordered = set(), []
+    labels = {s.get("ticker"): s.get("security_type") for s in (stocks or [])}
+    seen, ordered, skipped = set(), [], []
     for t in tickers:
         if t and t not in seen:
             seen.add(t)
+            if not sectype.is_operating(labels.get(t)):
+                skipped.append(t)
+                continue
             ordered.append(t)
+    if skipped:
+        print(f"pack: skipped {len(skipped)} non-operating listing(s): {', '.join(skipped)}.")
     return ordered
 
 
@@ -12442,7 +12581,11 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     # Largest-cap subset only. Stocks without a market_cap go to the back.
-    cap_sorted = sorted(stocks, key=lambda s: -(s.get("market_cap") or 0))
+    # Non-operating listings are filtered BEFORE the slice: ten of them (TBB at a
+    # fabricated $133bn, SOMN, DUKU, PPLC) held top-600 places with their
+    # parent's cap, re-pulled the parent's Form 4s and pushed real companies out.
+    cap_sorted = sorted((s for s in stocks if sectype.is_operating(s.get("security_type"))),
+                        key=lambda s: -(s.get("market_cap") or 0))
     target = cap_sorted[:_INSIDER_TOP_N_BY_MARKET_CAP]
     by_ticker = {s["ticker"]: s for s in target}
     matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
@@ -12553,7 +12696,13 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
         return 0
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    by_ticker = {s["ticker"]: s for s in stocks}
+    # A note, a trust certificate or a unit listing resolves to its PARENT's CIK
+    # in SEC's own ticker map, so fetching "its" companyfacts wrote the parent's
+    # shares and EPS onto the listing: ADAMG, a 9.125% note, came out with
+    # Adamas Trust's 89.9M shares and a $2.25bn market cap. Skipped here, and
+    # anything already carried forward is withheld by apply_security_types.
+    by_ticker = {s["ticker"]: s for s in stocks
+                 if s.get("security_type") not in sectype.DEBT_LIKE}
     matched = [(t, ticker_cik_map.get(t)) for t in by_ticker.keys()]
     matched = [(t, cik) for t, cik in matched if cik]
 
@@ -12711,18 +12860,141 @@ def _finite(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
+# ── Security type: label every listing, withhold what does not apply ─────────
+#
+# Every issuer-level number on a note, trust certificate or unit listing is its
+# parent's. Measured on 2026-09-21 across 151 such rows: all 116 market caps were
+# the listing's price times the PARENT's shares, and 84 of 88 P/Es were the
+# listing's price over the parent's EPS (AFGB, a baby bond, at a P/E of 1.94).
+# The price-derived fields (price, returns, volatility, drawdown, beta) are the
+# listing's own series and are kept.
+_NA_DEBT_LIKE = (
+    "market_cap", "pe", "price_book", "roe_ttm", "gross_margin", "operating_margin",
+    "fcf_yield", "ev_ebitda", "ev_revenue", "net_debt_ebitda", "accruals_ratio",
+    "earnings_consistency", "revenue_growth_yoy", "eps_growth_yoy",
+    "revenue_acceleration", "gross_margin_trend", "fcf_growth_yoy", "op_margin_stability",
+    "ttm_revenue", "ttm_gross_profit", "ttm_operating_income", "ttm_net_income",
+    "ttm_eps_diluted", "ttm_dep_amort", "ttm_fcf", "ttm_ebitda",
+    "prior_ttm_revenue", "prior_ttm_eps_diluted",
+    "shares_outstanding", "equity", "prior_equity", "cash_and_investments", "total_debt",
+    "insider_net_buy_90d", "insider_buyer_count_90d", "insider_seller_count_90d",
+    "insider_cluster_max_30d", "insider_cluster_score", "insider_tx_count_90d",
+)
+# The parent's bookkeeping behind those fields: removed, but not stamped, since
+# they are stamps and nested structures rather than values a reader looks up.
+_DROP_DEBT_LIKE = ("op_margin_history", "benford", "fiscal_period_end",
+                   "edgar_updated", "insider_updated")
+# Withheld whatever their value, per type. A shell's margins are Yahoo's 0.0
+# placeholder (289 of 292 on 2026-09-21), a fund's P/E and margins are vendor
+# numbers with no filing behind them (CCD at a P/E of 2.71), and a lender or a
+# royalty trust has no cost of goods, so its gross margin is the vendor's 1.0.
+_NA_ALWAYS = {
+    "debt": _NA_DEBT_LIKE, "structured": _NA_DEBT_LIKE, "equity_units": _NA_DEBT_LIKE,
+    "spac": ("gross_margin", "operating_margin"),
+    "cef": ("pe", "gross_margin", "operating_margin"),
+    "bdc": ("gross_margin",),
+    "royalty_trust": ("gross_margin",),
+}
+# Withheld only when exactly zero: a shell's ratios are otherwise its own trust
+# arithmetic (86 carry a P/E from trust income), but a 0.0 is a placeholder.
+_NA_IF_ZERO = {
+    "spac": ("pe", "price_book", "roe_ttm", "fcf_yield", "ev_ebitda", "ev_revenue",
+             "net_debt_ebitda"),
+}
+
+
+def apply_security_types(stocks):
+    """Label every row with security_type and withhold the fields that do not
+    apply to it, stamping status "not_applicable" on each. Returns a Counter of
+    labels.
+
+    Pure over the row and idempotent, so it runs on every path that hands a
+    universe onward: the fresh build, the same-day cache, both stale fallbacks
+    and publish mode. A label computed once and cached would be stale or missing
+    on exactly the runs that skip the rebuild.
+
+    Order matters on the fresh path. It has to run AFTER
+    derive_ratios_from_fundamentals, which rebuilds market cap and P/E from
+    shares and EPS, and after the carry-forward merge, which refills any absent
+    field from the previous cache. Anything withheld earlier comes straight back.
+    Its output is safe to carry: the classifier never reads a field this
+    removes, apart from gross_margin, which it reads as "no real gross margin"
+    so that a blank still counts.
+
+    Rows are withheld from, never removed. record_fundamentals skips a row with
+    neither price nor market cap; every debt-like row on 2026-09-21 had a price
+    of its own, so the panel keeps all of them."""
+    labels = collections.Counter()
+    withheld = 0
+    for s in stocks:
+        cat = sectype.classify_row(s)
+        s["security_type"] = cat
+        labels[cat] += 1
+        always = _NA_ALWAYS.get(cat, ())
+        if_zero = _NA_IF_ZERO.get(cat, ())
+        status = s.get("status") or {}
+        # A label can change (a SPAC completes its merger), and the same-day
+        # cache keeps the status dict, so clear stamps that no longer hold.
+        for f in [k for k, v in status.items() if v == "not_applicable"]:
+            if (f not in always and f not in if_zero) or s.get(f) is not None:
+                del status[f]
+        for f in always:
+            if s.pop(f, None) is not None:
+                withheld += 1
+            status[f] = "not_applicable"
+        for f in if_zero:
+            if s.get(f) == 0:
+                s.pop(f)
+                withheld += 1
+                status[f] = "not_applicable"
+        if cat in sectype.DEBT_LIKE:
+            for f in _DROP_DEBT_LIKE:
+                s.pop(f, None)
+        if status:
+            s["status"] = status
+        else:
+            s.pop("status", None)
+    non_op = sum(n for k, n in labels.items() if k in sectype.NON_OPERATING)
+    print(f"security_type: {len(stocks) - non_op} operating, {non_op} non-operating "
+          f"({', '.join(f'{k} {labels[k]}' for k in sectype.SECURITY_TYPES if labels[k])}); "
+          f"{withheld} inapplicable values withheld.")
+    return labels
+
+
+def _relabel_cached_universe(stocks):
+    """Label a universe that did not come from a fresh build, then re-score it.
+
+    The same-day cache, the stale fallbacks and publish mode hand the cached
+    dicts onward without running compute_peer_scores, so a cache written before
+    this label existed would publish shells and funds as scorable members of
+    Financials. Scoring is pure arithmetic over fields already on the rows, so
+    re-running it is cheap and changes nothing else."""
+    if not stocks:
+        return
+    apply_security_types(stocks)
+    compute_peer_scores(stocks)
+
+
 def compute_peer_scores(stocks):
     """Stamp g/v/m/q dimension scores and per-field sector percentiles onto each stock.
 
     Sets, per stock: g, v, m, q (sector z-scores, None when under-covered),
     dims_present (0-4), and pct (a dict of field -> 0-100 percentile rank).
-    Returns a summary dict for logging."""
+    Returns a summary dict for logging.
+
+    Non-operating listings (security_type in NON_OPERATING) are neither peers
+    nor scored. Shells and funds were 20% of the Financials cohort, with
+    near-zero volatility and returns that moved real Financials names by up to
+    14 percentile points on price-derived fields, and three shells (NBRG, UYSC,
+    WTG) were scorable on trust-account income."""
     # Cohort values per sector per field, non-null only.
     cohorts = {}
     for s in stocks:
         sector = s.get("sector")
         if not sector:
             continue          # no sector means no peers; scored as unknown below
+        if not sectype.is_operating(s.get("security_type")):
+            continue          # not a business, so not anybody's peer
         bucket = cohorts.setdefault(sector, {})
         for f in PCT_ARRAY_FIELDS:
             v = s.get(f)
@@ -12752,7 +13024,17 @@ def compute_peer_scores(stocks):
 
     scored = collections.Counter()
     pct_emitted = 0
+    excluded = 0
     for s in stocks:
+        if not sectype.is_operating(s.get("security_type")):
+            # Every screener gate keys on scorable, so this one line removes the
+            # row from ranking, the composite, the map and its scale.
+            s["g"] = s["v"] = s["m"] = s["q"] = None
+            s["dims_present"] = 0
+            s["pct"] = None
+            s["scorable"] = 0
+            excluded += 1
+            continue
         sector_stats = stats.get(s.get("sector") or "", {})
         pct = {}
         dim_scores = {}
@@ -12825,10 +13107,14 @@ def compute_peer_scores(stocks):
         "dims_distribution": dict(sorted(scored.items())),
         "scorable": sum(v for k, v in scored.items() if k >= MIN_DIMENSIONS_FOR_COMPOSITE),
         "percentiles_emitted": pct_emitted,
+        "non_operating_excluded": excluded,
     }
+    # The denominator is operating listings: a note or a fund is not a company
+    # the scorer failed on, so counting it would understate coverage.
     print(f"scoring: {summary['sectors']} sector cohorts; "
-          f"{summary['scorable']}/{len(stocks)} stocks scorable "
+          f"{summary['scorable']}/{len(stocks) - excluded} operating stocks scorable "
           f"(>= {MIN_DIMENSIONS_FOR_COMPOSITE} of 4 dimensions); "
+          f"{excluded} non-operating listings excluded from cohorts and scoring; "
           f"dimension counts {summary['dims_distribution']}; "
           f"{pct_emitted:,} percentile ranks emitted.")
     return summary
@@ -12894,6 +13180,8 @@ def get_or_generate_stocks_universe(session_confirmed=False):
         enrich_with_market_series()
         derive_risk_metrics(cached_list)
         derive_ratios_from_fundamentals(cached_list)
+        # After the ratios, which would otherwise rebuild what this withholds.
+        _relabel_cached_universe(cached_list)
         return last_known
     if last_known and not schema_ok:
         print("stocks_universe: schema bump, bypassing the daily cache.")
@@ -12902,6 +13190,7 @@ def get_or_generate_stocks_universe(session_confirmed=False):
     stocks = fetch_all_universes()
     if not stocks:
         print("stocks_universe: Wikipedia + iShares returned nothing, falling back to last cache.")
+        _relabel_cached_universe((last_known or {}).get("stocks") or [])
         # Tag the fallback so the caller can tell a real scrape from a repeat of
         # yesterday. Its prices are the prior session's and must not be written
         # into the panel under today's date.
@@ -12925,11 +13214,18 @@ def get_or_generate_stocks_universe(session_confirmed=False):
               f"{prior_active} active yesterday ({len(stocks) / prior_active:.0%}). "
               f"Treating as a source failure, not {prior_active - len(stocks)} delistings. "
               f"Keeping yesterday's universe; the registry and in_index are untouched.")
+        _relabel_cached_universe((last_known or {}).get("stocks") or [])
         # Tag the fallback so the caller can tell a real scrape from a repeat of
         # yesterday. Its prices are the prior session's and must not be written
         # into the panel under today's date.
         return {**(last_known or {"iso_week": week_key, "generated_at": now.isoformat(), "stocks": []}),
                 "stale": True}
+
+    # A first label from the name, so the registry carries one even if the run
+    # dies before enrichment. Relabeled from data after yfinance and again after
+    # the last derivation; the registry is saved a second time with the final one.
+    for s in stocks:
+        s["security_type"] = sectype.classify_row(s)
 
     # Reconcile against the permanent registry and mark who is currently indexed.
     registry, added, dropped, retained = update_ticker_registry(
@@ -13061,6 +13357,11 @@ def get_or_generate_stocks_universe(session_confirmed=False):
     # the intraday fields (price, change_pct, volume).
     fresh_count = enrich_with_yfinance(stocks)
 
+    # Relabel now that Yahoo's sub_industry is known ("Shell Companies" is the
+    # only tell for 21 shells), before the EDGAR and insider passes read it.
+    for s in stocks:
+        s["security_type"] = sectype.classify_row(s)
+
     # EDGAR enrichment: weekly cadence (heavy: ~3 min for 1500 tickers).
     # Skip if any cached ticker has edgar_updated stamped within this ISO week.
     # Schema bump: if no cached stock has op_margin_history yet, force a re-run
@@ -13114,7 +13415,10 @@ def get_or_generate_stocks_universe(session_confirmed=False):
             return False
         return y == iso_year and w == iso_week
 
-    top_n = sorted(stocks, key=lambda s: -(s.get("market_cap") or 0))[:_INSIDER_TOP_N_BY_MARKET_CAP]
+    # The same operating-only slice enrich_with_insider takes, or this count
+    # would ask about notes the pass will never fetch.
+    top_n = sorted((s for s in stocks if sectype.is_operating(s.get("security_type"))),
+                   key=lambda s: -(s.get("market_cap") or 0))[:_INSIDER_TOP_N_BY_MARKET_CAP]
     insider_stale = sum(1 for s in top_n if not _insider_is_current(s))
     has_real_signal = any(s.get("insider_tx_count_90d") for s in stocks)
     should_run_insider = insider_stale > 0 or not has_real_signal
@@ -13155,12 +13459,26 @@ def get_or_generate_stocks_universe(session_confirmed=False):
     # After the price derivation, because every ratio here needs a price.
     derive_ratios_from_fundamentals(stocks)
 
+    # The final label, and the withholding that goes with it. After the ratios
+    # and after the carry-forward merge above, both of which would put back
+    # anything withheld earlier; before scoring, which excludes by the label.
+    apply_security_types(stocks)
+    for s in stocks:
+        if s["ticker"] in registry:
+            registry[s["ticker"]]["security_type"] = s["security_type"]
+    save_ticker_registry(registry)
+
     # Peer scoring last: it reads every factor the steps above populate.
     compute_peer_scores(stocks)
 
-    total_with_cap = sum(1 for s in stocks if s.get("market_cap"))
-    total_with_price = sum(1 for s in stocks if s.get("price"))
-    total_with_edgar = sum(1 for s in stocks if s.get("edgar_updated"))
+    # Coverage is measured over operating listings. A note has no filings of its
+    # own and a fund no market cap worth the name, so counting them in the
+    # denominator understated coverage, while their parent-inherited caps and
+    # EDGAR stamps overstated it in the numerator.
+    operating = [s for s in stocks if sectype.is_operating(s.get("security_type"))]
+    total_with_cap = sum(1 for s in operating if s.get("market_cap"))
+    total_with_price = sum(1 for s in operating if s.get("price"))
+    total_with_edgar = sum(1 for s in operating if s.get("edgar_updated"))
 
     result = {
         "iso_week": week_key,
@@ -13176,13 +13494,14 @@ def get_or_generate_stocks_universe(session_confirmed=False):
         "total_with_market_cap": total_with_cap,
         "total_with_price": total_with_price,
         "total_with_edgar": total_with_edgar,
+        "total_operating": len(operating),
         "stocks": stocks,
     }
     cache_path.write_text(json.dumps(result, separators=(",", ":")), encoding="utf-8")
-    pct_cap = (total_with_cap / len(stocks) * 100) if stocks else 0
-    pct_price = (total_with_price / len(stocks) * 100) if stocks else 0
-    pct_edgar = (total_with_edgar / len(stocks) * 100) if stocks else 0
-    print(f"stocks_universe: regenerated for {date_key} ({len(stocks)} stocks; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {insider_count} insider signals, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
+    pct_cap = (total_with_cap / len(operating) * 100) if operating else 0
+    pct_price = (total_with_price / len(operating) * 100) if operating else 0
+    pct_edgar = (total_with_edgar / len(operating) * 100) if operating else 0
+    print(f"stocks_universe: regenerated for {date_key} ({len(stocks)} listings, {len(operating)} operating; {fresh_count} fresh yfinance, {edgar_count} fresh EDGAR, {insider_count} insider signals, {news_count} news pulls; coverage: {pct_cap:.0f}% market_cap, {pct_price:.0f}% price, {pct_edgar:.0f}% EDGAR).")
     return result
 
 
@@ -13633,7 +13952,9 @@ def generate_stocks_page(universe):
         _n = sum(1 for v in thesis_index.values() if v.get("d") == _d)
         research_chips += (f'<span class="lib-chip" data-research="{_html.escape(_d)}">'
                            f'{_html.escape(_d)} {_n}</span>')
-    n_universe = f"{len(stocks):,}"
+    # Companies, not listings: the notes, funds and shells hidden by default are
+    # not names a written view could exist for.
+    n_universe = f"{sum(1 for s in stocks if sectype.is_operating(s.get('security_type'))):,}"
 
     stocks_json = json.dumps("stocks-data.json")
     sectors_json = json.dumps(sectors)
@@ -13708,6 +14029,7 @@ def generate_stocks_page(universe):
         <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
           <div class="scr-rail-lab">Hygiene</div>
           <label class="scr-check"><input type="checkbox" id="stk-only-enriched"><span>Require live market cap data</span></label>
+          <label class="scr-check"><input type="checkbox" id="stk-include-nonop"><span>Include notes, funds and blank-check shells</span></label>
           <div class="scr-cov">
             <div class="scr-cov-h">Minimum datapoints per factor</div>
             <div class="scr-cov-grid">
@@ -13832,6 +14154,7 @@ def generate_stocks_page(universe):
                  .replace("__FIELD_METHODS_JSON__", json.dumps(FIELD_METHODS))
                  .replace("__MIN_COHORT_JSON__", json.dumps(MIN_COHORT_FOR_PERCENTILE))
                  .replace("__FIELD_STATUS_JSON__", json.dumps(FIELD_STATUS))
+                 .replace("__NON_OPERATING_JSON__", json.dumps(sorted(sectype.NON_OPERATING)))
                  .replace("__REFRESH_CLASSES_JSON__", json.dumps(REFRESH_CLASSES))
                  .replace("__SECTORS_JSON__", sectors_json)
                  .replace("__THESIS_INDEX_JSON__",
@@ -15552,6 +15875,8 @@ def lambda_handler(event, context):
             # the published site as it was and fires the alert.
             print("publish: no usable universe cache; refusing to rebuild the site without it.")
             return {"status": "failed", "mode": mode, "stocks": 0, "ok": False}
+        # The cache may predate the label; the site must never publish without it.
+        _relabel_cached_universe(universe["stocks"])
         generate_site(s3_list_briefs(), universe=universe)
         n_stocks = len((universe or {}).get("stocks") or [])
         print(f"publish: rebuilt the site from committed data ({n_stocks} tickers).")
@@ -15708,7 +16033,7 @@ def lambda_handler(event, context):
         #     up with the documents the earnings path only collects going forward.
         #     Inside the same guard and after it, so a failure here costs the pack
         #     and nothing else.
-        _pack_names = reading_pack_tickers()
+        _pack_names = reading_pack_tickers(stocks)
         _pack = collect_reading_packs(_pack_names, _ticker_to_cik)
         if _pack:
             record_filings(_pack, observed_at)

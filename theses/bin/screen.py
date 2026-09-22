@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (SLEEVES, THESES, LEDGER, load_panel, num, read_csv_rows)
+from common import (SLEEVES, THESES, LEDGER, is_operating, load_panel, num, read_csv_rows)
 
 CFG = json.loads((THESES / "config.json").read_text())
 # prepare.py runs this file as a SUBPROCESS, so assigning screen.CFG in the
@@ -70,9 +70,20 @@ def core_universe(rows):
 
     Sub-$1B, sector-less and revenue-less rows are where every fill-rate problem
     in this panel lives. Removing them takes sub_industry coverage from 62% to
-    100% and costs nothing that could have been scored anyway."""
+    100% and costs nothing that could have been scored anyway.
+
+    Non-operating listings (notes, funds, shells; common.NON_OPERATING) are
+    refused by their label first. On 2026-09-21 the cap, sector and revenue tests
+    happened to keep them all out, but only by accident: 59 notes were blocked by
+    nothing but a blank sector while carrying their parent's revenue and a
+    parent-sized cap, and two closed-end funds (CSQ, QQQX) by nothing but a
+    missing revenue tag. BDCs and royalty trusts are labeled, not refused. A blank
+    label (a row from before the column) is classified from the row itself, so
+    an older panel is gated the same way rather than emptied or waved through."""
     out = []
     for r in rows:
+        if not is_operating(r):
+            continue
         cap = num(r.get("market_cap"))
         if not cap or cap < CFG["min_market_cap"]:
             continue

@@ -96,14 +96,62 @@ rows as empty, rather than silently dropping it (`csv.DictWriter` is configured 
 
 ### Universe
 
-~5,300 US-listed operating companies, from two sources merged in this order:
+~5,380 US listings, about 4,700 of them operating companies, from two sources
+merged in this order:
 
 1. **Wikipedia** S&P 500/400/600 (~1,500). First, because their GICS sector
    classification is cleaner and should win on any overlapping ticker.
 2. **NASDAQ Trader symbol directory** (~3,800 more). Plain pipe-delimited files,
    no API key, no quota, regenerated each business day. ETFs, warrants, units,
    rights, preferreds, test issues and financially deficient listings are filtered
-   out; only operating-company common stock is kept.
+   out. That filter does not catch everything that is not a company: notes,
+   closed-end funds and blank-check shells get through, and are labeled rather
+   than dropped (below).
+
+#### What kind of security a row is
+
+Every row carries `security_type`, in the panel, in `data/tickers.csv` and in the
+screener's `stocks-data.json`. It is computed on every run by `security_type.py`
+from the exchange security name, then corrected from data: Yahoo's "Shell
+Companies" industry, and the EDGAR footprint of a BDC (net income but no revenue
+line) or a fund (no EDGAR filings at all). S&P 1500 rows are always `operating`.
+Counts on the 2026-09-21 panel:
+
+| `security_type` | Rows | What it is | Treatment |
+|---|---|---|---|
+| `operating` | 4,614 | ordinary operating-company equity | scored |
+| `lp` | 39 | partnership units of an operating business (ET, MPLX) | scored |
+| `bdc` | 46 | business development company, a listed lender | scored |
+| `royalty_trust` | 7 | grantor royalty trust | scored |
+| `spac` | 292 | blank-check shell before its merger | non-operating |
+| `debt` | 138 | exchange-traded notes, debentures and bonds | non-operating |
+| `structured` | 10 | repackaged trust certificates | non-operating |
+| `equity_units` | 3 | mandatory-convertible "Corporate Units" | non-operating |
+| `cef` | 231 | closed-end fund | non-operating |
+
+Non-operating rows stay in the panel with their own price history, but are left
+out of sector peer groups and scoring, hidden in the screener unless you opt in,
+skipped by the insider pass and the reading packs, and refused by the analyst
+scripts. Issuer-level fields they would otherwise inherit are withheld with the
+status `not_applicable`: a note ticker resolves to its parent's CIK in SEC's own
+map, so it used to show the parent's shares, a parent-sized market cap and a P/E
+built from the note's price. Coverage figures in the logs count operating rows
+only.
+
+Why labeled and not rejected: a listing that stops appearing is marked dropped and
+collected for 400 more days as `in_index=0`, so rejecting these at the source
+would have written a false delisting for each of them into the panel.
+
+Rows written before 2026-09-22 have a blank `security_type`. Classify them with
+the same function rather than treating blank as operating or as unknown:
+
+```python
+import security_type
+rows = panel.fillna("").to_dict("records")     # older month files lack the column
+panel["security_type"] = [r.get("security_type") or security_type.classify_row(r)
+                          for r in rows]
+operating = panel[~panel.security_type.isin(security_type.NON_OPERATING)]
+```
 
 These files carry no sector, so `enrich_with_yfinance` supplies it for the non-S&P
 names. This replaced an iShares Russell holdings feed that died: it began answering
@@ -225,6 +273,7 @@ methodology panel and the code cannot disagree.
 | `revenue_growth_yoy` | fraction | `ttm_revenue / prior_ttm_revenue - 1` | edgar | changes only when the company files |
 | `roe_ttm` | fraction | `ttm_net_income / mean(equity_now, equity_a_year_ago)` | edgar | changes only when the company files |
 | `sector` | text | `normalize_sector(yahoo.sector)` | yfinance | rarely changes; carried forward until it does |
+| `security_type` | text | `security_type.classify_row(name, index, sub_industry, EDGAR footprint)` | index | rarely changes; carried forward until it does |
 | `sharpe_1y` | ratio | `mean(r - rf) / stdev(r - rf) * sqrt(252)` | market_series | changes every trading day |
 | `volatility_1y` | fraction | `stdev(daily returns) * sqrt(252)` | price_history | changes every trading day |
 | `volume` | shares | `volumes[-1]` | price_history | changes every trading day |
@@ -243,6 +292,7 @@ Notes where the choice matters:
 - **`sharpe_1y`** — Daily excess return over the 13-week Treasury bill, annualized. Withheld rather than assuming a zero rate when the rate series is unavailable, since that would inflate every Sharpe by roughly the level of short rates.
 - **`sector`** — Yahoo's own eleven-sector taxonomy, mapped onto the GICS sector NAMES. It is not licensed GICS, which is a commercial product of S&P Dow Jones Indices and MSCI and is not publicly available. The names match; the classifications are Yahoo's.
 - **`price_stale`**: set on a panel row whose stored close is from an older session than the row's date, with every field computed from the price series left blank on that row. Back-filled on 2026-09-10, 09-11, 09-14 and 09-21, where those rows still hold the older close in their original values; filter on this column before using those dates.
+- **`security_type`**: Recomputed every run rather than fixed, because a SPAC becomes a company when its merger closes. Real reported revenue turns a shell, fund or BDC label back into operating (Daxor, registered as a fund, is a medical-device maker), but never a note's, since a note inherits its parent's revenue.
 
 ### What is deliberately not derived
 
@@ -303,6 +353,7 @@ when there is something to say:
 | `deferred_budget` | The fetch pass ran out of time this run and will reach it next run. |
 | `not_meaningful` | The inputs make this arithmetic meaningless, such as a multiple on negative earnings. |
 | `source_error` | The source was reachable but the fetch or parse failed. |
+| `not_applicable` | Does not apply to this kind of security. A note, a fund or a blank-check shell has no business of its own, and any figure here would describe its issuer or its placeholder instead. |
 
 ## Schedules (UTC)
 
