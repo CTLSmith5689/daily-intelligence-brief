@@ -420,7 +420,11 @@ def record_fundamentals(stocks, date_iso):
         # Broadening the universe to every US listing brings in thousands of names
         # yfinance has no data for. A row with neither a price nor a market cap
         # carries no information, so record nothing rather than a line of commas.
-        if s.get("price") is None and s.get("market_cap") is None:
+        # A row flagged price_stale has had its price fields withheld on purpose
+        # (see _panel_rows_for_session) and is kept: it still carries the
+        # filing-based fields, and dropping it would turn "the close was late"
+        # into "the ticker was not in the universe that day".
+        if s.get("price") is None and s.get("market_cap") is None and not s.get("price_stale"):
             skipped_empty += 1
             continue
         row = {"date": date_iso}
@@ -439,6 +443,80 @@ def record_fundamentals(stocks, date_iso):
     print(f"csv: appended {n} fundamentals rows for {date_iso} "
           f"to data/fundamentals/{path.name}{empty_note}.")
     return n
+
+
+# Every panel field computed from the stored price series, directly or through a
+# price. When the series ends before the row's session these describe an older
+# day, and a panel row is only worth anything if it describes its own date.
+# ev_ebitda and ev_revenue are absent on purpose: they come finished from
+# Yahoo's quote summary, which prices them live, not from our stored close.
+_PANEL_PRICE_FIELDS = (
+    "price", "change_pct", "volume", "volume_trend", "market_cap", "pe",
+    "price_book", "fcf_yield", "return_1m", "return_12_2", "return_52w",
+    "high52w_proximity", "rel_strength_sp500", "volatility_1y", "beta_1y",
+    "sharpe_1y", "max_drawdown_1y",
+)
+# Share of dated rows allowed to lag before the panel write is deferred. An
+# ordinary evening has about 3% (illiquid listings with no trade that day, and
+# for them the older close really is the latest). The bad evenings had 81 to 85%.
+_PANEL_LAG_DEFER_SHARE = 0.20
+# From this hour (ET) a lagging panel is written anyway, stale rows flagged. The
+# last promoted run of the day is the 23:xx one; after midnight date_iso moves
+# on and the day could never be written at all.
+_PANEL_DEFER_UNTIL_HOUR = 23
+
+
+def _panel_rows_for_session(stocks, session):
+    """Copies of `stocks` fit to record under `session`.
+
+    A stock whose price_date is older than the session keeps its row, but with
+    every price-derived field removed and price_stale=1. Before this, 2026-09-10,
+    09-11, 09-14 and 09-21 each recorded about 4,500 rows carrying an earlier
+    session's close under their own date, permanently, in an append-only panel.
+    A blank is recoverable by anyone reading the file; a wrong number is not.
+
+    Copies, because the same dicts feed the site and the universe cache, which
+    should keep showing the latest close there is. A stock with no price_date has
+    no stored series behind its price (Yahoo's live quote, when anything) and is
+    left alone, as it was before."""
+    out = []
+    for s in stocks:
+        r = dict(s)
+        pdate = r.get("price_date")
+        if r.get("price") is not None and pdate and str(pdate) < session:
+            for f in _PANEL_PRICE_FIELDS:
+                r.pop(f, None)
+            r["price_stale"] = 1
+        out.append(r)
+    return out
+
+
+def _panel_gate(stocks, session, session_confirmed, now_et):
+    """Whether to write the panel now: ("write" | "defer" | "holiday", lagging, dated).
+
+    Pure, so it is testable. `dated` counts stocks with a price from the stored
+    series, `lagging` those whose series ends before `session`.
+
+    holiday  nothing proves the session traded and every dated row lags. That
+             is what an exchange holiday looks like to a project with no market
+             calendar, and writing would record the prior close under a day with
+             no trading. Nothing to write, and nothing wrong.
+    defer    more than _PANEL_LAG_DEFER_SHARE lag and it is before
+             _PANEL_DEFER_UNTIL_HOUR ET. Yahoo publishes the bar late some
+             evenings; the next hourly run is promoted to daily again because
+             panel_has_date is still false, and retries with a short recheck
+             floor. Also covers a daily run dispatched by hand before the close.
+    write    otherwise, including a deferral that never resolved: at 23:xx ET
+             the row is written with its lagging rows flagged, because a day
+             with flagged blanks beats a day missing from the panel."""
+    dated = [s for s in stocks if s.get("price") is not None and s.get("price_date")]
+    lagging = sum(1 for s in dated if str(s["price_date"]) < session)
+    if dated and lagging == len(dated) and not session_confirmed:
+        return "holiday", lagging, len(dated)
+    if dated and lagging / len(dated) > _PANEL_LAG_DEFER_SHARE \
+            and now_et.hour < _PANEL_DEFER_UNTIL_HOUR:
+        return "defer", lagging, len(dated)
+    return "write", lagging, len(dated)
 
 
 TICKERS_CSV = DATA_DIR / "tickers.csv"
@@ -9304,6 +9382,28 @@ FIELD_METHODS = {
                 "daily run happens after the US close, so the close of the "
                 "session just ended is the current price.",
     },
+    "price_date": {
+        "label": "Price Date", "units": "date", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "dates[-1]",
+        "note": "The session the stored close belongs to. prices_updated is when "
+                "the series was last requested, which is not the same thing: a "
+                "download late on 2026-09-21 returned series ending on the Friday "
+                "and was stamped fresh. Blank on panel rows written before "
+                "the column existed, when it was not recorded.",
+    },
+    "price_stale": {
+        "label": "Stale Price Flag", "units": "flag", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "1 if price_date < panel date else blank",
+        "note": "Set on a panel row whose stored close is from an older session "
+                "than the row's date. Every field computed from the price series "
+                "is then left blank on that row rather than recorded under the "
+                "wrong session. Also back-filled on 2026-09-10, 09-11, 09-14 and "
+                "09-21, where the row's price exactly matches an earlier "
+                "session's close and not its own; those older rows keep their "
+                "original values, so filter on this column before using them.",
+    },
     "change_pct": {
         "label": "1-Day Move", "units": "percent", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
@@ -9525,7 +9625,7 @@ def derive_from_price_history(stocks):
     it is complete for every ticker with a stored series rather than for
     whichever ones a budgeted pass happened to reach.
 
-    Sets price, change_pct, return_1m, return_12_2, return_52w,
+    Sets price, price_date, change_pct, return_1m, return_12_2, return_52w,
     high52w_proximity, rel_strength_sp500, volume and volume_trend. Every
     formula is in FIELD_METHODS, which is what the methodology panel reads.
 
@@ -9577,6 +9677,11 @@ def derive_from_price_history(stocks):
 
         s["price"] = px[-1]
         s["prices_updated"] = stamp
+        # The session this close belongs to. prices_updated says when we asked,
+        # which on 2026-09-21 was 20:34 ET with a series ending on the Friday, so
+        # a stale close read as fresh. Nothing downstream could tell. The panel
+        # compares this date with the row's own session (_panel_rows_for_session).
+        s["price_date"] = dates[-1]
         counts["price"] += 1
 
         if px[-2] > 0:
@@ -10008,7 +10113,72 @@ def derive_risk_metrics(stocks):
 
 # A stale file is only worth rechecking so often. Holidays are invisible to this
 # project, so without a floor a holiday would refetch ~5,300 tickers every run.
+# This is the floor for the case where nothing proves the session happened.
 _PRICE_RECHECK_FLOOR_H = 6
+# The floor once something does prove it: an Alpha Vantage quote stamped with
+# today's trading day, or any stored series that already carries the bar. Then
+# a file without the bar is not a holiday, it is a vendor that has not caught
+# up, and six hours was long enough to lose the day. On 2026-09-21 the promoted
+# run downloaded at 20:34 ET, Yahoo returned 4,894 of 5,489 series ending on the
+# Friday, and every later run that night found the files under six hours old
+# and refetched nothing. The next day's download had the bar for 5,373 of them:
+# the data existed, it was just late. 45 minutes means the next hourly run
+# retries.
+_PRICE_LAG_RETRY_FLOOR_H = 0.75
+# In-run retry of the series that came back without the session's bar. Every
+# price pass between about 20:00 and 20:40 ET lost the bar for most liquid
+# tickers (three of three), which looks like Yahoo rolling its daily candle
+# over after the post-market session, so a short wait is worth a second try
+# before the run gives up and leaves it to the next hourly one. Only when the
+# lagging share is large: illiquid names with no trade that day lag every day,
+# and waiting six minutes for them would be waste.
+_PRICE_RETRY_ROUNDS = 2
+_PRICE_RETRY_WAIT_S = 180
+_PRICE_RETRY_MIN_SHARE = 0.10
+
+
+def _price_file_needs_fetch(data, expected_close, max_age_hours, session_confirmed):
+    """Whether a stored price file must be downloaded again. Pure, so it is testable.
+
+    `data` is the parsed docs/prices/<T>.json, or None when the file is missing
+    or unreadable. Freshness comes from the "updated" field the writer stores in
+    the file, never the mtime, which CI resets on every checkout.
+
+    How recently we asked is the wrong question. The panel takes its price from
+    the last close in this file, so what matters is whether that close is the
+    expected session's.
+
+    On a 24h window alone it never was. The file refreshed around 00:23 UTC and
+    the panel was written around 23:21 UTC, roughly 23 hours later and just
+    inside the window, so the fetch was skipped and the panel recorded a close
+    one session old. Every run. On 2026-09-11, 4,703 of 5,340 tickers carried an
+    identical price across three consecutive panel dates, and prices_updated
+    advanced anyway because it stamps the attempt rather than a new value.
+
+    A file lacking the expected bar is rechecked after a floor rather than on
+    every run, and the floor depends on whether the session is known to have
+    traded. Exchange holidays are not detected, so on a holiday expected_close
+    names a session that never happens; unconfirmed, the six-hour floor bounds
+    that cost. Confirmed, the lag is the vendor's, and the short floor lets the
+    next hourly run fix it instead of the next day's."""
+    if not isinstance(data, dict):
+        return True
+    age = _age_hours_from_iso(data.get("updated"))
+    if age is None or age > max_age_hours:
+        return True
+    last = _price_file_last_date(data)
+    if not last or last >= expected_close:
+        return False
+    floor = _PRICE_LAG_RETRY_FLOOR_H if session_confirmed else _PRICE_RECHECK_FLOOR_H
+    return age > floor
+
+
+def _price_file_last_date(data):
+    """Date of the last stored bar, or None."""
+    closes = (data or {}).get("closes") or []
+    if closes and isinstance(closes[-1], list) and closes[-1]:
+        return str(closes[-1][0])
+    return None
 
 
 def _last_expected_session(now=None):
@@ -10028,13 +10198,18 @@ def _last_expected_session(now=None):
     return d.isoformat()
 
 
-def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
+def enrich_with_prices(stocks, max_age_hours=24, batch_size=200, session_confirmed=False):
     """Fetch ~1y daily closes and volumes per ticker via the yf.download bulk
     endpoint and write docs/prices/{TICKER}.json. The bulk endpoint is dramatically faster than
     per-ticker .history() (one HTTP per batch instead of one per ticker), and is
     much friendlier to Yahoo's rate limiter. 24h cache per file so the midday/
     evening runs are no-ops. Stored shape: {"updated": iso, "closes": [[date, close], ...]}.
-    Skipped silently if yfinance is missing."""
+    Skipped silently if yfinance is missing.
+
+    `session_confirmed` is the caller's evidence that the expected session
+    actually traded (an Alpha Vantage quote stamped with it). It only shortens
+    the recheck floor for files that lack the session's bar; see
+    _price_file_needs_fetch."""
     if not stocks:
         return 0
     try:
@@ -10046,137 +10221,149 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200):
 
     expected_close = _last_expected_session()
 
-    def needs_fetch(ticker):
-        f = PRICES_DIR / _news_filename(ticker)
-        if not f.exists():
-            return True
-        # Freshness comes from the "updated" field the writer stores in the file,
-        # not from the mtime, which CI resets on every checkout.
+    stored = {}
+    for s in stocks:
+        f = PRICES_DIR / _news_filename(s["ticker"])
         try:
-            data = json.loads(f.read_text(encoding="utf-8"))
+            stored[s["ticker"]] = json.loads(f.read_text(encoding="utf-8")) if f.exists() else None
         except Exception:
-            return True
-        age = _age_hours_from_iso(data.get("updated"))
-        if age is None or age > max_age_hours:
-            return True
-        # How recently we asked is the wrong question. The panel takes its price
-        # from the last close in this file, so what matters is whether that close
-        # is the latest session.
-        #
-        # On a 24h window alone it never was. The file refreshed around 00:23 UTC
-        # and the panel was written around 23:21 UTC, roughly 23 hours later and
-        # just inside the window, so the fetch was skipped and the panel recorded
-        # a close one session old. Every run. On 2026-09-11, 4,703 of 5,340
-        # tickers carried an identical price across three consecutive panel
-        # dates, and prices_updated advanced anyway because it stamps the attempt
-        # rather than a new value. price, change_pct, market_cap, pe and
-        # high52w_proximity all inherited it.
-        #
-        # The recheck floor bounds the cost: exchange holidays are not detected,
-        # so on a holiday expected_close names a session that never happens and
-        # this would otherwise refetch the whole universe on every run.
-        if age > _PRICE_RECHECK_FLOOR_H:
-            closes = data.get("closes") or []
-            last_close = closes[-1][0] if closes and isinstance(closes[-1], list) else None
-            if last_close and last_close < expected_close:
-                return True
-        return False
+            stored[s["ticker"]] = None
+    # A stored series that already carries the expected bar is proof the session
+    # traded, from data already on disk. It covers the run where Alpha Vantage
+    # was down but an earlier pass reached some tickers.
+    confirmed = session_confirmed or any(
+        (_price_file_last_date(d) or "") >= expected_close for d in stored.values() if d)
 
-    todo = [s for s in stocks if needs_fetch(s["ticker"])]
+    todo = [s for s in stocks
+            if _price_file_needs_fetch(stored.get(s["ticker"]), expected_close,
+                                       max_age_hours, confirmed)]
     skipped = len(stocks) - len(todo)
     if not todo:
         print(f"prices: all {len(stocks)} ticker files within {max_age_hours}h, skipping fetch.")
         return 0
 
-    fetched = 0
     t0 = time.time()
     # Yahoo uses '-' for class shares (BRK-B); Wikipedia uses '.' (BRK.B). Translate.
     sym_map = {s["ticker"].replace(".", "-"): s["ticker"] for s in todo}
     yf_syms = list(sym_map.keys())
 
-    for i in range(0, len(yf_syms), batch_size):
-        chunk = yf_syms[i:i + batch_size]
-        try:
-            df = yf.download(
-                tickers=" ".join(chunk),
-                period="1y",
-                interval="1d",
-                group_by="ticker",
-                auto_adjust=True,
-                threads=True,
-                progress=False,
-            )
-        except Exception as e:
-            print(f"prices: bulk download failed for batch {i//batch_size + 1}: {e}")
-            continue
-        if df is None or df.empty:
-            continue
-        for yf_sym in chunk:
+    def download(syms):
+        """One bulk pass over `syms`. Returns {ticker: date of its last bar} for
+        every file written."""
+        last_bar = {}
+        for i in range(0, len(syms), batch_size):
+            chunk = syms[i:i + batch_size]
             try:
-                if len(chunk) == 1:
-                    series = df["Close"] if "Close" in df.columns else None
-                elif yf_sym in df.columns.get_level_values(0):
-                    series = df[yf_sym]["Close"] if "Close" in df[yf_sym].columns else None
-                else:
-                    series = None
-                if series is None or series.empty:
-                    continue
-                # Volume comes back in the same download and was being thrown
-                # away, so volume and volume_trend were coming from a per-ticker
-                # .info request instead. Stored as a bare array aligned with
-                # closes by index rather than repeating every date.
-                vol_series = None
+                df = yf.download(
+                    tickers=" ".join(chunk),
+                    period="1y",
+                    interval="1d",
+                    group_by="ticker",
+                    auto_adjust=True,
+                    threads=True,
+                    progress=False,
+                )
+            except Exception as e:
+                print(f"prices: bulk download failed for batch {i//batch_size + 1}: {e}")
+                continue
+            if df is None or df.empty:
+                continue
+            for yf_sym in chunk:
                 try:
                     if len(chunk) == 1:
-                        vol_series = df["Volume"] if "Volume" in df.columns else None
+                        series = df["Close"] if "Close" in df.columns else None
                     elif yf_sym in df.columns.get_level_values(0):
-                        sub = df[yf_sym]
-                        vol_series = sub["Volume"] if "Volume" in sub.columns else None
-                except Exception:
-                    vol_series = None
-
-                closes = []
-                volumes = []
-                clean = series.dropna()
-                for idx, val in clean.items():
-                    try:
-                        date_str = idx.strftime("%Y-%m-%d")
-                        v = float(val)
-                        if not (0 < v < 1e6):
-                            continue
-                        closes.append([date_str, round(v, 4)])
-                        vol = None
-                        if vol_series is not None:
-                            try:
-                                raw_vol = vol_series.get(idx)
-                                if raw_vol is not None and raw_vol == raw_vol:
-                                    vol = int(float(raw_vol))
-                            except Exception:
-                                vol = None
-                        volumes.append(vol if (vol is not None and vol >= 0) else None)
-                    except Exception:
+                        series = df[yf_sym]["Close"] if "Close" in df[yf_sym].columns else None
+                    else:
+                        series = None
+                    if series is None or series.empty:
                         continue
-                if not closes:
-                    continue
-                ticker = sym_map[yf_sym]
-                payload = {
-                    "ticker": ticker,
-                    "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    "closes": closes,
-                }
-                # Only when we actually got some, so a file without the key is
-                # an old file rather than a ticker Yahoo reports no volume for.
-                if any(v is not None for v in volumes):
-                    payload["volumes"] = volumes
-                (PRICES_DIR / _news_filename(ticker)).write_text(
-                    json.dumps(payload, separators=(",", ":")), encoding="utf-8"
-                )
-                fetched += 1
-            except Exception:
-                continue
+                    # Volume comes back in the same download and was being thrown
+                    # away, so volume and volume_trend were coming from a per-ticker
+                    # .info request instead. Stored as a bare array aligned with
+                    # closes by index rather than repeating every date.
+                    vol_series = None
+                    try:
+                        if len(chunk) == 1:
+                            vol_series = df["Volume"] if "Volume" in df.columns else None
+                        elif yf_sym in df.columns.get_level_values(0):
+                            sub = df[yf_sym]
+                            vol_series = sub["Volume"] if "Volume" in sub.columns else None
+                    except Exception:
+                        vol_series = None
 
+                    closes = []
+                    volumes = []
+                    clean = series.dropna()
+                    for idx, val in clean.items():
+                        try:
+                            date_str = idx.strftime("%Y-%m-%d")
+                            v = float(val)
+                            if not (0 < v < 1e6):
+                                continue
+                            closes.append([date_str, round(v, 4)])
+                            vol = None
+                            if vol_series is not None:
+                                try:
+                                    raw_vol = vol_series.get(idx)
+                                    if raw_vol is not None and raw_vol == raw_vol:
+                                        vol = int(float(raw_vol))
+                                except Exception:
+                                    vol = None
+                            volumes.append(vol if (vol is not None and vol >= 0) else None)
+                        except Exception:
+                            continue
+                    if not closes:
+                        continue
+                    ticker = sym_map[yf_sym]
+                    # "updated" records when we asked, not when the vendor last
+                    # had something new. That is why _price_file_needs_fetch
+                    # reads the last bar's date as well, and why the panel
+                    # carries price_date rather than trusting this stamp.
+                    payload = {
+                        "ticker": ticker,
+                        "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                        "closes": closes,
+                    }
+                    # Only when we actually got some, so a file without the key is
+                    # an old file rather than a ticker Yahoo reports no volume for.
+                    if any(v is not None for v in volumes):
+                        payload["volumes"] = volumes
+                    (PRICES_DIR / _news_filename(ticker)).write_text(
+                        json.dumps(payload, separators=(",", ":")), encoding="utf-8"
+                    )
+                    last_bar[ticker] = closes[-1][0]
+                except Exception:
+                    continue
+        return last_bar
+
+    last_bar = download(yf_syms)
+    fetched = len(last_bar)
+
+    # A download that returns series without the session that just closed used
+    # to be accepted as fresh. Retry the lagging ones in this run when something
+    # proves the session traded: the caller's quotes, a stored file, or any
+    # series in this very download that has the bar. On a holiday none does, so
+    # nothing is retried. Tickers that returned nothing at all are not retried
+    # here; that is a coverage gap, not a late bar. Nor is a handful of lagging
+    # names, which is what an ordinary day looks like: illiquid listings with no
+    # trade that session.
+    for _ in range(_PRICE_RETRY_ROUNDS):
+        confirmed = confirmed or any(d >= expected_close for d in last_bar.values())
+        lagging = [y for y in yf_syms
+                   if sym_map[y] in last_bar and last_bar[sym_map[y]] < expected_close]
+        if not (confirmed and lagging) or len(lagging) < _PRICE_RETRY_MIN_SHARE * len(last_bar):
+            break
+        print(f"prices: {len(lagging)} of {len(last_bar)} series lack the {expected_close} bar "
+              f"although the session traded; retrying them in {_PRICE_RETRY_WAIT_S}s.")
+        time.sleep(_PRICE_RETRY_WAIT_S)
+        last_bar.update(download(lagging))
+
+    behind = sum(1 for d in last_bar.values() if d < expected_close)
     elapsed = time.time() - t0
-    print(f"prices: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s ({skipped} cached < {max_age_hours}h).")
+    print(f"prices: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s "
+          f"({skipped} cached < {max_age_hours}h); {behind} still end before "
+          f"{expected_close} (session {'confirmed' if confirmed else 'unconfirmed'}).")
     return fetched
 
 
@@ -12647,7 +12834,7 @@ def compute_peer_scores(stocks):
     return summary
 
 
-def get_or_generate_stocks_universe():
+def get_or_generate_stocks_universe(session_confirmed=False):
     """Cached US stocks universe scraped from Wikipedia (S&P 500/400/600), enriched
     with live quote data from Yahoo Finance via yfinance.
 
@@ -12658,7 +12845,11 @@ def get_or_generate_stocks_universe():
     what accumulates a full sweep across about a week of runs.
 
     The cache is state/stocks_universe.json and is not in git. CI restores it from
-    the universe-cache release asset before the run and saves it back after."""
+    the universe-cache release asset before the run and saves it back after.
+
+    `session_confirmed` goes to enrich_with_prices: the caller has proof the
+    expected session traded, so price files lacking its bar are retried after
+    45 minutes rather than six hours."""
     now = datetime.now(EASTERN)
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
@@ -12698,7 +12889,7 @@ def get_or_generate_stocks_universe():
         enrich_with_news(cached_list)
         aggregate_news_sentiment(cached_list)
         compute_neglect_score(cached_list)
-        enrich_with_prices(cached_list)
+        enrich_with_prices(cached_list, session_confirmed=session_confirmed)
         derive_from_price_history(cached_list)
         enrich_with_market_series()
         derive_risk_metrics(cached_list)
@@ -12957,7 +13148,7 @@ def get_or_generate_stocks_universe():
     # yf.download in batches so we hit Yahoo once per ~200 tickers. This used to
     # run after scoring, back when it only fed the chart card. The momentum
     # returns are read back out of it now, so it has to come first.
-    enrich_with_prices(stocks)
+    enrich_with_prices(stocks, session_confirmed=session_confirmed)
     derive_from_price_history(stocks)
     enrich_with_market_series()
     derive_risk_metrics(stocks)
@@ -15372,7 +15563,9 @@ def lambda_handler(event, context):
     # reliable: GitHub dropped the 22:23 slot on four consecutive days while
     # every hourly run succeeded, so the pipeline looked healthy and recorded
     # nothing. Whichever run happens to be the first one after the close does
-    # the work now, and the rest see the row and stay cheap.
+    # the work now, and the rest see the row and stay cheap. The same mechanism
+    # is the retry for a deferred panel (_panel_gate): a deferral writes no row,
+    # so the next hourly run is promoted and tries again.
     if mode == "record" and now_et.weekday() < 5 and now_et.hour >= 17:
         if not panel_has_date(date_iso):
             print(f"mode: record run promoted to daily. {date_iso} has no panel row "
@@ -15412,7 +15605,16 @@ def lambda_handler(event, context):
     data = build_sections_from_headlines(headlines)
 
     # 5. Fundamentals panel: one row per ticker per day.
-    universe = get_or_generate_stocks_universe()
+    #
+    # Proof that today's session traded, from quotes already fetched above: an
+    # Alpha Vantage quote carries the session its close belongs to. Yields are
+    # excluded because they have no trading_day. No new source and no new key;
+    # the project has no market calendar, and this is the cheapest stand-in for
+    # one. False on a holiday, and also when Alpha Vantage is down, in which case
+    # the price pass looks for the same proof in the series themselves.
+    session_confirmed = any(q.get("trading_day") == date_iso
+                            for q in quotes if not q.get("is_yield"))
+    universe = get_or_generate_stocks_universe(session_confirmed=session_confirmed)
     stocks = (universe or {}).get("stocks") or []
 
     # Only record a panel row on days the market actually traded. The daily run
@@ -15421,10 +15623,12 @@ def lambda_handler(event, context):
     # one trading day, which silently corrupts any return, volatility or drawdown
     # computed over the panel.
     #
-    # Weekends only. Exchange holidays still slip through, since detecting them
-    # needs a market calendar this project does not carry; those rows repeat the
-    # prior close but are identifiable via the last_updated column.
+    # Weekends here. Exchange holidays are caught further down by _panel_gate
+    # without a market calendar: no Alpha Vantage quote carries today's trading
+    # day and no stored series has today's bar. Before that gate, holiday rows
+    # repeated the prior close and were identifiable only via last_updated.
     panel_rows = 0
+    panel_deferred = False
     panel_expected = now_et.weekday() < 5
     if now_et.weekday() >= 5:
         print(f"fundamentals: {date_iso} is a weekend, no trading day to record.")
@@ -15440,7 +15644,37 @@ def lambda_handler(event, context):
               f"{date_iso}; skipping the panel rather than recording stale prices "
               f"under today's date.")
     else:
-        panel_rows = record_fundamentals(stocks, date_iso)
+        # A close from an older session must never be stamped with today's
+        # date. On 2026-09-21 the promoted run priced at 20:34 ET, Yahoo had not
+        # yet published the day's bar for 4,894 of 5,489 series, and the panel
+        # recorded the Friday close under Monday for 4,584 rows; 09-10, 09-11
+        # and 09-14 had the same fault. See _panel_gate for the three outcomes.
+        verdict, lagging, dated = _panel_gate(stocks, date_iso, session_confirmed, now_et)
+        if verdict == "holiday":
+            # Deliberate and correct, so not a shortfall either.
+            panel_expected = False
+            print(f"fundamentals: no series has a {date_iso} bar and no quote confirms "
+                  f"the session ({lagging}/{dated} lag); treating {date_iso} as an "
+                  f"exchange holiday and recording nothing.")
+        elif verdict == "defer":
+            # Reported as fine, not failed. The next hourly run retries on its
+            # own, and a failure email every hour for a vendor running late is
+            # an alert that cries wolf. What would be a real failure, the day
+            # never resolving, cannot happen quietly: at 23:xx ET the gate
+            # writes regardless.
+            panel_deferred = True
+            print(f"fundamentals: deferring {date_iso}. {lagging} of {dated} priced "
+                  f"tickers end before today's session, over the "
+                  f"{_PANEL_LAG_DEFER_SHARE:.0%} limit; the next hourly run is "
+                  f"promoted and retries, and from {_PANEL_DEFER_UNTIL_HOUR}:00 ET "
+                  f"the row is written with those tickers flagged price_stale.")
+        else:
+            if lagging:
+                print(f"fundamentals: {lagging} of {dated} priced tickers end before "
+                      f"{date_iso}; recording them with price fields withheld and "
+                      f"price_stale=1.")
+            panel_rows = record_fundamentals(_panel_rows_for_session(stocks, date_iso),
+                                             date_iso)
 
     # 5b. Earnings press releases (8-K item 2.02, exhibit EX-99.1).
     #
@@ -15509,11 +15743,13 @@ def lambda_handler(event, context):
     # all no-ops by design. Failing them would send a failure email for correct
     # behaviour, and an alert that cries wolf is how a channel gets ignored.
     panel_satisfied = panel_rows > 0 or panel_has_date(date_iso)
-    healthy = bool(stocks) and (panel_satisfied or not panel_expected)
+    # A deferral is a scheduled retry, not a failure (see the panel gate above).
+    healthy = bool(stocks) and (panel_satisfied or panel_deferred or not panel_expected)
     return {"status": "published", "mode": mode, "stories": len(headlines),
             "quotes": len(quotes), "stocks": len(stocks),
             "panel_rows": panel_rows, "priced": priced,
             "panel_expected": panel_expected, "panel_satisfied": panel_satisfied,
+            "panel_deferred": panel_deferred, "session_confirmed": session_confirmed,
             "ok": healthy}
 
 

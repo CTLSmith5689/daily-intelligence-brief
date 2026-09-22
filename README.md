@@ -216,6 +216,8 @@ methodology panel and the code cannot disagree.
 | `pe` | ratio | `price / sum(last 4 quarters of diluted EPS)` | edgar | changes only when the company files |
 | `price` | USD | `closes[-1]` | price_history | changes every trading day |
 | `price_book` | ratio | `market_cap / stockholders_equity` | edgar | changes only when the company files |
+| `price_date` | date | `dates[-1]` | price_history | changes every trading day |
+| `price_stale` | flag | `1 if price_date < panel date else blank` | price_history | changes every trading day |
 | `rel_strength_sp500` | fraction | `return_52w(stock) - return_52w(^GSPC)` | price_history | changes every trading day |
 | `return_12_2` | fraction | `closes[-22] / closes[-253] - 1` | price_history | changes every trading day |
 | `return_1m` | fraction | `closes[-1] / closes[-22] - 1` | price_history | changes every trading day |
@@ -240,6 +242,7 @@ Notes where the choice matters:
 - **`rel_strength_sp500`** — Difference of the two 52-week returns over the same trading days, which is the usual construction. Not a ratio and not a regression; beta_1y is the regression.
 - **`sharpe_1y`** — Daily excess return over the 13-week Treasury bill, annualized. Withheld rather than assuming a zero rate when the rate series is unavailable, since that would inflate every Sharpe by roughly the level of short rates.
 - **`sector`** — Yahoo's own eleven-sector taxonomy, mapped onto the GICS sector NAMES. It is not licensed GICS, which is a commercial product of S&P Dow Jones Indices and MSCI and is not publicly available. The names match; the classifications are Yahoo's.
+- **`price_stale`**: set on a panel row whose stored close is from an older session than the row's date, with every field computed from the price series left blank on that row. Back-filled on 2026-09-10, 09-11, 09-14 and 09-21, where those rows still hold the older close in their original values; filter on this column before using those dates.
 
 ### What is deliberately not derived
 
