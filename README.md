@@ -367,6 +367,38 @@ python lambda_function.py daily     # full: adds fundamentals + site rebuild
 Needs `ALPHAVANTAGE_API_KEY` for quotes. A `daily` run takes 20+ minutes and hits
 Yahoo and SEC hard, so prefer `record` for iteration.
 
+## Tests
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+Standard library only, no network, about one second. Every workflow run
+executes it before Gather; a failure does not stop the run from recording, but
+fails the job at the end so the alert fires. The rule for adding a test is the
+project's rule for verifying anything: check against something that cannot
+lie, such as the formula string FIELD_METHODS publishes, the annual figure a
+filing reports, or a series regressed on itself, never a restatement of the
+code under test.
+
+- `test_price_derived.py`: every price field equals its published formula
+  evaluated on the same closes, and `return_1m` is negative for a stock that
+  fell over the month while still above its 50-day average.
+- `test_risk_metrics.py`: beta of the benchmark on itself is 1, on doubled
+  returns is 2, pairing is by date; SPY against ^GSPC when `docs/prices` is on
+  disk.
+- `test_edgar.py`: reconstructed quarters equal the filed ones and add up to
+  the annual figure; year-to-date cash flows are differenced; every field
+  `compute_edgar_factors` emits is covered by `EDGAR_SCHEMA_SENTINELS`.
+- `test_panel_schema.py`: the fundamentals panel never gains a skipped field,
+  widens without losing rows, and the committed file is well formed.
+- `test_provenance.py`: the provenance and status tables above match
+  `FIELD_METHODS` and `FIELD_STATUS` exactly.
+- `test_repo_integrity.py`: every Python file and every inline workflow
+  snippet compiles, the failure alert runs end to end with SMTP stubbed, and
+  no em dash is added beyond `tests/em_dash_baseline.json`. Lower a count there
+  when you remove some; never raise one.
+
 ## Layout
 
 ```

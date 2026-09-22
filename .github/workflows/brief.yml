@@ -105,6 +105,26 @@ jobs:
             echo "No gh-pages branch yet. This run builds it; the fetch passes will be cold."
           fi
 
+      # The offline test suite, in every mode, before anything is fetched or
+      # appended. Every past verification in this project was a throwaway
+      # script, and the failures they missed were the kind a test that cannot
+      # lie catches in a second: a failure alert that was a SyntaxError for a
+      # day because nothing parsed it, return_1m published with the wrong sign
+      # for 21% of tickers, and year-to-date cash flows read as quarters. It is
+      # stdlib only, touches no network and takes about a second.
+      #
+      # It runs after the site restore on purpose: docs/prices is what lets the
+      # SPY-against-^GSPC beta check run against real data instead of skipping.
+      #
+      # It does not stop the run. A red test must not cost an hour of quotes
+      # and headlines, which is the same rule the Drive ingest follows. The
+      # "Report test failures" step near the end fails the job instead, after
+      # everything else has finished, so the alert still fires.
+      - name: Tests
+        id: tests
+        continue-on-error: true
+        run: python -m unittest discover -s tests -v
+
       # The universe cache lives in a release asset, not in git. It is a 13 MB file
       # the daily run rewrites whole, and in git every rewrite stayed in history
       # forever: 33 versions and 21.7 MB of the pack by 2026-09-13, adding about
@@ -405,6 +425,14 @@ jobs:
         if: always() && (steps.ingest.outcome == 'failure' || steps.ingest.outputs.alert == '1')
         run: |
           echo "The Drive ingest refused a delivery or could not run. The 'Ingest analyst runs from Drive' step log says which, and why."
+          exit 1
+
+      # The Tests step never fails the job itself, for the reason given there.
+      # This is where a failing suite does, last, so the alert below fires.
+      - name: Report test failures
+        if: always() && steps.tests.outcome == 'failure'
+        run: |
+          echo "The offline test suite failed. The 'Tests' step log names each failing test and why."
           exit 1
 
       # Between 2026-05-09 and 2026-07-07 this job failed 78 times without anyone
