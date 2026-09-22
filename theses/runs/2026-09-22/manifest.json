@@ -1,0 +1,99 @@
+{
+  "run_date": "2026-09-22",
+  "panel_date": "2026-09-22",
+  "prepared_at": "2026-09-22T22:32:49+00:00",
+  "universe": {
+    "panel_rows": 5384,
+    "core": 2026,
+    "scorable": 1191,
+    "peer_groups": 134
+  },
+  "track_record": {
+    "scored": 0,
+    "note": "No prediction has matured yet. There is no track record to calibrate against, so be correspondingly humble."
+  },
+  "open_predictions": 3,
+  "slots": [
+    {
+      "ticker": "NVDA",
+      "slot": "watchlist",
+      "reason": "watchlist, longest since covered",
+      "composite_z": 0.141,
+      "peer_group": "Semiconductors",
+      "peer_n": 41,
+      "sector": "Information Technology",
+      "price": 228.87,
+      "sleeves": {
+        "Growth": 0.209,
+        "Value": -0.052,
+        "Momentum": -0.077,
+        "Quality": 0.484
+      },
+      "sleeve_fields": {
+        "Growth": 5,
+        "Value": 5,
+        "Momentum": 5,
+        "Quality": 5
+      },
+      "dossier": "NVDA.md",
+      "dossier_chars": 91919
+    },
+    {
+      "ticker": "HIMS",
+      "slot": "review",
+      "reason": "open prediction moved 11% since 2026-09-12",
+      "composite_z": null,
+      "peer_group": "Health Care Services",
+      "peer_n": 22,
+      "sector": "Health Care",
+      "price": 30.43,
+      "sleeves": {
+        "Growth": 0.048,
+        "Value": null,
+        "Momentum": -1.469,
+        "Quality": -0.939
+      },
+      "sleeve_fields": {
+        "Growth": 5,
+        "Value": 3,
+        "Momentum": 5,
+        "Quality": 5
+      },
+      "dossier": "HIMS.md",
+      "dossier_chars": 85738
+    }
+  ],
+  "dossier_failed": [],
+  "elapsed_s": 18.9,
+  "analyst": {
+    "slots_written": [
+      {
+        "ticker": "NVDA",
+        "slot": "watchlist",
+        "note": "theses/notes/NVDA/2026-09-22-initiation.md",
+        "kind": "initiation",
+        "direction": "watch",
+        "conviction": 4,
+        "why": "first note on this name; the dossier's question was whether earnings are cash-backed, and the filings answer it with receivables and inventory, so the note is a watch with a cash test rather than a view on the price."
+      },
+      {
+        "ticker": "HIMS",
+        "slot": "review",
+        "note": "theses/notes/HIMS/2026-09-22-revision.md",
+        "kind": "revision",
+        "direction": "avoid",
+        "conviction": 5,
+        "why": "open prediction moved 11 percent; the 12 September claim was written without filings and expected regulators to cut off the compounded weight-loss sales. The filings show the company made that change itself in Q1 2026. Claim REPLACED, direction unchanged."
+      }
+    ],
+    "slots_skipped": [],
+    "dossiers_too_thin": [],
+    "validation": "validate.py passes both notes with no FAILs and no warnings.",
+    "notes_on_data": [
+      "NVDA: stored ttm_revenue is 40 percent away from reported FY2026 revenue, so every sales-derived stored field was avoided; sales, margins and cash come from the 10-Q, the 8-K exhibit and the reported history.",
+      "HIMS: stored ttm_eps_diluted (-0.63) contradicts the filings (+0.51 for 2025) and shares_outstanding is 0, so pe, the Value sleeve and market_cap were avoided; share count taken from the reported history (258.2M diluted, 2025).",
+      "Both notes read the full filing text in data/filings/text/ where the dossier showed only an excerpt (HIMS management's discussion for the gross margin explanation and the 2026 US weight-loss change; NVDA management's discussion and the 8-K exhibit for the balance sheet and cash flow lines)."
+    ],
+    "run_notes": "First run under the two-part note format with --slots 2, as instructed. Two names covered instead of four."
+  }
+}
