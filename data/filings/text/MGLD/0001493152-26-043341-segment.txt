@@ -1,0 +1,234 @@
+SEGMENT REPORTING 
+ 12 Months Ended 
+ 
+ Jun. 30, 2026 
+ 
+ Segment Reporting [Abstract] 
+
+ SEGMENT REPORTING 
+ NOTE
+16. SEGMENT REPORTING 
+
+ In
+its operation of the business, our chief operating decision maker (“CODM”), who is our Chief Executive Officer, reviews revenues
+and profits in assessing segment performance and deciding how to allocate resources. Our CODM does not evaluate operating expenses by
+segment. During the periods presented, the Company reported its financial performance based on the following segments. 
+
+ Segment 
+ 
+ Entities 
+ 
+ Location 
+ 
+ Description 
+ 
+ Fund
+ Management 
+ 
+ USCF
+ Investments, Inc. 
+ 
+ United
+ States 
+ 
+ Manages,
+ operates and is a commodity pool operator or an investment advisor to exchange traded funds organized as limited partnerships or
+ investment trusts that issue shares which trade on the NYSE Arca stock exchange. 
+ 
+ Security
+ Systems 
+ 
+ Brigadier
+ Security Systems (2000) Ltd. 
+ 
+ Canada 
+ 
+ Sells
+ and installs commercial and residential alarm monitoring systems. 
+ 
+ Beauty
+ Products 
+ 
+ Kahnalytics,
+ Inc. doing business as Original Sprout 
+ 
+ United
+ States 
+ 
+ Engaged
+ in the wholesale distribution of hair and skin care products on a global scale. 
+ 
+ Financial
+ Services 
+ 
+ Marygold
+ & Co.; Marygold & Co. Advisory Services, LLC; Marygold & Co. (UK) Limited, Marygold & Co. Limited and Step-By-Step
+ Financial Planners Limited 
+ 
+ United
+ States and United Kingdom 
+ 
+ Marygold
+ & Co. developed a Fintech app that was launched in June 2023 in the US and in March 2025 in the UK; and Marygold UK through its
+ subsidiaries is an asset manager and registered investment advisor in the UK. 
+ 
+ Corporate
+ Headquarters 
+ 
+ The
+ Marygold Companies, Inc. 
+ 
+ United
+ States 
+ 
+ Holding
+ company responsible for organizational accountability, capital raising and allocation, corporate governance, regulatory compliance,
+ etc. 
+
+ The
+following table presents a summary of operating information (in thousands): 
+
+ SCHEDULE
+OF REVENUES FROM EXTERNAL CUSTOMERS 
+
+ 2026 
+ 2025 
+
+ Year Ended June 30, 
+
+ 2026 
+ 2025 
+ 
+ Revenue from external customers: 
+
+ Fund management - related party 
+ $ 21,126 
+ $ 17,135 
+ 
+ Beauty products 
+ 3,367 
+ 2,974 
+ 
+ Security systems 
+ - 
+ 2,471 
+ 
+ Financial services 
+ 820 
+ 854 
+ 
+ Total revenue 
+ $ 25,313 
+ $ 23,434 
+
+ SCHEDULE
+OF OPERATING (LOSS) INCOME FROM EXTERNAL CUSTOMERS 
+
+ 2026 
+ 2025 
+
+ Year Ended June 30, 
+
+ 2026 
+ 2025 
+ 
+ Income (loss) from continuing operations: 
+
+ Fund management - related party 
+ $ 2,912 
+ $ 3,274 
+ 
+ Beauty products 
+ 293 
+ (395 ) 
+ 
+ Security systems 
+ - 
+ 250 
+ 
+ Financial services 
+ (4,079 ) 
+ (5,621 ) 
+ 
+ Corporate headquarters 
+ (5,138 ) 
+ (4,343 ) 
+ 
+ Total loss from continuing operations 
+ $ (6,012 ) 
+ $ (6,835 ) 
+
+ The
+following table presents a summary of identifiable assets by geographical location (in thousands): 
+
+ SCHEDULE
+OF IDENTIFIABLE ASSETS BY GEOGRAPHICAL LOCATION 
+
+ 2026 
+ 2025 
+
+ June 30, 
+
+ 2026 
+ 2025 
+ 
+ Identifiable assets: 
+
+ United States 
+ $ 20,477 
+ $ 22,025 
+ 
+ United Kingdom 
+ 350 
+ 3,210 
+ 
+ Canada 
+ - 
+ 1,728 
+ 
+ Total 
+ $ 20,827 
+ $ 26,963 
+
+ The identifiable assets relating to the Food products segment are included in Note 3. Discontinued Operations. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for segment reporting. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 7: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 11: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 Reference 12: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 13: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 14: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 16: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 18: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 19: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 20: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 21: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 22: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration

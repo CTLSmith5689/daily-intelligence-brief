@@ -1,0 +1,521 @@
+ITEM
+1A. RISK FACTORS 
+
+ Investing
+in our shares involves a high degree of risk and dilution. Our business operations, financial condition, results of operations, and stock
+price may be affected by a number of factors. In addition to the other information in this Annual Report on Form 10-K (“Form 10-K”),
+the following factors and the information contained under “Special Note Regarding Forward-Looking Statements” should be considered
+in evaluating our company and our businesses. The risks and uncertainties described below are not the only risks we face. Additional
+risks and uncertainties that are presently unknown or are currently deemed immaterial may also impair our business operations. If any
+of the events or circumstances described in the following risks or elsewhere in this Form 10-K occur, our business, financial condition
+and results of operations could suffer and the trading price of our shares of common stock could decline. 
+
+ Litigation
+Risks 
+
+ The
+Company ’ s business and operation could be negatively affected by any material litigation involving the Company or
+its subsidiaries. 
+
+ USCF
+LLC, an indirect wholly owned subsidiary, is currently the subject of class action litigation. See “Note 15. Commitments and Contingencies” to our consolidated financial statements included in this Form 10-K. 
+
+ Estimating
+an amount or range of possible losses resulting from litigation proceedings is inherently difficult and requires an extensive degree
+of judgment, particularly where the matters involve indeterminate claims for monetary damages, are in the early stages of proceedings,
+and are subject to appeal. In addition, because most legal proceedings are resolved over extended periods of time, potential losses are
+subject to change due to, among other things, new developments, changes in legal strategy, the outcome of intermediate procedural and
+substantive rulings and other parties’ settlement posture and their evaluation of the strength or weakness of their case against
+us. For these reasons, we are currently unable to predict the ultimate timing or outcome of, or reasonably estimate the possible losses
+or a range of possible losses resulting from, the matters described in “Item 3. Legal Proceedings” of this Form 10-K and
+“Note 15. Commitments and Contingencies” to our consolidated financial statements included in this
+Form 10-K. In light of the inherent uncertainties involved in such matters, an adverse outcome in this litigation could materially adversely
+affect our financial condition, results of operations or cash flows in any particular reporting period. 
+
+ Litigation
+could result in substantial costs and divert management’s attention and resources from our business. Additionally, litigation could
+give rise to perceived uncertainties as to our future, adversely affect our relationships with investors in our funds, customers and
+vendors and make it more difficult to attract and retain qualified personnel. Also, a company subject to litigation may be required to
+incur significant legal fees and other expenses related to any litigation. Our financial services subsidiaries carry general corporate
+liability, errors and omissions, and cybersecurity risk insurance in the event of litigation actions. 
+
+ Risks
+Related to our Business, Operations and Structure 
+
+ We
+have incurred net losses during fiscal 2026 and 2025. We have paused further development of our Fintech app for the U.S. and U.K. markets. 
+
+ We
+have incurred a net loss of $4.4 million and $5.8 million in fiscal 2026 and 2025, respectively. We have working capital of approximately
+$12.3 million as of June 30, 2026, compared to working capital of $11.6 million as of June 30, 2025, an increase of 6%. Since 2019 and
+through June 30, 2026, we have invested $19.5 million in the development of our Fintech app for the U.S. and U.K. markets. Due to its
+limited acceptance, we paused further development of the Fintech app in the U.S. effective March 31, 2025 and in the U.K. effective June
+30, 2026. In the event we are able to raise additional financing or to license the app to a third party, we may continue the development
+of the Fintech app, although there can be no assurance we will be able to do so. 
+
+ We
+are a holding company, and our only material assets are our cash in hand, equity and other interests in our operating subsidiaries, and
+our other investments. As a result, our principal sources of cash flow are distributions from our subsidiaries. Our subsidiaries may
+be limited by law and by contract from making distributions to us. 
+
+ As
+a holding company, our assets are cash and cash equivalents, equity interests in our subsidiaries and our other investments. 
+
+ The
+principal sources of our cash flow consist of distributions, loans or other payments from our subsidiaries. Thus, our ability to
+finance future acquisitions or develop new projects is dependent on the ability of our subsidiaries to generate sufficient net
+income and cash flows to make upstream cash distributions to us. Our subsidiaries are separate legal entities, and although they may
+be wholly owned or controlled by us, they have no obligation to make any funds available to us, whether in the form of loans,
+dividends, distributions or otherwise. The ability of our subsidiaries to distribute cash to us is and will remain subject to, among
+other things, restrictions contained in each subsidiary’s financing agreements, the availability of sufficient funds and
+applicable laws and regulatory restrictions. 
+
+ Claims
+of creditors of our subsidiaries generally will have priority with respect to the assets of those subsidiaries over our claims and
+the claims of our creditors and stockholders. To the extent our cash flow is dependent on our subsidiaries’ ability to make
+distributions to us, this dependence could materially limit our ability to grow, pursue business opportunities or make acquisitions
+that could be benefit our businesses. 
+
+ We
+are dependent on certain key personnel, the loss of which may adversely affect our financial condition or results of operations. 
+
+ Major
+capital allocation decisions and investment decisions are made by Chief Executive Officer and Chairman of the Board of Directors, Nicholas
+Gerber, with consultation from key personnel, our board, from our management team and the executive management teams from our subsidiaries.
+The executive management teams that lead the Company and our subsidiaries are also highly experienced and possess extensive skills in
+their respective industries. If Mr. Gerber were to become unavailable, there could be a material adverse impact on our operations. However,
+the Company’s Board of Directors have the power and authority to fill a vacancy left by Mr. Gerber. The ability to retain key personnel
+is important to our success and future growth. Competition for these professionals can be intense, and we may not be able to retain and
+motivate our existing officers and senior employees and continue to compensate such individuals competitively. The unexpected loss of
+the services of one or more of these individuals could have a detrimental effect on our operations and negatively impact our financial
+condition or results of operations of our businesses and could hinder the ability of our business and our subsidiaries to effectively
+compete in the various industries in which we operate. 
+
+ We
+need qualified personnel to manage and operate our subsidiaries. 
+
+ Our
+decentralized business model requires that we retain qualified and competent managers to continue day-to-day operations of our subsidiaries
+and continue business operations in a changing political, business or regulatory environment. Our subsidiaries require qualified and
+competent personnel to execute their business plans and continue servicing their clients, suppliers and other stakeholders. Our inability
+to attract and retain qualified personnel to operate our business subsidiaries could negatively impact our operating results and our
+overall financial condition that is important to our success and future growth. 
+
+ 11 
+ Table of Contents 
+
+ Errors or failures in the execution,
+processing or oversight of investment transactions in our ETP business could adversely affect our overall business, financial condition
+and results of operations on a consolidated basis. 
+
+ Our ETP business depends on our personnel,
+systems, processes and controls to execute, process, monitor and report investment transactions accurately and on a timely basis. From
+time to time, errors may occur, and have occurred, in connection with these activities. Such errors may include failures to execute transactions,
+delays in executing transactions, transactions executed on incorrect terms or in incorrect amounts or securities, allocation or settlement
+errors, and failures to timely identify, classify, escalate or remediate trading errors. 
+
+ Trading and other operational errors may result
+from human error, inadequate or ineffective processes or controls, failures in supervision or communication, technology or systems failures,
+inaccurate or incomplete information, or failures by third-party service providers. In certain circumstances, an error may not be identified
+promptly or may initially be characterized as ordinary trading or market activity, such as execution slippage, which could delay escalation,
+investigation or remediation. 
+
+ We, through our ETP business, may be required
+to reimburse a fund, client or other party for losses resulting from a trading or operational error, and the amount of any such loss
+may be affected by market movements occurring before an error is identified and corrected. Such errors also could adversely affect investment
+performance or tracking results, cause us to incur additional operational or remediation costs, result in inaccurate books, records or
+reports, or give rise to disputes, regulatory inquiries or examinations, enforcement actions, litigation or other liabilities. 
+
+ We maintain, and continue to develop and enhance,
+policies, procedures and controls designed to prevent, identify, escalate and remediate trading and operational errors; however, these
+measures may not prevent or timely detect all errors. Any significant error, a series of errors, or a material failure in our related
+controls or supervisory processes could harm our clients or funds, damage our reputation and adversely affect our business, financial
+condition and results of operations. 
+
+ Abnormally
+wide bid/ask spreads and market disruptions that halt or disrupt trading or create extreme volatility could undermine investor confidence
+in the ETP investment structure and limit investor acceptance of ETPs. 
+
+ ETFs
+trade on exchanges in market transactions that generally approximate the value of the referenced assets or underlying portfolio of securities
+held by the particular ETF. Trading involves risks including the potential lack of an active market for fund shares, abnormally wide
+bid/ask spreads (the difference between the prices at which shares of an ETF can be bought and sold) that can exist for a variety of
+reasons and losses from trading. These risks can be exacerbated during periods when there is low demand for an ETF, when the markets
+in the underlying investments are closed, when markets conditions are extremely volatile or when trading is disrupted. This could result
+in limited growth or a reduction in the overall ETF market and result in our revenue not growing as rapidly as it has in the recent past
+or even in a reduction of revenue. 
+
+ We
+derive a substantial portion of our revenues from our USCF Investments subsidiary and, as a result, our operating results are particularly
+exposed to investor sentiment toward investing in the ETFs sponsored by USCF and advised by USCF Advisers. 
+
+ For
+the years ended June 30, 2026 and 2025, 83% and 73% of our revenues, respectively, were derived from USCF Investments operations, which
+consists of the management of ETFs by USCF and USCF Advisers. As a result, our operating results are particularly exposed to the performance
+of these funds and our ability to maintain the assets under management of these funds, as well as investor sentiment toward investing
+in the funds’ strategies. If the assets under management in these funds were to decline, either because of declining market values
+or net outflows from these funds, our revenues would be adversely affected. 
+
+ We
+rely on third party suppliers, and our business may be affected by interruption of supplies or increases in product costs. 
+
+ Gourmet
+Foods obtains most food related products and services from third party suppliers. Gourmet Foods typically does not have long-term
+contracts with suppliers. Although Gourmet Foods’ purchasing volume can provide leverage when dealing with suppliers,
+suppliers may not provide the foodservice products and supplies Gourmet Foods needs in the quantities and at the time and prices
+requested. Gourmet Foods does not control the actual production of most of the products it sells. This means Gourmet Foods is also
+subject to delays caused by interruption in production and increases in product costs based on conditions outside its control. These
+conditions include work slowdowns, work interruptions, strikes or other job actions by employees of suppliers; severe weather; crop
+conditions; product recalls; transportation interruptions; unavailability of fuel or increases in fuel costs; competitive demands;
+and natural disasters, terrorist attacks or other catastrophic events (including, but not limited to, the outbreak of food-borne
+illnesses in the United States). Gourmet Foods’ inability to obtain adequate supplies of food service and related products
+because of any of these or other factors could mean that Gourmet Foods could not fulfill its obligations to its customers and, as a
+result, customers may turn to other distributors. 
+
+ Product
+recalls or other product liability claims could materially and adversely affect us. 
+
+ Selling
+products for human consumption or use involves inherent legal and other risks, including product contamination, spoilage, product tampering,
+allergens, or other adulteration. We could in the future be required to recall products due to suspected or confirmed product contamination,
+adulteration, product mislabeling or misbranding, tampering, undeclared allergens, or other deficiencies. Product recalls or market withdrawals
+could result in significant losses due to their costs, the destruction of product inventory, and lost sales due to the unavailability
+of the product for a period of time. 
+
+ Adverse
+attention about these types of concerns, whether or not valid, may damage our reputation, discourage consumers from buying our products,
+or cause production and delivery disruptions that could negatively impact our net sales and financial condition. 
+
+ We
+may also suffer losses if our products or operations violate applicable laws or regulations, or if our products cause injury, illness,
+or death. In addition, our marketing could face claims of false or deceptive advertising or other criticism. A significant product liability
+or other legal judgment or a related regulatory enforcement action against us, or a significant product recall, may materially and adversely
+affect our reputation and profitability. Moreover, even if a product liability or fraud claim is unsuccessful, has no merit, or is not
+pursued to conclusion, the negative publicity surrounding assertions against our products or processes could materially and adversely
+affect our product sales, financial condition, and operating results. 
+
+ In
+the past, we have expanded our business internationally. This expansion subjects us to increased operational, regulatory, financial and
+other risks. 
+
+ We
+face increased operational, regulatory, financial, compliance, reputational and foreign exchange rate risks as a result of our international
+expansion. The failure of our compliance and internal control systems to properly mitigate such additional risks, or of our operating
+infrastructure to support such expansion, could result in operational failures and regulatory fines or sanctions. If our international
+products and operations experience any negative consequences or are perceived negatively in non-U.S. markets, it may also harm our reputation
+in other markets, including the U.S. market. 
+
+ Our
+risk management policies and procedures, and those of our third-party vendors upon which we rely, may not be fully effective in identifying
+or mitigating risk exposure, including employee misconduct. If our policies and procedures do not adequately protect us from exposure
+to these risks, we may incur losses that would adversely affect our financial condition, reputation and market share. 
+
+ We
+have developed risk management policies and procedures and we continue to refine them as we conduct our business. Many of our procedures
+involve oversight of third-party vendors that provide us with critical services. Our policies and procedures to identify, monitor and
+manage risks may not be fully effective in mitigating our risk exposure. 
+
+ These
+risks are difficult to detect in advance and deter, and could harm our business, results of operations or financial condition. If our
+policies and procedures do not adequately protect us from exposure and our exposure is not adequately covered by insurance or other risk-shifting
+tools, we may incur losses that would adversely affect our financial condition and could cause a reduction in our revenues as investors
+in our products shift their investments to the products of our competitors. 
+
+ 12 
+ Table of Contents 
+
+ We
+rely on trademarks, trade secrets, and other forms of intellectual property protections, which may not be adequate to protect us from
+misappropriation or infringement of our intellectual property. 
+
+ We
+rely on a combination of trademark, trade secret and other intellectual property laws in the U.S. and foreign jurisdictions in which
+we operate our businesses. We have applied for registration of a limited number of trademarks in the U.S. and in certain other countries,
+some of which have been registered or issued. We cannot guarantee that our applications will be approved by the applicable governmental
+authorities, or that third parties will not seek to oppose or otherwise challenge our registrations or applications. We also rely on
+unregistered proprietary rights, including common law trademark protection. Third parties may use trademarks identical or confusingly
+similar to ours, or independently develop trade secrets or know-how similar or equivalent to ours. If our proprietary information is
+divulged to third parties, including our competitors, or our intellectual property rights are otherwise misappropriated or infringed,
+our business could be harmed or adversely affected. 
+
+ Our
+financial condition and results of operations could suffer if there is an impairment of goodwill or intangible assets. 
+
+ We
+are required to test intangible assets with indefinite lives, including goodwill, annually or, in certain instances, more frequently,
+and may be required to record impairment charges, which would reduce any earnings or increase any loss for the period in which the impairment
+was determined to have occurred. Our goodwill impairment analysis is sensitive to changes in key assumptions used in our analysis. If
+the assumptions used in our analysis are not realized, it is possible that an impairment charge may need to be recorded in the future.
+We cannot accurately predict the amount and timing of any impairment of goodwill or other intangible assets. However, any such impairment
+would have an adverse effect on our results of operations. 
+
+ During
+fiscal year 2026, we recorded an impairment loss of $2.7 million related to goodwill and other intangible assets in our financial services
+business in the U.K. which had been suffering from increased losses resulting from the departure of a former executive and increased
+costs of running the business. The impairment loss of $2.7 million included goodwill of $2.0 million and indefinite and finite lived
+intangible assets totaling $0.7 million relating to brand name and customer relations. We determined the fair value of the reporting
+unit using multiple methods including discounted cash flows and pricing of comparable companies. As of June 30, 2026, the total recorded
+value of our goodwill and intangible assets was zero excluding amounts classified as held for sale. 
+
+ We
+may face double taxation on certain income earned by our non-U.S. subsidiaries. 
+
+ Under
+the Internal Revenue Code of 1986, as amended (“Code”), provisions governing the taxation of income earned by “controlled
+foreign corporations,” most or all of the income earned by our non-U.S. subsidiaries will be subject to U.S. federal income tax
+in the year earned, even if not distributed to Marygold and even if fully taxed in the foreign countries in which those subsidiaries
+are organized or operate. Although the Code provides for foreign tax credit relief with respect to the foreign income taxes imposed on
+such income, that relief is limited in several respects that could have the effect of subjecting the same income to both U.S. and foreign
+income taxation. 
+
+ Legal,
+Compliance and Regulatory Risks 
+
+ Our
+business is subject to extensive government regulation and oversight. Our failure to comply with extensive, complex, overlapping, and
+frequently changing rules, regulations, and legal interpretations could materially harm our business. 
+
+ Our
+business is subject to complex and changing laws, rules, regulations, policies, and legal interpretations in the markets in which we
+operate, including, but not limited to, those governing and enforcing: banking, credit, deposit taking, cross-border and domestic money
+transmission, prepaid access, foreign currency exchange, privacy and data protection, data governance, cybersecurity, banking secrecy,
+digital payments and cryptocurrency, payment services (including payment processing and settlement services), fraud detection, consumer
+protection, antitrust and competition, economic and trade sanctions, anti-money laundering, and counter-terrorist financing. As we, through
+our subsidiaries, introduce new products and services and expand into new markets, including through acquisitions, we may become subject
+to additional regulations, restrictions, and licensing requirements. 
+
+ Any
+failure or perceived failure to comply with existing or new laws, regulations, or orders of any government authority (including changes
+to or expansion of their interpretation) may subject us to significant fines, penalties, criminal and civil lawsuits, forfeiture of significant
+assets, and enforcement actions in one or more jurisdictions; result in additional compliance and licensure requirements; cause us to
+lose existing licenses or prevent or delay us from obtaining additional licenses that may be required for our business; increase regulatory
+scrutiny of our business; divert management’s time and attention from our business; restrict our operations; lead to increased
+friction for customers; force us to make changes to our business practices, products or operations; require us to engage in remediation
+activities; or delay planned transactions, product launches or improvements. Any of the foregoing could, individually or in the aggregate,
+harm our reputation, damage our brands and business, and adversely affect our results of operations and financial condition. 
+
+ We
+have implemented policies and procedures designed to help ensure compliance with applicable laws and regulations, but there can be no
+assurance that our employees, contractors, and agents will not violate such laws and regulations. 
+
+ 13 
+ Table of Contents 
+
+ We
+are subject to the rules and regulation of the NYSE American stock exchange and are required to comply with certain continued exchange
+listing standards and requirements or be subject to delisting. 
+
+ Our
+common stock is currently listed on and subject to the rules and regulations of, the NYSE American, LLC stock exchange (“NYSE American”).
+As a result, the Company is required to comply with certain continuing listing standards to continue to trade its stock on the NYSE American.
+For example, in the event our shares of common stock trade at a low price and for a substantial period of time determined by NYSE American,
+the Company may be notified to take certain action to regain compliance with such listing requirement, which may include effecting a
+reverse stock split within a reasonable time or face the possibility of having its stock delisted by NYSE American. Also, we must be
+current in our SEC reporting obligations. If the Company fails to meet one or a combination of such continued listing standards, the
+NYSE American may seek to delist the Company’s shares. Action taken by the NYSE American to delist our stock may adversely impact
+the trading price and trading volume of our shares and adversely affect the Company’s ability raise additional equity or equity
+linked financing. There can be no assurance we will continue to meet all of the NYSE American’s continued listing requirements. 
+
+ We
+incur substantial costs to operate as a public reporting company as required by the Securities Exchange Commission. 
+
+ We
+incur substantial legal, financial, accounting and other costs and expenses to operate as a public reporting company. We believe that
+these costs are a disproportionately larger percentage of our revenues than they are for larger companies. In addition, the rules and
+regulations of the SEC impose significant requirements on public reporting companies, including ongoing disclosure obligations and mandatory
+corporate governance practices. Our senior management and other personnel need to devote a substantial amount of time and resources to
+ensure ongoing compliance with SEC requirements to maintain its status as a public reporting company. There can be no assurance that
+the Company will continue to have sufficient resources in the future to maintain its public company status. 
+
+ As
+a public reporting company, we are subject to rules and regulations established from time to time by the SEC and Public Company Accounting
+Oversight Board (“PCAOB”) regarding our internal control over financial reporting. If we fail to establish and maintain effective
+internal control over financial reporting and disclosure controls and procedures, we may not be able to accurately report our financial
+results or report them in a timely manner. Investor confidence in the price of our stock may be adversely affected if we are unable to
+comply with such rules and regulations. 
+
+ As
+a public reporting company under the Securities Exchange Act, we are subject to the rules and regulations established from time to time
+by the SEC and the PCAOB. These rules and regulations require, among other things, that we establish and periodically evaluate procedures
+with respect to our internal control over financial reporting. In addition, as a public company we are required to document and test
+our internal control over financial reporting pursuant to Section 404 of the Sarbanes-Oxley Act of 2002 (“Sarbanes-Oxley Act”)
+so that our management can certify as to the effectiveness of our internal control over financial reporting, which requires us to document
+and test our internal control over financial reporting. 
+
+ 14 
+ Table of Contents 
+
+ Our
+Chief Executive Officer and Chief Accounting Officer (“certifying officers”) are responsible for establishing and maintaining
+our disclosure controls and procedures (as defined in Securities Exchange Act Rule 13a-15(e) and Rule 15d-15(e)). 
+
+ Our
+certifying officers designed such disclosure controls and procedures, or caused such disclosure controls and procedures to be designed
+under their supervision, to ensure that information required to be disclosed by us in the reports we file or submit under the Securities
+Exchange Act is recorded, processed, summarized and reported, within the time periods specified by the SEC’s rules and forms, and
+is made known to management (including the certifying officers) by others within the company, including our subsidiaries. We regularly
+evaluate the effectiveness of our disclosure controls and procedures and report our conclusions about the effectiveness of the disclosure
+controls quarterly in our Quarterly Reports on Form 10-Q and annually in our Annual Reports on Form 10-K. In completing such reporting,
+we disclose, as appropriate, any significant change in our internal control over financial reporting that occurred during our most recent
+fiscal period that has materially affected, or is reasonably likely to materially affect, our internal control over financial reporting. 
+
+ Also,
+as a public company, we are subject to rules adopted by the SEC pursuant to Section 404 of the Sarbanes-Oxley Act, which require us to
+include in our annual report on Form 10-K our management’s report on, and assessment of the effectiveness of, our internal control
+over financial reporting (“management’s report”). If we fail to achieve and maintain the adequacy of our disclosure
+control or internal control over financial reporting, there is a risk that we will not comply with all of the requirements imposed by
+Section 404. Moreover, effective internal control over financial reporting, particularly that relate to revenue recognition, is necessary
+for us to produce reliable financial reports and is important in helping to prevent financial fraud. Any of these possible outcomes could
+result in an adverse reaction in the financial marketplace due to a loss in investor confidence in the reliability of our financial statements,
+which ultimately could harm our business and could negatively impact on the market price of our common stock. Investor confidence and
+the price of our common stock may be adversely affected if we are unable to comply with Section 404 of the Sarbanes-Oxley Act. 
+
+ We
+are a “smaller reporting company” within the meaning of the Securities Act and Securities Exchange Act and we intend to take
+advantage of certain exemptions from disclosure requirements available to smaller reporting companies which could make our securities
+less attractive to investors and may make it more difficult to compare our performance with that of other public companies. 
+
+ We
+are a “smaller reporting company” as defined in Item 10(f)(1) of Regulation S-K. Smaller reporting companies may take advantage
+of certain reduced disclosure obligations, including, among other things, providing only two years of audited financial statements. We
+will remain a smaller reporting company until the last day of the fiscal year in which (i) the market value of the shares of common stock
+held by non-affiliates exceeds $250 million as of the prior December 31, and (ii) our annual revenue exceeded $100 million during such
+completed fiscal year or the market value of the shares of common stock held by non-affiliates exceeds $700 million as of the prior December
+31. To the extent we take advantage of such reduced disclosure obligations, it may also make comparison of our financial statements with
+other public companies difficult or impossible. 
+
+ Our
+UK financial advisory business is dependent on a key employee, and the loss of this employee could disrupt our ability to provide regulated
+investment advisory services in the United Kingdom. 
+
+ Our
+UK subsidiary is authorized and regulated by the Financial Conduct Authority (the “FCA”) to provide certain investment advisory
+services. We currently depend on a single employee who is qualified and certified to provide investment advice to clients on behalf of
+our UK subsidiary. Under applicable FCA requirements, individuals performing certain investment advisory functions must satisfy applicable
+qualification, competency and fitness and propriety requirements and, where applicable, be certified by the authorized firm to perform
+such functions. 
+
+ If
+this employee were to become unavailable for any reason or otherwise become unable or ineligible to perform these functions, we may be
+unable to continue providing some or all of our regulated investment advisory services in the United Kingdom until we identify, hire
+and appropriately qualify and certify a replacement. We cannot assure you that we would be able to identify or retain a suitably qualified
+replacement on a timely basis or at all. Any resulting interruption in our UK investment advisory services could adversely affect our
+relationships with clients, result in the loss of business, increase our regulatory, compliance and personnel costs, subject us to regulatory
+scrutiny or action, or harm our reputation. Although our UK investment advisory business currently represents an immaterial portion of
+our consolidated revenues and results of operations, any prolonged disruption or related regulatory consequences could adversely affect
+our business and reputation. 
+
+ Losses
+or unauthorized access to or releases of confidential information, including personal information, could subject us to significant reputational,
+financial, legal and operational consequences. 
+
+ Our
+businesses require us to use and store confidential information, including personal information, with respect to our customers and employees
+and also requires us to share confidential information with suppliers and other third parties. We rely on suppliers that are also exposed
+to ransomware and other malicious attacks that can disrupt business operations. Although we take steps to secure confidential information
+that is provided to or accessible by third parties working on our behalf, such measures may not always be effective and losses or unauthorized
+access to or releases of confidential information may occur. Such incidents and other malicious attacks could materially adversely affect
+our business, reputation, results of operations and financial condition. 
+
+ We
+have implemented systems and processes intended to secure our information technology systems and prevent unauthorized access to or loss
+of sensitive data, and mitigate the impact of unauthorized access, including through the use of encryption and authentication technologies
+and we continue to undertake regular reviews of our IT infrastructure and have investigated improved software and hardware cyber threat
+protection solutions. These measures cannot provide absolute security, and losses or unauthorized access to or releases of confidential
+information may occur and could materially adversely affect our business, reputation, results of operations and financial condition. 
+
+ Risks
+Related to Our Controlled Company Election and Status 
+
+ We
+are a “ controlled company ” within the meaning of the NYSE American rules and rely on exemptions
+from various corporate governance requirements that provide protection to stockholders of other companies. 
+
+ We
+are a “controlled company” as defined in section 801(a) of the NYSE American Company Guide because more than 50% of the combined
+voting power of all of our voting stock is beneficially owned or controlled by Messrs. Gerber and Schoenberger. Under the NYSE American
+rules, a company of which more than 50% of the voting power is held by another person or group of persons acting together is a controlled
+company and may elect not to comply with certain NYSE American corporate governance requirements, including the requirements that: 
+
+ ● 
+ a
+ majority of a listed company’s board of directors consist of independent directors; 
+
+ ● 
+ board
+ of directors’ nominations must be selected by either a nominating committee comprised of independent directors or by a majority
+ of independent directors and that a listed company adopt a written charter or board resolutions addressing the nomination process; 
+
+ ● 
+ the
+ compensation of a listed company’s chief executive officer and other executive officers be determined, or recommended to the
+ board for determination, either by a compensation committee that is composed entirely of independent directors or by a majority of
+ the independent directors on its board with a written charter addressing the committee’s purpose and responsibilities. 
+
+ These
+independence standards are intended to ensure that directors who meet those standards are free of any conflicting interest that could
+influence their actions as directors. 
+
+ 15 
+ Table of Contents 
+
+ The
+Company may elect in the future to use certain of these controlled company exemptions and the Company may continue to use all or some
+of these exemptions in the future for so long as the Company is a controlled company. Although we may rely on NYSE American’s controlled
+company exemptions in the future, we currently have a board comprised of a majority of independent directors, our audit committee, nomination
+and governance committee and compensation committees are comprised solely of independent directors. If the makeup of one or more of our
+board, audit, nomination and governance committee or compensation committee changes such that we no longer comply with the independence
+standard of the NYSE American guidelines, then our stockholders may not have the same protections afforded to stockholders of companies
+that are subject to all of the corporate governance requirements of the NYSE American rules. 
+
+ The
+Company’s CEO, through family trusts, controls a significant percentage of our common stock, and may exert significant control
+over matters subject to stockholder approval as well as heightened voting power at the board level, preventing other stockholders and
+new investors from influencing significant corporate decisions. 
+
+ Mr.
+Nicholas D. Gerber, the President and Chief Executive Officer of the Company and Chairman of the Board of the Company, is the beneficial
+owner of 18,751,125 shares of our common stock, par value $0.001 per share (the “Common Stock”), representing approximately
+43.6% of our total issued and outstanding Common Stock (giving effect to the conversion of all shares of our Series B Preferred Stock) . 
+Mr. Gerber’s Common Stock is held by the Nicholas and Melinda Gerber Living Trust (the “Gerber Trust”), of which Nicholas
+Gerber and Melinda Gerber are the trustees. As such, the Gerber Trust and Mr. Gerber share power to vote or to direct the voting of the
+shares and share power to dispose or to direct the disposition of Common Stock beneficially owned or controlled by Mr. Gerber. 
+
+ Mr.
+Scott Schoenberger is a member of the Board of Directors of the Company. Mr. Schoenberger’s shares of Common Stock are held by
+the Schoenberger Family Trust (the “Schoenberger Trust”). Mr. Schoenberger serves as the sole trustee of the Schoenberger
+Trust. As such, the Schoenberger Trust and Mr. Schoenberger share power to vote or to direct the vote of the shares and share power to
+dispose or to direct the disposition of these shares. Shares of our Common Stock held by Schoenberger Trust total 4,697,993 shares, representing
+10.9% of the outstanding shares of Common Stock (giving effect to the conversion of all Series B Preferred Stock). 
+
+ Additionally,
+pursuant to a voting agreement (“Voting Agreement”), the Gerber Trust and Schoenberger Trust will continue to vote all shares
+of our voting stock owned by them to elect each of Messrs. Gerber and Schoenberger to the Board along with other designees mutually agreed
+upon. By virtue of the Voting Agreement, Messrs. Gerber and Schoenberger are entitled to an aggregate of 23,449,118 votes or 54.6% of
+all votes for the election of directors submitted to our stockholders for their approval. 
+
+ In
+addition, pursuant to the Company’s Bylaws, Directors have voting power equivalent to their percentage of total share ownership,
+multiplied by the number of directors then on the Board of Directors, rounded to the nearest whole number, with no director holding less
+than one vote. As a result of Messrs. Gerber and Schoenberger’s ownership of Company shares, Messrs. Gerber and Schoenberger have
+a relatively higher number of votes relative to other directors, in proportion to their ownership interests in the Company. 
+
+ General
+Business Risks 
+
+ Our
+business and financial performance may be adversely affected by information systems interruptions, cybersecurity attacks or other disruptions
+which could have a material adverse effect on our business and results from operations. 
+
+ We
+depend upon information technology, infrastructure, including network, hardware and software systems to conduct our businesses. Despite
+our implementation of security measures, there are numerous and evolving risks to cybersecurity and privacy, including risks originating
+from intentional acts of criminal hackers, nation states and competitors, intentional and unintentional acts or omissions of customers,
+vendors, contractors, employees and other third parties that may result in damage, breakdown, or interruption from computer viruses,
+ransomware, malware, phishing, social engineering, fraudulent inducement, electronic fraud, wire fraud, human error or malfeasance, unauthorized
+access, natural disasters, and telecommunications and electrical failures. Each of our businesses directly or indirectly store, collect
+and transmit sensitive data, including intellectual property, confidential information, proprietary business information, customer or
+personal data. The secure processing of such data, maintenance, and transmission of such data is important to our operations. We face
+increased cybersecurity risks due to our reliance on internet technology. We may not be able to anticipate all types of security threats
+or be able to implement security measures effective against all such threats or implement preventive measures effective against all such
+threats. The techniques used by cybercriminals change frequently and may not be recognized until launched and can originate from a wide
