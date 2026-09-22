@@ -440,22 +440,40 @@ thin to write against. A slot you skipped is information. Do not write up a name
 whose dossier failed to build. Leave its run_date field exactly as prepare.py
 wrote it.
 
-Do NOT run events.py, and do NOT commit or push. This session cannot push, and
-the ledger is written by the pipeline when it ingests your delivery, so that the
-only thing that ever writes the ledger is committed code.
+=== 8. RECORD EACH NOTE AND PUSH ===
 
-=== 8. DELIVER TO GOOGLE DRIVE ===
+Record every note you wrote. events.py runs the checks again and refuses a note
+that fails any of them, so nothing reaches the ledger unchecked:
 
-Follow theses/RUNBOOK.md, "Running in the cloud", steps 4 to 9: hash every note
-and the manifest, upload each one byte for byte under its encoded name, list the
-run folder to confirm, and upload ingest.json last. The pipeline checks all of it
-again against committed code and refuses a delivery that fails any check, so
-nothing you deliver reaches the archive without passing.
+  python3 theses/bin/events.py theses/notes/{TICKER}/{RUN_DATE}-{kind}.md "<trigger>" "<rationale>"
 
-If any script fails, do not upload ingest.json. Upload the traceback as FAILED.md
-into the run folder, report it, and stop. You may not edit anything under
-theses/bin/. An agent that rewrites its own screen after a bad run is not a
-research process.
+The trigger is why this name came up, in a few words, such as "weekly screen,
+SCREEN slot". The rationale is one line on why this name now. A note whose
+direction is "no view" or "watch" records an event and no prediction, which is
+correct: an abstention is not a call.
+
+Then commit and push:
+
+  git add theses/
+  git commit -m "theses({RUN_DATE}): T1, T2"
+  git pull --rebase && git push
+
+`git pull --rebase` first, never a bare push: a bot commits to this repository
+every hour and a bare push loses that race whenever one lands in the window. If
+the rebase stops on a conflict inside theses/ledger/, do not resolve it by hand.
+Those files are append-only and a conflict means two runs wrote at once. Report
+it and stop.
+
+The push rebuilds the published site by itself: the workflow watches main for
+changes under theses/ and republishes.
+
+If any script fails, do not push. Report the exact traceback and stop, leaving
+the repository as you found it. You may not edit anything under theses/bin/. An
+agent that rewrites its own screen after a bad run is not a research process.
+
+Never edit or delete a note that already exists, yours or an earlier run's. A
+changed view is a NEW dated note. Never touch data/, docs/, state/ or
+lambda_function.py.
 ```
 
 ---

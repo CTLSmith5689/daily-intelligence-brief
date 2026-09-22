@@ -125,6 +125,20 @@ def append_prediction(path):
 
 
 def record(path, trigger="", rationale=""):
+    # The ledger is append-only, so a bad row is permanent. Until now the only
+    # thing that ran the note checks before a note was recorded was ingest.py,
+    # on the Google Drive path. A session that pushes straight to the repository
+    # never touches ingest.py, so the gate has to be here too: this is the one
+    # function that writes a note into the ledger.
+    fails, _warns = validate.check(path)
+    if fails:
+        first = "\n  - " + "\n  - ".join(str(f) for f in fails[:3])
+        more = f"\n  ...and {len(fails) - 3} more" if len(fails) > 3 else ""
+        raise SystemExit(
+            f"events: refusing to record {Path(path).name}. It fails {len(fails)} check"
+            f"{'' if len(fails) == 1 else 's'}:{first}{more}\n"
+            f"Run python3 theses/bin/validate.py on it, fix what it reports, and record it "
+            f"again. Nothing was written.")
     ev = event_from_note(path, trigger, rationale)
     append_csv(LEDGER / "events.csv", EVENT_COLUMNS, [ev])
     pid = append_prediction(path)
