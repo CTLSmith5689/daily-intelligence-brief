@@ -1294,8 +1294,8 @@ def _memo(path, text, fm, body, kind, F, W):
     if action in ("Initiate", "Add") and er is not None and rr is not None and er <= rr:
         F(f"action is {action}, but expected_return {er:g} is not above required_return {rr:g}. "
           f"Buy only when the expected return pays for the risk; otherwise the action is Avoid.")
-    if scen and d == "long" and scen["bear"][1] > scen["bull"][1] + PROB_TOL:
-        F(f"direction is long, but the bear case ({scen['bear'][1]:g}) is likelier than the bull case "
+    if scen and action in ("Initiate", "Add") and scen["bear"][1] > scen["bull"][1] + PROB_TOL:
+        F(f"action is {action}, but the bear case ({scen['bear'][1]:g}) is likelier than the bull case "
           f"({scen['bull'][1]:g}). With the bear case likelier the action is not Initiate or Add.")
     if size_now and br is not None and size_now * abs(br) > BEAR_COST_CAP + 1e-9:
         W(f"size_now {size_now:g} x bear_return {br:g} costs {size_now * abs(br):.1%} of the portfolio "

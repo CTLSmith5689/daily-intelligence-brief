@@ -1,6 +1,6 @@
 # CF
 
-**avoid**, conviction 5/5, target 104.00 (252d) &mdash; as of 2026-09-19
+**avoid**, conviction 5/5, target 104.00 (252d), as of 2026-09-19
 
 Current note: [`theses/notes/CF/2026-09-19-revision.md`](2026-09-19-revision.md)
 

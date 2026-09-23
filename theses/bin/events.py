@@ -255,7 +255,7 @@ def render_position(ticker):
     out = [f"# {ticker}", ""]
     d, c = cur.get("direction", "?"), cur.get("conviction", "?")
     out += [f"**{d}**, conviction {c}/5, target {cur.get('target_price','?')} "
-            f"({cur.get('horizon_days','?')}d) &mdash; as of {cur.get('date','?')}", ""]
+            f"({cur.get('horizon_days','?')}d), as of {cur.get('date','?')}", ""]
     if cur.get("action"):
         out += [f"Memo action: **{cur['action']}**, size now {cur.get('size_now') or '0'}, expected "
                 f"return {cur.get('expected_return','?')}, bear return {cur.get('bear_return','?')}.", ""]
