@@ -29,8 +29,10 @@
   var PRICE_DATE = CFG.close || ASOF;
   function closeLabel(d) {
     d = d || PRICE_DATE;
-    if (!d) return "Last close";
-    return "Last close, " + dateShort3(d) + (ASOF && d !== ASOF ? " (panel as of " + dateShort(ASOF) + ")" : "");
+    if (!d) return "Latest close";
+    var x = dt(d);
+    return "As of the close on " + DAYS[x.getUTCDay()] + " " + x.getUTCDate() + " " + MONTHS[x.getUTCMonth()] +
+      (ASOF && d !== ASOF ? " (still the latest on " + dt(ASOF).getUTCDate() + " " + MONTHS[dt(ASOF).getUTCMonth()] + ")" : "");
   }
 
   var ctx = null, A = null, S = null, N = 0, rootEl = null;
@@ -232,20 +234,28 @@
   }
   function metric(k) { return ctx.APTZ.metric(k); }
   function betterTxt(m) { return m.better > 0 ? "higher reads better" : m.better < 0 ? "lower reads better" : "neither end is better"; }
+  /* The same direction, in the company page's words. */
+  function dirTxt(m) { return m.better > 0 ? "Higher is better" : m.better < 0 ? "Lower is better" : "Neither higher nor lower\u00a0is\u00a0better"; }
   /* The pipeline's own description of a field (FIELD_METHODS), for a title attribute. */
   function methodTxt(key) {
     var fm = (CFG.fieldMethods || {})[key];
     return fm ? (fm.formula ? fm.formula + ". " : "") + (fm.note || "") : "";
   }
 
-  /* Value cell for a row and metric, honest about withheld or missing fields. */
+  /* Value cell for a row and metric on the company page, honest about withheld or missing fields. The words
+     for a missing value are the page's own (CO_WHY); STATUS_WHY stays the Stocks page's shorter set. */
+  var CO_WHY = { awaiting_filing: "Updates at next filing", no_coverage: "Not in source data",
+                 insufficient_history: "Too little history", cohort_too_small: "Too few sector peers",
+                 deferred_budget: "Due at next update", not_meaningful: "Not meaningful",
+                 source_error: "Source error", not_applicable: "Does not apply",
+                 vendor_value: "From the data vendor" };
   function valueOf(i, key) {
     var kind = S.kind[i];
-    if (na(i, key)) return { txt: "n/a", why: "n/a, " + (KIND_WHY[kind] || kind), blank: true };
+    if (na(i, key)) return { txt: "n/a", why: "Does not apply", whyLong: "does not apply to a " + (KIND_WHY[kind] || kind), blank: true };
     var v = A.vals[key][i];
     if (v == null || !isFinite(v)) {
       var st = S.status[i] && S.status[i][key];
-      return { txt: "n/a", why: st ? STATUS_WHY[st] || "not reported" : "not reported", blank: true };
+      return { txt: "n/a", why: st ? CO_WHY[st] || "Not reported" : "Not reported", blank: true };
     }
     return { txt: ctx.APTZ.fmt(key, v).replace(/^(\$?)-/, MINUS + "$1"), v: v };
   }
@@ -2486,7 +2496,7 @@
     document.title = tk + ", Apterreon";
     var i = ctx.row(tk);
     if (i < 0) {
-      main.innerHTML = '<div class="ld-wrap"><div class="ld-head"><div><div class="ld-kicker"><b>Company</b></div><h1 class="ld-h1">No listing called ' + esc(tk) + '</h1><p class="ld-deck">The ' + esc(ASOF ? dateMid(ASOF) + " " : "") + 'panel has no row for that ticker. <a class="ld-inl" href="' + ctx.href("stocks") + '">Search the screener</a> instead.</p></div></div></div>';
+      main.innerHTML = '<div class="ld-wrap"><div class="ld-head"><div><div class="ld-kicker"><b>Company</b></div><h1 class="ld-h1">No listing with the ticker ' + esc(tk) + '</h1><p class="ld-deck">None of the listings we track' + esc(ASOF ? " as of " + dateMid(ASOF) : "") + ' has that ticker. <a class="ld-inl" href="' + ctx.href("stocks") + '">Search the Stocks page</a> to find the one you want.</p></div></div></div>';
       return;
     }
     document.title = tk + ", " + S.name[i] + ", Apterreon";
@@ -2509,59 +2519,58 @@
     var sec = S.sector[i], opN = cohortN();
     var pdate = S.price_date[i] || PRICE_DATE;
 
-    var capTxt = na(i, "market_cap") ? "n/a, " + (KIND_WHY[kind] || kind) : capOf(i);
-    var head = '<div class="ld-co-head"><div><div class="ld-kicker"><a class="ld-inl" href="' + ctx.href("stocks") + '">Screener</a> ' + MID + " " + esc(sectorName(S.sector[i])) + (S.sub[i] ? " " + MID + " " + esc(S.sub[i]) : "") + "</div>" +
+    var capTxt = na(i, "market_cap") ? "Market cap does not apply to a " + (KIND_WHY[kind] || kind) : capOf(i) === "n/a" ? "Market cap not reported" : "Market cap " + capOf(i);
+    var head = '<div class="ld-co-head"><div><div class="ld-kicker"><a class="ld-inl" href="' + ctx.href("stocks") + '">Stocks</a> ' + MID + " " + esc(sectorName(S.sector[i])) + (S.sub[i] ? " " + MID + " " + esc(S.sub[i]) : "") + "</div>" +
       "<h1>" + esc(S.name[i]) + "</h1>" +
       '<div><span class="ld-co-tk">' + esc(tk) + "</span>" + (kind !== "operating" ? '<span class="ld-kt ld-kt-' + kind + (isNonOp(kind) ? " ld-kt-nonop" : "") + '">' + esc(ctx.KIND_LABEL[kind] || kind) + "</span>" : "") +
       ' <span class="ld-kicker" style="margin-left:8px">' + esc(S.index[i]) + "</span></div>" +
-      (S.full_name[i] && S.full_name[i] !== S.name[i] ? '<div class="ld-muted" style="font-size:13px;margin-top:6px">Exchange name: ' + esc(S.full_name[i]) + "</div>" : "") +
+      (S.full_name[i] && S.full_name[i] !== S.name[i] ? '<div class="ld-muted" style="font-size:13px;margin-top:6px">Listed as ' + esc(S.full_name[i]) + "</div>" : "") +
       "</div>" +
-      '<div class="ld-px"><div class="ld-kicker">' + (S.price[i] == null ? "No current close" : closeLabel(pdate)) + '</div><div class="p" style="margin-top:6px">' + money(S.price[i]) + "</div>" +
-      '<div class="c ' + chgCls(chg) + '">' + chgTxt(chg) + " that session</div>" +
-      '<div class="cap">Market cap ' + esc(capTxt) + "</div></div></div>";
+      '<div class="ld-px"><div class="ld-kicker">' + (S.price[i] == null ? "No recent close" : closeLabel(pdate)) + '</div><div class="p" style="margin-top:6px">' + money(S.price[i]) + "</div>" +
+      '<div class="c ' + chgCls(chg) + '">' + chgTxt(chg) + " on the day</div>" +
+      '<div class="cap">' + esc(capTxt) + "</div></div></div>";
 
     // chart: every stored daily close
     var pts = [], chartNote = "";
     var closes = files.prices && files.prices.closes || [];
     closes.forEach(function (c) { if (c && c.length >= 2 && c[1] != null && isFinite(c[1])) pts.push({ d: c[0], v: +c[1] }); });
-    if (pts.length > 5) chartNote = "Daily closes, " + dateMid(pts[0].d) + " to " + dateMid(pts[pts.length - 1].d);
+    if (pts.length > 5) chartNote = "Daily closing price, " + dateMid(pts[0].d) + " to " + dateMid(pts[pts.length - 1].d);
     else pts = [];
     var perf = pts.length ? (pts[pts.length - 1].v / pts[0].v - 1) * 100 : null;
 
     var dims = [["Growth", S.g[i]], ["Value", S.v[i]], ["Quality", S.q[i]], ["Momentum", S.mom[i]]];
     var facts = '<ul class="ld-facts">' +
-      '<li><span class="k">Composite score</span><span class="v">' + (S.score[i] == null ? "n/a, not scorable" : signed(S.score[i], 2)) + "</span></li>" +
+      '<li><span class="k">Overall score</span><span class="v">' + (S.score[i] == null ? "Not scored" : signed(S.score[i], 2)) + "</span></li>" +
       dims.map(function (d) {
         var v = d[1];
         var bar = v == null ? "" : '<span class="ld-dimbar" aria-hidden="true"><i style="' + (v >= 0 ? "left:50%;width:" : "right:50%;width:") + Math.max(2, Math.min(50, Math.abs(v) * 50)).toFixed(1) + '%"></i></span>';
         return '<li><span class="k">' + d[0] + '</span><span class="v">' + bar + (v == null ? "n/a" : signed(v, 2)) + "</span></li>";
       }).join("") +
-      '<li><span class="k">Next earnings</span><span class="v">' + (S.earn[i] ? dateMid(S.earn[i]) : "not scheduled") + "</span></li>" +
-      '<li><span class="k">Security type</span><span class="v">' + esc(ctx.KIND_LABEL[kind] || kind) + "</span></li>" +
-      (perf != null ? '<li><span class="k">Change over chart</span><span class="v ' + chgCls(perf) + '">' + signed(perf, 1) + "%</span></li>" : "") +
+      '<li><span class="k">Next results</span><span class="v">' + (S.earn[i] ? dateMid(S.earn[i]) : "Not yet announced") + "</span></li>" +
+      '<li><span class="k">Listing type</span><span class="v">' + esc(ctx.KIND_LABEL[kind] || kind) + "</span></li>" +
+      (perf != null ? '<li><span class="k">Price change on chart</span><span class="v ' + chgCls(perf) + '">' + signed(perf, 1) + "%</span></li>" : "") +
       "</ul>" +
       '<p class="ld-scale">' + (sec
-        ? "<b>Two yardsticks on this page.</b> These scores are sector-relative: each is a z within " + esc(sec) + ", so +1 is one sigma better than a typical " + esc(sec) + " company. The strips further down are universe-relative, against all " + int(opN) + " operating companies, so a score here and a strip there can point different ways."
-        : "This listing has no GICS sector, so it has no sector-relative scores. The strips further down place it against all " + int(opN) + " operating companies.") +
-      " Each bar runs from 0 at the centre to " + String.fromCharCode(177) + "1 at its ends.</p>";
+        ? "<b>These scores compare " + esc(tk) + " with other " + esc(sec) + " companies.</b> Each is a z-score: how far " + esc(tk) + " sits from the middle of its sector, in units of the sector's usual spread, so +1 is one unit better than the sector's typical company. The chart further down compares it with all " + int(opN) + " operating companies we track, and the two can disagree: a P/E can look high next to all companies and ordinary within one sector. Each bar runs from 0 in the middle to " + String.fromCharCode(177) + "1\u00a0at\u00a0the\u00a0ends."
+        : esc(tk) + " has no GICS sector (the standard industry classification), so it has no sector scores. The chart further down compares it with all " + int(opN) + " operating companies we track.") + "</p>";
 
     var nonop = isNonOp(kind);
     var near = nearestProfiles(i), nearest = near.list;
 
     main.innerHTML = '<div class="ld-wrap">' + head +
-      (nonop ? '<p class="ld-note" style="margin-top:16px">' + esc(ctx.KIND_LABEL[kind] || kind) + ": this listing is left out of the operating cohort, so it never moves a median. Its z-scores are still measured against operating companies, and fields that do not apply to a " + esc(KIND_WHY[kind] || kind) + " read n/a with the reason.</p>" : "") +
-      '<div class="ld-co-top"><section aria-labelledby="ld-ch-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-ch-h">Price</h2><span class="ld-kicker">' + esc(chartNote || "no price history") + "</span></div>" +
-      (pts.length ? '<div class="ld-chart" id="ld-chart"></div>' : '<p class="ld-note">No price history is held for ' + esc(tk) + "." + (S.price[i] != null ? " The panel has a single close of " + money(S.price[i]) + (pdate ? " on " + dateMid(pdate) : "") + "." : "") + "</p>") +
-      '</section><section aria-labelledby="ld-gl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-gl-h">At a glance</h2><span class="ld-vs">' + (sec ? "vs " + esc(sec) + " peers" : "no sector peers") + "</span></div>" + facts + "</section></div>" +
+      (nonop ? '<p class="ld-note" style="margin-top:16px">' + esc(tk) + " is a " + esc(KIND_WHY[kind] || kind) + ", not an operating company, so it is left out of the medians that describe a typical company. Its z-scores still compare it with operating companies. Where a figure does not apply to a " + esc(KIND_WHY[kind] || kind) + ", the page says so.</p>" : "") +
+      '<div class="ld-co-top"><section aria-labelledby="ld-ch-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-ch-h">Price history</h2><span class="ld-kicker">' + esc(chartNote || "None available") + "</span></div>" +
+      (pts.length ? '<div class="ld-chart" id="ld-chart"></div>' : '<p class="ld-note">We have no price history to chart for ' + esc(tk) + "." + (S.price[i] != null ? " The only close we have is " + money(S.price[i]) + (pdate ? ", on " + dateMid(pdate) : "") + "." : "") + "</p>") +
+      '</section><section aria-labelledby="ld-gl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-gl-h">At a glance</h2><span class="ld-vs">' + (sec ? "Scores within " + esc(sec) : "No sector to compare with") + "</span></div>" + facts + "</section></div>" +
       thesisSection(tk, r) +
       '<section class="ld-sec" id="ld-where" aria-labelledby="ld-wh-h"></section>' +
       '<section class="ld-sec" id="ld-hist" aria-labelledby="ld-hi-h"></section>' +
-      '<div class="ld-two"><section class="ld-sec" aria-labelledby="ld-np-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-np-h">Closest profiles in the universe</h2></div>' +
-      '<p style="font-size:14px;color:var(--ink2);margin:10px 0 6px">Operating companies whose z-scores sit nearest to ' + esc(tk) + "’s (root mean square distance, in sigma), " +
-      profileScopeTxt(near.keys, kind) + "</p>" +
+      '<div class="ld-two"><section class="ld-sec" aria-labelledby="ld-np-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-np-h">Most similar companies</h2></div>' +
+      '<p style="font-size:14px;color:var(--ink2);margin:10px 0 6px">Operating companies whose z-scores sit closest to ' + esc(tk) + "’s. Closeness is the typical gap between the two sets of z-scores (a root mean square, in " + SIGMA + "), " +
+      profileScopeTxt(near.keys, kind) + " A smaller number means a closer match.</p>" +
       (nearest.length ? '<ul class="ld-peers">' + nearest.map(function (p) {
         return '<li><a class="ld-tk" href="' + ctx.href("company", S.ticker[p.i]) + '">' + esc(S.ticker[p.i]) + '</a><span class="n">' + esc(S.name[p.i]) + " " + MID + " " + esc(sectorName(S.sector[p.i])) + '</span><span class="d">' + num(p.d, 2) + SIGMA + "</span></li>";
-      }).join("") + "</ul>" : '<p class="ld-note">Too few metrics have values to compare this listing with others.</p>') +
+      }).join("") + "</ul>" : '<p class="ld-note">' + esc(tk) + " has too few figures to compare with other companies.</p>") +
       "</section>" + businessBlock(tk, det) + "</div>" +
       companyDetail(tk, det, files.news) + "</div>";
 
@@ -2582,8 +2591,8 @@
     var why = KIND_WHY[kind] || kind;
     var left = A.metrics.filter(function (m) { return keys.indexOf(m.key) < 0; });
     function labs(ms) { return esc(ms.map(function (m) { return m.label; }).join(", ")); }
-    if (keys.length <= left.length) return "compared only on the " + keys.length + " of " + A.metrics.length + " metrics that apply to a " + esc(why) + ": " + labs(keys.map(metric)) + ".";
-    return "leaving out " + labs(left) + ", which do not apply to a " + esc(why) + ".";
+    if (keys.length <= left.length) return "using only the " + keys.length + " of " + A.metrics.length + " metrics that apply to a " + esc(why) + ": " + labs(keys.map(metric)) + ".";
+    return "leaving out " + labs(left) + ", which " + (left.length === 1 ? "does" : "do") + " not apply to a " + esc(why) + ".";
   }
   function nearestProfiles(i) {
     var U = ctx.z("universe"), keys = profileKeys(i);
@@ -2653,30 +2662,30 @@
           var tickZ = NaN;
           if (!useSector && secMed && isFinite(secMed[k]) && U.stats[k] && U.stats[k].scale > 0) tickZ = (secMed[k] - U.stats[k].center) / U.stats[k].scale;
           if (useSector && U.stats[k]) tickZ = (U.stats[k].median - st0.center) / st0.scale;
-          if (isFinite(tickZ)) strip += '<span class="sm" style="left:' + pctPos(tickZ).toFixed(2) + '%" title="' + (useSector ? "Universe median" : "Sector median") + '"></span>';
+          if (isFinite(tickZ)) strip += '<span class="sm" style="left:' + pctPos(tickZ).toFixed(2) + '%" title="' + (useSector ? "Median of all companies" : "Sector median") + '"></span>';
         }
         var z = v.blank ? NaN : R.z[k][i];
         if (isFinite(z)) strip += '<span class="dt' + (Math.abs(z) > WH ? " off" : "") + '" style="left:' + pctPos(z).toFixed(2) + '%"></span>';
         strip += "</span></div>";
         var noStats = useSector && !st0;
-        return '<div class="ld-wrow"><div class="lab" title="' + esc(methodTxt(k)) + '">' + esc(m.label) + "<small>" + betterTxt(m) + "</small></div>" +
-          '<div class="strip-cell" role="img" aria-label="' + esc(m.label) + ": " + (isFinite(z) ? "z " + zTxt(z) : "no z") + '">' + strip + "</div>" +
+        return '<div class="ld-wrow"><div class="lab" title="' + esc(methodTxt(k)) + '">' + esc(m.label) + "<small>" + dirTxt(m) + "</small></div>" +
+          '<div class="strip-cell" role="img" aria-label="' + esc(m.label + (v.blank ? ": " + (v.whyLong || v.why.toLowerCase()) : " " + v.txt + (isFinite(z) ? ", z-score " + zTxt(z) : ", no z-score")) + ". " + dirTxt(m) + ".") + '">' + strip + "</div>" +
           '<div class="rv' + (v.blank ? " na" : "") + '">' + esc(v.blank ? v.why : v.txt) + "</div>" +
-          '<div class="zv">' + (noStats ? '<span class="ld-muted" style="font-size:11px">sector &lt; ' + minC + "</span>" : zTxt(z)) + "</div></div>";
+          '<div class="zv">' + (noStats ? '<span class="ld-muted" style="font-size:11px">&lt; ' + minC + " peers</span>" : zTxt(z)) + "</div></div>";
       }).join("");
     }).join("");
     var U0 = U.stats.market_cap;
     var secN = 0;
     if (useSector) for (var j = 0; j < N; j++) if (U.cohortMask[j] && S.sector[j] === sector) secN++;
-    host.innerHTML = '<div class="ld-sec-h ld-where-h"><div><h2 class="ld-h2" id="ld-wh-h">Where it sits in the ' + (useSector ? "sector" : "universe") + "</h2>" +
-      '<div class="ld-vs" style="margin-top:8px">' + (useSector ? "vs " + int(secN) + " " + esc(sector) + " operating companies" : "vs all " + int(cohortN()) + " operating companies") + "</div></div>" +
-      '<div class="ld-seg-w"><div class="ld-seg" role="group" aria-label="Measure against"><button type="button" id="ld-cw-u" data-cs="universe" aria-pressed="' + !useSector + '">Universe</button><button type="button" id="ld-cw-s" data-cs="sector" aria-pressed="' + useSector + '"' + (noSector ? ' disabled aria-describedby="ld-cw-why" title="No GICS sector for this listing"' : "") + ">Sector</button></div>" +
-      (noSector ? '<span class="ld-kicker" id="ld-cw-why">Sector view off: no GICS sector</span>' : "") + "</div></div>" +
+    host.innerHTML = '<div class="ld-sec-h ld-where-h"><div><h2 class="ld-h2" id="ld-wh-h">Compared with ' + (useSector ? "its sector" : "all companies") + "</h2>" +
+      '<div class="ld-vs" style="margin-top:8px">' + (useSector ? "Against " + int(secN) + " operating companies in " + esc(sector) : "Against all " + int(cohortN()) + " operating companies we track") + "</div></div>" +
+      '<div class="ld-seg-w"><div class="ld-seg" role="group" aria-label="Compare with"><button type="button" id="ld-cw-u" data-cs="universe" aria-pressed="' + !useSector + '">All companies</button><button type="button" id="ld-cw-s" data-cs="sector" aria-pressed="' + useSector + '"' + (noSector ? ' disabled aria-describedby="ld-cw-why" title="This listing has no GICS sector"' : "") + ">Sector</button></div>" +
+      (noSector ? '<span class="ld-kicker" id="ld-cw-why">No sector to compare with</span>' : "") + "</div></div>" +
       '<p style="font-size:14.5px;color:var(--ink2);margin:12px 0 0;max-width:80ch">' + (useSector
-        ? "Each strip is the distribution inside " + esc(sectorName(sector)) + " (operating companies only), on a common sigma axis. The dot is " + esc(S.ticker[i]) + "’s sector z; the black tick is where the universe median falls."
-        : "Each strip is the distribution across the operating companies that report the metric (about " + int(Math.round((U0 ? U0.n : 0) / 100) * 100) + " for market cap), on a common sigma axis (robust z: median and MAD). The thin line at 0 is the universe median. The dot is " + esc(S.ticker[i]) + (sector ? "; the black tick is the median of its sector, " + esc(sector) + "." : ". It has no GICS sector, so there is no sector tick.")) +
-      " Arrows mark tails that run past " + String.fromCharCode(177) + "4" + SIGMA + "; a hollow dot sits past the axis. The engine clips z at " + String.fromCharCode(177) + "5" + SIGMA + ", shown as " + GE + " +5" + SIGMA + ".</p>" +
-      '<div class="ld-legend"><span><i class="ld-lg-wh"></i>5th to 95th percentile</span><span><i class="ld-lg-box"></i>25th to 75th</span><span><i class="ld-lg-dot"></i>' + esc(S.ticker[i]) + "</span>" + (noSector ? "" : "<span><i class=\"ld-lg-tick\"></i>" + (useSector ? "universe median" : "sector median") + "</span>") + "</div>" +
+        ? "The bars show how each figure is spread across the operating companies in " + esc(sectorName(sector)) + ", and the thin line at 0 is the sector median. The dot is " + esc(S.ticker[i]) + "’s z-score within its sector; the black tick is the median of all companies."
+        : "The bars show how each figure is spread across the operating companies that report it (about " + int(Math.round((U0 ? U0.n : 0) / 100) * 100) + " for market cap), leaving out funds, shells and bond listings. The scale is the z-score: the thin line at 0 is the median, the company in the middle, and each step (" + SIGMA + ") is one unit of the usual spread, measured so that a few extreme companies do not distort it. The dot is " + esc(S.ticker[i]) + (sector ? "; the black tick is the median of its sector, " + esc(sector) + "." : ". It has no GICS sector, so there is no sector tick.")) +
+      " An arrow at the end of a bar means the spread runs past " + String.fromCharCode(177) + "4" + SIGMA + ", and a hollow dot means " + esc(S.ticker[i]) + " itself is past the edge. Z-scores are capped at " + String.fromCharCode(177) + "5" + SIGMA + ", shown as " + GE + "\u00a0+5" + SIGMA + " or " + LE + "\u00a0" + MINUS + "5" + SIGMA + ".</p>" +
+      '<div class="ld-legend"><span><i class="ld-lg-wh"></i>Middle 90% of companies</span><span><i class="ld-lg-box"></i>Middle 50%</span><span><i class="ld-lg-dot"></i>' + esc(S.ticker[i]) + "</span>" + (noSector ? "" : "<span><i class=\"ld-lg-tick\"></i>" + (useSector ? "Median of all companies" : "Sector median") + "</span>") + "</div>" +
       '<div class="ld-wrow hd"><div class="lab ld-kicker">Metric</div><div class="strip-cell">' + axis + '</div><div class="rv ld-kicker">Value</div><div class="zv ld-kicker">z</div></div>' + rows;
     host.querySelectorAll("[data-cs]").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -2749,7 +2758,7 @@
   ["change_pct", "volume", "volume_trend", "market_cap", "pe", "price_book", "fcf_yield", "return_1m", "return_12_2",
    "return_52w", "high52w_proximity", "rel_strength_sp500", "volatility_1y", "beta_1y", "sharpe_1y",
    "max_drawdown_1y"].forEach(function (k) { STALE_KEYS[k] = 1; });
-  var HIST_WHY = { stale: "withheld, the close was not that session's", na: "does not apply", none: "not recorded", noz: "no universe z that day" };
+  var HIST_WHY = { stale: "price out of date that day", na: "does not apply", none: "not recorded", noz: "no z-score that day" };
 
   function histPath(ser, X, Y, lo, n) {
     var d = "", run = 0, dots = [];
@@ -2798,7 +2807,7 @@
     var p = histPath(ser, X, Y, lo, n);
     var dots = p.dots.map(function (jj) { return '<circle class="pt" r="2.6" cx="' + X(jj - lo).toFixed(1) + '" cy="' + Y(ser.v[jj]).toFixed(1) + '"/>'; }).join("");
     var li = lo + n - 1; while (li >= lo && ser.v[li] == null) li--;
-    var label = name + ", " + (zmode ? "universe z" : "value") + ", " + dateMid(ser.d[lo]) + " to " + dateMid(ser.d[lo + n - 1]);
+    var label = name + (zmode ? " z-score" : "") + ", " + dateMid(ser.d[lo]) + " to " + dateMid(ser.d[lo + n - 1]);
     host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" height="' + H + '" role="img" aria-label="' + esc(label) + '">' +
       g.join("") + '<path class="ln" d="' + p.d + '"/>' + dots +
       '<line class="bl" x1="' + pl + '" x2="' + (pl + iw) + '" y1="' + (pt + ih) + '" y2="' + (pt + ih) + '"/>' + xl.join("") +
@@ -2832,7 +2841,7 @@
     var raw = ser.x[j];
     if (raw == null) return head + HIST_WHY[ser.why[j]];
     var z = ser.mode === "z" ? ser.v[j] : NaN;
-    return head + histFmt(ser.k, raw) + (ser.mode === "z" ? "  z " + (z == null ? "n/a" : zTxt(z)) : "");
+    return head + histFmt(ser.k, raw) + (ser.mode === "z" ? "  z-score " + (z == null ? "n/a" : zTxt(z)) : "");
   }
   function setHistRead(t) { var el = document.getElementById("ld-hread"); if (el) el.textContent = t; }
 
@@ -2857,14 +2866,14 @@
     var host = document.getElementById("ld-hist");
     if (!host) return;
     if (noHistory(tk)) {
-      host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">History</h2></div><p class="ld-note">No daily history is held for ' + esc(tk) + ".</p>";
+      host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">Daily history</h2></div><p class="ld-note">We have no daily history for ' + esc(tk) + ".</p>";
       return;
     }
     Promise.all([getJSON("history/" + tickerFile(tk)), histUniverse()]).then(function (got) {
       if (parseCompanyHash().tk && parseCompanyHash().tk !== tk) return;
       var H = got[0], U = got[1];
       if (!H || !H.d || !H.d.length) {
-        host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">History</h2></div><p class="ld-note">No daily history is held for ' + esc(tk) + ".</p>";
+        host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">Daily history</h2></div><p class="ld-note">We have no daily history for ' + esc(tk) + ".</p>";
         return;
       }
       renderHistory(host, tk, i, H, U);
@@ -2882,12 +2891,14 @@
         return '<option value="' + m.key + '">' + esc(m.label) + "</option>";
       }).join("") + "</optgroup>";
     }).join("");
-    host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">History</h2><span class="ld-kicker">' + H.d.length + " panel " + (H.d.length === 1 ? "day" : "days") + ", " + dateMid(H.d[0]) + " to " + dateMid(H.d[H.d.length - 1]) + "</span></div>" +
-      '<p class="ld-hnote">The daily panel starts ' + dateMid(first) + ". " + esc(tk) + " has " + H.d.length + " of the panel's " + (U ? U.d.length : H.d.length) + " days" +
-      (H.d.length < 30 ? ", too few to read a trend into" : "") + ". A gap is a day with no value: the close was not that session's, the field does not apply, or nothing was recorded. The z on each day is against that day's operating universe.</p>" +
+    var total = U ? U.d.length : H.d.length;
+    host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">Daily history</h2><span class="ld-kicker">' + H.d.length + " " + (H.d.length === 1 ? "day" : "days") + " of data, " + dateMid(H.d[0]) + " to " + dateMid(H.d[H.d.length - 1]) + "</span></div>" +
+      '<p class="ld-hnote">Our daily record began on ' + dateMid(first) + " and covers " + total + " " + (total === 1 ? "day" : "days") + " so far. " + esc(tk) + " appears on " +
+      (H.d.length === total ? (total === 1 ? "that day" : "all of them") : H.d.length + " of them") + "." +
+      (H.d.length < 30 ? " That is too few days to show a trend." : "") + " A gap in a line is a day with no figure: the price was out of date that day, the figure does not apply, or nothing was recorded. Each day's z-score compares " + esc(tk) + " with all operating companies on that day.</p>" +
       '<div class="ld-hctl"><label class="ld-kicker" for="ld-hk">Metric</label><select id="ld-hk" class="ld-select ld-hsel">' + opts + "</select>" +
-      '<div class="ld-seg" role="group" aria-label="Show"><button type="button" data-hm="value">Value</button><button type="button" data-hm="z">Universe z</button></div>' +
-      '<div class="ld-seg" role="group" aria-label="Range" id="ld-hr"></div></div>' +
+      '<div class="ld-seg" role="group" aria-label="Show as"><button type="button" data-hm="value">Value</button><button type="button" data-hm="z">z-score</button></div>' +
+      '<div class="ld-seg" role="group" aria-label="Time range" id="ld-hr"></div></div>' +
       '<div class="ld-hread ld-num" id="ld-hread" aria-live="polite"></div>' +
       '<div class="ld-chart ld-hchart" id="ld-hchart"></div>' +
       '<p class="ld-muted ld-hfoot" id="ld-hfoot"></p>' +
@@ -2900,7 +2911,7 @@
       host.querySelectorAll("[data-hm]").forEach(function (b) {
         var m = b.getAttribute("data-hm");
         b.setAttribute("aria-pressed", String(m === mode));
-        if (m === "z") { b.disabled = isPrice; if (isPrice) b.title = "Price has no universe z"; else b.removeAttribute("title"); }
+        if (m === "z") { b.disabled = isPrice; if (isPrice) b.title = "Price has no z-score"; else b.removeAttribute("title"); }
       });
       var ser = histSeries(H, U, k, mode);
       var rg = host.querySelector("#ld-hr"), avail = HIST_RANGES.filter(function (r) { return r[1] < ser.v.length; });
@@ -2913,26 +2924,27 @@
       var cnt = { stale: 0, na: 0, none: 0, noz: 0 };
       ser.why.forEach(function (w) { if (w) cnt[w]++; });
       if (!have) {
-        chart.innerHTML = '<p class="ld-note">' + esc(histLabel(k)) + ": " + (cnt.na === ser.v.length ? "does not apply to a " + esc(KIND_WHY[kind] || kind) + "." : "no value on any panel day.") + "</p>";
+        chart.innerHTML = '<p class="ld-note">' + esc(histLabel(k)) + (cnt.na === ser.v.length ? " does not apply to a " + esc(KIND_WHY[kind] || kind) + "." : " has no figure on any day.") + "</p>";
         setHistRead("");
       } else {
         histChart(chart, ser, histLabel(k));
       }
       var bits = [];
-      if (cnt.stale) bits.push(cnt.stale + " withheld (close not that session's)");
-      if (cnt.na) bits.push(cnt.na + " not applicable");
-      if (cnt.none) bits.push(cnt.none + " not recorded");
-      if (cnt.noz) bits.push(cnt.noz + " without a universe z");
-      foot.textContent = have ? have + " of " + ser.v.length + " days have a value" + (bits.length ? "; " + bits.join(", ") : "") + "." +
-        (mode === "z" ? " z is robust (median and MAD), clipped at " + String.fromCharCode(177) + "5" + SIGMA + (metric(k) && metric(k).transform === "log10" ? ", on log10 values" : "") + "." : "") : "";
+      function dayN(c) { return c + (c === 1 ? " day" : " days"); }
+      if (cnt.stale) bits.push(dayN(cnt.stale) + " with an out-of-date price");
+      if (cnt.na) bits.push(dayN(cnt.na) + " where it does not apply");
+      if (cnt.none) bits.push(dayN(cnt.none) + " not recorded");
+      if (cnt.noz) bits.push(dayN(cnt.noz) + " without a z-score");
+      foot.textContent = have ? have + " of " + dayN(ser.v.length) + " " + (have === 1 ? "has" : "have") + " a figure" + (bits.length ? ". Missing: " + bits.join(", ") : "") + "." +
+        (mode === "z" ? " Z-scores are measured from the median of each day's companies and capped at " + String.fromCharCode(177) + "5" + SIGMA + (metric(k) && metric(k).transform === "log10" ? "; this one is worked out on a log scale" : "") + "." : "") : "";
       var sm = host.querySelector("#ld-hsm");
       sm.innerHTML = HIST_DEFAULT.map(function (key) {
         var md = key === "price" ? "value" : cst.hmode, s = histSeries(H, U, key, md);
         var li = s.v.length - 1; while (li >= 0 && s.v[li] == null) li--;
         var big = li < 0 ? "n/a" : md === "z" ? zTxt(s.v[li]) : histFmt(key, s.x[li]);
         var allNa = s.why.every(function (w) { return w === "na"; });
-        var pic = li < 0 ? '<span class="ld-hsmna">' + (allNa ? "Does not apply" : "No values") + "</span>" : histSpark(s);
-        return '<button type="button" class="ld-sm ld-hsmb" data-hk="' + key + '" aria-pressed="' + (key === k) + '"><span class="ld-kicker">' + esc(histLabel(key)) + (md === "z" ? " z" : "") + '</span><span class="v">' + esc(big) + "</span>" + pic +
+        var pic = li < 0 ? '<span class="ld-hsmna">' + (allNa ? "Does not apply" : "No figures") + "</span>" : histSpark(s);
+        return '<button type="button" class="ld-sm ld-hsmb" data-hk="' + key + '" aria-pressed="' + (key === k) + '"><span class="ld-kicker">' + esc(histLabel(key)) + (md === "z" ? " z-score" : "") + '</span><span class="v">' + esc(big) + "</span>" + pic +
           '<span class="f"><span>' + esc(dateShort(s.d[0])) + "</span><span>" + (li >= 0 ? esc(dateShort(s.d[li])) : "") + "</span></span></button>";
       }).join("");
     }
@@ -2961,14 +2973,17 @@
     var peer = det.peer_share, biz = det.business || {}, segs = det.segments;
     var text = biz.excerpt ? dashFree(biz.excerpt) : "";
     return '<section class="ld-sec" aria-labelledby="ld-bus-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bus-h">What it does</h2>' +
-      (biz.filed ? '<span class="ld-kicker">10-K filed ' + dateMid(biz.filed) + "</span>" : "") + "</div>" +
-      (text ? '<p class="ld-bus">' + esc(text.slice(0, 900)) + (text.length > 900 ? "…" : "") + "</p>" : '<p class="ld-note">No business description held.</p>') +
-      (segs && segs.names && segs.names.length ? '<p style="font-size:14px;color:var(--ink2);margin:8px 0 0"><span class="ld-kicker">Segments</span> ' + esc(segs.names.map(dashFree).join(", ")) + (segs.as_of ? " (" + esc(segs.form || "filing") + " of " + dateMid(segs.as_of) + ")" : "") + "</p>" : "") +
+      (biz.filed ? '<span class="ld-kicker">From the annual report (10-K) filed ' + dateMid(biz.filed) + "</span>" : "") + "</div>" +
+      (text ? '<p class="ld-bus">' + esc(text.slice(0, 900)) + (text.length > 900 ? "…" : "") + "</p>" : '<p class="ld-note">No business description available.</p>') +
+      (segs && segs.names && segs.names.length ? '<p style="font-size:14px;color:var(--ink2);margin:8px 0 0"><span class="ld-kicker">Business segments</span> ' + esc(segs.names.map(dashFree).join(", ")) + (segs.as_of ? " (from the " + esc(segs.form || "filing") + " filed " + dateMid(segs.as_of).replace(/ /g, "\u00a0") + ")" : "") + "</p>" : "") +
       (peer && peer.share != null ? '<div class="ld-kicker" style="margin-top:16px">Share of sub-industry revenue</div><div class="ld-share"><i style="width:' + (peer.share * 100).toFixed(1) + '%"></i></div>' +
-        '<p style="font-size:13.5px;color:var(--ink2);margin:0">' + num(peer.share * 100, 1) + "% of trailing revenue across " + peer.n + " names in " + esc(peer.group) + ", ranked " + peer.rank + " of " + peer.n + ". Revenue share is not market share: the peer group is a GICS label, not a market.</p>" : "") +
+        '<p style="font-size:13.5px;color:var(--ink2);margin:0">' + esc(tk) + "’s revenue over the past year was " + num(peer.share * 100, 1) + "% of the total for the " + peer.n + " " + (peer.n === 1 ? "company" : "companies") + " in " + esc(peer.group) + (peer.rank === 1 ? ", the largest share of any" : ", ranking " + peer.rank + " of " + peer.n) + ". This is not market share: the group is an industry label, not a market.</p>" : "") +
       "</section>";
   }
 
+  /* The filings table's Section column, in words (the pipeline's _DOC_KIND_WORDS, shortened for a cell). */
+  var DOC_KIND = { business: "business description", risk_factors: "risk factors", segment_note: "business segments",
+                   earnings_release: "results announcement", mdna: "management discussion" };
   function companyDetail(tk, det, news) {
     var rep = det && det.reported || {};
     var an = (rep.annual || []).filter(function (r) { return r.period === "FY" || !r.period || String(r.period).indexOf("FY") === 0; });
@@ -2981,7 +2996,7 @@
         ["Free cash flow", "fcf", function (v) { return (v < 0 ? MINUS : "") + ctx.APTZ.fmt("market_cap", Math.abs(v)); }],
       ];
       var y0 = String(an[0].period_end).slice(0, 4), y1 = String(an[an.length - 1].period_end).slice(0, 4);
-      hist = '<section class="ld-sec" aria-labelledby="ld-rh-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-rh-h">Reported history</h2><span class="ld-kicker">As reported, annual, ' + an.length + " years, " + y0 + " to " + y1 + "</span></div>" +
+      hist = '<section class="ld-sec" aria-labelledby="ld-rh-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-rh-h">Reported history</h2><span class="ld-kicker">' + an.length + " years as reported, " + y0 + " to " + y1 + "</span></div>" +
         '<div class="ld-hist4">' + series.map(function (s) {
           var vals = an.map(function (r) { return r[s[1]]; });
           var fi = vals.findIndex(function (v) { return v != null && isFinite(v); });
@@ -2990,25 +3005,25 @@
           return '<div class="ld-sm"><div class="ld-kicker">' + s[0] + '</div><div class="v">' + s[2](vals[li]) + "</div>" + sparkSvg(vals) +
             '<div class="f"><span>' + String(an[fi].period_end).slice(0, 4) + " " + s[2](vals[fi]) + "</span><span>" + String(an[li].period_end).slice(0, 4) + "</span></div></div>";
         }).join("") + "</div>" +
-        '<p class="ld-muted" style="font-size:13px;margin-top:14px">From XBRL company facts, consolidated figures only. A gap in a line is a year the figure was not tagged, not a year without it. Free cash flow is operating cash flow less capital expenditure.</p></section>';
+        '<p class="ld-muted" style="font-size:13px;margin-top:14px">Figures for the whole company, from the machine-readable data (XBRL) in its SEC filings. A gap in a line is a year the figure was missing from that data, not a year the company had none. Diluted EPS is earnings per share, counting the extra shares that options and convertible securities could create. Free cash flow is cash from operations minus capital spending.</p></section>';
     }
     var fl = det && det.filings || [];
-    var filings = fl.length ? '<section class="ld-sec" aria-labelledby="ld-fi-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-fi-h">Filings held</h2><span class="ld-kicker">' + fl.length + " documents</span></div>" +
+    var filings = fl.length ? '<section class="ld-sec" aria-labelledby="ld-fi-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-fi-h">Filings collected</h2><span class="ld-kicker">' + fl.length + " " + (fl.length === 1 ? "document" : "documents") + "</span></div>" +
       '<div class="ld-tbl-wrap"><table class="ld-mini"><thead><tr><th>Filed</th><th>Form</th><th>Section</th><th class="r">Characters</th></tr></thead><tbody>' +
       fl.map(function (f) {
-        return '<tr style="cursor:default"><td class="ld-num">' + esc(f.filed) + '</td><td class="ld-num">' + esc(f.form) + "</td><td>" + esc(String(f.doc_kind || "").replace(/_/g, " ")) + '</td><td class="r ld-num">' + (f.text_chars ? int(f.text_chars) : "n/a") + "</td></tr>";
+        return '<tr style="cursor:default"><td class="ld-num">' + esc(f.filed) + '</td><td class="ld-num">' + esc(f.form) + "</td><td>" + esc(DOC_KIND[f.doc_kind] || String(f.doc_kind || "").replace(/_/g, " ")) + '</td><td class="r ld-num">' + (f.text_chars ? int(f.text_chars) : "n/a") + "</td></tr>";
       }).join("") + "</tbody></table></div></section>"
-      : '<section class="ld-sec"><div class="ld-sec-h"><h2 class="ld-h2">Filings held</h2></div><p class="ld-note">' +
-        (det ? "No filing text collected yet." : "Filing text and reported history are collected for " + int(CFG.have && CFG.have.company ? CFG.have.company.length : 0) + " companies so far: the research queue and the names the screen has surfaced. " + esc(tk) + " is not one of them yet.") + "</p></section>";
+      : '<section class="ld-sec"><div class="ld-sec-h"><h2 class="ld-h2">Filings collected</h2></div><p class="ld-note">' +
+        (det ? "No filings collected yet." : "We collect filings and reported figures for " + int(CFG.have && CFG.have.company ? CFG.have.company.length : 0) + " companies so far: those we are researching and those the daily screen has picked out. " + esc(tk) + " is not one of them yet.") + "</p></section>";
     var items = (Array.isArray(news) ? news : news && (news.items || news.news) || []).slice(0, 10);
-    var newsHTML = items.length ? '<section class="ld-sec" aria-labelledby="ld-nw-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-nw-h">Recent headlines</h2><span class="ld-kicker">Tone: VADER, ' + MINUS + "1 to +1</span></div>" +
+    var newsHTML = items.length ? '<section class="ld-sec" aria-labelledby="ld-nw-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-nw-h">Recent headlines</h2><span class="ld-kicker">Tone from ' + MINUS + "1 (negative) to +1 (positive)</span></div>" +
       '<ul class="ld-news">' + items.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); }).map(function (n) {
         var v = n.vader, tone = v == null ? "no score" : v > 0.05 ? "positive" : v < -0.05 ? "negative" : "neutral";
         var bar = v == null ? "" : '<span class="ld-tone" aria-hidden="true"><i class="' + (v >= 0 ? "p" : "n") + '" style="' + (v >= 0 ? "left:50%;" : "right:50%;") + "width:" + (Math.min(1, Math.abs(v)) * 50).toFixed(1) + '%"></i></span>';
         var d = n.ts ? new Date(n.ts * 1000).toISOString().slice(0, 10) : "";
         return '<li><a class="h" href="' + esc(n.link) + '" target="_blank" rel="noopener">' + esc(dashFree(cleanHead(n.title || n.h || "", n.source))) + '</a><div class="m"><span class="ld-src">' + esc(srcTxt(n.source)) + (d ? " " + MID + " " + dateShort(d) : "") + "</span>" + bar +
           '<span class="ld-src" style="letter-spacing:.04em;text-transform:none">' + tone + (v == null ? "" : " " + signed(v, 2)) + "</span></div></li>";
-      }).join("") + "</ul></section>" : '<section class="ld-sec"><div class="ld-sec-h"><h2 class="ld-h2">Recent headlines</h2></div><p class="ld-note">No company headlines collected in the last run.</p></section>';
+      }).join("") + "</ul></section>" : '<section class="ld-sec"><div class="ld-sec-h"><h2 class="ld-h2">Recent headlines</h2></div><p class="ld-note">We found no recent headlines about ' + esc(tk) + ".</p></section>";
     return hist + '<div class="ld-two">' + filings + newsHTML + "</div>";
   }
   /* ---------------------------------------------------------------- RESEARCH */
@@ -3025,7 +3040,7 @@
       mn -= pad; mx += pad;
       function X(p) { return pl + (W - pl - pr) * (p - mn) / (mx - mn); }
       var below = [{ x: X(n.e), t: "written " + money(n.e) }];
-      if (hasT) below.push({ x: X(n.t), t: (v.open ? "target " : "ref. target ") + money(n.t) });
+      if (hasT) below.push({ x: X(n.t), t: (v.open ? "target " : "reference target ") + money(n.t) });
       if (hasW) below.push({ x: X(n.w), t: "if wrong " + money(n.w) });
       below.sort(function (a, b) { return a.x - b.x; });
       // Lay labels out by their real extent (mono face, about 0.62em per character at 10.5px), clamped
@@ -3041,7 +3056,7 @@
       var H = y + 22 + Math.max(1, rows.length) * 14;
       var lx = X(n.l), top1 = "LAST CLOSE " + dateShort(r.last_close.date).toUpperCase(), tw = Math.max(top1.length * 9.5 * 0.62, money(n.l).length * CH);
       var lcx = Math.max(tw / 2 + 1, Math.min(W - tw / 2 - 1, lx));
-      var svg = '<svg viewBox="0 0 ' + W + " " + H + '" height="' + H + '" role="img" aria-label="' + esc(r.ticker + ": " + callLine(r)) + '">' +
+      var svg = '<svg viewBox="0 0 ' + W + " " + H + '" height="' + H + '" role="img" aria-label="' + esc(r.ticker + ": " + callSentence(r)) + '">' +
         '<line class="ax" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y + '" y2="' + y + '"/>' +
         '<line class="mv" x1="' + X(n.e).toFixed(1) + '" x2="' + lx.toFixed(1) + '" y1="' + y + '" y2="' + y + '"/>' +
         (hasT ? '<line class="' + (v.open ? "tk" : "tkr") + '" x1="' + X(n.t).toFixed(1) + '" x2="' + X(n.t).toFixed(1) + '" y1="' + (y - 9) + '" y2="' + (y + 9) + '"/>' : "") +
@@ -3053,7 +3068,7 @@
       host.innerHTML = svg;
     }
     var n0 = callNums(r);
-    if (!r.last_close || !isFinite(n0.l) || !isFinite(n0.e)) { host.innerHTML = '<p class="ld-note">No close held since the note was written, so there is no move to draw.</p>'; return; }
+    if (!r.last_close || !isFinite(n0.l) || !isFinite(n0.e)) { host.innerHTML = '<p class="ld-note">There has been no close since the note was written, so there is no price move to show.</p>'; return; }
     draw();
     redrawers.push(draw);
   }
@@ -3066,21 +3081,42 @@
   }
   function todayISO() { return ASOF || new Date().toISOString().slice(0, 10); }
 
+  /* callLine as whole sentences, for the thesis on the company page (the Home page keeps callLine). Same
+     numbers, same rounding. */
+  function callSentence(r) {
+    var v = viewOf(r), n = callNums(r);
+    var out = "Written " + (r.written_on ? "on " + dateShort(r.written_on) : "on an unrecorded date") + (isFinite(n.e) ? " at " + money(n.e) : "");
+    if (v.open) out += (isFinite(n.t) ? ", with a target of " + money(n.t) + (r.review_by ? " by " + dateShort(r.review_by) : "") : ", with no target" + (r.review_by ? ", to be reviewed by " + dateShort(r.review_by) : "")) + ".";
+    else out += ".";
+    if (r.last_close && isFinite(n.l)) {
+      out += " The last close was " + money(n.l) + " on " + dateShort(r.last_close.date);
+      if (isFinite(n.move)) {
+        out += Math.abs(n.move) < 0.0005 ? ", unchanged since the note" : ", " + (n.move > 0 ? "up " : "down ") + num(Math.abs(100 * n.move), 1) + "% since the note";
+        var toward = n.need !== 0 ? n.move / n.need : 0;
+        if (v.open && isFinite(n.t) && Math.abs(n.move) >= 0.0005) out += toward >= 0 ? ", toward the target" : ", away from the target";
+      }
+      out += ".";
+    } else out += " There has been no close since.";
+    if (!v.open) out += isFinite(n.t) ? " The " + money(n.t) + " target is for reference only and is not active while the view is “" + v.label + "”." : " There is no target.";
+    return out;
+  }
+  function plural(c, one, many) { return c + " " + (c === 1 ? one : many); }
+
   /* The full thesis, placed on the company page. r is docs/thesis/TICKER.json: the current view's scalars at
      the top, every note newest first in notes[], and last_close. Earlier notes stay readable below. */
   function thesisSection(tk, r) {
-    if (!r) return '<p class="ld-nothesis" id="ld-thesis">No thesis written for ' + esc(tk) + " yet.</p>";
+    if (!r) return '<p class="ld-nothesis" id="ld-thesis">There is no investment thesis for ' + esc(tk) + " yet.</p>";
     var v = viewOf(r), n = callNums(r), note = r.notes && r.notes[0] || {};
     var conv = parseInt(r.conviction, 10) || 0;
     var days = r.review_by ? daysBetween(todayISO(), r.review_by) : NaN;
     var lc = r.last_close;
     var facts = '<ul class="ld-facts">' +
       '<li><span class="k">Price when written</span><span class="v">' + money(n.e) + (r.written_on ? " on " + dateMid(r.written_on) : "") + "</span></li>" +
-      (lc && isFinite(n.l) ? '<li><span class="k">Last close</span><span class="v">' + money(n.l) + " on " + dateMid(lc.date) + (isFinite(n.move) ? ' <span class="' + chgCls(n.move * 100) + '">(' + signed(n.move * 100, 1) + "%)</span>" : "") + "</span></li>" : '<li><span class="k">Last close</span><span class="v">none held</span></li>') +
+      (lc && isFinite(n.l) ? '<li><span class="k">Last close</span><span class="v">' + money(n.l) + " on " + dateMid(lc.date) + (isFinite(n.move) ? ' <span class="' + chgCls(n.move * 100) + '">(' + signed(n.move * 100, 1) + "%)</span>" : "") + "</span></li>" : '<li><span class="k">Last close</span><span class="v">None since</span></li>') +
       (v.open && isFinite(n.t) ? '<li><span class="k">Target</span><span class="v">' + money(n.t) + (isFinite(n.need) ? " (" + signed(n.need * 100, 1) + "% from written" + (isFinite(n.l) ? ", " + signed((n.t / n.l - 1) * 100, 1) + "% from last close" : "") + ")" : "") + "</span></li>"
-        : isFinite(n.t) ? '<li><span class="k">Reference target</span><span class="v">' + money(n.t) + " (not in force while the view is " + esc(v.label.toLowerCase()) + ")</span></li>" : '<li><span class="k">Target</span><span class="v">none</span></li>') +
-      (v.open && isFinite(n.w) ? '<li><span class="k">If the view is wrong</span><span class="v">about ' + money(n.w) + "</span></li>" : "") +
-      (r.review_by ? '<li><span class="k">Look again by</span><span class="v">' + dateMid(r.review_by) + " (" + (days < 0 ? "due, " + -days + " days ago" : days + " days from " + dateShort(todayISO())) + ")</span></li>" : "") +
+        : isFinite(n.t) ? '<li><span class="k">Reference target</span><span class="v">' + money(n.t) + " (reference only)</span></li>" : '<li><span class="k">Target</span><span class="v">None</span></li>') +
+      (v.open && isFinite(n.w) ? '<li><span class="k">View is wrong at</span><span class="v">about ' + money(n.w) + "</span></li>" : "") +
+      (r.review_by ? '<li><span class="k">Review by</span><span class="v">' + dateMid(r.review_by) + " (" + (days < 0 ? "overdue by " + plural(-days, "day", "days") : days === 0 ? "today" : plural(days, "day", "days") + " from " + dateShort(todayISO())) + ")</span></li>" : "") +
       (r.horizon_days ? '<li><span class="k">Horizon</span><span class="v">' + esc(r.horizon_days) + " trading days</span></li>" : "") + "</ul>";
     var conds = (note.conditions || []).map(function (c) { return "<li>" + esc(dashFree(c.text || c)) + "</li>"; }).join("");
     var hist = (r.history || []).map(function (h) {
@@ -3091,28 +3127,28 @@
     var older = (r.notes || []).slice(1).map(function (o) {
       var body = noteBody(o);
       return '<details class="ld-det"><summary>The ' + esc(o.kind || "note") + " of " + (o.date ? dateMid(o.date) : "an earlier date") + ": " + esc(VIEW[o.direction] || o.direction || "") + (o.conviction != null ? ", conviction " + esc(o.conviction) + " of 5" : "") + "</summary>" +
-        '<div class="ld-notebody">' + (o.key_claim ? '<p class="ld-claim" style="font-size:18px">' + esc(dashFree(o.key_claim)) + "</p>" : "") + (body || '<p class="ld-muted">The body of this note was not published.</p>') + "</div></details>";
+        '<div class="ld-notebody">' + (o.key_claim ? '<p class="ld-claim" style="font-size:18px">' + esc(dashFree(o.key_claim)) + "</p>" : "") + (body || '<p class="ld-muted">The full text of this note was not published.</p>') + "</div></details>";
     }).join("");
     var src = r.note_path && CFG.repoUrl ? ' <a class="ld-inl" href="' + esc(CFG.repoUrl + r.note_path) + '" target="_blank" rel="noopener">source note</a>' : "";
     return '<section class="ld-sec ld-thesis" id="ld-thesis" aria-labelledby="ld-th-h">' +
-      '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-th-h">Investment thesis</h2><span class="ld-kicker">' + esc(r.kind || "note") + (r.written_on ? " " + MID + " written " + dateMid(r.written_on) : "") + " " + MID + " " + v.status + (days < 0 && v.open ? " " + MID + " review due" : "") + "</span></div>" +
+      '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-th-h">Investment thesis</h2><span class="ld-kicker">' + esc(r.kind || "note") + (r.written_on ? " " + MID + " written " + dateMid(r.written_on) : "") + " " + MID + " " + v.status + (days < 0 && v.open ? " " + MID + " review overdue" : "") + "</span></div>" +
       '<div class="ld-call-view' + (v.open ? " ld-view open" : "") + '">' + esc(v.label) + "</div>" +
       '<div><span class="ld-conv" aria-hidden="true">' + [1, 2, 3, 4, 5].map(function (k) { return '<i class="' + (k <= conv ? "on" : "") + '"></i>'; }).join("") + '</span><span class="ld-kicker">Conviction ' + conv + " of 5</span></div>" +
       (r.key_claim ? '<p class="ld-claim">' + esc(dashFree(r.key_claim)) + "</p>" : "") +
       '<div class="ld-call-grid"><div>' +
-      '<div class="ld-kicker" style="margin-top:4px">' + (v.open ? "From the written price toward the target" : "Price since the note was written, against the reference target") + "</div>" +
+      '<div class="ld-kicker" style="margin-top:4px">' + (v.open ? "Price since the note, against the target" : "Price since the note, with the target for reference") + "</div>" +
       '<div class="ld-prog" data-prog="' + esc(r.ticker || tk) + '"></div>' +
-      '<p style="font-size:14px;color:var(--ink2);margin:6px 0 0">' + esc(cap1(callLine(r))) + ".</p>" +
+      '<p style="font-size:14px;color:var(--ink2);margin:6px 0 0">' + esc(callSentence(r)) + "</p>" +
       '<div class="ld-rblock">' + (r.falsifier ? "<h4>What would prove it wrong</h4><p>" + esc(dashFree(r.falsifier)) + "</p>" : "") +
       (conds ? "<h4>What has to stay true</h4><ul>" + conds + "</ul>" : "") +
       (note.add_if ? "<h4>What would make the view stronger</h4><p>" + esc(dashFree(note.add_if)) + "</p>" : "") +
-      (note.since_last_note ? "<h4>Since the last note</h4><p>" + esc(cap1(dashFree(note.since_last_note))) + "</p>" : "") +
+      (note.since_last_note ? "<h4>What changed since the last note</h4><p>" + esc(cap1(dashFree(note.since_last_note)).replace(/([^.!?])\s*$/, "$1.")) + "</p>" : "") +
       "</div></div>" +
       "<div>" + facts + (hist ? '<div class="ld-rblock"><h4>History of the call</h4><ul class="ld-hist-l">' + hist + "</ul></div>" : "") + "</div></div>" +
-      ((r.data_caveats || []).length ? '<details class="ld-det"><summary>What the data cannot say (' + r.data_caveats.length + " caveats)</summary><div class=\"ld-rblock\"><ul>" + r.data_caveats.map(function (c) { return "<li>" + esc(dashFree(c)) + "</li>"; }).join("") + "</ul></div></details>" : "") +
-      (secs ? '<details class="ld-det"><summary>Read the full note (' + (note.sections || []).length + " sections)</summary><div class=\"ld-notebody\">" + secs + "</div></details>" : "") +
+      ((r.data_caveats || []).length ? '<details class="ld-det"><summary>What the data cannot tell us (' + plural(r.data_caveats.length, "caveat", "caveats") + ")</summary><div class=\"ld-rblock\"><ul>" + r.data_caveats.map(function (c) { return "<li>" + esc(dashFree(c)) + "</li>"; }).join("") + "</ul></div></details>" : "") +
+      (secs ? '<details class="ld-det"><summary>Read the full note (' + plural((note.sections || []).length, "section", "sections") + ")</summary><div class=\"ld-notebody\">" + secs + "</div></details>" : "") +
       older +
-      (src ? '<p class="ld-muted" style="font-size:13px;margin:12px 0 0">' + (r.note_count > 1 ? r.note_count + " notes on " + esc(tk) + ". " : "") + "The" + src + " is kept in the repository.</p>" : "") +
+      (src ? '<p class="ld-muted" style="font-size:13px;margin:12px 0 0">' + (r.note_count > 1 ? r.note_count + " notes on " + esc(tk) + " so far. " : "") + "Read the" + src + " in the project's repository.</p>" : "") +
       "</section>";
   }
 

@@ -8517,7 +8517,7 @@ def generate_company_page(universe, version):
     })
     html = render_ledger_page(
         "company", "Company, Apterreon", cfg, version,
-        description="One listing: price, scores, the thesis if one is written, and where every metric sits.",
+        description="One company's price history, scores, investment thesis if there is one, and how each figure compares with all companies.",
         loading=f"Loading {len(stocks):,} listings", script=_stock_page_script(cfg), engine=True)
     (DOCS_DIR / "company.html").write_text(html, encoding="utf-8")
 

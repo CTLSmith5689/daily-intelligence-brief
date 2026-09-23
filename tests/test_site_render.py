@@ -236,9 +236,9 @@ class SiteRender(unittest.TestCase):
         css = (self.docs / "assets" / "ledger.css").read_text(encoding="utf-8")
         for needle in ('id="ld-hist"', 'getJSON("history/" + tickerFile(tk))', '"history/_universe.json"',
                        'drawHistory(tk, i);', 'id="ld-hk"', 'data-hm="z"', 'data-hm="value"',
-                       '"Price has no universe z"', 'class="gap"', 'The daily panel starts ',
+                       '"Price has no z-score"', 'class="gap"', 'Our daily record began on ',
                        'HIST_DEFAULT = ["price", "pe", "revenue_growth_yoy", "operating_margin", "return_12_2", "volatility_1y"]',
-                       'Math.max(-5, Math.min(5, (t - c) / s))', 'No daily history is held for '):
+                       'Math.max(-5, Math.min(5, (t - c) / s))', 'We have no daily history for '):
             with self.subTest(needle=needle):
                 self.assertIn(needle, js)
         for needle in (".ld-hchart .gap", ".ld-hsm{", ".ld-hsmb", ".ld-hread"):
