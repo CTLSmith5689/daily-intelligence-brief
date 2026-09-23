@@ -222,6 +222,37 @@ publishes it after, with two guards, since a force-push writes whatever is on
 disk: it refuses a tree with no `index.html`, and one whose brief count went
 backwards.
 
+### Daily history files, and when they need splitting (designed, not built)
+
+The company page's Daily history reads `docs/history/{TICKER}.json`, every panel
+day for one listing, plus `docs/history/_universe.json`, the universe's centre and
+scale for each metric on each of those days. `write_history_views` rebuilds all of
+them from the whole panel on every site build: it parses every monthly CSV in
+`data/fundamentals/` and rewrites about 5,400 files.
+
+Measured on 2026-09-22 (12 panel days): 15.2 MB across 5,380 files, built in
+about 5 s. So each panel day adds about 1.3 MB spread across about 5,400 files,
+and a year of trading days is about 330 MB of `docs/`, against GitHub Pages' 1 GB
+published-site limit. Build time grows too, about 2 s per month of panel, because
+every closed month is re-read and every file rewritten in full.
+
+The fix, when it is needed:
+
+- **Split by year.** Write `docs/history/{TICKER}-{YEAR}.json` (for example
+  `NVDA-2026.json`) and `_universe-{YEAR}.json`, and a small index listing the
+  years each ticker has. The page loads the current year first and fetches earlier
+  years only when a range reaches back into them. Closed years never change, so a
+  build rewrites only the current year's files, and a site that outgrows Pages can
+  drop or archive old years without touching the rest.
+- **Cache parsed months.** The panel is append-only, so a closed month's CSV parses
+  to the same rows forever. Keep the parsed rows of each closed month in a cache
+  keyed by the file's content hash, and re-parse only the current month. That turns
+  the per-month growth in build time into a near-constant cost.
+
+Build it when either trigger is hit: `docs/` passes 500 MB, or history generation
+passes 15 s in the run log (the `history: wrote ... files` line prints its time).
+At the rates above the second comes first, after roughly five months of panel.
+
 ### Risk metrics come from history already on disk
 
 `enrich_with_prices` keeps a year of daily closes per ticker so the expanded row
@@ -473,6 +504,8 @@ docs/                       # the site. Only briefs/ is tracked in main; the
   stocks-data.json          # every listing's row; the Stocks and company pages
                             # compute universe z from it in the browser
   company/ thesis/          # per-ticker views the company page reads
+  history/                  # every panel day per ticker, plus _universe.json;
+                            # see "Daily history files" above for the growth plan
   briefs/                   # daily snapshot pages, tracked in main, not regenerable
   news/ prices/             # per-ticker caches, and the fetch state itself
   prices/_MARKET.json       # risk-free rate (^IRX) and benchmark (^GSPC)

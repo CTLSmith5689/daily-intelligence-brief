@@ -165,6 +165,25 @@ FUND_SUB_INDUSTRY = "Asset Management"
 # foreign-filing asset manager with no US-GAAP companyfacts, operating.
 SHARE_CLASS = re.compile(r"\bClass\s+[A-Z]\b", _I)
 
+# Listings the vendor-only fund fingerprint gets wrong, checked by hand. Keyed on
+# the listing name, not the ticker, so a reused ticker does not inherit the call.
+# Each entry says what was checked; delete it once the row's own data (an EDGAR
+# 10-Q) settles the label.
+#
+# RoboStrategy, Inc. (BOT). Listed on Nasdaq 2026-05-11; Yahoo files it under
+# Asset Management with gross and operating margin 0 and there are no EDGAR
+# companyfacts yet, which is the closed-end-fund fingerprint. But its one news
+# item (citybiz, 2026-07-15) is a $16m private placement led by a $10m purchase
+# by its CEO: a corporate capital raise that a registered fund, barred by the
+# 1940 Act from selling common below NAV, does not do. Nothing on disk shows a
+# NAV, a schedule of investments or a discount, all of which the real funds in
+# the same fingerprint (DXYZ, PWRL, TY, CET) publish. Read as a holding company
+# (a "Strategy" treasury vehicle), not a registered fund. Confidence: moderate,
+# from one headline; revisit when its first 10-Q or N-CSR lands. The exception
+# sits ahead of the EDGAR fingerprints too, because a revenue-less 10-Q with a
+# net-income line would otherwise read as a BDC.
+KNOWN_OPERATING = re.compile(r"^RoboStrategy,?\s+Inc\b", _I)
+
 
 def _num(value):
     """A finite float from a dict value or a panel CSV cell, else None."""
@@ -288,7 +307,9 @@ def _vendor_fund_fingerprint(row):
     """An Asset Management listing with no EDGAR companyfacts at all and no real
     gross margin. Funds file N-CSR, which has no XBRL income statement, so a
     listed fund is exactly what this looks like (Tri-Continental, Central
-    Securities, Pershing Square USA). A class letter in the name vetoes it."""
+    Securities, Pershing Square USA, and the private-tech funds Destiny Tech100
+    and Powerlaw, which publish a monthly NAV). A class letter in the name
+    vetoes it; KNOWN_OPERATING overrides it for the rows checked by hand."""
     return (row.get("sub_industry") == FUND_SUB_INDUSTRY
             and not row.get("edgar_updated")
             and _no_real_gross_margin(row)
@@ -310,6 +331,8 @@ def classify_row_rule(row):
     cat, rule = classify_name_rule(row.get("name"), row.get("index"))
     if rule == "sp_index":
         return cat, rule
+    if cat == "operating" and KNOWN_OPERATING.search(_text(row.get("name"))):
+        return "operating", "e_known_operating"
     if cat == "operating":
         if (row.get("sub_industry") or "") == SHELL_SUB_INDUSTRY:
             cat, rule = "spac", "d_shell_sub_industry"
