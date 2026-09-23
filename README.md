@@ -247,8 +247,8 @@ against the index it tracks comes out at beta 0.9964, correlation 0.9968.
 
 Every derived number, what produces it, and how often its input can actually
 change. Generated from `FIELD_METHODS` in `lambda_function.py`, which is the
-single place methodology is written down, so this table, the screener's
-methodology panel and the code cannot disagree.
+single place methodology is written down, so this table, the formula and note
+shown on each metric (Stocks help, company page) and the code cannot disagree.
 
 | Field | Units | Formula | Source | Changes |
 |---|---|---|---|---|
@@ -457,13 +457,19 @@ code under test.
 
 ```
 lambda_function.py          # the whole pipeline
+web/                        # the site's script, stylesheet and z engine, copied
+                            # to docs/assets/ by every site build
 .github/workflows/
   brief.yml                 # hourly record + daily full run
   keepalive.yml             # weekly check; emails a warning, makes no commit
 data/                       # the append-only record (the actual product)
 docs/                       # the site. Only briefs/ is tracked in main; the
                             # rest lives on gh-pages, restored before each run
-  index.html today.html stories.html stocks.html
+  index.html today.html stories.html stocks.html research.html
+  company.html              # company.html#TICKER, one page per listing
+  stocks-data.json          # every listing's row; the Stocks and company pages
+                            # compute universe z from it in the browser
+  company/ thesis/          # per-ticker views the company page reads
   briefs/                   # daily snapshot pages, tracked in main, not regenerable
   news/ prices/             # per-ticker caches, and the fetch state itself
   prices/_MARKET.json       # risk-free rate (^IRX) and benchmark (^GSPC)
