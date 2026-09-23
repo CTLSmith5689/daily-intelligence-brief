@@ -163,6 +163,12 @@ _MONEY_FIELDS = {"market_cap", "ttm_revenue", "ttm_ebitda", "ttm_net_income", "t
 def fmt(v, field):
     if v is None:
         return "—"
+    # A listed company cannot have no shares. The panel stores 0 where the vendor
+    # returned nothing, on 229 of the 2,026 gated names on 2026-09-22, HIMS among
+    # them, and a count of "0" in the table reads as a measurement rather than a
+    # gap. Insider counts are left alone: zero buyers is a real observation.
+    if field == "shares_outstanding" and not v:
+        return "— not reported"
     if field in _MONEY_FIELDS:
         a = abs(v)
         if a >= 1e12:
