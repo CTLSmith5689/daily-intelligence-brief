@@ -9,12 +9,17 @@ with at 3am by a model that would rather ship something.
     python3 theses/bin/validate.py theses/runs/2026-09-14/          # whole run
 
 Exit code 0 = all pass. 1 = at least one FAIL. Warnings never fail the run.
+
+Two formats. A note whose front-matter says `format: memo` is the buy-side
+investment memo (page one, twelve numbered sections, a glossary) and gets the
+memo checks in _memo(). A note with no `format`, or `format: note`, is the
+older plain note and gets exactly the checks it always had.
 """
 import math, re, sys
 from datetime import date
 from pathlib import Path
 
-from common import SLEEVES, DEAD, CONTAMINATED
+from common import SLEEVES, DEAD, CONTAMINATED, THESES, LEDGER, read_csv_rows
 
 REQUIRED_FM = ["thesis_id", "ticker", "kind", "written_on", "panel_date", "entry_price",
                "direction", "conviction", "horizon_days", "target_price", "review_by",
@@ -56,6 +61,40 @@ BUSINESS_MIN_WORDS = 300
 # target). A note that runs long is almost always explaining terms it should drop.
 PROSE_ONE_PART = (220, 800, 1100, 700)
 PROSE_TWO_PART = (700, 1800, 2300, 1500)
+
+# ---------------------------------------------------------------- memo format
+# The buy-side investment memo: one analyst's note to the portfolio manager,
+# switched on for the analyst run of 2026-09-28. Page one comes before the first
+# heading, under a bold one-line headline. Then these sections, in this order.
+# An initiation carries all of them; a revision carries WHAT CHANGED, section 10,
+# any other numbered section that changed, then SOURCES and GLOSSARY.
+MEMO_SECTIONS = ["1. WHAT IS PRICED IN", "2. WHERE I DISAGREE", "3. THE BUSINESS",
+                 "4. INDUSTRY AND PEERS", "5. FINANCIAL HISTORY", "6. FORECAST", "7. VALUATION",
+                 "8. CATALYSTS", "9. RISKS AND PRE-MORTEM", "10. MONITORING AND EXIT RULES",
+                 "11. WHAT I DON'T KNOW", "12. SOURCES", "GLOSSARY"]
+MEMO_CHANGED = "WHAT CHANGED"
+MEMO_MONITOR = "10. MONITORING AND EXIT RULES"
+MEMO_SOURCES = "12. SOURCES"
+MEMO_GLOSSARY = "GLOSSARY"
+# Words of prose, not counting tables, headings, SOURCES or GLOSSARY.
+MEMO_LENGTH = {"initiation": (2000, 5000), "revision": (300, 1500)}
+MEMO_HORIZON = 365
+MEMO_FM = ["action", "size_now", "size_plan", "expected_return", "bear_return",
+           "required_return", "scenarios"]
+MEMO_BLANK_OK = {"size_plan"}
+# The seven actions, and the direction each one is scored as. Avoid is "watch",
+# or "avoid" only when the memo expects the stock to do worse than its peers.
+MEMO_ACTIONS = {"Initiate": {"long"}, "Add": {"long"}, "Hold": {"long"}, "Trim": {"long"},
+                "Exit": {"watch"}, "Avoid": {"watch", "avoid"}, "Short": {"short"}}
+MEMO_HOLDING = {"Initiate", "Add", "Hold", "Trim"}
+SCENARIO_CASES = ("bull", "base", "bear")
+# Page-one arithmetic tolerances.
+PROB_TOL, VALUE_TOL, RETURN_TOL, TARGET_TOL = 0.005, 0.50, 0.005, 5.0
+GLOSSARY_FILE = THESES / "GLOSSARY.md"
+_DATE_WORDS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b"
+                         r"|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}\b")
+# The en dash, written as a code point so this file never contains one.
+EN_DASH = chr(0x2013)
 
 # Front-matter the website's thesis popup reads besides key_claim and falsifier
 # (lambda_function.py, _thesis_note_record). None is required; each is checked
@@ -340,6 +379,24 @@ JARGON = [
 ]
 JARGON = [(label, re.compile(p), plain, hard) for label, p, plain, hard in JARGON]
 
+# In a memo a finance term is allowed once the note's GLOSSARY defines it. A
+# JARGON label counts as defined when its own pattern matches a term in the
+# GLOSSARY's first column, or when one of these does: the glossary names the
+# term in its dictionary form ("Valuation multiple", "Short"), which the body
+# pattern, written to catch the term in running prose, would miss.
+GLOSSARY_ALIASES = {
+    "the multiple": r"(?i:multiple)",
+    "the cycle": r"(?i:cycl)",
+    "bear / base / bull case": r"(?i:\b(?:bear|base|bull)\b)",
+    "long / short": r"(?i:^(?:long|short)\b)",
+    "peer group": r"(?i:\bpeers?\b|\bcomparable compan)",
+    "priced in": r"(?i:^priced in\b)",
+    "analyst rating": r"(?i:price target|\brating)",
+    "agency initials": r"(?i:securities and exchange commission|food and drug administration"
+                       r"|federal trade commission)",
+}
+GLOSSARY_ALIASES = {k: re.compile(v) for k, v in GLOSSARY_ALIASES.items()}
+
 # "history" is the dossier's reported history table: a decade of the company's own
 # filed figures, and the source the business sections lean on most. It had no
 # name here, so the first two-part note labelled fifteen rows "dossier reported
@@ -475,7 +532,14 @@ def check(path):
 
     # Every note gets the plain-writing checks, whatever its written_on date.
     # Not `k`: that name is reused by the conviction loop above.
-    _plain_body(text, fm, body, (fm.get("kind") or "").strip().strip('"'), F, W)
+    fmt = _fm_text(fm.get("format")).lower()
+    if fmt in ("", "note"):
+        _plain_body(text, fm, body, (fm.get("kind") or "").strip().strip('"'), F, W)
+    elif fmt == "memo":
+        _memo(path, text, fm, body, (fm.get("kind") or "").strip().strip('"'), F, W)
+    else:
+        F(f"format {fmt!r} is not 'memo'. Write format: memo for an investment memo, or leave the "
+          f"field out for the older plain note.")
 
     return fails, warns
 
@@ -546,16 +610,22 @@ def _numbers_in(text):
     return vals
 
 
-def _style(text, where, F, W, body=False):
-    """Plain-writing checks shared by the body and the front-matter the owner reads."""
+def _style(text, where, F, W, body=False, memo=None):
+    """Plain-writing checks shared by the body and the front-matter the owner reads.
+
+    `memo` is None for the older plain note, whose checks are unchanged. For a
+    memo it is {"defined": JARGON labels its GLOSSARY defines, "headline": the
+    page-one headline}: a defined term is allowed, and the headline and short
+    bold labels may stand as bold lines."""
+    home = f"the {NUMBERS_SECTION} table" if memo is None else MEMO_SOURCES
     ticks = re.findall(r"`[^`\n]+`", text)
     if ticks:
         F(f"{where}: {len(ticks)} code-formatted name(s), e.g. {ticks[0]}. Data field names "
-          f"belong only in the {NUMBERS_SECTION} table.")
+          f"belong only in {home}.")
     bare = re.findall(r"(?<![\w/.-])[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b", re.sub(r"`[^`\n]+`", " ", text))
     if bare:
         F(f"{where}: data field name(s) written into the prose: {', '.join(sorted(set(bare))[:5])}. "
-          f"Say what the number means and put the field in {NUMBERS_SECTION}.")
+          f"Say what the number means and put the field in {NUMBERS_SECTION if memo is None else MEMO_SOURCES}.")
     hits = [(label, m.group(0)) for label, rx in PIPELINE_WORDS for m in [rx.search(text)] if m]
     if hits:
         F(f"{where}: talks about the research tools instead of the company: "
@@ -592,16 +662,19 @@ def _style(text, where, F, W, body=False):
         m = rx.search(text)
         if m:
             W(f"{where}: possible {what}: {m.group(0)[:80]!r}")
-    hard = [f"{label} (say: {plain})" for label, rx, plain, h in JARGON if h and rx.search(text)]
-    soft = [f"{label} (say: {plain})" for label, rx, plain, h in JARGON if not h and rx.search(text)]
-    if body:
-        soft = hard + soft
-    elif hard:
-        F(f"{where}: finance terms the owner will not know, with no room here to explain them: "
-          + "; ".join(hard))
-    if soft:
-        W(f"{where}: terms to check are explained in plain words where they first appear: "
-          + "; ".join(soft))
+    if memo is not None:
+        _memo_jargon(text, where, F, W, body, memo["defined"])
+    else:
+        hard = [f"{label} (say: {plain})" for label, rx, plain, h in JARGON if h and rx.search(text)]
+        soft = [f"{label} (say: {plain})" for label, rx, plain, h in JARGON if not h and rx.search(text)]
+        if body:
+            soft = hard + soft
+        elif hard:
+            F(f"{where}: finance terms the owner will not know, with no room here to explain them: "
+              + "; ".join(hard))
+        if soft:
+            W(f"{where}: terms to check are explained in plain words where they first appear: "
+              + "; ".join(soft))
 
     if body:
         _length(_sentences(text), where, F, W, warn_at=30, fail_at=40)
@@ -609,10 +682,33 @@ def _style(text, where, F, W, body=False):
             b = block.strip()
             if not b or re.match(r"(?:[-+]|\*(?!\*)|\d+\.)\s", b) or b.startswith(("|", ">", "#")):
                 continue
-            m = re.search(r"(?:\*\*|__)([^*_]+)(?:\*\*|__)[.!?]?$", " ".join(b.split()))
+            joined = " ".join(b.split())
+            if memo is not None and (joined == memo.get("headline")
+                                     or (re.fullmatch(r"\*\*[^*]+\*\*", joined) and _words(joined) <= 8)):
+                # The page-one headline, and a short bold label standing over a
+                # list or table ("**Key data.**"), are a memo's layout, not emphasis.
+                continue
+            m = re.search(r"(?:\*\*|__)([^*_]+)(?:\*\*|__)[.!?]?$", joined)
             if m and len(m.group(1).split()) >= 3:
                 F(f"{where}: paragraph ends on a bolded line: {m.group(1)[:60]!r}. State it plainly "
                   f"without bold.")
+
+
+def _memo_jargon(text, where, F, W, body, defined):
+    """A memo uses the profession's vocabulary, each term defined once where it
+    first appears and listed in the GLOSSARY. So a term is judged by whether the
+    GLOSSARY defines it. The fields the website shows alone (key_claim, falsifier,
+    caveats, conditions, add_if) get no exemption: their terms must be in the
+    GLOSSARY too, because the page can link a reader there and nowhere else."""
+    hard = [label for label, rx, plain, h in JARGON if h and label not in defined and rx.search(text)]
+    soft = [label for label, rx, plain, h in JARGON if not h and label not in defined and rx.search(text)]
+    if hard:
+        F(f"{where}: finance term(s) not defined in the note's {MEMO_GLOSSARY}: {'; '.join(hard)}. "
+          f"Define each in one plain sentence where it first appears, using the wording in "
+          f"theses/GLOSSARY.md, and add it to the {MEMO_GLOSSARY}; or say the plain thing instead.")
+    if soft:
+        W(f"{where}: term(s) to define where they first appear and list in the {MEMO_GLOSSARY}, or "
+          f"replace with plain words: {'; '.join(soft)}")
 
 
 def _length(sents, where, F, W, warn_at, fail_at=None):
@@ -626,10 +722,10 @@ def _length(sents, where, F, W, warn_at, fail_at=None):
           f"{' '.join(over_warn[0].split()[:10])!r}... Split them: one idea per sentence.")
 
 
-def _standalone(text, where, F, W):
+def _standalone(text, where, F, W, memo=None):
     """key_claim, falsifier and each caveat. The website shows these with no body
     around them, so hard jargon fails here."""
-    _style(text, where, F, W, body=False)
+    _style(text, where, F, W, body=False, memo=memo)
     sents = _sentences(text)
     if where == "key_claim":
         if not 2 <= len(sents) <= 3:
@@ -644,7 +740,7 @@ def _standalone(text, where, F, W):
         _length(sents, where, F, W, warn_at=30, fail_at=40)
 
 
-def _plain_body(text, fm, body, kind, F, W):
+def _fm_lines(text, fm, F, W, extra=()):
     # The website and events.py read front-matter line by line. A YAML block
     # scalar or a wrapped line would be silently cut to its first line.
     m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
@@ -652,11 +748,15 @@ def _plain_body(text, fm, body, kind, F, W):
         if line.strip() and not re.match(r"^\s*-\s+", line) and not re.match(r"^[A-Za-z_][\w]*:", line):
             F(f"front-matter line is not read by the site and would be dropped: {line.strip()[:60]!r}. "
               f"Keep each value on one line.")
-    for f in ("key_claim", "falsifier", "add_if", "if_wrong_price", "next_check"):
+    for f in ("key_claim", "falsifier", "add_if", "if_wrong_price", "next_check") + tuple(extra):
         if re.fullmatch(r"[>|][+-]?", _fm_text(fm.get(f))):
             F(f"{f} uses a YAML block ({_fm_text(fm.get(f))}). Write it on the same line as {f}:.")
     if (fm.get("direction") or "").strip().strip('"') == "no view" and not fm.get("key_claim"):
         W("no key_claim. The website shows nothing for this name. Write one for a 'no view' note too.")
+
+
+def _plain_body(text, fm, body, kind, F, W):
+    _fm_lines(text, fm, F, W)
 
     heads = [(hm.start(), hm.end(), _head_name(hm.group(1))) for hm in HEADING.finditer(body)]
     names = [h[2] for h in heads]
@@ -751,13 +851,14 @@ def _plain_body(text, fm, body, kind, F, W):
     _numbers_table(numbers, writing, words, F, W)
 
 
-def _new_fields(fm, worth, F, W):
+def _new_fields(fm, worth, F, W, memo=None):
     """conditions, add_if, if_wrong_price and next_check, the fields the popup reads.
 
     The popup shows the text fields with no body around them, so they get the
     key claim's word checks. Returns the text of those fields: their numbers need
     rows in the table like any other number the owner reads. `worth` is the body of
-    WHAT THE SHARES COULD BE WORTH, where if_wrong_price must come from."""
+    WHAT THE SHARES COULD BE WORTH, where if_wrong_price must come from; in a memo
+    it is page one, where the three cases are."""
     texts = []
     d = _fm_text(fm.get("direction"))
 
@@ -774,7 +875,7 @@ def _new_fields(fm, worth, F, W):
         if not 2 <= len(items) <= 4:
             W(f"conditions has {len(items)} item(s). List the two to four things that have to stay true.")
         for i, item in enumerate(items, 1):
-            t = _condition(str(item), f"conditions item {i}", F, W)
+            t = _condition(str(item), f"conditions item {i}", F, W, memo)
             if t:
                 texts.append(t)
 
@@ -785,7 +886,7 @@ def _new_fields(fm, worth, F, W):
         elif not _fm_text(a):
             F("add_if is blank. Write one sentence, or leave the field out.")
         else:
-            _standalone(_fm_text(a), "add_if", F, W)
+            _standalone(_fm_text(a), "add_if", F, W, memo)
             texts.append(_fm_text(a))
 
     if "if_wrong_price" in fm:
@@ -799,7 +900,7 @@ def _new_fields(fm, worth, F, W):
             F(f"if_wrong_price {shown!r} is not a price. Write a plain positive number such as 94.00, "
               f"or leave the field out.")
         else:
-            _wrong_price(iwp, d, fm, worth, W)
+            _wrong_price(iwp, d, fm, worth, W, "page one" if memo is not None else SECTIONS[3])
 
     if "next_check" in fm:
         v = fm["next_check"]
@@ -819,7 +920,7 @@ def _new_fields(fm, worth, F, W):
     return texts
 
 
-def _condition(item, where, F, W):
+def _condition(item, where, F, W, memo=None):
     """One conditions item. Returns its sentence without the check, or '' if unusable."""
     s = item.strip()
     # The website strips double quotes from a list item and nothing else.
@@ -851,7 +952,7 @@ def _condition(item, where, F, W):
         if not text:
             F(f"{where} is only a check. Put a plain sentence before it.")
             return ""
-    _standalone(text, where, F, W)
+    _standalone(text, where, F, W, memo)
     return text
 
 
@@ -897,7 +998,7 @@ def _check_target(where, field, num, text, F, W):
           f"with {num:g}, which is {num * 100:g} percent. 5 percent is written 0.05.")
 
 
-def _wrong_price(iwp, d, fm, worth, W):
+def _wrong_price(iwp, d, fm, worth, W, worth_name=SECTIONS[3]):
     """if_wrong_price is the bad case of a long, or the good case of an avoid or short."""
     try:
         entry = float(_fm_text(fm.get("entry_price")))
@@ -913,7 +1014,7 @@ def _wrong_price(iwp, d, fm, worth, W):
         W(f"if_wrong_price is set on a {d!r} note. It is defined only for long, short and avoid notes.")
     dollars = [v for (v, u), _ in _numbers_in(worth) if u == "$"]
     if not any(abs(x - iwp) < 0.005 or abs(x - round(iwp)) < 0.005 for x in dollars):
-        W(f"if_wrong_price {iwp:g} is not a dollar figure in {SECTIONS[3]}. It must repeat a case "
+        W(f"if_wrong_price {iwp:g} is not a dollar figure in {worth_name}. It must repeat a case "
           f"price from that section, not add a new one.")
 
 
@@ -973,6 +1074,456 @@ def _numbers_table(numbers, writing, words, F, W):
     if len(data) > max(12, words / 20):
         W(f"{len(data)} numbers in {words} words of writing: dense enough that this may be "
           f"reciting data rather than explaining it.")
+
+
+# ------------------------------------------------------------------ memo checks
+
+def _num_fm(fm, key, F, what):
+    """A front-matter number, or None after reporting why it is not one."""
+    v = fm.get(key)
+    s = "" if isinstance(v, list) else _fm_text(v)
+    try:
+        x = float(s)
+    except ValueError:
+        F(f"{key} {s or v!r} is not a number. Write {what}.")
+        return None
+    if not math.isfinite(x):
+        F(f"{key} {s!r} is not a finite number. Write {what}.")
+        return None
+    return x
+
+
+def _scenarios(fm, F):
+    """The three cases from front-matter, as {case: (value, probability)}.
+
+    Written one per line, as a block list of flow mappings:
+        scenarios:
+          - {case: bull, value: 370.00, probability: 0.25}
+    """
+    items = fm.get("scenarios")
+    if not isinstance(items, list):
+        F("scenarios must be a block list of three items, one per line, each written "
+          "{case: bull, value: 370.00, probability: 0.25}.")
+        return None
+    out = {}
+    for i, item in enumerate(items, 1):
+        s = str(item).strip()
+        m = re.fullmatch(r"\{(.*)\}", s)
+        pairs = dict((k.strip().lower(), v.strip().strip('"').strip("'"))
+                     for k, _, v in (p.partition(":") for p in (m.group(1).split(",") if m else [])))
+        case = pairs.get("case", "").lower()
+        try:
+            value, prob = float(pairs.get("value", "")), float(pairs.get("probability", ""))
+        except ValueError:
+            value = prob = None
+        if not m or case not in SCENARIO_CASES or value is None:
+            F(f"scenarios item {i} is {s[:60]!r}. Write {{case: bull|base|bear, value: PRICE, "
+              f"probability: FRACTION}}, with plain numbers.")
+            return None
+        if case in out:
+            F(f"scenarios lists the {case} case twice.")
+            return None
+        if value <= 0 or not 0 < prob <= 1:
+            F(f"scenarios {case}: value must be a positive price and probability a fraction "
+              f"between 0 and 1, such as 0.25. Found value {value:g}, probability {prob:g}.")
+            return None
+        out[case] = (value, prob)
+    if set(out) != set(SCENARIO_CASES):
+        F(f"scenarios must list exactly three cases, bull, base and bear. Found: "
+          f"{', '.join(out) or 'none'}.")
+        return None
+    return out
+
+
+def _table_rows(text):
+    """Every table in `text`, as a list of tables, each a list of rows of cells.
+    The separator row is dropped; the first row of each table is its header."""
+    tables, cur = [], []
+    for line in text.splitlines() + [""]:
+        s = line.strip()
+        if s.startswith("|"):
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            if not all(re.fullmatch(r":?-{3,}:?", c) for c in cells if c):
+                cur.append(cells)
+        elif cur:
+            tables.append(cur)
+            cur = []
+    return tables
+
+
+def _plain_cell(c):
+    return re.sub(r"[*_`]", "", c).strip()
+
+
+def _col(header, *words):
+    for i, h in enumerate(header):
+        if any(w in h.lower() for w in words):
+            return i
+    return None
+
+
+def _dollars(s):
+    return [float(x.replace(",", "")) for x in re.findall(r"\$\s?(\d[\d,]*(?:\.\d+)?)", s)]
+
+
+def _load_glossary(text):
+    """{term.lower(): (term, definition)} from the first table in `text`."""
+    out = {}
+    for table in _table_rows(text):
+        for row in table[1:]:
+            if len(row) >= 2 and _plain_cell(row[0]):
+                out[_plain_cell(row[0]).lower()] = (_plain_cell(row[0]), row[1].strip())
+        break
+    return out
+
+
+_CANON = {}
+
+
+def canonical_glossary():
+    """theses/GLOSSARY.md, the wording every memo copies. Read once per process."""
+    if "g" not in _CANON:
+        try:
+            _CANON["g"] = _load_glossary(GLOSSARY_FILE.read_text(encoding="utf-8"))
+        except OSError:
+            _CANON["g"] = {}
+    return _CANON["g"]
+
+
+def _defined_labels(terms):
+    """The JARGON labels a glossary with these terms defines."""
+    out = set()
+    for label, rx, _plain, _hard in JARGON:
+        alias = GLOSSARY_ALIASES.get(label)
+        if any(rx.search(t) or (alias and alias.search(t)) for t in terms):
+            out.add(label)
+    return out
+
+
+def _repo_rel(path):
+    p = Path(path).resolve()
+    try:
+        return str(p.relative_to(THESES.parent))
+    except ValueError:
+        return str(path)
+
+
+def covered_elsewhere(path, fm):
+    """Ledger events for this ticker that come from a different note.
+
+    The note's own event is left out, so a memo recorded as an initiation still
+    validates afterwards. LEDGER is read at call time so tests can point it at
+    a temporary copy."""
+    t, tid = _fm_text(fm.get("ticker")), _fm_text(fm.get("thesis_id"))
+    rel = _repo_rel(path)
+    return [e for e in read_csv_rows(LEDGER / "events.csv")
+            if e.get("ticker") == t and e.get("note_path") != rel and e.get("thesis_id") != tid]
+
+
+def _memo(path, text, fm, body, kind, F, W):
+    """The buy-side investment memo (format: memo)."""
+    _fm_lines(text, fm, F, W, extra=("size_plan",))
+    shape = "initiation" if kind == "initiation" else "revision"
+
+    # ---- front-matter
+    for k in MEMO_FM:
+        if k not in fm:
+            F(f"missing memo field: {k}")
+        elif k not in MEMO_BLANK_OK and fm[k] in ("", None) and not isinstance(fm[k], list):
+            F(f"memo field is blank: {k}")
+
+    raw_action = _fm_text(fm.get("action"))
+    action = next((a for a in MEMO_ACTIONS if a.lower() == raw_action.lower()), None)
+    d = _fm_text(fm.get("direction"))
+    if raw_action and action is None:
+        F(f"action {raw_action!r} is not one of {', '.join(MEMO_ACTIONS)}.")
+    elif action and d and d not in MEMO_ACTIONS[action]:
+        want = " or ".join(repr(x) for x in sorted(MEMO_ACTIONS[action]))
+        F(f"action {action} is scored as direction {want}, but direction is {d!r}. Initiate, Add, "
+          f"Hold and Trim are long; Short is short; Exit is watch; Avoid is watch, or avoid only "
+          f"when the memo expects the stock to do worse than its peers.")
+
+    size_now = _num_fm(fm, "size_now", F, "the position size today as a fraction of the portfolio, "
+                       "such as 0.037 for 3.7 percent, or 0") if "size_now" in fm else None
+    if size_now is not None:
+        if not 0 <= size_now <= 1:
+            F(f"size_now {size_now:g} is not a fraction of the portfolio between 0 and 1. 3.7 percent "
+              f"is written 0.037.")
+        elif action and action not in MEMO_HOLDING and size_now != 0:
+            F(f"size_now is {size_now:g} but the action is {action}. Only Initiate, Add, Hold and Trim "
+              f"carry a size; for {action} it is 0.")
+        elif action in ("Initiate", "Add") and size_now == 0:
+            W(f"action is {action} with size_now 0. Give the size you recommend buying to.")
+
+    er = _num_fm(fm, "expected_return", F, "a decimal fraction, such as 0.113 for 11.3 percent") \
+        if "expected_return" in fm else None
+    br = _num_fm(fm, "bear_return", F, "a decimal fraction, such as -0.454 for a 45.4 percent loss") \
+        if "bear_return" in fm else None
+    rr = _num_fm(fm, "required_return", F, "a decimal fraction, such as 0.12 for 12 percent") \
+        if "required_return" in fm else None
+    for key, x, lo, hi in (("expected_return", er, -1, 5), ("bear_return", br, -1, 5),
+                           ("required_return", rr, 0, 1)):
+        if x is not None and not lo <= x <= hi:
+            F(f"{key} {x:g} is outside {lo} to {hi}. It is a decimal fraction: 12 percent is 0.12.")
+
+    try:
+        horizon = int(_fm_text(fm.get("horizon_days")))
+    except ValueError:
+        horizon = None
+    if horizon is not None and horizon != MEMO_HORIZON:
+        F(f"horizon_days is {horizon}. A memo's price target is for 12 months: set it to {MEMO_HORIZON}.")
+
+    n = text.count(EN_DASH) + len(re.findall(r"&ndash;|&#8211;|&#x2013;", text, re.I))
+    if n:
+        F(f"{n} en dash{'es' if n > 1 else ''}. Write 'to' for a range and a comma or full stop elsewhere.")
+
+    if kind == "initiation":
+        prior = covered_elsewhere(path, fm)
+        if prior:
+            last = prior[-1]
+            F(f"kind is initiation, but the ledger already has {len(prior)} event(s) for "
+              f"{_fm_text(fm.get('ticker'))}, the latest {last.get('date', '?')} from "
+              f"{last.get('note_path', '?')}. Write a revision: page one, WHAT CHANGED, section 10 "
+              f"and the sections that changed.")
+
+    scen = _scenarios(fm, F) if "scenarios" in fm else None
+
+    # ---- structure
+    heads = [(hm.start(), hm.end(), _head_name(hm.group(1))) for hm in HEADING.finditer(body)]
+    names = [h[2] for h in heads]
+    sections = {}
+    for i, (start, end, name) in enumerate(heads):
+        sections.setdefault(name, body[end:heads[i + 1][0] if i + 1 < len(heads) else len(body)])
+    _memo_headings(names, shape, body, F)
+    page1 = body[:heads[0][0]] if heads else body
+
+    # ---- page one
+    p1 = re.sub(r"\A\s*#[ \t]+[^\n]*\n", "", page1)
+    paras = [" ".join(b.split()) for b in re.split(r"\n\s*\n", p1) if b.strip()]
+    headline = paras[0] if paras and re.fullmatch(r"\*\*[^*]+\*\*", paras[0]) else None
+    if not paras:
+        F("page one is missing. Before the first ## heading, write the headline, the action and "
+          "size, the expected return next to the bear loss, the thesis, why now, the three things "
+          "that matter most and the key data table.")
+    elif headline is None:
+        F(f"page one must open with a bold one-line headline giving the action and size, such as "
+          f"'**Recommendation: Avoid for now. Size today: 0% of the portfolio.**'. Found "
+          f"{paras[0][:60]!r}.")
+    elif action and action.lower() not in headline.lower():
+        W(f"the page-one headline does not name the action, {action}.")
+    for label, rx in (("Thesis", r"\*\*(?:the )?(?:investment )?thesis\b"), ("Why now", r"\*\*why now\b"),
+                      ("The three things that matter most", r"\*\*the three things\b"),
+                      ("Key data", r"\*\*key data\b")):
+        if paras and not re.search(rx, p1, re.I):
+            W(f"page one has no bold '{label}.' paragraph. Page one must stand alone: action and size, "
+              f"expected return and bear loss, thesis, why now, the three things that matter most, "
+              f"key data.")
+    if scen:
+        _memo_arithmetic(fm, scen, er, br, p1, F, W)
+
+    # ---- section 10
+    if MEMO_MONITOR in sections:
+        _memo_monitor(sections[MEMO_MONITOR], F)
+
+    # ---- SOURCES and GLOSSARY
+    if MEMO_SOURCES in sections:
+        src = sections[MEMO_SOURCES]
+        if not src.strip():
+            F(f"{MEMO_SOURCES} is empty. Say where every figure comes from: file and field, or filing.")
+        elif not any(len(t[0]) >= 3 for t in _table_rows(src)):
+            W(f"{MEMO_SOURCES} has no table of three columns or more (figure, value or file, source "
+              f"or field).")
+    gloss = {}
+    if MEMO_GLOSSARY in sections:
+        gloss = _load_glossary(sections[MEMO_GLOSSARY])
+        if not gloss:
+            F(f"{MEMO_GLOSSARY} has no table. List every term the memo defines: | Term | Definition |.")
+        empty = [t for t, dfn in gloss.values() if not _plain_cell(dfn)]
+        if empty:
+            F(f"{MEMO_GLOSSARY}: no definition for {', '.join(empty[:5])}.")
+        canon = canonical_glossary()
+        new = [t for k, (t, _) in gloss.items() if k not in canon]
+        changed = [t for k, (t, dfn) in gloss.items()
+                   if k in canon and " ".join(dfn.split()).rstrip(".") != " ".join(canon[k][1].split()).rstrip(".")]
+        if changed:
+            W(f"{MEMO_GLOSSARY}: definition differs from theses/GLOSSARY.md for {', '.join(changed[:8])}. "
+              f"Copy the canonical wording so a term means the same in every memo.")
+        if new:
+            W(f"{MEMO_GLOSSARY}: not in theses/GLOSSARY.md: {', '.join(new[:8])}. Use the canonical term "
+              f"if there is one; otherwise list it in the run manifest as a proposed addition.")
+    ctx = {"defined": _defined_labels([t for t, _ in gloss.values()]), "headline": headline}
+
+    # ---- prose: everything but SOURCES and GLOSSARY
+    prose = body
+    for name in (MEMO_GLOSSARY, MEMO_SOURCES):
+        for i, (start, end, hname) in enumerate(heads):
+            if hname == name:
+                stop = heads[i + 1][0] if i + 1 < len(heads) else len(body)
+                prose = prose.replace(body[start:stop], "\n")
+                break
+    prose = ANY_HEADING.sub("", prose)
+    quotes = list(re.finditer(r"(?:^>.*(?:\n|$))+", prose, re.M))
+    if quotes and kind != "initiation":
+        q = quotes[0]
+        if _words(q.group(0)) <= 80:
+            prose = prose[:q.start()] + prose[q.end():]
+        else:
+            W("the quoted block is over 80 words, so it is checked like the rest of the note. "
+              "Quote only the prior key claim.")
+
+    words = _words("\n".join(l for l in prose.splitlines() if not l.strip().startswith("|")))
+    lo, hi = MEMO_LENGTH[shape]
+    if not lo <= words <= hi:
+        F(f"the {shape} is {words:,} words of prose, not counting tables, {MEMO_SOURCES} or "
+          f"{MEMO_GLOSSARY}. A memo {shape} runs {lo:,} to {hi:,}.")
+
+    _style(prose, "body", F, W, body=True, memo=ctx)
+    kc = _fm_text(fm.get("key_claim"))
+    if kc:
+        _standalone(kc, "key_claim", F, W, ctx)
+    if fm.get("falsifier"):
+        _standalone(_fm_text(fm["falsifier"]), "falsifier", F, W, ctx)
+    for cv in (fm.get("data_caveats") if isinstance(fm.get("data_caveats"), list) else []):
+        _standalone(_fm_text(cv), "data_caveats", F, W, ctx)
+    _new_fields(fm, page1, F, W, ctx)
+
+
+def _memo_headings(names, shape, body, F):
+    numbered = [s for s in MEMO_SECTIONS if s[0].isdigit()]
+    allowed = set(MEMO_SECTIONS) | ({MEMO_CHANGED} if shape == "revision" else set())
+    wrong_level = {_head_name(hm.group(1)): len(hm.group(0)) - len(hm.group(0).lstrip("#"))
+                   for hm in ANY_HEADING.finditer(body)}
+    if shape == "initiation":
+        required = MEMO_SECTIONS
+    else:
+        required = [MEMO_CHANGED, MEMO_MONITOR, MEMO_SOURCES, MEMO_GLOSSARY]
+    for s in required:
+        if s not in names and wrong_level.get(s):
+            F(f"the heading {s} starts with {wrong_level[s]} # signs. Start it with exactly two, "
+              f"as in '## {s}'.")
+        elif s not in names:
+            F(f"body is missing the heading: ## {s}")
+    stray = [n for n in names if n not in allowed]
+    if stray:
+        F(f"heading(s) not in the memo format: {', '.join(stray[:4])}. Page one has no heading; the "
+          f"sections are {' / '.join(MEMO_SECTIONS)}"
+          + (f", with {MEMO_CHANGED} first in a revision." if shape == "revision" else "."))
+    dup = sorted({n for n in names if names.count(n) > 1})
+    if dup:
+        F(f"heading(s) used twice: {', '.join(dup)}")
+    known = [n for n in names if n in allowed]
+    if shape == "initiation":
+        if [n for n in known if n in MEMO_SECTIONS] != [s for s in MEMO_SECTIONS if s in known]:
+            F("sections are out of order. Use: " + " / ".join(MEMO_SECTIONS))
+        return
+    # A revision: WHAT CHANGED first; SOURCES and GLOSSARY last; the numbered
+    # sections between them in number order, except that section 10 may come
+    # straight after WHAT CHANGED.
+    if known and known[0] != MEMO_CHANGED and MEMO_CHANGED in known:
+        F(f"{MEMO_CHANGED} must be the first section of a revision.")
+    if known[-2:] != [MEMO_SOURCES, MEMO_GLOSSARY] and MEMO_SOURCES in known and MEMO_GLOSSARY in known:
+        F(f"a revision ends with {MEMO_SOURCES} and then {MEMO_GLOSSARY}.")
+    middle = [numbered.index(n) for n in known if n in numbered and n != MEMO_SOURCES]
+    rest = middle[1:] if middle and numbered[middle[0]] == MEMO_MONITOR else middle
+    if rest != sorted(rest):
+        F("a revision's numbered sections are out of order. After WHAT CHANGED and section 10, put "
+          "the other sections that changed in number order.")
+
+
+def _memo_arithmetic(fm, scen, er, br, p1, F, W):
+    """Page one's numbers must agree with each other and with the front-matter."""
+    total = sum(p for _, p in scen.values())
+    if abs(total - 1) > PROB_TOL:
+        F(f"scenario probabilities sum to {total:.3f}, not 1.")
+    weighted = sum(v * p for v, p in scen.values())
+    bull, base, bear = (scen[c][0] for c in SCENARIO_CASES)
+    if not bear <= base <= bull:
+        W(f"scenario values are not in order: bear {bear:g}, base {base:g}, bull {bull:g}.")
+
+    # The page-one table: a row per case and a probability-weighted row.
+    rows, stated = {}, None
+    for table in _table_rows(p1):
+        header = [h.lower() for h in table[0]]
+        vi, pi = _col(header, "value"), _col(header, "probab")
+        for row in table[1:]:
+            first = _plain_cell(row[0]).lower()
+            rest = row[1:]
+            vcell = row[vi] if vi is not None and vi < len(row) and vi > 0 else " ".join(rest)
+            pcell = row[pi] if pi is not None and pi < len(row) and pi > 0 else " ".join(rest)
+            dollars = _dollars(vcell) or _dollars(" ".join(rest))
+            if re.match(r"(?:probability[- ])?weighted", first) and dollars:
+                stated = dollars[0]
+            else:
+                case = next((c for c in SCENARIO_CASES if first.startswith(c)), None)
+                pct = re.search(r"(\d+(?:\.\d+)?)\s?%", pcell)
+                if case and dollars:
+                    rows[case] = (dollars[0], float(pct.group(1)) / 100 if pct else None)
+    if stated is None:
+        F("page one does not show the probability-weighted value. Give a table with a row for each "
+          "case (value and probability) and a 'Probability-weighted' row.")
+    elif abs(stated - weighted) > VALUE_TOL:
+        F(f"page one gives a probability-weighted value of ${stated:,.2f}, but the three cases give "
+          f"${weighted:,.2f} (the sum of probability times value).")
+    for c in SCENARIO_CASES:
+        if c not in rows:
+            if stated is not None:
+                F(f"page one's scenario table has no {c.title()} row with a dollar value.")
+            continue
+        v, p = rows[c]
+        if abs(v - scen[c][0]) > VALUE_TOL:
+            F(f"page one gives the {c} case ${v:,.2f}; scenarios in the front-matter say "
+              f"${scen[c][0]:,.2f}.")
+        if p is not None and abs(p - scen[c][1]) > PROB_TOL:
+            F(f"page one gives the {c} case a probability of {p:.0%}; scenarios in the front-matter "
+              f"say {scen[c][1]:g}.")
+
+    try:
+        entry = float(_fm_text(fm.get("entry_price")))
+    except ValueError:
+        entry = None
+    if entry and entry > 0:
+        divs = [0.0] + [float(x) for x in re.findall(
+            r"\$(\d+(?:\.\d+)?)(?: a share)? (?:of|in) dividends?\b", p1, re.I)]
+        if er is not None:
+            implied = [(weighted + dv) / entry - 1 for dv in divs]
+            if all(abs(er - x) > RETURN_TOL for x in implied):
+                show = " or ".join(f"{x:.3f}" for x in implied)
+                F(f"expected_return {er:g} does not follow from the weighted value ${weighted:,.2f}, "
+                  f"entry_price {entry:g} and any dividend stated on page one ({show}).")
+        if br is not None and abs(br - (bear / entry - 1)) > RETURN_TOL:
+            F(f"bear_return {br:g} does not follow from the bear value ${bear:,.2f} and entry_price "
+              f"{entry:g} ({bear / entry - 1:.3f}).")
+    try:
+        target = float(_fm_text(fm.get("target_price")))
+    except ValueError:
+        target = None
+    if target is not None and abs(target - weighted) > TARGET_TOL:
+        F(f"target_price {target:g} is more than ${TARGET_TOL:g} from the probability-weighted value "
+          f"${weighted:,.2f}. The target is that value, rounded.")
+
+    # The expected return and the bear loss sit side by side on page one.
+    pcts = {round(abs(v), 1) for (v, u), _ in _numbers_in(p1) if u in ("%",)}
+    for key, x in (("expected return", er), ("bear loss", br)):
+        if x is not None and not any(abs(abs(x) * 100 - p) <= 0.051 for p in pcts):
+            W(f"page one does not show the {key} as a percentage ({abs(x) * 100:.1f}%).")
+
+
+def _memo_monitor(sec, F):
+    """Section 10 needs a rule that ends the position: an Exit or Cut row with a
+    number to watch and the date it will be known."""
+    for table in _table_rows(sec):
+        header = [h.lower() for h in table[0]]
+        ai, ti = _col(header, "action"), _col(header, "threshold", "trigger")
+        if ai is None or ti is None:
+            continue
+        for row in table[1:]:
+            if max(ai, ti) >= len(row):
+                continue
+            if (re.search(r"\b(?:exit|cut)\b", row[ai], re.I) and re.search(r"\d", row[ti])
+                    and any(_DATE_WORDS.search(c) for c in row)):
+                return
+    F(f"{MEMO_MONITOR} needs a table with Threshold and Action columns, and at least one row whose "
+      f"action is Exit or Cut, with a numeric threshold and a date (YYYY-MM-DD, or a month and year).")
 
 
 def main():

@@ -14,19 +14,28 @@ document the old claim is simply gone and nothing can detect the swap.
 The current view is a fold over these events, so positions/{TICKER}.md is
 derived and never hand-maintained. It cannot drift from the notes because it is
 not a separate thing.
+
+    python3 theses/bin/events.py NOTE.md "<trigger>" "<rationale>"            # record
+    python3 theses/bin/events.py --dry-run NOTE.md "<trigger>" "<rationale>"  # show, write nothing
+    python3 theses/bin/events.py --migrate                                    # add the memo columns
+    python3 theses/bin/events.py --render TICKER ...
 """
-import re, sys
+import csv, io, os, re, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import THESES, LEDGER, read_csv_rows, append_csv
+from common import THESES, LEDGER, read_csv_rows, append_csv, csv_header
 import validate
 
-EVENT_COLUMNS = ["event_id", "date", "ticker", "kind", "thesis_id", "note_path",
-                 "direction", "conviction", "target_price", "horizon_days",
-                 "prior_direction", "prior_conviction", "prior_target",
-                 "claim_changed", "trigger", "rationale"]
+OLD_EVENT_COLUMNS = ["event_id", "date", "ticker", "kind", "thesis_id", "note_path",
+                     "direction", "conviction", "target_price", "horizon_days",
+                     "prior_direction", "prior_conviction", "prior_target",
+                     "claim_changed", "trigger", "rationale"]
+# Added for the buy-side memo (format: memo), at the end so every older column
+# keeps its position. Blank for older notes and for every row written before.
+MEMO_EVENT_COLUMNS = ["action", "size_now", "expected_return", "bear_return"]
+EVENT_COLUMNS = OLD_EVENT_COLUMNS + MEMO_EVENT_COLUMNS
 KIND_ORDER = {"initiation": "initiate", "update": "reaffirm",
               "revision": "revise", "close": "close"}
 
@@ -71,6 +80,15 @@ def event_from_note(path, trigger="", rationale=""):
                       and prior.get("conviction") == s("conviction"))
         claim_changed = "yes" if (kind == "revise" and same_shape) else ""
 
+    # The memo's own call: what it asks the PM to do, at what size, and the two
+    # returns page one sets side by side. Blank for the older plain note.
+    memo = {c: "" for c in MEMO_EVENT_COLUMNS}
+    if s("format").lower() == "memo":
+        a = s("action")
+        memo = {"action": next((x for x in validate.MEMO_ACTIONS if x.lower() == a.lower()), a),
+                "size_now": s("size_now"), "expected_return": s("expected_return"),
+                "bear_return": s("bear_return")}
+
     n = len(history(t)) + 1
     return {
         "event_id": f"{t}-{s('written_on')}-{n}",
@@ -89,7 +107,77 @@ def event_from_note(path, trigger="", rationale=""):
         "claim_changed": claim_changed,
         "trigger": trigger,
         "rationale": rationale,
+        **memo,
     }
+
+
+def migrate_events(path=None, write=True):
+    """Give events.csv the memo columns, once, without disturbing a byte of it.
+
+    append_csv refuses to write a row whose columns differ from the file's
+    header, which is what keeps an append-only ledger from being shifted out of
+    alignment. So the header has to change before the first memo is recorded.
+    The four new columns go at the end and are blank on every existing row.
+
+    Safe by construction: the file is parsed, and it is rewritten only if
+    writing the parsed rows back reproduces the original bytes exactly, so the
+    only change is the new header names and four empty fields on each row. The
+    new file is written beside the old one and swapped in with one rename, then
+    read back and compared. Running it again finds the new header and does
+    nothing. Returns "absent", "current", "migrated", or with write=False
+    "would migrate"."""
+    path = Path(path) if path else LEDGER / "events.csv"
+    header = csv_header(path)
+    if header is None:
+        return "absent"
+    if header == EVENT_COLUMNS:
+        return "current"
+    if header != OLD_EVENT_COLUMNS:
+        raise SystemExit(
+            f"events: {path.name} has a header this migration does not know, so it was left alone.\n"
+            f"  file header: {header}\n  expected   : {OLD_EVENT_COLUMNS}\n"
+            f"  or already : {EVENT_COLUMNS}")
+    text = path.read_bytes().decode("utf-8")
+    rows = list(csv.reader(io.StringIO(text, newline="")))
+    bad = [i for i, r in enumerate(rows[1:], 2) if len(r) != len(OLD_EVENT_COLUMNS)]
+    if bad:
+        raise SystemExit(f"events: {path.name} line(s) {bad[:5]} do not have "
+                         f"{len(OLD_EVENT_COLUMNS)} fields. Nothing was changed.")
+
+    def dump(row, term):
+        buf = io.StringIO(newline="")
+        csv.writer(buf, lineterminator=term).writerow(row)
+        return buf.getvalue()
+
+    # Each record keeps its own line ending. The live file has a header ending
+    # in \n and rows ending in \r\n, because the header and the rows were
+    # written by different tools.
+    terms, pos = [], 0
+    for r in rows:
+        term = next((t for t in ("\r\n", "\n", "") if text.startswith(dump(r, t), pos)
+                     and (t or pos + len(dump(r, t)) == len(text))), None)
+        if term is None:
+            raise SystemExit(f"events: {path.name} cannot be written back byte for byte, so migrating "
+                             f"it could alter existing rows. Nothing was changed; migrate it by hand.")
+        terms.append(term)
+        pos += len(dump(r, term))
+    if pos != len(text):
+        raise SystemExit(f"events: {path.name} has trailing text after its last row. Nothing was changed.")
+    if not write:
+        return "would migrate"
+    pad = [""] * len(MEMO_EVENT_COLUMNS)
+    new = "".join(dump(r, t) for r, t in zip([EVENT_COLUMNS] + [r + pad for r in rows[1:]], terms))
+    tmp = path.with_name(path.name + ".migrating")
+    with tmp.open("w", encoding="utf-8", newline="") as fh:
+        fh.write(new)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp, path)
+    back = list(csv.reader(io.StringIO(path.read_bytes().decode("utf-8"), newline="")))
+    if back[0] != EVENT_COLUMNS or [r[:len(OLD_EVENT_COLUMNS)] for r in back[1:]] != rows[1:]:
+        path.write_text(text, encoding="utf-8", newline="")
+        raise SystemExit(f"events: {path.name} did not read back as written; the original was restored.")
+    return "migrated"
 
 
 PREDICTION_COLUMNS = ["prediction_id", "thesis_id", "ticker", "written_on", "panel_date",
@@ -124,7 +212,7 @@ def append_prediction(path):
     return pid
 
 
-def record(path, trigger="", rationale=""):
+def record(path, trigger="", rationale="", dry_run=False):
     # The ledger is append-only, so a bad row is permanent. Until now the only
     # thing that ran the note checks before a note was recorded was ingest.py,
     # on the Google Drive path. A session that pushes straight to the repository
@@ -140,10 +228,22 @@ def record(path, trigger="", rationale=""):
             f"Run python3 theses/bin/validate.py on it, fix what it reports, and record it "
             f"again. Nothing was written.")
     ev = event_from_note(path, trigger, rationale)
+    if dry_run:
+        # Everything a real record would decide, and no write anywhere.
+        ev["migration"] = migrate_events(LEDGER / "events.csv", write=False)
+        ev["prediction_id"] = "(would append)" if _gradeable(path) else ""
+        return ev
+    migrate_events(LEDGER / "events.csv")
     append_csv(LEDGER / "events.csv", EVENT_COLUMNS, [ev])
     pid = append_prediction(path)
     ev["prediction_id"] = pid or ""
     return ev
+
+
+def _gradeable(path):
+    fm, _ = validate.parse(Path(path).read_text(encoding="utf-8"))
+    d = "" if not fm or fm.get("direction") is None else str(fm.get("direction")).strip().strip('"')
+    return d not in ("no view", "watch", "")
 
 
 def render_position(ticker):
@@ -156,6 +256,9 @@ def render_position(ticker):
     d, c = cur.get("direction", "?"), cur.get("conviction", "?")
     out += [f"**{d}**, conviction {c}/5, target {cur.get('target_price','?')} "
             f"({cur.get('horizon_days','?')}d) &mdash; as of {cur.get('date','?')}", ""]
+    if cur.get("action"):
+        out += [f"Memo action: **{cur['action']}**, size now {cur.get('size_now') or '0'}, expected "
+                f"return {cur.get('expected_return','?')}, bear return {cur.get('bear_return','?')}.", ""]
     out += [f"Current note: [`{cur.get('note_path','')}`]({Path(cur.get('note_path','')).name})", ""]
     if any(e.get("claim_changed") == "yes" for e in h):
         out += ["> **This thesis has been revised with the direction and conviction unchanged "
@@ -196,6 +299,21 @@ if __name__ == "__main__":
         for t in sys.argv[2:]:
             p = write_position(t)
             print(f"wrote {p}" if p else f"no events for {t}")
+    elif sys.argv[1] == "--migrate":
+        print(f"events.csv: {migrate_events()}")
+    elif sys.argv[1] == "--dry-run":
+        if len(sys.argv) < 3:
+            print(__doc__)
+            sys.exit(2)
+        trig = sys.argv[3] if len(sys.argv) > 3 else ""
+        rat = sys.argv[4] if len(sys.argv) > 4 else ""
+        ev = record(sys.argv[2], trig, rat, dry_run=True)
+        print("dry run: nothing written. events.csv header: " + ev.pop("migration"))
+        pid = ev.pop("prediction_id")
+        for k in EVENT_COLUMNS:
+            print(f"  {k}: {ev.get(k, '')}")
+        print("a gradeable prediction would be appended" if pid else
+              "no prediction would be appended: this note makes no gradeable claim")
     else:
         trig = sys.argv[2] if len(sys.argv) > 2 else ""
         rat = sys.argv[3] if len(sys.argv) > 3 else ""
