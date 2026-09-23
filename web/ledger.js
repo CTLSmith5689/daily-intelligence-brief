@@ -68,9 +68,7 @@
         if (!rowMap) { rowMap = {}; if (S) for (var i = 0; i < N; i++) rowMap[S.ticker[i]] = i; }
         return Object.prototype.hasOwnProperty.call(rowMap, tk) ? rowMap[tk] : -1;
       },
-      KIND_LABEL: { operating: "Company", lp: "Partnership (LP)", bdc: "BDC", royalty_trust: "Royalty trust",
-                    spac: "SPAC shell", debt: "Exchange-listed note", structured: "Trust certificate",
-                    equity_units: "Corporate units", cef: "Closed-end fund" },
+      KIND_LABEL: kindLabels(),
       KIND_SHORT: { operating: "", lp: "LP", bdc: "BDC", royalty_trust: "TRUST", spac: "SPAC", debt: "NOTE",
                     structured: "CERT", equity_units: "UNITS", cef: "CEF" },
       NON_OPERATING: (CFG.nonop || []).slice(),
@@ -215,14 +213,33 @@
     return t ? '<span class="ld-kt ld-kt-' + kind + (isNonOp(kind) ? " ld-kt-nonop" : "") + '" title="' + esc(ctx.KIND_LABEL[kind]) + '">' + t + "</span>" : "";
   }
   function sectorName(s) { return s || "Unclassified"; }
+  /* The site's one name for each listing type: KIND_WHY in prose ("a debt listing"), KIND_PLURAL in counts,
+     and the same words capitalised as the label (kindLabels). */
   var KIND_WHY = { debt: "debt listing", structured: "trust certificate", equity_units: "unit listing", spac: "SPAC shell",
-                   cef: "closed-end fund", bdc: "BDC", lp: "partnership", royalty_trust: "royalty trust" };
-  /* Short forms of FIELD_STATUS, for a cell; the long text goes in the title. */
-  var STATUS_WHY = { awaiting_filing: "awaiting next filing", no_coverage: "no coverage at the source",
-                     insufficient_history: "not enough history", cohort_too_small: "too few sector peers",
-                     deferred_budget: "deferred to the next run", not_meaningful: "not meaningful",
-                     source_error: "source error", not_applicable: "does not apply",
-                     vendor_value: "from the market-data vendor" };
+                   cef: "closed-end fund", bdc: "business development company", lp: "partnership", royalty_trust: "royalty trust" };
+  var KIND_PLURAL = { operating: "companies", lp: "partnerships", bdc: "business development companies", royalty_trust: "royalty trusts",
+                      spac: "SPAC shells", debt: "debt listings", structured: "trust certificates", equity_units: "unit listings",
+                      cef: "closed-end funds" };
+  function kindLabels() {
+    var out = { operating: "Company" };
+    Object.keys(KIND_WHY).forEach(function (k) { out[k] = cap1(KIND_WHY[k]); });
+    return out;
+  }
+  /* Why a field has no figure, or why its figure is older than today: short forms of FIELD_STATUS, used as a
+     table cell and as a sentence (with a full stop added) in the Stocks readout. */
+  var STATUS_WHY = { awaiting_filing: "Updates at the next filing", no_coverage: "Not in source data",
+                     insufficient_history: "Too little history", cohort_too_small: "Too few sector peers",
+                     deferred_budget: "Due at the next update", not_meaningful: "Not meaningful",
+                     source_error: "Source error", not_applicable: "Does not apply",
+                     vendor_value: "From the data vendor" };
+  /* A field withheld for a listing's type, as the end of a sentence: "P/E does not apply to a debt listing". */
+  function naWhy(kind) { return "does not apply to a " + (KIND_WHY[kind] || kind); }
+  /* A count and its noun: "1 day", "3 days", "1,521 stories". */
+  function plural(c, one, many) { return int(c) + " " + (c === 1 ? one : many); }
+  /* A list in prose: "a", "a and b", "a, b and c". */
+  function andList(xs) { return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1]; }
+  /* A metric label inside a sentence: "revenue growth", but "P/E", "ROE" and "EPS growth" keep their capitals. */
+  function midLabel(label) { return /^[A-Z][a-z]/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label; }
 
   var GROUPS = [];
   function metricsByGroup() {
@@ -233,29 +250,22 @@
     return out;
   }
   function metric(k) { return ctx.APTZ.metric(k); }
-  function betterTxt(m) { return m.better > 0 ? "higher reads better" : m.better < 0 ? "lower reads better" : "neither end is better"; }
-  /* The same direction, in the company page's words. */
-  function dirTxt(m) { return m.better > 0 ? "Higher is better" : m.better < 0 ? "Lower is better" : "Neither higher nor lower\u00a0is\u00a0better"; }
-  /* The pipeline's own description of a field (FIELD_METHODS), for a title attribute. */
+  /* Which direction is better for a metric, as a sentence without its full stop. */
+  function betterTxt(m) { return m.better > 0 ? "Higher is better" : m.better < 0 ? "Lower is better" : "Neither higher nor lower\u00a0is\u00a0better"; }
+  /* The pipeline's own description of a field (FIELD_METHODS), for a title attribute: the note, then the formula. */
   function methodTxt(key) {
     var fm = (CFG.fieldMethods || {})[key];
-    return fm ? (fm.formula ? fm.formula + ". " : "") + (fm.note || "") : "";
+    return fm ? (fm.note || "") + (fm.formula ? " Formula: " + fm.formula + "." : "") : "";
   }
 
-  /* Value cell for a row and metric on the company page, honest about withheld or missing fields. The words
-     for a missing value are the page's own (CO_WHY); STATUS_WHY stays the Stocks page's shorter set. */
-  var CO_WHY = { awaiting_filing: "Updates at next filing", no_coverage: "Not in source data",
-                 insufficient_history: "Too little history", cohort_too_small: "Too few sector peers",
-                 deferred_budget: "Due at next update", not_meaningful: "Not meaningful",
-                 source_error: "Source error", not_applicable: "Does not apply",
-                 vendor_value: "From the data vendor" };
+  /* Value cell for a row and metric on the company page, honest about withheld or missing fields. */
   function valueOf(i, key) {
     var kind = S.kind[i];
-    if (na(i, key)) return { txt: "n/a", why: "Does not apply", whyLong: "does not apply to a " + (KIND_WHY[kind] || kind), blank: true };
+    if (na(i, key)) return { txt: "n/a", why: "Does not apply", whyLong: naWhy(kind), blank: true };
     var v = A.vals[key][i];
     if (v == null || !isFinite(v)) {
       var st = S.status[i] && S.status[i][key];
-      return { txt: "n/a", why: st ? CO_WHY[st] || "Not reported" : "Not reported", blank: true };
+      return { txt: "n/a", why: st ? STATUS_WHY[st] || "Not reported" : "Not reported", blank: true };
     }
     return { txt: ctx.APTZ.fmt(key, v).replace(/^(\$?)-/, MINUS + "$1"), v: v };
   }
@@ -271,9 +281,6 @@
   }
 
   function isNonOp(k) { return ctx.NON_OPERATING.indexOf(k) >= 0; }
-  /* Plural nouns used in counts. */
-  var KIND_PLURAL = { operating: "companies", lp: "partnerships", bdc: "BDCs", royalty_trust: "royalty trusts", spac: "SPAC shells",
-                      debt: "exchange-listed notes", structured: "trust certificates", equity_units: "unit listings", cef: "closed-end funds" };
 
   /* ---------------------------------------------------------------- theme
    * The masthead's head script applies a stored choice before first paint; with none, the system
@@ -434,18 +441,19 @@
           keys.map(function (k) { var z = h.z[k]; return '<td class="r ld-num"' + zClipNote(z) + ">" + (z == null ? "n/a" : zShort(z).replace(SIGMA, "")) + "</td>"; }).join("") +
           '<td class="r ld-num sc">' + (h.score == null ? "n/a" : signed(h.score, 2)) + "</td></tr>";
       }).join("");
-      sodHTML = '<section aria-labelledby="ld-sod-h"><div class="ld-panel"><div class="ld-kicker"><b>Screen of the day</b> ' + MID + " universe z</div>" +
+      sodHTML = '<section aria-labelledby="ld-sod-h"><div class="ld-panel"><div class="ld-kicker"><b>Screen of the day</b></div>' +
         '<h2 class="ld-h2" id="ld-sod-h" style="margin-top:8px">' + esc(P.name) + "</h2>" +
         '<p style="margin:6px 0 0;color:var(--ink2);font-size:15px">' + esc(P.blurb) + "</p>" +
         '<div class="ld-bands">' + keys.map(function (k) {
           var raw = bandRawTxt(k, bands[k], P.stats[k]);
           return '<span class="ld-band"><b>' + esc(metric(k).label) + "</b> " + bandTxt(bands[k]) + (raw ? ' <span class="ld-muted">(' + raw + ")</span>" : "") + "</span>";
         }).join("") + "</div>" +
-        '<p style="margin:0 0 10px;font:400 20px/1.3 var(--serif)"><b style="color:var(--accent-ink);font-weight:500">' + int(P.match) + "</b> of " + int(P.of) + " operating companies match</p>" +
+        '<p style="margin:0 0 10px;font:400 20px/1.3 var(--serif)"><b style="color:var(--accent-ink);font-weight:500">' + int(P.match) + "</b> of " + int(P.of) + " operating companies " + (P.match === 1 ? "matches" : "match") + "</p>" +
         (P.hits.length ? '<div class="ld-tbl-wrap"><table class="ld-mini ld-sodt" id="ld-sod"><thead><tr><th>Company</th>' +
-        keys.map(function (k) { return '<th class="r" title="' + esc(metric(k).label) + ', universe z">' + esc(SHORT_LABEL[k] || metric(k).label) + ' <span class="lc">' + SIGMA + "</span></th>"; }).join("") +
-        '<th class="r sc" title="Composite score, a z within the company’s own sector">Score (sector)</th></tr></thead><tbody>' + screenRows + "</tbody></table></div>" : "") +
-        '<p class="ld-muted" style="font-size:13px;margin:10px 0 14px">Top ' + (P.hits.length === 8 ? "eight" : P.hits.length) + " by composite score. The metric columns are universe z, measured against all " + int(P.of) + " operating companies (SPAC shells, notes and closed-end funds excluded); the score is sector-relative. Panel as of " + dateMid(ASOF) + ".</p>" +
+        keys.map(function (k) { return '<th class="r" title="' + esc(metric(k).label) + ', z-score against all companies">' + esc(SHORT_LABEL[k] || metric(k).label) + ' <span class="lc">' + SIGMA + "</span></th>"; }).join("") +
+        '<th class="r sc" title="Overall score, compared with the company’s own sector">Sector score</th></tr></thead><tbody>' + screenRows + "</tbody></table></div>" : "") +
+        '<p class="ld-muted" style="font-size:13px;margin:10px 0 14px">' + (!P.hits.length ? "" : P.match <= P.hits.length ? (P.match === 1 ? "The one match. " : "Every match, highest overall score first. ") : "The " + (P.hits.length === 8 ? "eight" : P.hits.length) + " with the highest overall score. ") +
+        "The metric columns are z-scores: how far each figure sits from the median of all " + int(P.of) + " operating companies (not counting funds, shells and bond listings), in units of the usual spread. The score compares each company with its own sector. Data as of " + dateMid(ASOF) + ".</p>" +
         '<a class="ld-link" href="' + ctx.href("stocks", P.q) + '">Open this screen ' + ARROW + "</a></div></section>";
     }
 
@@ -455,7 +463,7 @@
       return '<li><a class="ld-tk" href="' + ctx.href("company", r.ticker) + '#thesis">' + esc(r.ticker) + "</a>" +
         '<span class="ld-muted" style="font-size:14.5px">' + esc(r.name || r.ticker) + "</span>" +
         '<span class="ld-view ' + (v.open ? "open" : "") + '">' + v.label + "</span>" +
-        '<span class="meta">' + esc(callLine(r)) + "</span></li>";
+        '<span class="meta">' + esc(callSentence(r)) + "</span></li>";
     }).join("");
 
     // Trends
@@ -469,11 +477,11 @@
       '<div class="ld-head" style="border-bottom:0;padding-bottom:14px"><div><div class="ld-kicker"><b>' + (b.type === "daily" || !b.type ? "Daily edition" : esc(cap1(b.type)) + " edition") + "</b>" +
       (b.date ? " " + MID + " " + dateLong(b.date) : "") + (b.ts ? " " + MID + " filed " + esc(b.ts) : "") + "</div>" +
       '<h1 class="ld-h1">The brief, the screen, and the calls</h1></div>' +
-      '<p class="ld-deck" style="margin:0;max-width:44ch">One brief a day across ' + withStories.length + ' sections, a library of ' + int(T.total || 0) +
-      " stories, and a screener over " + int(CFG.nListings || 0) + " US listings where every metric is placed against the whole universe.</p></div>" +
-      (quotes ? '<div class="ld-quotes" aria-label="Index quotes carried in the brief of ' + esc(b.date ? dateMid(b.date) : "") + '" style="border-top:1px solid var(--rule)">' + quotes + "</div>" : "") +
+      '<p class="ld-deck" style="margin:0;max-width:44ch">One news brief a day in ' + plural(withStories.length, "section", "sections") + ', a library of ' + plural(T.total || 0, "story", "stories") +
+      ", and a stock screener of " + int(CFG.nListings || 0) + " US listings that compares each figure with every other company’s.</p></div>" +
+      (quotes ? '<div class="ld-quotes" aria-label="' + esc("Market prices from the brief" + (b.date ? " of " + dateMid(b.date) : "")) + '" style="border-top:1px solid var(--rule)">' + quotes + "</div>" : "") +
       '<div class="ld-front">' +
-      '<section aria-labelledby="ld-top-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-top-h">Top of the brief</h2><a class="ld-link" href="' + ctx.href("today") + '">All ' + unique + " stories " + ARROW + "</a></div>" +
+      '<section aria-labelledby="ld-top-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-top-h">Top of the brief</h2><a class="ld-link" href="' + ctx.href("today") + '">All ' + plural(unique, "story", "stories") + " " + ARROW + "</a></div>" +
       (lead ? '<article class="ld-lead" style="padding-top:14px"><div class="ld-kicker"><b>' + esc(lead.sec) + "</b></div>" +
       '<h2><a href="' + esc(lead.link) + '" target="_blank" rel="noopener">' + esc(lead.h) + "</a></h2><div class=\"ld-src\">" + esc(lead.src) + "</div></article>" : '<p class="ld-empty">No brief has been filed yet.</p>') +
       '<ul class="ld-tops">' + tops.map(function (s) {
@@ -485,26 +493,26 @@
       '<section aria-labelledby="ld-calls-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-calls-h">Research calls</h2><a class="ld-link" href="' + ctx.href("research") + '">All theses ' + ARROW + "</a></div>" +
       (calls ? '<ul class="ld-calls">' + calls + "</ul>" : '<p class="ld-empty">No thesis has been written yet.</p>') + "</section>" +
       '<section aria-labelledby="ld-tr-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-tr-h">Recent trends</h2>' + (win.last ? '<span class="ld-kicker">7 days to ' + dateShort(win.last) + "</span>" : "") + "</div>" +
-      (win.last ? '<p style="margin:10px 0 0;font-size:14px;color:var(--ink2)">Words that recur most in headlines from ' + dateShort(win.curStart) + " to " + dateMid(win.last) + ", counted once per story, against the 7 days before (" + dateShort(win.prevStart) + " to " + dateShort(win.prevEnd) + ").</p>" : "") +
+      (win.last ? '<p style="margin:10px 0 0;font-size:14px;color:var(--ink2)">The words that appear most often in headlines from ' + dateShort(win.curStart) + " to " + dateShort(win.last) + ", counted once per story. In brackets, the count for the 7 days before (" + dateShort(win.prevStart) + " to " + dateShort(win.prevEnd) + ").</p>" : "") +
       '<ul class="ld-terms">' + terms.map(function (t) {
-        return "<li><span>" + esc(t.w) + '</span><span class="bar"><i style="width:' + (100 * t.n / tmax).toFixed(1) + '%"></i></span><span class="n">' + t.n + " (prior " + t.p + ")</span></li>";
+        return "<li><span>" + esc(t.w) + '</span><span class="bar"><i style="width:' + (100 * t.n / tmax).toFixed(1) + '%"></i></span><span class="n">' + t.n + " (was " + t.p + ")</span></li>";
       }).join("") + "</ul>" +
-      (days.length ? '<div class="ld-kicker" style="margin-top:22px">Stories per brief day</div>' +
-      '<div class="ld-cols" role="img" aria-label="Stories filed per day for the last ' + days.length + " brief days, from " + esc(dateMid(days[0])) + " to " + esc(dateMid(days[days.length - 1])) + '">' +
+      (days.length ? '<div class="ld-kicker" style="margin-top:22px">Stories per day</div>' +
+      '<div class="ld-cols" role="img" aria-label="Stories per day on the last ' + plural(days.length, "day", "days") + " with a brief, " + esc(dateMid(days[0])) + " to " + esc(dateMid(days[days.length - 1])) + '">' +
       days.map(function (d, j) {
-        return '<div class="' + (j === days.length - 1 ? "last" : "") + '" style="height:' + (100 * dayCounts[d] / dmax).toFixed(1) + '%" title="' + esc(dateMid(d)) + ": " + dayCounts[d] + ' stories"></div>';
+        return '<div class="' + (j === days.length - 1 ? "last" : "") + '" style="height:' + (100 * dayCounts[d] / dmax).toFixed(1) + '%" title="' + esc(dateMid(d)) + ": " + plural(dayCounts[d], "story", "stories") + '"></div>';
       }).join("") + '</div><div class="ld-cols-x">' + days.map(function (d) { return "<span>" + dt(d).getUTCDate() + "</span>"; }).join("") + "</div>" : "") +
-      '<div class="ld-stats"><div class="ld-stat"><div class="ld-kicker">Stories</div><div class="v">' + int(T.total || 0) + '</div><div class="d">across ' + allDays.length + " brief days</div></div>" +
+      '<div class="ld-stats"><div class="ld-stat"><div class="ld-kicker">Stories</div><div class="v">' + int(T.total || 0) + '</div><div class="d">on ' + plural(allDays.length, "day", "days") + " with a brief</div></div>" +
       '<div class="ld-stat"><div class="ld-kicker">Sources</div><div class="v">' + int(T.sources || 0) + '</div><div class="d">publications</div></div>' +
       '<div class="ld-stat"><div class="ld-kicker">Cadence</div><div class="v">Daily</div><div class="d">' + cadenceTxt(T.cadence) + "</div></div></div>" +
       "</section></div>" +
-      '<section class="ld-sec" aria-labelledby="ld-pages-h" style="padding-top:48px"><div class="ld-sec-h" style="border-bottom:0"><h2 class="ld-h2" id="ld-pages-h">Five places to land</h2></div>' +
+      '<section class="ld-sec" aria-labelledby="ld-pages-h" style="padding-top:48px"><div class="ld-sec-h" style="border-bottom:0"><h2 class="ld-h2" id="ld-pages-h">Pages on this site</h2></div>' +
       '<div class="ld-pages">' +
-      pageCard("today", "Today", (b.date ? "The " + dateMid(b.date) + " brief" : "The latest brief") + " by section, " + unique + " stories with repeats folded together.") +
-      pageCard("stories", "Stories", "Search and filter all " + int(T.total || 0) + " stories, grouped by the day they ran.") +
-      pageCard("stocks", "Stocks", int(CFG.nListings || 0) + " US listings: the S&P 500, 400 and 600 plus every Nasdaq, NYSE and NYSE American name. Filter on universe z.") +
-      pageCard("company", "A company", "One page per ticker: price, where each metric sits in the universe, filings and headlines.", CFG.sampleTicker || "AAPL") +
-      pageCard("research", "Research", research.length + " written " + (research.length === 1 ? "thesis" : "theses") + " with a target, a date to check, and what would prove them wrong.") +
+      pageCard("today", "Today", (b.date ? "The " + dateMid(b.date) + " brief" : "The latest brief") + ", section by section: " + plural(unique, "story", "stories") + ", each shown once.") +
+      pageCard("stories", "Stories", "Search and filter all " + plural(T.total || 0, "story", "stories") + ", grouped by the day they ran.") +
+      pageCard("stocks", "Stocks", int(CFG.nListings || 0) + " US listings: the S&P 500, 400 and 600, and every other stock on Nasdaq, NYSE and NYSE American. Filter on any figure.") +
+      pageCard("company", "A company", "One page per company: price history, how each figure compares with all companies, filings and headlines.", CFG.sampleTicker || "AAPL") +
+      pageCard("research", "Research", plural(research.length, "written thesis", "written theses") + ", each with a target price, a date to review it, and what would prove it wrong.") +
       "</div></section></div>";
 
     var sod = main.querySelector("#ld-sod tbody");
@@ -512,9 +520,9 @@
   }
   /* Honest cadence line: when the one-a-day edition started, and what ran before it. */
   function cadenceTxt(c) {
-    if (!c || !c.dailyN) return "brief days vary";
-    var t = "one brief a day since " + dateShort(c.dailyFirst) + " (" + c.dailyN + " briefs)";
-    if (c.olderN) t += "; " + dateShort(c.olderFirst) + " to " + dateShort(c.olderLast) + " ran morning, midday and evening editions (" + int(c.olderN) + " stories)";
+    if (!c || !c.dailyN) return "Varies from day to day";
+    var t = "One a day since " + dateShort(c.dailyFirst) + " (" + plural(c.dailyN, "brief", "briefs") + ").";
+    if (c.olderN) t += " Morning, midday and evening editions from " + dateShort(c.olderFirst) + " to " + dateShort(c.olderLast) + " (" + plural(c.olderN, "story", "stories") + ").";
     return t;
   }
   function pageCard(p, t, d, arg) {
@@ -541,16 +549,23 @@
     var w = wr != null ? parseFloat(wr) : NaN;
     return { e: e, t: t, l: l, w: w, move: (l - e) / e, need: (t - e) / e };
   }
-  function callLine(r) {
+  /* A call in whole sentences, for the Home page's list and the thesis on the company page. */
+  function callSentence(r) {
     var v = viewOf(r), n = callNums(r);
-    var since = r.last_close && isFinite(n.l)
-      ? "last close " + money(n.l) + " on " + dateShort(r.last_close.date) + (isFinite(n.move) ? ", " + signed(100 * n.move, 1) + "% since written" : "")
-      : "no close held since";
-    var written = "Written " + (r.written_on ? dateShort(r.written_on) : "on an unrecorded date") + (isFinite(n.e) ? " at " + money(n.e) : "");
-    if (!v.open) return written + (isFinite(n.t) ? ", reference target " + money(n.t) + " (not in force while the view is " + v.label.toLowerCase() + ")" : ", no target") + ", " + since;
-    var toward = n.need !== 0 ? n.move / n.need : 0;
-    return written + (isFinite(n.t) ? ", target " + money(n.t) : ", no target") + (r.review_by ? " by " + dateShort(r.review_by) : "") + ", " + since +
-      (!isFinite(n.move) || !isFinite(n.t) ? "" : Math.abs(n.move) < 0.0005 ? ", unmoved" : toward >= 0 ? ", toward target" : ", away from target");
+    var out = "Written " + (r.written_on ? "on " + dateShort(r.written_on) : "on an unrecorded date") + (isFinite(n.e) ? " at " + money(n.e) : "");
+    if (v.open) out += (isFinite(n.t) ? ", with a target of " + money(n.t) + (r.review_by ? " by " + dateShort(r.review_by) : "") : ", with no target" + (r.review_by ? ", to be reviewed by " + dateShort(r.review_by) : "")) + ".";
+    else out += ".";
+    if (r.last_close && isFinite(n.l)) {
+      out += " The last close was " + money(n.l) + " on " + dateShort(r.last_close.date);
+      if (isFinite(n.move)) {
+        out += Math.abs(n.move) < 0.0005 ? ", unchanged since the note" : ", " + (n.move > 0 ? "up " : "down ") + num(Math.abs(100 * n.move), 1) + "% since the note";
+        var toward = n.need !== 0 ? n.move / n.need : 0;
+        if (v.open && isFinite(n.t) && Math.abs(n.move) >= 0.0005) out += toward >= 0 ? ", toward the target" : ", away from the target";
+      }
+      out += ".";
+    } else out += " There has been no close since.";
+    if (!v.open) out += isFinite(n.t) ? " The " + money(n.t) + " target is for reference only and is not active while the view is “" + v.label + "”." : " There is no target.";
+    return out;
   }
 
   /* ---------------------------------------------------------------- TODAY */
@@ -565,8 +580,8 @@
       '<div class="ld-head" style="grid-template-columns:minmax(0,1fr)"><div><div class="ld-kicker"><b>Today</b> ' + MID + " " + edName + (b.ts ? " " + MID + " filed " + esc(b.ts) : "") +
       (b.key ? " " + MID + ' <a class="ld-inl" href="' + esc(b.key) + '">the full brief</a>' : "") + "</div>" +
       '<h1 class="ld-h1">' + (b.date ? dateLong(b.date) : "No brief yet") + "</h1>" +
-      (secs.length ? '<p class="ld-deck">' + unique + " stories in " + secs.length + " sections." + (filed > unique ? " " + (filed - unique) + " stories were filed under two sections; each appears once, under the first, with a note of where else it ran." : "") + "</p>"
-        : '<p class="ld-deck">The brief has not been filed yet. The next scheduled run will populate this page.</p>') +
+      (secs.length ? '<p class="ld-deck">' + plural(unique, "story", "stories") + " in " + plural(secs.length, "section", "sections") + "." + (filed > unique ? " " + plural(filed - unique, "story was a repeat", "stories were repeats") + " from another section. Each story appears once, under the first section it ran in, with a note of where else it ran." : "") + "</p>"
+        : '<p class="ld-deck">No brief has been published yet. This page fills in after the next scheduled run.</p>') +
       (others.length ? '<p class="ld-muted" style="font-size:14px;margin:10px 0 0">Other editions that day: ' + others.map(function (e) {
         return '<a class="ld-inl" href="' + esc(e.key) + '">' + esc(cap1(e.type)) + "</a>";
       }).join(", ") + ".</p>" : "") +
@@ -577,7 +592,7 @@
         return '<section class="ld-brief-sec" id="ld-bs-' + i + '" aria-labelledby="ld-bsh-' + i + '"><div><h2 class="ld-h2" id="ld-bsh-' + i + '">' + esc(s.name) + '</h2><div class="n">' + s.stories.length + " " + (s.stories.length === 1 ? "story" : "stories") + "</div></div><div>" +
           s.stories.map(function (x, j) {
             return '<div class="ld-story' + (j === 0 ? " lead" : "") + '"><a class="h" href="' + esc(x.link) + '" target="_blank" rel="noopener">' + esc(x.h) + "</a>" +
-              '<div class="m"><span class="ld-src">' + esc(x.src) + "</span>" + (x.also.length ? ' <span class="also">' + MID + " also filed under " + esc(x.also.join(", ")) + "</span>" : "") + "</div></div>";
+              '<div class="m"><span class="ld-src">' + esc(x.src) + "</span>" + (x.also.length ? ' <span class="also">' + MID + " also in " + esc(andList(x.also)) + "</span>" : "") + "</div></div>";
           }).join("") + "</div></section>";
       }).join("") + "</div>";
     main.querySelectorAll("[data-jump]").forEach(function (a) {
@@ -601,9 +616,9 @@
     Object.keys(secs).forEach(function (n) { if (secOrder.indexOf(n) < 0) secOrder.push(n); });
     main.innerHTML = '<div class="ld-wrap">' +
       '<div class="ld-head"><div><div class="ld-kicker"><b>Library</b>' + (stories.length ? " " + MID + " " + dateMid(stories[stories.length - 1].d) + " to " + dateMid(stories[0].d) : "") + "</div>" +
-      '<h1 class="ld-h1">Story library</h1><p class="ld-deck">Every story the brief has carried, ' + int(stories.length) + " in all, newest first and grouped by the day it ran. Search matches headline, summary and source.</p></div></div>" +
+      '<h1 class="ld-h1">Story library</h1><p class="ld-deck">Every story the brief has carried, ' + int(stories.length) + " in all, newest first and grouped by the day it ran. Search looks at the headline, the summary and the source.</p></div></div>" +
       '<div class="ld-filters">' +
-      '<div class="row"><label for="ld-sq" class="ld-sr">Search stories</label><input class="ld-input" id="ld-sq" type="search" placeholder="Search headlines and sources" style="flex:1 1 260px;max-width:520px" value="' + esc(sst.q) + '">' +
+      '<div class="row"><label for="ld-sq" class="ld-sr">Search stories</label><input class="ld-input" id="ld-sq" type="search" placeholder="Search headlines, summaries and sources" style="flex:1 1 260px;max-width:520px" value="' + esc(sst.q) + '">' +
       '<label for="ld-sed">Edition</label><select class="ld-select" id="ld-sed"><option value="">All editions</option>' +
       ["daily", "morning", "midday", "evening"].filter(function (e) { return eds[e]; }).map(function (e) {
         return '<option value="' + e + '"' + (sst.ed === e ? " selected" : "") + ">" + e.charAt(0).toUpperCase() + e.slice(1) + " (" + eds[e] + ")</option>";
@@ -655,17 +670,17 @@
     });
     var dayTotals = {};
     list.forEach(function (s) { dayTotals[s.d] = (dayTotals[s.d] || 0) + 1; });
-    el.innerHTML = '<p class="ld-more" style="margin:14px 0 0">' + (list.length ? "Showing " + int(shown.length) + " of " + int(list.length) + " matching " + (list.length === 1 ? "story" : "stories") : "") + "</p>" +
+    el.innerHTML = '<p class="ld-more" style="margin:14px 0 0">' + (list.length ? (list.length === 1 ? "Showing the one matching story" : shown.length === list.length ? "Showing all " + plural(list.length, "matching story", "matching stories") : "Showing " + int(shown.length) + " of " + plural(list.length, "matching story", "matching stories")) : "") + "</p>" +
       (list.length ? groups.map(function (g) {
         var tot = dayTotals[g.d], part = g.items.length < tot;
         return '<section class="ld-day"><div class="dh"><div class="d">' + dateLong(g.d) + '</div><div class="ld-kicker" style="margin-top:4px">' +
-          (part ? g.items.length + " of " + tot + " shown, more below" : tot + " " + (tot === 1 ? "story" : "stories")) + "</div></div><div>" +
+          (part ? "Showing " + g.items.length + " of " + tot + ", more below" : plural(tot, "story", "stories")) + "</div></div><div>" +
           g.items.map(function (s) {
-            var meta = [srcTxt(s.src), s.sec, s.ed === "daily" ? "" : s.ed + " edition"].filter(Boolean).map(esc).join(" " + MID + " ");
+            var meta = [srcTxt(s.src), s.sec, s.ed === "daily" ? "" : cap1(s.ed) + " edition"].filter(Boolean).map(esc).join(" " + MID + " ");
             return '<div class="ld-story"><a class="h" href="' + esc(s.link) + '" target="_blank" rel="noopener">' + esc(cleanHead(s.h, s.src)) + '</a><div class="m ld-src">' + meta + "</div></div>";
           }).join("") + "</div></section>";
-      }).join("") : '<p class="ld-empty">No story matches. Try fewer words, or clear the section and edition filters.</p>') +
-      (list.length > shown.length ? '<div class="ld-more"><button type="button" class="ld-btn" id="ld-smore">Show ' + Math.min(150, list.length - shown.length) + " more</button><span>" + int(list.length - shown.length) + " not yet shown</span></div>" : "");
+      }).join("") : '<p class="ld-empty">No story matches. Try fewer words, or set the section and edition back to All.</p>') +
+      (list.length > shown.length ? '<div class="ld-more"><button type="button" class="ld-btn" id="ld-smore">Show ' + Math.min(150, list.length - shown.length) + " more</button><span>" + int(list.length - shown.length) + " more to show</span></div>" : "");
     var more = document.getElementById("ld-smore");
     if (more) more.addEventListener("click", function () {
       sst.shown += 150; drawStoryList();
@@ -741,7 +756,6 @@
     return b === 0 ? "" : (z < 0 ? "ld-zn" : "ld-zp") + b;
   }
   function nonopKind(kind) { return ctx.NON_OPERATING.indexOf(kind) >= 0; }
-  function blankReason(kind) { return "n/a, " + (KIND_WHY[kind] || kind); }
   var cohortCount = 0;
   function cohortN() {
     if (!cohortCount) { var mk = ctx.z("universe").cohortMask; for (var i = 0; i < mk.length; i++) cohortCount += mk[i]; }
@@ -819,27 +833,27 @@
       var t = raw.toLowerCase(), m, key;
       if ((m = t.match(RAW_RANGE))) {
         key = A2K[m[1]];
-        if (!key) return p.chips.push({ ti: ti, err: 1, html: "unknown metric <b>" + esc(m[1]) + "</b>" });
+        if (!key) return p.chips.push({ ti: ti, err: 1, html: "no metric called <b>" + esc(m[1]) + "</b>; press ? for the list" });
         var r0 = +m[2] * UNIT_MUL[m[3] || m[5]], r1 = +m[4] * UNIT_MUL[m[5]];
         addRaw(p, key, Math.min(r0, r1), Math.max(r0, r1), ti);
         return;
       }
       if ((m = t.match(RAW_CMP))) {
         key = A2K[m[1]];
-        if (!key) return p.chips.push({ ti: ti, err: 1, html: "unknown metric <b>" + esc(m[1]) + "</b>, press ? for the names" });
+        if (!key) return p.chips.push({ ti: ti, err: 1, html: "no metric called <b>" + esc(m[1]) + "</b>; press ? for the list" });
         var rv = +m[3] * UNIT_MUL[m[4]];
         if (m[2].charAt(0) === ">") addRaw(p, key, rv, Infinity, ti); else addRaw(p, key, -Infinity, rv, ti);
         return;
       }
       if ((m = t.match(RANGE))) {
         key = A2K[m[1]];
-        if (!key) return p.chips.push({ ti: ti, err: 1, html: "unknown metric <b>" + esc(m[1]) + "</b>" });
+        if (!key) return p.chips.push({ ti: ti, err: 1, html: "no metric called <b>" + esc(m[1]) + "</b>; press ? for the list" });
         addBand(p, key, Math.min(+m[2], +m[3]), Math.max(+m[2], +m[3]), ti);
         return;
       }
       if ((m = t.match(CMP))) {
         key = A2K[m[1]];
-        if (!key) return p.chips.push({ ti: ti, err: 1, html: "unknown metric <b>" + esc(m[1]) + "</b>, press ? for the names" });
+        if (!key) return p.chips.push({ ti: ti, err: 1, html: "no metric called <b>" + esc(m[1]) + "</b>; press ? for the list" });
         var v = +m[3];
         if (m[2] === ">" || m[2] === ">=") addBand(p, key, v, Infinity, ti);
         else if (m[2] === "<" || m[2] === "<=") addBand(p, key, -Infinity, v, ti);
@@ -848,10 +862,10 @@
       }
       if (t.charAt(0) === "+" || t.charAt(0) === "-") {
         var k = t.slice(1), kinds = KIND_SWITCH[k];
-        if (!kinds) return p.chips.push({ ti: ti, err: 1, html: "unknown switch <b>" + esc(raw) + "</b>" });
+        if (!kinds) return p.chips.push({ ti: ti, err: 1, html: "no listing type called <b>" + esc(raw) + "</b>" });
         kinds.forEach(function (kd) { if (t.charAt(0) === "+") p.include[kd] = 1; else p.hideKinds[kd] = 1; });
         p.chips.push({ ti: ti, inc: 1, html: '<span class="cl">' + (t.charAt(0) === "+" ? "show" : "hide") + "</span> <b>" +
-          kinds.map(function (kd) { return ctx.KIND_LABEL[kd]; }).join(", ") + "</b>" });
+          andList(kinds.map(function (kd) { return KIND_PLURAL[kd]; })) + "</b>" });
         return;
       }
       if ((m = t.match(/^(sector|sec|s):(.+)$/))) {
@@ -859,7 +873,7 @@
         if (val === "none" || val === "unclassified") hits = [""];
         else if (SECTOR_WORDS[val]) hits = [SECTOR_WORDS[val]];
         else sectors.forEach(function (s) { if (s && s.toLowerCase().replace(/[^a-z0-9]/g, "").indexOf(val) >= 0) hits.push(s); });
-        if (!hits.length) return p.chips.push({ ti: ti, err: 1, html: "no sector matches <b>" + esc(m[2]) + "</b>" });
+        if (!hits.length) return p.chips.push({ ti: ti, err: 1, html: "no sector name contains <b>" + esc(m[2]) + "</b>" });
         hits.forEach(function (h) { if (p.sectors.indexOf(h) < 0) p.sectors.push(h); });
         p.chips.push({ ti: ti, html: '<span class="cl">sector</span> <b>' + esc(hits.map(function (h) { return SECTOR_SHORT[h]; }).join(" or ")) + "</b>" });
         return;
@@ -867,29 +881,29 @@
       if ((m = t.match(/^(idx|index):(.+)$/))) {
         var iv = m[2].replace(/[^a-z0-9]/g, "");
         var list = iv === "sp1500" ? ["S&P 500", "S&P 400", "S&P 600"] : IDX_TOK[iv] ? [IDX_TOK[iv]] : null;
-        if (!list) return p.chips.push({ ti: ti, err: 1, html: "unknown index <b>" + esc(m[2]) + "</b>" });
+        if (!list) return p.chips.push({ ti: ti, err: 1, html: "no index or exchange called <b>" + esc(m[2]) + "</b>" });
         list.forEach(function (x) { if (p.idx.indexOf(x) < 0) p.idx.push(x); });
         p.chips.push({ ti: ti, html: '<span class="cl">index</span> <b>' + esc(list.join(" or ")) + "</b>" });
         return;
       }
       if ((m = t.match(/^scope:(sector|universe|sec|uni|u|s)$/))) {
         p.scope = m[1].charAt(0) === "s" ? "sector" : "universe";
-        p.chips.push({ ti: ti, html: '<span class="cl">scope</span> <b>' + (p.scope === "sector" ? "vs own sector" : "vs universe") + "</b>" });
+        p.chips.push({ ti: ti, html: '<span class="cl">scope</span> <b>' + (p.scope === "sector" ? "within each sector" : "against all companies") + "</b>" });
         return;
       }
       if ((m = t.match(/^research:([a-z]+)$/))) {
         var rw = m[1] === "any" ? "thesis" : m[1] === "wl" ? "watchlist" : m[1];
-        if (!RESEARCH_WORD[rw]) return p.chips.push({ ti: ti, err: 1, html: "unknown research filter <b>" + esc(m[1]) + "</b>" });
+        if (!RESEARCH_WORD[rw]) return p.chips.push({ ti: ti, err: 1, html: "no research filter called <b>" + esc(m[1]) + "</b>" });
         p.research = rw;
         p.chips.push({ ti: ti, html: '<span class="cl">research</span> <b>' + esc(RESEARCH_WORD[rw]) + "</b>" });
         return;
       }
       if ((m = t.match(/^dp:([a-z]+)(>=|>|=)?(\d+)$/))) {
         var dim = DP_WORD[m[1]];
-        if (!dim) return p.chips.push({ ti: ti, err: 1, html: "unknown dimension <b>" + esc(m[1]) + "</b>" });
+        if (!dim) return p.chips.push({ ti: ti, err: 1, html: "no factor called <b>" + esc(m[1]) + "</b>" });
         var need = +m[3] + (m[2] === ">" ? 1 : 0);
         p.dp[dim] = Math.max(p.dp[dim] || 0, need);
-        p.chips.push({ ti: ti, html: '<span class="cl">data points</span> <b>' + dim + "</b> " + GE + " " + need + " of " + (CFG.dims && CFG.dims[dim] ? CFG.dims[dim].length : 5) });
+        p.chips.push({ ti: ti, html: '<span class="cl">figures</span> <b>' + dim + "</b> " + GE + " " + need + " of " + (CFG.dims && CFG.dims[dim] ? CFG.dims[dim].length : 5) });
         return;
       }
       if (t === "has:cap") {
@@ -1063,35 +1077,36 @@
   function helpHTML() {
     var groups = A.groups.map(function (g) {
       return "<h3>" + esc(g) + '</h3><div class="cols">' + M.filter(function (m) { return m.group === g; }).map(function (m) {
-        return '<div title="' + esc(m.label + ", " + betterTxt(m) + ". " + methodTxt(m.key)) + '"><code>' + esc(ALIAS[m.key]) + "</code> " + esc(m.label) + "</div>";
+        return '<div title="' + esc(m.label + ". " + betterTxt(m) + ". " + methodTxt(m.key)) + '"><code>' + esc(ALIAS[m.key]) + "</code> " + esc(m.label) + "</div>";
       }).join("") + "</div>";
     }).join("");
     return '<div class="ld-help" id="ld-help" role="dialog" aria-modal="false" aria-labelledby="ld-help-h">' +
       '<button type="button" class="ld-btn x" data-close aria-label="Close help">Close</button>' +
-      '<h2 id="ld-help-h">The screen language</h2>' +
-      "<p>Thresholds are in sigma: robust z (median and MAD, clipped at " + String.fromCharCode(177) + "5), measured against the " +
-      int(cohortN()) + " operating companies in the " + dateMid(ASOF) + " panel. Tokens combine with AND; a row with no value for a filtered metric does not pass.</p>" +
-      "<dl><dt><code>gm&gt;1</code></dt><dd>gross margin z at or above +1" + SIGMA + " (<code>&gt;=</code> reads the same)</dd>" +
-      "<dt><code>pe&lt;-0.5</code></dt><dd>P/E z at or below " + MINUS + "0.5" + SIGMA + " (cheaper than typical)</dd>" +
-      "<dt><code>roe:1..3</code></dt><dd>a band, both ends included</dd>" +
-      "<dt><code>vol=0</code></dt><dd>within " + String.fromCharCode(177) + "0.25" + SIGMA + " of the value</dd>" +
-      "<dt><code>pe&lt;=20x roe&gt;=15%</code></dt><dd>a number with a unit is a raw value: % a percent, x a multiple, m for $M (<code>mcap&gt;=10000m</code>), r the value as stored</dd>" +
-      "<dt><code>research:thesis</code></dt><dd>thesis, watchlist, long, short, avoid, watch</dd>" +
-      "<dt><code>dp:value&gt;=3</code></dt><dd>at least 3 of the 5 inputs to a factor (growth, value, momentum, quality); <code>has:cap</code> requires a market cap</dd>" +
-      "<dt><code>sector:energy</code></dt><dd>any part of a sector name (tech, health, staples, realestate); repeat for OR</dd>" +
-      "<dt><code>idx:sp500</code></dt><dd>sp500, sp400, sp600, sp1500, nasdaq, nyse, amex</dd>" +
-      "<dt><code>+spac +notes +cef</code></dt><dd>show SPAC shells, debt listings or closed-end funds (hidden by default; <code>+nonop</code> for all three)</dd>" +
-      "<dt><code>-lp -bdc -trust</code></dt><dd>hide partnerships, BDCs or royalty trusts (shown with a tag by default)</dd>" +
-      "<dt><code>scope:sector</code></dt><dd>z against the row's own sector (sectors of 20 or more)</dd>" +
-      "<dt><code>apple</code></dt><dd>any other word matches a ticker prefix or a name</dd></dl>" +
-      "<h3>Keys</h3><dl><dt><kbd>/</kbd></dt><dd>focus the screen bar</dd><dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>move the row cursor</dd>" +
-      "<dt><kbd>Enter</kbd></dt><dd>open the cursor company</dd><dt><kbd>s</kbd></dt><dd>switch universe and sector scope</dd>" +
-      "<dt><kbd>z</kbd></dt><dd>cells show raw values or z</dd><dt><kbd>m</kbd></dt><dd>draw the next 150 rows</dd>" +
-      "<dt><kbd>b</kbd></dt><dd>add a " + String.fromCharCode(177) + "0.5" + SIGMA + " band around the cursor row on the sorted column (or shift-click a cell)</dd>" +
-      "<dt><kbd>" + String.fromCharCode(8592, 8593, 8594, 8595) + "</kbd></dt><dd>turn the map, when it has focus; <kbd>Esc</kbd> there clears the focused companies</dd>" +
-      "<dt><kbd>Esc</kbd></dt><dd>leave the screen bar, close this help</dd><dt><kbd>?</kbd></dt><dd>this help</dd></dl>" +
-      "<h3>Colour</h3><p>Cells are tinted by z: slate below the cohort median, ochre above, plain paper near zero. The tint marks position, not merit: for P/E a high z means expensive.</p>" +
-      '<h2 style="margin-top:18px">Metric names</h2>' + groups + "</div>";
+      '<h2 id="ld-help-h">How to write filters</h2>' +
+      "<p>Type filters into the box, separated by spaces. A company must pass all of them (a repeated sector or index filter allows any of those named), and a company with no figure for a filtered metric is left out. " +
+      "A plain number is a z-score: how far a figure sits from the median of the " + int(cohortN()) + " operating companies (as of " + dateMid(ASOF) + "), in units of the usual spread, " + SIGMA + ". " +
+      "The median and spread are measured so that a few extreme companies do not distort them, and z-scores are capped at " + String.fromCharCode(177) + "5.</p>" +
+      "<dl><dt><code>gm&gt;1</code></dt><dd>gross margin z-score at or above +1" + SIGMA + " (<code>&gt;=</code> means the same)</dd>" +
+      "<dt><code>pe&lt;-0.5</code></dt><dd>P/E z-score at or below " + MINUS + "0.5" + SIGMA + " (cheaper than the typical company)</dd>" +
+      "<dt><code>roe:1..3</code></dt><dd>a range, both ends included</dd>" +
+      "<dt><code>vol=0</code></dt><dd>within " + String.fromCharCode(177) + "0.25" + SIGMA + " of the number</dd>" +
+      "<dt><code>pe&lt;=20x roe&gt;=15%</code></dt><dd>a number with a unit is the figure itself, not a z-score: % for a percent, x for a multiple, k, m, b or t for thousands, millions, billions or trillions (<code>mcap&gt;=10b</code> is $10 billion), r for the figure as stored</dd>" +
+      "<dt><code>research:thesis</code></dt><dd>companies with a written thesis; also <code>watchlist</code>, or the current view: <code>long</code> (" + esc(VIEW.long) + "), <code>short</code> (" + esc(VIEW.short) + "), <code>avoid</code> (" + esc(VIEW.avoid) + "), <code>watch</code> (" + esc(VIEW.watch) + ")</dd>" +
+      "<dt><code>dp:value&gt;=3</code></dt><dd>at least 3 of the 5 figures behind a factor score (growth, value, momentum or quality); <code>has:cap</code> requires a market cap</dd>" +
+      "<dt><code>sector:energy</code></dt><dd>any part of a sector's name (tech, health, staples, realestate), or <code>none</code> for no sector; repeat it to allow several sectors</dd>" +
+      "<dt><code>idx:sp500</code></dt><dd>an index or exchange: sp500, sp400, sp600, sp1500 (all three), nasdaq, nyse, amex (NYSE American); repeat it to allow several</dd>" +
+      "<dt><code>+spac +notes +cef</code></dt><dd>show SPAC shells, bond listings (debt listings, trust certificates and unit listings) or closed-end funds, which are hidden unless you ask; <code>+nonop</code> shows all three</dd>" +
+      "<dt><code>-lp -bdc -trust</code></dt><dd>hide partnerships, business development companies or royalty trusts, which are shown with a tag unless you hide them</dd>" +
+      "<dt><code>scope:sector</code></dt><dd>z-scores against each company's own sector (sectors of 20 or more companies)</dd>" +
+      "<dt><code>apple</code></dt><dd>any other word matches the start of a ticker or any part of a name</dd></dl>" +
+      "<h3>Keys</h3><dl><dt><kbd>/</kbd></dt><dd>go to the filter box</dd><dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>move the cursor down or up a row</dd>" +
+      "<dt><kbd>Enter</kbd></dt><dd>open the company at the cursor</dd><dt><kbd>s</kbd></dt><dd>switch between comparing with all companies and with each sector</dd>" +
+      "<dt><kbd>z</kbd></dt><dd>show figures or z-scores in the cells</dd><dt><kbd>m</kbd></dt><dd>show the next 150 rows</dd>" +
+      "<dt><kbd>b</kbd></dt><dd>filter for companies within " + String.fromCharCode(177) + "0.5" + SIGMA + " of the cursor row on the sorted column (or shift-click a cell)</dd>" +
+      "<dt><kbd>" + String.fromCharCode(8592, 8593, 8594, 8595) + "</kbd></dt><dd>turn the map, when it has focus; <kbd>Esc</kbd> there clears the selected companies</dd>" +
+      "<dt><kbd>Esc</kbd></dt><dd>leave the filter box, or close this help</dd><dt><kbd>?</kbd></dt><dd>open or close this help</dd></dl>" +
+      "<h3>Colour</h3><p>Cells are tinted by z-score: slate below the median, ochre above, plain near zero. The tint shows position, not quality: for P/E a high z-score means expensive.</p>" +
+      '<h2 style="margin-top:18px">Metric names</h2><p>Hover over a name to see how it is worked out.</p>' + groups + "</div>";
   }
   function toggleHelp(ret) { if (helpOpen) closeHelp(); else openHelp(ret); }
   function openHelp(ret) {
@@ -1164,11 +1179,11 @@
       '<div class="ld-scrim" id="ld-scrim" data-rail-close hidden></div>' +
       '<section class="ld-res" aria-label="Results">' +
       '<div class="ld-stat" id="ld-stat"></div>' +
-      '<div class="ld-gwrap" id="ld-grid" role="region" aria-label="Screener grid, scrolls both ways" tabindex="0"></div>' +
+      '<div class="ld-gwrap" id="ld-grid" role="region" aria-label="Results table, scrolls both ways" tabindex="0"></div>' +
       mapHTML() +
       '<div class="ld-read" id="ld-read" aria-live="off">' + (isTouch()
-        ? "Tap a row to open the company. The header histograms show each metric's spread across the operating universe."
-        : "Hover a cell to read its value, z and percentile. Click a row to open the company; shift-click a metric cell to add a " + String.fromCharCode(177) + "0.5" + SIGMA + " band around it.") + "</div>" +
+        ? "Tap a row to open the company. The small chart at the top of each column shows how that figure is spread across all operating companies."
+        : "Hover over a cell to read it. Click a row to open the company, or shift-click a figure to filter for companies within " + String.fromCharCode(177) + "0.5" + SIGMA + " of it.") + "</div>" +
       "</section></div>";
 
     var q = main.querySelector("#ld-q");
@@ -1270,42 +1285,43 @@
     var el = document.getElementById("ld-stat");
     if (!el) return;
     var s = screen, p = s.p, hc = s.hiddenCount;
-    var hiddenNon = 0, parts = [];
+    var hiddenNon = 0, parts = [], groups = [];
     ctx.NON_OPERATING.forEach(function (k) { hiddenNon += hc[k] || 0; });
     var debtLike = (hc.debt || 0) + (hc.structured || 0) + (hc.equity_units || 0);
-    if (hc.spac) parts.push(int(hc.spac) + " SPAC shells");
-    if (debtLike) parts.push(int(debtLike) + " exchange-listed notes and certificates");
-    if (hc.cef) parts.push(int(hc.cef) + " closed-end funds");
+    // The hidden types in the words the style guide uses: funds, shells and bond listings.
+    if (hc.cef) { groups.push("funds"); parts.push(plural(hc.cef, "closed-end fund", "closed-end funds")); }
+    if (hc.spac) { groups.push("shells"); parts.push(plural(hc.spac, "SPAC shell", "SPAC shells")); }
+    if (debtLike) { groups.push("bond listings"); parts.push(plural(debtLike, "bond listing", "bond listings") + " (debt listings, trust certificates and unit listings)"); }
     var what = s.incCount ? "listings" : "operating companies";
-    var hid = hiddenNon ? int(hiddenNon) + " non-operating listings hidden (" + parts.join(", ") + "); turn them on under Listings to include them." :
-      "Non-operating listings are shown with a tag (" + int(s.incCount) + "); their z is still measured against operating companies.";
+    var hid = hiddenNon ? int(hiddenNon) + " listings that are not operating companies are hidden: " + andList(parts) + ". Turn them on under Listing types." :
+      int(s.incCount) + " funds, shells and bond listings are shown, each with a tag. Their z-scores still compare them with operating companies.";
     var extra = [];
-    if (hc.lp) extra.push(int(hc.lp) + " partnerships");
-    if (hc.bdc) extra.push(int(hc.bdc) + " BDCs");
-    if (hc.royalty_trust) extra.push(int(hc.royalty_trust) + " royalty trusts");
+    if (hc.lp) extra.push(plural(hc.lp, "partnership", "partnerships"));
+    if (hc.bdc) extra.push(plural(hc.bdc, "business development company", "business development companies"));
+    if (hc.royalty_trust) extra.push(plural(hc.royalty_trust, "royalty trust", "royalty trusts"));
     var drop = "";
     if (s.dropN) {
       var dk = Object.keys(s.dropKinds);
-      drop = " " + int(s.dropN) + " " + (s.dropN === 1 ? "listing" : "listings") + " (" + dk.map(function (k) { return int(s.dropKinds[k]) + " " + (s.dropKinds[k] === 1 ? KIND_WHY[k] || k : KIND_PLURAL[k] || k); }).join(", ") +
-        ") cannot be judged on " + s.dropKeys.map(function (k) { return BYKEY[k].label.toLowerCase(); }).join(" or ") +
-        ", which does not apply to their type, so they are left out.";
+      drop = " " + plural(s.dropN, "listing", "listings") + " (" + andList(dk.map(function (k) { return plural(s.dropKinds[k], KIND_WHY[k] || k, KIND_PLURAL[k] || k); })) +
+        (s.dropN === 1 ? ") is" : ") are") + " left out because " + s.dropKeys.map(function (k) { return BYKEY[k].label; }).join(" or ") +
+        " does not apply to " + (s.dropN === 1 ? "it." : "them.");
     }
     var scope = p.scope, nf = filterCount(), rail = document.getElementById("ld-rail");
-    var why = hid + (extra.length ? " Hidden by your query: " + extra.join(", ") + "." : "") + " " +
-      (scope === "sector" ? "z within each sector." : "z vs " + int(cohortN()) + " operating companies.") +
-      (Object.keys(p.bands).length || Object.keys(p.raw).length ? " A row with no value for a filtered metric does not pass." : "") + drop;
-    el.innerHTML = '<p class="cnt" id="ld-count" data-n="' + s.match.length + '" data-m="' + s.universeN + '"><b>' + int(s.match.length) + "</b> of " + int(s.universeN) + " " + what + " match</p>" +
-      '<p class="hid" id="ld-hid" title="' + esc(why) + '">' + (hiddenNon ? int(hiddenNon) + " non-operating hidden" : int(s.incCount) + " non-operating shown") +
+    var why = hid + (extra.length ? " Your filters also hide " + andList(extra) + "." : "") + " " +
+      (scope === "sector" ? "Z-scores compare each company with its own sector." : "Z-scores compare each company with all " + int(cohortN()) + " operating companies.") +
+      (Object.keys(p.bands).length || Object.keys(p.raw).length ? " A company with no figure for a filtered metric is left out." : "") + drop;
+    el.innerHTML = '<p class="cnt" id="ld-count" data-n="' + s.match.length + '" data-m="' + s.universeN + '"><b>' + int(s.match.length) + "</b> of " + int(s.universeN) + " " + what + " " + (s.match.length === 1 ? "matches" : "match") + "</p>" +
+      '<p class="hid" id="ld-hid" title="' + esc(why) + '">' + (hiddenNon ? int(hiddenNon) + " " + andList(groups) + " hidden" : int(s.incCount) + " funds, shells and bond listings shown") +
       (s.dropN ? " " + MID + " " + int(s.dropN) + " left out" : "") + "</p>" +
       '<div class="tools"><button type="button" class="ld-btn ld-fbtn" data-rail-open aria-controls="ld-rail" aria-expanded="' + !!(rail && rail.classList.contains("open")) + '">Filters (' + nf + ")</button>" +
       '<div class="ld-seg ld-vseg" role="group" aria-label="View"><button type="button" data-view="grid" aria-pressed="' + (mst.view === "grid") + '">Grid</button>' +
       '<button type="button" data-view="map" aria-pressed="' + (mst.view === "map") + '">Map</button></div>' +
-      '<div class="ld-seg" role="group" aria-label="Measure z against"><button type="button" data-act="scope" data-v="universe" aria-pressed="' + (scope === "universe") + '">Universe</button>' +
-      '<button type="button" data-act="scope" data-v="sector" aria-pressed="' + (scope === "sector") + '" title="Switch scope (s)">Sector</button></div>' +
-      (mst.view === "grid" ? '<div class="ld-seg" role="group" aria-label="Cells show"><button type="button" data-act="cells" data-v="raw" aria-pressed="' + (gst.cells === "raw") + '">Raw</button>' +
-      '<button type="button" data-act="cells" data-v="z" aria-pressed="' + (gst.cells === "z") + '" title="Switch cells (z)">z</button></div>' : "") +
+      '<div class="ld-seg" role="group" aria-label="Compare with"><button type="button" data-act="scope" data-v="universe" aria-pressed="' + (scope === "universe") + '" title="Compare each company with all companies (keyboard: s)">All</button>' +
+      '<button type="button" data-act="scope" data-v="sector" aria-pressed="' + (scope === "sector") + '" title="Compare each company with its own sector (keyboard: s)">Sector</button></div>' +
+      (mst.view === "grid" ? '<div class="ld-seg" role="group" aria-label="Cells show"><button type="button" data-act="cells" data-v="raw" aria-pressed="' + (gst.cells === "raw") + '" title="Show each figure (keyboard: z)">Value</button>' +
+      '<button type="button" data-act="cells" data-v="z" aria-pressed="' + (gst.cells === "z") + '" title="Show z-scores (keyboard: z)">z</button></div>' : "") +
       '<button type="button" class="ld-btn" data-act="reset">Reset</button>' +
-      (mst.view === "map" ? "" : '<span class="ld-zleg" aria-label="Tint scale, from 3 sigma below the median to 3 sigma above"><span>' + MINUS + "3" + SIGMA + '</span><i class="ld-zn6"></i><i class="ld-zn4"></i><i class="ld-zn2"></i><i class="z0"></i><i class="ld-zp2"></i><i class="ld-zp4"></i><i class="ld-zp6"></i><span>+3' + SIGMA + "</span></span>") + "</div>";
+      (mst.view === "map" ? "" : '<span class="ld-zleg" aria-label="Colour scale, from 3σ below the median to 3σ above"><span>' + MINUS + "3" + SIGMA + '</span><i class="ld-zn6"></i><i class="ld-zn4"></i><i class="ld-zn2"></i><i class="z0"></i><i class="ld-zp2"></i><i class="ld-zp4"></i><i class="ld-zp6"></i><span>+3' + SIGMA + "</span></span>") + "</div>";
   }
 
   /* ---------- the rail ----------
@@ -1321,8 +1337,8 @@
     "Real Estate": "re", "Communication Services": "comm", "Energy": "energy", "": "none" };
   var IDX_ORDER = ["sp500", "sp400", "sp600", "nasdaq", "nyse", "amex"];
   /* Listing types: the first three are hidden unless asked for, the last three shown unless turned off. */
-  var LISTING_SW = [["spac", "SPAC shells", ["spac"], 0], ["notes", "Notes and certificates", ["debt", "structured", "equity_units"], 0],
-    ["cef", "Closed-end funds", ["cef"], 0], ["lp", "Partnerships", ["lp"], 1], ["bdc", "BDCs", ["bdc"], 1], ["trust", "Royalty trusts", ["royalty_trust"], 1]];
+  var LISTING_SW = [["spac", "SPAC shells", ["spac"], 0], ["notes", "Bond listings", ["debt", "structured", "equity_units"], 0],
+    ["cef", "Closed-end funds", ["cef"], 0], ["lp", "Partnerships", ["lp"], 1], ["bdc", "Business development companies", ["bdc"], 1], ["trust", "Royalty trusts", ["royalty_trust"], 1]];
 
   function railIsDrawer() { return !!(window.matchMedia && window.matchMedia("(max-width: 899px)").matches); }
   function openRail(on) {
@@ -1393,15 +1409,15 @@
     var h = '<div class="ld-rhead"><span class="ld-rtitle">Filters</span>' +
       '<button type="button" class="ld-btn" data-act="reset">Reset</button>' +
       '<button type="button" class="ld-btn ld-rclose" data-rail-close aria-label="Close filters">Close</button></div>' +
-      '<div class="ld-rq"><div class="ld-cmdrow"><label for="ld-q" class="ld-sr">Screen</label>' +
+      '<div class="ld-rq"><div class="ld-cmdrow"><label for="ld-q" class="ld-sr">Filters, typed</label>' +
       '<input id="ld-q" name="ld-q" autocomplete="off" spellcheck="false" autocapitalize="off" value="' + esc(gst.query) + '" placeholder="' +
       (narrow ? "gm>1 pe<-0.5" : "gm>1 pe<-0.5 vol<0") + '" aria-describedby="ld-qchips">' +
-      '<button type="button" class="ld-btn" data-help-local aria-label="Screen language and keys">? Help</button></div>' +
+      '<button type="button" class="ld-btn" data-help-local aria-label="How to write filters, and keyboard keys">? Help</button></div>' +
       '<div class="ld-qchips" id="ld-qchips" aria-live="polite"></div></div>';
-    h += railSec("pre", "Ready-made", '<ul class="ld-rpre">' + PRESETS.map(function (p) {
+    h += railSec("pre", "Ready-made screens", '<ul class="ld-rpre">' + PRESETS.map(function (p) {
       return '<li><button type="button" data-preset="' + esc(p.q) + '" title="' + esc((p.blurb ? p.blurb + " " : "") + p.q) + '">' + esc(p.name) + "</button></li>";
     }).join("") + "</ul>", true);
-    h += railSec("idx", "Index", '<div class="ld-rchips"><button type="button" class="ld-chip" data-idx="" aria-pressed="true">All</button>' + IDX_ORDER.map(function (k) {
+    h += railSec("idx", "Index or exchange", '<div class="ld-rchips"><button type="button" class="ld-chip" data-idx="" aria-pressed="true">All</button>' + IDX_ORDER.map(function (k) {
       return '<button type="button" class="ld-chip" data-idx="' + k + '" aria-pressed="false">' + esc(IDX_TOK[k]) + ' <span class="c" data-idxn="' + k + '"></span></button>';
     }).join("") + "</div>", true);
     h += railSec("sec", "Sector", '<div class="ld-rlist">' + secList.map(function (sc) {
@@ -1412,30 +1428,31 @@
       if (!n && k !== "thesis" && k !== "watchlist") return "";
       return '<button type="button" class="ld-chip" data-res="' + k + '" aria-pressed="false">' + esc(RESEARCH_WORD[k]) + ' <span class="c" data-resn="' + k + '"></span></button>';
     }).join("") + "</div>", true);
-    h += railSec("cap", "Market cap ($M)", '<div class="ld-mm"><input class="ld-rin" data-cap="lo" inputmode="decimal" placeholder="min" aria-label="Market cap minimum, $M">' +
-      '<span>to</span><input class="ld-rin" data-cap="hi" inputmode="decimal" placeholder="max" aria-label="Market cap maximum, $M"></div>', true);
-    h += '<div class="ld-rmh"><span class="ld-rtitle">Metrics</span><div class="ld-seg" role="group" aria-label="Metric filters in">' +
-      '<button type="button" data-units="raw" aria-pressed="' + (railUnits === "raw") + '">Raw</button><button type="button" data-units="z" aria-pressed="' + (railUnits === "z") + '">z</button></div></div>';
+    h += railSec("cap", "Market cap ($M)", '<div class="ld-mm"><input class="ld-rin" data-cap="lo" inputmode="decimal" placeholder="min" aria-label="Minimum market cap, in $ millions">' +
+      '<span>to</span><input class="ld-rin" data-cap="hi" inputmode="decimal" placeholder="max" aria-label="Maximum market cap, in $ millions"></div>', true);
+    h += '<div class="ld-rmh"><span class="ld-rtitle">Metrics</span><div class="ld-seg" role="group" aria-label="Enter metric filters as">' +
+      '<button type="button" data-units="raw" aria-pressed="' + (railUnits === "raw") + '">Value</button><button type="button" data-units="z" aria-pressed="' + (railUnits === "z") + '">z-score</button></div></div>';
     A.groups.forEach(function (g) {
       h += railSec("g-" + g, esc(g), M.filter(function (m) { return m.group === g; }).map(function (m) {
-        return '<div class="ld-mrow" data-k="' + m.key + '"><span class="lab" title="' + esc(m.label + ", " + betterTxt(m)) + '"><code>' + esc(ALIAS[m.key]) + "</code> " + esc(m.label) + "</span>" +
+        return '<div class="ld-mrow" data-k="' + m.key + '"><span class="lab" title="' + esc(m.label + ". " + betterTxt(m) + ".") + '"><code>' + esc(ALIAS[m.key]) + "</code> " + esc(m.label) + "</span>" +
           '<span class="hs" aria-hidden="true"></span>' +
-          '<span class="mm"><input class="ld-rin" data-lo="' + m.key + '" inputmode="decimal" aria-label="' + esc(m.label) + ' minimum">' +
-          '<span>to</span><input class="ld-rin" data-hi="' + m.key + '" inputmode="decimal" aria-label="' + esc(m.label) + ' maximum"><span class="u"></span></span></div>';
+          '<span class="mm"><input class="ld-rin" data-lo="' + m.key + '" inputmode="decimal" aria-label="' + esc(m.label) + ', minimum">' +
+          '<span>to</span><input class="ld-rin" data-hi="' + m.key + '" inputmode="decimal" aria-label="' + esc(m.label) + ', maximum"><span class="u"></span></span></div>';
       }).join(""), false);
     });
-    h += railSec("hyg", "Hygiene", '<p class="ld-rnote">Minimum data points per factor, of 5</p><div class="ld-dp">' + DP_DIMS.map(function (d) {
+    h += railSec("hyg", "Data coverage", '<p class="ld-rnote">Require at least this many of the 5 figures behind each factor score.</p><div class="ld-dp">' + DP_DIMS.map(function (d) {
       return '<label><span>' + d + '</span><input class="ld-rin" type="number" min="0" max="5" step="1" data-dp="' + d + '" value="0"></label>';
     }).join("") + '</div><label class="ld-rcheck"><input type="checkbox" data-needcap><span>Require a market cap</span></label>', false);
-    h += railSec("lst", "Listings", '<p class="ld-rnote">Operating companies always show.</p><div class="ld-rlist">' + LISTING_SW.map(function (w) {
+    h += railSec("lst", "Listing types", '<p class="ld-rnote">Operating companies are always shown. Bond listings are debt listings, trust certificates and unit listings.</p><div class="ld-rlist">' + LISTING_SW.map(function (w) {
       return '<label><input type="checkbox" data-sw="' + w[0] + '"><span>' + esc(w[1]) + '</span><span class="c" data-swn="' + w[0] + '"></span></label>';
     }).join("") + "</div>", false);
     h += railSec("views", "Saved views", '<ul class="ld-views" id="ld-views"></ul>' +
       '<div class="ld-vsave"><input class="ld-rin" id="ld-vname" maxlength="60" placeholder="Name this view" aria-label="Name for the saved view">' +
       '<button type="button" class="ld-btn" data-vsave>Save</button></div><p class="ld-rnote" id="ld-vnote" aria-live="polite"></p>', true);
-    h += '<div class="ld-rfoot"><p class="ld-kicker">' + int(N) + " listings " + MID + " " + A.metrics.length + " metrics " + MID + " close " + dateShort(PRICE_DATE) + " " + MID + " panel " + dateShort(ASOF) + "</p>" +
-      '<p class="ld-gfoot" id="ld-gfoot">Panel dated ' + dateMid(ASOF) + "; prices and 1D are the " + dateMid(PRICE_DATE) + " close. z is robust (median and MAD); market cap and volume are log-scaled first. " +
-      "A dot marks a missing value; n/a marks a field that is only a placeholder for the listing's type.</p></div>";
+    h += '<div class="ld-rfoot"><p class="ld-kicker">' + int(N) + " listings " + MID + " " + A.metrics.length + " metrics " + MID + " prices of " + dateShort(PRICE_DATE) + "</p>" +
+      '<p class="ld-gfoot" id="ld-gfoot">Figures as of ' + dateMid(ASOF) + "; the price and 1D (one-day change) columns are from the close on " + dateLong(PRICE_DATE) + ". " +
+      "A z-score is how far a figure sits from the median, in units of the usual spread; market cap and volume are put on a log scale first. " +
+      "A dot means there is no figure; n/a means the figure does not apply to that type of listing.</p></div>";
     return h;
   }
 
@@ -1561,7 +1578,7 @@
       }
       if (b.hasAttribute("data-vdel")) {
         var all = loadViews(), gone = all.splice(+b.getAttribute("data-vdel"), 1)[0];
-        viewsNote = storeViews(all) ? (gone ? "Deleted " + gone.name + "." : "") : "Could not delete: this browser is not keeping site data.";
+        viewsNote = storeViews(all) ? (gone ? "Deleted " + gone.name + "." : "") : "Could not delete: this browser is not storing data for this site.";
         renderViews();
         var nm = document.getElementById("ld-vname"); if (nm) nm.focus();
       }
@@ -1626,7 +1643,7 @@
     if (!name) { viewsNote = "Give the view a name first."; renderViews(); if (nm) nm.focus(); return; }
     var all = loadViews().filter(function (x) { return x.name !== name; });
     all.push({ name: name, q: gst.query.trim() });
-    viewsNote = storeViews(all) ? "Saved " + name + "." : "Could not save: this browser is not keeping site data.";
+    viewsNote = storeViews(all) ? "Saved " + name + "." : "Could not save: this browser is not storing data for this site.";
     if (nm) nm.value = "";
     renderViews();
   }
@@ -1635,7 +1652,7 @@
     if (!ul) return;
     var all = loadViews(), q = gst.query.trim();
     ul.innerHTML = all.length ? all.map(function (v, i) {
-      return '<li><button type="button" class="ld-vload" data-vload="' + i + '" aria-pressed="' + (v.q === q) + '" title="' + esc(v.q || "no filters") + '">' + esc(v.name) + "</button>" +
+      return '<li><button type="button" class="ld-vload" data-vload="' + i + '" aria-pressed="' + (v.q === q) + '" title="' + esc(v.q || "No filters") + '">' + esc(v.name) + "</button>" +
         '<button type="button" class="x" data-vdel="' + i + '" aria-label="Delete ' + esc(v.name) + '">' + TIMES + "</button></li>";
     }).join("") : '<li class="none">No saved views yet.</li>';
     if (note) note.textContent = viewsNote;
@@ -1672,11 +1689,11 @@
     var s = screen, res = s.res, p = s.p, sortK = gst.sort.k, arrow = gst.sort.dir < 0 ? "▾" : "▴";
     var groups = A.groups, cols = [];
     groups.forEach(function (g) { M.forEach(function (m) { if (m.group === g) cols.push(m); }); });
-    var fixed = [["tk", "Ticker"], ["name", "Name"], ["sector", "Sector"], ["price", "Last"], ["cap", "Cap"], ["chg", "1D"]];
+    var fixed = [["tk", "Ticker"], ["name", "Name"], ["sector", "Sector"], ["price", "Price"], ["cap", "Mkt cap"], ["chg", "1D"]];
     gridNarrow = window.innerWidth < 560;
     var W = { tk: 92, name: gridNarrow ? 124 : 200, sector: 104, price: 84, cap: 70, chg: 72 }, MW = 76;
     var tw = W.tk + W.name + W.sector + W.price + W.cap + W.chg + MW * cols.length;
-    var h = '<table class="ld-g" style="width:' + tw + 'px"><caption class="ld-sr">Matching listings with ' + cols.length + " metrics, " + (gst.cells === "z" ? "shown as z" : "shown as raw values") + ", tinted by z</caption><colgroup>" +
+    var h = '<table class="ld-g" style="width:' + tw + 'px"><caption class="ld-sr">Matching listings and ' + cols.length + " metrics, " + (gst.cells === "z" ? "showing z-scores" : "showing figures") + ", tinted by z-score</caption><colgroup>" +
       fixed.map(function (f) { return '<col style="width:' + W[f[0]] + 'px">'; }).join("") +
       cols.map(function () { return '<col style="width:' + MW + 'px">'; }).join("") + '</colgroup><thead><tr class="grp"><th class="sl" scope="col"></th><th colspan="5" scope="colgroup">Listing</th>';
     groups.forEach(function (g) {
@@ -1694,7 +1711,7 @@
       var on = sortK === m.key, gs = m.group !== prevG ? " gs" : "";
       prevG = m.group;
       h += '<th scope="col" class="' + (on ? "on" : "") + gs + '"' + (on ? ' aria-sort="' + (gst.sort.dir < 0 ? "descending" : "ascending") + '"' : "") +
-        '><button type="button" class="colbtn" data-sort="' + m.key + '" title="' + esc(m.label + " (" + betterTxt(m) + "). Click to sort by z.") + '">' +
+        '><button type="button" class="colbtn" data-sort="' + m.key + '" title="' + esc(m.label + ". " + betterTxt(m) + ". Click to sort by z-score.") + '">' +
         '<span class="al">' + esc(ALIAS[m.key]) + (on ? '<span class="ar">' + arrow + "</span>" : "") + "</span>" +
         '<span class="ld-sr">' + esc(m.label) + "</span>" + histSVG(m.key, p.bands[m.key], p.scope) + "</button></th>";
     });
@@ -1706,11 +1723,11 @@
     for (var r = 0; r < first; r++) h += rowHTML(r, s.order[r], cols, res);
     for (r = first; r < lim; r++) rest += rowHTML(r, s.order[r], cols, res);
     h += "</tbody></table>";
-    if (!s.order.length) h += '<div class="ld-gmore">No rows match. Remove a filter, widen a band, or turn on non-operating listings.</div>';
+    if (!s.order.length) h += '<div class="ld-gmore">Nothing matches. Remove a filter, widen a range, or show more under Listing types.</div>';
     else if (lim < s.order.length) {
       var nx = Math.min(150, s.order.length - lim);
-      h += '<div class="ld-gmore"><span>Rows 1 to ' + int(lim) + " of " + int(s.order.length) + ' shown.</span><button type="button" class="ld-btn" data-more>Show the next ' + nx + "</button></div>";
-    } else h += '<div class="ld-gmore"><span>All ' + int(s.order.length) + " matching rows shown.</span></div>";
+      h += '<div class="ld-gmore"><span>Showing ' + int(lim) + " of " + int(s.order.length) + '.</span><button type="button" class="ld-btn" data-more>Show the next ' + nx + "</button></div>";
+    } else h += '<div class="ld-gmore"><span>' + (s.order.length === 1 ? "Showing the one match." : "Showing all " + int(s.order.length) + ".") + "</span></div>";
     var sl = wrap.scrollLeft;
     wrap.innerHTML = h;
     wrap.scrollLeft = sl;
@@ -1776,7 +1793,7 @@
     gst.cursor = +tr.getAttribute("data-r");
     if ((e.shiftKey || e.altKey) && td && (td.hasAttribute("data-c") || td.hasAttribute("data-na"))) {
       markCursor(false);
-      if (td.hasAttribute("data-na")) { setReadout("<b>" + esc(S.ticker[i]) + "</b> " + esc(cols[+td.getAttribute("data-na")].label) + ": " + blankReason(S.kind[i]) + ". A placeholder cannot seed a band."); return; }
+      if (td.hasAttribute("data-na")) { setReadout("<b>" + esc(S.ticker[i]) + "</b> " + esc(midLabel(cols[+td.getAttribute("data-na")].label)) + " " + naWhy(S.kind[i]) + ", so there is nothing to filter around."); return; }
       addBandAround(cols[+td.getAttribute("data-c")].key, i);
       return;
     }
@@ -1785,14 +1802,14 @@
   function isTouch() { return !!(window.matchMedia && window.matchMedia("(hover: none)").matches); }
 
   function addBandAround(key, i) {
-    if (na(i, key)) { setReadout(esc(S.ticker[i]) + " " + esc(BYKEY[key].label) + " is " + blankReason(S.kind[i]) + ", so no band was added."); return; }
+    if (na(i, key)) { setReadout("<b>" + esc(S.ticker[i]) + "</b> " + esc(midLabel(BYKEY[key].label)) + " " + naWhy(S.kind[i]) + ", so no filter was added."); return; }
     var z = screen.res.z[key][i];
-    if (isNaN(z)) { setReadout(esc(S.ticker[i]) + " has no " + esc(BYKEY[key].label) + " z, so no band was added."); return; }
+    if (isNaN(z)) { setReadout("<b>" + esc(S.ticker[i]) + "</b> has no " + esc(midLabel(BYKEY[key].label)) + " z-score, so no filter was added."); return; }
     var lo = Math.round((z - 0.5) * 100) / 100, hi = Math.round((z + 0.5) * 100) / 100, a = ALIAS[key];
     setToken(function (t) { var m = t.match(/^([a-z0-9_]+)(?:[<>=:]|$)/); return m && A2K[m[1]] === key; }, a + ":" + lo + ".." + hi);
     syncQuery();
     updateScreen(true);
-    setReadout("Added the band <b>" + esc(a) + "</b> " + zsig(lo) + " to " + zsig(hi) + " around " + esc(S.ticker[i]) + ".");
+    setReadout("Added a filter around " + esc(S.ticker[i]) + ": <b>" + esc(a) + "</b> from " + zsig(lo) + " to " + zsig(hi) + ".");
   }
   function setReadout(html) { var r = document.getElementById("ld-read"); if (r) r.innerHTML = html; }
 
@@ -1803,16 +1820,25 @@
     var c = td.hasAttribute("data-c") ? td.getAttribute("data-c") : td.getAttribute("data-na");
     cellReadout(e.currentTarget.__cols[+c], +tr.getAttribute("data-i"));
   }
+  /* The hover line, as a finding: "NVDA revenue growth 83.4%: higher than 93% of companies. Higher is better.
+     Updates at the next filing." Size metrics say larger and smaller; a neutral metric states no direction. */
   function cellReadout(m, i) {
-    var kind = S.kind[i], tk = "<b>" + esc(S.ticker[i]) + "</b> " + esc(m.label) + ": ";
-    if (na(i, m.key)) { setReadout(tk + blankReason(kind)); return; }
+    var kind = S.kind[i], sec = S.sector[i], tk = "<b>" + esc(S.ticker[i]) + "</b> " + esc(midLabel(m.label));
+    if (na(i, m.key)) { setReadout(tk + " " + naWhy(kind) + "."); return; }
     var v = A.vals[m.key][i], zU = mz("universe").z[m.key][i], zS = screen.p.scope === "sector" ? screen.res.z[m.key][i] : NaN;
-    var stt = S.status[i] && S.status[i][m.key];
-    if (v == null) { setReadout(tk + "no value" + (stt ? " (" + (STATUS_WHY[stt] || stt) + ")" : "")); return; }
-    var pc = pctl(m.key, i);
-    setReadout(tk + "<b>" + esc(ctx.APTZ.fmt(m.key, v)) + "</b>, universe z <b>" + zsig(zU) + "</b>" +
-      (screen.p.scope === "sector" ? ", sector z <b>" + zsig(zS) + "</b>" : "") +
-      (isNaN(pc) ? "" : ", percentile " + fnum(pc, 0)) + (stt ? ", " + (STATUS_WHY[stt] || stt) : "") + ", " + betterTxt(m));
+    var stt = S.status[i] && S.status[i][m.key], note = stt ? " " + (STATUS_WHY[stt] || stt) + "." : "";
+    if (v == null) { setReadout(tk + ": no figure." + note); return; }
+    var pc = pctl(m.key, i), size = m.unit === "usd" || m.unit === "shares";
+    var up = size ? "larger" : "higher", dn = size ? "smaller" : "lower", where = "";
+    if (!isNaN(pc)) {
+      var p = Math.round(pc);
+      where = pc >= 99.5 ? up + " than almost every company" : pc < 0.5 ? dn + " than almost every company"
+        : p >= 50 ? up + " than " + p + "% of companies" : dn + " than " + (100 - p) + "% of companies";
+    }
+    var zs = gst.cells === "z" && !isNaN(zU) ? " (z-score " + zsig(zU) + ")" : "";
+    setReadout(tk + " <b>" + esc(ctx.APTZ.fmt(m.key, v)) + "</b>" + zs + (where ? ": " + where : "") + "." +
+      (screen.p.scope === "sector" ? (sec ? " Within " + esc(sec) + ", its z-score is " + zsig(zS) + "." : " It has no sector to compare with.") : "") +
+      (m.better ? " " + betterTxt(m) + "." : "") + note);
   }
   function showMore(syncTo) { gst.limit += 150; renderGrid({ keepScroll: true, syncTo: syncTo || 0 }); }
 
@@ -1852,7 +1878,7 @@
     if (k === "m") { if (gst.limit < n) showMore(); return true; }
     if (k === "b" && n) {
       var key = BYKEY[gst.sort.k] ? gst.sort.k : null;
-      if (!key) { setReadout("Sort by a metric column first: <b>b</b> bands the sorted metric around the cursor row."); return true; }
+      if (!key) { setReadout("Sort by a metric column first: <b>b</b> then filters for companies near the cursor row on that metric."); return true; }
       addBandAround(key, screen.order[gst.cursor]); return true;
     }
     return false;
@@ -1860,8 +1886,8 @@
   function cursorReadout() {
     if (!screen || !screen.order.length) return;
     var i = screen.order[gst.cursor];
-    setReadout("Cursor on <b>" + esc(S.ticker[i]) + "</b> " + esc(S.name[i]) + ", row " + (gst.cursor + 1) + " of " + int(screen.order.length) +
-      ". Enter opens it; the red tick in each header histogram marks its z.");
+    setReadout("Row " + int(gst.cursor + 1) + " of " + int(screen.order.length) + ": <b>" + esc(S.ticker[i]) + "</b> " + esc(S.name[i]) +
+      ". Enter opens it. The red tick in each column's small chart marks where it sits.");
   }
 
   /* Universe percentile, exact, from the cohort's own values. */
@@ -1917,27 +1943,27 @@
     var tap = isTouch();
     return '<section class="ld-map" id="ld-map" aria-label="Factor map" hidden>' +
       '<div class="ld-mapbar">' +
-      '<div class="ld-seg" role="group" aria-label="Map projection"><button type="button" data-mode="tetra" aria-pressed="true">Factors</button>' +
-      '<button type="button" data-mode="axes" aria-pressed="false">Axes</button></div>' +
+      '<div class="ld-seg" role="group" aria-label="The map shows"><button type="button" data-mode="tetra" aria-pressed="true">Factor scores</button>' +
+      '<button type="button" data-mode="axes" aria-pressed="false">Three metrics</button></div>' +
       '<div class="ld-mapaxes" id="ld-mapaxes" hidden>' + ["x", "y", "z"].map(function (a, j) {
-        return '<label><span>' + a + '</span><select class="ld-select" data-ax="' + j + '" aria-label="' + a + ' axis metric">' + opts + "</select></label>";
+        return '<label><span>' + a + '</span><select class="ld-select" data-ax="' + j + '" aria-label="Metric on the ' + a + ' axis">' + opts + "</select></label>";
       }).join("") + "</div>" +
       '<span class="sp"></span>' +
-      '<button type="button" class="ld-btn" data-spin aria-pressed="false"' + (REDUCED_MOTION ? ' disabled title="Off: your system asks for reduced motion"' : ' title="Turn the map slowly"') + ">Spin</button>" +
-      '<button type="button" class="ld-btn" data-add aria-pressed="false" title="Each ' + (tap ? "tap" : "click") + ' adds a company to the focus instead of replacing it' + (tap ? "" : " (shift-click does the same)") + '">Compare</button>' +
+      '<button type="button" class="ld-btn" data-spin aria-pressed="false"' + (REDUCED_MOTION ? ' disabled title="Off, because your system asks for reduced motion"' : ' title="Turn the map slowly"') + ">Spin</button>" +
+      '<button type="button" class="ld-btn" data-add aria-pressed="false" title="Each ' + (tap ? "tap" : "click") + ' adds a company to the selection instead of replacing it' + (tap ? "" : " (shift-click does the same)") + '">Compare</button>' +
       '<button type="button" class="ld-btn" data-mapreset title="Back to the starting angle">Reset view</button></div>' +
       '<div class="ld-mapgrid"><div><div class="ld-mapbox">' +
       '<canvas id="ld-mapc" tabindex="0" role="img" aria-describedby="ld-mapcount" aria-label="Factor map"></canvas></div>' +
       '<p class="ld-mapcount" id="ld-mapcount" aria-live="polite"></p>' +
-      '<p class="ld-mapkey" aria-hidden="true"><span><i class="m"></i>matches the screen</span><span><i class="c"></i>rest of the universe</span><span><i class="f"></i>in focus</span></p>' +
+      '<p class="ld-mapkey" aria-hidden="true"><span><i class="m"></i>matches your filters</span><span><i class="c"></i>all other companies</span><span><i class="f"></i>selected</span></p>' +
       '<p class="ld-mapread" id="ld-mapread"></p></div>' +
-      '<aside class="ld-mapfocus" id="ld-mapfocus" aria-label="Companies in focus" aria-live="polite"></aside></div>' +
+      '<aside class="ld-mapfocus" id="ld-mapfocus" aria-label="Selected companies" aria-live="polite"></aside></div>' +
       '<p class="ld-gfoot" id="ld-mapfoot"></p></section>';
   }
 
   function mapHint() {
-    return (isTouch() ? "Drag to turn. Tap a dot to read it; turn on Compare to hold up to five."
-      : "Drag or use the arrow keys to turn. Click a dot to focus it; shift-click adds, up to five.");
+    return (isTouch() ? "Drag to turn the map. Tap a dot to select it; turn on Compare to select up to five."
+      : "Drag or use the arrow keys to turn the map. Click a dot to select it; shift-click to add up to five.");
   }
   function setMapRead(html) { var r = document.getElementById("ld-mapread"); if (r) r.innerHTML = html; }
 
@@ -2031,19 +2057,23 @@
 
   function mapCount() {
     var L = mst.lists, el = document.getElementById("ld-mapcount"), foot = document.getElementById("ld-mapfoot");
-    var what = screen.incCount ? "listings" : "companies", axes = mst.mode === "axes", keys = axesNow();
-    var why = axes ? "no value on x, y or z" : "fewer than 3 of the 4 factor scores";
+    var one = screen.incCount ? "listing" : "company", what = screen.incCount ? "listings" : "companies", axes = mst.mode === "axes", keys = axesNow();
+    var why = axes ? "no figure on one of the three axes" : "fewer than 3 of the 4 factor scores";
     el.setAttribute("data-n", L.n); el.setAttribute("data-m", L.m); el.setAttribute("data-k", L.k);
-    el.innerHTML = "<b>" + int(L.n) + "</b> of " + int(L.m) + " matching " + what + " placed; " + int(L.k) + " " + (L.k === 1 ? "lacks" : "lack") +
-      " enough dimensions (" + why + "). " + (L.cloud.length ? int(L.cloud.length) + " more in the universe drawn faint. " : "") + "Dot size: market cap.";
+    // How many matches are on the map, how many are not and why, and what the faint dots are.
+    var on = !L.m ? "No " + one + " matches your filters. "
+      : L.n === L.m ? (L.m === 1 ? "The <b>1</b> matching " + one + " is on the map. " : "All <b>" + int(L.m) + "</b> matching " + what + " are on the map. ")
+      : "<b>" + int(L.n) + "</b> of the " + int(L.m) + " matching " + what + " " + (L.n === 1 ? "is" : "are") + " on the map. " +
+        int(L.k) + " " + (L.k === 1 ? "is not, because it has " : "are not, because they have ") + why + ". ";
+    el.innerHTML = on + (L.cloud.length ? "The " + (L.cloud.length === 1 ? "1 other " + one + " is" : int(L.cloud.length) + " other " + what + " are") + " drawn faint. " : "") + "Dot size shows market cap.";
     var cv = document.getElementById("ld-mapc");
-    if (cv) cv.setAttribute("aria-label", (axes ? "3D scatter of " + keys.map(function (k) { return BYKEY[k].label; }).join(", ") : "Factor map, Growth, Value, Momentum and Quality") +
-      ": " + int(L.n) + " matching " + what + " placed. Arrow keys turn it.");
+    if (cv) cv.setAttribute("aria-label", (axes ? "3D chart of " + andList(keys.map(function (k) { return BYKEY[k].label; })) : "Factor map of the Growth, Value, Momentum and Quality scores") +
+      ": " + plural(L.n, "matching " + one, "matching " + what) + " shown. The arrow keys turn it.");
     foot.innerHTML = axes
-      ? "Each axis is universe robust z (median and MAD against the " + int(cohortN()) + " operating companies), clipped at " + String.fromCharCode(177) + "4" + SIGMA +
-        ", so a clipped company sits on a face of the cube. Market cap and volume are log-scaled first. Axes always measure against the universe, whatever the screen's scope."
-      : "Corners are the four factor scores, each a z against the company's own sector. A company is pulled toward the corners it scores well on and sits near the centre when it scores evenly. " +
-        "It needs 3 of the 4 scores to be placed; a missing fourth counts as zero, the sector median. The scale is fixed at the 97th percentile of the operating universe, so a few far-out companies sit past the corners.";
+      ? "Each axis is a z-score against all " + int(cohortN()) + " operating companies, whatever the Sector setting: how far a company sits from the median, in units of the usual spread. " +
+        "A company past " + String.fromCharCode(177) + "4" + SIGMA + " is drawn at " + String.fromCharCode(177) + "4" + SIGMA + ", on a face of the cube. Market cap and volume are put on a log scale first."
+      : "Each corner is one of the four factor scores, which compare a company with its own sector. A company is pulled toward the corners it scores well on, and sits near the middle when its scores are even. " +
+        "It needs 3 of the 4 scores to appear; a missing fourth counts as zero, the sector median. The scale is set by the 97th percentile of operating companies' distance from the middle, so a few far-out companies sit beyond the corners.";
     if (!document.getElementById("ld-mapread").innerHTML) setMapRead(mapHint());
   }
 
@@ -2179,7 +2209,7 @@
 
     if (!L.n) {
       g.font = fnt(11.5, 400); g.textAlign = "left"; g.fillStyle = C.muted; g.globalAlpha = 1;
-      var msg = L.m ? "No matching company has enough dimensions to place." : "Nothing matches the screen.";
+      var msg = L.m ? "No matching company has enough figures to appear on the map." : "Nothing matches your filters.";
       g.lineWidth = 3; g.strokeStyle = C.bg; g.strokeText(msg, 14, 18); g.fillText(msg, 14, 18);
     }
     g.textAlign = "start"; g.textBaseline = "alphabetic"; g.globalAlpha = 1;
@@ -2213,14 +2243,14 @@
   }
   function hoverRead(i) {
     if (i < 0) { setMapRead(mapHint()); return; }
-    setMapRead("<b>" + esc(S.ticker[i]) + "</b> " + esc(S.name[i]) + (mst.lists.inM[i] ? "" : ", outside the screen") + ". " + scoreLine(i));
+    setMapRead("<b>" + esc(S.ticker[i]) + "</b> " + esc(S.name[i]) + (mst.lists.inM[i] ? "" : ", outside your filters") + ". " + scoreLine(i));
   }
 
   function toggleFocus(i, add) {
     var at = mst.focus.indexOf(i);
     if (!add) mst.focus = at >= 0 && mst.focus.length === 1 ? [] : [i];
     else if (at >= 0) mst.focus.splice(at, 1);
-    else if (mst.focus.length >= FOCUS_MAX) { setMapRead("Five companies is the most the map holds in focus. Remove one first."); return; }
+    else if (mst.focus.length >= FOCUS_MAX) { setMapRead("The map holds up to five selected companies. Remove one first."); return; }
     else mst.focus.push(i);
     renderFocus();
     drawMap();
@@ -2229,11 +2259,11 @@
   function renderFocus() {
     var el = document.getElementById("ld-mapfocus");
     if (!el || !mst.lists) return;
-    var head = '<div class="ld-mfh"><span class="ld-kicker">In focus' + (mst.focus.length ? " " + mst.focus.length + " of " + FOCUS_MAX : "") + "</span>" +
+    var head = '<div class="ld-mfh"><span class="ld-kicker">Selected' + (mst.focus.length ? " " + mst.focus.length + " of " + FOCUS_MAX : "") + "</span>" +
       (mst.focus.length ? '<button type="button" class="ld-btn" data-unfocus="all">Clear</button>' : "") + "</div>";
     if (!mst.focus.length) {
-      el.innerHTML = head + '<p class="none">' + (isTouch() ? "Tap a dot to read the company here. Turn on Compare to hold up to five side by side."
-        : "Click a dot to read the company here. Shift-click, or turn on Compare, to hold up to five side by side.") + "</p>";
+      el.innerHTML = head + '<p class="none">' + (isTouch() ? "Tap a dot to see the company here. Turn on Compare to see up to five side by side."
+        : "Click a dot to see the company here. Shift-click, or turn on Compare, to see up to five side by side.") + "</p>";
       return;
     }
     var P = mst.lists.P, U = ctx.z("universe");
@@ -2245,16 +2275,16 @@
       }).join("");
       var axRows = mst.mode === "axes" ? axesNow().map(function (k, j) {
         var v = A.vals[k][i], z = U.z[k][i];
-        return "<dt>" + ["x", "y", "z"][j] + " " + esc(BYKEY[k].label) + '</dt><dd class="' + zClass(z) + '">' + (na(i, k) ? "n/a" : v == null ? "no value" : esc(ctx.APTZ.fmt(k, v)) + " " + zsig(z)) + "</dd>";
+        return "<dt>" + ["x", "y", "z"][j] + " " + esc(BYKEY[k].label) + '</dt><dd class="' + zClass(z) + '">' + (na(i, k) ? "n/a" : v == null ? "No figure" : esc(ctx.APTZ.fmt(k, v)) + " " + zsig(z)) + "</dd>";
       }).join("") : "";
       var notes = [];
-      if (!mst.lists.inM[i]) notes.push("Outside the current screen.");
-      if (!placedHere) notes.push(mst.mode === "axes" ? "Not on these axes: no value on one of them." : "Not placed: " + S.ndim[i] + " of the 4 factor scores.");
+      if (!mst.lists.inM[i]) notes.push("Outside your filters.");
+      if (!placedHere) notes.push(mst.mode === "axes" ? "Not on the map: it has no figure on one of the axes." : "Not on the map: it has only " + S.ndim[i] + " of the 4 factor scores.");
       return '<div class="ld-mf"><div class="hd"><a class="ld-gtk" href="' + ctx.href("company", tk) + '">' + esc(tk) + "</a>" + kindTag(S.kind[i]) +
-        '<button type="button" class="x" data-unfocus="' + i + '" aria-label="Remove ' + esc(tk) + ' from focus">' + TIMES + "</button></div>" +
+        '<button type="button" class="x" data-unfocus="' + i + '" aria-label="Remove ' + esc(tk) + ' from the selection">' + TIMES + "</button></div>" +
         '<div class="nm" title="' + esc(S.name[i]) + '">' + esc(S.name[i]) + "</div>" +
-        '<div class="sub">' + esc(sectorName(S.sector[i])) + (S.mcap_raw[i] ? " " + MID + " cap " + fcap(S.mcap_raw[i]) : "") + "</div>" +
-        '<dl><dt class="h">Score vs sector</dt><dd class="h"></dd>' + rows + (axRows ? '<dt class="h">Axes, universe z</dt><dd class="h"></dd>' + axRows : "") + "</dl>" +
+        '<div class="sub">' + esc(sectorName(S.sector[i])) + (S.mcap_raw[i] ? " " + MID + " market cap $" + fcap(S.mcap_raw[i]) : "") + "</div>" +
+        '<dl><dt class="h">Scores within sector</dt><dd class="h"></dd>' + rows + (axRows ? '<dt class="h">Axes, against all companies</dt><dd class="h"></dd>' + axRows : "") + "</dl>" +
         (notes.length ? '<p class="off">' + notes.join(" ") + "</p>" : "") +
         '<a class="ld-link" href="' + ctx.href("company", tk) + '">Company page ' + ARROW + "</a></div>";
     }).join("");
@@ -2519,7 +2549,7 @@
     var sec = S.sector[i], opN = cohortN();
     var pdate = S.price_date[i] || PRICE_DATE;
 
-    var capTxt = na(i, "market_cap") ? "Market cap does not apply to a " + (KIND_WHY[kind] || kind) : capOf(i) === "n/a" ? "Market cap not reported" : "Market cap " + capOf(i);
+    var capTxt = na(i, "market_cap") ? "Market cap " + naWhy(kind) : capOf(i) === "n/a" ? "Market cap not reported" : "Market cap " + capOf(i);
     var head = '<div class="ld-co-head"><div><div class="ld-kicker"><a class="ld-inl" href="' + ctx.href("stocks") + '">Stocks</a> ' + MID + " " + esc(sectorName(S.sector[i])) + (S.sub[i] ? " " + MID + " " + esc(S.sub[i]) : "") + "</div>" +
       "<h1>" + esc(S.name[i]) + "</h1>" +
       '<div><span class="ld-co-tk">' + esc(tk) + "</span>" + (kind !== "operating" ? '<span class="ld-kt ld-kt-' + kind + (isNonOp(kind) ? " ld-kt-nonop" : "") + '">' + esc(ctx.KIND_LABEL[kind] || kind) + "</span>" : "") +
@@ -2668,8 +2698,8 @@
         if (isFinite(z)) strip += '<span class="dt' + (Math.abs(z) > WH ? " off" : "") + '" style="left:' + pctPos(z).toFixed(2) + '%"></span>';
         strip += "</span></div>";
         var noStats = useSector && !st0;
-        return '<div class="ld-wrow"><div class="lab" title="' + esc(methodTxt(k)) + '">' + esc(m.label) + "<small>" + dirTxt(m) + "</small></div>" +
-          '<div class="strip-cell" role="img" aria-label="' + esc(m.label + (v.blank ? ": " + (v.whyLong || v.why.toLowerCase()) : " " + v.txt + (isFinite(z) ? ", z-score " + zTxt(z) : ", no z-score")) + ". " + dirTxt(m) + ".") + '">' + strip + "</div>" +
+        return '<div class="ld-wrow"><div class="lab" title="' + esc(methodTxt(k)) + '">' + esc(m.label) + "<small>" + betterTxt(m) + "</small></div>" +
+          '<div class="strip-cell" role="img" aria-label="' + esc(m.label + (v.blank ? ": " + (v.whyLong || v.why.toLowerCase()) : " " + v.txt + (isFinite(z) ? ", z-score " + zTxt(z) : ", no z-score")) + ". " + betterTxt(m) + ".") + '">' + strip + "</div>" +
           '<div class="rv' + (v.blank ? " na" : "") + '">' + esc(v.blank ? v.why : v.txt) + "</div>" +
           '<div class="zv">' + (noStats ? '<span class="ld-muted" style="font-size:11px">&lt; ' + minC + " peers</span>" : zTxt(z)) + "</div></div>";
       }).join("");
@@ -2924,7 +2954,7 @@
       var cnt = { stale: 0, na: 0, none: 0, noz: 0 };
       ser.why.forEach(function (w) { if (w) cnt[w]++; });
       if (!have) {
-        chart.innerHTML = '<p class="ld-note">' + esc(histLabel(k)) + (cnt.na === ser.v.length ? " does not apply to a " + esc(KIND_WHY[kind] || kind) + "." : " has no figure on any day.") + "</p>";
+        chart.innerHTML = '<p class="ld-note">' + esc(histLabel(k)) + (cnt.na === ser.v.length ? " " + esc(naWhy(kind)) + "." : " has no figure on any day.") + "</p>";
         setHistRead("");
       } else {
         histChart(chart, ser, histLabel(k));
@@ -3081,26 +3111,6 @@
   }
   function todayISO() { return ASOF || new Date().toISOString().slice(0, 10); }
 
-  /* callLine as whole sentences, for the thesis on the company page (the Home page keeps callLine). Same
-     numbers, same rounding. */
-  function callSentence(r) {
-    var v = viewOf(r), n = callNums(r);
-    var out = "Written " + (r.written_on ? "on " + dateShort(r.written_on) : "on an unrecorded date") + (isFinite(n.e) ? " at " + money(n.e) : "");
-    if (v.open) out += (isFinite(n.t) ? ", with a target of " + money(n.t) + (r.review_by ? " by " + dateShort(r.review_by) : "") : ", with no target" + (r.review_by ? ", to be reviewed by " + dateShort(r.review_by) : "")) + ".";
-    else out += ".";
-    if (r.last_close && isFinite(n.l)) {
-      out += " The last close was " + money(n.l) + " on " + dateShort(r.last_close.date);
-      if (isFinite(n.move)) {
-        out += Math.abs(n.move) < 0.0005 ? ", unchanged since the note" : ", " + (n.move > 0 ? "up " : "down ") + num(Math.abs(100 * n.move), 1) + "% since the note";
-        var toward = n.need !== 0 ? n.move / n.need : 0;
-        if (v.open && isFinite(n.t) && Math.abs(n.move) >= 0.0005) out += toward >= 0 ? ", toward the target" : ", away from the target";
-      }
-      out += ".";
-    } else out += " There has been no close since.";
-    if (!v.open) out += isFinite(n.t) ? " The " + money(n.t) + " target is for reference only and is not active while the view is “" + v.label + "”." : " There is no target.";
-    return out;
-  }
-  function plural(c, one, many) { return c + " " + (c === 1 ? one : many); }
 
   /* The full thesis, placed on the company page. r is docs/thesis/TICKER.json: the current view's scalars at
      the top, every note newest first in notes[], and last_close. Earlier notes stay readable below. */
@@ -3154,7 +3164,7 @@
 
   /* Research: an index of theses. Each row leads to the thesis on its company page. CFG.research comes from
      _research_views, the same source as the thesis files; CFG.record is the track record. */
-  var STATUS_WORD = CFG.statusWords || { open: "Open call", watching: "Watching", graded: "Checked", due: "Review due" };
+  var STATUS_WORD = CFG.statusWords || { open: "Open call", watching: "Watching", graded: "Checked", due: "Review overdue" };
   function renderResearch(main) {
     var calls = (CFG.research || []).slice().sort(function (a, b) {
       var va = viewOf(a).open ? 0 : 1, vb = viewOf(b).open ? 0 : 1;
@@ -3170,18 +3180,18 @@
         '<td><span class="ld-conv" aria-hidden="true">' + [1, 2, 3, 4, 5].map(function (k) { return '<i class="' + (k <= conv ? "on" : "") + '"></i>'; }).join("") + '</span><span class="ld-num">' + conv + " of 5</span></td>" +
         '<td class="r ld-num">' + money(n.e) + "</td>" +
         '<td class="r ld-num">' + money(n.l) + (r.last_close ? ' <span class="ref">' + esc(dateShort(r.last_close.date)) + "</span>" : "") + "</td>" +
-        '<td class="r ld-num">' + (isFinite(n.t) ? money(n.t) + (v.open ? "" : ' <span class="ref" title="Reference level only: the view is ' + esc(v.label.toLowerCase()) + '">ref.</span>') : "none") + "</td>" +
+        '<td class="r ld-num">' + (isFinite(n.t) ? money(n.t) + (v.open ? "" : ' <span class="ref" title="' + esc("For reference only: the view is “" + v.label + "”") + '">ref.</span>') : "None") + "</td>" +
         '<td class="r ld-num">' + (isFinite(toT) ? signed(toT, 1) + "%" : "n/a") + "</td>" +
-        '<td class="ld-num">' + (r.review_by ? dateMid(r.review_by) : "none") + "</td>" +
+        '<td class="ld-num">' + (r.review_by ? dateMid(r.review_by) : "None") + "</td>" +
         '<td class="ld-num">' + (r.written_on ? dateMid(r.written_on) : "") + "</td></tr>";
     }).join("");
     main.innerHTML = '<div class="ld-wrap">' +
-      '<div class="ld-head"><div><div class="ld-kicker"><b>Research</b> ' + MID + " " + calls.length + " " + (calls.length === 1 ? "thesis" : "theses") + (closeDates.length ? " " + MID + " last close " + esc(closeDates.map(dateShort).join(", ")) : "") + "</div>" +
-      '<h1 class="ld-h1">Research</h1><p class="ld-deck">A written view on one company at a time, with a target, a date to look again and what would prove it wrong. Each full thesis lives on its company page, beside the price and the metrics it argues from.</p></div></div>' +
+      '<div class="ld-head"><div><div class="ld-kicker"><b>Research</b> ' + MID + " " + plural(calls.length, "thesis", "theses") + (closeDates.length ? " " + MID + " prices of " + esc(andList(closeDates.map(dateShort))) : "") + "</div>" +
+      '<h1 class="ld-h1">Research</h1><p class="ld-deck">Each thesis is a written view on one company, with a target price, a date to review it, and what would prove it wrong. The full thesis is on the company’s page, beside the price and the figures it draws on.</p></div></div>' +
       '<section class="ld-sec" aria-labelledby="ld-ri-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-ri-h">Every thesis</h2><span class="ld-kicker">Open calls first</span></div>' +
-      (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>View</th><th>Conviction</th><th class="r">Entry</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written</th></tr></thead><tbody>' +
+      (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>View</th><th>Conviction</th><th class="r">Written at</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written on</th></tr></thead><tbody>' +
       rows + "</tbody></table></div>" : '<p class="ld-empty">No thesis has been written yet.</p>') +
-      '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">To target is the move still needed from the last close to the target. For a view that holds no position (keep watching, no view) the target is a reference level only. A company shows as watching when the note decided not to take a side; those notes make no call, so they are never checked.</p></section>' +
+      '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">“To target” is how far the price still has to move, from the last close, to reach the target. When the view takes no side (“' + esc(VIEW.watch) + '” or “' + esc(VIEW["no view"]) + '”), the target is for reference only and the company shows as Watching. Those notes make no call, so they are never checked.</p></section>' +
       recordHTML(CFG.record) + "</div>";
     var tb = main.querySelector(".ld-rtab tbody");
     if (tb) tb.addEventListener("click", function (e) {
@@ -3194,19 +3204,19 @@
      page, which is where the owner reads it. */
   function recordHTML(rec) {
     if (!rec) return "";
-    var tiles = [["Companies covered", rec.tickers], ["Open calls", rec.open], ["Watching, no call made", rec.watching], ["Calls checked", rec.graded]];
+    var tiles = [["Companies covered", rec.tickers], ["Open calls", rec.open], ["Watching, no call", rec.watching], ["Calls checked", rec.graded]];
     var tiers = (rec.tiers || []).map(function (t) {
-      return "<tr><td class=\"ld-num\">" + esc(t.conviction) + '</td><td class="r ld-num">' + (t.n || 0) + '</td><td class="r ld-num">' + (t.open || 0) + '</td><td class="r ld-num">' + (t.watching || 0) + '</td><td class="r ld-num">' + (t.graded || 0) + '</td><td class="r ld-muted">not yet</td><td class="r ld-muted">not yet</td></tr>';
+      return "<tr><td class=\"ld-num\">" + esc(t.conviction) + '</td><td class="r ld-num">' + (t.n || 0) + '</td><td class="r ld-num">' + (t.open || 0) + '</td><td class="r ld-num">' + (t.watching || 0) + '</td><td class="r ld-num">' + (t.graded || 0) + '</td><td class="r ld-muted">Not yet</td><td class="r ld-muted">Not yet</td></tr>';
     }).join("") || '<tr><td colspan="7" class="ld-muted">No notes yet.</td></tr>';
-    var verdict = rec.scored ? "" : '<p class="ld-note">No call has reached its target date yet, so the last two columns are empty and nobody knows how good these calls are.' +
-      (rec.earliest_maturity ? " The first one comes due on " + dateMid(rec.earliest_maturity) + "." : "") + " Until then this page keeps what was said and when it was said.</p>";
-    return '<section class="ld-sec" aria-labelledby="ld-rec-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-rec-h">The record</h2><span class="ld-kicker">' + int(rec.notes || 0) + " notes</span></div>" +
+    var verdict = rec.scored ? "" : '<p class="ld-note">No call has reached its target date yet, so the last two columns say “Not yet” and there is no telling yet how good these calls are.' +
+      (rec.earliest_maturity ? " The first comes due on " + dateMid(rec.earliest_maturity) + "." : "") + " Until then, this page records what was said and when.</p>";
+    return '<section class="ld-sec" aria-labelledby="ld-rec-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-rec-h">Track record</h2><span class="ld-kicker">' + plural(rec.notes || 0, "note", "notes") + "</span></div>" +
       '<div class="ld-stats" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + tiles.map(function (t) {
         return '<div class="ld-stat" style="display:block"><div class="ld-kicker">' + esc(t[0]) + '</div><div class="v">' + int(t[1] || 0) + "</div></div>";
       }).join("") + "</div>" +
-      '<div class="ld-tbl-wrap"><table class="ld-rtab" style="margin-top:18px"><thead><tr><th>Confidence</th><th class="r">Companies</th><th class="r">Open</th><th class="r">Watching</th><th class="r">Checked</th><th class="r">Right</th><th class="r">Against similar companies</th></tr></thead><tbody>' + tiers + "</tbody></table></div>" +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab" style="margin-top:18px"><thead><tr><th>Conviction</th><th class="r">Companies</th><th class="r">Open</th><th class="r">Watching</th><th class="r">Checked</th><th class="r">Right</th><th class="r">Beat similar companies</th></tr></thead><tbody>' + tiers + "</tbody></table></div>" +
       verdict +
-      '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">Each call is checked on its target date: was it right, and did the shares do better than similar companies over the same months. The table splits the calls by confidence, from 0 to 5, because the score is only useful if the confident calls turn out better than the cautious ones.</p></section>';
+      '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">Each call is checked on its target date: was it right, and did the shares do better than similar companies over the same months? The table splits the calls by conviction, from 0 to 5, because conviction is only worth recording if the confident calls turn out better than the cautious ones.</p></section>';
   }
   function scrollToThesis() {
     var t = document.getElementById("ld-thesis");
@@ -3225,7 +3235,7 @@
   }
   function showError(main, e) {
     main.innerHTML = '<div class="ld-wrap"><div class="ld-head"><div><div class="ld-kicker"><b>Could not load the data</b></div>' +
-      '<p class="ld-deck">' + esc(e && e.message || e) + ". Reload the page; if it persists, the last run may not have published stocks-data.json.</p></div></div></div>";
+      '<p class="ld-deck">' + esc(e && e.message || e) + ". Reload the page. If that does not help, the last update may not have published the data file (stocks-data.json).</p></div></div></div>";
   }
 
   function boot() {
