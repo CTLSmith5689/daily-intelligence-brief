@@ -34,9 +34,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'record = quotes + headlines only; daily = full refresh'
+        description: 'record = quotes + headlines only; daily = full refresh; publish = rebuild the site from committed data, record nothing'
         type: choice
-        options: [daily, record]
+        options: [daily, record, publish]
         default: daily
 
 permissions:
