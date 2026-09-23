@@ -7,7 +7,8 @@
  *   today     the latest brief by section, repeats folded together
  *   stories   the story library, searchable
  *   stocks    every listing and every tracked metric in one grid, tinted by universe z, filtered by a
- *             small query language in the command bar (stocks.html#q=gm>1 pe<-0.5)
+ *             small query language in the command bar (stocks.html#q=gm>1 pe<-0.5); its Map view places the
+ *             same screen in 3D, on the four factor scores or any three metrics (stocks.html#view=map)
  *   company   company.html#TICKER: price, sector-relative scores, the full thesis when one exists, where
  *             each metric sits in the universe, closest profiles, business, history, filings, headlines
  *   research  an index of theses, each row leading to its company page, and the record
@@ -35,6 +36,7 @@
   var ctx = null, A = null, S = null, N = 0, rootEl = null;
   var cur = { page: null, arg: null };
   var redrawers = [];
+  var themeHooks = [];   // run after the theme changes, for what CSS cannot repaint (canvas)
   var resizeTimer = 0, storyTimer = 0;
 
   /* ---------------------------------------------------------------- site context
@@ -90,7 +92,7 @@
   function num0(v) { return typeof v === "number" && isFinite(v) ? v : null; }
   function buildData(rows) {
     var cols = { ticker: [], name: [], full_name: [], sector: [], sub: [], index: [], kind: [], price: [], chg: [],
-                 price_date: [], earn: [], score: [], g: [], v: [], q: [], mom: [], status: [], mcap_raw: [] };
+                 price_date: [], earn: [], score: [], g: [], v: [], q: [], mom: [], ndim: [], status: [], mcap_raw: [] };
     var vals = {};
     CFG.metrics.forEach(function (m) { vals[m.key] = []; });
     var kinds = {};
@@ -112,6 +114,7 @@
       // The composite: the mean of the dimension z-scores, when the pipeline calls the row scorable.
       cols.score.push(r.scorable && dims.length ? dims.reduce(function (a, b) { return a + b; }, 0) / dims.length : null);
       cols.g.push(num0(r.g)); cols.v.push(num0(r.v)); cols.q.push(num0(r.q)); cols.mom.push(num0(r.m));
+      cols.ndim.push(dims.length);
       cols.status.push(r.status || 0);
       cols.mcap_raw.push(num0(r.market_cap));
       CFG.metrics.forEach(function (m) { vals[m.key].push(num0(r[m.key])); });
@@ -287,7 +290,9 @@
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage unavailable */ }
     paintThemeBtn();
+    themeChanged();
   }
+  function themeChanged() { themeHooks.forEach(function (f) { try { f(); } catch (e) { console.error(e); } }); }
   /* ---------------------------------------------------------------- screens (presets)
    * The ready-made screens are LEDGER_SCREENS in lambda_function.py: the pipeline computes the home page's
    * screen of the day from the same definition the Stocks page runs, so the two counts agree. A band's
@@ -961,6 +966,7 @@
       "<dt><kbd>Enter</kbd></dt><dd>open the cursor company</dd><dt><kbd>s</kbd></dt><dd>switch universe and sector scope</dd>" +
       "<dt><kbd>z</kbd></dt><dd>cells show raw values or z</dd><dt><kbd>m</kbd></dt><dd>draw the next 150 rows</dd>" +
       "<dt><kbd>b</kbd></dt><dd>add a " + String.fromCharCode(177) + "0.5" + SIGMA + " band around the cursor row on the sorted column (or shift-click a cell)</dd>" +
+      "<dt><kbd>" + String.fromCharCode(8592, 8593, 8594, 8595) + "</kbd></dt><dd>turn the map, when it has focus; <kbd>Esc</kbd> there clears the focused companies</dd>" +
       "<dt><kbd>Esc</kbd></dt><dd>leave the screen bar, close this help</dd><dt><kbd>?</kbd></dt><dd>this help</dd></dl>" +
       "<h3>Colour</h3><p>Cells are tinted by z: slate below the cohort median, ochre above, plain paper near zero. The tint marks position, not merit: for P/E a high z means expensive.</p>" +
       '<h2 style="margin-top:18px">Metric names</h2>' + groups + "</div>";
@@ -986,26 +992,53 @@
 
   /* ---------- STOCKS page ---------- */
   /* The query lives in the URL (stocks.html#q=gm>1 pe<-0.5), so a screen can be bookmarked or linked.
-     A bare preset id (stocks.html#qarp) opens that ready-made screen. */
-  function queryFromHash() {
-    var h = (location.hash || "").replace(/^#/, "");
-    if (!h) return "";
-    if (h.slice(0, 2) === "q=") { try { return decodeURIComponent(h.slice(2).replace(/\+/g, " ")); } catch (e) { return h.slice(2); } }
-    return PRESET_Q[h] || "";
+     A bare preset id (stocks.html#qarp) opens that ready-made screen. The map adds its own parameters,
+     joined with "&" (the query itself is encoded, so it never carries a bare "&"):
+       view=map  the map instead of the grid     map=axes  three metrics instead of the four factors
+       ax=gm,pe,r122  the three axes, by command-bar name */
+  function hashDec(v) { try { return decodeURIComponent(v.replace(/\+/g, " ")); } catch (e) { return v; } }
+  function hashState() {
+    var h = (location.hash || "").replace(/^#/, ""), out = { q: "", view: "grid", mode: "tetra", ax: null };
+    if (!h) return out;
+    h.split("&").forEach(function (part, pi) {
+      var eq = part.indexOf("=");
+      if (eq < 0) { if (pi === 0) out.q = PRESET_Q[part] || ""; return; }
+      var k = part.slice(0, eq), v = hashDec(part.slice(eq + 1));
+      if (k === "q") out.q = v;
+      else if (k === "view" && v === "map") out.view = "map";
+      else if (k === "map" && v === "axes") out.mode = "axes";
+      else if (k === "ax") {
+        var ks = v.toLowerCase().split(",").map(function (a) { return A2K[a.trim()]; }).filter(Boolean);
+        if (ks.length === 3) out.ax = ks;
+      }
+    });
+    return out;
   }
+  function queryFromHash() { return hashState().q; }
   function writeHash() {
-    var want = gst.query.trim() ? "#q=" + encodeURIComponent(gst.query.trim()) : "";
+    var parts = [];
+    if (gst.query.trim()) parts.push("q=" + encodeURIComponent(gst.query.trim()));
+    if (mst.view === "map") {
+      parts.push("view=map");
+      if (mst.mode === "axes") parts.push("map=axes");
+      if (mst.mode === "axes" && mst.ax) parts.push("ax=" + mst.ax.map(function (k) { return ALIAS[k]; }).join(","));
+    }
+    var want = parts.length ? "#" + parts.join("&") : "";
     if ((location.hash || "") !== want) {
       try { history.replaceState(null, "", want || location.pathname + location.search); } catch (e) { /* file: or sandboxed */ }
     }
   }
   function renderStocks(main) {
     initAliases();
-    gst.query = queryFromHash();
+    var hs = hashState();
+    gst.query = hs.q;
+    mst.view = hs.view; mst.mode = hs.mode; mst.ax = hs.ax;
     var narrow = window.innerWidth < 560;
     var presets = PRESETS.map(function (p) { return [p.name, p.q]; });
     main.innerHTML = '<div class="ld-wrap">' +
-      '<div class="ld-shead"><h1>Screener</h1><span class="ld-kicker">' + int(N) + " listings " + MID + " " + A.metrics.length + " metrics " + MID + " close " + dateShort(PRICE_DATE) + " " + MID + " panel " + dateShort(ASOF) + "</span></div>" +
+      '<div class="ld-shead"><h1>Screener</h1><span class="ld-kicker">' + int(N) + " listings " + MID + " " + A.metrics.length + " metrics " + MID + " close " + dateShort(PRICE_DATE) + " " + MID + " panel " + dateShort(ASOF) + "</span>" +
+      '<div class="ld-seg ld-vseg" role="group" aria-label="View"><button type="button" data-view="grid" aria-pressed="' + (mst.view === "grid") + '">Grid</button>' +
+      '<button type="button" data-view="map" aria-pressed="' + (mst.view === "map") + '">Map</button></div></div>' +
       '<section class="ld-cmd" aria-label="Screen">' +
       '<div class="ld-cmdrow"><label for="ld-q">Screen</label>' +
       '<input id="ld-q" name="ld-q" autocomplete="off" spellcheck="false" autocapitalize="off" value="' + esc(gst.query) + '" placeholder="' +
@@ -1020,7 +1053,8 @@
         ? "Tap a row to open the company. The header histograms show each metric's spread across the operating universe."
         : "Hover a cell to read its value, z and percentile. Click a row to open the company; shift-click a metric cell to add a " + String.fromCharCode(177) + "0.5" + SIGMA + " band around it.") + "</div>" +
       '<div class="ld-gwrap" id="ld-grid" role="region" aria-label="Screener grid, scrolls both ways" tabindex="0"></div>' +
-      '<p class="ld-gfoot">Panel dated ' + dateMid(ASOF) + "; prices and 1D are the " + dateMid(PRICE_DATE) + " close. z is robust (median and MAD); market cap and volume are log-scaled first. " +
+      mapHTML() +
+      '<p class="ld-gfoot" id="ld-gfoot">Panel dated ' + dateMid(ASOF) + "; prices and 1D are the " + dateMid(PRICE_DATE) + " close. z is robust (median and MAD); market cap and volume are log-scaled first. " +
       "A dot marks a missing value; n/a marks a field that is only a placeholder for the listing's type.</p></div>";
 
     var q = main.querySelector("#ld-q");
@@ -1054,13 +1088,21 @@
     grid.addEventListener("click", onGridClick);
     grid.addEventListener("mouseover", onGridHover);
     pageKeys = stocksKeys;
-    redrawers.push(function () { if ((window.innerWidth < 560) !== gridNarrow) renderGrid({ keepScroll: true }); });
+    redrawers.push(function () { if (mst.view === "grid" && (window.innerWidth < 560) !== gridNarrow) renderGrid({ keepScroll: true }); });
+    main.querySelectorAll("[data-view]").forEach(function (b) {
+      b.addEventListener("click", function () { setView(b.getAttribute("data-view")); });
+    });
+    wireMap(main);
     listen(window, "hashchange", function () {
-      var nq = queryFromHash();
-      if (nq === gst.query.trim()) return;
-      gst.query = nq; syncQuery(); updateScreen(true);
+      var st = hashState();
+      var sameAx = String(st.ax) === String(mst.ax);
+      if (st.q === gst.query.trim() && st.view === mst.view && st.mode === mst.mode && sameAx) return;
+      mst.mode = st.mode; mst.ax = st.ax;
+      gst.query = st.q; syncQuery(); updateScreen(true);
+      setView(st.view);
     });
     updateScreen(false);
+    setView(mst.view);
   }
 
   function onStatClick(e) {
@@ -1091,6 +1133,9 @@
     if (gst.cursor >= screen.order.length) gst.cursor = Math.max(0, screen.order.length - 1);
     renderChips();
     renderStat();
+    /* The hidden view waits: the grid redraws when it is shown again, the map on every change while shown. */
+    if (mst.view === "map") { gridStale = true; mapRefresh(); return; }
+    gridStale = false;
     renderGrid({ keepScroll: !resetScroll });
     if (resetScroll) { var g = document.getElementById("ld-grid"); if (g) g.scrollTop = 0; }
   }
@@ -1134,11 +1179,11 @@
       '<div class="tools">' +
       '<div class="ld-seg" role="group" aria-label="Measure z against"><button type="button" data-act="scope" data-v="universe" aria-pressed="' + (scope === "universe") + '">Universe</button>' +
       '<button type="button" data-act="scope" data-v="sector" aria-pressed="' + (scope === "sector") + '" title="Switch scope (s)">Sector</button></div>' +
-      '<div class="ld-seg" role="group" aria-label="Cells show"><button type="button" data-act="cells" data-v="raw" aria-pressed="' + (gst.cells === "raw") + '">Raw</button>' +
-      '<button type="button" data-act="cells" data-v="z" aria-pressed="' + (gst.cells === "z") + '" title="Switch cells (z)">z</button></div>' +
+      (mst.view === "grid" ? '<div class="ld-seg" role="group" aria-label="Cells show"><button type="button" data-act="cells" data-v="raw" aria-pressed="' + (gst.cells === "raw") + '">Raw</button>' +
+      '<button type="button" data-act="cells" data-v="z" aria-pressed="' + (gst.cells === "z") + '" title="Switch cells (z)">z</button></div>' : "") +
       '<button type="button" class="ld-btn" data-act="nonop" aria-pressed="' + (hiddenNon === 0) + '">Non-operating</button>' +
       '<button type="button" class="ld-btn" data-act="reset">Reset</button>' +
-      '<span class="ld-zleg" aria-label="Tint scale, from 3 sigma below the median to 3 sigma above"><span>' + MINUS + "3" + SIGMA + '</span><i class="ld-zn6"></i><i class="ld-zn4"></i><i class="ld-zn2"></i><i class="z0"></i><i class="ld-zp2"></i><i class="ld-zp4"></i><i class="ld-zp6"></i><span>+3' + SIGMA + "</span></span></div>" +
+      (mst.view === "map" ? "" : '<span class="ld-zleg" aria-label="Tint scale, from 3 sigma below the median to 3 sigma above"><span>' + MINUS + "3" + SIGMA + '</span><i class="ld-zn6"></i><i class="ld-zn4"></i><i class="ld-zn2"></i><i class="z0"></i><i class="ld-zp2"></i><i class="ld-zp4"></i><i class="ld-zp6"></i><span>+3' + SIGMA + "</span></span>") + "</div>" +
       '<p class="hid" title="' + esc(hid) + '">' + (hiddenNon ? int(hiddenNon) + " non-operating hidden" : int(s.incCount) + " non-operating shown, tagged") + " " + MID + " " + (extra.length ? " Hidden by your query: " + extra.join(", ") + "." : "") +
       (scope === "sector" ? "z within each sector." : "z vs " + int(cohortN()) + " operating companies.") +
       (Object.keys(p.bands).length ? " A row with no value for a filtered metric does not pass." : "") + drop + "</p>";
@@ -1339,6 +1384,7 @@
   }
 
   function stocksKeys(e) {
+    if (mst.view === "map" && e.key !== "s") return false;   // the grid's keys; the map's canvas takes its own
     var k = e.key, n = screen ? screen.order.length : 0, inGrid = e.target && e.target.closest && e.target.closest("#ld-grid");
     if (k === "j" || (k === "ArrowDown" && inGrid)) {
       if (!n) return true;
@@ -1381,6 +1427,505 @@
     while (lo < hi) { mid = (lo + hi) >> 1; if (arr[mid] <= v) lo = mid + 1; else hi = mid; }
     return (l + (lo - l) / 2) / arr.length * 100;
   }
+  /* ---------------------------------------------------------------- STOCKS: the factor map
+   * The grid's other view (stocks.html#view=map). The screen's matches are ink dots and the rest of the
+   * universe a faint cloud behind them, so the map shows where a screen sits. Two projections:
+   *   factors  the four dimension scores (Growth, Value, Momentum, Quality; each a z against the company's
+   *            own sector, as the pipeline scores them) on the corners of a regular tetrahedron. The four
+   *            corner vectors sum to zero, so a company that scores evenly sits in the middle and a
+   *            lopsided one is pulled toward the corners it earns. A company needs 3 of the 4 scores to be
+   *            placed; a missing fourth counts as zero, the sector median.
+   *   axes     any three of the metrics as x, y and z, in universe robust z clipped at +/-4.
+   * Restored from the old Radar view's factor map (tetraPos, drawTetra, the p97 scale) and drawn in the
+   * Ledger palette. Hand-rolled canvas: yaw about the vertical, then pitch, then a mild perspective
+   * divide. Drag or the arrow keys turn it; a click focuses a company, shift-click adds up to five. */
+
+  var TETRA_V = { g: [1, 1, 1], v: [1, -1, -1], m: [-1, 1, -1], q: [-1, -1, 1] };
+  var TETRA_ORDER = ["g", "v", "m", "q"];
+  var TETRA_COL = { g: "g", v: "v", m: "mom", q: "q" };           // the S column holding each score
+  var TETRA_LABEL = { g: "Growth", v: "Value", m: "Momentum", q: "Quality" };
+  var TETRA_EDGES = [["g", "v"], ["g", "m"], ["g", "q"], ["v", "m"], ["v", "q"], ["m", "q"]];
+  var RT3 = Math.sqrt(3), AX_CLIP = 4, FOCUS_MAX = 5;
+  var AX_DEFAULT = ["roe_ttm", "pe", "return_12_2"];
+  var VIEW_ANGLE = { tetra: [0.62, -0.32], axes: [-0.62, -0.34] };
+  // Honour the system setting rather than offering motion this reader has said they do not want.
+  var REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var mst = { view: "grid", mode: "tetra", ax: null, yaw: 0.62, pitch: -0.32, spin: false, add: false,
+              focus: [], lists: null, drawn: null };
+  var TP = null, AXC = null, mapColors = null, gridStale = false, spinId = 0, drawId = 0;
+  var PX2 = null;   // projected x, y, depth and radius per row, from the last frame drawn
+
+  function mapHTML() {
+    var opts = A.groups.map(function (g) {
+      return '<optgroup label="' + esc(g) + '">' + M.filter(function (m) { return m.group === g; }).map(function (m) {
+        return '<option value="' + m.key + '">' + esc(ALIAS[m.key] + "  " + m.label) + "</option>";
+      }).join("") + "</optgroup>";
+    }).join("");
+    var tap = isTouch();
+    return '<section class="ld-map" id="ld-map" aria-label="Factor map" hidden>' +
+      '<div class="ld-mapbar">' +
+      '<div class="ld-seg" role="group" aria-label="Map projection"><button type="button" data-mode="tetra" aria-pressed="true">Factors</button>' +
+      '<button type="button" data-mode="axes" aria-pressed="false">Axes</button></div>' +
+      '<div class="ld-mapaxes" id="ld-mapaxes" hidden>' + ["x", "y", "z"].map(function (a, j) {
+        return '<label><span>' + a + '</span><select class="ld-select" data-ax="' + j + '" aria-label="' + a + ' axis metric">' + opts + "</select></label>";
+      }).join("") + "</div>" +
+      '<span class="sp"></span>' +
+      '<button type="button" class="ld-btn" data-spin aria-pressed="false"' + (REDUCED_MOTION ? ' disabled title="Off: your system asks for reduced motion"' : ' title="Turn the map slowly"') + ">Spin</button>" +
+      '<button type="button" class="ld-btn" data-add aria-pressed="false" title="Each ' + (tap ? "tap" : "click") + ' adds a company to the focus instead of replacing it' + (tap ? "" : " (shift-click does the same)") + '">Compare</button>' +
+      '<button type="button" class="ld-btn" data-mapreset title="Back to the starting angle">Reset view</button></div>' +
+      '<div class="ld-mapgrid"><div><div class="ld-mapbox">' +
+      '<canvas id="ld-mapc" tabindex="0" role="img" aria-describedby="ld-mapcount" aria-label="Factor map"></canvas></div>' +
+      '<p class="ld-mapcount" id="ld-mapcount" aria-live="polite"></p>' +
+      '<p class="ld-mapkey" aria-hidden="true"><span><i class="m"></i>matches the screen</span><span><i class="c"></i>rest of the universe</span><span><i class="f"></i>in focus</span></p>' +
+      '<p class="ld-mapread" id="ld-mapread"></p></div>' +
+      '<aside class="ld-mapfocus" id="ld-mapfocus" aria-label="Companies in focus" aria-live="polite"></aside></div>' +
+      '<p class="ld-gfoot" id="ld-mapfoot"></p></section>';
+  }
+
+  function mapHint() {
+    return (isTouch() ? "Drag to turn. Tap a dot to read it; turn on Compare to hold up to five."
+      : "Drag or use the arrow keys to turn. Click a dot to focus it; shift-click adds, up to five.");
+  }
+  function setMapRead(html) { var r = document.getElementById("ld-mapread"); if (r) r.innerHTML = html; }
+
+  function setView(v) {
+    mst.view = v === "map" ? "map" : "grid";
+    var map = document.getElementById("ld-map");
+    if (!map) return;
+    var isMap = mst.view === "map";
+    map.hidden = !isMap;
+    ["ld-grid", "ld-read", "ld-gfoot"].forEach(function (id) { var el = document.getElementById(id); if (el) el.hidden = isMap; });
+    document.querySelectorAll("[data-view]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-view") === mst.view)); });
+    writeHash();
+    renderStat();
+    if (isMap) { mapRefresh(); startSpin(); return; }
+    stopSpin();
+    if (gridStale) { gridStale = false; renderGrid(); }
+  }
+
+  /* The three axes in use: the viewer's pick, else the metrics the query bands (in query order), filled
+     from AX_DEFAULT, so switching to axes shows the screen's own terms. */
+  function axesNow() {
+    if (mst.ax) return mst.ax;
+    var out = [];
+    Object.keys(screen ? screen.p.bands : {}).concat(AX_DEFAULT).forEach(function (k) { if (out.length < 3 && out.indexOf(k) < 0) out.push(k); });
+    return out;
+  }
+
+  /* Factor positions, once per page: normalised by the 97th percentile distance of the operating cohort
+     (at least the corner distance), so one scale holds for the whole cloud and the shape you are turning
+     stays the same shape whatever the screen. */
+  function tetraCoords() {
+    if (TP) return TP;
+    var x = new Float64Array(N), y = new Float64Array(N), z = new Float64Array(N), ds = [];
+    var mk = ctx.z("universe").cohortMask;
+    for (var i = 0; i < N; i++) {
+      if (S.ndim[i] < 3) { x[i] = y[i] = z[i] = NaN; continue; }
+      var px = 0, py = 0, pz = 0;
+      for (var j = 0; j < 4; j++) {
+        var k = TETRA_ORDER[j], w = S[TETRA_COL[k]][i] || 0, V = TETRA_V[k];
+        px += w * V[0]; py += w * V[1]; pz += w * V[2];
+      }
+      x[i] = px / RT3; y[i] = py / RT3; z[i] = pz / RT3;
+      if (mk[i]) ds.push(Math.sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i]));
+    }
+    ds.sort(function (a, b) { return a - b; });
+    var p97 = ds.length ? ds[Math.min(ds.length - 1, Math.floor(ds.length * 0.97))] : 1;
+    var ref = Math.max(p97, RT3);
+    for (i = 0; i < N; i++) { x[i] /= ref; y[i] /= ref; z[i] /= ref; }
+    TP = { x: x, y: y, z: z, corner: RT3 / ref };
+    return TP;
+  }
+  /* Axis positions: universe z clipped at +/-4, scaled so the cube's corners sit on the unit sphere. */
+  function axisCoords(keys) {
+    var id = keys.join(",");
+    if (AXC && AXC.id === id) return AXC;
+    var U = ctx.z("universe"), c = [new Float64Array(N), new Float64Array(N), new Float64Array(N)], s = 1 / (AX_CLIP * RT3);
+    keys.forEach(function (k, a) {
+      var zz = U.z[k], out = c[a];
+      for (var i = 0; i < N; i++) { var v = zz[i]; out[i] = isNaN(v) ? NaN : Math.max(-AX_CLIP, Math.min(AX_CLIP, v)) * s; }
+    });
+    AXC = { id: id, keys: keys, x: c[0], y: c[1], z: c[2] };
+    return AXC;
+  }
+  function mapCoords() { return mst.mode === "axes" ? axisCoords(axesNow()) : tetraCoords(); }
+
+  /* Which rows are drawn, recomputed when the screen or the projection changes (not per frame). */
+  function mapLists() {
+    var P = mapCoords(), inM = new Uint8Array(N), match = [], cloud = [], hid = screen.hidden;
+    function placed(i) { return !isNaN(P.x[i]) && !isNaN(P.y[i]) && !isNaN(P.z[i]); }
+    for (var j = 0; j < screen.match.length; j++) { var i = screen.match[j]; inM[i] = 1; if (placed(i)) match.push(i); }
+    for (i = 0; i < N; i++) if (!inM[i] && !hid[S.kind[i]] && placed(i)) cloud.push(i);
+    var capMax = 0;
+    for (i = 0; i < N; i++) if (S.mcap_raw[i] > capMax) capMax = S.mcap_raw[i];
+    mst.lists = { P: P, inM: inM, match: match, cloud: cloud, m: screen.match.length, n: match.length,
+                  k: screen.match.length - match.length, capMax: capMax || 1 };
+  }
+
+  function mapRefresh() {
+    if (!screen || mst.view !== "map") return;
+    var bar = document.getElementById("ld-map");
+    if (!bar) return;
+    bar.querySelectorAll("[data-mode]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === mst.mode)); });
+    var axEl = document.getElementById("ld-mapaxes"), keys = axesNow();
+    axEl.hidden = mst.mode !== "axes";
+    axEl.querySelectorAll("select").forEach(function (sel, j) { sel.value = keys[j]; });
+    mapLists();
+    mapCount();
+    renderFocus();
+    drawMap();
+  }
+
+  function mapCount() {
+    var L = mst.lists, el = document.getElementById("ld-mapcount"), foot = document.getElementById("ld-mapfoot");
+    var what = screen.incCount ? "listings" : "companies", axes = mst.mode === "axes", keys = axesNow();
+    var why = axes ? "no value on x, y or z" : "fewer than 3 of the 4 factor scores";
+    el.setAttribute("data-n", L.n); el.setAttribute("data-m", L.m); el.setAttribute("data-k", L.k);
+    el.innerHTML = "<b>" + int(L.n) + "</b> of " + int(L.m) + " matching " + what + " placed; " + int(L.k) + " " + (L.k === 1 ? "lacks" : "lack") +
+      " enough dimensions (" + why + "). " + (L.cloud.length ? int(L.cloud.length) + " more in the universe drawn faint. " : "") + "Dot size: market cap.";
+    var cv = document.getElementById("ld-mapc");
+    if (cv) cv.setAttribute("aria-label", (axes ? "3D scatter of " + keys.map(function (k) { return BYKEY[k].label; }).join(", ") : "Factor map, Growth, Value, Momentum and Quality") +
+      ": " + int(L.n) + " matching " + what + " placed. Arrow keys turn it.");
+    foot.innerHTML = axes
+      ? "Each axis is universe robust z (median and MAD against the " + int(cohortN()) + " operating companies), clipped at " + String.fromCharCode(177) + "4" + SIGMA +
+        ", so a clipped company sits on a face of the cube. Market cap and volume are log-scaled first. Axes always measure against the universe, whatever the screen's scope."
+      : "Corners are the four factor scores, each a z against the company's own sector. A company is pulled toward the corners it scores well on and sits near the centre when it scores evenly. " +
+        "It needs 3 of the 4 scores to be placed; a missing fourth counts as zero, the sector median. The scale is fixed at the 97th percentile of the operating universe, so a few far-out companies sit past the corners.";
+    if (!document.getElementById("ld-mapread").innerHTML) setMapRead(mapHint());
+  }
+
+  function mapColorsNow() {
+    if (mapColors) return mapColors;
+    var cs = getComputedStyle(document.documentElement);
+    function v(n, d) { return (cs.getPropertyValue(n) || "").trim() || d; }
+    mapColors = { ink: v("--ink", "#1c1a16"), ink2: v("--ink2", "#474238"), muted: v("--muted", "#655d50"), faint: v("--faint", "#a79e8d"),
+                  hair: v("--hair", "#d3cab8"), accent: v("--accent", "#b8361c"), accentInk: v("--accent-ink", "#9c2c15"),
+                  bg: v("--raised", "#f6f2e9"), mono: v("--mono", "monospace") };
+    return mapColors;
+  }
+
+  function requestDraw() { if (!drawId) drawId = requestAnimationFrame(function () { drawId = 0; drawMap(); }); }
+
+  function drawMap() {
+    var cv = document.getElementById("ld-mapc");
+    if (!cv || mst.view !== "map" || !mst.lists) return;
+    var w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return;
+    var dpr = window.devicePixelRatio || 1;
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    var g = cv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    var C = mapColorsNow(), L = mst.lists, P = L.P, axes = mst.mode === "axes";
+    var narrow = w < 520, scale = (Math.min(w, h) / 2 - (narrow ? 26 : 38)) / 1.12;
+    var cyw = Math.cos(mst.yaw), syw = Math.sin(mst.yaw), cp = Math.cos(mst.pitch), sp = Math.sin(mst.pitch);
+    // Mild perspective: enough that the near side reads as nearer, not so much it bends the cloud.
+    function proj(x, y, z) {
+      var x1 = x * cyw + z * syw, z1 = -x * syw + z * cyw, y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp, k = 4 / (4 - z2);
+      return { x: w / 2 + x1 * scale * k, y: h / 2 - y2 * scale * k, z: z2, k: k };
+    }
+    if (!PX2) PX2 = { x: new Float64Array(N), y: new Float64Array(N), z: new Float64Array(N), r: new Float64Array(N) };
+    var sizeK = narrow ? 0.7 : 1;
+    function place(i) {
+      var q = proj(P.x[i], P.y[i], P.z[i]);
+      PX2.x[i] = q.x; PX2.y[i] = q.y; PX2.z[i] = q.z;
+      var cap = S.mcap_raw[i];
+      PX2.r[i] = (cap > 0 ? 1.6 + Math.sqrt(cap / L.capMax) * 9 * sizeK : 1.6) * q.k;
+    }
+    L.match.forEach(place); L.cloud.forEach(place);
+    var fnt = function (px, wt) { return (wt || 500) + " " + px + "px " + C.mono; };
+
+    // The frame first, so the dots read as sitting inside it. Edges behind the centre are dashed.
+    g.lineWidth = 1;
+    var labels = [];
+    if (!axes) {
+      var vp = {}, cr = tetraCoords().corner;
+      TETRA_ORDER.forEach(function (k) { vp[k] = proj(TETRA_V[k][0] / RT3 * cr, TETRA_V[k][1] / RT3 * cr, TETRA_V[k][2] / RT3 * cr); });
+      TETRA_EDGES.forEach(function (e) {
+        var a = vp[e[0]], b = vp[e[1]], behind = (a.z + b.z) / 2 < 0;
+        g.setLineDash(behind ? [3, 4] : []); g.strokeStyle = behind ? C.faint : C.ink2; g.globalAlpha = behind ? 0.8 : 0.7;
+        g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke();
+      });
+      TETRA_ORDER.forEach(function (k) { labels.push({ p: vp[k], t: TETRA_LABEL[k].toUpperCase(), corner: true }); });
+    } else {
+      var a = 1 / RT3, keys = axesNow(), corners = [];
+      for (var c = 0; c < 8; c++) corners.push(proj(c & 1 ? a : -a, c & 2 ? a : -a, c & 4 ? a : -a));
+      for (c = 0; c < 8; c++) for (var bit = 1; bit < 8; bit <<= 1) {
+        if (c & bit) continue;
+        var p0 = corners[c], p1 = corners[c | bit], behind2 = (p0.z + p1.z) / 2 < 0;
+        g.setLineDash(behind2 ? [3, 4] : []); g.strokeStyle = C.hair; g.globalAlpha = 1;
+        g.beginPath(); g.moveTo(p0.x, p0.y); g.lineTo(p1.x, p1.y); g.stroke();
+      }
+      g.setLineDash([]);
+      [[1, 0, 0], [0, 1, 0], [0, 0, 1]].forEach(function (u, j) {
+        var lo = proj(-a * u[0], -a * u[1], -a * u[2]), hi = proj(a * u[0], a * u[1], a * u[2]);
+        g.strokeStyle = C.ink2; g.globalAlpha = 0.75;
+        g.beginPath(); g.moveTo(lo.x, lo.y); g.lineTo(hi.x, hi.y); g.stroke();
+        for (var t = -AX_CLIP; t <= AX_CLIP; t += 2) {
+          var tp = proj(t / AX_CLIP * a * u[0], t / AX_CLIP * a * u[1], t / AX_CLIP * a * u[2]);
+          g.beginPath(); g.arc(tp.x, tp.y, t === 0 ? 1.2 : 1.8, 0, Math.PI * 2); g.fillStyle = C.ink2; g.fill();
+        }
+        labels.push({ p: hi, t: ["x", "y", "z"][j] + " " + (narrow ? ALIAS[keys[j]] : BYKEY[keys[j]].label) + " +4" + SIGMA, corner: false });
+        labels.push({ p: lo, t: MINUS + "4" + SIGMA, corner: false, small: true });
+      });
+    }
+    g.setLineDash([]); g.globalAlpha = 1;
+    // The origin: where a company that is typical on every axis sits.
+    var o = proj(0, 0, 0);
+    g.strokeStyle = C.ink2; g.globalAlpha = 0.6;
+    g.beginPath(); g.moveTo(o.x - 4, o.y); g.lineTo(o.x + 4, o.y); g.moveTo(o.x, o.y - 4); g.lineTo(o.x, o.y + 4); g.stroke();
+
+    // The rest of the universe: one faint layer, drawn as a single path.
+    g.globalAlpha = L.n < 800 ? 0.4 : 0.55; g.fillStyle = C.faint; g.beginPath();
+    L.cloud.forEach(function (i) { g.moveTo(PX2.x[i] + 1.1, PX2.y[i]); g.arc(PX2.x[i], PX2.y[i], 1.1, 0, Math.PI * 2); });
+    g.fill();
+
+    // The matches, far first so near ones overlap them. Nearer dots are more opaque; depth is the only
+    // thing separating an overlapping pair. Few matches get more ink, so a narrow screen still reads.
+    var order = L.match.slice().sort(function (p, q) { return PX2.z[p] - PX2.z[q]; });
+    var focusOn = mst.focus.some(function (i) { return !isNaN(P.x[i]) && !isNaN(P.y[i]) && !isNaN(P.z[i]); });
+    var few = L.n < 800, dimF = focusOn ? 0.7 : 1, rMin = few ? 2.4 : 1;
+    g.fillStyle = C.ink;
+    order.forEach(function (i) {
+      var t = Math.max(0, Math.min(1, (PX2.z[i] + 1) / 2));
+      g.globalAlpha = (few ? 0.5 + t * 0.4 : 0.16 + t * 0.34) * dimF;
+      g.beginPath(); g.arc(PX2.x[i], PX2.y[i], Math.max(rMin, PX2.r[i]), 0, Math.PI * 2); g.fill();
+    });
+    g.globalAlpha = 1;
+    mst.drawn = { w: w, h: h, order: order, cloud: L.cloud };
+
+    // Labels, pushed out along the ray from the centre so they clear the cloud at any angle.
+    g.textBaseline = "middle";
+    labels.forEach(function (lb) {
+      var ox = lb.p.x - w / 2, oy = lb.p.y - h / 2, len = Math.sqrt(ox * ox + oy * oy) || 1, push = lb.small ? 10 : 16;
+      g.font = fnt(lb.small ? 9.5 : 10.5);
+      var tw = g.measureText(lb.t).width;
+      var x = lb.p.x + ox / len * push, y = lb.p.y + oy / len * push;
+      g.textAlign = "center";
+      x = Math.max(tw / 2 + 4, Math.min(w - tw / 2 - 4, x)); y = Math.max(9, Math.min(h - 9, y));
+      g.globalAlpha = 1; g.lineWidth = 3; g.strokeStyle = C.bg; g.strokeText(lb.t, x, y);
+      g.fillStyle = lb.p.z < 0 || lb.small ? C.muted : C.ink; g.fillText(lb.t, x, y);
+      if (lb.corner) { g.beginPath(); g.arc(lb.p.x, lb.p.y, 2.5, 0, Math.PI * 2); g.fill(); }
+    });
+
+    // Focus last, in the accent, so a chosen company is never buried.
+    g.font = fnt(11.5);
+    g.textAlign = "left";
+    mst.focus.forEach(function (i) {
+      if (isNaN(P.x[i]) || isNaN(P.y[i]) || isNaN(P.z[i])) return;
+      place(i);
+      var x = PX2.x[i], y = PX2.y[i], r = Math.max(4, PX2.r[i]);
+      g.globalAlpha = 1; g.fillStyle = C.accent; g.strokeStyle = C.accent; g.lineWidth = 1.5;
+      g.beginPath(); g.arc(x, y, Math.min(r, 6), 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(x, y, r + 4, 0, Math.PI * 2); g.stroke();
+      var tx = x + r + 7, lab = S.ticker[i], tw = g.measureText(lab).width;
+      if (tx + tw > w - 4) tx = x - r - 7 - tw;
+      g.lineWidth = 3; g.strokeStyle = C.bg; g.strokeText(lab, tx, y);
+      g.fillStyle = C.accentInk; g.fillText(lab, tx, y);
+    });
+
+    if (!L.n) {
+      g.font = fnt(11.5, 400); g.textAlign = "left"; g.fillStyle = C.muted; g.globalAlpha = 1;
+      var msg = L.m ? "No matching company has enough dimensions to place." : "Nothing matches the screen.";
+      g.lineWidth = 3; g.strokeStyle = C.bg; g.strokeText(msg, 14, 18); g.fillText(msg, 14, 18);
+    }
+    g.textAlign = "start"; g.textBaseline = "alphabetic"; g.globalAlpha = 1;
+  }
+
+  /* The dot under a point: matches first (they are what the screen asks about), then the faint cloud.
+     A frame drawn at another size is not trusted; the map redraws and the click is dropped, since picking
+     the wrong company is worse than picking none. */
+  function mapHit(cv, cx, cy, slop) {
+    var d = mst.drawn;
+    if (!d || d.w !== cv.clientWidth || d.h !== cv.clientHeight) { drawMap(); return -2; }
+    var b = cv.getBoundingClientRect(), mx = cx - b.left, my = cy - b.top, best = -1, bd = Infinity;
+    for (var j = d.order.length - 1; j >= 0; j--) {
+      var i = d.order[j], dx = PX2.x[i] - mx, dy = PX2.y[i] - my, dd = dx * dx + dy * dy, rr = Math.max(4, PX2.r[i]) + slop;
+      if (dd < rr * rr && dd < bd) { bd = dd; best = i; }
+    }
+    if (best >= 0) return best;
+    for (j = 0; j < d.cloud.length; j++) {
+      i = d.cloud[j]; dx = PX2.x[i] - mx; dy = PX2.y[i] - my; dd = dx * dx + dy * dy;
+      if (dd < (3 + slop) * (3 + slop) && dd < bd) { bd = dd; best = i; }
+    }
+    return best;
+  }
+
+  function scoreLine(i) {
+    if (mst.mode === "axes") return axesNow().map(function (k, j) {
+      var v = A.vals[k][i], z = ctx.z("universe").z[k][i];
+      return ["x", "y", "z"][j] + " " + esc(ALIAS[k]) + " " + (v == null ? "n/a" : esc(ctx.APTZ.fmt(k, v)) + " (" + zsig(z) + ")");
+    }).join(", ");
+    return TETRA_ORDER.map(function (k) { var v = S[TETRA_COL[k]][i]; return TETRA_LABEL[k].charAt(0) + " " + (v == null ? "n/a" : fsgn(v, 2)); }).join("  ");
+  }
+  function hoverRead(i) {
+    if (i < 0) { setMapRead(mapHint()); return; }
+    setMapRead("<b>" + esc(S.ticker[i]) + "</b> " + esc(S.name[i]) + (mst.lists.inM[i] ? "" : ", outside the screen") + ". " + scoreLine(i));
+  }
+
+  function toggleFocus(i, add) {
+    var at = mst.focus.indexOf(i);
+    if (!add) mst.focus = at >= 0 && mst.focus.length === 1 ? [] : [i];
+    else if (at >= 0) mst.focus.splice(at, 1);
+    else if (mst.focus.length >= FOCUS_MAX) { setMapRead("Five companies is the most the map holds in focus. Remove one first."); return; }
+    else mst.focus.push(i);
+    renderFocus();
+    drawMap();
+  }
+
+  function renderFocus() {
+    var el = document.getElementById("ld-mapfocus");
+    if (!el || !mst.lists) return;
+    var head = '<div class="ld-mfh"><span class="ld-kicker">In focus' + (mst.focus.length ? " " + mst.focus.length + " of " + FOCUS_MAX : "") + "</span>" +
+      (mst.focus.length ? '<button type="button" class="ld-btn" data-unfocus="all">Clear</button>' : "") + "</div>";
+    if (!mst.focus.length) {
+      el.innerHTML = head + '<p class="none">' + (isTouch() ? "Tap a dot to read the company here. Turn on Compare to hold up to five side by side."
+        : "Click a dot to read the company here. Shift-click, or turn on Compare, to hold up to five side by side.") + "</p>";
+      return;
+    }
+    var P = mst.lists.P, U = ctx.z("universe");
+    el.innerHTML = head + mst.focus.map(function (i) {
+      var tk = S.ticker[i], placedHere = !isNaN(P.x[i]) && !isNaN(P.y[i]) && !isNaN(P.z[i]);
+      var rows = TETRA_ORDER.map(function (k) {
+        var v = S[TETRA_COL[k]][i];
+        return "<dt>" + TETRA_LABEL[k] + '</dt><dd class="' + zClass(v) + '">' + (v == null ? "n/a" : zsig(v)) + "</dd>";
+      }).join("");
+      var axRows = mst.mode === "axes" ? axesNow().map(function (k, j) {
+        var v = A.vals[k][i], z = U.z[k][i];
+        return "<dt>" + ["x", "y", "z"][j] + " " + esc(BYKEY[k].label) + '</dt><dd class="' + zClass(z) + '">' + (na(i, k) ? "n/a" : v == null ? "no value" : esc(ctx.APTZ.fmt(k, v)) + " " + zsig(z)) + "</dd>";
+      }).join("") : "";
+      var notes = [];
+      if (!mst.lists.inM[i]) notes.push("Outside the current screen.");
+      if (!placedHere) notes.push(mst.mode === "axes" ? "Not on these axes: no value on one of them." : "Not placed: " + S.ndim[i] + " of the 4 factor scores.");
+      return '<div class="ld-mf"><div class="hd"><a class="ld-gtk" href="' + ctx.href("company", tk) + '">' + esc(tk) + "</a>" + kindTag(S.kind[i]) +
+        '<button type="button" class="x" data-unfocus="' + i + '" aria-label="Remove ' + esc(tk) + ' from focus">' + TIMES + "</button></div>" +
+        '<div class="nm" title="' + esc(S.name[i]) + '">' + esc(S.name[i]) + "</div>" +
+        '<div class="sub">' + esc(sectorName(S.sector[i])) + (S.mcap_raw[i] ? " " + MID + " cap " + fcap(S.mcap_raw[i]) : "") + "</div>" +
+        '<dl><dt class="h">Score vs sector</dt><dd class="h"></dd>' + rows + (axRows ? '<dt class="h">Axes, universe z</dt><dd class="h"></dd>' + axRows : "") + "</dl>" +
+        (notes.length ? '<p class="off">' + notes.join(" ") + "</p>" : "") +
+        '<a class="ld-link" href="' + ctx.href("company", tk) + '">Company page ' + ARROW + "</a></div>";
+    }).join("");
+  }
+
+  function setSpin(on) {
+    mst.spin = !!on && !REDUCED_MOTION;
+    var b = document.querySelector("[data-spin]");
+    if (b) b.setAttribute("aria-pressed", String(mst.spin));
+    if (mst.spin) startSpin(); else stopSpin();
+  }
+  function startSpin() {
+    if (spinId || !mst.spin || mst.view !== "map") return;
+    var last = 0;
+    spinId = requestAnimationFrame(function step(t) {
+      spinId = 0;
+      if (!mst.spin || mst.view !== "map") return;
+      mst.yaw += 0.00019 * (last ? Math.min(64, t - last) : 16);
+      last = t;
+      drawMap();
+      spinId = requestAnimationFrame(step);
+    });
+  }
+  function stopSpin() { if (spinId) { cancelAnimationFrame(spinId); spinId = 0; } }
+  function resetAngle() { var va = VIEW_ANGLE[mst.mode]; mst.yaw = va[0]; mst.pitch = va[1]; }
+
+  function wireMap(main) {
+    var cv = main.querySelector("#ld-mapc"), map = main.querySelector("#ld-map");
+    if (!cv) return;
+    resetAngle();
+    map.querySelectorAll("[data-mode]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var m = b.getAttribute("data-mode");
+        if (m === mst.mode) return;
+        mst.mode = m; resetAngle(); writeHash(); mapRefresh();
+      });
+    });
+    map.querySelectorAll("select[data-ax]").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var keys = axesNow().slice();
+        keys[+sel.getAttribute("data-ax")] = sel.value;
+        mst.ax = keys; writeHash(); mapRefresh();
+      });
+    });
+    map.querySelector("[data-spin]").addEventListener("click", function () { setSpin(!mst.spin); });
+    map.querySelector("[data-add]").addEventListener("click", function (e) {
+      mst.add = !mst.add; e.currentTarget.setAttribute("aria-pressed", String(mst.add));
+    });
+    map.querySelector("[data-mapreset]").addEventListener("click", function () { setSpin(false); resetAngle(); drawMap(); });
+    map.querySelector("#ld-mapfocus").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-unfocus]");
+      if (!b) return;
+      var v = b.getAttribute("data-unfocus");
+      mst.focus = v === "all" ? [] : mst.focus.filter(function (i) { return i !== +v; });
+      renderFocus(); drawMap();
+      var next = document.querySelector("#ld-mapfocus [data-unfocus]");
+      (next || cv).focus();
+    });
+
+    var drag = null, suppress = false;
+    cv.addEventListener("pointerdown", function (e) {
+      if (e.button !== 0) return;
+      // Any press starts clean, so a stale arm from an abandoned gesture cannot swallow this selection.
+      suppress = false;
+      drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: 0, spun: mst.spin, touch: e.pointerType !== "mouse" };
+      stopSpin();
+      try { cv.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      cv.classList.add("drag");
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!drag) {
+        if (e.pointerType !== "mouse") return;
+        var i = mapHit(cv, e.clientX, e.clientY, 5);
+        cv.style.cursor = i >= 0 ? "pointer" : "";
+        hoverRead(i);
+        return;
+      }
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.x = e.clientX; drag.y = e.clientY;
+      // Furthest the pointer got from where it was pressed, not the path length, so a tremor that ends
+      // where it began is still a click.
+      drag.moved = Math.max(drag.moved, Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy));
+      mst.yaw += dx * 0.008;
+      // Clamped short of vertical, where the labels would flip and the shape stops reading.
+      mst.pitch = Math.max(-1.35, Math.min(1.35, mst.pitch + dy * 0.008));
+      requestDraw();
+    });
+    function release(e, cancelled) {
+      if (!drag) return;
+      var d = drag;
+      drag = null;
+      cv.classList.remove("drag");
+      try { cv.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      // A deliberate turn parks the shape where the reader put it; spin stays off until asked for again.
+      if (!cancelled && d.moved >= (d.touch ? 10 : 4)) { suppress = true; setSpin(false); }
+      else if (d.spun) startSpin();
+    }
+    cv.addEventListener("pointerup", function (e) { release(e, false); });
+    // A cancelled pointer never produces a click, so arming the suppression there would swallow the next.
+    cv.addEventListener("pointercancel", function (e) { release(e, true); });
+    cv.addEventListener("pointerleave", function (e) { if (!drag && e.pointerType === "mouse") { cv.style.cursor = ""; hoverRead(-1); } });
+    cv.addEventListener("click", function (e) {
+      if (suppress) { suppress = false; return; }
+      var i = mapHit(cv, e.clientX, e.clientY, isTouch() ? 12 : 6);
+      if (i < 0) return;
+      toggleFocus(i, mst.add || e.shiftKey || e.ctrlKey || e.metaKey);
+      hoverRead(i);
+    });
+    cv.addEventListener("keydown", function (e) {
+      var step = e.shiftKey ? 0.3 : 0.1;
+      if (e.key === "ArrowLeft") mst.yaw -= step;
+      else if (e.key === "ArrowRight") mst.yaw += step;
+      else if (e.key === "ArrowUp") mst.pitch = Math.max(-1.35, mst.pitch - step);
+      else if (e.key === "ArrowDown") mst.pitch = Math.min(1.35, mst.pitch + step);
+      else if (e.key === "Escape" && mst.focus.length) { mst.focus = []; renderFocus(); drawMap(); e.preventDefault(); e.stopPropagation(); return; }
+      else return;
+      e.preventDefault();
+      setSpin(false);
+      drawMap();
+    });
+    redrawers.push(drawMap);
+    themeHooks.push(function () { mapColors = null; drawMap(); });
+  }
+
   /* ---------------------------------------------------------------- charts */
 
   function niceStep(range, n) {
@@ -1944,7 +2489,7 @@
     paintThemeBtn();
     if (window.matchMedia) {
       var mq = window.matchMedia("(prefers-color-scheme: dark)");
-      if (mq.addEventListener) mq.addEventListener("change", paintThemeBtn);
+      if (mq.addEventListener) mq.addEventListener("change", function () { paintThemeBtn(); themeChanged(); });
     }
     listen(window, "resize", onResize);
     listen(document, "keydown", onKey);

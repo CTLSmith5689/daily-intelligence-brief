@@ -125,6 +125,28 @@ class SiteRender(unittest.TestCase):
         self.assertEqual(len(rows), len(self.universe["stocks"]))
         self.assertEqual(rows[-2]["security_type"], "debt")
 
+    def test_stocks_page_has_the_map_view(self):
+        """The Stocks page's second view, the factor map: a Grid | Map toggle kept in the hash, a
+        focusable, labelled canvas with its count below, and the four factor corners. It is drawn by
+        the copied ledger.js, so that is what is checked, plus that the script parses."""
+        js = (self.docs / "assets" / "ledger.js").read_text(encoding="utf-8")
+        css = (self.docs / "assets" / "ledger.css").read_text(encoding="utf-8")
+        for needle in ('data-view="map"', 'id="ld-map"', '<canvas id="ld-mapc" tabindex="0" role="img"',
+                       'aria-describedby="ld-mapcount"', '"view=map"', '"map=axes"', '"ax="',
+                       'g: "Growth", v: "Value", m: "Momentum", q: "Quality"',
+                       "prefers-reduced-motion: reduce", "matching \" + what + \" placed; ",
+                       "enough dimensions", "ArrowLeft", "FOCUS_MAX = 5", "AX_CLIP = 4",
+                       "themeHooks.push("):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, js)
+        for needle in (".ld-mapbox", "touch-action:none", ".ld-mapfocus", ".ld-vseg"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, css)
+        if shutil.which("node"):
+            out = subprocess.run(["node", "--check", str(self.docs / "assets" / "ledger.js")],
+                                 capture_output=True, text=True, timeout=60)
+            self.assertEqual(out.returncode, 0, out.stderr)
+
     def test_metric_directions_follow_the_score(self):
         by = {m["key"]: m for m in LF.LEDGER_METRICS}
         for group, spec in LF.SCORE_GROUPS_PY.items():

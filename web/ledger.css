@@ -361,6 +361,45 @@ html .ld-help dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px
 html .ld-help dd{margin:0;color:var(--ink2)}
 @media (max-width:700px){html .ld-cmdrow label{display:none}html .ld-cmd{padding:12px}html .ld-read{white-space:normal}html .ld-stat .tools{margin-left:0}html .ld-stat .cnt{font-size:23px}
 html .ld-gwrap{height:calc(100svh - 130px);min-height:340px;overscroll-behavior:auto}html .ld-help{top:112px;max-height:calc(100vh - 190px)}html .ld-help dl{grid-template-columns:1fr}html .ld-help dd{margin-bottom:6px}}
+html .ld-vseg{margin-left:auto;align-self:center}
+html .ld-root [hidden]{display:none!important}
+html .ld-btn:disabled{color:var(--faint);border-color:var(--hair);background:transparent;cursor:not-allowed}
+html .ld-mapbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:6px 0 10px}
+html .ld-mapbar .sp{flex:1 1 auto}
+html .ld-mapaxes{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+html .ld-mapaxes label{display:flex;align-items:center;gap:6px;min-width:0;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+html .ld-mapaxes select{max-width:200px;text-transform:none}
+html .ld-mapgrid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:start}
+html .ld-mapbox{position:relative;height:clamp(380px,calc(100vh - 300px),760px);border:1px solid var(--rule);background:var(--raised)}
+html .ld-mapbox canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;outline-offset:-3px}
+html .ld-mapbox canvas.drag{cursor:grabbing}
+html .ld-mapcount{font:400 13px/1.5 var(--mono);color:var(--ink2);margin:10px 0 0}
+html .ld-mapcount b{color:var(--accent-ink);font-weight:500;font-variant-numeric:tabular-nums}
+html .ld-mapkey{display:flex;flex-wrap:wrap;gap:4px 16px;margin:6px 0 0;font:400 11.5px/1.4 var(--mono);color:var(--muted)}
+html .ld-mapkey i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:0}
+html .ld-mapkey i.m{background:var(--ink)}html .ld-mapkey i.c{background:var(--faint)}
+html .ld-mapkey i.f{background:var(--accent);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--accent)}
+html .ld-mapread{font:400 12.5px/1.5 var(--mono);color:var(--ink2);min-height:19px;margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html .ld-mapread b{color:var(--ink);font-weight:500}
+html .ld-mapfocus{border-top:1px solid var(--rule);min-width:0}
+html .ld-mfh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;border-bottom:1px solid var(--hair)}
+html .ld-mfh .ld-btn{padding:6px 9px 5px}
+html .ld-mapfocus .none{font-size:14px;color:var(--muted);margin:10px 0}
+html .ld-mf{border-left:3px solid var(--accent);padding:10px 0 12px 12px;border-bottom:1px solid var(--hair)}
+html .ld-mf .hd{display:flex;align-items:center;gap:6px}
+html .ld-mf .hd .ld-gtk{font-size:19px}
+html .ld-mf .hd .x{margin-left:auto;width:28px;height:28px;border:1px solid var(--hair);background:transparent;color:var(--ink2);font:400 16px/1 var(--sans);cursor:pointer;padding:0}
+html .ld-mf .hd .x:hover{border-color:var(--ink2);color:var(--ink)}
+html .ld-mf .nm{font-size:14px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+html .ld-mf .sub{font:400 11.5px/1.4 var(--mono);color:var(--muted)}
+html .ld-mf dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;margin:8px 0;font:400 12.5px/1.3 var(--mono)}
+html .ld-mf dt{color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 0}
+html .ld-mf dd{margin:0;text-align:right;padding:2px 5px;font-variant-numeric:tabular-nums}
+html .ld-mf dt.h{font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:6px}
+html .ld-mf .off{font-size:13px;color:var(--muted);margin:4px 0 8px}
+@media (max-width:960px){html .ld-mapgrid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){html .ld-mapbox{height:min(calc(100vw - 32px),460px);min-height:300px}html .ld-mapread{white-space:normal}html .ld-mapbar .sp{display:none}
+html .ld-mapaxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}html .ld-mapaxes select{max-width:none;width:100%}}
 html .ld-vs{font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
 html .ld-scale{font-size:13.5px;color:var(--ink2);margin:10px 0 0;line-height:1.5}
 html .ld-scale b{font-weight:600;color:var(--ink)}

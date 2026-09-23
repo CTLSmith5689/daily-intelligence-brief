@@ -7917,7 +7917,8 @@ def get_or_generate_stocks_universe(session_confirmed=False):
 #   today.html     the newest brief by section, repeats folded together
 #   stories.html   the story library
 #   stocks.html    every listing and every metric in one grid, tinted by universe
-#                  z, filtered from a command bar (stocks.html#q=gm>1 pe<-0.5)
+#                  z, filtered from a command bar (stocks.html#q=gm>1 pe<-0.5), with a
+#                  3D factor map of the same screen beside it (stocks.html#view=map)
 #   company.html   company.html#TICKER, one page per listing, thesis included
 #   research.html  an index of theses and the record
 #
