@@ -46,6 +46,31 @@ DEAD = {"dims_present", "g", "m", "pct", "q", "scorable", "v"}
 CONTAMINATED = {"news_count_7d", "news_lm_avg", "news_vader_avg", "neglect_score"}
 NEWS_FIX_DATE = "2026-09-12"
 
+# What kind of listing a row is, from the same classifier the pipeline runs
+# (security_type.py at the repo root, stdlib only). NON_OPERATING rows are notes,
+# trust certificates, unit listings, closed-end funds and blank-check shells: not
+# businesses, and their issuer-level numbers are either withheld or a parent's.
+# A deny-list, never an allowlist: panel rows written before 2026-09-22 have no
+# security_type, and the previous month's file has no such column at all.
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+import security_type as _sectype  # noqa: E402
+
+NON_OPERATING = _sectype.NON_OPERATING
+
+
+def security_type(r):
+    """The row's label. A blank one (an older panel row) is computed from the
+    row's own name, venue and data by the pipeline's classifier, so an old row
+    is judged exactly as a new one would be rather than waved through."""
+    label = (r.get("security_type") or "").strip()
+    return label or _sectype.classify_row(r)
+
+
+def is_operating(r):
+    """False for a note, fund or shell. `r` is a panel row (a dict)."""
+    return security_type(r) not in NON_OPERATING
+
 
 def fetch(url, tries=3):
     req = urllib.request.Request(url, headers={"User-Agent": UA,

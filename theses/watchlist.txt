@@ -1,3 +1,4 @@
-# One ticker per line. Comments with #. These bypass every gate except cooldown.
+# One ticker per line. Comments with #. These skip the ranking, not the gate: a name is
+# offered only if it passes the universe gate (operating, $1B+, sector, revenue) and is off cooldown.
 AAPL
 NVDA

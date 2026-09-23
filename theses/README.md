@@ -15,7 +15,7 @@ the arrangement the README's "no LLM, and no AI API key" note anticipated.
 | Path | What it is |
 |---|---|
 | `config.json` | slot counts, gates, cooldowns |
-| `watchlist.txt` | hand-edited. One ticker per line, `#` comments. Bypasses every gate except cooldown |
+| `watchlist.txt` | hand-edited. One ticker per line, `#` comments. Skips the ranking, not the gate: a watchlist name is offered only if it passes the universe gate and is off cooldown |
 | `bin/` | deterministic Python. The screen, the dossier builder, the scorer. Zero model tokens |
 | `notes/{TICKER}/{DATE}.md` | the thesis: YAML front-matter, Markdown body |
 | `ledger/predictions.csv` | **append-only, never rewritten** |
@@ -41,11 +41,20 @@ well the notes read. Only this ledger can tell those apart.
 
 ## Coverage is deliberately partial
 
-About 1,075 names pass the gates. At four slots a run that is a few hundred unique names a
+About 2,000 names pass the gates (2,026 on the 2026-09-21 panel), and about 1,200 of those
+have enough data to score (1,189). At four slots a run that is a few hundred unique names a
 year. **Most of the eligible universe is never written about.** That is the correct
 behaviour for a screen, and it is stated here rather than implied.
 
 ## What the screen will not use
+
+- Non-operating listings: exchange-traded notes and bonds, trust certificates, unit
+  listings, closed-end funds and blank-check shells (`security_type` in
+  `common.NON_OPERATING`). A note ticker resolves to its parent's CIK, so its row carries
+  the parent's shares and EPS; `dossier.py` refuses one with a nonzero exit, and
+  `score.py` leaves them out of peer benchmarks. Panel rows from before the column
+  existed (blank `security_type`) are classified from their own name and data by the
+  pipeline's classifier, `security_type.py`, rather than assumed to be companies.
 
 - The seven dead panel columns (`g`, `v`, `m`, `q`, `pct`, `scorable`, `dims_present`),
   which are stripped from the CSV and permanently empty.
