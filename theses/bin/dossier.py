@@ -677,7 +677,8 @@ _BS_ITEMS = (
 
 def release_balance_sheet(text):
     """{key: (latest, prior)} in dollars, plus 'unit' and 'dates', or None."""
-    st = _statement(text or "", r"balance sheets?")
+    # Dell and others title it "Statements of Financial Position".
+    st = _statement(text or "", r"balance sheets?|statements? of financial position")
     if not st:
         return None
     mult, unit, body = st
@@ -693,7 +694,7 @@ def release_balance_sheet(text):
 _CF_ITEMS = (
     ("net_income", r"Net (?:income|earnings)(?: \(loss\))?"),
     ("ocf", r"Net cash (?:provided by|from|provided by \(used in\)|\(used in\) provided by) "
-            r"operating activities"),
+            r"operating activities|Change in cash from operating activities"),
     ("capex", r"Purchases related to property and equipment(?: and intangible assets)?|"
               r"Purchases of property,? (?:plant )?and equipment|Capital expenditures|"
               r"Additions to property,? (?:plant )?and equipment|"
@@ -751,6 +752,7 @@ _GUIDE_STOP = re.compile(r"\b(?:Highlights|HIGHLIGHTS|CFO Commentary|Conference 
                          r"About [A-Z]|Non-GAAP Measures|Forward-Looking|FORWARD-LOOKING|"
                          r"Safe Harbor|Cautionary)")
 _BOILERPLATE = re.compile(r"(?i)forward-looking statements|safe harbor|private securities litigation")
+_MONTH_ABBR = re.compile(r"\b(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.$")
 GUIDANCE_CAP = 1500
 
 
@@ -763,11 +765,19 @@ def guidance_excerpt(text):
     # is no such heading, and then quoted from the start of its sentence.
     heads = list(re.finditer(r"\b(?:Outlook|OUTLOOK|Guidance|GUIDANCE)\b", text))
     words = [m for m in re.finditer(r"\b(?:outlook|guidance)\b", text)]
-    for m in heads + words:
+    # Headings with a cue verb first, then a heading over a table of dollar
+    # figures with no cue verb ("Guidance Summary ... Revenue $ 49.0"), and only
+    # then a mention in a sentence. Without the middle pass DELL's guidance
+    # table was skipped for a sentence in the summary bullets.
+    for tabular_pass, m in [(False, x) for x in heads] + [(True, x) for x in heads] + [(False, x) for x in words]:
         s = m.start()
         if m.group(0)[0].islower():
             back = text[max(0, s - 300): s]
-            cut = max(back.rfind(". "), back.rfind(chr(0x2022)), back.rfind("\n"))
+            # A full stop after a month abbreviation ("Sept. 1, 2026") is not a
+            # sentence end; without this the quote began "1, 2026 ..." for DELL.
+            stops = [x.end() - 1 for x in re.finditer(r"\. ", back)
+                     if not _MONTH_ABBR.search(back[:x.start() + 1])]
+            cut = max(stops + [back.rfind(chr(0x2022)), back.rfind("\n")])
             s = s - len(back) + cut + 1 if cut >= 0 else s
         # The safe-harbour paragraph names the outlook too ("our outlook for the
         # third quarter ... are forward-looking statements"): skip a mention
@@ -776,7 +786,12 @@ def guidance_excerpt(text):
         if _BOILERPLATE.search(text[max(0, s - 250): stop_at if stop_at > 0 else s + 300]):
             continue
         window = text[s: s + GUIDANCE_CAP]
-        if not (_GUIDE_CUE.search(window[:400]) and re.search(r"\d", window[:400])):
+        # A heading over a table ("Guidance Summary ... Revenue $ 49.0") has no
+        # cue verb; two dollar figures right after it are cue enough.
+        if tabular_pass:
+            if len(re.findall(r"\$\s?\d", window[:400])) < 2:
+                continue
+        elif not (_GUIDE_CUE.search(window[:400]) and re.search(r"\d", window[:400])):
             continue
         stop = _GUIDE_STOP.search(window, 40)
         body = window[:stop.start()] if stop else window
@@ -1046,8 +1061,8 @@ def memo_inputs(ticker, me, rows, universe, panel_date, fy, qh, docs, events, pr
           f"{_money(p_debt)}), which does not reconcile to the release's balance sheet. The "
           f"figures above use the release. The peer table uses the panel's fields for every "
           f"company, so its enterprise values compare like with like but differ from this one.")
-        caveats.append("the panel's cash_and_investments does not reconcile to the release's "
-                       "balance sheet; Key data uses the release")
+        caveats.append("the panel's net debt (cash_and_investments less total_debt) does not "
+                       "reconcile to the release's balance sheet; Key data uses the release")
 
     # ---- Guidance
     w("")
@@ -1741,7 +1756,20 @@ def main():
         # ticker's file for 24h and the panel reads that file's last close. The
         # prices_updated stamp advances anyway, so the row looks fresh. The
         # close series is therefore the price of record here.
-        if panel_px and abs(pb["last"] / panel_px - 1) > 0.005:
+        close_older = bool(panel_date and pb["last_date"] < panel_date)
+        if panel_px and close_older and abs(pb["last"] / panel_px - 1) > 0.005:
+            # The close series itself can lag (an offline copy, a failed fetch).
+            # Then the panel is not shown to be stale, and neither price is
+            # known to be current, so say so rather than calling the panel stale.
+            drift = (pb["last"] / panel_px - 1) * 100
+            w("")
+            w(f"**The close series ends {pb['last_date']}, before the panel date {panel_date}.** "
+              f"The panel's `price` of {fmt(panel_px, 'price')} differs by {drift:+.1f}%, and "
+              f"neither can be shown to be current. The price of record is still the close; "
+              f"say which date it is.")
+            caveats.append(f"the close series ends {pb['last_date']}, before the panel date "
+                           f"{panel_date}; the panel price differs by {drift:+.1f}%")
+        elif panel_px and abs(pb["last"] / panel_px - 1) > 0.005:
             drift = (pb["last"] / panel_px - 1) * 100
             w("")
             w(f"**The panel's `price` is stale: {fmt(panel_px, 'price')} against a "

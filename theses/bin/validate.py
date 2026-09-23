@@ -90,6 +90,8 @@ MEMO_HOLDING = {"Initiate", "Add", "Hold", "Trim"}
 SCENARIO_CASES = ("bull", "base", "bear")
 # Page-one arithmetic tolerances.
 PROB_TOL, VALUE_TOL, RETURN_TOL, TARGET_TOL = 0.005, 0.50, 0.005, 5.0
+# The draft bear-loss limit in PROMPTS.md step 5, SIZE: size x |bear_return|.
+BEAR_COST_CAP = 0.02
 GLOSSARY_FILE = THESES / "GLOSSARY.md"
 _DATE_WORDS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b"
                          r"|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}\b")
@@ -1288,6 +1290,18 @@ def _memo(path, text, fm, body, kind, F, W):
 
     scen = _scenarios(fm, F) if "scenarios" in fm else None
 
+    # ---- the action follows from the numbers (PROMPTS.md step 5, ACT, and rule e)
+    if action in ("Initiate", "Add") and er is not None and rr is not None and er <= rr:
+        F(f"action is {action}, but expected_return {er:g} is not above required_return {rr:g}. "
+          f"Buy only when the expected return pays for the risk; otherwise the action is Avoid.")
+    if scen and d == "long" and scen["bear"][1] > scen["bull"][1] + PROB_TOL:
+        F(f"direction is long, but the bear case ({scen['bear'][1]:g}) is likelier than the bull case "
+          f"({scen['bull'][1]:g}). With the bear case likelier the action is not Initiate or Add.")
+    if size_now and br is not None and size_now * abs(br) > BEAR_COST_CAP + 1e-9:
+        W(f"size_now {size_now:g} x bear_return {br:g} costs {size_now * abs(br):.1%} of the portfolio "
+          f"in the bear case, above the draft {BEAR_COST_CAP:.0%} limit. Say by how much and why in "
+          f"'Why this size', or size down to {BEAR_COST_CAP / abs(br):.3f}.")
+
     # ---- structure
     heads = [(hm.start(), hm.end(), _head_name(hm.group(1))) for hm in HEADING.finditer(body)]
     names = [h[2] for h in heads]
@@ -1311,7 +1325,9 @@ def _memo(path, text, fm, body, kind, F, W):
           f"{paras[0][:60]!r}.")
     elif action and action.lower() not in headline.lower():
         W(f"the page-one headline does not name the action, {action}.")
-    for label, rx in (("Thesis", r"\*\*(?:the )?(?:investment )?thesis\b"), ("Why now", r"\*\*why now\b"),
+    for label, rx in (("Expected return and bear loss", r"\*\*expected return and bear loss\b"),
+                      ("Why this size", r"\*\*why this size\b"),
+                      ("Thesis", r"\*\*(?:the )?(?:investment )?thesis\b"), ("Why now", r"\*\*why now\b"),
                       ("The three things that matter most", r"\*\*the three things\b"),
                       ("Key data", r"\*\*key data\b")):
         if paras and not re.search(rx, p1, re.I):
@@ -1324,6 +1340,10 @@ def _memo(path, text, fm, body, kind, F, W):
     # ---- section 10
     if MEMO_MONITOR in sections:
         _memo_monitor(sections[MEMO_MONITOR], F)
+    unknown = "11. WHAT I DON'T KNOW"
+    if unknown in sections and not re.search(r"no analyst forecasts", sections[unknown], re.I):
+        W(f"{unknown} does not say that no analyst forecasts are available. PROMPTS.md asks for that "
+          f"sentence in every memo.")
 
     # ---- SOURCES and GLOSSARY
     if MEMO_SOURCES in sections:

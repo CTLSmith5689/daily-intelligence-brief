@@ -187,7 +187,8 @@ page one knows what you recommend, at what size, why, and what would change your
     **Key data.** A table (Measure | Value | What it means) from the dossier's
         "### Key data" block: market capitalisation, enterprise value, net cash or debt,
         diluted shares, 52-week range, average daily volume, P/E, EV/EBITDA, FCF yield,
-        dividend, beta, and a row saying consensus estimates are not available.
+        dividend, beta (from "### Sizing inputs"; the Key data block has no beta row), and a
+        row saying consensus estimates are not available.
 
 Then these headings, exactly as written, each starting with two # signs, in this order:
 
@@ -209,7 +210,8 @@ A sub-heading inside a section uses three # signs. No other ## heading is allowe
 has none.
 
 LENGTH. An initiation runs 2,000 to 5,000 words of prose, not counting tables, SOURCES or the
-GLOSSARY; aim for about 3,500. A revision runs 300 to 1,500. validate.py fails either outside its
+GLOSSARY; aim for 3,500 to 4,500. The reference NVIDIA memo runs about 4,700, close to the limit,
+so do not copy its length. A revision runs 300 to 1,500. validate.py fails either outside its
 band. Put figures in tables and use the prose to explain them.
 
 What goes in each section. The business sections come from the company's own filings in the
@@ -237,7 +239,7 @@ given", say so in section 11 and work from the filings it names.
   figures, gross margin, free cash flow) and "### Balance sheet and cash flow" (cash conversion,
   days sales outstanding, the last 8 quarters): the best, worst and typical year and where the
   latest sits; what changed; and what management does with the cash (debt, dividends, buybacks,
-  investment), with debt compared with a year's earnings.
+  investment), with debt stated in years of EBITDA over the past 12 months.
 - 6. FORECAST. The current fiscal year and the next two, by segment where the company reports
   segments. An assumptions table (Assumption | Base value | Source or reasoning): management's
   guidance first, from "### Guidance", then your own choices, each labelled "My choice" with its
@@ -247,7 +249,8 @@ given", say so in section 11 and work from the filings it names.
   Set the target from one stated method, use the other as a cross-check, and explain any gap.
   A case table: each case's earnings or cash figure, the multiple, the value, the probability.
 - 8. CATALYSTS. A dated table (Date | Event | What to look for) from "### Calendar": the next
-  earnings date, filings, debt maturities, peers' reports. Mark estimated dates as estimates.
+  earnings date, filings, debt maturities where the filings give them (the dossier has no
+  maturity schedule), peers' reports. Mark estimated dates as estimates.
 - 9. RISKS AND PRE-MORTEM. The risks, weighted: which matter most and why. Then a pre-mortem:
   it is twelve months from now and the call was wrong; give the likeliest reason, in each
   direction.
@@ -257,8 +260,9 @@ given", say so in section 11 and work from the filings it names.
   even when the portfolio owns none ("Stay out. If owned, Exit"). Then the exit rules as a
   numbered list, then the falsifier, then the strongest case against your view and whether the
   view survives it. A fall in the price alone is never an exit rule.
-- 11. WHAT I DON'T KNOW. Every gap that matters, always including: "No analyst forecasts are
-  available, so I cannot say whether my figures sit above or below what other analysts expect."
+- 11. WHAT I DON'T KNOW. Every gap that matters, always including this sentence or one that says
+  the same: "No analyst forecasts are available, so I cannot say whether my figures sit above or
+  below what other analysts expect."
   Carry over every caveat the dossier lists, after checking it: the first NVIDIA note repeated a
   revenue warning that the company's own quarterly figures disproved.
 - 12. SOURCES. A table: Figure | Value | Source. Source names the file and field, the filing and
@@ -430,7 +434,11 @@ says what it needs. The ticker is gone from the prose.
      Add, and the direction is not long.
   f. The dossier's price of record is the close series, NOT the panel price.
      The panel was frozen for 88 percent of the universe and may be stale. Use
-     the close the dossier tells you to use. entry_price is that close.
+     the close the dossier tells you to use. entry_price is that close, and
+     entry_source is "close_series YYYY-MM-DD" with its date. If the dossier
+     says the close series ends before the panel date, still use the close,
+     and say in data_caveats which date it is and what the other price would
+     do to the expected return.
   g. Never use news_count_7d, news_lm_avg, news_vader_avg or neglect_score.
      They are contaminated before 2026-09-12 and cannot be audited.
 
@@ -449,6 +457,10 @@ check against the text.
                             1 = reported figures, the filings' account of the
                             past, and price history
                             0 = headlines or inference
+                            A forecast for the current year earns the 2 only
+                            if the recommendation turns on that year. If it
+                            turns on a later year that management has not
+                            forecast, score 1 and say so in section 11.
                             MOST NOTES SCORE 1. Nearly every dossier now carries
                             management's discussion, so having read it earns
                             nothing. Only 9 of 20 large caps tested give a real
@@ -578,7 +590,8 @@ without saying so is thesis drift and it is the failure this archive exists to
 prevent.
 
 Front-matter, each value on one line, because the website drops anything past
-it: thesis_id, ticker, kind, format, written_on, panel_date, entry_price,
+it. thesis_id is {TICKER}-{RUN_DATE}, written_on is {RUN_DATE}, and slot is the
+slot value in manifest.json. The fields: thesis_id, ticker, kind, format, written_on, panel_date, entry_price,
 entry_source, slot, action, size_now, size_plan, expected_return, bear_return,
 required_return, scenarios (a list), direction (long|short|avoid|watch|no
 view), conviction, evidence_base, falsifier_specific, variant_perception,
@@ -606,10 +619,11 @@ stays. Do not weaken a memo to pass a check: if the falsifier is not
 checkable, write a better falsifier. If you cannot, the action is Avoid and the
 direction watch.
 
-Then update theses/runs/{RUN_DATE}/manifest.json with what you actually did:
-which slots produced a memo, which did not and why, any dossier that was too
-thin to write against, and any glossary term you propose adding to
-theses/GLOSSARY.md. A slot you skipped is information. Do not write up a name
+Then update theses/runs/{RUN_DATE}/manifest.json with what you actually did,
+under one new key, "analyst": "memos" (ticker, slot, path, action), "not_written"
+(ticker and why), "thin_dossier_blocks" (ticker: the blocks that were missing,
+empty or wrong, and what you used instead), "proposed_glossary_terms" (term and
+definition) and "warnings_kept" (warning and why it stays). A slot you skipped is information. Do not write up a name
 whose dossier failed to build. Leave its run_date field exactly as prepare.py
 wrote it.
 

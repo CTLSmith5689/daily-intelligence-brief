@@ -379,14 +379,59 @@ class VocabularyAndSources(MemoCase):
         self.assertTrue(fails_matching(fails, r"paragraph ends on a bolded line"), fails)
 
 
+class ActFollowsTheNumbers(MemoCase):
+    """The ACT rule and rule e are arithmetic, so the checker enforces them."""
+
+    def long_initiation(self, size="0.037"):
+        text = self.swap(self.initiation, "action: Avoid", "action: Initiate")
+        text = self.swap(text, "direction: watch", "direction: long")
+        return self.swap(text, "size_now: 0.000", f"size_now: {size}")
+
+    def test_initiate_below_the_required_return_fails(self):
+        fails, _ = self.check(self.long_initiation())
+        self.assertTrue(fails_matching(fails, r"not above required_return"), fails)
+
+    def test_initiate_above_the_required_return_passes_that_check(self):
+        text = self.swap(self.long_initiation(), "required_return: 0.120", "required_return: 0.100")
+        fails, _ = self.check(text)
+        self.assertEqual(fails_matching(fails, r"not above required_return"), [])
+
+    def test_long_with_bear_likelier_than_bull_fails(self):
+        text = self.swap(self.long_initiation(), "required_return: 0.120", "required_return: 0.100")
+        text = self.swap(text, "{case: bull, value: 370.00, probability: 0.25}",
+                         "{case: bull, value: 370.00, probability: 0.20}")
+        text = self.swap(text, "{case: bear, value: 125.00, probability: 0.25}",
+                         "{case: bear, value: 125.00, probability: 0.30}")
+        fails, _ = self.check(text)
+        self.assertTrue(fails_matching(fails, r"bear case .* likelier"), fails)
+
+    def test_bear_cost_above_the_draft_limit_warns(self):
+        text = self.swap(self.long_initiation("0.074"), "required_return: 0.120", "required_return: 0.100")
+        _, warns = self.check(text)
+        self.assertTrue(fails_matching(warns, r"draft 2% limit"), warns)
+
+    def test_missing_page_one_labels_and_consensus_sentence_warn(self):
+        text = self.swap(self.initiation, "**Why this size.** ", "")
+        text = self.swap(text, "- **Consensus.** No analyst forecasts are stored and I have no paid source.\n", "")
+        _, warns = self.check(text)
+        self.assertTrue(fails_matching(warns, r"Why this size"), warns)
+        self.assertTrue(fails_matching(warns, r"no analyst forecasts"), warns)
+
+
 class OldFormatNotes(unittest.TestCase):
 
     def test_every_existing_note_still_validates(self):
+        # Every note in the archive, of either format, still passes. The first
+        # memo lands on 2026-09-28; before this split the test asserted that no
+        # note was a memo, so the first real memo turned CI red.
         self.assertTrue(NOTES)
         for note in NOTES:
             with self.subTest(note=str(note.relative_to(H.REPO))):
                 fm, _ = validate.parse(note.read_text(encoding="utf-8"))
-                self.assertNotEqual((fm.get("format") or "").strip(), "memo")
+                fmt = (fm.get("format") or "").strip()
+                if fmt == "memo":
+                    self.assertGreaterEqual(str(fm.get("written_on", "")), "2026-09-28",
+                                            "a memo dated before the memo format was switched on")
                 fails, _ = validate.check(note)
                 self.assertEqual(fails, [])
 
