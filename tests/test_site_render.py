@@ -62,16 +62,20 @@ class SiteRender(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp_ctx = H.temp_dir()
         cls.docs = cls.tmp_ctx.__enter__()
-        for d in ("prices", "news", "company", "thesis"):
+        for d in ("prices", "news", "company", "thesis", "history"):
             (cls.docs / d).mkdir()
         (cls.docs / "prices" / "T01.json").write_text(json.dumps(
             {"ticker": "T01", "closes": [["2026-09-17", 10.5], ["2026-09-18", 11.0]]}))
         (cls.docs / "company" / "T01.json").write_text(json.dumps({"ticker": "T01"}))
         (cls.docs / "thesis" / "T01.json").write_text(json.dumps({"ticker": "T01"}))
+        (cls.docs / "history" / "T01.json").write_text(json.dumps(
+            {"t": "T01", "d": ["2026-09-17", "2026-09-18"], "v": {"price": [10.5, 11.0]}}))
+        (cls.docs / "history" / "_universe.json").write_text(json.dumps({"d": [], "n": [], "m": {}}))
         cls.universe = universe()
         with H.patched(LF, DOCS_DIR=cls.docs, ASSETS_DIR=cls.docs / "assets",
                        PRICES_DIR=cls.docs / "prices", NEWS_DIR=cls.docs / "news",
                        COMPANY_VIEW_DIR=cls.docs / "company", THESIS_VIEW_DIR=cls.docs / "thesis",
+                       HISTORY_VIEW_DIR=cls.docs / "history",
                        THESES_DIR=cls.docs / "no-theses"), H.quiet():
             version = LF._write_ledger_assets()
             LF.generate_stocks_page(cls.universe, version)
@@ -163,6 +167,29 @@ class SiteRender(unittest.TestCase):
         self.assertNotIn("T01", have["noPrices"])
         self.assertIn("T00", have["noPrices"])
         self.assertIn("NOTEZ", have["noNews"])
+        self.assertNotIn("T01", have["noHistory"])
+        self.assertIn("T00", have["noHistory"])
+        self.assertNotIn("_universe", have["noHistory"])
+
+    def test_company_page_has_the_history_section(self):
+        """The History section: a mount point after the universe strips, the two files it reads, a metric
+        picker with a value or z toggle, the six small multiples, gaps drawn as gaps, and its own CSS rules."""
+        js = (self.docs / "assets" / "ledger.js").read_text(encoding="utf-8")
+        css = (self.docs / "assets" / "ledger.css").read_text(encoding="utf-8")
+        for needle in ('id="ld-hist"', 'getJSON("history/" + tickerFile(tk))', '"history/_universe.json"',
+                       'drawHistory(tk, i);', 'id="ld-hk"', 'data-hm="z"', 'data-hm="value"',
+                       '"Price has no universe z"', 'class="gap"', 'The daily panel starts ',
+                       'HIST_DEFAULT = ["price", "pe", "revenue_growth_yoy", "operating_margin", "return_12_2", "volatility_1y"]',
+                       'Math.max(-5, Math.min(5, (t - c) / s))', 'No daily history is held for '):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, js)
+        for needle in (".ld-hchart .gap", ".ld-hsm{", ".ld-hsmb", ".ld-hread"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, css)
+        # The page lists every stale-row field the pipeline withholds, so a gap says why.
+        m = re.search(r'\[("change_pct"[^\]]*)\]\.forEach\(function \(k\) \{ STALE_KEYS', js)
+        self.assertIsNotNone(m)
+        self.assertEqual(set(json.loads("[" + m.group(1) + "]")) | {"price"}, set(LF._PANEL_PRICE_FIELDS))
 
     def test_no_dashes_reach_the_pages(self):
         for name in ("stocks.html", "company.html", "index.html", "today.html"):

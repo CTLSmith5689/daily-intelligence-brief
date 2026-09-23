@@ -8473,11 +8473,13 @@ def generate_company_page(universe, version):
     tickers = [s.get("ticker") for s in stocks if s.get("ticker")]
     prices = _tickers_with_files(PRICES_DIR)
     news = _tickers_with_files(NEWS_DIR)
+    history = _tickers_with_files(HISTORY_VIEW_DIR)
     cfg = dict(_ledger_common(universe), data="stocks-data.json", have={
         "company": sorted(_tickers_with_files(COMPANY_VIEW_DIR)),
         "thesis": sorted(_tickers_with_files(THESIS_VIEW_DIR)),
         "noPrices": sorted(t for t in tickers if t not in prices),
         "noNews": sorted(t for t in tickers if t not in news),
+        "noHistory": sorted(t for t in tickers if t not in history),
     })
     html = render_ledger_page(
         "company", "Company, Apterreon", cfg, version,
@@ -9369,6 +9371,226 @@ def write_company_views(stocks=None):
     print(f"company: wrote {written} view files to docs/company/.")
     return written
 
+# --- history views ------------------------------------------------------------
+#
+# The company page shows where a listing sits today. These files let it show how
+# each tracked metric, and its standing against the universe, has moved since the
+# panel began (2026-09-03). They are read from data/fundamentals/, the append-only
+# daily panel, and regenerated whole on every site build, like every other file
+# under docs/.
+#
+#   docs/history/TICKER.json   one per ticker in the current universe that has a
+#                              panel row: {"t", "d": [dates], "v": {key: [values]},
+#                              "stale": [date indices], "na": {key: 1 | [indices]}}
+#   docs/history/_universe.json {"d": [dates], "n": [operating rows],
+#                              "m": {key: {"c": [centre], "s": [scale], "n": [count],
+#                              "sd": [indices using mean and sd]}}}
+#
+# Values are the panel's, withheld where the site withholds them: every
+# price-derived field on a row flagged price_stale (or whose price_date is older
+# than its own date), and every field apply_security_types marks not_applicable
+# for the row's security_type. A withheld value is null, so the page draws a gap.
+#
+# The universe stats are web/zengine.js's, per date: operating listings only
+# (security_type not in NON_OPERATING), log10 for market_cap and volume, centre
+# the median and scale 1.4826 * MAD, or mean and sd where MAD is 0. The page
+# computes z = clip((T(value) - c) / s, +/-5) for any date.
+HISTORY_VIEW_DIR = DOCS_DIR / "history"
+HISTORY_UNIVERSE_FILE = "_universe.json"
+HISTORY_KEYS = ["price"] + [m["key"] for m in LEDGER_METRICS]
+_HISTORY_KEY_SET = frozenset(HISTORY_KEYS)
+_HISTORY_PRICE_FIELDS = frozenset(_PANEL_PRICE_FIELDS)
+
+
+def _hist_round(v, sig=5):
+    """A float to `sig` significant figures, as an int when that is exact."""
+    if v == 0:
+        return 0
+    r = float(f"{v:.{sig}g}")
+    return int(r) if r.is_integer() and abs(r) < 1e15 else r
+
+
+def _history_na(cat, row_vals):
+    """Keys that do not apply to a row of this security_type: the same rules
+    apply_security_types uses (_NA_ALWAYS, and _NA_IF_ZERO on an exact 0)."""
+    out = set(k for k in _NA_ALWAYS.get(cat, ()) if k in _HISTORY_KEY_SET)
+    for k in _NA_IF_ZERO.get(cat, ()):
+        if row_vals.get(k) == 0:
+            out.add(k)
+    return out
+
+
+def _read_history_panel(paths):
+    """{date: [(ticker, security_type, stale, {key: float|None}, na_keys)]}.
+
+    csv.reader with column indices rather than DictReader: the panel is about
+    60,000 rows a month and this runs on every build."""
+    by_date = collections.defaultdict(list)
+    for path in paths:
+        with path.open(encoding="utf-8", newline="") as fh:
+            rd = csv.reader(fh)
+            try:
+                header = next(rd)
+            except StopIteration:
+                continue
+            col = {h: j for j, h in enumerate(header)}
+            ci = [(k, col[k]) for k in HISTORY_KEYS if k in col]
+            j_date, j_tk = col.get("date"), col.get("ticker")
+            j_type, j_stale = col.get("security_type"), col.get("price_stale")
+            j_pd, j_price = col.get("price_date"), col.get("price")
+            if j_date is None or j_tk is None:
+                continue
+            width = len(header)
+            for row in rd:
+                if len(row) < width:
+                    row = row + [""] * (width - len(row))
+                date, tk = row[j_date], row[j_tk]
+                if not date or not tk:
+                    continue
+                vals = {}
+                for k, j in ci:
+                    s = row[j]
+                    if s == "":
+                        continue
+                    try:
+                        v = float(s)
+                    except ValueError:
+                        continue
+                    if math.isfinite(v):
+                        vals[k] = v
+                cat = row[j_type] if j_type is not None else ""
+                if not cat:
+                    cat = sectype.classify_row(dict(zip(header, row)))
+                stale = j_stale is not None and row[j_stale] not in ("", "0", "0.0")
+                # The rule _panel_rows_for_session applies before writing: a price
+                # from a series that ends before the row's own date is not that
+                # day's. Rows written before the flag existed can still carry one.
+                if not stale and j_pd is not None and j_price is not None:
+                    pdate = row[j_pd]
+                    stale = bool(pdate) and row[j_price] != "" and pdate[:10] < date
+                if stale:
+                    for k in _HISTORY_PRICE_FIELDS:
+                        vals.pop(k, None)
+                na = _history_na(cat, vals) if cat in _NA_ALWAYS or cat in _NA_IF_ZERO else ()
+                for k in na:
+                    vals.pop(k, None)
+                by_date[date].append((tk, cat, stale, vals, na))
+    return by_date
+
+
+def _history_universe(by_date, dates):
+    """Per date, per metric, zengine's centre and scale over the operating rows."""
+    out = {"d": dates, "n": [], "m": {}}
+    per = {m["key"]: {"c": [], "s": [], "n": []} for m in LEDGER_METRICS}
+    sd_idx = {m["key"]: [] for m in LEDGER_METRICS}
+    for di, d in enumerate(dates):
+        rows = [r for r in by_date[d] if r[1] not in sectype.NON_OPERATING]
+        out["n"].append(len(rows))
+        for m in LEDGER_METRICS:
+            k, log = m["key"], m["transform"] == "log10"
+            xs = []
+            for r in rows:
+                v = r[3].get(k)
+                if v is None:
+                    continue
+                if log:
+                    if v <= 0:
+                        continue
+                    v = math.log10(v)
+                xs.append(v)
+            p = per[k]
+            if not xs:
+                p["c"].append(None); p["s"].append(None); p["n"].append(0)
+                continue
+            st = _ledger_stat(xs)
+            ok = st["method"] != "none"
+            p["c"].append(_hist_round(st["center"], 7) if ok else None)
+            p["s"].append(_hist_round(st["scale"], 7) if ok else None)
+            p["n"].append(st["n"])
+            if st["method"] == "sd":
+                sd_idx[k].append(di)
+    for k, p in per.items():
+        if sd_idx[k]:
+            p["sd"] = sd_idx[k]
+        out["m"][k] = p
+    return out
+
+
+def write_history_views(stocks=None):
+    """docs/history/TICKER.json for every ticker in the current universe that the
+    panel has rows for, and docs/history/_universe.json. Returns files written.
+
+    Files left from an earlier build (restored from gh-pages) for tickers that
+    are no longer in the universe are removed, so the page never offers one."""
+    t0 = time.time()
+    paths = sorted(FUNDAMENTALS_CSV_DIR.glob("????-??.csv"))
+    if not paths:
+        print("history: no panel files, no history written.")
+        return 0
+    by_date = _read_history_panel(paths)
+    dates = sorted(by_date)
+    if not dates:
+        print("history: the panel has no rows, no history written.")
+        return 0
+    wanted = {s.get("ticker") for s in (stocks or []) if s.get("ticker")}
+
+    per_tk = collections.defaultdict(list)       # ticker -> [(date index, row)]
+    for di, d in enumerate(dates):
+        for r in by_date[d]:
+            if not wanted or r[0] in wanted:
+                per_tk[r[0]].append((di, r))
+
+    HISTORY_VIEW_DIR.mkdir(parents=True, exist_ok=True)
+    written, keep, total = 0, {HISTORY_UNIVERSE_FILE}, 0
+    for tk in sorted(per_tk):
+        seq = per_tk[tk]
+        seq.sort(key=lambda x: x[0])
+        # One row per date: the panel's key is date+ticker; a duplicate would be
+        # an earlier bug, and the later row is the one written last.
+        dedup = {}
+        for di, r in seq:
+            dedup[di] = r
+        idx = sorted(dedup)
+        view = {"t": tk, "d": [dates[di] for di in idx], "v": {}}
+        stale = [j for j, di in enumerate(idx) if dedup[di][2]]
+        if stale:
+            view["stale"] = stale
+        na = {}
+        for k in HISTORY_KEYS:
+            sig = 6 if k == "price" else 5
+            arr = []
+            for di in idx:
+                v = dedup[di][3].get(k)
+                arr.append(None if v is None else _hist_round(v, sig))
+            if any(v is not None for v in arr):
+                view["v"][k] = arr
+            hits = [j for j, di in enumerate(idx) if k in dedup[di][4]]
+            if hits:
+                na[k] = 1 if len(hits) == len(idx) else hits
+        if na:
+            view["na"] = na
+        name = _news_filename(tk)
+        body = json.dumps(view, separators=(",", ":"), allow_nan=False)
+        (HISTORY_VIEW_DIR / name).write_text(body, encoding="utf-8")
+        total += len(body)
+        keep.add(name)
+        written += 1
+
+    uni = _history_universe(by_date, dates)
+    body = json.dumps(uni, separators=(",", ":"), allow_nan=False)
+    (HISTORY_VIEW_DIR / HISTORY_UNIVERSE_FILE).write_text(body, encoding="utf-8")
+    total += len(body)
+    removed = 0
+    for p in HISTORY_VIEW_DIR.glob("*.json"):
+        if p.name not in keep:
+            p.unlink()
+            removed += 1
+    print(f"history: wrote {written} ticker files and {HISTORY_UNIVERSE_FILE} to docs/history/ "
+          f"({len(dates)} panel dates, {dates[0]} to {dates[-1]}; {total / 1024 / 1024:.1f} MB; "
+          f"{time.time() - t0:.1f}s" + (f"; {removed} stale files removed" if removed else "") + ").")
+    return written
+
+
 # --- the research page ------------------------------------------------------
 #
 # The screen ranks 5,354 names by arithmetic. This page holds the part that is
@@ -9633,6 +9855,13 @@ def generate_site(briefs, universe=None):
     except Exception as exc:
         print(f"company: view writing failed ({type(exc).__name__}: {exc}); "
               f"the rest of the site is unaffected.")
+    # From the panel alone, so daily and publish runs write the same files.
+    n_history = 0
+    try:
+        n_history = write_history_views(universe.get("stocks") or [])
+    except Exception as exc:
+        print(f"history: view writing failed ({type(exc).__name__}: {exc}); "
+              f"the rest of the site is unaffected.")
     # After both writers: the page lists which tickers have their files.
     try:
         generate_company_page(universe, version)
@@ -9647,7 +9876,8 @@ def generate_site(briefs, universe=None):
     print("Wrote docs/index.html, today.html, stories.html, stocks.html, company.html, "
           f"research.html ({n_views} names), manifest.json, assets/"
           + (f", {n_thesis} thesis views" if n_thesis else "")
-          + (f", {n_company} company views" if n_company else "") + ".")
+          + (f", {n_company} company views" if n_company else "")
+          + (f", {n_history} history views" if n_history else "") + ".")
 
 
 def s3_publish_brief(brief_type, now_et, interactive_html, data=None, quotes=None, timestamp=None):

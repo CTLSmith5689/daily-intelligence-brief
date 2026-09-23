@@ -420,3 +420,22 @@ html .ld-zn6{background:rgba(var(--zlo-rgb),var(--za6))}html .ld-zp6{background:
 html .ld-loading{padding:48px 0;color:var(--muted);font:400 13px/1.5 var(--mono);letter-spacing:.04em}
 html .ld-rtab td .ref{display:block;margin-top:3px}
 html .ld-rtab td .ld-num+.ref,html .ld-rtab td.r .ref{display:inline}
+/* Company page: History (drawHistory in ledger.js) */
+html .ld-hnote{font-size:14px;color:var(--ink2);margin:12px 0 0;max-width:80ch}
+html .ld-hctl{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin-top:16px}
+html .ld-hsel{max-width:100%}
+html .ld-hread{font:500 12.5px/1.4 var(--mono);color:var(--ink);margin-top:14px;min-height:1.4em;overflow-wrap:anywhere}
+html .ld-hchart .gap{fill:var(--sunk)}
+html .ld-hchart .zl{stroke:var(--ink2);stroke-width:1}
+html .ld-hchart .pt{fill:var(--ink)}
+html .ld-hfoot{font-size:13px;margin:10px 0 0}
+html .ld-hsm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 24px;margin-top:22px}
+@media (max-width:900px){html .ld-hsm{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:340px){html .ld-hsm{grid-template-columns:1fr}}
+html .ld-hsm .pd{fill:none;stroke:var(--ink);stroke-width:4;stroke-linecap:round;vector-effect:non-scaling-stroke}
+html .ld-hsmna{display:flex;align-items:center;height:54px;margin:8px 0 4px;font-size:13px;color:var(--muted)}
+html .ld-hsmb{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:transparent;border:0;border-top:1px solid var(--ink2);padding:8px 0 0;cursor:pointer}
+html .ld-hsmb>span{display:block}
+html .ld-hsmb>.f{display:flex}
+html .ld-hsmb[aria-pressed="true"]{border-top:3px solid var(--accent);padding-top:6px}
+html .ld-hsmb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
