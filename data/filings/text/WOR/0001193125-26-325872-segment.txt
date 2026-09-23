@@ -1,0 +1,1144 @@
+Segment Data 
+ 12 Months Ended 
+ 
+ May 31, 2026 
+ 
+ Segment Reporting [Abstract] 
+
+ Segment Data 
+ Note O – Segment Data Our operations are organized under two operating segments: Building Products and Consumer Products. These operating segments correspond directly with our reportable segments, as described further below. Activity outside of our two operating segments is presented within Other and Unallocated Corporate, as described further below. Our segment structure reflects the manner in which internally reported financial information is regularly reviewed by our CODM , who is our President and CEO, to evaluate the performance and allocate resources. Operating segments are identified based on the nature of the products and services offered, the management reporting structure, similarity of economic characteristics and certain quantitative measures as prescribed by authoritative accounting guidance. The CODM evaluates segment performance and makes resource allocation decisions based on adjusted EBITDA from continuing operations. Adjusted EBITDA from continuing operations is a non-GAAP financial measure, as described in the “Use of Non-GAAP Financial Measures” section preceding Part I, Item 1 of this Form 10-K. At the operating segment level, adjusted EBITDA from continuing operations excludes public company and other governance-related costs. Building Products: Our Building Products segment is a market-leading provider of critical components in essential categories, including: (i) pressurized containment solutions for heating, cooking, cooling and water applications; (ii) HVAC systems; (iii) metal roofing clips; and (iv), through our unconsolidated joint ventures, WAVE and ClarkDietrich, ceiling suspension systems and light gauge metal framing products. Our pressurized containment solutions include refrigerant and LPG cylinders, well water and expansion tanks, and other specialty products which are generally sold to gas producers and distributors. Refrigerant gas cylinders are used to hold refrigerant gases for commercial, residential, and automotive air conditioning and refrigeration systems. LPG cylinders hold fuel for residential and light commercial heating systems, barbeque grills and recreational vehicle equipment, industrial forklifts and commercial/residential cooking (the latter, generally outside North America). Well water tanks and expansion tanks are used primarily in the residential market with certain products also sold to commercial markets. Specialty products include a variety of fire suppression tanks, chemical tanks, and foam and adhesive tanks. In fiscal 2026 , Building Products generated approximately 62 % of our consolidated net sales, compared to 57 % and 50 % in fiscal 2025 and fiscal 2024, respectively. Consumer Products: Our Consumer Products segment has a diverse product offering in the tools, outdoor living and celebrations categories, including propane-filled cylinders for torches and related accessories, handheld torches, specialized hand tools and instruments, drywall tools, propane-filled camping cylinders, helium-filled balloon kits, and accessories and gas griddles and pizza ovens sold primarily to mass merchandisers, retailers and distributors. In fiscal 2026 , Consumer Products generated approximately 38 % of our consolidated net sales, compared to 43 % and 40 % in fiscal 2025 and fiscal 2024 , respectively. Approximately 28 % of fiscal 2026 Consumer Products net sales was attributable to our largest customer. Sales to this same customer accounted for approximately 10 % of our consolidated net sales in fiscal 2026. Other: Includes the activity of our SES and Workhorse unconsolidated joint ventures, as well as the activity of our former Sustainable Energy Solutions operating segment, on an historical basis, through May 29, 2024, when 51 % of the nominal share capital was sold triggering the deconsolidation of corresponding net assets. Upon closing, this business, as historically operated, is no longer part of our management structure and therefore is not presented separately as a reportable segment. Unallocated Corporate: Includes certain assets and liabilities (e.g., cash and cash equivalents and public debt) held at the corporate level as well as general corporate expenses that are not directly attributable to our business operations and are administrative in nature, such as public company and other governance-related costs that benefit the organization as a whole, have not been allocated to our operating segments and are held at the corporate level, including direct and incremental costs incurred in connection with the Separation but not attributed to discontinued operations in fiscal 2024. The accounting policies of the operating segments are described in “Note A – Summary of Significant Accounting Policies.” Inter-segment sales are not material. The following tables present financial information for both of our operating segments, consistent with the level of disaggregation regularly reviewed by the CODM for performance evaluation and resource allocation. 
+
+ 2026 
+
+ Total 
+
+ Building 
+
+ Consumer 
+
+ Reportable 
+
+ Unallocated 
+
+ Products 
+
+ Products 
+
+ Segments 
+
+ Other 
+
+ Corporate 
+
+ Consolidated 
+
+ Net sales 
+ $ 
+ 861,456 
+
+ $ 
+ 519,836 
+
+ $ 
+ 1,381,292 
+
+ $ 
+ - 
+
+ $ 
+ - 
+
+ $ 
+ 1,381,292 
+
+ Cost of goods sold 
+ 
+ 665,637 
+
+ 337,266 
+
+ 1,002,903 
+
+ - 
+
+ 114 
+
+ 1,003,017 
+
+ SG&A 
+ 
+ 144,486 
+
+ 110,975 
+
+ 255,461 
+
+ - 
+
+ 39,505 
+
+ 294,966 
+
+ Restructuring and other expense, net 
+ 
+ 1,074 
+
+ 10 
+
+ 1,084 
+
+ - 
+
+ 6,016 
+
+ 7,100 
+
+ Other segment items (1) 
+ 
+ 55 
+
+ 8 
+
+ 63 
+
+ 3,925 
+
+ 5,504 
+
+ 9,492 
+
+ Equity in net income of unconsolidated affiliates 
+ 
+ 139,940 
+
+ - 
+
+ 139,940 
+
+ ( 5,309 
+ ) 
+
+ - 
+
+ 134,631 
+
+ Earnings (loss) before income taxes from continuing operations 
+ $ 
+ 190,144 
+
+ $ 
+ 71,577 
+
+ $ 
+ 261,721 
+
+ $ 
+ ( 9,234 
+ ) 
+ 
+ $ 
+ ( 51,139 
+ ) 
+ 
+ $ 
+ 201,348 
+
+ Reconciling items to adjusted EBITDA from continuing operations (2) 
+
+ Amortization of inventory step-up 
+ $ 
+ 5,151 
+
+ $ 
+ - 
+
+ $ 
+ 5,151 
+
+ $ 
+ - 
+
+ $ 
+ - 
+
+ $ 
+ 5,151 
+
+ Depreciation and amortization 
+ 
+ 40,684 
+
+ 15,789 
+
+ 56,473 
+
+ - 
+
+ 799 
+
+ 57,272 
+
+ Interest expense (income) 
+ 
+ 383 
+
+ ( 6 
+ ) 
+
+ 377 
+
+ - 
+
+ 5,871 
+
+ 6,248 
+
+ Stock-based compensation 
+ 
+ 2,874 
+
+ 2,737 
+
+ 5,611 
+
+ - 
+
+ 8,123 
+
+ 13,734 
+
+ Restructuring and other expense, net 
+ 
+ 1,074 
+
+ 10 
+
+ 1,084 
+
+ - 
+
+ 6,016 
+
+ 7,100 
+
+ Non-cash losses in miscellaneous expense, net 
+ 
+ - 
+
+ - 
+
+ - 
+
+ 3,925 
+
+ - 
+
+ 3,925 
+
+ Net loss attributable to noncontrolling interest 
+ 
+ - 
+
+ 1,050 
+
+ 1,050 
+
+ - 
+
+ - 
+
+ 1,050 
+
+ Adjusted EBITDA from continuing operations 
+ $ 
+ 240,310 
+
+ $ 
+ 91,157 
+
+ $ 
+ 331,467 
+
+ $ 
+ ( 5,309 
+ ) 
+ 
+ $ 
+ ( 30,330 
+ ) 
+ 
+ $ 
+ 295,828 
+
+ 2025 
+
+ Total 
+
+ Building 
+
+ Consumer 
+
+ Reportable 
+
+ Unallocated 
+
+ Products 
+
+ Products 
+
+ Segments 
+
+ Other 
+
+ Corporate 
+
+ Consolidated 
+
+ Net sales 
+ $ 
+ 654,137 
+
+ $ 
+ 499,625 
+
+ $ 
+ 1,153,762 
+
+ $ 
+ - 
+
+ $ 
+ - 
+
+ $ 
+ 1,153,762 
+
+ Cost of goods sold 
+ 
+ 510,962 
+
+ 323,659 
+
+ 834,621 
+
+ - 
+
+ 106 
+
+ 834,727 
+
+ SG&A 
+ 
+ 116,183 
+
+ 114,681 
+
+ 230,864 
+
+ - 
+
+ 37,549 
+
+ 268,413 
+
+ Impairment of long-lived assets 
+ 
+ 763 
+
+ 50,050 
+
+ 50,813 
+
+ - 
+
+ - 
+
+ 50,813 
+
+ Restructuring and other expense, net 
+ 
+ 1,500 
+
+ - 
+
+ 1,500 
+
+ - 
+
+ 9,024 
+
+ 10,524 
+
+ Other segment items (1) 
+ 
+ ( 780 
+ ) 
+
+ 27 
+
+ ( 753 
+ ) 
+
+ 5,000 
+
+ 1,065 
+
+ 5,312 
+
+ Equity in net income of unconsolidated affiliates 
+ 
+ 150,895 
+
+ - 
+
+ 150,895 
+
+ ( 6,059 
+ ) 
+
+ - 
+
+ 144,836 
+
+ Earnings (loss) before income taxes from continuing operations 
+ $ 
+ 176,404 
+
+ $ 
+ 11,208 
+
+ $ 
+ 187,612 
+
+ $ 
+ ( 11,059 
+ ) 
+ 
+ $ 
+ ( 47,744 
+ ) 
+ 
+ $ 
+ 128,809 
+
+ Reconciling items to adjusted EBITDA from continuing operations (2) 
+
+ Amortization of inventory step-up 
+ $ 
+ 1,477 
+
+ $ 
+ - 
+
+ $ 
+ 1,477 
+
+ $ 
+ - 
+
+ $ 
+ - 
+
+ $ 
+ 1,477 
+
+ Depreciation and amortization 
+ 
+ 30,070 
+
+ 17,418 
+
+ 47,488 
+
+ - 
+
+ 774 
+
+ 48,262 
+
+ Interest (income) expense 
+ 
+ ( 78 
+ ) 
+
+ - 
+
+ ( 78 
+ ) 
+
+ - 
+
+ 2,168 
+
+ 2,090 
+
+ Stock-based compensation 
+ 
+ 2,695 
+
+ 2,917 
+
+ 5,612 
+
+ - 
+
+ 7,909 
+
+ 13,521 
+
+ Impairment of long-lived assets 
+ 
+ 763 
+
+ 50,050 
+
+ 50,813 
+
+ - 
+
+ - 
+
+ 50,813 
+
+ Restructuring and other expense, net 
+ 
+ 1,500 
+
+ - 
+
+ 1,500 
+
+ - 
+
+ 9,024 
+
+ 10,524 
+
+ Non-cash losses in miscellaneous expense, net 
+ 
+ - 
+
+ - 
+
+ - 
+
+ 5,000 
+
+ - 
+
+ 5,000 
+
+ Non-recurring loss in equity income 
+ 
+ - 
+
+ - 
+
+ - 
+
+ 3,387 
+
+ - 
+
+ 3,387 
+
+ Net loss attributable to noncontrolling interest 
+ 
+ - 
+
+ 1,083 
+
+ 1,083 
+
+ - 
+
+ - 
+
+ 1,083 
+
+ Adjusted EBITDA from continuing operations 
+ $ 
+ 212,831 
+
+ $ 
+ 82,676 
+
+ $ 
+ 295,507 
+
+ $ 
+ ( 2,672 
+ ) 
+ 
+ $ 
+ ( 27,869 
+ ) 
+ 
+ $ 
+ 264,966 
+
+ 2024 
+
+ Total 
+
+ Building 
+
+ Consumer 
+
+ Reportable 
+
+ Unallocated 
+
+ Products 
+
+ Products 
+
+ Segments 
+
+ Other 
+
+ Corporate 
+
+ Consolidated 
+
+ Net sales 
+ $ 
+ 618,973 
+
+ $ 
+ 495,259 
+
+ $ 
+ 1,114,232 
+
+ $ 
+ 131,471 
+
+ $ 
+ - 
+
+ $ 
+ 1,245,703 
+
+ Cost of goods sold 
+ 
+ 497,311 
+
+ 335,069 
+
+ 832,380 
+
+ 129,061 
+
+ ( 757 
+ ) 
+
+ 960,684 
+
+ SG&A 
+ 
+ 107,009 
+
+ 113,960 
+
+ 220,969 
+
+ 16,259 
+
+ 46,243 
+
+ 283,471 
+
+ Impairment of goodwill and long-lived assets 
+ 
+ 772 
+
+ - 
+
+ 772 
+
+ 32,203 
+
+ - 
+
+ 32,975 
+
+ Restructuring and other expense (income), net 
+ 
+ 714 
+
+ ( 2,000 
+ ) 
+
+ ( 1,286 
+ ) 
+
+ 30,613 
+
+ - 
+
+ 29,327 
+
+ Separation costs 
+ 
+ - 
+
+ - 
+
+ - 
+
+ - 
+
+ 12,705 
+
+ 12,705 
+
+ Other segment items (1) 
+ 
+ ( 88 
+ ) 
+
+ 78 
+
+ ( 10 
+ ) 
+
+ 17,799 
+
+ 2,461 
+
+ 20,250 
+
+ Equity in net income of unconsolidated affiliates 
+ 
+ 163,126 
+
+ - 
+
+ 163,126 
+
+ 4,590 
+
+ - 
+
+ 167,716 
+
+ Earnings (loss) before income taxes from continuing operations 
+ $ 
+ 176,381 
+
+ $ 
+ 48,152 
+
+ $ 
+ 224,533 
+
+ $ 
+ ( 89,874 
+ ) 
+ 
+ $ 
+ ( 60,652 
+ ) 
+ 
+ $ 
+ 74,007 
+
+ Reconciling items to adjusted EBITDA from continuing operations (2) 
+
+ Amortization of inventory step-up 
+ $ 
+ - 
+
+ $ 
+ 50 
+
+ $ 
+ 50 
+
+ $ 
+ - 
+
+ $ 
+ - 
+
+ $ 
+ 50 
+
+ Depreciation and amortization 
+ 
+ 23,805 
+
+ 16,512 
+
+ 40,317 
+
+ 7,283 
+
+ 1,063 
+
+ 48,663 
+
+ Interest expense 
+ 
+ - 
+
+ - 
+
+ - 
+
+ - 
+
+ 1,587 
+
+ 1,587 
+
+ Stock-based compensation 
+ 
+ 2,826 
+
+ 1,964 
+
+ 4,790 
+
+ - 
+
+ 8,365 
+
+ 13,155 
+
+ Corporate costs eliminated at separation 
+ 
+ 4,650 
+
+ 4,707 
+
+ 9,357 
+
+ - 
+
+ 9,986 
+
+ 19,343 
+
+ Impairment of goodwill and long-lived assets 
+ 
+ 772 
+
+ - 
+
+ 772 
+
+ 32,203 
+
+ - 
+
+ 32,975 
+
+ Restructuring and other expense (income), net 
+ 
+ 714 
+
+ ( 2,000 
+ ) 
+
+ ( 1,286 
+ ) 
+
+ 30,613 
+
+ - 
+
+ 29,327 
+
+ Separation costs 
+ 
+ - 
+
+ - 
+
+ - 
+
+ 12,705 
+
+ 12,705 
+
+ Non-cash losses in miscellaneous income 
+ 
+ - 
+
+ - 
+
+ - 
+
+ 19,180 
+
+ - 
+
+ 19,180 
+
+ Non-recurring (gain) loss in equity income 
+ 
+ 980 
+
+ - 
+
+ 980 
+
+ ( 2,720 
+ ) 
+
+ - 
+
+ ( 1,740 
+ ) 
+
+ Loss on extinguishment on debt 
+ 
+ - 
+
+ - 
+
+ - 
+
+ - 
+
+ 1,534 
+
+ 1,534 
+
+ Net loss attributable to noncontrolling interest 
+ 
+ - 
+
+ 263 
+
+ 263 
+
+ - 
+
+ - 
+
+ 263 
+
+ Adjusted EBITDA from continuing operations 
+ $ 
+ 210,128 
+
+ $ 
+ 69,648 
+
+ $ 
+ 279,776 
+
+ $ 
+ ( 3,315 
+ ) 
+ 
+ $ 
+ ( 25,412 
+ ) 
+ 
+ $ 
+ 251,049 
+
+ (1) Except as noted herein, Other segment items consist of non-operating activity included in adjusted EBITDA from continuing operations. In fiscal 2026 Other segment items also included certain non-cash losses in Miscellaneous expense, net related to the divestiture of the composite assets of our SES joint venture, including the unrealized loss on the common shares of Hexagon Composites and Hexagon Purus that we received as consideration. These charges were excluded from adjusted EBITDA from continuing operations as shown in the Reconciling items to adjusted EBITDA from continuing operations section in the tables above for fiscal 2026. See “Use of Non-GAAP Financial Measures and Definitions” for additional information. (2) See “Use of Non-GAAP Financial Measures and Definitions” for additional information. Total assets for each of our operating segments as of the end of the past two fiscal years were as follows: 
+
+ May 31, 
+
+ 2026 
+
+ 2025 
+
+ Building Products 
+
+ $ 
+ 1,170,522 
+
+ $ 
+ 795,837 
+
+ Consumer Products 
+
+ 535,693 
+
+ 531,187 
+
+ Total reportable segments 
+
+ 1,706,215 
+
+ 1,327,024 
+
+ Unallocated Corporate and Other 
+
+ 141,849 
+
+ 368,128 
+
+ Total 
+
+ $ 
+ 1,848,064 
+
+ $ 
+ 1,695,152 
+
+ The following table presents property, plant and equipment, net, by geographic region as of the end of the past two fiscal years: 
+
+ May 31, 
+
+ 2026 
+
+ 2025 
+
+ United States 
+
+ $ 
+ 259,854 
+
+ $ 
+ 223,117 
+
+ International 
+
+ 51,040 
+
+ 47,109 
+
+ Total 
+
+ $ 
+ 310,894 
+
+ $ 
+ 270,226 
+
+ The following table presents net sales by geographic region for the past three fiscal years: 
+
+ 2026 
+
+ 2025 
+
+ 2024 
+
+ United States 
+ $ 
+ 1,216,926 
+
+ $ 
+ 891,428 
+
+ $ 
+ 923,556 
+
+ International 
+ 
+ 164,366 
+
+ 262,334 
+
+ 322,147 
+
+ Total 
+ $ 
+ 1,381,292 
+
+ $ 
+ 1,153,762 
+
+ $ 
+ 1,245,703 
+
+ The following table presents capital expenditures for each of our reportable segments for the past three fiscal years: 
+
+ 2026 
+
+ 2025 
+
+ 2024 
+
+ Building Products 
+ $ 
+ 23,325 
+
+ $ 
+ 15,050 
+
+ $ 
+ 14,447 
+
+ Consumer Products 
+ 
+ 29,680 
+
+ 28,330 
+
+ 20,945 
+
+ Total reportable segments 
+ 
+ 53,005 
+
+ 43,380 
+
+ 35,392 
+
+ Unallocated Corporate 
+ 
+ 2,908 
+
+ 7,200 
+
+ 12,029 
+
+ Total 
+ $ 
+ 55,913 
+
+ $ 
+ 50,580 
+
+ $ 
+ 47,421 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for reporting segments including data and tables. Reportable segments include those that meet any of the following quantitative thresholds a) it's reported revenue, including sales to external customers and intersegment sales or transfers is 10 percent or more of the combined revenue, internal and external, of all operating segments b) the absolute amount of its reported profit or loss is 10 percent or more of the greater, in absolute amount of 1) the combined reported profit of all operating segments that did not report a loss or 2) the combined reported loss of all operating segments that did report a loss c) its assets are 10 percent or more of the combined assets of all operating segments. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 7: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 11: http://fasb.org/us-gaap/role/ref/otherTransitionRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 12: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 13: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 14: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 16: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 18: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 19: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 20: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 21: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 22: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 Reference 25: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration
