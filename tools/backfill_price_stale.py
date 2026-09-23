@@ -93,6 +93,20 @@ def classify(row, hist):
     return "lagged"
 
 
+def carried_forward(row, prev):
+    """True when a row repeats the previous panel row's close and daily change exactly.
+
+    A real session can close at the same price, but not with the same percentage
+    change from a different prior close as well. Matching both is the signature of
+    a row built from a price file that never received the new session. This rule
+    does not depend on the price histories, which Yahoo has since adjusted for
+    dividends, so it catches rows the exact-close rule reports as undecidable.
+    """
+    if not prev or not row.get("price") or not row.get("change_pct"):
+        return False
+    return row["price"] == prev.get("price") and row["change_pct"] == prev.get("change_pct")
+
+
 def main(argv):
     args = [a for a in argv if not a.startswith("--")]
     dry = "--dry-run" in argv
@@ -111,12 +125,20 @@ def main(argv):
         rows = list(reader)
     columns = header + [c for c in NEW_COLUMNS if c not in header]
 
+    # The previous panel row per ticker, for the carried-forward rule.
+    dates = sorted({r.get("date") for r in rows})
+    prior_date = {d: dates[k - 1] for k, d in enumerate(dates) if k}
+    by_key = {(r.get("date"), r.get("ticker")): r for r in rows}
+
     counts = collections.defaultdict(collections.Counter)
     out = []
     for r in rows:
         new = {c: r.get(c, "") for c in columns}
         if r.get("date") in DATES and r.get("price"):
             verdict = classify(r, hist)
+            if verdict != "lagged" and carried_forward(r, by_key.get((prior_date.get(r["date"]), r.get("ticker")))):
+                verdict = "lagged"
+                counts[r["date"]]["carried"] += 1
             counts[r["date"]][verdict] += 1
             if verdict == "lagged":
                 if new["price_stale"] == "1":
@@ -142,7 +164,8 @@ def main(argv):
         total += n
         print(f"{d}: {n} lagged (flagged {c['flagged_now']} now, {c['already_flagged']} already), "
               f"{c['current']} current, {c['tie']} ambiguous ties not flagged, "
-              f"{c['unknown']} not decidable.")
+              f"{c['unknown']} not decidable; {c['carried']} of the lagged repeat the previous "
+              f"row's close and change exactly.")
     print(f"backfill: {total} rows carry an older session's close.")
 
     if dry:
