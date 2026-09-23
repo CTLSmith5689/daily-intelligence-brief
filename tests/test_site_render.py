@@ -68,16 +68,23 @@ class SiteRender(unittest.TestCase):
             {"ticker": "T01", "closes": [["2026-09-17", 10.5], ["2026-09-18", 11.0]]}))
         (cls.docs / "company" / "T01.json").write_text(json.dumps({"ticker": "T01"}))
         (cls.docs / "thesis" / "T01.json").write_text(json.dumps({"ticker": "T01"}))
+        # A small theses/ for the Stocks page's Research filter: one note and a watchlist.
+        theses = cls.docs / "theses"
+        (theses / "notes" / "T01").mkdir(parents=True)
+        (theses / "notes" / "T01" / "2026-09-20-initiation.md").write_text(
+            "---\nticker: T01\ndirection: long\nconviction: 3\n---\nBody.\n", encoding="utf-8")
+        (theses / "watchlist.txt").write_text("# comment\nT02\nt03  # trailing\n", encoding="utf-8")
         cls.universe = universe()
         with H.patched(LF, DOCS_DIR=cls.docs, ASSETS_DIR=cls.docs / "assets",
                        PRICES_DIR=cls.docs / "prices", NEWS_DIR=cls.docs / "news",
                        COMPANY_VIEW_DIR=cls.docs / "company", THESIS_VIEW_DIR=cls.docs / "thesis",
-                       THESES_DIR=cls.docs / "no-theses"), H.quiet():
+                       THESES_DIR=theses), H.quiet():
             version = LF._write_ledger_assets()
             LF.generate_stocks_page(cls.universe, version)
             LF.generate_company_page(cls.universe, version)
             LF.generate_home(briefs(), cls.universe, version)
             LF.generate_today(briefs(), cls.universe, version)
+            LF.generate_stories(briefs(), cls.universe, version)
         cls.version = version
 
     @classmethod
@@ -147,6 +154,57 @@ class SiteRender(unittest.TestCase):
                                  capture_output=True, text=True, timeout=60)
             self.assertEqual(out.returncode, 0, out.stderr)
 
+    def test_every_page_carries_the_disclaimer(self):
+        strip = ('<div class="ld-disc" role="note">A personal project. The data is collected '
+                 'automatically and not checked by hand. Nothing here is investment advice.</div>')
+        for name in ("stocks.html", "company.html", "index.html", "today.html", "stories.html"):
+            with self.subTest(page=name):
+                html = self.page(name)
+                self.assertEqual(html.count(strip), 1)
+                self.assertLess(html.index(strip), html.index('<header class="ld-mast">'))
+        css = (self.docs / "assets" / "ledger.css").read_text(encoding="utf-8")
+        self.assertIn("html .ld-disc{", css)
+
+    def test_stocks_page_carries_the_rail_data(self):
+        """What the rail's Research and Hygiene filters read: every thesis ticker with its current
+        view's direction, the watchlist, and the scored fields of each dimension."""
+        cfg = self.page_data(self.page("stocks.html"))
+        self.assertEqual(cfg["research"], {"thesis": {"T01": "long"}, "watchlist": ["T02", "T03"]})
+        self.assertEqual(cfg["dims"], {d: g["fields"] for d, g in LF.SCORE_GROUPS_PY.items()})
+        for d, fields in cfg["dims"].items():
+            with self.subTest(dimension=d):
+                self.assertEqual(len(fields), 5)
+                self.assertTrue(set(fields) <= {m["key"] for m in cfg["metrics"]})
+
+    def test_stocks_page_has_the_rail(self):
+        """The Stocks page's layout: a full-width app with a filter rail on the left (a drawer under
+        900px) and results that scroll in their own box. Each rail filter writes a query token, so the
+        script must know every token the rail writes; the page body must not scroll on a desktop."""
+        js = (self.docs / "assets" / "ledger.js").read_text(encoding="utf-8")
+        css = (self.docs / "assets" / "ledger.css").read_text(encoding="utf-8")
+        for needle in ('id="ld-rail"', 'id="ld-app"', 'class="ld-res"', "data-rail-open", "data-rail-close",
+                       'data-idx="', 'data-sec="', 'data-res="', 'data-cap="lo"', 'data-units="raw"',
+                       'data-lo="', 'data-hi="', 'data-dp="', "data-needcap", 'data-sw="', "data-vsave",
+                       "data-vload", "data-vdel", '"apt-stocks-views"', "localStorage.setItem(VIEWS_KEY",
+                       '"idx:" + k', '"sector:" +', '"research:" + v', '"dp:" + d.toLowerCase() + ">=" + n',
+                       '"has:cap"', "RAW_CMP", "RAW_RANGE", "Filters (", "max-width: 899px",
+                       '"Market cap ($M)"', '"Hygiene"', '"Listings"', '"Saved views"', '"Ready-made"'):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, js)
+        self.assertNotIn('class="ld-shead"', js)             # the title row is gone
+        self.assertNotIn('class="ld-cmd"', js)               # and the boxed query banner
+        for needle in ('html body[data-page="stocks"]{overflow:hidden}', "height:100dvh",
+                       "html .ld-app{", "html .ld-rail{", "html .ld-res .ld-gwrap{flex:1 1 auto;min-height:0",
+                       "@media (max-width:899px)", "html .ld-rail.open{"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, css)
+        # Every localStorage call on the page is guarded: storage can be missing or refuse writes.
+        lines = js.splitlines()
+        for i, line in enumerate(lines):
+            if "localStorage." in line:
+                with self.subTest(line=line.strip()[:80]):
+                    self.assertTrue("try {" in line or lines[i - 1].rstrip().endswith("try {"))
+
     def test_metric_directions_follow_the_score(self):
         by = {m["key"]: m for m in LF.LEDGER_METRICS}
         for group, spec in LF.SCORE_GROUPS_PY.items():
@@ -165,7 +223,7 @@ class SiteRender(unittest.TestCase):
         self.assertIn("NOTEZ", have["noNews"])
 
     def test_no_dashes_reach_the_pages(self):
-        for name in ("stocks.html", "company.html", "index.html", "today.html"):
+        for name in ("stocks.html", "company.html", "index.html", "today.html", "stories.html"):
             with self.subTest(page=name):
                 html = self.page(name)
                 self.assertNotIn(H.EM_DASH, html)

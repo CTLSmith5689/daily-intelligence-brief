@@ -8112,6 +8112,10 @@ def _ledger_common(universe):
     }
 
 
+# The strip above the masthead on every page.
+LEDGER_DISCLAIMER = ("A personal project. The data is collected automatically and not checked by hand. "
+                     "Nothing here is investment advice.")
+
 _LEDGER_NAV = (("home", "index.html", "Home"), ("today", "today.html", "Today"),
                ("stories", "stories.html", "Stories"), ("stocks", "stocks.html", "Stocks"),
                ("research", "research.html", "Research"))
@@ -8119,8 +8123,8 @@ _LEDGER_NAV = (("home", "index.html", "Home"), ("today", "today.html", "Today"),
 
 def render_ledger_page(page, title, cfg, version, description="", loading="Loading",
                        script=None, engine=False):
-    """One page of the site: head, masthead, an empty main for ledger.js to fill,
-    footer, the page's data and the scripts. The theme choice is applied before
+    """One page of the site: head, the disclaimer strip, masthead, an empty main for
+    ledger.js to fill, footer, the page's data and the scripts. The theme choice is applied before
     the stylesheet renders so a dark reader never sees a light flash."""
     e = _html.escape
     nav_on = "stocks" if page == "company" else page
@@ -8154,6 +8158,7 @@ def render_ledger_page(page, title, cfg, version, description="", loading="Loadi
 </head>
 <body data-page="{e(page)}">
 <div class="ld-root">
+<div class="ld-disc" role="note">{e(LEDGER_DISCLAIMER)}</div>
 <header class="ld-mast"><div class="ld-wrap ld-mast-in">
 <a class="ld-brand" href="index.html">Apterreon</a>
 <span class="ld-tagline">Explore what&rsquo;s out there</span>
@@ -8431,6 +8436,33 @@ def generate_stories(briefs, universe, version):
     (DOCS_DIR / "stories.html").write_text(html, encoding="utf-8")
 
 
+def _stocks_research():
+    """The Stocks page's Research filter: each ticker with a written thesis, mapped to its current
+    view's direction, and the analyst's watchlist. Read from theses/, the source write_thesis_views
+    reads, so it does not depend on which of the two writers runs first."""
+    views = {}
+    notes_dir = THESES_DIR / "notes"
+    if notes_dir.is_dir():
+        for tdir in sorted(notes_dir.iterdir()):
+            notes = sorted(tdir.glob("*.md")) if tdir.is_dir() else []
+            if not notes:
+                continue
+            try:
+                fm = _parse_front_matter(notes[-1].read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError):
+                continue
+            if fm:
+                views[tdir.name] = _note_scalar(fm, "direction") or ""
+    watch = []
+    wl = THESES_DIR / "watchlist.txt"
+    if wl.exists():
+        for line in wl.read_text(encoding="utf-8").splitlines():
+            t = line.split("#", 1)[0].strip().upper()
+            if t and t not in watch:
+                watch.append(t)
+    return {"thesis": views, "watchlist": watch}
+
+
 def generate_stocks_page(universe, version):
     """Write docs/stocks-data.json and docs/stocks.html, the grid screener."""
     stocks = universe.get("stocks", []) or []
@@ -8440,7 +8472,9 @@ def generate_stocks_page(universe, version):
         encoding="utf-8")
     print(f"stocks: wrote {data_path.name} "
           f"({data_path.stat().st_size / 1024 / 1024:.2f} MB, {len(stocks)} tickers).")
-    cfg = dict(_ledger_common(universe), presets=LEDGER_SCREENS, data="stocks-data.json")
+    cfg = dict(_ledger_common(universe), presets=LEDGER_SCREENS, data="stocks-data.json",
+               dims={d: g["fields"] for d, g in SCORE_GROUPS_PY.items()},
+               research=_stocks_research())
     html = render_ledger_page(
         "stocks", "Stocks, Apterreon", cfg, version,
         description="Every US listing and every tracked metric, placed against the whole universe.",
