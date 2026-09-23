@@ -2593,7 +2593,7 @@
       (pts.length ? '<div class="ld-chart" id="ld-chart"></div>' : '<p class="ld-note">We have no price history to chart for ' + esc(tk) + "." + (S.price[i] != null ? " The only close we have is " + money(S.price[i]) + (pdate ? ", on " + dateMid(pdate) : "") + "." : "") + "</p>") +
       '</section><section aria-labelledby="ld-gl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-gl-h">At a glance</h2><span class="ld-vs">' + (sec ? "Scores within " + esc(sec) : "No sector to compare with") + "</span></div>" + facts + "</section></div>" +
       thesisSection(tk, r) +
-      '<section class="ld-sec" id="ld-where" aria-labelledby="ld-wh-h"></section>' +
+      '<div class="ld-co-pair"><section class="ld-sec" id="ld-where" aria-labelledby="ld-wh-h"></section>' +
       '<section class="ld-sec" id="ld-hist" aria-labelledby="ld-hi-h"></section>' +
       '<div class="ld-two"><section class="ld-sec" aria-labelledby="ld-np-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-np-h">Most similar companies</h2></div>' +
       '<p style="font-size:14px;color:var(--ink2);margin:10px 0 6px">Operating companies whose z-scores sit closest to ' + esc(tk) + "’s. Closeness is the typical gap between the two sets of z-scores (a root mean square, in " + SIGMA + "), " +
@@ -2601,7 +2601,7 @@
       (nearest.length ? '<ul class="ld-peers">' + nearest.map(function (p) {
         return '<li><a class="ld-tk" href="' + ctx.href("company", S.ticker[p.i]) + '">' + esc(S.ticker[p.i]) + '</a><span class="n">' + esc(S.name[p.i]) + " " + MID + " " + esc(sectorName(S.sector[p.i])) + '</span><span class="d">' + num(p.d, 2) + SIGMA + "</span></li>";
       }).join("") + "</ul>" : '<p class="ld-note">' + esc(tk) + " has too few figures to compare with other companies.</p>") +
-      "</section>" + businessBlock(tk, det) + "</div>" +
+      "</section>" + businessBlock(tk, det) + "</div></div>" +
       companyDetail(tk, det, files.news) + "</div>";
 
     if (pts.length) priceChart(document.getElementById("ld-chart"), pts, chartNote);

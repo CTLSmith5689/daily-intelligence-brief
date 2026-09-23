@@ -542,3 +542,16 @@ html .ld-hsmb>span{display:block}
 html .ld-hsmb>.f{display:flex}
 html .ld-hsmb[aria-pressed="true"]{border-top:3px solid var(--accent);padding-top:6px}
 html .ld-hsmb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+/* Company page: wide layout. The page (masthead and footer with it, so their edges line up) runs to 1600px
+   instead of 1280px. The price chart and At a glance pair up from 961px (.ld-co-top) and the thesis stays full
+   width. From 1560px .ld-co-pair puts the comparison strips in a left column and stacks the daily history,
+   the similar companies and the business description in a right one; the "auto 1fr" rows give the extra
+   height of the long strip column to the last row, so the right column stays packed at the top. Below
+   1560px everything stacks in source order, and every row is one column on a phone. */
+html body[data-page="company"] .ld-wrap{max-width:1600px}
+@media (min-width:1560px){
+html .ld-co-pair{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);grid-template-rows:auto 1fr;gap:0 48px;align-items:start}
+html .ld-co-pair>#ld-where{grid-column:1;grid-row:1 / 3}
+html .ld-co-pair>#ld-hist{grid-column:2;grid-row:1}
+html .ld-co-pair>.ld-two{grid-column:2;grid-row:2;grid-template-columns:minmax(0,1fr);gap:0}
+html .ld-co-top,html body[data-page="company"] .ld-wrap>.ld-two{gap:48px}}

@@ -150,6 +150,28 @@ class ClassifierData(unittest.TestCase):
                         sub_industry="Asset Management", gross_margin=1.0)
         self.assertEqual(st.classify_row(vinp), "operating")
 
+    def test_vendor_fingerprint_hand_checked_rows(self):
+        # The panel rows of 2026-09-22 as written, CSV strings and all.
+        panel = {"index": "Nasdaq", "sector": "Financials",
+                 "sub_industry": "Asset Management", "gross_margin": "0",
+                 "operating_margin": "0"}
+        # Powerlaw (PWRL): a fund. Its news on disk is a monthly NAV ($16.23 for
+        # August), an updated schedule of investments (SpaceX, Groq, Shield AI),
+        # a buyback sized to the discount to NAV, and Seeking Alpha calling it
+        # "this fund"; Destiny Tech100 (DXYZ), a registered closed-end fund of
+        # private tech stakes, has the identical row. No EDGAR companyfacts.
+        pwrl = {**panel, "name": "Powerlaw Corp. - Common Stock"}
+        self.assertEqual(st.classify_row_rule(pwrl), ("cef", "d_cef_vendor"))
+        dxyz = {**panel, "name": "Destiny Tech100 Inc. Common Stock"}
+        self.assertEqual(st.classify_row(dxyz), "cef")
+        # RoboStrategy (BOT): the same row, but a CEO-led private placement is a
+        # corporate raise, not a fund's (see KNOWN_OPERATING). It must also stay
+        # operating once a revenue-less 10-Q gives it EDGAR data.
+        bot = {**panel, "name": "RoboStrategy, Inc. - Common Stock"}
+        self.assertEqual(st.classify_row_rule(bot), ("operating", "e_known_operating"))
+        bot_filed = {**bot, "edgar_updated": "2026-11-14", "ttm_net_income": "-1200000"}
+        self.assertEqual(st.classify_row(bot_filed), "operating")
+
     def test_revenue_guard(self):
         dxr = self.row("Daxor Corporation - Closed End Fund", "Nasdaq",
                        edgar_updated="2026-09-21", ttm_revenue=1430000.0,
