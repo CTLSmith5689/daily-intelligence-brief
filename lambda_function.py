@@ -3460,108 +3460,108 @@ FIELD_METHODS = {
         "label": "1-Month Return", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "closes[-1] / closes[-22] - 1",
-        "note": "Simple holding-period return over 21 trading days, which is one "
-                "calendar month of sessions.",
+        "note": "The price change over the last 21 trading days, which is one calendar month of "
+                "trading.",
     },
     "return_12_2": {
         "label": "12-2 Month Return", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "closes[-22] / closes[-253] - 1",
-        "note": "Jegadeesh-Titman momentum: twelve months of return ending one "
-                "month ago. Skipping the most recent month is the point, because "
-                "that is where short-term reversal lives. Needs 200 sessions.",
+        "note": "The price change over the twelve months ending one month ago, the momentum measure "
+                "from Jegadeesh and Titman's research. The latest month is left out on purpose, because "
+                "that is where short-term moves tend to reverse. Needs at least 200 trading days of "
+                "prices.",
     },
     "return_52w": {
         "label": "52-Week Return", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "closes[-1] / closes[-253] - 1",
-        "note": "Simple holding-period return over the stored year.",
+        "note": "The price change over the year of prices we hold.",
     },
     "high52w_proximity": {
         "label": "52-Week High Proximity", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "closes[-1] / max(closes) - 1",
-        "note": "Distance below the highest close of the year, as a negative "
-                "fraction; 0 means at the high. Measured on closes, so it sits "
-                "slightly above a version measured on intraday highs.",
+        "note": "How far the price sits below its highest close of the past year, as a negative "
+                "percentage; 0 means it is at the high. It uses closing prices, so it comes out "
+                "slightly higher than a version using intraday highs.",
     },
     "rel_strength_sp500": {
         "label": "Relative Strength vs S&P 500", "units": "fraction",
         "source": "price_history", "refresh": "daily", "asof": "prices_updated",
         "formula": "return_52w(stock) - return_52w(^GSPC)",
-        "note": "Difference of the two 52-week returns over the same trading "
-                "days, which is the usual construction. Not a ratio and not a "
-                "regression; beta_1y is the regression.",
+        "note": "The stock's 52-week return minus the S&P 500's over the same trading days, the usual "
+                "way to build it. It is a difference, not a ratio and not a regression; beta is the "
+                "regression.",
     },
     "volume": {
         "label": "Volume", "units": "shares", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "volumes[-1]",
-        "note": "Shares traded in the most recent session.",
+        "note": "Shares traded on the latest trading day.",
     },
     "volume_trend": {
         "label": "Volume Trend", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "mean(volumes[-10:]) / mean(volumes[-63:]) - 1",
-        "note": "Ten-session average against three-month average. Positive means "
-                "trading has picked up. Matches the ratio Yahoo's own "
-                "averageDailyVolume10Day over averageVolume expresses.",
+        "note": "Average daily volume over the last 10 trading days against the average over the last "
+                "three months. Positive means trading has picked up. It matches the ratio of Yahoo's "
+                "own 10-day and three-month average volumes.",
     },
     "volatility_1y": {
         "label": "Volatility (1y)", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "stdev(daily returns) * sqrt(252)",
-        "note": "Annualized standard deviation of simple daily returns, sample "
-                "standard deviation, over the stored year.",
+        "note": "How much the price swings: the standard deviation of simple daily returns over the "
+                "year of prices we hold (the sample version), scaled up to a yearly figure.",
     },
     "beta_1y": {
         "label": "Beta vs S&P 500", "units": "ratio", "source": "market_series",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "cov(r_stock, r_index) / var(r_index)",
-        "note": "Ordinary least squares slope of daily returns against the S&P "
-                "500, matched on the sessions both actually traded. 1.00 moves "
-                "with the index.",
+        "note": "How much the stock tends to move when the S&P 500 moves: the slope of a least-squares "
+                "line through daily returns, on the days both traded. 1.00 moves in step with the "
+                "index.",
     },
     "sharpe_1y": {
         "label": "Sharpe (1y)", "units": "ratio", "source": "market_series",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "mean(r - rf) / stdev(r - rf) * sqrt(252)",
-        "note": "Daily excess return over the 13-week Treasury bill, annualized. "
-                "Withheld rather than assuming a zero rate when the rate series "
-                "is unavailable, since that would inflate every Sharpe by roughly "
-                "the level of short rates.",
+        "note": "Return for the risk taken: the average daily return above the 13-week Treasury bill "
+                "rate, divided by how much that return varies, scaled up to a yearly figure. Left blank "
+                "when the Treasury rate is missing, rather than assuming a zero rate, which would "
+                "inflate every Sharpe ratio by roughly the level of short-term interest rates.",
     },
     "max_drawdown_1y": {
         "label": "Max Drawdown (1y)", "units": "fraction", "source": "price_history",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "min(close / running_max(close) - 1)",
-        "note": "Worst peak-to-trough fall across the stored year, on closes, as "
-                "a negative fraction.",
+        "note": "The largest fall from a peak to a later low over the year of closing prices we hold, "
+                "as a negative percentage.",
     },
     "market_cap": {
         "label": "Market Cap", "units": "USD", "source": "edgar",
         "refresh": "daily", "asof": "prices_updated",
         "formula": "price * shares_outstanding",
-        "note": "Cover-page shares outstanding from the latest filing, times the "
-                "latest close. Not the weighted-average count, which describes a "
-                "period rather than a moment and understates a company mid-buyback. "
-                "Matches the vendor to 0.0% across the filers checked.",
+        "note": "Shares outstanding, as stated on the cover of the latest filing, times the latest "
+                "close. Not the average share count for a period, which describes a period rather than "
+                "a moment and understates a company in the middle of a buyback. It matches the data "
+                "vendor's figure to 0.0% for the companies checked.",
     },
     "pe": {
         "label": "P/E (Trailing)", "units": "ratio", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "price / sum(last 4 quarters of diluted EPS)",
-        "note": "Diluted, not basic, because that is the share count an outside "
-                "holder is actually diluted by. Undefined and withheld when "
-                "trailing EPS is zero or negative, or when there is no usable EPS "
-                "and the filed net income is zero or negative. The four quarters "
-                "must tile one year on one share basis: a sum that crosses a "
-                "stock split is withheld rather than published. A filer with no "
-                "quarterly figures uses its latest fiscal year, within 15 months "
-                "(see eps_basis). Where no filing EPS can be used the vendor's "
-                "trailing P/E is shown, with status vendor_value; that is also "
-                "the case for a depositary share, whose filed EPS is per "
-                "ordinary share rather than per ADS.",
+        "note": "Price divided by diluted earnings per share (EPS) over the last four quarters. "
+                "Diluted, not basic, because that is the share count an outside shareholder is actually "
+                "diluted by. Left blank when those earnings are zero or negative, or when there is no "
+                "usable EPS and the reported net income is zero or negative. The four quarters must "
+                "make up one year on one share basis, so a sum that crosses a stock split is left blank "
+                "rather than published. A company that files no quarterly figures uses its latest "
+                "fiscal year, if that year ended within 15 months (see eps_basis). Where no filed EPS "
+                "can be used, the data vendor's trailing P/E is shown instead, marked as from the data "
+                "vendor (status vendor_value); the same applies to a depositary share, whose filed EPS "
+                "is per ordinary share rather than per depositary share.",
     },
     "eps_basis": {
         "label": "EPS Basis", "units": "text", "source": "edgar",
@@ -3579,54 +3579,55 @@ FIELD_METHODS = {
         "label": "Price/Book", "units": "ratio", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "market_cap / stockholders_equity",
-        "note": "Parent-company equity. The including-noncontrolling-interests "
-                "variant counts equity common holders have no claim on.",
+        "note": "Market cap divided by the parent company's shareholders' equity. The version that "
+                "includes minority (noncontrolling) interests is not used, because it counts equity "
+                "that common shareholders have no claim on.",
     },
     "roe_ttm": {
         "label": "ROE (TTM)", "units": "fraction", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "ttm_net_income / mean(equity_now, equity_a_year_ago)",
-        "note": "Average equity over the same window as the earnings, not the "
-                "closing balance, because the denominator moves through the year.",
+        "note": "Net income over the last four quarters divided by the average of shareholders' equity "
+                "now and a year ago, not the year-end balance, because equity changes through the year.",
     },
     "gross_margin": {
         "label": "Gross Margin", "units": "fraction", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "ttm_gross_profit / ttm_revenue",
-        "note": "Both trailing twelve months, from the same four quarters.",
+        "note": "Gross profit divided by revenue, both over the same last four quarters.",
     },
     "operating_margin": {
         "label": "Operating Margin", "units": "fraction", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "ttm_operating_income / ttm_revenue",
-        "note": "Both trailing twelve months, from the same four quarters.",
+        "note": "Operating income divided by revenue, both over the same last four quarters.",
     },
     "fcf_yield": {
         "label": "FCF Yield", "units": "fraction", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "(ttm_operating_cash_flow - ttm_capex) / market_cap",
-        "note": "Capital expenditure is a positive outflow in the cash-flow "
-                "statement, so it is subtracted by magnitude. This deliberately "
-                "does not match the vendor's freeCashflow, which implies about "
-                "$16bn for Microsoft against roughly $70bn of actual free cash "
-                "flow; ours reconstructs from the filed statements.",
+        "note": "Free cash flow (cash from operations minus capital spending, over the last four "
+                "quarters) divided by market cap. Capital spending is shown as a positive outflow in "
+                "the cash flow statement, so its size is subtracted. This deliberately differs from the "
+                "data vendor's free cash flow, which implies about $16bn for Microsoft against roughly "
+                "$70bn of actual free cash flow; ours is rebuilt from the filed statements.",
     },
     "revenue_growth_yoy": {
         "label": "Revenue Growth YoY", "units": "fraction", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "ttm_revenue / prior_ttm_revenue - 1",
-        "note": "Trailing twelve months against the twelve before it, which is "
-                "the smoother and more usual construction for a screen. The "
-                "vendor's revenueGrowth compares a single quarter with the "
-                "year-ago quarter, so the two agree only when growth is steady.",
+        "note": "Revenue over the last four quarters against the four quarters before them, the "
+                "smoother and more usual measure for a screen. The data vendor's revenue growth "
+                "compares a single quarter with the same quarter a year earlier, so the two agree only "
+                "when growth is steady.",
     },
     "eps_growth_yoy": {
         "label": "EPS Growth YoY", "units": "fraction", "source": "edgar",
         "refresh": "quarterly", "asof": "fiscal_period_end",
         "formula": "ttm_diluted_eps / prior_ttm_diluted_eps - 1",
-        "note": "Trailing twelve months against the twelve before it, on diluted "
-                "EPS. Same difference from the vendor as revenue growth: theirs "
-                "is a single quarter, so it can carry the opposite sign.",
+        "note": "Diluted earnings per share over the last four quarters against the four quarters "
+                "before them. It differs from the data vendor's figure in the same way as revenue "
+                "growth: theirs compares a single quarter, so it can even have the opposite sign.",
     },
     "sector": {
         "label": "Sector", "units": "text", "source": "yfinance",
@@ -7953,26 +7954,26 @@ _LEDGER_METRIC_SPEC = [
     ("fcf_yield", "fcfy", "FCF yield", "pct"),
     ("return_12_2", "r122", "12-2 month return", "pct"),
     ("return_1m", "r1m", "1-month return", "pct"),
-    ("high52w_proximity", "hi52", "Distance from 52w high", "pct"),
-    ("rel_strength_sp500", "rs", "Rel. strength vs S&P", "pct"),
+    ("high52w_proximity", "hi52", "Distance from 52-week high", "pct"),
+    ("rel_strength_sp500", "rs", "Return vs S&P 500", "pct"),
     ("volume_trend", "vtr", "Volume trend", "pct"),
     ("return_52w", "r52", "52-week return", "pct"),
     ("roe_ttm", "roe", "ROE", "pct"),
     ("earnings_consistency", "econ", "Earnings consistency", "ratio"),
     ("net_debt_ebitda", "nde", "Net debt/EBITDA", "x"),
-    ("op_margin_stability", "omv", "Op margin volatility", "ratio"),
+    ("op_margin_stability", "omv", "Operating margin volatility", "ratio"),
     ("accruals_ratio", "accr", "Accruals ratio", "pct"),
     ("gross_margin", "gm", "Gross margin", "pct"),
     ("operating_margin", "om", "Operating margin", "pct"),
     ("volatility_1y", "vol", "Volatility (1y)", "pct"),
     ("beta_1y", "beta", "Beta (1y)", "ratio"),
-    ("sharpe_1y", "shp", "Sharpe (1y)", "ratio"),
+    ("sharpe_1y", "shp", "Sharpe ratio (1y)", "ratio"),
     ("max_drawdown_1y", "mdd", "Max drawdown (1y)", "pct"),
     ("market_cap", "mcap", "Market cap", "usd"),
     ("volume", "vlm", "Volume", "shares"),
-    ("news_vader_avg", "tone", "News tone (VADER)", "ratio"),
-    ("news_count_7d", "news", "News count (7d)", "count"),
-    ("neglect_score", "negl", "Neglect", "ratio"),
+    ("news_vader_avg", "tone", "News tone", "ratio"),
+    ("news_count_7d", "news", "News stories (7 days)", "count"),
+    ("neglect_score", "negl", "Neglect score", "ratio"),
     ("inst_ownership", "inst", "Institutional ownership", "pct"),
     ("insider_ownership", "insd", "Insider ownership", "pct"),
 ]
@@ -8017,19 +8018,19 @@ LEDGER_METRICS = _ledger_metrics()
 # arithmetic as web/zengine.js, over the same rounded values the page loads.
 LEDGER_SCREENS = [
     {"id": "qarp", "name": "Quality at a fair price",
-     "blurb": "High and steady returns on equity, a below-median P/E, and not much debt.",
+     "blurb": "High and steady returns on equity, a P/E below the median, and not much debt.",
      "q": "roe>0.5 econ>0.5 pe<0 nde<0.5"},
     {"id": "cheap", "name": "Cash-rich and speeding up",
-     "blurb": "Free-cash-flow yield a full sigma above the universe, with revenue growth accelerating.",
+     "blurb": "A free cash flow yield well above most companies' (a z-score of +1 or more), and revenue growth that is speeding up.",
      "q": "fcfy>1 racc>0.5"},
     {"id": "calm", "name": "Steady momentum",
-     "blurb": "Strong 12-2 month returns without above-median volatility.",
+     "blurb": "Strong gains over the past year, leaving out the latest month, with price swings no bigger than the typical company's.",
      "q": "r122>1 vol<0"},
     {"id": "quiet", "name": "Profitable and overlooked",
-     "blurb": "High neglect score (little coverage) and a healthy operating margin.",
+     "blurb": "Little news coverage (a high neglect score) and a healthy operating margin.",
      "q": "negl>1 om>0.5"},
-    {"id": "energy", "name": "Energy against its own sector",
-     "blurb": "Free-cash-flow yield a sigma above other energy companies.",
+    {"id": "energy", "name": "Cash-rich energy companies",
+     "blurb": "Energy companies whose free cash flow yield is well above other energy companies' (a z-score of +1 or more within the sector).",
      "q": "sector:energy scope:sector fcfy>1"},
 ]
 LEDGER_SCREEN_OF_DAY = "qarp"
@@ -8136,6 +8137,11 @@ def render_ledger_page(page, title, cfg, version, description="", loading="Loadi
     data_js = script if script is not None else f"window.APT_PAGE = {_script_json(cfg)};"
     engine_tag = f'<script src="assets/zengine.js?v={version}"></script>\n' if engine else ""
     stamp = datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M ET")
+    try:
+        d = datetime.strptime(asof, "%Y-%m-%d") if asof else None
+        asof_words = f"{d.day} {d:%B %Y}" if d else ""
+    except ValueError:
+        asof_words = asof
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8166,8 +8172,8 @@ def render_ledger_page(page, title, cfg, version, description="", loading="Loadi
 <button type="button" class="ld-theme" aria-label="Switch theme"></button>
 </div></header>
 <main class="ld-main" id="ld-main"><div class="ld-wrap"><p class="ld-loading">{e(loading)}</p>
-<noscript><p class="ld-loading">This page is drawn by a script; turn JavaScript on to read it.</p></noscript></div></main>
-<footer class="ld-foot"><div class="ld-wrap"><span>Apterreon &middot; Daily brief and screener{" &middot; panel as of " + e(asof) if asof else ""}</span><span>Built {e(stamp)} &middot; GitHub Pages</span></div></footer>
+<noscript><p class="ld-loading">This page is built by a script. Turn on JavaScript to read it.</p></noscript></div></main>
+<footer class="ld-foot"><div class="ld-wrap"><span>Apterreon &middot; Daily brief and stock screener{" &middot; data as of " + e(asof_words) if asof else ""}</span><span>Built {e(stamp)} &middot; GitHub Pages</span></div></footer>
 </div>
 <script>
 {data_js}
@@ -8404,7 +8410,7 @@ def generate_home(briefs, universe, version):
                brief=brief or {"sections": []}, quotes=quotes,
                trend=_ledger_trend(_ledger_story_rows(briefs)), sod=sod, research=research)
     html = render_ledger_page("home", "Apterreon, Daily Intelligence Brief", cfg, version,
-                              description="The daily brief, a screener over every US listing, and written research calls.",
+                              description="A daily news brief, a stock screener covering every US listing, and written research on single companies.",
                               loading="Loading the brief", engine=True)
     (DOCS_DIR / "index.html").write_text(html, encoding="utf-8")
 
@@ -8415,7 +8421,7 @@ def generate_today(briefs, universe, version):
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
                brief=brief or {"sections": []}, editions=editions)
     html = render_ledger_page("today", "Today's Brief, Apterreon", cfg, version,
-                              description="The newest brief, story by story, in its sections.",
+                              description="The latest news brief, section by section.",
                               loading="Loading the brief")
     (DOCS_DIR / "today.html").write_text(html, encoding="utf-8")
 
@@ -8431,7 +8437,7 @@ def generate_stories(briefs, universe, version):
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
                stories=stories, sectionOrder=order)
     html = render_ledger_page("stories", "Story Library, Apterreon", cfg, version,
-                              description="Every story the brief has carried, searchable by headline and source.",
+                              description="Every story the brief has carried, searchable by headline, summary and source.",
                               loading=f"Loading {len(stories):,} stories")
     (DOCS_DIR / "stories.html").write_text(html, encoding="utf-8")
 
@@ -8477,8 +8483,8 @@ def generate_stocks_page(universe, version):
                research=_stocks_research())
     html = render_ledger_page(
         "stocks", "Stocks, Apterreon", cfg, version,
-        description="Every US listing and every tracked metric, placed against the whole universe.",
-        loading=f"Loading {len(stocks):,} listings" + (f" from the {cfg['asof']} panel" if cfg["asof"] else ""),
+        description="Every US listing and every figure we track, each compared with all companies.",
+        loading=f"Loading {len(stocks):,} listings",
         script=_stock_page_script(cfg), engine=True)
     (DOCS_DIR / "stocks.html").write_text(html, encoding="utf-8")
 
@@ -8612,7 +8618,7 @@ _DOC_KIND_WORDS = {
     "business": ("annual report description of the business",
                  "annual report descriptions of the business"),
     "risk_factors": ("annual report section on risks", "annual report sections on risks"),
-    "segment_note": ("note on its lines of business", "notes on its lines of business"),
+    "segment_note": ("note on its business segments", "notes on its business segments"),
     "earnings_release": ("results announcement", "results announcements"),
     "mdna": ("management discussion of results", "management discussions of results"),
 }
@@ -8885,33 +8891,42 @@ def _doc_kind_phrase(kind, n):
     return f"{n} {one if n == 1 else many}"
 
 
+def _and_list(items):
+    """"a", "a and b", "a, b and c"."""
+    items = list(items)
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
 def _since_last_note(prev, cur, docs=None):
-    """One plain sentence saying what changed from the previous note."""
+    """Plain sentences saying what changed from the previous note. The company page
+    capitalises the first letter and adds the closing full stop."""
     if prev is None:
-        return "first note on this company"
+        return "this is the first note on this company"
     parts = []
     pd, cd = prev.get("direction"), cur.get("direction")
     if (pd or "") != (cd or ""):
-        say = lambda d: (_VIEW_WORDS.get(str(d or "").strip().lower()) or "no view given").lower()
+        def say(d):
+            word = _VIEW_WORDS.get(str(d or "").strip().lower())
+            return f"\u201c{word}\u201d" if word else "no stated view"
         parts.append(f"the view changed from {say(pd)} to {say(cd)}")
     pc, cc = prev.get("conviction"), cur.get("conviction")
     if pc != cc:
         if pc is None:
-            parts.append(f"confidence set at {cc} of 5")
+            parts.append(f"conviction set at {cc} of 5")
         elif cc is None:
-            parts.append(f"confidence no longer given (was {pc} of 5)")
+            parts.append(f"conviction no longer given (it was {pc} of 5)")
         else:
-            parts.append(f"confidence {'raised' if cc > pc else 'lowered'} "
+            parts.append(f"conviction {'raised' if cc > pc else 'lowered'} "
                          f"from {pc} to {cc} of 5")
     pt, ct = prev.get("target_price"), cur.get("target_price")
     if pt != ct:
         if pt is None:
-            parts.append(f"target set at {ct:.2f}")
+            parts.append(f"target set at ${ct:,.2f}")
         elif ct is None:
-            parts.append(f"target dropped (was {pt:.2f})")
+            parts.append(f"target dropped (it was ${pt:,.2f})")
         else:
             parts.append(f"target {'raised' if ct > pt else 'lowered'} "
-                         f"from {pt:.2f} to {ct:.2f}")
+                         f"from ${pt:,.2f} to ${ct:,.2f}")
     # A reworded claim under an unchanged rating is what thesis drift looks
     # like, so "view unchanged" must not be printed over it.
     pk = " ".join((prev.get("key_claim") or "").split())
@@ -8919,16 +8934,16 @@ def _since_last_note(prev, cur, docs=None):
     if pk != ck:
         parts.append("main claim added" if not pk else
                      "main claim dropped" if not ck else "main claim rewritten")
-    sentence = ", ".join(parts) if parts else "the view is unchanged"
+    sentence = _and_list(parts) if parts else "the view is unchanged"
     if docs is not None:
         total = sum(docs.values())
         if total:
-            detail = ", ".join(_doc_kind_phrase(k, n) for k, n in
+            detail = _and_list(_doc_kind_phrase(k, n) for k, n in
                                sorted(docs.items(), key=lambda x: (-x[1], x[0])))
-            sentence += (f"; {total} document{'s' if total != 1 else ''} collected "
-                         f"since the previous note ({detail})")
+            sentence += (f". Since the previous note we collected {total} "
+                         f"document{'s' if total != 1 else ''}: {detail}")
         else:
-            sentence += "; no new documents collected since the previous note"
+            sentence += ". No new documents have been collected since the previous note"
     return sentence
 
 
@@ -9837,7 +9852,7 @@ _NOTE_REPO_URL = "https://github.com/CTLSmith5689/daily-intelligence-brief/blob/
 _VIEW_WORDS = {"long": "Own it", "short": "Bet against it", "avoid": "Stay away",
                "watch": "Keep watching", "no view": "No view"}
 _STATUS_WORDS = {"open": "Open call", "watching": "Watching", "graded": "Checked",
-                 "due": "Review due"}
+                 "due": "Review overdue"}
 def generate_research(universe, version=None):
     """Write docs/research.html: every thesis in one table, each row leading to
     its company page where the full note is, and the record."""
@@ -9847,7 +9862,7 @@ def generate_research(universe, version=None):
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
                research=research, record=record)
     html = render_ledger_page("research", "Research, Apterreon", cfg, version,
-                              description="Written views on one company at a time, with a target, a date and a falsifier.",
+                              description="Written views on single companies, each with a target price, a review date and what would prove it wrong.",
                               loading="Loading the theses")
     (DOCS_DIR / "research.html").write_text(html, encoding="utf-8")
     print(f"research: wrote research.html ({len(research)} names, "

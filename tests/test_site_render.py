@@ -145,8 +145,8 @@ class SiteRender(unittest.TestCase):
         for needle in ('data-view="map"', 'id="ld-map"', '<canvas id="ld-mapc" tabindex="0" role="img"',
                        'aria-describedby="ld-mapcount"', '"view=map"', '"map=axes"', '"ax="',
                        'g: "Growth", v: "Value", m: "Momentum", q: "Quality"',
-                       "prefers-reduced-motion: reduce", "matching \" + what + \" placed; ",
-                       "enough dimensions", "ArrowLeft", "FOCUS_MAX = 5", "AX_CLIP = 4",
+                       "prefers-reduced-motion: reduce", " matching \" + what + \" are on the map. ",
+                       "fewer than 3 of the 4 factor scores", "ArrowLeft", "FOCUS_MAX = 5", "AX_CLIP = 4",
                        "themeHooks.push("):
             with self.subTest(needle=needle):
                 self.assertIn(needle, js)
@@ -192,7 +192,7 @@ class SiteRender(unittest.TestCase):
                        "data-vload", "data-vdel", '"apt-stocks-views"', "localStorage.setItem(VIEWS_KEY",
                        '"idx:" + k', '"sector:" +', '"research:" + v', '"dp:" + d.toLowerCase() + ">=" + n',
                        '"has:cap"', "RAW_CMP", "RAW_RANGE", "Filters (", "max-width: 899px",
-                       '"Market cap ($M)"', '"Hygiene"', '"Listings"', '"Saved views"', '"Ready-made"'):
+                       '"Market cap ($M)"', '"Data coverage"', '"Listing types"', '"Saved views"', '"Ready-made screens"'):
             with self.subTest(needle=needle):
                 self.assertIn(needle, js)
         self.assertNotIn('class="ld-shead"', js)             # the title row is gone
