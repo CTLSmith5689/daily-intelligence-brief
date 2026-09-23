@@ -254,6 +254,7 @@ methodology panel and the code cannot disagree.
 |---|---|---|---|---|
 | `beta_1y` | ratio | `cov(r_stock, r_index) / var(r_index)` | market_series | changes every trading day |
 | `change_pct` | percent | `(closes[-1] / closes[-2] - 1) * 100` | price_history | changes every trading day |
+| `eps_basis` | text | `ttm, annual or basic` | edgar | changes only when the company files |
 | `eps_growth_yoy` | fraction | `ttm_diluted_eps / prior_ttm_diluted_eps - 1` | edgar | changes only when the company files |
 | `fcf_yield` | fraction | `(ttm_operating_cash_flow - ttm_capex) / market_cap` | edgar | changes only when the company files |
 | `gross_margin` | fraction | `ttm_gross_profit / ttm_revenue` | edgar | changes only when the company files |
@@ -282,7 +283,8 @@ methodology panel and the code cannot disagree.
 Notes where the choice matters:
 
 - **`market_cap`** — Cover-page shares outstanding from the latest filing, times the latest close. Not the weighted-average count, which describes a period rather than a moment and understates a company mid-buyback. Matches the vendor to 0.0% across the filers checked.
-- **`pe`** — Diluted, not basic, because that is the share count an outside holder is actually diluted by. Undefined and withheld when trailing EPS is zero or negative.
+- **`pe`** — Diluted, not basic, because that is the share count an outside holder is actually diluted by. Undefined and withheld when trailing EPS is zero or negative, or when there is no usable EPS and the filed net income is zero or negative. The four quarters must tile one year on one share basis: a sum that crosses a stock split is withheld rather than published. A filer with no quarterly figures uses its latest fiscal year, within 15 months (see eps_basis). Where no filing EPS can be used the vendor's trailing P/E is shown, with status vendor_value; that is also the case for a depositary share, whose filed EPS is per ordinary share rather than per ADS.
+- **`eps_basis`** - Which earnings per share ttm_eps_diluted, and so pe, is built on. ttm is four quarters of diluted EPS. annual is the latest fiscal year's diluted EPS, for a filer with no quarterly figures (a 20-F or 40-F filer), used only while that year ended within 15 months. basic means no diluted figure is filed and basic EPS stands in, which overstates EPS where there is real dilution. Blank when there is no filing EPS.
 - **`roe_ttm`** — Average equity over the same window as the earnings, not the closing balance, because the denominator moves through the year.
 - **`fcf_yield`** — Capital expenditure is a positive outflow in the cash-flow statement, so it is subtracted by magnitude. This deliberately does not match the vendor's freeCashflow, which implies about $16bn for Microsoft against roughly $70bn of actual free cash flow; ours reconstructs from the filed statements.
 - **`revenue_growth_yoy`** — Trailing twelve months against the twelve before it, which is the smoother and more usual construction for a screen. The vendor's revenueGrowth compares a single quarter with the year-ago quarter, so the two agree only when growth is steady.
@@ -352,6 +354,7 @@ when there is something to say:
 | `cohort_too_small` | Too few sector peers to rank against. |
 | `deferred_budget` | The fetch pass ran out of time this run and will reach it next run. |
 | `not_meaningful` | The inputs make this arithmetic meaningless, such as a multiple on negative earnings. |
+| `vendor_value` | Taken from the market-data vendor, because the filings carry no earnings per share we can use for this company. Not built from the same inputs as the filing-derived figures beside it. |
 | `source_error` | The source was reachable but the fetch or parse failed. |
 | `not_applicable` | Does not apply to this kind of security. A note, a fund or a blank-check shell has no business of its own, and any figure here would describe its issuer or its placeholder instead. |
 

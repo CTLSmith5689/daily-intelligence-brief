@@ -49,6 +49,22 @@ def usable_pe(r):
     up, BKNG at 1.0, CHTR at 3.3. Ranked on Value those read as the cheapest names
     in their peer group on a number that is simply wrong.
 
+    Only a disagreement in SIGN is refused. This also refused any EPS more than
+    50% away from net income over shares, and on 2026-09-21 that arm was right
+    on 7 of the 36 rejects a vendor EPS could check. The other 29 had the EPS
+    right and the comparison wrong: 19 from a bad ttm_net_income, 10 because
+    the cover-page share count covers one class of a multi-class company (MA,
+    CME, FOXA, IBKR). No threshold separates the two, since the true errors ran
+    from 1.6x (CPRI) to 17.5x (BKNG) and the false ones from 1.5x to 969x. The
+    split-crossing sums that produced ALIT's and BKNG's numbers are now refused
+    where they are made, in the pipeline's per-share trailing sum.
+
+    That fix only reaches a row when the pipeline recomputes its EPS, and every
+    recomputed row carries eps_basis. A row without it was summed by the old
+    code, so the magnitude test still applies there: BKNG, HSY, IFF and HRB
+    stay out of the ranking until their EPS is rebuilt, rather than returning
+    on the strength of a fix that has not reached them yet.
+
     Dropping it leaves the other four Value fields, which is the count the config
     already requires, so the name is still scored, just not on this."""
     pe, eps = num(r.get("pe")), num(r.get("ttm_eps_diluted"))
@@ -60,7 +76,9 @@ def usable_pe(r):
     implied = ni / sh
     if abs(implied) < 0.01:
         return pe
-    if (eps > 0) != (implied > 0) or abs(eps - implied) / abs(implied) >= 0.5:
+    if (eps > 0) != (implied > 0):
+        return None
+    if not (r.get("eps_basis") or "").strip() and abs(eps - implied) / abs(implied) >= 0.5:
         return None
     return pe
 

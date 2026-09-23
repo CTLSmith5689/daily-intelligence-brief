@@ -4563,7 +4563,7 @@ STOCKS_JS_TEMPLATE = """
     {
       title: 'Value',
       rows: [
-        { label: 'P/E (Trailing)', key: 'pe',         type: 'ratio', source: 'yfinance', method: 'Price / TTM EPS. Yahoo .info["trailingPE"].' },
+        { label: 'P/E (Trailing)', key: 'pe',         type: 'ratio', source: 'edgar',    method: 'Price / trailing four quarters of diluted EPS from the filings; the vendor trailing P/E only where status says vendor value.' },
         { label: 'EV/EBITDA',      key: 'ev_ebitda',  type: 'ratio', source: 'yfinance', method: 'Enterprise value / TTM EBITDA. Yahoo .info["enterpriseToEbitda"].' },
         { label: 'EV/Revenue',     key: 'ev_revenue', type: 'ratio', source: 'yfinance', method: 'Enterprise value / TTM revenue. Yahoo .info["enterpriseToRevenue"].' },
         { label: 'Price/Book',     key: 'price_book', type: 'ratio', source: 'yfinance', method: 'Price / book value per share. Yahoo .info["priceToBook"].' },
@@ -4986,7 +4986,9 @@ STOCKS_JS_TEMPLATE = """
       // fallback for fields not yet migrated, and every one of those is a field
       // whose description nothing verifies.
       const m = FIELD_METHODS[r.key] || null;
-      const src = m ? m.source : r.source;
+      // A value the pipeline fell back to the vendor for says so, rather than
+      // wearing the source its registry entry names for the usual case.
+      const src = statuses[r.key] === 'vendor_value' ? 'yfinance' : (m ? m.source : r.source);
       // A registry entry names the timestamp that actually governs it, rather
       // than inferring one from the source bucket.
       const asOf = m && m.asof ? (s[m.asof] || fieldAsOf(s, src)) : fieldAsOf(s, src);
@@ -9477,6 +9479,9 @@ FIELD_STATUS = {
     "cohort_too_small": "Too few sector peers to rank against.",
     "deferred_budget": "The fetch pass ran out of time this run and will reach it next run.",
     "not_meaningful": "The inputs make this arithmetic meaningless, such as a multiple on negative earnings.",
+    "vendor_value": "Taken from the market-data vendor, because the filings carry no earnings "
+                    "per share we can use for this company. Not built from the same inputs "
+                    "as the filing-derived figures beside it.",
     "source_error": "The source was reachable but the fetch or parse failed.",
     # Stamped by apply_security_types on every field it blanks. Distinct from
     # not_meaningful, which is about arithmetic on a real company's inputs.
@@ -9621,7 +9626,27 @@ FIELD_METHODS = {
         "formula": "price / sum(last 4 quarters of diluted EPS)",
         "note": "Diluted, not basic, because that is the share count an outside "
                 "holder is actually diluted by. Undefined and withheld when "
-                "trailing EPS is zero or negative.",
+                "trailing EPS is zero or negative, or when there is no usable EPS "
+                "and the filed net income is zero or negative. The four quarters "
+                "must tile one year on one share basis: a sum that crosses a "
+                "stock split is withheld rather than published. A filer with no "
+                "quarterly figures uses its latest fiscal year, within 15 months "
+                "(see eps_basis). Where no filing EPS can be used the vendor's "
+                "trailing P/E is shown, with status vendor_value; that is also "
+                "the case for a depositary share, whose filed EPS is per "
+                "ordinary share rather than per ADS.",
+    },
+    "eps_basis": {
+        "label": "EPS Basis", "units": "text", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "ttm, annual or basic",
+        "note": "Which earnings per share ttm_eps_diluted, and so pe, is built "
+                "on. ttm is four quarters of diluted EPS. annual is the latest "
+                "fiscal year's diluted EPS, for a filer with no quarterly "
+                "figures (a 20-F or 40-F filer), used only while that year ended "
+                "within 15 months. basic means no diluted figure is filed and "
+                "basic EPS stands in, which overstates EPS where there is real "
+                "dilution. Blank when there is no filing EPS.",
     },
     "price_book": {
         "label": "Price/Book", "units": "ratio", "source": "edgar",
@@ -10006,6 +10031,14 @@ def _load_market_series():
     return rf, bench
 
 
+# Listing names that mark an American depositary share. "ADS" must not be
+# followed by a hyphen or a letter: ADS-TEC Energy is an ordinary share.
+_DEPOSITARY_NAME = re.compile(r"depositar|depositor|\bADRs?\b|\bADS(?![-\w])", re.I)
+# The pe codes derive_ratios_from_fundamentals owns, cleared when none applies
+# so a stamp from an earlier pass on the same cached row cannot linger.
+_PE_STATUS_CODES = ("awaiting_filing", "not_meaningful", "vendor_value")
+
+
 def derive_ratios_from_fundamentals(stocks):
     """Valuation and profitability ratios, from filings and a price.
 
@@ -10055,8 +10088,20 @@ def derive_ratios_from_fundamentals(stocks):
             cap = s.get("market_cap") if _finite(s.get("market_cap")) else None
 
         eps = s.get("ttm_eps_diluted")
-        if _finite(price) and _finite(eps) and eps > 0:
+        ni_ttm = s.get("ttm_net_income")
+        pe_code = None
+        if _finite(eps) and eps > 0 and _DEPOSITARY_NAME.search(s.get("name") or ""):
+            # A depositary share is not a share. Filings report EPS per
+            # ordinary share and one ADS can be a twentieth of one or ten of
+            # them: DoubleDown's ADS priced at $12.75 against 46.20 of EPS per
+            # ordinary share, a P/E of 0.28. The vendor quotes it per ADS.
+            pe_code = "vendor_value" if s.get("pe") is not None else None
+            counts["pe_left_to_vendor_depositary"] += 1
+        elif _finite(price) and _finite(eps) and eps > 0:
+            s.pop("pe", None)
             put(s, "pe", price / eps, -500, 1000)
+            # Outside the bounds means earnings a rounding error from zero.
+            pe_code = "awaiting_filing" if s.get("pe") is not None else "not_meaningful"
         elif _finite(eps) and eps <= 0:
             # Declining to compute one is not the same as withholding one.
             # enrich_with_yfinance has already written Yahoo's trailingPE, which
@@ -10069,6 +10114,30 @@ def derive_ratios_from_fundamentals(stocks):
             # withhold it.
             if s.pop("pe", None) is not None:
                 counts["pe_withheld_negative_eps"] += 1
+            pe_code = "not_meaningful"
+        elif _finite(ni_ttm) and ni_ttm <= 0:
+            # No EPS we trust, but the filings say the company lost money. A
+            # positive vendor P/E there contradicts the filing: 9 rows on
+            # 2026-09-21, plus every annual-only loss-maker.
+            if s.pop("pe", None) is not None:
+                counts["pe_withheld_filed_loss"] += 1
+            pe_code = "not_meaningful"
+        elif s.get("pe") is not None:
+            # What is left is Yahoo's trailingPE, written by
+            # enrich_with_yfinance. It used to be stamped awaiting_filing like
+            # any filing-derived number, which told the reader it came from a
+            # filing when nothing we hold supports it.
+            pe_code = "vendor_value"
+            counts["pe_vendor"] += 1
+        pe_status = s.get("status") or {}
+        if pe_code:
+            pe_status["pe"] = pe_code
+        elif pe_status.get("pe") in _PE_STATUS_CODES:
+            del pe_status["pe"]
+        if pe_status:
+            s["status"] = pe_status
+        else:
+            s.pop("status", None)
 
         if cap and _finite(equity) and equity > 0:
             put(s, "price_book", cap / equity, 0, 100)
@@ -10126,7 +10195,8 @@ def derive_ratios_from_fundamentals(stocks):
         # A filing-derived number is as current as the filing, not as the run.
         if s.get("fiscal_period_end"):
             status = s.get("status") or {}
-            for f in ("pe", "price_book", "roe_ttm", "gross_margin", "operating_margin",
+            # pe is stamped above, by where it came from.
+            for f in ("price_book", "roe_ttm", "gross_margin", "operating_margin",
                       "fcf_yield", "ev_ebitda", "ev_revenue", "net_debt_ebitda",
                       "revenue_growth_yoy", "eps_growth_yoy"):
                 if s.get(f) is not None:
@@ -10532,8 +10602,35 @@ EDGAR_CONCEPT_FALLBACKS = {
     #
     # Diluted, not basic: a trailing P/E is quoted on diluted EPS because that
     # is the share count an outside holder is actually diluted by.
+    #
+    # The two concepts this list used to hold left 79 profitable filers on the
+    # vendor's P/E: Exxon and Visa tag EarningsPerShareBasicAndDiluted, and
+    # partnerships (ET, MPLX) report per unit, not per share. A combined
+    # basic-and-diluted figure IS the diluted figure. Basic EPS is the last
+    # resort, for a filer that reports nothing else, and is labeled as such in
+    # eps_basis, because it overstates EPS wherever there is real dilution.
     "eps_diluted": ["EarningsPerShareDiluted",
-                    "IncomeLossFromContinuingOperationsPerDilutedShare"],
+                    "IncomeLossFromContinuingOperationsPerDilutedShare",
+                    "EarningsPerShareBasicAndDiluted",
+                    "IncomeLossFromContinuingOperationsPerBasicAndDilutedShare",
+                    "NetIncomeLossPerOutstandingLimitedPartnershipUnitDilutedNetOfTax",
+                    "NetIncomeLossPerOutstandingLimitedPartnershipUnitBasicAndDilutedNetOfTax",
+                    "EarningsPerShareBasic",
+                    "NetIncomeLossPerOutstandingLimitedPartnershipUnitBasicNetOfTax"],
+    # Earnings attributable to common holders and the weighted diluted share
+    # count: the two halves of diluted EPS. Used to check an EPS series against
+    # itself and to rebuild a quarter the filer never tagged (see
+    # _reconcile_eps_quarters). The common-holder figure is preferred because
+    # NetIncomeLoss still includes preferred dividends, which would put a bank
+    # with preferred stock several percent high.
+    "net_income_common": ["NetIncomeLossAvailableToCommonStockholdersDiluted",
+                          "NetIncomeLossAvailableToCommonStockholdersBasic",
+                          "NetIncomeLoss", "ProfitLoss"],
+    "shares_diluted_weighted": ["WeightedAverageNumberOfDilutedSharesOutstanding",
+                                "WeightedAverageNumberOfShareOutstandingBasicAndDiluted",
+                                "WeightedAverageLimitedPartnershipUnitsOutstandingDiluted",
+                                "WeightedAverageLimitedPartnershipUnitsOutstanding",
+                                "WeightedAverageNumberOfSharesOutstandingBasic"],
     # Cover-page share count, which is the one closest to today. The
     # weighted-average figures describe a period, not a moment, and would
     # understate a company that has been buying back stock.
@@ -10583,7 +10680,21 @@ EDGAR_SCHEMA_SENTINELS = (
     # Trailing aggregates and balance-sheet values behind the valuation ratios.
     "shares_outstanding", "ttm_revenue", "ttm_eps_diluted", "equity",
     "fiscal_period_end",
+    # Which EPS the P/E is built on. Added with the split-safe per-share
+    # quarters, so its absence across the cache is what forces every ticker's
+    # EPS to be recomputed rather than keeping a Q4 derived across a split.
+    "eps_basis",
 )
+
+# The EPS labels compute_edgar_factors writes to eps_basis, weakest last.
+EPS_BASIS_TTM = "ttm"        # four quarters of diluted EPS
+EPS_BASIS_ANNUAL = "annual"  # the latest fiscal year's diluted EPS, no quarters filed
+EPS_BASIS_BASIC = "basic"    # basic EPS, because no diluted figure is filed at all
+# Basic-only concepts in EDGAR_CONCEPT_FALLBACKS["eps_diluted"].
+_BASIC_EPS_CONCEPTS = frozenset({
+    "EarningsPerShareBasic",
+    "NetIncomeLossPerOutstandingLimitedPartnershipUnitBasicNetOfTax",
+})
 
 
 def _ttm(series, offset=0):
@@ -11679,7 +11790,42 @@ def _shift_iso(day, delta):
         return day
 
 
-def _quarterly_from_records(records):
+# A per-share figure that moved by this factor or more between two filings of
+# the same period was restated onto a new share basis: a split or a reverse
+# split. Ordinary restatements move EPS by a few percent, and the smallest split
+# in common use is 2-for-1. A 3-for-2 split sits under the bar and is missed;
+# the error it leaves in a trailing sum is at most a third of one quarter.
+_SHARE_BASIS_JUMP = 1.8
+# Per-share values below this are mostly rounding (0.01 against 0.02 is a
+# factor of two), so they neither reveal nor disprove a change of basis.
+_PER_SHARE_MIN_ABS = 0.05
+
+
+def _per_share_breaks(records):
+    """Filing dates on which a per-share concept moved to a new share basis.
+
+    The evidence is a period filed twice, the later filing restating it by a
+    split-like factor. Alight's second quarter of 2025 was filed at -2.04 and
+    refiled a year later, after its 1-for-20 reverse split, at -40.61; the
+    later filing's date is when the new basis is known to be in use."""
+    by_period = {}
+    for r in records:
+        start, end, val, filed = r.get("start"), r.get("end"), r.get("val"), r.get("filed") or ""
+        if not start or not end or not filed or not isinstance(val, (int, float)):
+            continue
+        by_period.setdefault((start, end), {})[filed] = val
+    breaks = set()
+    for filings in by_period.values():
+        dated = sorted(filings.items())
+        for (_, old), (filed, new) in zip(dated, dated[1:]):
+            if min(abs(old), abs(new)) < _PER_SHARE_MIN_ABS or (old > 0) != (new > 0):
+                continue
+            if max(abs(old), abs(new)) / min(abs(old), abs(new)) >= _SHARE_BASIS_JUMP:
+                breaks.add(filed)
+    return sorted(breaks)
+
+
+def _quarterly_from_records(records, per_share=False):
     """Every ~90-day duration in a concept's records, from any form, with the
     fourth quarter reconstructed where the filer never tagged one.
 
@@ -11697,7 +11843,25 @@ def _quarterly_from_records(records):
     one, but files an annual figure alongside three quarters, and the fourth is
     the difference. Only a year with exactly three quarters and exactly one
     quarter-shaped gap qualifies; anything else is left missing rather than
-    guessed at."""
+    guessed at.
+
+    per_share=True is for EPS, where a subtraction is only valid if every input
+    is on the same share basis. Each period keeps its most recently filed value,
+    so after a split the restated quarters and the unrestated ones sit side by
+    side: Alight's fourth quarter of 2025 came out as the 2025 annual EPS
+    (-5.87, pre-split) less three quarters one of which had been refiled at
+    twenty times its size (-40.61), which is +36.81 for a quarter that lost
+    $932m. So a derivation whose inputs were filed on both sides of a
+    _per_share_breaks date is refused, and the quarter is left missing."""
+    breaks = _per_share_breaks(records) if per_share else []
+
+    def straddles(filed_dates):
+        dates = [f for f in filed_dates if f]
+        if not breaks or not dates:
+            return False
+        lo, hi = min(dates), max(dates)
+        return any(lo < b <= hi for b in breaks)
+
     quarters, annuals = {}, {}
     for r in records:
         start, end, val = r.get("start"), r.get("end"), r.get("val")
@@ -11746,6 +11910,8 @@ def _quarterly_from_records(records):
         if span is None or not (_QUARTER_MIN_DAYS <= span <= _QUARTER_MAX_DAYS):
             continue
         if (g_start, g_end) in quarters:
+            continue
+        if straddles([annual["filed"]] + [q["filed"] for q in inside]):
             continue
         try:
             missing = annual["val"] - sum(q["val"] for q in inside)
@@ -11811,7 +11977,7 @@ def _quarterly_from_records(records):
                 if _QUARTER_MIN_DAYS <= span <= _QUARTER_MAX_DAYS:
                     q_start = _shift_iso(prev["end"], 1)
                     key = (q_start, item["end"])
-                    if key not in quarters:
+                    if key not in quarters and not straddles([prev["filed"], item["filed"]]):
                         try:
                             quarters[key] = {
                                 "start": q_start, "end": item["end"],
@@ -11852,7 +12018,8 @@ def _instants_from_records(records):
     return sorted(by_end.values(), key=lambda x: x["end"], reverse=True)
 
 
-def _select_concept_series(facts, concept_keys, builder, unit_keys=None):
+def _select_concept_series(facts, concept_keys, builder, unit_keys=None,
+                           return_concept=False):
     """Build a series from the best concept, not merely the first that answers.
 
     The old rule was first-match-wins, which is only right if every candidate
@@ -11867,7 +12034,10 @@ def _select_concept_series(facts, concept_keys, builder, unit_keys=None):
 
     So: candidates whose newest fact is well behind the best available are
     retired tags and are dropped. Among what remains, concept_keys order still
-    decides, because that order is a real preference between live tags."""
+    decides, because that order is a real preference between live tags.
+
+    return_concept=True returns (series, concept name) instead, for a caller
+    that has to say which tag it ended up on."""
     from datetime import date as _date
     # dei carries the cover-page facts, us-gaap the statements.
     pools = (facts.get("us-gaap", {}), facts.get("dei", {}))
@@ -11888,21 +12058,29 @@ def _select_concept_series(facts, concept_keys, builder, unit_keys=None):
             continue
         series = builder(records)
         if series:
-            candidates.append((rank, series))
+            candidates.append((rank, series, concept))
     if not candidates:
-        return []
-    newest = max(s[0]["end"] for _, s in candidates)
+        return ([], None) if return_concept else []
+    newest = max(s[0]["end"] for _, s, _c in candidates)
     try:
         cutoff = (_date.fromisoformat(newest) - timedelta(days=_CONCEPT_STALE_DAYS)).isoformat()
     except Exception:
         cutoff = ""
     live = [c for c in candidates if c[1][0]["end"] >= cutoff]
-    return min(live or candidates, key=lambda c: c[0])[1]
+    _rank, series, concept = min(live or candidates, key=lambda c: c[0])
+    return (series, concept) if return_concept else series
 
 
-def _extract_quarterly_series(facts, concept_keys, max_periods=12):
+def _extract_quarterly_series(facts, concept_keys, max_periods=12, per_share=False,
+                              unit_keys=None, return_concept=False):
     """Quarterly values for the best matching concept, most recent first."""
-    return _select_concept_series(facts, concept_keys, _quarterly_from_records)[:max_periods]
+    builder = ((lambda recs: _quarterly_from_records(recs, per_share=True))
+               if per_share else _quarterly_from_records)
+    got = _select_concept_series(facts, concept_keys, builder, unit_keys=unit_keys,
+                                 return_concept=return_concept)
+    if return_concept:
+        return got[0][:max_periods], got[1]
+    return got[:max_periods]
 
 
 def _extract_instant_series(facts, concept_keys, max_periods=12, unit_keys=None):
@@ -12062,30 +12240,251 @@ _ANNUAL_MIN_DAYS, _ANNUAL_MAX_DAYS = 340, 400
 _TTM_ANNUAL_FLOOR = 0.70
 
 
-def _latest_annual_value(facts, concept_keys):
-    """(value, end, concept) for the highest-ranked concept filed annually."""
+# How old a fiscal year can be and still stand in for a trailing twelve months,
+# measured from the year's end. Fifteen months covers a 20-F filed on the
+# regulatory deadline, four months after year end, plus a normal quarter of
+# slack; anything older is the year before last and describes a different
+# company from the one the price is for.
+_ANNUAL_FALLBACK_MAX_AGE_DAYS = 457
+
+
+def _latest_annual_value(facts, concept_keys, unit_keys=("USD",), max_age_days=None,
+                         as_of=None):
+    """(value, end, concept) for the highest-ranked concept filed annually.
+
+    unit_keys widens the lookup beyond USD, which EPS needs ("USD/shares").
+    max_age_days drops a concept whose latest year ended longer ago than that
+    before as_of (default today), and moves on to the next concept, so a
+    retired tag cannot answer for a live one."""
     from datetime import date as _date
+    cutoff = ""
+    if max_age_days is not None:
+        cutoff = ((as_of or _date.today()) - timedelta(days=max_age_days)).isoformat()
     pools = (facts.get("us-gaap", {}), facts.get("dei", {}))
     for concept in concept_keys:
         node = pools[0].get(concept) or pools[1].get(concept)
         if not node:
             continue
         best = None
-        for rec in node.get("units", {}).get("USD", []):
-            start, end, val = rec.get("start"), rec.get("end"), rec.get("val")
-            if not start or not end or val is None:
-                continue
-            try:
-                days = (_date.fromisoformat(end) - _date.fromisoformat(start)).days
-            except Exception:
-                continue
-            if not _ANNUAL_MIN_DAYS <= days <= _ANNUAL_MAX_DAYS:
-                continue
-            if best is None or end > best[1]:
-                best = (val, end, concept)
-        if best:
+        for unit in unit_keys:
+            for rec in node.get("units", {}).get(unit, []):
+                start, end, val = rec.get("start"), rec.get("end"), rec.get("val")
+                if not start or not end or val is None:
+                    continue
+                try:
+                    days = (_date.fromisoformat(end) - _date.fromisoformat(start)).days
+                except Exception:
+                    continue
+                if not _ANNUAL_MIN_DAYS <= days <= _ANNUAL_MAX_DAYS:
+                    continue
+                if best is None or end > best[1]:
+                    best = (val, end, concept)
+        if best and best[1] >= cutoff:
             return best
     return (None, None, None)
+
+
+def _durations_from_records(records):
+    """Quarter- and year-length durations exactly as filed, most recent first.
+
+    Nothing is derived. A weighted-average share count is an average over its
+    period, so a year minus three quarters is not a fourth quarter of anything."""
+    best = {}
+    for r in records:
+        start, end, val = r.get("start"), r.get("end"), r.get("val")
+        if not start or not end or not isinstance(val, (int, float)):
+            continue
+        days = _period_days(start, end)
+        if days is None or not (_QUARTER_MIN_DAYS <= days <= _QUARTER_MAX_DAYS
+                                or _ANNUAL_MIN_DAYS <= days <= _ANNUAL_MAX_DAYS):
+            continue
+        filed = r.get("filed", "")
+        cur = best.get((start, end))
+        if cur is None or filed > cur["filed"]:
+            best[(start, end)] = {"start": start, "end": end, "val": val,
+                                  "filed": filed, "days": days}
+    return sorted(best.values(), key=lambda d: d["end"], reverse=True)
+
+
+def _share_counts(durations):
+    """({quarter end: shares}, {fiscal year end: shares}) from _durations_from_records."""
+    quarter, annual = {}, {}
+    for d in durations or ():
+        if not d["val"] or d["val"] <= 0:
+            continue
+        if _QUARTER_MIN_DAYS <= d["days"] <= _QUARTER_MAX_DAYS:
+            quarter.setdefault(d["end"], d["val"])
+        else:
+            annual.setdefault(d["end"], d["val"])
+    return quarter, annual
+
+
+def _implied_shares(eps, income):
+    """income / eps when the pair is informative about the share basis, else None."""
+    if eps is None or income is None or abs(eps) < _PER_SHARE_MIN_ABS or not income:
+        return None
+    if (eps > 0) != (income > 0):
+        return None
+    return income / eps
+
+
+def _quarter_share_count(end, q_shares, fy_shares):
+    """Weighted diluted shares for the quarter ending `end`, or None.
+
+    The quarter's own tagged count where there is one. Otherwise, for a fiscal
+    year's closing quarter, four times the year's average less the three
+    quarters before it, since the year's weighted average is (to within the
+    quarters' unequal lengths) the mean of its four quarters. That tracks a
+    buyback or an issuance inside the fourth quarter, which the year's average
+    alone does not: Tulip's diluted count went from 1.77m to about 4.8m in its
+    last quarter of fiscal 2026, and dividing by the year's 2.52m would
+    overstate that quarter's loss per share by 90%. The year's own count is the
+    fallback when the three quarters are missing, disagree with each other, or
+    give an estimate that is not a share count (negative, or over four times
+    the largest of them, which is a split between the year and its quarters)."""
+    if q_shares.get(end):
+        return q_shares[end]
+    fy = fy_shares.get(end)
+    if not fy:
+        return None
+    year_ago = _shift_iso(end, -370)
+    inside = [v for e, v in q_shares.items() if year_ago < e < end]
+    if len(inside) == 3 and max(inside) / min(inside) < _SHARE_BASIS_JUMP:
+        est = 4 * fy - sum(inside)
+        if 0 < est <= 4 * max(inside):
+            return est
+    return fy
+
+
+def _reconcile_eps_quarters(eps, ni_by_end, q_shares, fy_shares):
+    """The EPS series with every quarter the filer never tagged checked, and
+    rebuilt from its halves where the subtraction cannot be trusted.
+
+    A derived quarter is kept only if it agrees with the same quarter's
+    earnings: same sign, and an implied share count (earnings / EPS) within
+    _SHARE_BASIS_JUMP of the quarter's weighted diluted shares, or where none
+    can be had, of the implied counts of the filed quarters beside it. Failing
+    that, and for a quarter the subtraction refused outright, EPS is rebuilt
+    as earnings over weighted diluted shares (_quarter_share_count).
+
+    A tagged count for the quarter itself wins outright: earnings over it is
+    the definition of diluted EPS. Otherwise the subtraction is preferred when
+    it passes, because on a consistent basis it is exact to the cent and an
+    estimated share count is not."""
+    filed = [q for q in eps if not q.get("derived")]
+    # A share count is only used here if it is in the same units as the EPS
+    # it would rebuild. Hub Group tags its weighted diluted shares in
+    # thousands (61,104 for 61.1m), and dividing its $24m fourth quarter by
+    # that made an EPS of 398. Measured on the filed quarters: earnings over
+    # EPS must land within _SHARE_BASIS_JUMP of the tagged count.
+    ratios = sorted(s / q_shares[q["end"]] for q in filed if q_shares.get(q["end"])
+                    for s in [_implied_shares(q["val"], ni_by_end.get(q["end"]))]
+                    if s is not None)
+    if ratios and not (1 / _SHARE_BASIS_JUMP < ratios[len(ratios) // 2] < _SHARE_BASIS_JUMP):
+        q_shares, fy_shares = {}, {}
+    out = []
+    for q in eps:
+        if not q.get("derived"):
+            out.append(q)
+            continue
+        income = ni_by_end.get(q["end"])
+        if q_shares.get(q["end"]) and income is not None:
+            out.append(dict(q, val=income / q_shares[q["end"]], rebuilt=True))
+            continue
+        shares = _quarter_share_count(q["end"], q_shares, fy_shares)
+        if _derived_eps_coherent(q, income, shares, filed, ni_by_end):
+            out.append(q)
+            continue
+        if shares and income is not None:
+            out.append(dict(q, val=income / shares, rebuilt=True))
+    # A fourth quarter the subtraction refused (inputs on two share bases)
+    # leaves a gap that earnings over shares can still fill.
+    have = {q["end"] for q in out}
+    oldest = min(have) if have else ""
+    for end, income in ni_by_end.items():
+        if end in have or end < oldest:
+            continue
+        shares = _quarter_share_count(end, q_shares, fy_shares)
+        if shares:
+            out.append({"start": None, "end": end, "val": income / shares,
+                        "filed": "", "derived": True, "rebuilt": True})
+    out.sort(key=lambda q: q["end"], reverse=True)
+    # A rebuilt quarter has no start of its own; it runs from the day after
+    # the quarter before it, which the contiguity check in _per_share_ttm reads.
+    # With no quarter before it, or a gap, it is given a nominal 91 days.
+    for i, q in enumerate(out):
+        if not q.get("start"):
+            prev = out[i + 1]["end"] if i + 1 < len(out) else None
+            gap = _period_days(prev, q["end"]) if prev else None
+            q["start"] = (_shift_iso(prev, 1)
+                          if gap and _QUARTER_MIN_DAYS <= gap <= _QUARTER_MAX_DAYS
+                          else _shift_iso(q["end"], -91))
+    return out
+
+
+def _derived_eps_coherent(q, income, shares, filed, ni_by_end):
+    """Whether a subtracted EPS quarter is consistent with that quarter's earnings."""
+    if income is None or not q["val"]:
+        return True
+    if income and (q["val"] > 0) != (income > 0):
+        return False
+    implied = income / q["val"] if income else None
+    if implied is None:
+        return True
+    ref = shares
+    if not ref:
+        year_ago = _shift_iso(q["end"], -370)
+        siblings = sorted(s for s in (_implied_shares(f["val"], ni_by_end.get(f["end"]))
+                                      for f in filed if year_ago < f["end"] < q["end"])
+                          if s is not None)
+        if not siblings:
+            return True
+        ref = siblings[len(siblings) // 2]
+    return max(implied / ref, ref / implied) < _SHARE_BASIS_JUMP
+
+
+def _mixed_share_basis(quarters, ni_by_end, q_shares):
+    """True when a run of EPS quarters is not all on one share basis.
+
+    Reads the tagged weighted share counts where at least two quarters have
+    one, since those do not depend on the earnings concept being right, and
+    otherwise the share count each quarter implies (earnings / EPS). Alight's
+    trailing four quarters to June 2026 ran from 527m shares to 26m: the June
+    quarter was filed after its reverse split and the March quarter before.
+
+    The test is a jump between neighbouring quarters, not the spread across
+    the run. A split moves the count by its whole factor from one quarter to
+    the next; a company issuing stock grows it a step at a time. Measured on
+    reported.csv, a spread test also withheld Healthy Choice Wellness (12m to 27m
+    over four quarters of offerings), whose EPS sum is fine."""
+    tagged = [q_shares[q["end"]] for q in quarters if q_shares.get(q["end"])]
+    if len(tagged) >= 2:
+        counts = tagged
+    else:
+        counts = [s for s in (_implied_shares(q["val"], ni_by_end.get(q["end"]))
+                              for q in quarters) if s is not None]
+    return any(max(a / b, b / a) >= _SHARE_BASIS_JUMP for a, b in zip(counts, counts[1:]))
+
+
+def _per_share_ttm(quarters, ni_by_end, q_shares, offset=0):
+    """Trailing four quarters of a per-share figure, or None.
+
+    _ttm with two more refusals, both of which a per-share sum needs and a
+    dollar sum does not. The four quarters must tile one year, since a missing
+    quarter would otherwise pull a fifth into the window. And everything from
+    the newest quarter back through the window must be on one share basis:
+    adding a pre-split quarter to a post-split one is adding two currencies.
+    offset=4 checks all eight quarters, so a year-over-year comparison is never
+    made across a split either."""
+    if not quarters or len(quarters) < offset + _TTM_QUARTERS:
+        return None
+    window = quarters[offset:offset + _TTM_QUARTERS]
+    span = _period_days(window[-1].get("start") or "", window[0]["end"])
+    if span is None or not (_ANNUAL_MIN_DAYS <= span <= _ANNUAL_MAX_DAYS):
+        return None
+    if _mixed_share_basis(quarters[:offset + _TTM_QUARTERS], ni_by_end, q_shares):
+        return None
+    return _ttm(quarters, offset)
 
 
 # Banks below a certain size do not tag `Revenues` at all. Their income
@@ -12137,9 +12536,12 @@ def _ttm_with_annual_guard(facts, concept_keys, ttm_value, label, ticker=""):
     return annual, {"source": "annual", "concept": concept, "period_end": end}
 
 
-def compute_edgar_factors(facts):
+def compute_edgar_factors(facts, as_of=None):
     """Compute the 5 quarterly-trend factors from a CIK's XBRL facts dict.
-    Each factor goes through a plausibility clamp; out-of-range values are dropped."""
+    Each factor goes through a plausibility clamp; out-of-range values are dropped.
+
+    as_of (a date, default today) is only read by the annual fallback's
+    freshness limit."""
     if not facts:
         return {}
 
@@ -12151,7 +12553,9 @@ def compute_edgar_factors(facts):
     eps = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["eps_basic"])
     net_income = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["net_income"])
     assets = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["total_assets"])
-    eps_dil = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["eps_diluted"])
+    eps_dil, eps_concept = _extract_quarterly_series(
+        facts, EDGAR_CONCEPT_FALLBACKS["eps_diluted"], per_share=True,
+        unit_keys=("USD/shares",), return_concept=True)
     dep_amort = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["dep_amort"])
     if not dep_amort:
         # Components, summed, only when the combined line is absent.
@@ -12171,6 +12575,50 @@ def compute_edgar_factors(facts):
     cur_debt = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["current_debt"])
     st_borrow = _extract_instant_series(facts, EDGAR_CONCEPT_FALLBACKS["short_term_borrowings"])
 
+    # Diluted EPS, checked against its own two halves. The earnings concept is
+    # the common holders' where one is tagged, so the check is not thrown off
+    # by preferred dividends.
+    ni_common = _extract_quarterly_series(facts, EDGAR_CONCEPT_FALLBACKS["net_income_common"],
+                                          unit_keys=("USD",))
+    ni_by_end = {q["end"]: q["val"] for q in ni_common}
+    q_shares, fy_shares = _share_counts(_select_concept_series(
+        facts, EDGAR_CONCEPT_FALLBACKS["shares_diluted_weighted"], _durations_from_records,
+        unit_keys=("shares",)))
+    eps_q = _reconcile_eps_quarters(eps_dil, ni_by_end, q_shares, fy_shares)
+    ttm_eps = _per_share_ttm(eps_q, ni_by_end, q_shares)
+    prior_ttm_eps = _per_share_ttm(eps_q, ni_by_end, q_shares, _TTM_QUARTERS)
+    eps_basis = None
+    if ttm_eps is not None:
+        eps_basis = EPS_BASIS_BASIC if eps_concept in _BASIC_EPS_CONCEPTS else EPS_BASIS_TTM
+    ttm_ni = _ttm(net_income)
+    annual_end = None
+    # Annual-only filers. A 20-F or 40-F carries no quarterly XBRL at all, so
+    # 190 companies with a real, filed, full-year EPS had no P/E but the
+    # vendor's, and the loss-makers among them kept a vendor P/E our own
+    # filings contradict. The latest fiscal year stands in for the trailing
+    # twelve months when it ended within _ANNUAL_FALLBACK_MAX_AGE_DAYS.
+    #
+    # Only when no quarter falls inside or after that year. A quarterly filer
+    # whose trailing sum was withheld for mixing share bases must not fall back
+    # to an annual figure on the older of the two bases.
+    if ttm_eps is None:
+        val, end, concept = _latest_annual_value(
+            facts, EDGAR_CONCEPT_FALLBACKS["eps_diluted"], unit_keys=("USD/shares",),
+            max_age_days=_ANNUAL_FALLBACK_MAX_AGE_DAYS, as_of=as_of)
+        if val is not None and (not eps_dil
+                                or eps_dil[0]["end"] < _shift_iso(end, -_ANNUAL_MIN_DAYS)):
+            ttm_eps = float(val)
+            eps_basis = EPS_BASIS_BASIC if concept in _BASIC_EPS_CONCEPTS else EPS_BASIS_ANNUAL
+            annual_end = end
+    if ttm_ni is None:
+        val, end, _concept = _latest_annual_value(
+            facts, EDGAR_CONCEPT_FALLBACKS["net_income"], unit_keys=("USD",),
+            max_age_days=_ANNUAL_FALLBACK_MAX_AGE_DAYS, as_of=as_of)
+        if val is not None and (not net_income
+                                or net_income[0]["end"] < _shift_iso(end, -_ANNUAL_MIN_DAYS)):
+            ttm_ni = float(val)
+            annual_end = max(annual_end or "", end)
+
     out = {}
     # Revenue gets the annual guard because it is the field most other fields
     # are built from, and because banks and insurers routinely file it only
@@ -12184,11 +12632,11 @@ def compute_edgar_factors(facts):
         ("ttm_revenue", ttm_rev),
         ("ttm_gross_profit", _ttm(gp)),
         ("ttm_operating_income", _ttm(op_inc)),
-        ("ttm_net_income", _ttm(net_income)),
-        ("ttm_eps_diluted", _ttm(eps_dil)),
+        ("ttm_net_income", ttm_ni),
+        ("ttm_eps_diluted", ttm_eps),
         ("ttm_dep_amort", _ttm(dep_amort) if dep_amort else split_da),
         ("prior_ttm_revenue", _ttm(revenues, _TTM_QUARTERS)),
-        ("prior_ttm_eps_diluted", _ttm(eps_dil, _TTM_QUARTERS)),
+        ("prior_ttm_eps_diluted", prior_ttm_eps),
         ("shares_outstanding", _latest(shares)),
         ("equity", _latest(equity)),
         ("prior_equity", (float(equity[_TTM_QUARTERS]["val"])
@@ -12208,9 +12656,13 @@ def compute_edgar_factors(facts):
         out["ttm_ebitda"] = out["ttm_operating_income"] + out["ttm_dep_amort"]
     # The period the newest fact covers. This, not the day we ran, is what makes
     # a filing-derived number as current as it can be.
-    newest = max([s[0]["end"] for s in (revenues, net_income, eps_dil) if s] or [""])
+    # An annual-only filer has no quarter at all, and its year is the period.
+    newest = max([s[0]["end"] for s in (revenues, net_income, eps_dil) if s]
+                 + [annual_end or ""])
     if newest:
         out["fiscal_period_end"] = newest
+    if "ttm_eps_diluted" in out:
+        out["eps_basis"] = eps_basis
 
     # Accruals ratio (Sloan 1996): (TTM net income - TTM operating cash flow)
     # / average total assets. High accruals mean earnings are not backed by cash,
@@ -12686,6 +13138,11 @@ def enrich_with_insider(stocks, ticker_cik_map, max_workers=4):
     return enriched
 
 
+# compute_edgar_factors fields whose absence from a fresh result means the
+# filings do not support a value, so a carried-forward one must go too.
+_EDGAR_WITHHELD_ON_ABSENCE = ("ttm_eps_diluted", "prior_ttm_eps_diluted", "eps_basis")
+
+
 def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
     """For each stock with a CIK match, fetch EDGAR companyfacts and compute the
     5 quarterly-trend factors. Updates dicts in place. Honors SEC's 10 req/sec
@@ -12791,6 +13248,13 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
             s = by_ticker.get(sym)
             if s:
                 s.update(factors)
+                # A fresh fetch that withholds EPS is a decision, not a gap.
+                # update() alone would keep the value carried forward from the
+                # previous cache, which is the number that was withheld: Alight
+                # would have kept its 34.37 after the fix that refuses it.
+                for f in _EDGAR_WITHHELD_ON_ABSENCE:
+                    if f not in factors:
+                        s.pop(f, None)
                 s["edgar_updated"] = today_str
                 enriched += 1
     elapsed = time.time() - t0
@@ -12882,7 +13346,7 @@ _NA_DEBT_LIKE = (
 )
 # The parent's bookkeeping behind those fields: removed, but not stamped, since
 # they are stamps and nested structures rather than values a reader looks up.
-_DROP_DEBT_LIKE = ("op_margin_history", "benford", "fiscal_period_end",
+_DROP_DEBT_LIKE = ("op_margin_history", "benford", "fiscal_period_end", "eps_basis",
                    "edgar_updated", "insider_updated")
 # Withheld whatever their value, per type. A shell's margins are Yahoo's 0.0
 # placeholder (289 of 292 on 2026-09-21), a fund's P/E and margins are vendor
@@ -13301,7 +13765,7 @@ def get_or_generate_stocks_universe(session_confirmed=False):
         # would vanish on any rebuild that did not happen to refetch it.
         "ttm_revenue", "ttm_gross_profit", "ttm_operating_income", "ttm_net_income",
         "ttm_eps_diluted", "ttm_dep_amort", "ttm_fcf", "ttm_ebitda",
-        "prior_ttm_revenue", "prior_ttm_eps_diluted",
+        "prior_ttm_revenue", "prior_ttm_eps_diluted", "eps_basis",
         "shares_outstanding", "equity", "prior_equity",
         "cash_and_investments", "total_debt", "fiscal_period_end",
         "benford",
@@ -13343,6 +13807,12 @@ def get_or_generate_stocks_universe(session_confirmed=False):
             if not prev:
                 continue
             for field in CARRY_FIELDS:
+                # A P/E we computed from filings is recomputed from the carried
+                # EPS below, or deliberately not; carrying the old ratio would
+                # bring back the one derive_ratios_from_fundamentals withheld,
+                # labeled as the vendor's. Only the vendor's own P/E is carried.
+                if field == "pe" and (prev.get("status") or {}).get("pe") == "awaiting_filing":
+                    continue
                 if not _absent(prev.get(field)) and _absent(s.get(field)):
                     s[field] = prev[field]
                     if field == "sector":
