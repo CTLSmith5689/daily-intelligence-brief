@@ -2457,7 +2457,8 @@
    * exists, so a ticker without one costs no request and logs no 404:
    *   company/T.json  reported history, filings held, peer share, business excerpt (write_company_views)
    *   thesis/T.json   the current view and every note (write_thesis_views)
-   *   prices/T.json   daily closes for the chart; news/T.json the latest headlines */
+   *   prices/T.json   daily closes for the chart; news/T.json the latest headlines
+   *   history/T.json  every panel day's metrics, with history/_universe.json for each day's z (write_history_views) */
 
   var cst = { scope: "universe" };
   var HAVE = null;
@@ -2554,6 +2555,7 @@
       '</section><section aria-labelledby="ld-gl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-gl-h">At a glance</h2><span class="ld-vs">' + (sec ? "vs " + esc(sec) + " peers" : "no sector peers") + "</span></div>" + facts + "</section></div>" +
       thesisSection(tk, r) +
       '<section class="ld-sec" id="ld-where" aria-labelledby="ld-wh-h"></section>' +
+      '<section class="ld-sec" id="ld-hist" aria-labelledby="ld-hi-h"></section>' +
       '<div class="ld-two"><section class="ld-sec" aria-labelledby="ld-np-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-np-h">Closest profiles in the universe</h2></div>' +
       '<p style="font-size:14px;color:var(--ink2);margin:10px 0 6px">Operating companies whose z-scores sit nearest to ' + esc(tk) + "’s (root mean square distance, in sigma), " +
       profileScopeTxt(near.keys, kind) + "</p>" +
@@ -2566,6 +2568,7 @@
     if (pts.length) priceChart(document.getElementById("ld-chart"), pts, chartNote);
     main.querySelectorAll("[data-prog]").forEach(function (h) { if (r) progressLine(h, r); });
     drawWhere(i);
+    drawHistory(tk, i);
   }
 
   /* Nearest operating profiles by z distance, using only the fields that apply to this listing (a debt
@@ -2684,6 +2687,274 @@
       });
     });
   }
+
+  /* History: every panel day for one listing, from history/T.json (write_history_views), and the universe's
+     centre and scale on each of those days from history/_universe.json, so any day's value can be read as a
+     universe z the way zengine.js computes today's. A day with no value is drawn as a gap: the close was not
+     that session's (price_stale), the field does not apply to this kind of listing, or nothing was recorded. */
+  var HIST_DEFAULT = ["price", "pe", "revenue_growth_yoy", "operating_margin", "return_12_2", "volatility_1y"];
+  var HIST_RANGES = [["1M", 21], ["3M", 63], ["6M", 126], ["1Y", 252]];
+  var histU = null;
+  function histUniverse() {
+    if (!histU) histU = getJSON("history/_universe.json");
+    return histU;
+  }
+  function histLabel(k) { return k === "price" ? "Price" : metric(k) ? metric(k).label : k; }
+  function histFmt(k, v) {
+    if (v == null || !isFinite(v)) return "n/a";
+    if (k === "price") return money(v);
+    return ctx.APTZ.fmt(k, v).replace(/^(\$?)-/, MINUS + "$1");
+  }
+  function histZ(k, v, U, ui) {
+    var m = metric(k), st = U && U.m[k];
+    if (!m || !st || v == null || !isFinite(v) || ui < 0) return NaN;
+    var c = st.c[ui], s = st.s[ui];
+    if (c == null || !(s > 0)) return NaN;
+    var t = m.transform === "log10" ? (v > 0 ? Math.log10(v) : NaN) : v;
+    if (isNaN(t)) return NaN;
+    return Math.max(-5, Math.min(5, (t - c) / s));
+  }
+
+  /* One series on the panel's calendar: from the listing's first day to the panel's last, a date missing
+     from the listing's file is a gap like any withheld value. why[j]: "" | "stale" | "na" | "none". */
+  function histSeries(H, U, k, mode) {
+    var dates = U ? U.d : H.d, pos = {};
+    H.d.forEach(function (d, j) { pos[d] = j; });
+    var start = dates.indexOf(H.d[0]);
+    if (start < 0) { dates = H.d; start = 0; }
+    var raw = H.v[k], stale = {}, na = H.na && H.na[k];
+    (H.stale || []).forEach(function (j) { stale[j] = 1; });
+    var naSet = {};
+    if (na === 1) H.d.forEach(function (d, j) { naSet[j] = 1; });
+    else (na || []).forEach(function (j) { naSet[j] = 1; });
+    var out = { k: k, mode: mode, d: [], v: [], x: [], why: [] };
+    for (var ui = start; ui < dates.length; ui++) {
+      var d = dates[ui], j = pos[d], v = j == null || !raw ? null : raw[j];
+      var why = "";
+      if (v == null || !isFinite(v)) {
+        v = null;
+        why = j == null ? "none" : naSet[j] ? "na" : stale[j] && (k === "price" || STALE_KEYS[k]) ? "stale" : "none";
+      }
+      var shown = v;
+      if (mode === "z" && v != null) {
+        shown = histZ(k, v, U, U ? ui : -1);
+        if (isNaN(shown)) { shown = null; why = why || "noz"; }
+      }
+      out.d.push(d); out.x.push(v); out.v.push(shown); out.why.push(why);
+    }
+    return out;
+  }
+  // The fields a stale row loses (_PANEL_PRICE_FIELDS in the pipeline).
+  var STALE_KEYS = {};
+  ["change_pct", "volume", "volume_trend", "market_cap", "pe", "price_book", "fcf_yield", "return_1m", "return_12_2",
+   "return_52w", "high52w_proximity", "rel_strength_sp500", "volatility_1y", "beta_1y", "sharpe_1y",
+   "max_drawdown_1y"].forEach(function (k) { STALE_KEYS[k] = 1; });
+  var HIST_WHY = { stale: "withheld, the close was not that session's", na: "does not apply", none: "not recorded", noz: "no universe z that day" };
+
+  function histPath(ser, X, Y, lo, n) {
+    var d = "", run = 0, dots = [];
+    for (var j = lo; j < lo + n; j++) {
+      var v = ser.v[j];
+      if (v == null) { if (run === 1) dots.push(j - 1); run = 0; continue; }
+      d += (run ? "L" : "M") + X(j - lo).toFixed(1) + " " + Y(v).toFixed(1);
+      run++;
+    }
+    if (run === 1) dots.push(lo + n - 1);
+    return { d: d, dots: dots };
+  }
+
+  function histChart(host, ser, name) {
+    var n = ser.v.length, lo = 0;
+    if (cst.hrange && cst.hrange < n) { lo = n - cst.hrange; n = cst.hrange; }
+    var W = Math.max(280, host.clientWidth || 640), H = W < 520 ? 210 : 270;
+    var zmode = ser.mode === "z";
+    var pl = 4, pr = zmode ? 44 : 70, pt = 12, pb = 26, iw = W - pl - pr, ih = H - pt - pb;
+    var vs = ser.v.slice(lo, lo + n).filter(function (v) { return v != null; });
+    var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+    if (zmode) { mn = Math.min(mn, -2); mx = Math.max(mx, 2); }
+    if (mn === mx) { var pad = Math.abs(mn) * 0.02 || 1; mn -= pad; mx += pad; }
+    var step = zmode ? (mx - mn > 6 ? 2 : 1) : niceStep(mx - mn, 4);
+    var y0 = Math.floor(mn / step) * step, y1 = Math.ceil(mx / step) * step;
+    function X(j) { return pl + (n > 1 ? iw * j / (n - 1) : iw / 2); }
+    function Y(v) { return pt + ih * (1 - (v - y0) / (y1 - y0)); }
+    var g = [], sw = n > 1 ? iw / (n - 1) : iw;
+    for (var j = 0; j < n; j++) {
+      if (ser.v[lo + j] != null) continue;
+      var gx = Math.max(pl, X(j) - sw / 2), gw = Math.min(pl + iw, X(j) + sw / 2) - gx;
+      g.push('<rect class="gap" x="' + gx.toFixed(1) + '" y="' + pt + '" width="' + Math.max(1, gw).toFixed(1) + '" height="' + ih + '"/>');
+    }
+    for (var y = y0; y <= y1 + step / 2; y += step) {
+      var yy = Y(y).toFixed(1), zero = zmode && Math.abs(y) < 1e-9;
+      g.push('<line class="' + (zero ? "zl" : "gl") + '" x1="' + pl + '" x2="' + (pl + iw) + '" y1="' + yy + '" y2="' + yy + '"/>');
+      var lab = zmode ? (Math.abs(y) < 1e-9 ? "0" : (y > 0 ? "+" : MINUS) + Math.abs(y)) + SIGMA : ser.k === "price" ? (y < 0 ? MINUS : "") + "$" + num(Math.abs(y), step < 1 ? 2 : 0) : histFmt(ser.k, y);
+      g.push('<text x="' + (pl + iw + 8) + '" y="' + (Y(y) + 3.5).toFixed(1) + '">' + esc(lab) + "</text>");
+    }
+    var xl = [], lastX = -99, every = Math.max(1, Math.ceil(n / Math.max(2, Math.floor(iw / 70))));
+    for (j = 0; j < n; j += every) {
+      if (X(j) - lastX < 56 || X(j) > pl + iw - 24 && j) continue;
+      xl.push('<text x="' + X(j).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + (j ? "middle" : "start") + '">' + esc(dateShort(ser.d[lo + j])) + "</text>");
+      lastX = X(j);
+    }
+    var p = histPath(ser, X, Y, lo, n);
+    var dots = p.dots.map(function (jj) { return '<circle class="pt" r="2.6" cx="' + X(jj - lo).toFixed(1) + '" cy="' + Y(ser.v[jj]).toFixed(1) + '"/>'; }).join("");
+    var li = lo + n - 1; while (li >= lo && ser.v[li] == null) li--;
+    var label = name + ", " + (zmode ? "universe z" : "value") + ", " + dateMid(ser.d[lo]) + " to " + dateMid(ser.d[lo + n - 1]);
+    host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" height="' + H + '" role="img" aria-label="' + esc(label) + '">' +
+      g.join("") + '<path class="ln" d="' + p.d + '"/>' + dots +
+      '<line class="bl" x1="' + pl + '" x2="' + (pl + iw) + '" y1="' + (pt + ih) + '" y2="' + (pt + ih) + '"/>' + xl.join("") +
+      (li >= lo ? '<circle class="dot" cx="' + X(li - lo).toFixed(1) + '" cy="' + Y(ser.v[li]).toFixed(1) + '" r="4"/>' : "") +
+      '<line class="xh" x1="0" x2="0" y1="' + pt + '" y2="' + (pt + ih) + '" style="display:none"/>' +
+      '<circle class="dot hx" r="4.5" cx="0" cy="0" style="display:none"/>' +
+      '<rect x="' + pl + '" y="' + pt + '" width="' + iw + '" height="' + ih + '" fill="transparent" class="hit"/></svg>' +
+      '<div class="ld-tip"></div>';
+    var svg = host.querySelector("svg"), tip = host.querySelector(".ld-tip"), xh = host.querySelector(".xh"), xd = host.querySelector(".hx");
+    function move(ev) {
+      var r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width;
+      var jj = n > 1 ? Math.round((sx - pl) / iw * (n - 1)) : 0;
+      jj = Math.max(0, Math.min(n - 1, jj));
+      var x = X(jj), v = ser.v[lo + jj];
+      xh.setAttribute("x1", x); xh.setAttribute("x2", x); xh.style.display = "";
+      if (v != null) { xd.setAttribute("cx", x); xd.setAttribute("cy", Y(v)); xd.style.display = ""; } else xd.style.display = "none";
+      tip.textContent = histRead(ser, lo + jj);
+      tip.style.left = Math.max(90, Math.min(r.width - 90, x * r.width / W)) + "px";
+      tip.style.top = ((v != null ? Y(v) : pt + ih / 2) * r.height / H) + "px";
+      tip.style.opacity = "1";
+      setHistRead(histRead(ser, lo + jj));
+    }
+    function leave() { xh.style.display = "none"; xd.style.display = "none"; tip.style.opacity = "0"; setHistRead(histRead(ser, li >= lo ? li : lo + n - 1)); }
+    svg.addEventListener("pointermove", move);
+    svg.addEventListener("pointerdown", move);
+    svg.addEventListener("pointerleave", leave);
+    setHistRead(histRead(ser, li >= lo ? li : lo + n - 1));
+  }
+  function histRead(ser, j) {
+    var head = dateShort3(ser.d[j]) + "  ";
+    var raw = ser.x[j];
+    if (raw == null) return head + HIST_WHY[ser.why[j]];
+    var z = ser.mode === "z" ? ser.v[j] : NaN;
+    return head + histFmt(ser.k, raw) + (ser.mode === "z" ? "  z " + (z == null ? "n/a" : zTxt(z)) : "");
+  }
+  function setHistRead(t) { var el = document.getElementById("ld-hread"); if (el) el.textContent = t; }
+
+  function histSpark(ser) {
+    var W = 200, H = 54, vs = ser.v.filter(function (v) { return v != null; });
+    if (!vs.length) return '<svg viewBox="0 0 200 54" aria-hidden="true"></svg>';
+    var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+    if (ser.mode === "z") { mn = Math.min(mn, -1); mx = Math.max(mx, 1); }
+    if (mn === mx) { var pd = Math.abs(mn) * 0.02 || 1; mn -= pd; mx += pd; }
+    var pad = (mx - mn) * 0.08; mn -= pad; mx += pad;
+    var n = ser.v.length;
+    function X(j) { return n > 1 ? W * j / (n - 1) : W / 2; }
+    function Y(v) { return H * (1 - (v - mn) / (mx - mn)); }
+    var p = histPath(ser, X, Y, 0, n);
+    var zero = mn < 0 && mx > 0 ? '<line class="zero" x1="0" x2="' + W + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>' : "";
+    // A lone day between gaps: a zero-length round-capped stroke, which stays a dot when the SVG is stretched.
+    var dots = p.dots.map(function (j) { return "M" + X(j).toFixed(1) + " " + Y(ser.v[j]).toFixed(1) + "l0.01 0"; }).join("");
+    return '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" aria-hidden="true">' + zero + '<path class="ln" d="' + p.d + '"/>' + (dots ? '<path class="pd" d="' + dots + '"/>' : "") + "</svg>";
+  }
+
+  function drawHistory(tk, i) {
+    var host = document.getElementById("ld-hist");
+    if (!host) return;
+    if (noHistory(tk)) {
+      host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">History</h2></div><p class="ld-note">No daily history is held for ' + esc(tk) + ".</p>";
+      return;
+    }
+    Promise.all([getJSON("history/" + tickerFile(tk)), histUniverse()]).then(function (got) {
+      if (parseCompanyHash().tk && parseCompanyHash().tk !== tk) return;
+      var H = got[0], U = got[1];
+      if (!H || !H.d || !H.d.length) {
+        host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">History</h2></div><p class="ld-note">No daily history is held for ' + esc(tk) + ".</p>";
+        return;
+      }
+      renderHistory(host, tk, i, H, U);
+    });
+  }
+
+  function renderHistory(host, tk, i, H, U) {
+    if (!cst.hkey) cst.hkey = "price";
+    if (!cst.hmode) cst.hmode = "value";
+    var first = U && U.d.length ? U.d[0] : H.d[0];
+    var kind = S.kind[i];
+    var groups = metricsByGroup();
+    var opts = '<optgroup label="Price"><option value="price">Price</option></optgroup>' + GROUPS.map(function (g) {
+      return '<optgroup label="' + esc(g) + '">' + groups[g].map(function (m) {
+        return '<option value="' + m.key + '">' + esc(m.label) + "</option>";
+      }).join("") + "</optgroup>";
+    }).join("");
+    host.innerHTML = '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-hi-h">History</h2><span class="ld-kicker">' + H.d.length + " panel " + (H.d.length === 1 ? "day" : "days") + ", " + dateMid(H.d[0]) + " to " + dateMid(H.d[H.d.length - 1]) + "</span></div>" +
+      '<p class="ld-hnote">The daily panel starts ' + dateMid(first) + ". " + esc(tk) + " has " + H.d.length + " of the panel's " + (U ? U.d.length : H.d.length) + " days" +
+      (H.d.length < 30 ? ", too few to read a trend into" : "") + ". A gap is a day with no value: the close was not that session's, the field does not apply, or nothing was recorded. The z on each day is against that day's operating universe.</p>" +
+      '<div class="ld-hctl"><label class="ld-kicker" for="ld-hk">Metric</label><select id="ld-hk" class="ld-select ld-hsel">' + opts + "</select>" +
+      '<div class="ld-seg" role="group" aria-label="Show"><button type="button" data-hm="value">Value</button><button type="button" data-hm="z">Universe z</button></div>' +
+      '<div class="ld-seg" role="group" aria-label="Range" id="ld-hr"></div></div>' +
+      '<div class="ld-hread ld-num" id="ld-hread" aria-live="polite"></div>' +
+      '<div class="ld-chart ld-hchart" id="ld-hchart"></div>' +
+      '<p class="ld-muted ld-hfoot" id="ld-hfoot"></p>' +
+      '<div class="ld-hsm" id="ld-hsm"></div>';
+    var sel = host.querySelector("#ld-hk");
+    function paint() {
+      var k = cst.hkey, isPrice = k === "price";
+      var mode = isPrice ? "value" : cst.hmode;
+      sel.value = k;
+      host.querySelectorAll("[data-hm]").forEach(function (b) {
+        var m = b.getAttribute("data-hm");
+        b.setAttribute("aria-pressed", String(m === mode));
+        if (m === "z") { b.disabled = isPrice; if (isPrice) b.title = "Price has no universe z"; else b.removeAttribute("title"); }
+      });
+      var ser = histSeries(H, U, k, mode);
+      var rg = host.querySelector("#ld-hr"), avail = HIST_RANGES.filter(function (r) { return r[1] < ser.v.length; });
+      if (cst.hrange && !avail.some(function (r) { return r[1] === cst.hrange; })) cst.hrange = 0;
+      rg.hidden = !avail.length;
+      rg.innerHTML = avail.length ? avail.map(function (r) { return '<button type="button" data-hr="' + r[1] + '" aria-pressed="' + (cst.hrange === r[1]) + '">' + r[0] + "</button>"; }).join("") +
+        '<button type="button" data-hr="0" aria-pressed="' + !cst.hrange + '">All</button>' : "";
+      var chart = host.querySelector("#ld-hchart"), foot = host.querySelector("#ld-hfoot");
+      var have = ser.v.filter(function (v) { return v != null; }).length;
+      var cnt = { stale: 0, na: 0, none: 0, noz: 0 };
+      ser.why.forEach(function (w) { if (w) cnt[w]++; });
+      if (!have) {
+        chart.innerHTML = '<p class="ld-note">' + esc(histLabel(k)) + ": " + (cnt.na === ser.v.length ? "does not apply to a " + esc(KIND_WHY[kind] || kind) + "." : "no value on any panel day.") + "</p>";
+        setHistRead("");
+      } else {
+        histChart(chart, ser, histLabel(k));
+      }
+      var bits = [];
+      if (cnt.stale) bits.push(cnt.stale + " withheld (close not that session's)");
+      if (cnt.na) bits.push(cnt.na + " not applicable");
+      if (cnt.none) bits.push(cnt.none + " not recorded");
+      if (cnt.noz) bits.push(cnt.noz + " without a universe z");
+      foot.textContent = have ? have + " of " + ser.v.length + " days have a value" + (bits.length ? "; " + bits.join(", ") : "") + "." +
+        (mode === "z" ? " z is robust (median and MAD), clipped at " + String.fromCharCode(177) + "5" + SIGMA + (metric(k) && metric(k).transform === "log10" ? ", on log10 values" : "") + "." : "") : "";
+      var sm = host.querySelector("#ld-hsm");
+      sm.innerHTML = HIST_DEFAULT.map(function (key) {
+        var md = key === "price" ? "value" : cst.hmode, s = histSeries(H, U, key, md);
+        var li = s.v.length - 1; while (li >= 0 && s.v[li] == null) li--;
+        var big = li < 0 ? "n/a" : md === "z" ? zTxt(s.v[li]) : histFmt(key, s.x[li]);
+        var allNa = s.why.every(function (w) { return w === "na"; });
+        var pic = li < 0 ? '<span class="ld-hsmna">' + (allNa ? "Does not apply" : "No values") + "</span>" : histSpark(s);
+        return '<button type="button" class="ld-sm ld-hsmb" data-hk="' + key + '" aria-pressed="' + (key === k) + '"><span class="ld-kicker">' + esc(histLabel(key)) + (md === "z" ? " z" : "") + '</span><span class="v">' + esc(big) + "</span>" + pic +
+          '<span class="f"><span>' + esc(dateShort(s.d[0])) + "</span><span>" + (li >= 0 ? esc(dateShort(s.d[li])) : "") + "</span></span></button>";
+      }).join("");
+    }
+    sel.addEventListener("change", function () { cst.hkey = sel.value; paint(); });
+    host.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-hm],[data-hr],[data-hk]");
+      if (!b || b.disabled) return;
+      if (b.hasAttribute("data-hm")) cst.hmode = b.getAttribute("data-hm");
+      else if (b.hasAttribute("data-hr")) cst.hrange = +b.getAttribute("data-hr");
+      else cst.hkey = b.getAttribute("data-hk");
+      paint();
+    });
+    paint();
+    redrawers.push(function () { if (host.isConnected) paint(); });
+  }
+  function noHistory(tk) {
+    var h = CFG.have || {};
+    if (!h.noHistory) return false;
+    if (!NOHIST) { NOHIST = {}; h.noHistory.forEach(function (t) { NOHIST[t] = 1; }); }
+    return !!NOHIST[tk];
+  }
+  var NOHIST = null;
 
   function businessBlock(tk, det) {
     if (!det) return "<div></div>";
