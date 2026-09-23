@@ -168,7 +168,7 @@ def fmt(v, field):
     # them, and a count of "0" in the table reads as a measurement rather than a
     # gap. Insider counts are left alone: zero buyers is a real observation.
     if field == "shares_outstanding" and not v:
-        return "— not reported"
+        return "not reported"
     if field in _MONEY_FIELDS:
         a = abs(v)
         if a >= 1e12:
