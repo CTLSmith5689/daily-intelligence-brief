@@ -3220,7 +3220,7 @@
       (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>View</th><th>Conviction</th><th class="r">Written at</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written on</th></tr></thead><tbody>' +
       rows + "</tbody></table></div>" : '<p class="ld-empty">No thesis has been written yet.</p>') +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">“To target” is how far the price still has to move, from the last close, to reach the target. When the view takes no side (“' + esc(VIEW.watch) + '” or “' + esc(VIEW["no view"]) + '”), the target is for reference only and the company shows as Watching. Those notes make no call, so they are never checked.</p></section>' +
-      recordHTML(CFG.record) + portfoliosLinkHTML() + "</div>";
+      recordHTML(CFG.record) + analystInstructionsHTML(CFG.howAnalyst) + portfoliosLinkHTML() + "</div>";
     var tb = main.querySelector(".ld-rtab tbody");
     if (tb) tb.addEventListener("click", function (e) {
       if (e.target.closest("a")) return;
@@ -3278,27 +3278,37 @@
       "A holding is valued at the stored close for that day only. When a close is missing, the day is marked partial and its value is left blank rather than estimated.</p>";
   }
 
-  function cardHTML(b) {
-    var kick = isStyle(b) ? SIZE_WORD[b.size] + " " + MID + " " + STYLE_WORD[b.style] : (b.kind === "hedge" ? "Long and short" : "Free hand");
-    var head = '<div class="ld-pm-ch"><span class="ld-kicker">' + esc(kick) + "</span>" +
-      '<h3 class="ld-h3"><a href="' + bookHref(b.id) + '">' + esc(b.name) + "</a></h3></div>";
-    if (!b.inception) {
-      var cov = PM.coverage || {};
-      return '<article class="ld-pm-card">' + head + '<p class="ld-muted ld-pm-p">Not started yet. The rules place companies in this box only once they have three years of annual figures, and ' +
-        int(cov.with_growth || 0) + " of " + int(cov.sized || 0) + " companies have them so far. The book starts when the box holds at least " + int((b.mandate && b.mandate.holdings_range || [25])[0]) + ".</p></article>";
-    }
-    var rows = '<div class="ld-pm-kv"><span>This book</span><b class="ld-num ' + pctCls(b.ret) + '">' + pctTxt(b.ret) + "</b></div>" +
-      '<div class="ld-pm-kv"><span>' + esc(benchShort(b)) + '</span><b class="ld-num ' + pctCls(b.benchRet) + '">' + pctTxt(b.benchRet) + "</b></div>" +
-      (b.cash_benchmark ? '<div class="ld-pm-kv"><span>Cash (Treasury bills)</span><b class="ld-num ' + pctCls(b.cashRet) + '">' + pctTxt(b.cashRet) + "</b></div>" : "");
-    var cashW = b.cash != null && b.pricedNav ? b.cash / b.pricedNav : null;
-    var foot = inCash(b) ? "All in cash. Built at the next PM run." :
-      plural(b.holdingsCount || 0, "holding", "holdings") + " " + MID + " cash " + plainPct(cashW) +
-      (b.gross != null && !isStyle(b) ? " " + MID + " gross " + plainPct(b.gross, 0) + ", net " + plainPct(b.net, 0) : "");
-    var last = b.lastDecision ? "Last decision: " + esc((ACTION_WORD[b.lastDecision.action] || b.lastDecision.action).toLowerCase()) + ", " + esc(dateMid(b.lastDecision.date)) + "." : "";
-    return '<article class="ld-pm-card">' + head +
-      '<p class="ld-pm-since ld-muted">Started ' + esc(dateMid(b.inception)) + ". Return to the close on " + esc(dateMid(b.asof)) + ".</p>" + rows +
-      (b.partial ? '<p class="ld-pm-warn">Partial: some holdings have no stored close for ' + esc(dateMid(b.asof)) + ", so the value is left blank.</p>" : "") +
-      '<p class="ld-pm-foot">' + foot + "</p>" + (last ? '<p class="ld-pm-foot">' + last + "</p>" : "") + "</article>";
+  /* The instructions the agents run on: the claude.ai routine's prompt (mirrored in theses/routines/ and
+     portfolio/routines/) and the PROMPTS.md section it points to. The pipeline renders them from the files in
+     the repository, escaping everything first; they are printed here as they stand. */
+  function repoLink(path) {
+    return CFG.repoUrl ? '<a class="ld-inl" href="' + esc(CFG.repoUrl + path) + '" target="_blank" rel="noopener">' + esc(path) + "</a>" : esc(path);
+  }
+  function docBlock(summary, lede, html) {
+    return '<details class="ld-det ld-doc"><summary>' + esc(summary) + '</summary><div class="ld-notebody ld-docbody">' +
+      (lede ? '<p class="ld-doc-src">' + lede + "</p>" : "") + cleanHtml(html) + "</div></details>";
+  }
+  function analystInstructionsHTML(d) {
+    if (!d) return "";
+    var r = d.routine;
+    return '<section class="ld-sec" aria-labelledby="ld-how-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-how-h">How the analyst works</h2></div>' +
+      '<p class="ld-pm-p">The analyst is a scheduled claude.ai routine' + (r && r.schedule ? " that runs " + esc(r.schedule) : "") + ". Its prompt is short and points to the full instructions in the repository, which say what to read, how to write a memo and how to record it. Both are printed below as they stand in the repository, so a change to either shows here after the next build.</p>" +
+      (r ? docBlock("The routine prompt", "From " + repoLink(d.routinePath) + (r.schedule ? ". Runs " + esc(r.schedule) + "." : "."), r.html) : "") +
+      (d.prompt ? docBlock("The full instructions", "From " + repoLink(d.promptPath) + ", the section “" + esc(d.promptSection) + "”.", d.prompt) : "") +
+      "</section>";
+  }
+  function pmInstructionsHTML(d) {
+    if (!d) return "";
+    var shared = d.prompt ? docBlock("The instructions every PM follows", "From " + repoLink(d.promptPath) + ", the section “" + esc(d.promptSection) + "”. Each routine follows it for its own books only.", d.prompt) : "";
+    var blocks = (d.pms || []).map(function (p) {
+      var when = p.schedule || "Not scheduled yet";
+      return '<details class="ld-det ld-doc"><summary>' + esc(p.name) + " " + MID + " " + esc(when) + '</summary><div class="ld-notebody ld-docbody">' +
+        '<p class="ld-doc-src">Runs ' + esc(p.books.charAt(0).toLowerCase() + p.books.slice(1)) + ". Schedule: " + esc(when.charAt(0).toLowerCase() + when.slice(1)) + ". The routine prompt, from " + repoLink(p.path) + ":</p>" +
+        cleanHtml(p.html) + "</div></details>";
+    }).join("");
+    return '<section class="ld-sec" aria-labelledby="ld-pmhow-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmhow-h">How the PMs work</h2></div>' +
+      '<p class="ld-pm-p">Each PM is a scheduled claude.ai routine with a short prompt that names its books and points to the full PM instructions. A PM trades only through portfolio/bin/trade.py, which checks each order against the book’s limits and writes it to the ledger. The prompts and instructions are printed as they stand in the repository.</p>' +
+      blocks + shared + "</section>";
   }
 
   function boxTableHTML(counts) {
@@ -3313,11 +3323,6 @@
 
   function renderPortfolios(main) {
     var books = PM.books || [];
-    var byKey = {}, pmBooks = [];
-    books.forEach(function (b) { if (isStyle(b)) byKey[b.size + "-" + b.style] = b; else pmBooks.push(b); });
-    var grid = ["large", "mid", "small"].map(function (z) {
-      return ["value", "growth"].map(function (s) { var b = byKey[z + "-" + s]; return b ? cardHTML(b) : ""; }).join("");
-    }).join("");
     var live = books.filter(function (b) { return b.inception; }).length;
     var counts = PM.boxCounts || {}, cov = PM.coverage || {};
     var rule = (PM.classificationRule || []).map(function (p) { return '<p class="ld-pm-p">' + esc(p) + "</p>"; }).join("");
@@ -3329,10 +3334,9 @@
       '<div class="ld-head"><div><div class="ld-kicker"><b>Portfolios</b> ' + MID + " " + plural(live, "book started", "books started") + (PM.asof ? " " + MID + " as of the close on " + esc(dateMid(PM.asof)) : "") + "</div>" +
       '<h1 class="ld-h1">Model portfolios</h1><p class="ld-deck">Eight paper portfolios, each started with $' + int(PM.capital || 1000000) + " of pretend cash. Six hold one size and style of company, are chosen by written rules and reviewed by the portfolio manager (PM), and are measured against the matching Russell index fund. The other two are the PM’s own: a hedge fund strategy that bets on some companies and against others, and a book where the PM has a free hand.</p></div></div>" +
       priceNote() +
-      '<section class="ld-sec" aria-labelledby="ld-pm-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pm-h">Six style books</h2><span class="ld-kicker">Value and growth; large, mid and small</span></div>' +
-      '<div class="ld-pm-grid ld-pm-grid2">' + grid + "</div></section>" +
-      '<section class="ld-sec" aria-labelledby="ld-pm-h2"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pm-h2">Two books the PM builds</h2><span class="ld-kicker">Measured against the S&amp;P 500</span></div>' +
-      '<div class="ld-pm-grid ld-pm-grid2">' + pmBooks.map(cardHTML).join("") + "</div>" +
+      '<section class="ld-sec" aria-labelledby="ld-pm-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pm-h">The books</h2><span class="ld-kicker">One column per book, one card per holding</span></div>' +
+      '<p class="ld-pm-p">Each column is one book: its value, its return against its benchmark, and a card for each company it holds. The PMs trade only through the ledger, and every figure here is worked out from that ledger and the stored closing prices. Open a book from its heading, or a company from its card. A bet against a company (a short position) has a red edge.</p>' +
+      (CFG.board ? cleanHtml(CFG.board) : '<p class="ld-empty">The board could not be built on this run.</p>') +
       '<p class="ld-pm-p ld-muted">The hedge fund strategy may hold up to 200% of its value in positions, counting bets against companies at their size, and must keep its net position (what it owns minus what it has bet against) between minus 20% and plus 60% of its value. It is also compared with what its cash would have earned in Treasury bills. The free hand book may do anything short of positions worth more than twice its value, and works only from the data in this project, with no internet.</p></section>' +
       '<section class="ld-sec" aria-labelledby="ld-pmc-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmc-h">How companies are sorted into the six boxes</h2></div>' + rule +
       '<p class="ld-pm-p">A robust z-score says how far a figure sits from the middle of the group: the median, measured in units of the typical spread around it, and capped at 5 either way so a single extreme figure cannot stretch the scale.</p>' +
@@ -3341,6 +3345,7 @@
       '<section class="ld-sec" aria-labelledby="ld-pmr-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmr-h">How the rules choose a book</h2></div>' +
       '<p class="ld-pm-p">' + esc(PM.candidateRule || "") + "</p>" +
       '<p class="ld-pm-p">The rules run again after every close and their choice is shown on each book’s page beside what the book holds. They do not trade. Each style book is bought from the rules on its first day; after that, only the PM trades, and it says why whenever it departs from the rules.</p></section>' +
+      pmInstructionsHTML(CFG.howPms) +
       (planned.length ? '<section class="ld-sec" aria-labelledby="ld-pmp-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmp-h">Still to come</h2></div><p class="ld-pm-p">Core books for each size (the middle between growth and value), tax-managed books and a momentum book are planned but not built: ' + esc(andList(planned)) + ".</p></section>" : "") +
       (drafts ? '<details class="ld-det"><summary>Earlier draft</summary><p class="ld-pm-p">Before these books existed, the plan was a single portfolio built from the analyst’s notes. The draft is kept in the repository.</p><ul class="ld-pm-list">' + drafts + "</ul></details>" : "") +
       "</div>";

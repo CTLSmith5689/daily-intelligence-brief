@@ -20,8 +20,14 @@ The code is `engine.py`; the method is printed on the site's Portfolios page and
 | `letters/<date>/<book>.md` | the PM's weekly letter per book | the PM routine |
 | `../data/portfolio/nav.csv` | each book's value at each close | the daily run (`record_portfolio_nav`) |
 | `../data/financials/style_history.csv` | three fiscal years per company, from 10-K facts | the daily run's weekly EDGAR pass |
+| `PROMPTS.md` | the PM's instructions, which every PM routine follows | the owner, by commit |
+| `routines/<pm>.md` | each PM routine's claude.ai prompt (style, hedge, neural), mirrored by hand | the owner, by commit (see `theses/RUNBOOK.md`) |
 
-All are append-only with `merge=union`. `engine.append_rows` refuses a file whose
+The Portfolios page prints `PROMPTS.md` and the routine files as they stand, and draws its
+board (one column per book, one card per holding) from `ledger/trades.csv` and the stored
+closes: no figure on it is typed in by a PM.
+
+The CSVs are append-only with `merge=union`. `engine.append_rows` refuses a file whose
 header differs; a new column goes through `engine.migrate_add_columns`, once, in
 a quiet window. A short is a negative position whose sale proceeds are credited to
 cash; gross and net exposure are computed from both sides. Named lots and FIFO are

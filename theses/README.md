@@ -19,7 +19,8 @@ the arrangement the README's "no LLM, and no AI API key" note anticipated.
 | `bin/` | deterministic Python. The screen, the dossier builder, the scorer. Zero model tokens |
 | `notes/{TICKER}/{DATE}-{kind}.md` | the thesis: YAML front-matter, Markdown body. From the run of 2026-09-28 a buy-side investment memo (`format: memo`): page one, twelve numbered sections and a glossary, as an initiation for a new name or a short revision for a covered one. Earlier notes are in the older plain format and are never edited |
 | `GLOSSARY.md` | the one-sentence definition of every finance term a memo uses. Memos copy it word for word; the analyst does not edit it |
-| `PROMPTS.md`, `RUNBOOK.md` | the analyst's instructions, and how the scheduled run is set up |
+| `PROMPTS.md`, `RUNBOOK.md` | the analyst's instructions, and how the scheduled run is set up. The portfolio managers' instructions are in `portfolio/PROMPTS.md` |
+| `routines/research-agent.md` | the claude.ai routine's prompt, mirrored by hand (RUNBOOK.md) and printed on the Research page |
 | `ledger/events.csv` | **append-only.** One row per note: initiate, revise, reaffirm or close, with the direction, conviction and target. Memo rows also carry `action`, `size_now`, `expected_return` and `bear_return`, the last four columns, blank for older rows |
 | `ledger/predictions.csv` | **append-only, never rewritten** |
 | `ledger/scores.csv` | **append-only.** Outcomes, joined on `prediction_id` |

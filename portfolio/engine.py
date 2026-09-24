@@ -1495,6 +1495,23 @@ def _r(v, n=6):
     return None if v is None else round(v, n)
 
 
+def _cost_basis(open_lots, ticker):
+    """What the open lots of `ticker` cost, before trading costs: shares times the
+    price paid (for a short, the price it was sold at)."""
+    return sum(l["shares"] * l["price"] for l in open_lots if l["ticker"] == ticker)
+
+
+def memo_index(path=None):
+    """{ticker: {"date", "path"}}: the newest note the analyst has written on each
+    company, from theses/ledger/events.csv."""
+    out = {}
+    for e in read_rows(path or EVENTS_CSV):
+        t, note = e.get("ticker"), e.get("note_path")
+        if t and note:
+            out[t] = {"date": e.get("date") or "", "path": note}
+    return out
+
+
 def cash_return(start, end, dates, benchmarks):
     """What cash would have earned from the close of `start` to the close of `end`:
     each session after `start` accrues the 13-week Treasury bill rate stored for
@@ -1526,6 +1543,9 @@ def site_data(ledger_dir=None, books_dir=None, panel_dir=None, prices=None,
     dates = panel_dates(panel_dir)
     classes = classify(rows, history, asof) if rows else {}
     views = analyst_views(events)
+    memos = memo_index(events)
+    before = [d for d in dates if asof and d < asof]
+    prev_day = before[-1] if before else None
     counts = box_counts(classes)
     names = {r["ticker"]: (r.get("name") or "", r.get("sector") or "") for r in rows}
     books = []
@@ -1549,21 +1569,38 @@ def site_data(ledger_dir=None, books_dir=None, panel_dir=None, prices=None,
             state = book_state(ts)
             held = set(state["shares"])
             total = v["priced_nav"] if v else None
+            open_lots, _ = derive_lots(ts)
             marks = []
             for m in (v or {}).get("marks", []):
                 nm, sec = names.get(m["ticker"], ("", ""))
+                # The change since the previous session's stored close, only when
+                # both closes are stored: never measured across a gap.
+                prior = prices.close(m["ticker"], prev_day) if prev_day else None
                 marks.append({"ticker": m["ticker"], "name": nm, "sector": sec,
                               "side": m["side"], "shares": m["shares"], "close": m["close"],
                               "value": round(m["value"], 2), "avgCost": _r(m["avg_cost"], 4),
+                              "costBasis": _r(_cost_basis(open_lots, m["ticker"]), 2),
                               "since": m["since"],
                               "weight": _r(m["value"] / total) if total else None,
-                              "ret": _r(m["ret"])})
+                              "ret": _r(m["ret"]),
+                              "dayChg": _r(m["close"] / prior - 1) if prior else None,
+                              "memo": memos.get(m["ticker"])})
             marks.sort(key=lambda m: -abs(m["value"]))
-            unpriced = [{"ticker": t, "name": names.get(t, ("", ""))[0],
-                         "shares": state["shares"].get(t), "why": why}
-                        for why, lst in (("no stored close", (v or {}).get("missing", [])),
-                                         ("stored prices rebased", (v or {}).get("basis_break", [])))
-                        for t in lst]
+            unpriced = []
+            for why, lst in (("no stored close", (v or {}).get("missing", [])),
+                             ("stored prices rebased", (v or {}).get("basis_break", []))):
+                for t in lst:
+                    nm, sec = names.get(t, ("", ""))
+                    sh = state["shares"].get(t) or 0.0
+                    lots = [l for l in open_lots if l["ticker"] == t]
+                    held = sum(l["shares"] for l in lots)
+                    basis = _cost_basis(open_lots, t)
+                    unpriced.append({"ticker": t, "name": nm, "sector": sec, "shares": sh,
+                                     "side": "long" if sh > 0 else "short",
+                                     "avgCost": _r(basis / held, 4) if held else None,
+                                     "costBasis": _r(basis, 2),
+                                     "since": min((l["date"] for l in lots), default=None),
+                                     "memo": memos.get(t), "why": why})
             sectors = {}
             for m in marks:
                 if m["value"] > 0:
@@ -1601,6 +1638,9 @@ def site_data(ledger_dir=None, books_dir=None, panel_dir=None, prices=None,
                 item["candidateDrops"] = sorted(t for t in held if t not in {p["ticker"] for p in cand})
             mine = [d for d in decisions if d.get("book") == bid]
             item["lastDecision"] = mine[-1] if mine else None
+            pm = [d for d in mine if d.get("author") == "pm"]
+            item["lastPmDecision"] = pm[-1] if pm else None
+            item["cashWeight"] = _r(v["cash"] / total) if v and total and total > 0 else None
         books.append(item)
     return {
         "asof": asof, "costBps": COST_BPS, "capital": INCEPTION_CAPITAL,

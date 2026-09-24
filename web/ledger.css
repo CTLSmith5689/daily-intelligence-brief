@@ -594,3 +594,53 @@ html .ld-pm-bar{display:grid;grid-template-columns:200px minmax(0,1fr) 64px;gap:
 html .ld-pm-bar .b{height:10px;background:var(--sunk)}
 html .ld-pm-bar .b i{display:block;height:100%;background:var(--ink2)}
 html .ld-pm-bar .v{text-align:right}
+/* The Portfolios board: one column per book, grouped, one card per holding. The board scrolls sideways
+   inside its own box; the page never does. */
+html .ld-kb{margin-top:16px;overflow-x:auto;overscroll-behavior-x:contain;border-top:1px solid var(--rule);border-bottom:1px solid var(--hair);background:var(--sunk);max-width:100%;scrollbar-color:var(--bar) transparent}
+html .ld-kb-track{display:flex;gap:18px;padding:12px 14px 16px;width:max-content}
+html .ld-kb-grp{display:flex;flex-direction:column;gap:8px}
+html .ld-kb-gh{margin:0;padding:0 2px 6px;border-bottom:1px solid var(--hair);font:500 11px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+html .ld-kb-cols{display:flex;gap:12px;align-items:flex-start}
+html .ld-kb-col{width:272px;flex:none;background:var(--bg);border:1px solid var(--hair);display:flex;flex-direction:column}
+@media (max-width:560px){html .ld-kb-col{width:248px}}
+html .ld-kb-head{display:block;padding:12px 12px 10px;border-bottom:1px solid var(--hair);background:var(--raised)}
+html .ld-kb-head:hover .ld-kb-name{color:var(--accent-ink)}
+html .ld-kb-name{font:500 18px/1.2 var(--serif);margin:4px 0 2px}
+html .ld-kb-bench{display:block;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+html .ld-kb-stats{margin:0;display:grid;gap:0}
+html .ld-kb-kv{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:3px 0;border-top:1px solid var(--hair);font-size:13px}
+html .ld-kb-kv dt{color:var(--ink2);min-width:0}
+html .ld-kb-kv dd{margin:0;text-align:right;white-space:nowrap;font-size:12.5px;color:var(--ink)}
+html .ld-kb-kv dd.ld-up{color:var(--up)}html .ld-kb-kv dd.ld-dn{color:var(--dn)}
+html .ld-kb-sub{display:block;font-size:11px;color:var(--muted)}
+html .ld-kb-partial{margin:0;padding:8px 12px;font-size:12.5px;line-height:1.4;color:var(--accent-ink);border-bottom:1px solid var(--hair);border-left:2px solid var(--accent)}
+html .ld-kb-cards{display:flex;flex-direction:column;gap:8px;padding:10px}
+html .ld-kb-div{margin:6px 0 0;font:500 10.5px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dn)}
+html .ld-kb-card{position:relative;background:var(--raised);border:1px solid var(--hair);border-left:3px solid var(--ink2);padding:9px 10px 8px}
+html .ld-kb-card:hover{border-color:var(--ink2)}
+html .ld-kb-card.ld-kb-short{border-left-color:var(--dn);background:var(--accent-soft)}
+html .ld-kb-card.ld-kb-nopx{border-left-style:dashed}
+html .ld-kb-ct{display:flex;align-items:baseline;gap:8px}
+html .ld-kb-tk{font:600 14px/1.2 var(--mono);letter-spacing:.02em}
+html .ld-kb-tk::after{content:"";position:absolute;inset:0}
+html .ld-kb-tag{font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dn);border:1px solid var(--dn);padding:3px 4px 2px}
+html .ld-kb-w{margin-left:auto;font-size:13px;font-weight:500}
+html .ld-kb-nm{margin:2px 0 6px;font-size:13px;line-height:1.3;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html .ld-kb-card .ld-kb-kv{padding:2px 0;font-size:12px}
+html .ld-kb-why{margin:6px 0 0;font-size:12px;color:var(--accent-ink)}
+html .ld-kb-cf{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px;font-size:11.5px;color:var(--muted)}
+html .ld-kb-sec{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html .ld-kb-memo{position:relative;z-index:1;flex:none;font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);border:1px solid var(--accent);padding:3px 5px 2px}
+html .ld-kb-memo:hover{background:var(--accent-soft)}
+html .ld-kb-empty{padding:6px 2px;font-size:13.5px;line-height:1.45;color:var(--ink2)}
+html .ld-kb-empty p{margin:0 0 6px}
+html .ld-kb-empty b{color:var(--ink);font-weight:600}
+html .ld-kb-wait .ld-kb-head{background:var(--bg)}
+/* The agents' instructions, printed from the repository. Code keeps its line breaks and wraps, so the page
+   never scrolls sideways. */
+html .ld-doc .ld-docbody{max-width:84ch;padding-bottom:12px}
+html .ld-docbody p,html .ld-docbody li{font-size:15.5px;line-height:1.55}
+html .ld-docbody .ld-doc-src{font:400 13px/1.45 var(--sans);color:var(--muted)}
+html .ld-docbody pre{margin:10px 0;padding:10px 12px;background:var(--sunk);border:1px solid var(--hair);font:400 12.5px/1.5 var(--mono);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+html .ld-docbody pre code{font:inherit;color:inherit}
+html .ld-docbody code{font:400 .88em/1 var(--mono)}

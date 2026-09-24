@@ -33,27 +33,15 @@ instead" covers the other.
 
    Without it the session can still clone the public repository but cannot push,
    and the run has nowhere to put its work.
-3. Its instructions, below.
+3. Its instructions: paste the prompt from `theses/routines/research-agent.md`
+   (everything after the "---" line).
 
 The instructions are deliberately short. They point at this file and `PROMPTS.md`
 rather than restating them, so the analyst's instructions are versioned with the
 code they invoke, and changing them is a commit rather than an edit in a web form.
-
-```text
-Apterreon weekly analyst run. Unattended: do not ask questions.
-
-1. A checkout of CTLSmith5689/daily-intelligence-brief is already here, at
-   /home/claude/daily-intelligence-brief. cd into it. If it is missing, stop and
-   say so: without it this session cannot deliver its work.
-2. Read theses/RUNBOOK.md, section "Running in the cloud", and follow "What the
-   analyst does" exactly, step by step.
-3. Write the notes by following theses/PROMPTS.md, section "## Agent 1: the
-   analyst". Do not follow the PM section.
-4. Record and push them, as step 8 of that section says. Push only theses/.
-
-Report back: tickers covered, each direction and conviction, the commit you
-pushed, and anything skipped and why.
-```
+The routine's prompt, word for word, is in `theses/routines/research-agent.md`
+(see "The routine prompts are mirrored in the repository, by hand", below). The
+portfolio managers' instructions are in `portfolio/PROMPTS.md`, not here.
 
 ## Running in the cloud
 
@@ -70,6 +58,18 @@ same day in `common.fetch_site`), and its notes were in the old style. To see
 what a run did, use the routine's run log: routine
 `trig_01FvCss6qQ6ZsAwwjeSisKeh` at claude.ai/code/routines. `trig_019GEQVFFZa8RbMuwNH8Tjyn` is a disabled test routine left
 over from setting this up and can be deleted in the Scheduled tasks page.
+
+**The routine prompts are mirrored in the repository, by hand.** The prompt saved
+in each claude.ai routine is copied into a file here: the analyst's in
+`theses/routines/research-agent.md`, the PMs' in `portfolio/routines/`
+(`style-pm.md`, and `hedge-pm.md` and `neural-pm.md`, which are not scheduled
+yet). The Research and Portfolios pages print these files, with the instructions
+each one follows: `theses/PROMPTS.md` for the analyst, `portfolio/PROMPTS.md` for
+the PMs. Nothing copies them automatically, and a routine never
+reads its file: when you edit a prompt on claude.ai, make the same edit in its
+file and commit it, and the other way round, or the site will show instructions
+the routine is not running. The "Schedule:" line at the top of each file is what
+the pages print as its schedule, so change it when the routine's schedule changes.
 
 ### How it delivers: it pushes
 
