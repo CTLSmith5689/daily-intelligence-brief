@@ -1,6 +1,6 @@
 # News as of 2026-09-24, for the week of 2026-09-21
 
-As of 2026-09-24T15:13-04:00 US Eastern, from git refs/remotes/origin/gh-pages at c7912c14b8. Headlines are leads, never facts: a plan may cite one (with its tier and date) as a reason to look at a name, and never as evidence of a business fact. Weigh tier 1 and 2 only. Sources and tiers: `theses/news_sources.json`. Method: `theses/bin/news_pack.py`.
+As of 2026-09-24T15:21-04:00 US Eastern, from git refs/remotes/origin/gh-pages at c2d46d183f. Headlines are leads, never facts: a plan may cite one (with its tier and date) as a reason to look at a name, and never as evidence of a business fact. Weigh tier 1 and 2 only. Sources and tiers: `theses/news_sources.json`. Method: `theses/bin/news_pack.py`.
 
 - Names in scope: 45 (abnormal volume 25, covered 5, screen top 15)
 - Headlines in the last 14 days, after removing 38 duplicates: tier 1 19, tier 2 84, tier 3 307
