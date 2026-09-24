@@ -5647,6 +5647,30 @@ def _filing_accessions_held():
     return accessions
 
 
+def _director_plan_tickers(today=None):
+    """Tickers assigned by any director plan whose week has not ended, in plan
+    order. Empty when there is no plan, so the pack is then exactly as before."""
+    today = today or datetime.now(tz=EASTERN).date()
+    folder = THESES_DIR / "director"
+    if not folder.is_dir():
+        return []
+    since = (today - timedelta(days=7)).isoformat()
+    out = []
+    for p in sorted(folder.glob("*.md")):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.md", p.name) or p.stem < since:
+            continue
+        try:
+            head = p.read_text(encoding="utf-8").split("\n---", 1)[0]
+        except OSError:
+            continue
+        for line in head.splitlines():
+            m = re.match(r"^\s*-\s+(\{.*\})\s*$", line)
+            a = _plan_flow_map(m.group(1)) if m else None
+            if a and a.get("ticker"):
+                out.append(a["ticker"].strip().upper())
+    return out
+
+
 def reading_pack_tickers(stocks=None):
     """The names the analyst is likely to be handed next, and every name it has written up.
 
@@ -5665,6 +5689,10 @@ def reading_pack_tickers(stocks=None):
             line = line.split("#", 1)[0].strip().upper()
             if line:
                 tickers.append(line)
+    # The Research Director's assignments for this week and next: the screen
+    # cannot see many of them (a bank, a company with no revenue), so without
+    # this they would reach the analyst with no filing text at all.
+    tickers += _director_plan_tickers()
     notes = THESES_DIR / "notes"
     if notes.is_dir():
         tickers += sorted(p.name for p in notes.iterdir() if p.is_dir())
@@ -8922,8 +8950,10 @@ def _ledger_research(universe):
     """The theses as the home and research pages list them, and the record."""
     stocks = {s.get("ticker"): s for s in (universe.get("stocks") or []) if s.get("ticker")}
     views = _research_views(stocks, datetime.now(tz=timezone.utc).date())
+    desks = _desk_titles()
     rows = []
     for v in views:
+        desk = desks.get(v.get("sector") or "") or {}
         price = v.get("price") or {}
         current = v.get("current") or {}
         rows.append({
@@ -8933,6 +8963,7 @@ def _ledger_research(universe):
             "written_on": v.get("written_on"), "review_by": v.get("review_by"),
             "entry_price": v.get("entry_price"), "target_price": v.get("target_price"),
             "if_wrong_price": current.get("if_wrong_price"),
+            "desk": desk.get("desk", ""), "deskTitle": desk.get("title", ""),
             "last_close": ({"date": price["as_of"], "close": price["last"]}
                            if price.get("last") is not None else None),
         })
@@ -10630,6 +10661,120 @@ def _analyst_instructions():
             "promptSection": "Agent 1: the analyst"}
 
 
+DIRECTOR_MD = REPO_ROOT / "theses" / "DIRECTOR.md"
+DIRECTOR_ROUTINE = REPO_ROOT / "theses" / "routines" / "research-director.md"
+DIRECTOR_PLANS = REPO_ROOT / "theses" / "director"
+DESKS_DIR = REPO_ROOT / "theses" / "desks"
+THESES_CONFIG = REPO_ROOT / "theses" / "config.json"
+
+
+def _desk_titles():
+    """{sector: {"desk": slug, "title": name}} from the "desks" map in
+    theses/config.json and each desk file's "# " heading, the same sources
+    theses/bin/desks.py reads."""
+    try:
+        mapping = json.loads(THESES_CONFIG.read_text(encoding="utf-8")).get("desks") or {}
+    except (OSError, ValueError):
+        return {}
+    out = {}
+    for sector, slug in mapping.items():
+        title = slug
+        try:
+            m = re.search(r"^#\s+(.+?)\s*$", (DESKS_DIR / f"{slug}.md").read_text(encoding="utf-8"), re.M)
+            title = m.group(1) if m else slug
+        except OSError:
+            pass
+        out[sector] = {"desk": slug, "title": title}
+    return out
+
+
+def _director_instructions():
+    """What research.html prints under "How the director works"."""
+    routine = _routine_doc(DIRECTOR_ROUTINE)
+    try:
+        text = DIRECTOR_MD.read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        text = ""
+    text = re.sub(r"\A\s*#[ \t]+[^\n]*\n", "", text).strip()
+    if not routine and not text:
+        return None
+    return {"routine": routine, "routinePath": _rel(DIRECTOR_ROUTINE),
+            "prompt": _doc_md_to_html(text), "promptPath": _rel(DIRECTOR_MD)}
+
+
+def _plan_flow_map(s):
+    m = re.fullmatch(r"\{(.*)\}", s.strip())
+    if not m:
+        return None
+    parts, buf, quoted = [], [], False
+    for ch in m.group(1):
+        if ch == '"':
+            quoted = not quoted
+        if ch == "," and not quoted:
+            parts.append("".join(buf))
+            buf = []
+        else:
+            buf.append(ch)
+    parts.append("".join(buf))
+    out = {}
+    for p in parts:
+        k, sep, v = p.partition(":")
+        if sep:
+            v = v.strip()
+            if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                v = v[1:-1]
+            out[k.strip().lower()] = v.strip()
+    return out
+
+
+def _director_plan(today=None):
+    """The plan for the current week, for research.html: its assignments and its
+    body sections as safe HTML, or None when there is no plan.
+
+    The current week's plan is the newest theses/director/{SUNDAY}.md whose Sunday
+    is on or before today, so on a Sunday evening the page moves to the plan just
+    written for the week ahead. It is shown as written; whether it passed
+    director_check.py is recorded in each run's manifest, not here."""
+    today = today or datetime.now(tz=EASTERN).date()
+    if not DIRECTOR_PLANS.is_dir():
+        return None
+    plans = sorted(p for p in DIRECTOR_PLANS.glob("*.md")
+                   if re.fullmatch(r"\d{4}-\d{2}-\d{2}\.md", p.name) and p.stem <= today.isoformat())
+    if not plans:
+        return None
+    path = plans[-1]
+    try:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        return None
+    m = re.match(r"^---\n(.*?)\n---\n?(.*)$", text, re.S)
+    head, body = (m.group(1), m.group(2)) if m else ("", text)
+    week_of, assignments, in_list = "", [], False
+    for line in head.splitlines():
+        kv = re.match(r"^([A-Za-z_]\w*):\s*(.*)$", line)
+        if kv:
+            in_list = kv.group(1) == "assignments"
+            if kv.group(1) == "week_of":
+                week_of = kv.group(2).strip().strip("\"'")
+            continue
+        item = re.match(r"^\s*-\s+(.*)$", line)
+        if item and in_list:
+            a = _plan_flow_map(item.group(1))
+            if a:
+                assignments.append({k: a.get(k, "") for k in ("date", "ticker", "kind", "desk", "reason")})
+    titles = {v["desk"]: v["title"] for v in _desk_titles().values()}
+    for a in assignments:
+        a["deskTitle"] = titles.get(a["desk"], a["desk"])
+    sections = []
+    for chunk in re.split(r"^(?=##[ \t]+[^#])", body, flags=re.M):
+        h = re.match(r"^##[ \t]+(.+?)[ \t]*\n", chunk)
+        if h:
+            sections.append({"title": h.group(1).strip(),
+                             "html": _doc_md_to_html(chunk[h.end():].strip())})
+    return {"path": _rel(path), "weekOf": week_of, "assignments": assignments,
+            "sections": sections}
+
+
 def _pm_instructions():
     """What portfolios.html prints under "How the PMs work": one entry per PM
     routine, the portfolio/PROMPTS.md section they all follow, rendered once, and
@@ -10904,7 +11049,8 @@ def generate_research(universe, version=None):
         version = _write_ledger_assets()
     research, record = _ledger_research(universe)
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
-               research=research, record=record, howAnalyst=_analyst_instructions())
+               research=research, record=record, howAnalyst=_analyst_instructions(),
+               howDirector=_director_instructions(), directorPlan=_director_plan())
     html = render_ledger_page("research", "Research, Apterreon", cfg, version,
                               description="Written views on single companies, each with a target price, a review date and what would prove it wrong.",
                               loading="Loading the theses")

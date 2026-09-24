@@ -7,5 +7,18 @@
   "cooldown_days": {"screen": 45, "contrarian": 21, "watchlist": 21, "review": 0},
   "contrarian_min_market_cap": 5000000000,
   "max_per_sector_per_run": 1,
-  "review_move_threshold": 0.08
+  "review_move_threshold": 0.08,
+  "desks": {
+    "Information Technology": "tech-comms",
+    "Communication Services": "tech-comms",
+    "Energy": "energy-materials-utilities",
+    "Materials": "energy-materials-utilities",
+    "Utilities": "energy-materials-utilities",
+    "Financials": "financials-realestate",
+    "Real Estate": "financials-realestate",
+    "Health Care": "health-care",
+    "Consumer Discretionary": "consumer-industrials",
+    "Consumer Staples": "consumer-industrials",
+    "Industrials": "consumer-industrials"
+  }
 }

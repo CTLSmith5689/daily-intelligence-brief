@@ -61,7 +61,8 @@ over from setting this up and can be deleted in the Scheduled tasks page.
 
 **The routine prompts are mirrored in the repository, by hand.** The prompt saved
 in each claude.ai routine is copied into a file here: the analyst's in
-`theses/routines/research-agent.md`, the PMs' in `portfolio/routines/`
+`theses/routines/research-agent.md`, the Research Director's in
+`theses/routines/research-director.md`, the PMs' in `portfolio/routines/`
 (`style-pm.md`, the Style PM, which runs the six style books and the hedge
 book, and `neural-pm.md`, the Neural PM, which runs the neural book alone and
 is not scheduled yet). The Research and Portfolios pages print these files, with the instructions
@@ -307,7 +308,8 @@ eight seconds. Into each dossier it puts:
 | Management's discussion | `data/filings/text/`, `-mdna.txt` | 10-Q Item 2 or 10-K Item 7: what was sold, at what price, what it cost, and where the cash went. Two excerpts, with the path to the whole |
 | 8-K EX-99.1 | `data/filings/text/` | The latest results announcement, however long ago it was filed |
 | Filtered headlines | `docs/news/{TICKER}.json` | With a kept/total count |
-| Sector lens | `theses/lenses/{sector}.md` | How to read all of the above for this kind of business |
+| Sector playbook | `theses/desks/sectors/{sector}.md` | How to read all of the above for this kind of business: the deciding questions, the right valuation measures, the traps, where our data misleads, and the director's dated lessons. Replaced the unverified sector lenses in `theses/lenses/` on 2026-09-24 |
+| Desk | `theses/desks/{desk}.md` | The desk that owns the name, from the `desks` map in `theses/config.json` |
 | Memo blocks | `dossier.py`, for the memo format | "### Key data", "### Guidance", "### Peers", "### Balance sheet and cash flow", "### History", "### Calendar", "### Sizing inputs" and "### Current view", each named in `PROMPTS.md` where a memo section uses it |
 | Glossary | `theses/GLOSSARY.md` | The one-sentence definitions every memo copies. Not in the dossier: the analyst reads the file |
 | Track record | `ledger/scores.csv` via `hit_rate()` | The agent cannot remember it otherwise |
@@ -322,7 +324,8 @@ Filings are collected two ways, both inside the daily pipeline run.
    10-K items, the segment note and the reported history. This only ever looks
    forward from the day it was switched on, 2026-09-12.
 2. **For the names the analyst is about to be handed.** `collect_reading_packs`
-   tops up the watchlist, every company already written up, and the screen's top
+   tops up the watchlist, the names in any Research Director plan whose week has
+   not ended, every company already written up, and the screen's top
    twelve: the latest results announcement however old, management's discussion
    from the latest 10-Q or 10-K, and anything in (1) that a company is missing
    because it last reported before 2026-09-12. It was added on 2026-09-19, after
@@ -345,7 +348,36 @@ text from the latest results announcement), no price targets, and no commodity
 price series. Unit volumes, selling prices and segment revenue exist only as
 text, where a company's own filings print them, and never as data columns.
 
-## Why a sector lens and not retrieval
+## The Research Director
+
+A second routine, **Research Director**, runs on Sundays at 18:00 ET, before the
+week's first analyst run. Set it up like the Research Agent (Opus 5, "Skip all
+approvals", "Require this computer" unchecked, the repository attached as a
+source), and paste the prompt from `theses/routines/research-director.md`
+(everything after the "---" line). Its instructions are `theses/DIRECTOR.md`.
+
+It runs `theses/bin/director_inputs.py` (a zero-cost input pack: holdings and
+rules candidates without a memo, earnings in the next 10 trading days, stale
+views, the screen, last week's memos with their `validate.py` results, and a
+scorecard per desk), grades last week's memos, and writes
+`theses/director/{SUNDAY}.md`: the week's assignments, a focus note per desk,
+the grades with rewrite asks, the coverage gaps and any playbook proposals. It may
+also append dated lessons to the "## Lessons" section of a sector playbook, and
+nothing else: `director_check.py --changes` refuses any other change.
+
+How the plan reaches the analyst: `prepare.py` looks for the plan that covers the
+run date. If it exists and `theses/bin/director_check.py` passes, that day's
+assignments take the first slots, in order, and the screen fills the rest. With
+no plan, a plan that fails the check, or no assignment that day, the run is the
+screen's alone, exactly as before. The manifest's `director` key records which
+(`director`, `no_plan`, `invalid_plan` or `no_assignments_today`) and why.
+
+The five desks (`theses/desks/`) own the names: every sector maps to one desk in
+the `desks` key of `theses/config.json`, so `events.csv` needs no desk column.
+The Research page shows the desk beside each note, the director's routine and
+instructions, and the current week's plan.
+
+## Why a sector playbook and not retrieval
 
 The obvious version of this is RAG: embed a library of sector material, retrieve
 the nearest neighbours to the company, paste them in. That is the wrong tool for
