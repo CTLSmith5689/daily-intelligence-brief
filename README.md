@@ -284,11 +284,18 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 
 | Field | Units | Formula | Source | Changes |
 |---|---|---|---|---|
+| `attribution_allocation` | fraction | `sum over sectors of (w_s - W_s) * (R_s - R_b)` | portfolio_ledger | changes every trading day |
+| `attribution_selection` | fraction | `sum over sectors of W_s * (r_s - R_s); interaction (w_s - W_s) * (r_s - R_s) apart` | portfolio_ledger | changes every trading day |
 | `benchmark_return` | fraction | `close(date) / close(inception) - 1` | benchmark_series | changes every trading day |
 | `beta_1y` | ratio | `cov(r_stock, r_index) / var(r_index)` | market_series | changes every trading day |
+| `book_beta` | ratio | `cov(r_book, r_^GSPC) / var(r_^GSPC) over at least 60 paired sessions` | portfolio_ledger | changes every trading day |
 | `book_exposure` | fraction | `gross = (long_value + |short_value|) / nav; net = (long_value - |short_value|) / nav` | portfolio_ledger | changes every trading day |
 | `book_nav` | USD | `cash + sum(shares * stored close on that date)` | portfolio_ledger | changes every trading day |
 | `book_return` | fraction | `book_nav / capital - 1` | portfolio_ledger | changes every trading day |
+| `call_brier` | ratio | `sum over bull, base, bear of (probability - (1 if landed else 0)) ** 2` | analyst_ledger | changes every trading day |
+| `call_excess_return` | fraction | `sign * ((close(end) / close(start) - 1) - (fund(end) / fund(start) - 1)); sign +1 long, -1 short, avoid or exit` | analyst_ledger | changes every trading day |
+| `call_hit_rate` | fraction | `count(call_excess_return > 0) / count(scored calls)` | analyst_ledger | changes every trading day |
+| `cash_drag` | fraction | `cash / nav * (0 - R_b)` | portfolio_ledger | changes every trading day |
 | `cash_return` | fraction | `product(1 + irx(session) / 100 / 252) - 1 over sessions after inception` | market_series | changes every trading day |
 | `change_gap` | flag | `1 if a session falls between dates[-2] and dates[-1] else blank` | price_history | changes every trading day |
 | `change_pct` | percent | `(closes[-1] / closes[-2] - 1) * 100` | price_history | changes every trading day |
@@ -302,10 +309,12 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 | `max_drawdown_1y` | fraction | `min(close / running_max(close) - 1)` | price_history | changes every trading day |
 | `operating_margin` | fraction | `ttm_operating_income / ttm_revenue` | edgar | changes only when the company files |
 | `pe` | ratio | `price / sum(last 4 quarters of diluted EPS)` | edgar | changes only when the company files |
+| `pm_value_added` | fraction | `book_nav / capital - shadow_nav / capital` | portfolio_ledger | changes every trading day |
 | `price` | USD | `closes[-1]` | price_history | changes every trading day |
 | `price_book` | ratio | `market_cap / stockholders_equity` | edgar | changes only when the company files |
 | `price_date` | date | `dates[-1]` | price_history | changes every trading day |
 | `price_stale` | flag | `1 if price_date < panel date else blank` | price_history | changes every trading day |
+| `proxy_error` | fraction | `product(1 + R_b) - product(1 + fund return) over sessions with both` | benchmark_series | changes every trading day |
 | `rel_strength_sp500` | fraction | `return_52w(stock) - return_52w(^GSPC)` | price_history | changes every trading day |
 | `return_12_2` | fraction | `closes[-22] / closes[-253] - 1` | price_history | changes every trading day |
 | `return_1m` | fraction | `closes[-1] / closes[-22] - 1` | price_history | changes every trading day |
@@ -316,6 +325,7 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 | `sector` | text | `normalize_sector(yahoo.sector)` | yfinance | rarely changes; carried forward until it does |
 | `security_type` | text | `security_type.classify_row(name, index, sub_industry, EDGAR footprint)` | index | rarely changes; carried forward until it does |
 | `sharpe_1y` | ratio | `mean(r - rf) / stdev(r - rf) * sqrt(252)` | market_series | changes every trading day |
+| `sizing_effect` | fraction | `product(1 + r_book) - product(1 + r_book - sum_i (w_i - sign_i * gross / N) * r_i)` | portfolio_ledger | changes every trading day |
 | `style_box` | text | `size + (growth if growth_score - value_score is above the size median, else value)` | fundamentals_panel | changes every trading day |
 | `style_growth_score` | ratio | `mean(z(sales_ps_growth_3y), z(eps_growth_3y)), at least 1 of 2` | edgar | changes only when the company files |
 | `style_quality_score` | ratio | `mean(z(roe_ttm), z(earnings_consistency), -z(net_debt_ebitda), -z(op_margin_stability), -z(accruals_ratio)), at least 2 of 5` | fundamentals_panel | changes every trading day |
@@ -498,6 +508,14 @@ code under test.
   widens without losing rows, and the committed file is well formed.
 - `test_provenance.py`: the provenance and status tables above match
   `FIELD_METHODS` and `FIELD_STATUS` exactly.
+- `test_scoring.py`: an avoid is scored against its sector fund and never as
+  a short, a short as a short, excess against the sector fund, S&P 500 and
+  peers; daily marks skip and flag a missing close and are superseded, never
+  filled; the small-sample label; the scores migration; the shadow book, the
+  per-decision and PM-against-analyst marks and active share, all worked by
+  hand; Brinson-Fachler on a hand example summing exactly; hedge long and
+  short legs; Carino linking; the override and active-share checks in
+  trade.py.
 - `test_repo_integrity.py`: every Python file and every inline workflow
   snippet compiles, the failure alert runs end to end with SMTP stubbed, and
   no em dash is added beyond `tests/em_dash_baseline.json`. Lower a count there
@@ -513,6 +531,11 @@ web/                        # the site's script, stylesheet and z engine, copied
   brief.yml                 # hourly record + daily full run
   keepalive.yml             # weekly check; emails a warning, makes no commit
 data/                       # the append-only record (the actual product)
+  scoring/                  # the analyst's calls: marks.csv (every session) and
+                            # scores.csv (at the horizon), theses/bin/score.py
+  portfolio/                # nav.csv, and from portfolio/bin/score_pm.py the
+                            # shadow books, decision and disagreement marks,
+                            # and daily attribution
 docs/                       # the site. Only briefs/ is tracked in main; the
                             # rest lives on gh-pages, restored before each run
   index.html today.html stories.html stocks.html research.html
