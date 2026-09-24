@@ -104,6 +104,10 @@ slot's desk, and any rewrite asks in its review of your earlier memos, which app
 to every memo you write. A slot marked "director" was assigned by the plan, and its
 reason says why. Each dossier carries the name's sector playbook and its desk file.
 A headline in the director's plan is a lead to verify in filings, not a source.
+So is every headline in the dossier's "### News this week" block: the News Desk's
+tier 1 and 2 headlines for the name, with its labels and any price-claim flag.
+Never state what one says as a fact; find it in a filing and cite the filing. If
+the block says there is no fresh news, write the memo without it.
 
 {RUN_DATE} IS NOT TODAY'S DATE AS YOU KNOW IT. Read it out of manifest.json,
 where prepare.py writes it as `run_date`, and use that exact string everywhere

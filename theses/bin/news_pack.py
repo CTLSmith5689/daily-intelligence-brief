@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""The news the Research Director reads: company headlines, graded by source.
+"""The News Desk's pack: company headlines, graded by source.
 
-Deterministic and model-free, like director_inputs.py, which calls it. Zero
-model tokens. It writes theses/director/inputs/news.json and news.md.
+Deterministic and model-free. Zero model tokens. The News Desk routine
+(theses/NEWS_DESK.md) runs it on weekdays at 06:00 and on Sundays at 15:00 US
+Eastern; it writes news.json and news.md to theses/news/latest/ (NEWS_LATEST in
+common.py), where the Research Director and the analyst's dossier read them.
 
     python3 theses/bin/news_pack.py [--week-of YYYY-MM-DD] [--today YYYY-MM-DD]
                                     [--site DIR | --ref REF] [--no-fetch] [--same-asof]
-                                    [--out DIR]
+                                    [--out DIR] [--quiet]
 
 WHERE THE HEADLINES COME FROM. The daily pipeline writes each company's latest
 Google News headlines (at most 15, relevance-filtered since NEWS_FIX_DATE) to
@@ -19,9 +21,11 @@ fetched one by one from the published site and the universe-wide volume scan is
 skipped (the pack says so).
 
 WHICH NAMES. Covered names (theses/ledger/events.csv), names a model book holds,
-the style books' rules candidates, the names in this week's plan if it exists,
-the screen's top names off cooldown, and the 25 names whose headline volume is
-most abnormal.
+the style books' rules candidates, the names in this week's director plan if it
+exists, today's analyst assignments from that plan, the screen's top 15 names
+off cooldown, and the 25 names whose headline volume is most abnormal. "This
+week" is the week of --week-of: by default the current week on a weekday, and
+the week ahead on a Saturday or Sunday (desk_week_of).
 
 ABNORMAL VOLUME. A name's 7-day count is the number of its headlines dated in
 the 7 days to the pack's as-of time. Its baseline is the mean of the pipeline's
@@ -73,11 +77,12 @@ from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import REPO, THESES, LEDGER, NEWS_FIX_DATE, fetch_site, is_operating, read_csv_rows
+from common import (REPO, THESES, LEDGER, NEWS_FIX_DATE, NEWS_LATEST, fetch_site, is_operating,
+                    read_csv_rows)
 
 EASTERN = ZoneInfo("America/New_York")
 SOURCES_FILE = THESES / "news_sources.json"
-OUT_DIR = THESES / "director" / "inputs"
+OUT_DIR = NEWS_LATEST
 FUND_DIR = REPO / "data" / "fundamentals"
 GIT_REF = "refs/remotes/origin/gh-pages"
 
@@ -93,7 +98,6 @@ CALENDAR_TICKERS = ("AAPL", "MSFT", "JPM", "XOM", "KO")
 DUP_RATIO = 0.88
 DUP_JACCARD = 0.8
 BATCH_SIZE = 40
-TIER3_ONLY_LABEL_CAP = 5
 MD_HEADLINES_PER_NAME = 6
 
 WIN_RESERVED = {"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)),
@@ -717,11 +721,11 @@ def build(asof, scope, site, rows, hist, cfg=None, week_of=None, log=None):
                       "headlines": kept})
         all_heads += kept
 
-    # --- what the helpers label ----------------------------------------------
+    # --- what the News Desk labels: tier 1 and 2 only ----------------------------
     targets = []
     for n in names:
         t12 = [h["id"] for h in n["headlines"] if h["tier"] <= 2]
-        targets += t12 or [h["id"] for h in n["headlines"]][:TIER3_ONLY_LABEL_CAP]
+        targets += t12
     batches = [targets[i:i + BATCH_SIZE] for i in range(0, len(targets), BATCH_SIZE)]
 
     why_counts = {}
@@ -757,7 +761,7 @@ def _tone(v):
 
 def summary(pack):
     g, tot = pack["generated_for"], pack["totals"]
-    L = [f"# News for the week of {g['week_of'] or '(no week given)'}", "",
+    L = [f"# News as of {g['asof_et'][:10]}, for the week of {g['week_of'] or '(no week given)'}", "",
          f"As of {g['asof_et']} US Eastern, from {pack['site']}. Headlines are leads, never facts: "
          f"a plan may cite one (with its tier and date) as a reason to look at a name, and never as "
          f"evidence of a business fact. Weigh tier 1 and 2 only. Sources and tiers: "
@@ -823,7 +827,7 @@ def summary(pack):
 # --------------------------------------------------------------- scope
 
 def scope_from_inputs(inp, plan_tickers=()):
-    """{ticker: [reason]} from director_inputs' news_scope block."""
+    """{ticker: [reason]} from a news_scope block (compute_scope_inputs)."""
     ns = (inp or {}).get("news_scope") or {}
     out = {}
     for t in ns.get("covered", []):
@@ -836,24 +840,47 @@ def scope_from_inputs(inp, plan_tickers=()):
         out.setdefault(t, []).append("screen top")
     for t in plan_tickers:
         out.setdefault(t, []).append("in this week's plan")
+    for t in ns.get("today_assigned", []):
+        out.setdefault(t, []).append("assigned today")
     return out
 
 
-def plan_tickers(week_of):
+def _plan(day):
     import director_check as DC
-    p = DC.plan_path_for(week_of)
+    p = DC.plan_path_for(day)
     if not p.exists():
         return []
     _, assignments, _ = DC.parse_plan(p.read_text(encoding="utf-8"))
-    return [(a.get("ticker") or "").upper() for a in assignments or [] if a.get("ticker")]
+    return [a for a in assignments or [] if isinstance(a, dict) and a.get("ticker")]
 
 
-def compute_scope_inputs(week_of, rows):
-    """The news_scope block when director_inputs has not been run: covered,
-    held and candidates, computed the way director_inputs computes them."""
+def plan_tickers(week_of):
+    """Every name in the director's plan for the week of week_of."""
+    return [(a.get("ticker") or "").upper() for a in _plan(week_of)]
+
+
+def today_assigned(today):
+    """The names the plan that covers today assigns the analyst today."""
+    return [(a.get("ticker") or "").upper() for a in _plan(today)
+            if str(a.get("date") or "") == today.isoformat()]
+
+
+def desk_week_of(today):
+    """The week the News Desk gathers for: this week on a weekday, the week
+    ahead on a Saturday or Sunday (the Sunday run feeds the director's plan)."""
+    return today - timedelta(days=today.weekday()) if today.weekday() < 5 else \
+        today + timedelta(days=7 - today.weekday())
+
+
+def compute_scope_inputs(week_of, rows, today=None):
+    """The names to gather: covered, held, the style books' rules candidates,
+    the screen's top names off cooldown and today's plan assignments, computed
+    the way director_inputs computes them. Each part that fails is left out
+    with a message, never raised."""
     import director_inputs as DI
     events = read_csv_rows(LEDGER / "events.csv")
-    out = {"covered": sorted(DI.current_views(events)), "held": {}, "candidates": {}, "screen_top": []}
+    out = {"covered": sorted(DI.current_views(events)), "held": {}, "candidates": {}, "screen_top": [],
+           "today_assigned": []}
     try:
         for book, tickers in DI.pm_holdings().items():
             for t in tickers:
@@ -867,11 +894,23 @@ def compute_scope_inputs(week_of, rows):
                 out["candidates"].setdefault(t, []).append(book)
     except Exception as exc:
         print(f"news_pack: style candidates not read ({type(exc).__name__}: {exc})", file=sys.stderr)
+    if today is not None:
+        try:
+            import director_check as DC
+            screen, _ = DI.screen_pack(rows, events, today, DC.load_config())
+            out["screen_top"] = [s["ticker"] for s in screen.get("top_off_cooldown", [])]
+        except Exception as exc:
+            print(f"news_pack: the screen's top names not read ({type(exc).__name__}: {exc})",
+                  file=sys.stderr)
+        try:
+            out["today_assigned"] = today_assigned(today)
+        except Exception as exc:
+            print(f"news_pack: today's assignments not read ({type(exc).__name__}: {exc})", file=sys.stderr)
     return out
 
 
 def run(week_of, asof, news_scope=None, out_dir=None, site_dir=None, ref=None, fetch=True,
-        fund_dir=None, rows=None):
+        fund_dir=None, rows=None, today=None):
     """Build and write news.json and news.md. Returns the pack."""
     log = []
     out_dir = Path(out_dir or OUT_DIR)
@@ -884,14 +923,7 @@ def run(week_of, asof, news_scope=None, out_dir=None, site_dir=None, ref=None, f
         log.append("no panel in data/fundamentals: names come from the fetched panel, and every "
                    "baseline is the universe median")
     if news_scope is None:
-        inp_path = out_dir / f"{week_of.isoformat()}.json"
-        inp = None
-        if inp_path.exists():
-            try:
-                inp = json.loads(inp_path.read_text(encoding="utf-8"))
-            except ValueError:
-                inp = None
-        news_scope = (inp or {}).get("news_scope") or compute_scope_inputs(week_of, rows)
+        news_scope = compute_scope_inputs(week_of, rows, today or asof.astimezone(EASTERN).date())
     scope = scope_from_inputs({"news_scope": news_scope}, plan_tickers(week_of))
     site = open_site(site_dir, ref, fetch, log)
     try:
@@ -919,9 +951,8 @@ def main(argv=None):
 
     def opt(name):
         return args[args.index(name) + 1] if name in args else None
-    import director_inputs as DI
     today = date.fromisoformat(opt("--today")) if opt("--today") else datetime.now(tz=EASTERN).date()
-    week_of = date.fromisoformat(opt("--week-of")) if opt("--week-of") else DI.next_monday(today)
+    week_of = date.fromisoformat(opt("--week-of")) if opt("--week-of") else desk_week_of(today)
     out_dir = Path(opt("--out") or OUT_DIR)
     if "--same-asof" in args:
         prev = json.loads((out_dir / "news.json").read_text(encoding="utf-8"))
@@ -931,9 +962,17 @@ def main(argv=None):
     else:
         asof = datetime.now(tz=timezone.utc)
     pack = run(week_of, asof, out_dir=out_dir, site_dir=opt("--site"), ref=opt("--ref"),
-               fetch="--no-fetch" not in args)
-    print(summary(pack))
-    print(headline_line(pack), file=sys.stderr)
+               fetch="--no-fetch" not in args, today=today)
+    if "--quiet" in args:
+        # What the News Desk reports, without the whole summary (news.md has it).
+        print("Names in scope: " + ", ".join(n["ticker"] for n in pack["names"]))
+        where = out_dir.resolve()
+        where = where.relative_to(REPO) if where.is_relative_to(REPO) else where
+        print(f"Wrote {where}/news.json and news.md")
+        print(headline_line(pack))
+    else:
+        print(summary(pack))
+        print(headline_line(pack), file=sys.stderr)
     return 0
 
 
