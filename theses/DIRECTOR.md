@@ -43,7 +43,86 @@ is the Monday of the week you are planning; the plan file is named for the Sunda
 before it, and the summary gives the exact path. Read the summary first, then the
 JSON for the detail.
 
-=== 2. READ ===
+It also runs theses/bin/news_pack.py, which writes theses/director/inputs/news.json
+and news.md: the recent headlines for every covered, held or candidate name, the
+screen's top names and the 25 names with the most abnormal headline volume, each
+headline graded by source tier (1 wire and primary, 2 established press, 3
+aggregators and auto-generated), duplicates removed, and any percentage move a
+title claims checked against the stored closes. The summary's "News" section says
+if the news pack failed; then skip step 2, plan without headlines, and say so in
+your report.
+
+=== 2. LABEL THE HEADLINES ===
+
+news.json's "label_batches" lists the headlines to label: every tier 1 and 2
+headline, and up to five tier 3 headlines for a name that has nothing better, in
+batches of 40. If there are none, skip to step 3.
+
+  mkdir -p /tmp/news_labels
+
+For each batch N (1, 2, and so on), spawn a helper agent on the Haiku model with
+the prompt below, filling in the checkout path, N, and NN (N with two digits, so
+batch 3 is 03). Run up to five helpers at a time. Do not label the headlines
+yourself, and do not give a helper anything beyond this prompt.
+
+    You label news headlines for an equity research archive. Label each headline
+    only from its title and source. Never add outside knowledge, never browse or
+    search the web, never open a link, and never guess what an article says
+    beyond its title.
+
+    1. cd {the checkout path}
+    2. Run: python3 theses/bin/news_labels_check.py --show-batch {N}
+       It prints one headline per line as JSON: id, company (ticker and name),
+       source, title.
+    3. Label every headline with four fields:
+       relevant_to_company: true if the title is about that company itself: its
+         business, its shares, its people, or a deal, lawsuit or decision it is
+         party to. false if the company is only listed alongside others, or the
+         title is about something else.
+       event_type: exactly one of
+         earnings          reported results, or the date of a report
+         guidance          the company's own forecast, raised, cut or kept
+         m_and_a           a merger, acquisition, sale, spin-off or offering of shares
+         legal_regulatory  a lawsuit, investigation, fine, approval or rule
+         rating_change     an analyst's rating or price target
+         management        a hire, departure or board change
+         product           a product, contract, customer or launch
+         macro             the economy, rates, tariffs or the whole sector
+         noise             anything else, including price moves with no reason,
+                           listicles, quote pages and "should you buy" pieces
+       tone: a whole number from -2 to 2, for the company, as the title states
+         it: -2 clearly bad, -1 somewhat bad, 0 neutral, mixed or unclear,
+         1 somewhat good, 2 clearly good. A price move with no reason given is
+         at most -1 or 1.
+       checkable_claim: one specific fact in the title that a filing or a price
+         record could confirm, in under 200 characters, such as "shares fell 6%
+         on 2026-09-23" or "IPO priced at $350 million"; null if there is none.
+         No em dashes or en dashes.
+    4. Write the labels, and nothing else, as one JSON object keyed by id, to
+       /tmp/news_labels/batch-{NN}.json, for example:
+       {"HIMS-003c38fbb3": {"relevant_to_company": true,
+        "event_type": "legal_regulatory", "tone": -1,
+        "checkable_claim": "class action lead plaintiff deadline November 2, 2026"}}
+       Label every id in the batch exactly once. Add no other ids and no other keys.
+    5. Reply with one line: the batch number and how many labels you wrote.
+
+When the helpers have finished:
+
+  python3 theses/bin/news_labels_check.py --merge /tmp/news_labels
+
+It checks each batch file against its batch and merges the good ones into
+theses/director/inputs/news_labels.json. For each batch it lists as failed, spawn
+one fresh helper with the same prompt, then run --merge again. A batch that fails
+twice stays unlabelled. Then run
+
+  python3 theses/bin/news_labels_check.py
+
+and it must pass; a warning about unlabelled headlines is fine. If labelling
+fails entirely (no helper can be spawned, or no batch passes), go on without
+labels and say so in your report. Tiers, duplicates and price-claim flags do not
+depend on the labels.
+
+=== 3. READ ===
 
 - Last week's memos, every one in full: the paths are under last_week_memos, with
   validate.py's result and a prose word count for each. Run
@@ -56,8 +135,10 @@ JSON for the detail.
 - Last week's plan, if there is one (last_plan in the JSON): which assignments
   became notes and which did not.
 - The PM's open questions, if any (pm_open_questions).
+- The news pack: theses/director/inputs/news.md in full, news.json for the detail,
+  and news_labels.json if step 2 wrote it.
 
-=== 3. CHOOSE THE WEEK'S NAMES ===
+=== 4. CHOOSE THE WEEK'S NAMES ===
 
 Assign names to weekdays. Each assignment is {date, ticker, kind, desk, reason}.
 
@@ -83,6 +164,22 @@ be a name whose filings are already there (has_filings in the JSON, or a look in
 that folder); put the others on Tuesday or later. director_check.py warns when a
 Monday name has none.
 
+Headlines are leads, never facts. The news pack tells you where people are writing
+about a company, not what is true about it:
+
+- You may assign a name because of a headline. The reason then cites it with its
+  tier and date, and says what the memo should check, for example: "Tier 1
+  headline (Barron's, 2026-09-21) says a potash import deal is being discussed;
+  test what it would do to fertilizer prices against the 10-Q."
+- Never state what a headline says as a fact about the business: not in a reason,
+  a focus paragraph, a grade or a lesson.
+- Weigh tier 1 and 2 headlines only. A story that only tier 3 sources carry, and a
+  headline flagged "price claim mismatch", never drive an assignment, even
+  together with each other.
+- The labels (relevance, event type, tone) are a small model's reading of a title.
+  Use them to sort, never as evidence. Abnormal volume says that a name is being
+  written about, not why.
+
 Leave the rest to the screen. The screen is the check on the director's taste: a
 week in which the director fills every slot is a week in which the screen found
 nothing. Assign at most two names a day unless a holding or an earnings date
@@ -103,7 +200,7 @@ The rules director_check.py enforces:
 - every assignment has a reason: one sentence the analyst can act on, saying why
   this name and why this week.
 
-=== 4. GRADE LAST WEEK'S MEMOS ===
+=== 5. GRADE LAST WEEK'S MEMOS ===
 
 Grade every memo written last week A to D against the memo standard. Grade
 honestly. An inflated grade teaches the analyst nothing, and the owner reads these.
@@ -130,7 +227,7 @@ playbook says to use cash runway for a loss-making company". Notes are never
 edited, so the asks apply to the analyst's next memo on that name, and to its
 memos in general.
 
-=== 5. WRITE THE PLAN ===
+=== 6. WRITE THE PLAN ===
 
 Write theses/director/{SUNDAY}.md, where SUNDAY is the day before WEEK_OF:
 
@@ -162,7 +259,7 @@ Then these four sections, each starting with two # signs, in this order:
         evidence. The owner applies them by hand. Write "None this week." when
         there are none.
 
-=== 6. LESSONS ===
+=== 7. LESSONS ===
 
 Each sector playbook ends with "## Lessons". You may append to it, and nothing
 else in any playbook or desk file is yours to change. A lesson is one line:
@@ -174,12 +271,19 @@ result, or a scored call in theses/ledger/scores.csv. Append only. Never edit or
 delete an earlier lesson or any other text. A change to anything else in a
 playbook or a desk file goes in "## Playbook proposals" instead.
 
-=== 7. CHECK, COMMIT AND PUSH ===
+=== 8. CHECK, COMMIT AND PUSH ===
 
   python3 theses/bin/director_check.py theses/director/{SUNDAY}.md
 
 Fix every FAIL and run it again until it passes. Read the warnings and fix them
-too, unless you can say in your report why one stays. Then:
+too, unless you can say in your report why one stays. If the news pack was built
+in step 1, rebuild it so it covers every name in the plan, from the same copy of
+the site and the same time, so the labels still match:
+
+  python3 theses/bin/news_pack.py --no-fetch --same-asof
+  python3 theses/bin/news_labels_check.py
+
+Then:
 
   git add theses/director/ theses/desks/sectors/
   python3 theses/bin/director_check.py --changes
@@ -192,7 +296,7 @@ section. If it fails, unstage the offending file (git restore --staged PATH) and
 put the change in Playbook proposals instead. Stage those two paths only, never
 git add -A.
 
-=== 8. RULES ===
+=== 9. RULES ===
 
 - Never write, edit or delete a research note, a ledger file, anything under
   theses/bin/, theses/PROMPTS.md, this file, a desk file, or data/, docs/, state/
@@ -203,12 +307,16 @@ git add -A.
   dashes or en dashes.
 - Do not invent facts about a company. The reason for an assignment says what in
   the inputs made you choose it.
-- If a script fails, do not push. Report the exact traceback and stop.
+- Headlines are leads, never facts (step 4). Weigh tier 1 and 2 only.
+- If a script fails, do not push. Report the exact traceback and stop. The one
+  exception is the news: if the news pack or the labelling fails, plan without it
+  (steps 1 and 2) and say so in your report.
 
-=== 9. REPORT ===
+=== 10. REPORT ===
 
 Report back: the week planned; each assignment (date, ticker, kind, desk); each
-grade; the lessons appended; the commit hash you pushed; and anything in these
+grade; the lessons appended; the commit hash you pushed; whether the news pack
+and the labels were built, and which label batches failed; and anything in these
 instructions that was unclear, contradictory or impossible to follow, quoting the
 wording.
 ```

@@ -1,0 +1,98 @@
+[
+ {
+  "title": "Acme shares fall 6% after profit warning - Reuters",
+  "source": "Reuters",
+  "link": "https://news.google.com/rss/articles/X1?oc=5",
+  "ts": 1790190000,
+  "lm": -1.0,
+  "vader": -0.4
+ },
+ {
+  "title": "Acme Shares Fall 6% After Profit Warning - Yahoo Finance",
+  "source": "Yahoo Finance",
+  "link": "https://news.google.com/rss/articles/X2?oc=5",
+  "ts": 1790193600,
+  "lm": -1.0,
+  "vader": -0.4
+ },
+ {
+  "title": "Is Acme (ACME) Undervalued After Its Profit Warning? - Yahoo Finance",
+  "source": "Yahoo Finance",
+  "link": "https://news.google.com/rss/articles/X3?oc=5",
+  "ts": 1790200800,
+  "lm": null,
+  "vader": 0.1
+ },
+ {
+  "title": "Acme (NYSE:ACME) Stock Price Down 12% - What's Next? - MarketBeat",
+  "source": "MarketBeat",
+  "link": "https://news.google.com/rss/articles/X4?oc=5",
+  "ts": 1790089200,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "Acme climbs 2% as orders pick up - CNBC",
+  "source": "CNBC",
+  "link": "https://news.google.com/rss/articles/X5?oc=5",
+  "ts": 1789912800,
+  "lm": 1.0,
+  "vader": 0.3
+ },
+ {
+  "title": "Acme rises 5% on buyback news - Barron's",
+  "source": "Barron's",
+  "link": "https://news.google.com/rss/articles/X6?oc=5",
+  "ts": 1790265600,
+  "lm": 1.0,
+  "vader": 0.5
+ },
+ {
+  "title": "Acme to open a plant in Ohio - Some Unknown Blog",
+  "source": "Some Unknown Blog",
+  "link": "https://news.google.com/rss/articles/X7?oc=5",
+  "ts": 1789822800,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "Acme names a new chief financial officer - Business Wire",
+  "source": "Business Wire",
+  "link": "https://news.google.com/rss/articles/X8?oc=5",
+  "ts": 1789732800,
+  "lm": 0.0,
+  "vader": 0.0
+ },
+ {
+  "title": "Acme headline from before the relevance fix - Reuters",
+  "source": "Reuters",
+  "link": "https://news.google.com/rss/articles/X9?oc=5",
+  "ts": 1789045200,
+  "lm": 0.0,
+  "vader": 0.0
+ },
+ {
+  "title": "Acme headline after the as-of time - Reuters",
+  "source": "Reuters",
+  "link": "https://news.google.com/rss/articles/X10?oc=5",
+  "ts": 1790341200,
+  "lm": 0.0,
+  "vader": 0.0
+ },
+ {
+  "title": "Acme headline with no date - Reuters",
+  "source": "Reuters",
+  "link": "https://news.google.com/rss/articles/X11?oc=5",
+  "ts": 0,
+  "lm": 0.0,
+  "vader": 0.0
+ },
+ {
+  "title": "Acme revenue up 12% in the quarter - Fortune",
+  "source": "Fortune",
+  "link": "https://news.google.com/rss/articles/X12?oc=5",
+  "ts": 1789995600,
+  "lm": 1.0,
+  "vader": 0.2
+ }
+]

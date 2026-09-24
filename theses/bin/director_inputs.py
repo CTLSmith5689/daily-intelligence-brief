@@ -7,6 +7,7 @@ committed files and the latest panel, so any week's plan can be read against
 exactly what the director was shown.
 
     python3 theses/bin/director_inputs.py [--week-of YYYY-MM-DD] [--today YYYY-MM-DD] [--out DIR]
+                                          [--no-news] [--no-fetch]
 
 --week-of is the Monday the plan covers (default: the next Monday after today,
 US Eastern). Writes {DIR}/{week_of}.json and {DIR}/{week_of}.md (default DIR is
@@ -24,6 +25,12 @@ The pack holds:
   coverage_by_desk         per desk: covered names against the names the screen can see
   pm_open_questions        questions in the PM's letters of the last 14 days, if any
   slots                    the week's weekdays and the slots each run has
+  news_scope               the names theses/bin/news_pack.py gathers headlines for
+  news                     news_pack.py's totals; the pack itself is news.json and news.md
+
+After the pack, it runs theses/bin/news_pack.py, which writes news.json and
+news.md beside it. A news failure is reported and never stops the pack: the
+director then plans without headlines.
 """
 import io, json, re, sys
 from contextlib import redirect_stdout
@@ -419,6 +426,9 @@ def build(today, week_of, rows, cfg, events=None, predictions=None, scores=None,
         "coverage_by_desk": coverage,
         "pm_open_questions": letters,
         "pm_letters_note": letters_note,
+        "news_scope": {"covered": sorted(covered), "held": {t: b for t, b in sorted(held.items())},
+                       "candidates": {t: b for t, b in sorted(in_books.items())},
+                       "screen_top": [s["ticker"] for s in (screen or {}).get("top_off_cooldown", [])]},
     }
 
 
@@ -479,6 +489,14 @@ def summary(pack):
         lines.append(f"| {c['title']} | {len(c['covered'])} | {c['open_calls']} | {c['scored']} | "
                      f"{c['right']} | {c['memos_last_week']} | {c['validate_fails_last_week']} | "
                      f"{cov.get(c['desk'], {}).get('gated') or 0} |")
+    news = pack.get("news") or {}
+    lines += ["", "## News", ""]
+    if news.get("error"):
+        lines.append(f"- The news pack could not be built: {news['error']}. Plan without headlines, and say so.")
+    elif news:
+        lines.append(f"- `theses/director/inputs/news.md` (read it) and `news.json`: {news['line']}.")
+    else:
+        lines.append("- Not built on this run.")
     lines += ["", "## The PM's open questions", ""]
     if pack["pm_open_questions"]:
         for q in pack["pm_open_questions"]:
@@ -486,6 +504,24 @@ def summary(pack):
     else:
         lines.append(f"- None{': ' + pack['pm_letters_note'] if pack.get('pm_letters_note') else '.'}")
     return "\n".join(lines) + "\n"
+
+
+def news_step(week_of, scope, out_dir, rows, fetch=True):
+    """Run news_pack.py. Its failure is recorded, never raised."""
+    import traceback
+    try:
+        import news_pack
+        npk = news_pack.run(week_of, datetime.now(tz=ZoneInfo("UTC")), news_scope=scope,
+                            out_dir=out_dir, fetch=fetch)
+        line = news_pack.headline_line(npk)
+        print(line, file=sys.stderr)
+        return {"path": rel(out_dir / "news.json"), "line": line.split(": ", 1)[1],
+                "totals": npk["totals"], "notes": npk["notes"]}
+    except Exception as exc:
+        traceback.print_exc()
+        print("director_inputs: the news pack FAILED (above). The rest of the pack is written; "
+              "plan without headlines and say so in the report.", file=sys.stderr)
+        return {"error": f"{type(exc).__name__}: {exc}"}
 
 
 def next_monday(day):
@@ -511,6 +547,8 @@ def main(argv=None):
     pack = build(today, week_of, rows, cfg)
     pack["generated_for"]["panel_date"] = panel_date
     out_dir.mkdir(parents=True, exist_ok=True)
+    if "--no-news" not in args:
+        pack["news"] = news_step(week_of, pack["news_scope"], out_dir, rows, fetch="--no-fetch" not in args)
     (out_dir / f"{week_of.isoformat()}.json").write_text(json.dumps(pack, indent=1), encoding="utf-8")
     md = summary(pack)
     (out_dir / f"{week_of.isoformat()}.md").write_text(md, encoding="utf-8")

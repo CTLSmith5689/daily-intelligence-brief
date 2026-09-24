@@ -10812,6 +10812,51 @@ def _plan_flow_map(s):
     return out
 
 
+DIRECTOR_NEWS_PER_NAME = 5
+_TONE_WORDS = {-2: "very negative", -1: "negative", 0: "neutral", 1: "positive", 2: "very positive"}
+
+
+def _director_plan_news(week_of):
+    """{ticker: [headline]}: the tier 1 and 2 headlines of the director's news
+    pack (theses/director/inputs/news.json, theses/bin/news_pack.py) for the
+    plan's week, newest first, with the helpers' tone label when there is one.
+    A headline a helper judged not about the company is left out. Nothing when
+    the pack is for another week, so an old pack never sits under a new plan."""
+    inputs = DIRECTOR_PLANS / "inputs"
+    try:
+        pack = json.loads((inputs / "news.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not week_of or (pack.get("generated_for") or {}).get("week_of") != week_of:
+        return {}
+    labels = {}
+    try:
+        lab = json.loads((inputs / "news_labels.json").read_text(encoding="utf-8"))
+        if lab.get("week_of") == week_of and isinstance(lab.get("labels"), dict):
+            labels = lab["labels"]
+    except (OSError, ValueError, AttributeError):
+        pass
+    out = {}
+    for n in pack.get("names") or []:
+        items = []
+        for h in sorted((h for h in n.get("headlines") or [] if h.get("tier") in (1, 2)),
+                        key=lambda h: -(h.get("ts") or 0)):
+            lb = labels.get(h.get("id")) or {}
+            if lb.get("relevant_to_company") is False:
+                continue
+            tone = lb.get("tone")
+            items.append({"title": str(h.get("title") or ""), "source": str(h.get("source") or ""),
+                          "date": str(h.get("date") or ""), "tier": h.get("tier"),
+                          "link": h.get("link") if str(h.get("link") or "").startswith("https://") else "",
+                          "tone": _TONE_WORDS.get(tone) if isinstance(tone, int) and not isinstance(tone, bool) else "",
+                          "flags": [str(f) for f in h.get("flags") or []]})
+            if len(items) >= DIRECTOR_NEWS_PER_NAME:
+                break
+        if items:
+            out[str(n.get("ticker") or "").upper()] = items
+    return out
+
+
 def _director_plan(today=None):
     """The plan for the current week, for research.html: its assignments and its
     body sections as safe HTML, or None when there is no plan.
@@ -10848,8 +10893,10 @@ def _director_plan(today=None):
             if a:
                 assignments.append({k: a.get(k, "") for k in ("date", "ticker", "kind", "desk", "reason")})
     titles = {v["desk"]: v["title"] for v in _desk_titles().values()}
+    news = _director_plan_news(week_of)
     for a in assignments:
         a["deskTitle"] = titles.get(a["desk"], a["desk"])
+        a["news"] = news.get((a.get("ticker") or "").upper(), [])
     sections = []
     for chunk in re.split(r"^(?=##[ \t]+[^#])", body, flags=re.M):
         h = re.match(r"^##[ \t]+(.+?)[ \t]*\n", chunk)
