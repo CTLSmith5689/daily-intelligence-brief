@@ -12,6 +12,8 @@
  *   company   company.html#TICKER: price, sector-relative scores, the full thesis when one exists, where
  *             each metric sits in the universe, closest profiles, business, history, filings, headlines
  *   research  an index of theses, each row leading to its company page, and the record
+ *   portfolios one card per model portfolio, how companies are sorted into the nine style boxes, and the rules
+ *   book      book.html#ID: one model portfolio, its holdings, the rules book beside it, decisions and trades
  * stocks and company load stocks-data.json and compute robust z with web/zengine.js (window.APTZ).
  * Which fields are placeholders for a listing's type is read from the row itself: the pipeline withholds
  * them and stamps status "not_applicable" (apply_security_types), so nothing here is hardcoded per type.
@@ -46,7 +48,8 @@
    * security_type vocabulary. Links are real URLs, so every page works from a bookmark. */
 
   var PAGE_FILE = { home: "index.html", today: "today.html", stories: "stories.html", stocks: "stocks.html",
-                    research: "research.html", company: "company.html" };
+                    research: "research.html", company: "company.html", portfolios: "portfolios.html",
+                    book: "book.html" };
   function makeCtx() {
     var zCache = {}, rowMap = null;
     return {
@@ -3217,7 +3220,7 @@
       (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>View</th><th>Conviction</th><th class="r">Written at</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written on</th></tr></thead><tbody>' +
       rows + "</tbody></table></div>" : '<p class="ld-empty">No thesis has been written yet.</p>') +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">“To target” is how far the price still has to move, from the last close, to reach the target. When the view takes no side (“' + esc(VIEW.watch) + '” or “' + esc(VIEW["no view"]) + '”), the target is for reference only and the company shows as Watching. Those notes make no call, so they are never checked.</p></section>' +
-      recordHTML(CFG.record) + portfolioHTML(CFG.portfolio) + "</div>";
+      recordHTML(CFG.record) + portfoliosLinkHTML() + "</div>";
     var tb = main.querySelector(".ld-rtab tbody");
     if (tb) tb.addEventListener("click", function (e) {
       if (e.target.closest("a")) return;
@@ -3243,59 +3246,234 @@
       verdict +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">Each call is checked on its target date: was it right, and did the shares do better than similar companies over the same months? The table splits the calls by conviction, from 0 to 5, because conviction is only worth recording if the confident calls turn out better than the cautious ones.</p></section>';
   }
-  /* The portfolio: what is held, and the portfolio manager's draft design. Read-only. CFG.portfolio comes from
-     _ledger_portfolio; every draft item carries the draft label, because none of it has been approved or runs. */
-  function portfolioHTML(p) {
-    if (!p) return "";
-    var tag = '<span class="ld-draft">' + esc(p.draftLabel || "Draft") + "</span>";
-    function head(id, title, draft) {
-      return '<div class="ld-pf-h"><h3 class="ld-h3" id="' + id + '">' + esc(title) + "</h3>" + (draft ? tag : "") + "</div>";
-    }
-    var book = p.book || {}, pos = book.positions || [], views = p.views || [];
-    var holdHTML;
-    if (pos.length) {
-      holdHTML = '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pftab"><thead><tr><th>Ticker</th><th>View</th><th class="r">Size</th><th>Conviction</th><th>Sector</th></tr></thead><tbody>' +
-        pos.map(function (x) {
-          return '<tr><td><a class="ld-tk" href="' + ctx.href("company", x.ticker) + '/thesis">' + esc(x.ticker) + "</a></td><td>" + esc(VIEW[x.direction] || x.direction || "") +
-            '</td><td class="r ld-num">' + (x.weight != null ? num(x.weight * 100, 1) + "%" : "n/a") + '</td><td class="ld-num">' + esc(x.conviction != null ? x.conviction + " of 5" : "") + "</td><td>" + esc(x.sector || "") + "</td></tr>";
-        }).join("") + "</tbody></table></div>" +
-        '<p class="ld-muted ld-pf-p">From the portfolio built on ' + (book.date ? dateMid(book.date) : "an unknown date") + (book.cash != null ? ". Cash is " + num(book.cash * 100, 1) + "% of the portfolio" : "") + ".</p>";
-    } else {
-      holdHTML = '<p class="ld-empty ld-pf-empty">No positions yet.</p>' +
-        '<p class="ld-pf-p">' + (book.date ? "The last portfolio, built on " + dateMid(book.date) + ", held nothing." : "No portfolio has been built, so everything is in cash.") + "</p>";
-    }
-    var ok = views.filter(function (v) { return v.holdable; });
-    var viewHTML = views.length ? '<p class="ld-pf-p">The sizing rule can hold a company only when the analyst says to own it or to bet against it, with conviction of 3 of 5 or more. ' +
-      (ok.length ? plural(ok.length, "company", "companies") + " of the " + views.length + " covered " + (ok.length === 1 ? "qualifies" : "qualify") + " today: " + esc(andList(ok.map(function (v) { return v.ticker; }))) + "."
-        : "None of the " + plural(views.length, "company", "companies") + " covered qualifies today.") + "</p>" +
-      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pftab"><thead><tr><th>Ticker</th><th>Current view</th><th>Conviction</th><th>Could be held</th></tr></thead><tbody>' +
-      views.map(function (v) {
-        return '<tr><td><a class="ld-tk" href="' + ctx.href("company", v.ticker) + '/thesis">' + esc(v.ticker) + "</a></td><td>" + esc(VIEW[v.direction] || v.direction) +
-          '</td><td class="ld-num">' + (v.conviction != null ? esc(v.conviction) + " of 5" : "None") + "</td><td>" + (v.holdable ? "Yes" : "No") + "</td></tr>";
-      }).join("") + "</tbody></table></div>" : "";
-    var limits = '<ul class="ld-pflim">' + (p.limits || []).map(function (l) {
-      return '<li><span class="n">' + esc(l.name) + '</span><span class="t">' + esc(l.text) + '</span><span class="s">' + esc(l.status) + "</span></li>";
-    }).join("") + "</ul>";
-    var scored = p.scored || 0;
-    var docs = (p.drafts || []).map(function (d) {
-      return '<details class="ld-det"><summary>' + esc(d.label) + "</summary>" +
-        '<div class="ld-notebody ld-pfdoc"><p class="ld-pf-p">' + tag + (CFG.repoUrl ? ' <a class="ld-inl" href="' + esc(CFG.repoUrl + d.path) + '" target="_blank" rel="noopener">' + esc(d.path) + "</a>" : "") + "</p>" + cleanHtml(d.html) + "</div></details>";
-    }).join("");
-    return '<section class="ld-sec" aria-labelledby="ld-pf-h">' +
-      '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-pf-h">Portfolio</h2><span class="ld-kicker">Not running</span></div>' +
-      '<p class="ld-pf-lede">The portfolio manager (PM) would decide how much of the portfolio to put behind each of the analyst’s views. It is not running. Its instructions are a draft that the owner has not approved, and nothing on this page makes a decision.</p>' +
-      head("ld-pf-book", "Current holdings", false) + holdHTML + viewHTML +
-      head("ld-pf-lim", "Proposed limits", true) +
-      '<p class="ld-pf-p">The first two limits are new, and their numbers are the owner’s to choose. So far ' + (scored ? plural(scored, "of the analyst’s calls has", "of the analyst’s calls have") : "none of the analyst’s calls has") + " been checked.</p>" + limits +
-      head("ld-pf-mon", "What the PM would do each Monday", true) +
-      '<div class="ld-rblock ld-pf-p"><p>Each Monday at noon, Eastern time, after the analyst’s morning run, the PM would:</p><ol>' +
-      (p.monday || []).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol>" +
-      "<p>It would never write research, change the analyst’s notes, or change its own sizing rules.</p>" +
-      ((p.before || []).length ? "<h4>What would have to exist before it could run</h4><ul>" + p.before.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>" : "") + "</div>" +
-      head("ld-pf-smp", "A sample decision on NVIDIA", true) +
-      '<div class="ld-rblock ld-pf-p">' + (p.sample || []).map(function (s) { return "<p>" + esc(s) + "</p>"; }).join("") + "</div>" +
-      docs + "</section>";
+  /* Research ends with a pointer to the model portfolios, which have their own pages. */
+  function portfoliosLinkHTML() {
+    return '<section class="ld-sec" aria-labelledby="ld-pfl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pfl-h">Model portfolios</h2></div>' +
+      '<p class="ld-pm-p">Nine paper portfolios, one for each size and style of company, each measured against its Russell index fund. ' +
+      '<a class="ld-inl" href="' + ctx.href("portfolios") + '">See the portfolios</a>.</p></section>';
   }
+
+  /* ---------------------------------------------------------------- portfolios */
+  /* portfolios.html (one card per book) and book.html#ID (one book). CFG.portfolios comes from
+     portfolio.engine.site_data. Every figure is from the ledger and the stored closes; where a close is
+     missing the value is left blank and the day is called partial, never filled from another day. */
+
+  var PM = CFG.portfolios || {};
+  var SIZE_WORD = { large: "Large", mid: "Mid", small: "Small" };
+  var STYLE_WORD = { growth: "Growth", core: "Core", value: "Value" };
+  var ACTION_WORD = { inception: "Inception", rebalance: "Rebalance", hold: "Hold", trade: "Trade", mandate_change: "Mandate change" };
+  var SIDE_WORD = { deposit: "Cash in", withdraw: "Cash out", buy: "Buy", sell: "Sell", short: "Sell short", cover: "Buy to cover" };
+
+  function pctTxt(f, dp) { return f == null || !isFinite(f) ? "n/a" : signed(f * 100, dp == null ? 2 : dp) + "%"; }
+  function pctCls(f) { return f == null || !isFinite(f) ? "" : chgCls(f * 100); }
+  function plainPct(f, dp) { return f == null || !isFinite(f) ? "n/a" : num(f * 100, dp == null ? 1 : dp) + "%"; }
+  function usd0(v) { return v == null || !isFinite(v) ? "n/a" : (v < 0 ? MINUS : "") + "$" + int(Math.abs(v)); }
+  function bookHref(id) { return "book.html#" + encodeURIComponent(id); }
+  function benchShort(b) { return String(b.benchmarkName || b.benchmark || "").replace(/\s*\(.*\)$/, ""); }
+
+  function priceNote() {
+    return '<p class="ld-note">Returns are price-only: dividends are not counted, in the books or in the benchmarks. Every trade costs 5 basis points of its value (a basis point is one hundredth of a percent, so 5 is 0.05%). ' +
+      "A holding is valued at the stored close for that day only. When a close is missing, the day is marked partial and its value is left blank rather than estimated.</p>";
+  }
+
+  function cardHTML(b) {
+    var head = '<div class="ld-pm-ch"><span class="ld-kicker">' + esc(SIZE_WORD[b.size] + " " + MID + " " + STYLE_WORD[b.style]) + "</span>" +
+      '<h3 class="ld-h3"><a href="' + bookHref(b.id) + '">' + esc(b.name) + "</a></h3></div>";
+    if (!b.inception) {
+      return '<article class="ld-pm-card">' + head + '<p class="ld-muted ld-pm-p">Not started yet. The rules would hold ' + plural((b.candidate || []).length || b.targetCount || 0, "company", "companies") + ".</p></article>";
+    }
+    var rows = '<div class="ld-pm-kv"><span>This book</span><b class="ld-num ' + pctCls(b.ret) + '">' + pctTxt(b.ret) + "</b></div>" +
+      '<div class="ld-pm-kv"><span>' + esc(benchShort(b)) + '</span><b class="ld-num ' + pctCls(b.benchRet) + '">' + pctTxt(b.benchRet) + "</b></div>";
+    var cashW = b.cash != null && b.pricedNav ? b.cash / b.pricedNav : null;
+    var foot = plural(b.holdingsCount || 0, "holding", "holdings") + " " + MID + " cash " + plainPct(cashW);
+    var last = b.lastDecision ? "Last decision: " + esc((ACTION_WORD[b.lastDecision.action] || b.lastDecision.action).toLowerCase()) + ", " + esc(dateMid(b.lastDecision.date)) + "." : "";
+    return '<article class="ld-pm-card">' + head +
+      '<p class="ld-pm-since ld-muted">Started ' + esc(dateMid(b.inception)) + ". Return to the close on " + esc(dateMid(b.asof)) + ".</p>" + rows +
+      (b.partial ? '<p class="ld-pm-warn">Partial: some holdings have no stored close for ' + esc(dateMid(b.asof)) + ", so the value is left blank.</p>" : "") +
+      '<p class="ld-pm-foot ld-num">' + foot + "</p>" + (last ? '<p class="ld-pm-foot">' + last + "</p>" : "") + "</article>";
+  }
+
+  function boxTableHTML(counts) {
+    var head = "<tr><th></th>" + ["value", "core", "growth"].map(function (s) { return '<th class="r">' + STYLE_WORD[s] + "</th>"; }).join("") + "</tr>";
+    var body = ["large", "mid", "small"].map(function (z) {
+      return "<tr><td>" + SIZE_WORD[z] + "</td>" + ["value", "core", "growth"].map(function (s) {
+        return '<td class="r ld-num">' + int(counts[z + "-" + s] || 0) + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+    return '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab ld-pm-box"><thead>' + head + "</thead><tbody>" + body + "</tbody></table></div>";
+  }
+
+  function renderPortfolios(main) {
+    var books = PM.books || [];
+    var byKey = {};
+    books.forEach(function (b) { byKey[b.size + "-" + b.style] = b; });
+    var grid = ["large", "mid", "small"].map(function (z) {
+      return ["value", "core", "growth"].map(function (s) { var b = byKey[z + "-" + s]; return b ? cardHTML(b) : ""; }).join("");
+    }).join("");
+    var live = books.filter(function (b) { return b.inception; }).length;
+    var counts = PM.boxCounts || {};
+    var planned = (PM.planned || []).map(function (b) {
+      return "<li><b>" + esc(b.name) + "</b>. Built by " + esc(String(b.built_by || "").charAt(0).toLowerCase() + String(b.built_by || "").slice(1)) + "; measured against the " + esc(String((b.benchmark === "^GSPC" ? "S&P 500" : ({ IWF: "Russell 1000 Growth", IWV: "Russell 3000", IWD: "Russell 1000 Value" })[b.benchmark] || b.benchmark))) + ".</li>";
+    }).join("");
+    var drafts = (CFG.drafts || []).map(function (d) {
+      return "<li>" + (CFG.repoUrl ? '<a class="ld-inl" href="' + esc(CFG.repoUrl + d.path) + '" target="_blank" rel="noopener">' + esc(d.label) + "</a>" : esc(d.label)) + "</li>";
+    }).join("");
+    main.innerHTML = '<div class="ld-wrap">' +
+      '<div class="ld-head"><div><div class="ld-kicker"><b>Portfolios</b> ' + MID + " " + plural(live, "book started", "books started") + (PM.asof ? " " + MID + " as of the close on " + esc(dateMid(PM.asof)) : "") + "</div>" +
+      '<h1 class="ld-h1">Model portfolios</h1><p class="ld-deck">Nine paper portfolios, one for each size and style of company. Each started with $' + int(PM.capital || 1000000) + " of pretend cash and is measured against the Russell index fund for the same kind of company. A set of written rules proposes the holdings, and the portfolio manager (PM) reviews them.</p></div></div>" +
+      priceNote() +
+      '<section class="ld-sec" aria-labelledby="ld-pm-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pm-h">The nine books</h2><span class="ld-kicker">Value, core and growth; large, mid and small</span></div>' +
+      '<div class="ld-pm-grid">' + grid + "</div></section>" +
+      '<section class="ld-sec" aria-labelledby="ld-pmc-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmc-h">How companies are sorted into the nine boxes</h2></div>' +
+      '<p class="ld-pm-p">' + esc(PM.classificationRule || "") + "</p>" +
+      '<p class="ld-pm-p">A robust z-score says how far a figure sits from the middle of the group: the median, measured in units of the typical spread around it, and capped at 5 either way so a single extreme figure cannot stretch the scale.</p>' +
+      '<p class="ld-pm-p">Companies in each box on ' + (PM.asof ? esc(dateMid(PM.asof)) : "the latest date") + ":</p>" + boxTableHTML(counts) +
+      '<p class="ld-pm-p ld-muted">Left out: ' + int(counts.micro || 0) + " micro caps, and " + int(counts.unclassified || 0) + " listings that are not operating companies, have no market cap, repeat another share class, or have too few inputs for a score.</p></section>" +
+      '<section class="ld-sec" aria-labelledby="ld-pmr-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmr-h">How the rules choose a book</h2></div>' +
+      '<p class="ld-pm-p">' + esc(PM.candidateRule || "") + "</p>" +
+      '<p class="ld-pm-p">The rules run again after every close and their choice is shown on each book’s page beside what the book holds. They do not trade. Each book was bought from the rules on its first day; after that, only the PM trades.</p></section>' +
+      (planned ? '<section class="ld-sec" aria-labelledby="ld-pmp-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmp-h">Still to come</h2></div><ul class="ld-pm-list">' + planned + "</ul></section>" : "") +
+      (drafts ? '<details class="ld-det"><summary>Earlier draft</summary><p class="ld-pm-p">Before these books existed, the plan was a single portfolio built from the analyst’s notes. The draft is kept in the repository.</p><ul class="ld-pm-list">' + drafts + "</ul></details>" : "") +
+      "</div>";
+  }
+
+  function navChart(host, b) {
+    var pts = (b.series || []).filter(function (p) { return p.nav != null && p.capital; });
+    if (pts.length < 2) {
+      host.innerHTML = '<p class="ld-muted ld-pm-p">The chart starts once two closes have been recorded for this book.' + ((b.series || []).length ? " So far: " + plural(pts.length, "complete day", "complete days") + "." : "") + "</p>";
+      return;
+    }
+    var b0 = null;
+    pts.forEach(function (p) { if (b0 == null && p.bench) b0 = p.bench; });
+    function draw() {
+      var W = Math.max(280, host.clientWidth || 640), H = W < 520 ? 200 : 250;
+      var pl = 4, pr = 58, pt = 10, pb = 26, iw = W - pl - pr, ih = H - pt - pb;
+      var a = pts.map(function (p) { return (p.nav / p.capital - 1) * 100; });
+      var c = pts.map(function (p) { return p.bench && b0 ? (p.bench / b0 - 1) * 100 : null; });
+      var vs = a.concat(c.filter(function (v) { return v != null; }));
+      var mn = Math.min.apply(null, vs.concat([0])), mx = Math.max.apply(null, vs.concat([0]));
+      if (mx - mn < 0.5) { mn -= 0.25; mx += 0.25; }
+      var step = niceStep(mx - mn, 4), y0 = Math.floor(mn / step) * step, y1 = Math.ceil(mx / step) * step;
+      function X(j) { return pl + iw * j / Math.max(1, pts.length - 1); }
+      function Y(v) { return pt + ih * (1 - (v - y0) / (y1 - y0)); }
+      var g = [];
+      for (var y = y0; y <= y1 + step / 2; y += step) {
+        g.push('<line class="gl" x1="' + pl + '" x2="' + (pl + iw) + '" y1="' + Y(y).toFixed(1) + '" y2="' + Y(y).toFixed(1) + '"/>');
+        g.push('<text x="' + (pl + iw + 8) + '" y="' + (Y(y) + 3.5).toFixed(1) + '">' + (y < 0 ? MINUS : y > 0 ? "+" : "") + num(Math.abs(y), step < 1 ? 1 : 0) + "%</text>");
+      }
+      function path(vals) {
+        var d = "", pen = false;
+        vals.forEach(function (v, j) { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(j).toFixed(1) + " " + Y(v).toFixed(1); pen = true; });
+        return d;
+      }
+      host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" height="' + H + '" role="img" aria-label="' + esc("Return since inception, " + b.name + " and " + benchShort(b)) + '">' +
+        g.join("") + '<path class="ln ld-pm-bench" d="' + path(c) + '"/><path class="ln" d="' + path(a) + '"/>' +
+        '<text x="' + pl + '" y="' + (H - 8) + '">' + esc(dateShort(pts[0].date)) + '</text><text x="' + (pl + iw) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(dateShort(pts[pts.length - 1].date)) + "</text></svg>";
+    }
+    draw();
+    redrawers.push(draw);
+  }
+
+  function mandateHTML(m) {
+    if (!m) return "";
+    var items = [
+      ["Number of holdings", m.holdings_range ? m.holdings_range[0] + " to " + m.holdings_range[1] : "n/a"],
+      ["Largest position", plainPct(m.max_position, 0) + " of the book"],
+      ["Largest sector", plainPct(m.sector_cap, 0) + " of the book"],
+      ["Cash", m.cash_band ? plainPct(m.cash_band[0], 0) + " to " + plainPct(m.cash_band[1], 0) + " of the book" : "n/a"],
+      ["Turnover", m.turnover_budget != null ? "Up to " + plainPct(m.turnover_budget, 0) + " of the book a year, counting purchases or sales, whichever is smaller" : "n/a"],
+      ["Bets against companies", m.long_only ? "Not allowed" : "Allowed"],
+      ["Weighting", m.weighting === "equal" ? "Equal weight" : String(m.weighting || "")]
+    ];
+    return '<ul class="ld-pflim">' + items.map(function (x) { return '<li><span class="n">' + esc(x[0]) + '</span><span class="t">' + esc(x[1]) + "</span></li>"; }).join("") + "</ul>";
+  }
+
+  function renderBook(main) {
+    var id = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
+    var books = PM.books || [];
+    var b = null;
+    books.forEach(function (x) { if (x.id === id) b = x; });
+    if (!b) {
+      main.innerHTML = '<div class="ld-wrap"><div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b></div><h1 class="ld-h1">Choose a book</h1></div></div>' +
+        '<ul class="ld-pm-list">' + books.map(function (x) { return '<li><a class="ld-inl" href="' + bookHref(x.id) + '">' + esc(x.name) + "</a></li>"; }).join("") + "</ul></div>";
+      return;
+    }
+    var back = '<p class="ld-pm-back"><a class="ld-link" href="' + ctx.href("portfolios") + '">All portfolios</a></p>';
+    var styleWords = { growth: "whose growth score ranks in the top third", value: "whose value score ranks in the top third (the cheapest third)", core: "in the middle third between growth and value" };
+    var deck = "Holds " + (b.size === "large" ? "large" : b.size === "mid" ? "mid-sized" : "small") + " companies " + styleWords[b.style] + ". Measured against the " + esc(b.benchmarkName) + ".";
+    if (!b.inception) {
+      main.innerHTML = '<div class="ld-wrap">' + back + '<div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b></div><h1 class="ld-h1">' + esc(b.name) + '</h1><p class="ld-deck">' + deck + " It has not started yet.</p></div></div>" + candidateHTML(b, {}) + "</div>";
+      return;
+    }
+    var cashW = b.cash != null && b.pricedNav ? b.cash / b.pricedNav : null;
+    var tiles = [
+      ["Value", b.nav != null ? usd0(b.nav) : "n/a", b.partial ? "Partial: left blank" : "At the close on " + dateMid(b.asof)],
+      ["Return since " + dateShort(b.inception), pctTxt(b.ret), "After trading costs", pctCls(b.ret)],
+      [benchShort(b), pctTxt(b.benchRet), b.benchRet == null ? "Closes not stored yet" : "Same dates, price-only", pctCls(b.benchRet)],
+      ["Cash", plainPct(cashW), usd0(b.cash)]
+    ];
+    var stats = '<div class="ld-stats ld-pm-stats">' + tiles.map(function (t) {
+      return '<div class="ld-stat" style="display:block"><div class="ld-kicker">' + esc(t[0]) + '</div><div class="v ld-num ' + (t[3] || "") + '">' + esc(t[1]) + '</div><div class="d">' + esc(t[2]) + "</div></div>";
+    }).join("") + "</div>";
+    var hold = (b.holdings || []).map(function (h) {
+      return '<tr><td><a class="ld-tk" href="' + ctx.href("company", h.ticker) + '">' + esc(h.ticker) + "</a></td><td>" + esc(h.name) + "</td><td>" + esc(h.sector || "Unclassified") +
+        '</td><td class="r ld-num">' + int(h.shares) + '</td><td class="r ld-num">' + money(h.avgCost) + '</td><td class="r ld-num">' + money(h.close) +
+        '</td><td class="r ld-num">' + usd0(h.value) + '</td><td class="r ld-num">' + plainPct(h.weight) + '</td><td class="r ld-num ' + pctCls(h.ret) + '">' + pctTxt(h.ret, 1) + "</td></tr>";
+    }).join("");
+    var unpriced = (b.unpriced || []).map(function (u) { return esc(u.ticker) + " (" + esc(u.why) + ")"; });
+    var sectors = (b.sectors || []).map(function (s) {
+      return '<div class="ld-pm-bar"><span class="n">' + esc(s[0]) + '</span><span class="b"><i style="width:' + Math.max(0.5, s[1] * 100).toFixed(1) + '%"></i></span><span class="v ld-num">' + plainPct(s[1]) + "</span></div>";
+    }).join("");
+    var decisions = (b.decisions || []).slice().reverse().map(function (d) {
+      return '<tr><td class="ld-num">' + esc(dateMid(d.date)) + "</td><td>" + esc(ACTION_WORD[d.action] || d.action) + '</td><td class="ld-pm-wrap">' + esc(d.reason) + "</td><td>" + esc(d.author === "pm" ? "PM" : "Rules") + "</td></tr>";
+    }).join("");
+    var trades = (b.trades || []).map(function (t) {
+      var cash = t.side === "deposit" || t.side === "withdraw";
+      return '<tr><td class="ld-num">' + esc(dateMid(t.date)) + "</td><td>" + esc(SIDE_WORD[t.side] || t.side) + "</td><td>" + (cash ? "Cash" : esc(t.ticker)) +
+        '</td><td class="r ld-num">' + (cash ? "" : int(+t.shares)) + '</td><td class="r ld-num">' + (cash ? "" : money(+t.price)) + '</td><td class="r ld-num">' + usd0(+t.shares * +t.price) + '</td><td class="r ld-num">' + (cash ? "" : money(+t.cost)) + "</td></tr>";
+    }).join("");
+    main.innerHTML = '<div class="ld-wrap">' + back +
+      '<div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b> ' + MID + " started " + esc(dateMid(b.inception)) + " with $" + int(b.capital || 0) + "</div>" +
+      '<h1 class="ld-h1">' + esc(b.name) + '</h1><p class="ld-deck">' + deck + "</p></div></div>" +
+      stats + priceNote() +
+      '<section class="ld-sec" aria-labelledby="ld-bk-perf"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-perf">Return since inception</h2><span class="ld-kicker">Book, solid; benchmark, dashed</span></div><div class="ld-chart" id="ld-pm-chart"></div></section>' +
+      '<section class="ld-sec" aria-labelledby="ld-bk-hold"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-hold">Holdings</h2><span class="ld-kicker">' + plural(b.holdingsCount || 0, "company", "companies") + ", largest first</span></div>" +
+      (hold ? '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Ticker</th><th>Company</th><th>Sector</th><th class="r">Shares</th><th class="r">Bought at</th><th class="r">Close</th><th class="r">Value</th><th class="r">Weight</th><th class="r">Return</th></tr></thead><tbody>' + hold + "</tbody></table></div>" : '<p class="ld-empty">No holdings.</p>') +
+      (unpriced.length ? '<p class="ld-pm-warn">Not valued on ' + esc(dateMid(b.asof)) + ": " + unpriced.join(", ") + ".</p>" : "") +
+      '<p class="ld-muted ld-pm-p">“Bought at” is the average price paid per share, before the trading cost. Weight is the share of the book’s value on ' + esc(dateMid(b.asof)) + ".</p></section>" +
+      '<section class="ld-sec" aria-labelledby="ld-bk-sec"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-sec">Sector mix</h2></div><div class="ld-pm-bars">' + sectors + "</div></section>" +
+      candidateHTML(b, b.holdings || []) +
+      '<section class="ld-sec" aria-labelledby="ld-bk-dec"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-dec">Decisions</h2><span class="ld-kicker">Newest first</span></div>' +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Date</th><th>Decision</th><th>Reason</th><th>By</th></tr></thead><tbody>' + decisions + "</tbody></table></div></section>" +
+      '<section class="ld-sec" aria-labelledby="ld-bk-man"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-man">Mandate</h2><span class="ld-kicker">Set by the PM</span></div>' +
+      '<p class="ld-pm-p">The limits the book is run within. The PM may change them, and every change is recorded as a decision with its reason.</p>' + mandateHTML(b.mandate) + "</section>" +
+      '<details class="ld-det"><summary>Every trade (' + int((b.trades || []).length) + ")</summary>" +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Date</th><th>Trade</th><th>Ticker</th><th class="r">Shares</th><th class="r">Price</th><th class="r">Amount</th><th class="r">Cost</th></tr></thead><tbody>' + trades + "</tbody></table></div>" +
+      '<p class="ld-muted ld-pm-p">Each price is the stored close for the trade’s date.</p></details>' +
+      "</div>";
+    navChart(document.getElementById("ld-pm-chart"), b);
+  }
+
+  function candidateHTML(b, holdings) {
+    var cand = b.candidate || [];
+    var held = {};
+    holdings.forEach(function (h) { held[h.ticker] = 1; });
+    var rows = cand.map(function (p) {
+      return '<tr><td class="r ld-num">' + p.rank + '</td><td><a class="ld-tk" href="' + ctx.href("company", p.ticker) + '">' + esc(p.ticker) + "</a></td><td>" + esc(p.name) + "</td><td>" + esc(p.sector || "Unclassified") +
+        '</td><td class="r ld-num">' + zShort2(p.score) + '</td><td class="r ld-num">' + plainPct(p.weight) + "</td><td>" + (held[p.ticker] ? "Yes" : "No") + "</td></tr>";
+    }).join("");
+    var adds = b.candidateAdds || [], drops = b.candidateDrops || [];
+    var cmp = b.inception ? (adds.length || drops.length
+      ? "Compared with what the book holds, the rules would buy " + (adds.length ? plural(adds.length, "company", "companies") + " (" + esc(adds.slice(0, 12).join(", ")) + (adds.length > 12 ? " and more" : "") + ")" : "nothing") +
+        " and sell " + (drops.length ? plural(drops.length, "company", "companies") + " (" + esc(drops.slice(0, 12).join(", ")) + (drops.length > 12 ? " and more" : "") + ")" : "nothing") + ". Only the PM decides whether to trade."
+      : "The rules would hold exactly what the book holds.") : "";
+    return '<section class="ld-sec" aria-labelledby="ld-bk-cand"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-cand">What the rules would hold today</h2><span class="ld-kicker">From the panel of ' + esc(b.candidateAsof ? dateMid(b.candidateAsof) : "n/a") + "</span></div>" +
+      '<p class="ld-pm-p">' + plural(b.boxCount || 0, "company is", "companies are") + " in this box. The rules take the top " + int(b.targetCount || 0) + ", the middle of the mandate’s holdings range. " + cmp + "</p>" +
+      (rows ? '<details class="ld-det"><summary>The rules book (' + int(cand.length) + ')</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th class="r">Rank</th><th>Ticker</th><th>Company</th><th>Sector</th><th class="r">Score</th><th class="r">Weight</th><th>Held</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+        '<p class="ld-muted ld-pm-p">The score is the box score plus half the quality score, both in robust z-scores within the company’s size.</p></details>' : "") +
+      "</section>";
+  }
+  function zShort2(z) { return z == null || !isFinite(z) ? "n/a" : signed(z, 2); }
   function scrollToThesis() {
     var t = document.getElementById("ld-thesis");
     if (!t || !document.getElementById("ld-th-h")) return;
@@ -3347,6 +3525,11 @@
     if (page === "today") renderToday(main);
     else if (page === "stories") renderStories(main);
     else if (page === "research") renderResearch(main);
+    else if (page === "portfolios") renderPortfolios(main);
+    else if (page === "book") {
+      renderBook(main);
+      listen(window, "hashchange", function () { redrawers = []; renderBook(main); window.scrollTo(0, 0); });
+    }
     else renderHome(main);
   }
 

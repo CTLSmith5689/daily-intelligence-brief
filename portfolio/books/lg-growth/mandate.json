@@ -1,0 +1,16 @@
+{
+  "cash_band": [
+    0.0,
+    0.05
+  ],
+  "holdings_range": [
+    25,
+    45
+  ],
+  "long_only": true,
+  "max_position": 0.05,
+  "overweight_factor": 1.5,
+  "sector_cap": 0.4,
+  "turnover_budget": 1.0,
+  "weighting": "equal"
+}

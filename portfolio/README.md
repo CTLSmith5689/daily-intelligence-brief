@@ -1,5 +1,34 @@
 # portfolio/
 
+## Model portfolios (phases 1 and 2)
+
+Nine paper style books (large, mid and small; growth, core and value), each
+incepted with $1,000,000 and measured against its Russell ETF. The code is
+`engine.py`; the rules are printed on the site's Portfolios page and in
+`FIELD_METHODS` (style_*, book_*, benchmark_return).
+
+| File | What it holds | Who writes it |
+|---|---|---|
+| `ledger/trades.csv` | every deposit and trade, with trade_id and lot_id | `bin/seed.py` at inception; the PM after (phase 4) |
+| `ledger/decisions.csv` | every decision, with a short reason and its author | the same |
+| `ledger/mandates.csv` | every mandate a book has had | the same; a change is also a `mandate_change` decision |
+| `books/<id>/mandate.json` | the current mandate (the last mandates.csv row) | the PM |
+| `../data/portfolio/nav.csv` | each book's value at each close | the daily run (`record_portfolio_nav`) |
+
+All are append-only with `merge=union`. `engine.append_rows` refuses a file whose
+header differs; a new column goes through `engine.migrate_add_columns`, once, in
+a quiet window. Short positions (`short`/`cover`), named lots for the tax books
+and FIFO for the rest are already in the ledger arithmetic.
+
+Prices are the stored close for the exact date (`docs/prices`). A missing close
+leaves the day partial with its NAV blank; nothing is carried from another day.
+Returns are price-only, and every trade pays 5 bps. The daily run only values the
+books and republishes the rules candidate book; it never trades.
+
+`bin/seed.py` is idempotent: a book with a deposit row is never seeded again.
+
+## Agent 2 draft (earlier design)
+
 Agent 2. Takes the theses agent 1 wrote and decides how much of the book is
 willing to be wrong about each of them.
 
