@@ -3192,7 +3192,7 @@
       (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>View</th><th>Conviction</th><th class="r">Written at</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written on</th></tr></thead><tbody>' +
       rows + "</tbody></table></div>" : '<p class="ld-empty">No thesis has been written yet.</p>') +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">“To target” is how far the price still has to move, from the last close, to reach the target. When the view takes no side (“' + esc(VIEW.watch) + '” or “' + esc(VIEW["no view"]) + '”), the target is for reference only and the company shows as Watching. Those notes make no call, so they are never checked.</p></section>' +
-      recordHTML(CFG.record) + "</div>";
+      recordHTML(CFG.record) + portfolioHTML(CFG.portfolio) + "</div>";
     var tb = main.querySelector(".ld-rtab tbody");
     if (tb) tb.addEventListener("click", function (e) {
       if (e.target.closest("a")) return;
@@ -3217,6 +3217,59 @@
       '<div class="ld-tbl-wrap"><table class="ld-rtab" style="margin-top:18px"><thead><tr><th>Conviction</th><th class="r">Companies</th><th class="r">Open</th><th class="r">Watching</th><th class="r">Checked</th><th class="r">Right</th><th class="r">Beat similar companies</th></tr></thead><tbody>' + tiers + "</tbody></table></div>" +
       verdict +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">Each call is checked on its target date: was it right, and did the shares do better than similar companies over the same months? The table splits the calls by conviction, from 0 to 5, because conviction is only worth recording if the confident calls turn out better than the cautious ones.</p></section>';
+  }
+  /* The portfolio: what is held, and the portfolio manager's draft design. Read-only. CFG.portfolio comes from
+     _ledger_portfolio; every draft item carries the draft label, because none of it has been approved or runs. */
+  function portfolioHTML(p) {
+    if (!p) return "";
+    var tag = '<span class="ld-draft">' + esc(p.draftLabel || "Draft") + "</span>";
+    function head(id, title, draft) {
+      return '<div class="ld-pf-h"><h3 class="ld-h3" id="' + id + '">' + esc(title) + "</h3>" + (draft ? tag : "") + "</div>";
+    }
+    var book = p.book || {}, pos = book.positions || [], views = p.views || [];
+    var holdHTML;
+    if (pos.length) {
+      holdHTML = '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pftab"><thead><tr><th>Ticker</th><th>View</th><th class="r">Size</th><th>Conviction</th><th>Sector</th></tr></thead><tbody>' +
+        pos.map(function (x) {
+          return '<tr><td><a class="ld-tk" href="' + ctx.href("company", x.ticker) + '/thesis">' + esc(x.ticker) + "</a></td><td>" + esc(VIEW[x.direction] || x.direction || "") +
+            '</td><td class="r ld-num">' + (x.weight != null ? num(x.weight * 100, 1) + "%" : "n/a") + '</td><td class="ld-num">' + esc(x.conviction != null ? x.conviction + " of 5" : "") + "</td><td>" + esc(x.sector || "") + "</td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        '<p class="ld-muted ld-pf-p">From the portfolio built on ' + (book.date ? dateMid(book.date) : "an unknown date") + (book.cash != null ? ". Cash is " + num(book.cash * 100, 1) + "% of the portfolio" : "") + ".</p>";
+    } else {
+      holdHTML = '<p class="ld-empty ld-pf-empty">No positions yet.</p>' +
+        '<p class="ld-pf-p">' + (book.date ? "The last portfolio, built on " + dateMid(book.date) + ", held nothing." : "No portfolio has been built, so everything is in cash.") + "</p>";
+    }
+    var ok = views.filter(function (v) { return v.holdable; });
+    var viewHTML = views.length ? '<p class="ld-pf-p">The sizing rule can hold a company only when the analyst says to own it or to bet against it, with conviction of 3 of 5 or more. ' +
+      (ok.length ? plural(ok.length, "company", "companies") + " of the " + views.length + " covered " + (ok.length === 1 ? "qualifies" : "qualify") + " today: " + esc(andList(ok.map(function (v) { return v.ticker; }))) + "."
+        : "None of the " + plural(views.length, "company", "companies") + " covered qualifies today.") + "</p>" +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pftab"><thead><tr><th>Ticker</th><th>Current view</th><th>Conviction</th><th>Could be held</th></tr></thead><tbody>' +
+      views.map(function (v) {
+        return '<tr><td><a class="ld-tk" href="' + ctx.href("company", v.ticker) + '/thesis">' + esc(v.ticker) + "</a></td><td>" + esc(VIEW[v.direction] || v.direction) +
+          '</td><td class="ld-num">' + (v.conviction != null ? esc(v.conviction) + " of 5" : "None") + "</td><td>" + (v.holdable ? "Yes" : "No") + "</td></tr>";
+      }).join("") + "</tbody></table></div>" : "";
+    var limits = '<ul class="ld-pflim">' + (p.limits || []).map(function (l) {
+      return '<li><span class="n">' + esc(l.name) + '</span><span class="t">' + esc(l.text) + '</span><span class="s">' + esc(l.status) + "</span></li>";
+    }).join("") + "</ul>";
+    var scored = p.scored || 0;
+    var docs = (p.drafts || []).map(function (d) {
+      return '<details class="ld-det"><summary>' + esc(d.label) + "</summary>" +
+        '<div class="ld-notebody ld-pfdoc"><p class="ld-pf-p">' + tag + (CFG.repoUrl ? ' <a class="ld-inl" href="' + esc(CFG.repoUrl + d.path) + '" target="_blank" rel="noopener">' + esc(d.path) + "</a>" : "") + "</p>" + cleanHtml(d.html) + "</div></details>";
+    }).join("");
+    return '<section class="ld-sec" aria-labelledby="ld-pf-h">' +
+      '<div class="ld-sec-h"><h2 class="ld-h2" id="ld-pf-h">Portfolio</h2><span class="ld-kicker">Not running</span></div>' +
+      '<p class="ld-pf-lede">The portfolio manager (PM) would decide how much of the portfolio to put behind each of the analyst’s views. It is not running. Its instructions are a draft that the owner has not approved, and nothing on this page makes a decision.</p>' +
+      head("ld-pf-book", "Current holdings", false) + holdHTML + viewHTML +
+      head("ld-pf-lim", "Proposed limits", true) +
+      '<p class="ld-pf-p">The first two limits are new, and their numbers are the owner’s to choose. So far ' + (scored ? plural(scored, "of the analyst’s calls has", "of the analyst’s calls have") : "none of the analyst’s calls has") + " been checked.</p>" + limits +
+      head("ld-pf-mon", "What the PM would do each Monday", true) +
+      '<div class="ld-rblock ld-pf-p"><p>Each Monday at noon, Eastern time, after the analyst’s morning run, the PM would:</p><ol>' +
+      (p.monday || []).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol>" +
+      "<p>It would never write research, change the analyst’s notes, or change its own sizing rules.</p>" +
+      ((p.before || []).length ? "<h4>What would have to exist before it could run</h4><ul>" + p.before.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>" : "") + "</div>" +
+      head("ld-pf-smp", "A sample decision on NVIDIA", true) +
+      '<div class="ld-rblock ld-pf-p">' + (p.sample || []).map(function (s) { return "<p>" + esc(s) + "</p>"; }).join("") + "</div>" +
+      docs + "</section>";
   }
   function scrollToThesis() {
     var t = document.getElementById("ld-thesis");
