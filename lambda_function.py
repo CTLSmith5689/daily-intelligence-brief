@@ -10011,8 +10011,9 @@ PORTFOLIO_DRAFT_BEFORE = (
     "Changes to the sizing script: it must accept a portfolio of fewer than two "
     "companies (today it stops with an error), check a company's correlation with "
     "the holdings before it is bought, and carry the two new limits.",
-    "A new memo format from the analyst, with the proposed size, the expected return "
-    "and the bear-case loss on the first page.",
+    "Real memos in the new format, which puts the proposed size, the expected return "
+    "and the bear-case loss on the first page. The format is live from the analyst's "
+    "run on 28 September 2026.",
     "A weekly schedule for the PM, and the owner's approval of the two new limits.",
 )
 PORTFOLIO_SAMPLE_SUMMARY = (
