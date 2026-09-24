@@ -1,0 +1,738 @@
+Item
+1A. Risk Factors 
+
+ Investing
+in our Common Stock involves risk. You should carefully consider the risks described below as well as all the other information in this
+Annual Report, including the consolidated financial statements and the related notes included in this report. The risks and uncertainties
+described below are not the only risks and uncertainties we face. Additional risks and uncertainties not presently known to us or that
+we currently deem immaterial also may impair our business operations. If any of the following risks actually occur, our business, results
+of operations and financial condition could suffer. In that event, the trading price of our Common Stock could decline, and you may lose
+all or part of your investment. The risks discussed below also include forward-looking statements, and our actual results may differ
+substantially from those discussed in these forward-looking statements. 
+
+ 10 
+
+ Risk
+Factor Summary 
+
+ Our
+business is subject to numerous risks and uncertainties, including those highlighted in this Item 1A, that represent challenges that
+we face in connection with the successful implementation of our strategy and the growth of our business. In particular, the
+following risks, among others, may offset our competitive strengths or have a negative effect on our business strategy, which could
+cause a decline in the price of our Common Stock or warrants and result in a loss of all or a portion of your investment: 
+
+ ● 
+ We
+ have a short operating history, which makes it difficult to evaluate our business and prospects. 
+
+ ● 
+ We
+ may require substantial funding to finance our operations, but adequate financing may not be available when we need it, on acceptable
+ terms or at all. 
+
+ ● 
+ Uncertain
+ global macro-economic and political conditions could materially and adversely affect our results of operations and financial condition. 
+
+ ● 
+ The
+ loss of key personnel, or failure to attract and retain other highly qualified personnel, could harm our business. 
+
+ ● 
+ The
+ requirement that we repay the Restated Note (as defined below). 
+
+ ● 
+ Restrictive
+ covenants under the Convertible Notes (as defined below) could limit our growth and our ability to finance our operations, fund our
+ capital needs, respond to changing conditions and engage in other business activities that may be in our best interests. 
+
+ ● 
+ We
+ may not be able to complete our proposed acquisitions of Commercial Bancorp, Ark or an institutional digital asset business. 
+
+ ● 
+ If
+ any of our proposed acquisitions are completed, we may experience difficulties in integrating the operations of the acquired companies
+ and in realizing the expected benefits of these transactions. 
+
+ ● 
+ Commercial
+ Bancorp, Ark or any other business, if acquired, may have liabilities that are not known to AtlasClear and the indemnities negotiated
+ in the applicable acquisition agreement may not offer adequate protection. 
+
+ ● 
+ We
+ may in the future make acquisitions, and such acquisitions could disrupt our operations, and may have an adverse effect on our operating
+ results. 
+
+ ● 
+ Any
+ acquisitions, partnerships or joint ventures that we enter into could disrupt our operations and have a material adverse effect on
+ our business, financial condition and results of operations. 
+
+ ● 
+ We
+ may be unable to successfully grow our business if we fail to compete effectively with others to attract and retain our executive
+ officers and other key management and technical personnel. 
+
+ ● 
+ AtlasClearing’s
+ liquidation of microcap securities and related activities in the over-the-counter market segment expose it to significant risk. 
+
+ ● 
+ The
+ over-the-counter markets for the microcap securities AtlasClearing liquidates frequently have limited trading volume and volatile
+ trading prices. 
+
+ ● 
+ The
+ penny stock rules limit AtlasClearing’s trading practices. 
+
+ ● 
+ AtlasClearing
+ needs to continue to maintain its excess net capital above the NSCC requirement of $10 million to continue to provide correspondent
+ clearing services for introducing brokers. 
+
+ ● 
+ AtlasClearing
+ is substantially dependent on one principal customer. 
+
+ ● 
+ AtlasClearing
+ customers liquidate securities of smaller reporting companies that have relaxed disclosure obligations. 
+
+ ● 
+ AtlasClearing
+ customers also liquidate securities in companies that do not file SEC reports, so there is very little, if any, reliable data publicly
+ available about them. 
+
+ ● 
+ AtlasClearing
+ is, and may in the future be, subject to significant regulatory enforcement proceedings. 
+
+ ● 
+ AtlasClearing
+ and certain of its personnel are subject to various regulatory disciplinary orders that could be the basis of future regulatory action. 
+
+ ● 
+ AtlasClearing’s
+ procedures, policies, and practices to comply with the comprehensive anti-money laundering regulatory regime may not be sufficient
+ to assure compliance. 
+
+ ● 
+ General,
+ long-term financial and economic conditions and unforeseen events may adversely affect AtlasClearing’s financial condition and
+ results of operations. 
+
+ ● 
+ AtlasClearing
+ may be unable to attract and retain registered representatives and other professional employees. 
+
+ ● 
+ FINRA
+ has adopted rules that impose significant compliance requirements on making investment recommendations to retail customers. 
+
+ ● 
+ AtlasClearing
+ is exposed to credit risk and other risks from customers, market makers, and other counterparties. AtlasClearing faces significant
+ risks in conducting its market making business. Systems and security failures could significantly disrupt AtlasClearing’s business
+ and subject the firm to losses, litigation, and regulatory actions. 
+
+ ● 
+ AtlasClearing
+ relies on numerous external service providers whose failure to provide those services properly may result in significant adverse
+ events. 
+
+ ● 
+ AtlasClearing
+ relies on representations of third parties to ensure compliance with applicable laws and rules. Damage to AtlasClearing’s reputation
+ could adversely impact its business. 
+
+ ● 
+ We
+ are or may be subject to numerous risks relating to the need to comply with data and information privacy laws. 
+
+ ● 
+ We
+ are subject to cybersecurity risks and interruptions or failures in our information technology systems and as we grow, we will need
+ to expend additional resources to enhance our protection from such risks. Any cyber incident could result in information theft, data
+ corruption, operational disruption, and/or a financial loss that has a material adverse impact on our business and that could subject
+ us to legal claims. 
+
+ 11 
+
+ ● 
+ Issues
+ in the use of artificial intelligence, including machine learning and computer vision (together, “AI”), in our analytics
+ platforms may result in reputational harm or liability. 
+
+ ● 
+ AtlasClearing
+ is subject to extensive regulation from the SEC and FINRA, and the failure to comply with this regulation can result in significant
+ penalties, fines, liability, and reputational harm. 
+
+ ● 
+ The
+ misconduct of AtlasClearing’s employees could expose the firm to significant legal liability and reputational harm. 
+
+ ● 
+ The
+ proposed CB Acquisition may not be completed on the terms or timeline currently contemplated, or at all, as the parties may be unable
+ to satisfy the conditions or obtain the approvals required to complete the CB Acquisition. 
+
+ ● 
+ Failure
+ to complete the CB Acquisition may hinder the Company from achieving its anticipated business goals, and negatively impact the Company’s
+ share price and its business, prospects, financial condition and results of operations. 
+
+ ● 
+ The
+ requirements of being a public company may strain our resources, divert our management’s attention and affect our ability to
+ attract and retain qualified independent board members. 
+
+ ● 
+ Stock
+ trading volatility could impact our ability to recruit and retain employees. 
+
+ ● 
+ Our
+ existing indebtedness, and any indebtedness we incur in the future, could adversely affect our financial condition, our ability to
+ raise additional capital to fund our operations, our ability to operate our business, our ability to react to changes in the economy
+ or our industry and our ability to pay our debts and could divert our cash flow from operations for debt payments. 
+
+ ● 
+ Future
+ sales of our Common Stock could cause the market price for our Common Stock to decline. 
+
+ ● 
+ An
+ active market for our securities may not develop, which would adversely affect the liquidity and price of our securities. 
+
+ ● 
+ If
+ we are not able to raise sufficient capital to satisfy our payment obligations under the Convertible Notes, or otherwise restructure
+ the Convertible Notes, and payment of principal and accrued and unpaid interest thereon is demanded by the holders thereof, we will
+ be in default, and may not be able to continue as a going concern. 
+
+ ● 
+ We
+ cannot assure you that we will continue to be able to comply with the continued listing standards of the NYSE American. 
+
+ ● 
+ Terms
+ of our promissory notes may result in likely non-compliance and default. 
+
+ Risks
+Related to AtlasClear Holdings’ Business 
+
+ Unless
+the context otherwise requires, all references in this section to “we,” “us” or “AtlasClear Holdings”
+refer to the business of AtlasClear Holdings following the consummation of the Business Combination. 
+
+ We
+have a short operating history, which makes it difficult to evaluate our business and prospects. 
+
+ We
+have a short operating history, which makes it difficult to evaluate our business and prospects or forecast our future results. In addition,
+our subsidiary, AtlasClear was formed in March 2022. Prior to such time, AtlasClear had no operations or assets. Upon Closing, AtlasClear
+received certain intellectual property from Atlas FinTech and Atlas Financial Technologies Corp., acquired the Pacsquare Assets and completed
+the acquisitions of AtlasClearing. AtlasClear expects to complete CB Acquisition or a similar acquisition, however, we cannot assure
+you that the CB Acquisition will be completed as anticipated. As a result of these transactions, AtlasClear expects to acquire the capabilities
+to provide specialized banking and clearing services to other financial services firms. Even if AtlasClear is able to consummate CB Acquisition,
+we cannot assure you that we will achieve the anticipated synergies and benefits of such transactions, that our service offerings will
+appeal to our target market of financial services firms, generally with annual revenues up to $1 billion, or that we will achieve our
+anticipated financial results. If we are not able to complete the CB Acquisition, or if the combined company does not achieve the anticipated
+operational and financial results, the value of your investment would be materially and adversely affected. 
+
+ Our
+financial results in any given quarter can be influenced by numerous factors, many of which we are unable to predict or are outside of
+our control, including: 
+
+ ● 
+ the
+ development and introduction of new services by us or our competitors; 
+
+ ● 
+ increases
+ in marketing, sales, and other operating expenses that we may incur to grow and expand our operations and to remain competitive,
+ and increased expenses we have incurred and will continue to incur as a public company; 
+
+ ● 
+ legislation
+ and regulation; 
+
+ ● 
+ our
+ ability to achieve operating margins; 
+
+ ● 
+ system
+ failures or breaches of security or privacy; 
+
+ ● 
+ competition
+ in the markets in which we operate, and our ability to successfully compete; and 
+
+ ● 
+ negative
+ publicity we may encounter as we seek to grow our business. 
+
+ 12 
+
+ We
+may require substantial funding to finance our operations, but adequate financing may not be available when we need it, on acceptable
+terms or at all. 
+
+ We
+expect to raise capital through public or private financing or other arrangements. Such financing may not be available on acceptable
+terms, or at all, and our failure to raise capital when needed could harm our business. 
+
+ We
+have in the past and expect to continue to raise capital through public or private financing or other arrangements. Such financing may
+not be available on acceptable terms, or at all, and our failure to raise capital when needed could harm our business. In addition, inflation
+rates in the U.S. have been higher than in previous years, which may result in higher costs of capital and constrained credit and liquidity.
+The Federal Reserve has raised, and may again raise, interest rates in response to concerns over inflation risk. Increases in interest
+rates could impact our ability to access the capital markets. We may sell equity securities or debt securities in one or more transactions
+at prices and in a manner as we may determine from time to time. If we sell any such securities in subsequent transactions, our current
+investors may be materially diluted. Any debt financing, if available, may involve restrictive covenants and could reduce our operational
+flexibility or achieve profitability. If we cannot raise funds on acceptable terms, we may not be able to grow our business or respond
+to competitive pressures and consumer member demand. 
+
+ We
+may need to raise additional funds, and we may not be able to obtain additional debt or equity financing on favorable terms, if at all.
+If we raise additional equity financing, our shareholders may experience significant dilution of their ownership interests and the per
+share value of our Common Stock could decline. Furthermore, if we engage in debt financing, the holders of debt would have priority over
+the holders of our equity holders, and we may be required to accept terms that restrict our ability to incur additional indebtedness.
+We may also be required to take other actions that would otherwise be in the interests of the debt holders and force us to maintain specified
+liquidity or other ratios, any of which could harm our business, results of operations, and financial condition. If we need additional
+capital and cannot raise it on acceptable terms, we may not be able to, among other things: 
+
+ ● 
+ to
+ expand our sales and marketing; 
+
+ ● 
+ acquire
+ complementary technologies or businesses; 
+
+ ● 
+ expand
+ operations in the United States or internationally; 
+
+ ● 
+ hire,
+ train, and retain employees; or 
+
+ ● 
+ respond
+ to competitive pressures or unanticipated working capital requirements. 
+
+ Our
+failure to have sufficient capital to do any of these things could harm our business, financial condition, and results of operations. 
+
+ 13 
+
+ Uncertain
+global macro-economic and political conditions could materially and adversely affect our results of operations and financial condition. 
+
+ Our
+results of operations could be materially affected by economic and political conditions in the United States and internationally, including
+inflation, deflation, interest rates, availability of capital, war, terrorism, aging infrastructure, pandemics, energy and commodity
+prices, trade laws, election cycles and the effects of governmental initiatives to manage economic conditions. 
+
+ The
+loss of members of our senior management or other key personnel, or failure to attract and retain other highly qualified personnel, could
+harm our business. 
+
+ Our
+future success depends in large part on the continued services of senior management and other key personnel. In particular, we are dependent
+on the services of John Schaible, our Executive Chairman, Craig Ridenhour, our President, and Sandip Patel, our General Counsel and Chief
+Financial Officer, each of whom is critical to the future vision and strategic direction of our business. Our senior management and other
+key personnel are all employed on an at-will basis, which means that their employment could be terminated by us at any time, for any
+reason, and without notice. Conversely, employees may voluntarily terminate their employment at any time, for any reason, and without
+notice, and the risk of forfeiting equity incentives and/or losing other employee benefits might not be sufficient incentive for them
+to remain employed with us. If we lose the services of our senior management, or other key personnel, or if we are unable to attract,
+train, assimilate, and retain the highly skilled personnel that we need, our business, operating results, and financial condition could
+be adversely affected. 
+
+ Our
+future success depends on our continuing ability to attract, train, assimilate, and retain highly skilled personnel. We face intense
+competition for qualified individuals from numerous software and other technology companies. We may not be able to retain our current
+key employees or attract, train, assimilate, or retain other highly skilled personnel in the future. We may incur significant costs to
+attract and retain highly skilled personnel, and we may lose new employees to our competitors before we realize the benefit of our investment
+in recruiting and training them. If we are unable to attract and retain suitably qualified individuals who are capable of meeting our
+growing technical, operational, and managerial requirements, on a timely basis or at all, our business, operating results, and financial
+condition may be adversely affected. 
+
+ Changes
+in tax rates or the adoption of new tax legislation may adversely impact our financial results. 
+
+ Due
+to shifting economic and political conditions in both the United States or elsewhere, tax policies, laws, or rates may be subject to
+significant changes in ways that impair our financial results. Various jurisdictions have enacted or are considering digital services
+taxes, which could lead to inconsistent and potentially overlapping tax regimes. In the United States, the rules dealing with federal,
+state and local income taxation are constantly under review by persons involved in the legislative process and by the Internal Revenue
+Service and the United States Treasury Department. 
+
+ Changes
+in the various tax laws can and do occur. For example, in July 2025, the U.S. government enacted the One Big Beautiful Bill Act (the
+2025 U.S. Tax Act). The 2025 U.S. Tax Act extended or made permanent many of the corporate tax changes arising under the Tax Cuts and
+Jobs Act passed in 2017 (the 2017 U.S. Tax Act). We do not anticipate the 2025 U.S. Tax Act to have a material impact to our financial
+condition, results of operations, cash flows or effective tax rate. Additional changes to tax laws (which changes may have retroactive
+application) could adversely affect us. It cannot be predicted whether, when, in what form, or with what effective dates, new tax laws
+may be enacted, or regulations and rulings may be promulgated or issued under existing or new tax laws, which could result in an increase
+in our tax liability or require changes in the manner in which we operates in order to minimize or mitigate any adverse effects of changes
+in tax law or in the interpretation thereof. 
+
+ Natural
+disasters, including and not limited to unusual weather conditions, epidemic outbreaks, terrorist acts and political events could disrupt
+our business schedule. 
+
+ The
+occurrence of one or more natural disasters, including and not limited to tornadoes, hurricanes, fires, floods and earthquakes, unusual
+weather conditions, pandemics and endemic outbreaks, terrorist attacks or disruptive political events in certain regions where our facilities
+are located, or where our third-party contractors’ and suppliers’ facilities are located, could adversely affect our business.
+Natural disasters including tornados, hurricanes, floods and earthquakes may damage our facilities and terrorist attacks, actual or threatened
+acts of war or the escalation of current hostilities, or any other military or trade disruptions could have a material adverse effect
+on our business, financial condition and results of operations. These events also could cause or act to prolong an economic recession
+in the United States or abroad. 
+
+ 14 
+
+ Changes
+in financial accounting standards or practices may cause adverse, unexpected financial reporting fluctuations and affect our reported
+operating results. 
+
+ The
+U.S. generally accepted accounting principles (the “GAAP”) is subject to interpretation by the Financial Accounting Standard
+Board (the “FASB”), the SEC, and various bodies formed to promulgate and interpret appropriate accounting principles. A change
+in accounting standards or practices can have a significant effect on our reported results and may even affect our reporting of transactions
+completed before the change is effective. New accounting pronouncements and varying interpretations of accounting pronouncements have
+occurred and may occur in the future. Changes to existing rules or the questioning of current practices may adversely affect our reported
+financial results or the way we conduct our business. Any difficulties in implementing these pronouncements could cause us to fail to
+meet our financial reporting obligations, which could result in regulatory discipline and harm investors’ confidence in us. 
+
+ The
+requirement that we repay all outstanding notes, including the Restated Note, could adversely affect our business plan, liquidity, financial
+condition, and results of operations. 
+
+ As
+discussed below, the Company has sold and issued promissory notes, including the Restated Note and other convertible notes issued under
+the Securities Purchase Agreements (as defined below) (collectively, the Convertible Notes”). If not converted, we are required
+to repay principal amounts outstanding under the Convertible Notes, as well as interest thereon. These obligations could have important
+consequences on our business. In particular, they could: 
+
+ ● 
+ limit
+ our flexibility in planning for, or reacting to, changes in our business and the industries in which we operate; 
+
+ ● 
+ increase
+ our vulnerability to general adverse economic and industry conditions; and 
+
+ ● 
+ place
+ us at a competitive disadvantage compared to our competitors. 
+
+ We
+cannot assure you that we will be successful in making the required payments under the Convertible Notes. If we are unable to make the
+required cash payments, there could be a default under the Convertible Notes. In such event, or if a default otherwise occurs under the
+Convertible Notes, including as a result of our failure to comply with the financial or other covenants contained therein: 
+
+ ● 
+ the
+ interest rate payable under the Convertible Notes could be increased, and holders of the Convertible Notes could declare all outstanding
+ principal and interest to be due and payable; 
+
+ ● 
+ the
+ holders of the Restated Note could foreclose against our assets; and/or 
+
+ ● 
+ we
+ could be forced into bankruptcy or liquidation. 
+
+ Restrictive
+covenants under the Convertible Notes could limit our growth and our ability to finance our operations, fund our capital needs, respond
+to changing conditions and engage in other business activities that may be in our best interests. 
+
+ The
+Convertible Notes contain a number of affirmative and negative covenants regarding matters such as the payment of dividends, maintenance
+of our properties and assets, transactions with affiliates, and our ability to issue other indebtedness. 
+
+ Our
+ability to comply with these covenants may be adversely affected by events beyond our control, and we cannot assure you that we can maintain
+compliance with these covenants. The financial covenants could limit our ability to make needed expenditures or otherwise conduct necessary
+or desirable business activities. 
+
+ Risks
+Related to Our Business Strategy and Industry 
+
+ If
+the proposed CB Acquisition is completed, we may experience difficulties in integrating the operations of AtlasClearing and Commercial
+Bancorp and in realizing the expected benefits of these transactions. 
+
+ Our
+success will depend, in part, on the ability of AtlasClear to successfully complete the proposed CB Acquisition, or a similar acquisition,
+and to realize the anticipated benefits of combining the operations of AtlasClearing and Commercial Bancorp in an efficient and effective
+manner. The integration process could take longer than anticipated and could result in the loss of key employees from either company,
+the disruption of each company’s ongoing businesses, tax costs or inefficiencies, or inconsistencies in standards, controls, information
+technology systems, procedures and policies, any of which could adversely affect our ability to continue relationships with AtlasClearing’s
+and Commercial Bancorp’s customers, employees or other third parties, or our ability to achieve the anticipated benefits of the
+transactions or the Business Combination, and could harm the Company’s financial performance. If we are unable to successfully
+integrate the operations of AtlasClearing and Commercial Bancorp with our business, we may incur unanticipated liabilities and be unable
+to realize the revenue growth, operating efficiencies, synergies and other anticipated benefits resulting from such transactions and
+the Business Combination, and the Company’s business, results of operations and financial condition could be materially and adversely
+affected. 
+
+ 15 
+
+ We
+may not be able to successfully consummate the acquisitions of Ark or an institutional digital asset business. 
+
+ On
+April 24, 2026, we announced that we had entered into a letter of intent to acquire Ark and its wholly-owned subsidiary, Dawson James
+Securities, Inc., and on July 22, 2026, we announced that we had amended the letter of intent to acquire Ark and had entered into a letter
+of intent to acquire an institutional digital asset business. Each of these letters of intent is non-binding, except for certain provisions
+including exclusivity and confidentiality. The completion of a definitive agreement to acquire either business remains subject to a number
+of factors, including due diligence satisfactory to us and board approvals by both companies. Although each letter of intent provides
+that certain provisions are binding on the parties, they do not obligate the parties to consummate the proposed transactions. If definitive
+agreements are entered into, the closing of each transaction will be subject to various closing conditions, including regulatory approval.
+There can be no assurance that any definitive agreements will be entered into or that the proposed transactions (or either of them) will
+be consummated on the terms contemplated by the letters of intent, or at all. 
+
+ Commercial
+Bancorp, Ark or any other business we may acquire may have liabilities that are not known to AtlasClear and the indemnities negotiated
+in the applicable acquisition agreement may not offer adequate protection. 
+
+ As
+part of the Broker-Dealer Acquisition Agreement, AtlasClear assumed certain liabilities of AtlasClearing and as part of the Purchase
+Agreement, AtlasClear expects to assume certain liabilities of Commercial Bancorp if the transaction is consummated. In addition, we
+expect that any definitive agreements to acquire Ark, the institutional digital asset business or any other business we may seek to acquire
+will require AtlasClear to assume certain liabilities of the acquired company if the transaction is consummated. There may be liabilities
+that AtlasClear failed or was unable to discover in the course of performing due diligence investigations into these companies. AtlasClear
+may also have not correctly assessed the significance of certain liabilities identified in the course of its due diligence. Any such
+liabilities, individually or in the aggregate, could have a material adverse effect on the combined company’s business, financial
+condition and results of operations. As we integrate AtlasClearing and, if acquired, Commercial Bancorp, Ark or any other business into
+our operations, we may learn additional information about the acquired business, such as unknown or contingent liabilities and issues
+relating to compliance with applicable laws, that could potentially have a materially adverse effect on our business, financial condition
+and results of operations. 
+
+ We
+may in the future make acquisitions, and such acquisitions could disrupt our operations, and may have an adverse effect on our operating
+results. 
+
+ In
+order to expand our business, we have made and expect to continue to make acquisitions as part of our growth strategy. The success of
+our future growth strategy will depend on our ability to identify, negotiate, complete and integrate acquisitions and, if necessary,
+to obtain satisfactory debt or equity financing to fund those acquisitions. Acquisitions are inherently risky, and any acquisitions we
+complete may not be successful. Any acquisitions that we may undertake in the future involve numerous risks, including, but not limited
+to, the following: 
+
+ ● 
+ difficulties
+ in integrating and managing the operations, personnel, systems, technologies, and products of the companies we acquire; 
+
+ ● 
+ diversion
+ of our management’s attention from normal daily operations of our business; 
+
+ ● 
+ our
+ inability to maintain the key business relationships and the reputations of the businesses we acquire; 
+
+ ● 
+ uncertainty
+ of entry into markets in which we have limited or no prior experience and in which competitors have stronger market positions; 
+
+ ● 
+ our
+ inability to increase revenue from an acquisition; 
+
+ ● 
+ increased
+ costs related to acquired operations and continuing support and development of acquired products; 
+
+ ● 
+ our
+ responsibility for the liabilities of the businesses we acquire; 
+
+ ● 
+ potential
+ goodwill and intangible asset impairment charges and amortization associated with acquired businesses; 
+
+ ● 
+ adverse
+ tax consequences associated with acquisitions; 
+
+ ● 
+ changes
+ in how we are required to account for our acquisitions under the GAAP, including arrangements that we assume from an acquisition; 
+
+ ● 
+ potential
+ negative perceptions of our acquisitions by consumer and business members, financial markets or investors; 
+
+ ● 
+ failure
+ to obtain required approvals from governmental authorities under competition and antitrust laws on a timely basis, if at all, which
+ could, among other things, delay or prevent us from completing a transaction, or otherwise restrict our ability to realize the expected
+ financial or strategic goals of an acquisition; 
+
+ ● 
+ our
+ inability to apply and maintain our internal standards, controls, procedures and policies to acquired businesses; 
+
+ ● 
+ potential
+ loss of key employees of the companies we acquire; 
+
+ ● 
+ potential
+ security vulnerabilities in acquired products that expose us to additional security risks or delay our ability to integrate the product
+ into our service offerings; 
+
+ ● 
+ difficulties
+ in increasing or maintaining security standards for acquired technology consistent with our other services, and related costs; 
+
+ ● 
+ ineffective
+ or inadequate controls, procedures and policies at the acquired company; 
+
+ ● 
+ inadequate
+ protection of acquired IP rights; and 
+
+ ● 
+ potential
+ failure to achieve the expected benefits on a timely basis or at all. 
+
+ Acquisitions
+involve many complexities, including, but not limited to, risks associated with the acquired business’ past activities,
+difficulties in integrating personnel and human resource programs, integrating technology systems and other infrastructures under
+our control, unanticipated expenses and liabilities, and the impact on our internal controls and compliance with the regulatory
+requirements under the Sarbanes-Oxley Act of 2002 (the “Sarbanes-Oxley Act”). There is no guarantee that our
+acquisitions will increase our profitability or cash flow, and our efforts could cause unforeseen complexities and additional cash
+outflows, including financial losses. As a result, the realization of anticipated synergies or benefits from acquisitions may be
+delayed or substantially reduced. 
+
+ 16 
+
+ Additionally,
+acquisitions or asset purchases made entirely or partially for cash may reduce our cash reserves or require us to incur debt under credit
+agreements or otherwise. We may seek to obtain additional cash to fund any acquisition by selling equity or debt securities. We may be
+unable to secure the equity or debt funding necessary to finance future acquisitions on terms that are acceptable to us. If we finance
+acquisitions by issuing equity, convertible debt or other equity-linked securities, our existing stockholders will experience ownership
+dilution. The incurrence of debt may subject us to financial or other covenants, or other constraints on our business. The occurrence
+of any of the foregoing risks associated with acquisitions could have a material adverse effect on our business, results of operations,
+financial condition or cash flows, particularly in the case of a larger acquisition or substantially concurrent acquisitions. 
+
+ Any
+acquisitions, partnerships or joint ventures that we enter into could disrupt our operations and have a material adverse effect on our
+business, financial condition and results of operations. 
+
+ From
+time to time, we may evaluate potential strategic acquisitions of businesses, including partnerships or joint ventures with third parties.
+We may not be successful in identifying acquisition, partnership and joint venture candidates. In addition, we may not be able to continue
+the operational success of such businesses or successfully finance or integrate any businesses that we acquire or with which we form
+a partnership or joint venture. We may have potential write-offs of acquired assets and/or an impairment of any goodwill recorded as
+a result of acquisitions. Furthermore, the integration of any acquisition may divert management’s time and resources from our core
+business and disrupt our operations or may result in conflicts with our business. Any acquisition, partnership or joint venture may not
+be successful, may reduce our cash reserves, may negatively affect our earnings and financial performance and, to the extent financed
+with the proceeds of debt, may increase our indebtedness. We cannot ensure that any acquisition, partnership or joint venture we make
+will not have a material adverse effect on our business, financial condition and results of operations. 
+
+ We
+may be unable to successfully grow our business if we fail to compete effectively with others to attract and retain our executive officers
+and other key management and technical personnel. 
+
+ We
+believe our future success depends upon our ability to attract and retain highly competent personnel. Our employees are at-will and not
+subject to employment contracts. We could potentially lose the services of any of our senior management personnel at any time due to
+a variety of factors that could include, without limitation, death, incapacity, military service, personal issues, retirement, resignation
+or competing employers. Our ability to execute current plans could be adversely affected by such a loss. We may fail to attract and retain
+qualified technical, sales, marketing and managerial personnel required to continue to operate our business successfully. Personnel with
+the expertise necessary for our business are scarce and competition for personnel with proper skills is intense. 
+
+ In
+addition, new hires frequently require extensive training before they achieve desired levels of productivity. Additionally, attrition
+in personnel can result from, among other things, changes related to acquisitions, retirement and disability. We may not be able to retain
+existing key technical, sales, marketing and managerial employees or be successful in attracting, developing or retaining other highly-qualified
+technical, sales, marketing and managerial personnel, particularly at such times in the future as we may need to fill a key position.
+If we are unable to continue to develop and retain existing executive officers or other key employees or are unsuccessful in attracting
+new highly-qualified employees, our financial condition, cash flows, and results of operations could be materially and adversely affected. 
+
+ Risk
+Related to AtlasClearing’s Business and Industry 
+
+ AtlasClearing’s
+liquidation of microcap securities and related activities in the over-the-counter market segment expose it to significant risk. 
+
+ AtlasClearing
+conducts activities, including customer liquidations of restricted and control securities, in microcap securities, which are subject
+to higher risks than securities traded on national securities exchanges. Microcap securities generally are issued by companies with low
+or “micro” capitalizations, meaning the total market capitalization value of the company’s stock is less than $250
+million, which includes low-priced securities, or penny stocks, that trade at below $5.00 per share and have a market capitalization
+of less than $50 million. Microcap securities frequently are issued by smaller reporting companies, which relaxes many of the disclosure
+obligations applicable to larger companies (see below). Further, trading in such microcap securities requires AtlasClearing to meet heightened
+customer disclosure obligations for any retail transactions. Because of perceived risks associated with the above factors, AtlasClearing
+believes it faces heightened regulatory scrutiny from the SEC and the Financial Industry Regulatory Authority (the “FINRA”)
+and other self-regulatory organizations that require particular attention to compliance measures and supervision. 
+
+ 17 
+
+ The
+over-the-counter markets for the microcap securities AtlasClearing liquidates frequently have limited trading volume and volatile trading
+prices. 
+
+ The
+trading markets for the microcap securities AtlasClearing liquidates frequently have limited trading volume and volatile price fluctuations,
+which sometimes makes it difficult to fulfill customers’ orders at requested amounts or prices. In addition, because of market
+conditions, AtlasClearing may restrict the number of shares that a customer or a group of customers may liquidate in a single security
+to mitigate possible undue market selling pressure or to reduce potential market impact. AtlasClearing may not be successful in detecting
+market conditions that warrant the above or other trading precautions to meet its compliance obligations. Any such trading limitations
+may impair AtlasClearing’s competitive position and contribute to customer dissatisfaction. 
+
+ The
+penny stock rules limit AtlasClearing’s trading practices. 
+
+ AtlasClearing
+must comply with special penny stock rules if it sells such stock to retail customers, as distinguished from other broker-dealers. Although
+AtlasClearing has a policy of limiting penny stock sales only to other broker-dealers, if AtlasClearing sells penny stocks to retail
+customers, it must provide purchasers of these stocks with a standardized risk disclosure document prepared by the Commission. This document
+provides information about penny stocks and the nature and level of risks involved in investing in the penny stock market. A broker must
+also give a purchaser, orally or in writing, bid and offer quotations and information regarding broker and salesperson compensation,
+make a written determination that the penny stock is a suitable investment for the purchaser, and obtain the purchaser’s written
+agreement to the purchase. The penny stock rules may make it difficult for investors to sell their shares of penny stock. Because of
+these rules, many brokers choose not to participate in penny stock transactions and there is less trading in penny stocks. Accordingly,
+investors may not always be able to resell shares of penny stock publicly at times and prices that they feel are appropriate. AtlasClearing
+cannot assure that any penny stock rules compliance measures that it adopts and implements will be effective. 
+
+ AtlasClearing
+needs to continue to maintain its excess net capital above the NSCC requirement of $10 million to continue to provide correspondent clearing
+services for introducing brokers. 
+
+ AtlasClearing
+is subject to amendments of rules adopted by NSCC that require AtlasClearing to have excess net capital of at least $10.0 million as
+of October 26, 2023 if AtlasClearing clears for an introducing broker. As of June 30, 2026 and 2025, AtlasClearing had net capital of
+approximately $14.4 million and $11.2 million, respectively. The Company has entered into FINRA-approved subordinated loan agreements
+totaling $1,930,000. The agreements consist of (i) six legacy subordinated notes totaling $650,000 with current and former officers,
+directors, and related parties that bear at 5% per annum, and (ii) six subordinated loan agreements totaling $1,280,000 funded in October
+2023. The October 2023 subordinated loans were renewed through amendments approved by FINRA and bear interest at 10% per annum, payable
+quarterly. The amended October 2023 subordinated notes mature in October 2026. 
+
+ During
+the year ended June 30, 2026, Glendale, provided $1.4 million or approximately 6.6% of AtlasClearing’s revenues. During the year
+ended June 30, 2025, Glendale, provided $0.84 million or approximately 6.5% of AtlasClearing revenues. However, the growth of clearing
+services for introducing broker customers is expected to be a key driver to meet the Company’s future revenue goals. As a result,
+if we fail to meet the increased capital requirements of NSCC on an ongoing basis, we would be unable to provide clearing services for
+introducing brokers which could have a material adverse effect on the Company’s revenues in the future. 
+
+ AtlasClearing
+customers liquidate securities of smaller reporting companies that have relaxed disclosure obligations. 
+
+ The
+microcap securities AtlasClearing customers principally liquidate are issued by smaller reporting companies. The disclosures smaller
+reporting companies are required to provide in SEC periodic reports are less than those of larger reporting companies. Specifically

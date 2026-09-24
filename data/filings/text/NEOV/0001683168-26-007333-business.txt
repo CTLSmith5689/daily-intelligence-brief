@@ -1,0 +1,365 @@
+ITEM 1. BUSINESS 
+
+ Overview 
+
+ NeoVolta Inc. (“NeoVolta”,
+“we” or the “Company”) is a rapidly-growing U.S.-based energy technology company delivering scalable energy storage
+solutions. We are presently transitioning from being a storage manufacturer into an integrated energy solutions leader. Since our founding
+in 2018 solely as a manufacturer of high-performance energy storage systems for residential and small commercial applications, we have
+evolved into a more diversified storage technology company. Currently, our strategy is centered around building a multi-market energy
+solutions platform serving customer markets in the following three areas: 
+
+ Ø Residential 
+ - Our legacy energy storage
+business 
+ 
+ Ø Commercial & Industrial (“C&I”) 
+ -
+A logical extension from our legacy business 
+ 
+ Ø Utility-Scale 
+ - Our new energy storage
+initiative 
+
+ Since April 2024, we have adopted
+a growth strategy which is designed to be focused around our customer base and structured to expand our market penetration, diversify
+revenue channels, and accelerate product development on a scalable basis. This strategy rests on three primary objectives: (i) expanding
+revenue through strategic sales channel development, (ii) broadening financing options through partnerships, and (iii) initiating development
+of next-generation storage solutions. 
+
+ We have provided a more in-depth
+discussion below regarding our Residential, Commercial & Industrial, and Utility-Scale customer products and markets. 
+
+ Residential Market 
+
+ Presently, we are best known for
+our high-performance energy storage systems (“ESS”) for residential and small commercial applications. Our ESS product portfolio
+includes the NV14, NV24, NVPlus, NV7600 stand-alone inverter, and the NV16 kW AC hybrid inverter with 24 kW PV input and a 250 kW / 430
+kWh C&I system. Our systems combine lithium iron phosphate battery technology with hybrid inverter capability, providing safe, flexible,
+and adaptable solutions for backup power, self-consumption, and energy resilience. 
+
+ Historically, we have marketed
+and sold our ESS products primarily through certified solar installers and regional and national distributors, with our initial focus
+being on Southern California and more recently expanding to markets in other states such as Texas. As a result of federal tax law changes
+pertaining to the residential solar tax credit, however, we are in the process of developing new plans for marketing those products going
+forward. 
+
+ Our energy storage systems combine
+lithium iron phosphate battery technology with integrated or stand-alone inverters to provide safe, reliable backup power for residential
+and light commercial applications. All systems are NEMA 3R rated for indoor or outdoor installation, UL 9540/9540A certified, and compatible
+with both AC- and DC-coupled solar configurations. 
+
+ · NV14 — The NV14 integrates a 14.4
+kWh battery with a 7.6 kW hybrid inverter capable of 120V/240V residential and 208V three-phase commercial operation. The system is designed
+for energy efficiency, time-of-use optimization, and backup power. 
+
+ · NV24 — The NV24 expansion battery
+increases NV14 capacity from 14.4 kWh to 24.0 kWh without requiring an additional inverter, allowing customers to scale storage at lower
+cost. 
+
+ · NVPlus — Introduced in 2024, NVPlus
+is a higher-capacity ESS developed for larger residential and small commercial applications. It provides extended runtime, supports greater
+solar inputs, and is designed for customers requiring whole-home backup or higher daily cycling. 
+
+ · NV7600 — A stand-alone
+7.6 kW inverter launched in 2024, designed for use with NeoVolta storage products or as a retrofit solution for existing solar systems. 
+
+ 1 
+
+ Since 2024, we have broadened
+our product portfolio with the launch of the NVPlus energy storage system and the NV7600 stand-alone inverter, extending our reach into
+higher-capacity residential and light commercial applications. In February 2025, we expanded into a larger facility in Poway to support
+increased production. 
+
+ In addition to these core
+products, we are preparing to launch our NVWAVE modular battery platform commercially, featuring plug-and-play installation,
+a scalable architecture up to 55.2 kWh, and full FEOC-compliant, Domestic Content-eligible design. A key differentiator of the NVWAVE
+platform is its integrated software intelligence. 
+
+ We have developed this product
+as a result of our acquisition of intellectual property and other assets from Neubau Energy in October 2025. It expands our market reach
+into flexible residential and light commercial systems. We believe that it has the potential to enhances our gross margins through simplified
+production and reduced labor costs, thus positioning us for scalable growth and stronger profitability in our targeted residential markets. 
+
+ The NVWAVE system incorporates
+a proprietary whole-home load management controller that integrates the system controller, inverters, battery management unit, and individual
+battery modules into one streamlined unit, enabling intelligent energy optimization across solar, battery, and grid resources. This software-driven
+architecture gives homeowners real-time visibility and control over their energy use while allowing the system to adapt dynamically to
+evolving utility rate structures and interconnection requirements. 
+
+ Commercial & Industrial Market 
+
+ Beyond our residential applications,
+the market for C&I storage is emerging as a new growth segment for us. We are finding that commercial businesses as well as project
+developers of various descriptions and sizes are increasingly seeking solutions for demand-charge management, backup power, and grid services. 
+
+ Utility-Scale Market 
+
+ In January 2026, we
+executed a series of joint venture agreements with the U.S. affiliate of a foreign entity for the formation of a new domestic
+limited liability company known as NeoVolta Power, LLC (“NVP”) to jointly own and operate a utility-scale battery
+manufacturing facility in the State of Georgia. Pursuant to these agreements, as amended in April 2026, we have an 80% ownership
+interest in the joint venture company, and the U.S. affiliate of the foreign entity has a 20% ownership interest, subject to
+service-based vesting and forfeiture provisions, which is being accounted for as a capital contribution based on the estimated fair
+value of its services contributed to the joint venture. 
+
+ The plant is located in a leased
+structure containing 210,600 square feet of manufacturing space along the I-85 corridor in Pendergrass, Georgia, outside of Atlanta. It
+is being constructed in phases with the initial phase expected to be completed at the end of our fiscal 2027 first quarter, leading to
+limited production of batteries for sale to customers. The facility is designed for 2 GWh of initial annual production capacity, scalable
+to 8 GWh over time. The plant is intended to be eligible for the Advanced Manufacturing Tax Credit under Internal Revenue Code Section
+45X and to enable customers to claim the Clean Electricity Investment Tax Credit under Internal Revenue Code Section 48E. 
+
+ Under the terms of our joint venture
+agreements, we are responsible for making sufficient capital contributions to NVP to fund the construction costs of the facility, specified
+equipment purchases, initial working capital requirements, and other items as may be needed by the joint venture. Our joint venture partner,
+which is affiliated with a world leading supplier of solar PV solutions, is responsible for contributing its technical expertise in battery
+manufacturing and other services through various ancillary joint venture agreements. 
+
+ Our total funding requirements
+to NVP are currently projected to aggregate approximately $40 million through June 30, 2027. This amount may change as circumstances arise
+during the construction and initial production phases of this project. Of this expected amount, we have currently made total capital contributions
+in cash of $15 million. We recently completed an underwritten public equity offering in the net amount of $26.3 million and we are expecting
+to use a substantial portion of the net proceeds of that offering to fund our remaining capital contributions to NVP in the coming year.
+We may seek to pursue additional debt and/or equity financings in order to fund our remaining capital contributions to NVP. 
+
+ 2 
+
+ Market Overview 
+
+ Our addressable market is expanding
+rapidly across multiple customer segments, supported by favorable policy, resiliency needs, and evolving financing and distribution models.
+Based on reliable industry sources, the total U.S. addressable market in our three primary areas of focus is projected to reach an aggregate
+level of approximately $45 billion by 2030, as further described below. 
+
+ Residential . There are
+an estimated 4.2 million U.S. homes equipped with solar panels, and more than 3 million of these do not currently have battery storage.
+(SolarInsure) This represents a significant retrofit opportunity, particularly as installed inverters approach end of life after 10–15
+years of operation. By 2030, the total U.S. addressable Residential market is projected to reach approximately $15 billion. 
+
+ Commercial & Industrial .
+The U.S. installer and distributor market is highly fragmented, with more than 11,000 companies nationwide, most of them small independent
+operators not typically serviced by larger ESS providers. These smaller players represent NeoVolta’s core customers. By 2030, the
+total U.S. addressable C&I market is projected to reach approximately $10 billion. 
+
+ Utility-Scale
+Battery Storage . Installed utility-scale
+battery storage in the U.S. surpassed 15 GW in 2024 and is projected to more
+than double by the end of 2026. I n 2025, U.S. energy storage installations hit a record 18.9 GW, with 4.9 GW in
+the utility segment alone, up 31% year-over-year. The market is expected to install 500 GWh of storage from 2026–2031, a 250%
+increase over 2020–2025. (The American Clean Power Association) This translates into an addressable Utility-Scale
+Battery Storage market projected to reach approximately $20 billion by 2030. 
+
+ Upon completion of our new utility-scale
+battery manufacturing joint venture plant in Georgia, we will be capable of delivering integrated energy storage solutions that enable
+homeowners, businesses, and utilities to optimize energy use, reduce grid dependence, and build resilience against outages, peak demands,
+and rising costs. 
+
+ Growth Strategy 
+
+ The
+electric grid in the United States is aging at a time when there is rapidly increasing demand for domestic electric service. Energy-intensive
+data centers are projected to double electricity usage by 2030. Electric vehicles are projected to represent 20-30% of all vehicles by
+2030. Electrified manufacturing processes are expected to raise industrial electricity consumption by 25-40% over the next decade. We
+are positioning NeoVolta to take advantage of this expected growth through three main initiatives described below. 
+
+ Product Innovation . 
+We are investing in research and development to expand our product portfolio and maintain a competitive edge. These products expand our
+reach into larger residential and commercial markets. 
+
+ Strategic Combinations . 
+In addition to organic growth, we may evaluate acquisitions, joint ventures, or other strategic transactions to expand our technology
+base, accelerate market entry, and enhance financing capabilities. As an illustration, we have entered into a joint venture with the U.S.
+affiliate of a foreign entity to jointly own and operate a utility-scale battery manufacturing facility in the State of Georgia, as previously
+mentioned. 
+
+ 3 
+
+ Competition 
+
+ We compete with several established
+companies in the ESS market, including Tesla, LG Chem, Sonnen, Enphase, SunPower, Sunrun and Fluence. Many of these competitors have significantly
+greater financial resources, manufacturing capacity, brand recognition, and established distribution channels. Their scale allows them
+to pursue aggressive pricing, broader marketing, and faster product refresh cycles. 
+
+ In addition to dedicated ESS providers,
+we also face competition from diversified industrial companies, generator manufacturers, inverter suppliers, and other firms that offer
+alternative backup power or distributed energy solutions. We expect new entrants to continue to emerge as energy storage adoption expands
+and regulatory requirements evolve. 
+
+ We also compete with companies
+that are similar to ours, and other renewable energy companies. We believe that we compete favorably with these companies based on our
+products and differentiated customer experience. We also face competition from purely finance-driven organizations that acquire customers
+and then subcontract out the installation of energy systems, from installation businesses that seek financing from external parties, to
+large construction companies and utilities and sophisticated electrical and roofing companies. 
+
+ Despite the presence of larger
+and more established competitors, we believe NeoVolta maintains distinct competitive advantages: 
+
+ Product Availability. We
+generally fulfill orders in our legacy products in less than two weeks, often within days, compared to extended backlogs reported by some
+competitors. This supports the cash-flow needs of small and mid-sized installers. 
+
+ Installer Service. Our
+Certified Installer Program, direct technical support, and remote monitoring capabilities provide education and assistance to installers,
+fostering loyalty and reducing installation risk. 
+
+ Product Safety and Flexibility. 
+Our systems use lithium iron phosphate chemistry and are UL 9540/9540A certified with no thermal runaway risk. Products are NEMA 3R rated
+for indoor/outdoor use, support both AC- and DC-coupled solar, and allow capacity expansion without requiring an additional inverter. 
+
+ Market Focus. Unlike some
+competitors that sell storage primarily as an add-on to solar, NeoVolta is focused entirely on energy storage. We target independent installers
+and distributors that are underserved by larger providers, particularly in retrofit markets and emerging commercial segments. 
+
+ We believe these differentiators
+allow us to compete effectively in a rapidly growing market, even against larger, more established participants. 
+
+ Intellectual Property & Product Development 
+
+ We rely on a combination of patents,
+trademarks, copyrights, trade secrets, and contractual protections to safeguard our technology and brand. At present, we hold or are pursuing
+a total of 16 U.S. patents, of which 3 have been granted, 3 others are provisionally in force, 2 are filed and pending, and 8 were recently
+filed with the U.S. Patent & Trademark Office. Additionally, we hold a perpetual license on certain patents related to our low-voltage
+battery architecture. These patents and licenses include the assets that we obtained through our asset acquisition from Neubau Energy
+in October 2025. 
+
+ We expect to continue
+filing for patent protection when appropriate as we expand our technology portfolio. In addition to patents, we protect our
+intellectual property through nondisclosure agreements, confidentiality provisions, and invention assignment agreements with
+employees, consultants, and advisors. Despite these protections, unauthorized parties may attempt to copy aspects of our products or
+use information we consider proprietary. The success of our business depends in part on our ability to defend against
+misappropriation and infringement. 
+
+ 4 
+
+ Product Development . We
+continue to invest in research and development to expand our product offerings. In addition to our core NV14 and NV24 ESS products, we
+have launched NVPlus, a higher-capacity residential and small commercial system; the NV7600 stand-alone inverter; and two new products
+in 2025: (i) a 250 kW / 430 kWh commercial and industrial BESS, and (ii) the NV16 kW AC hybrid inverter with 24 kW PV input. We are also
+exploring partnerships to accelerate development of next-generation systems. 
+
+ Regulatory Environment 
+
+ The energy storage industry is
+subject to a complex and evolving regulatory framework at the federal, state, and local levels. In recent years, regulators have adopted
+new safety, interconnection, and performance standards that materially impact product design and installation requirements. 
+
+ As previously noted, our new utility-scale
+battery manufacturing joint venture plant in the State of Georgia is intended to be eligible for the Advanced Manufacturing Tax Credit
+under Internal Revenue Code Section 45X and to enable our customers to claim the Clean Electricity Investment Tax Credit under Internal
+Revenue Code Section 48E, notwithstanding that there are strict federal tax regulations pertaining to these credits which involve any
+foreign sourcing. However, a recent IRS Notice provides guidance to taxpayers on achieving compliance with these regulations. 
+
+ The One Big Beautiful Bill Act
+(“OBBBA”) passed by Congress in July 2025 provides that a qualified facility, energy storage technology or eligible component
+that includes material assistance from a prohibited foreign entity is not eligible for a credit under Section 45X. Material assistance
+is defined as a material assistance cost ratio (“MACR”) that is less than the applicable threshold percentage. 
+
+ Despite the fact that our joint
+venture partner is affiliated with such a foreign entity, we expect to achieve compliance with the OBBBA by relying on IRS Notice 2026-15,
+which offers high-level general rules and an interim safe-harbor approach to calculating the MACR for a project or manufactured component. This
+safe harbor, which is expected to be available to NVP, allows taxpayers to trace to the level of detail of the items listed in the IRS’s
+domestic content safe harbor tables with additional averaging rules to account for procurement and tracing. 
+
+ At the state level, several states,
+led by California and Hawaii, have adopted building codes and interconnection requirements that mandate or encourage storage. Utilities
+are increasingly turning to rate reform, such as California’s net-billing tariff, which improves the economics of pairing solar
+with batteries. Meanwhile, grid reliability concerns—including widespread Public Safety Power Shutoff events in California—continue
+to highlight the resiliency benefits of energy storage for both homeowners and businesses. 
+
+ In California, the California
+Public Utilities Commission (“CPUC”) has implemented standards such as the Common Smart Inverter Profile (CSIP) and “Rule
+21” interconnection requirements. On August 5, 2020, the California Energy Commission (“CEC”) approved NeoVolta’s
+CSIP compliance application, enabling our products to meet CPUC interconnection rules. In addition, “rapid shutdown” requirements—mandating
+that emergency responders be able to quickly disable PV systems at the service panel—were adopted in 2021 and are now reflected
+in the National Electrical Code. 
+
+ Fire code and safety standards
+have also advanced significantly. Beginning in 2022, California prohibited installation of energy storage systems in residential living
+spaces, limited installation in garages to units with fire protection measures, and required additional safeguards such as heat and smoke
+detectors or bollards. These changes reflect increasing scrutiny of certain lithium-ion chemistries that have demonstrated thermal runaway
+risks. NeoVolta’s lithium iron phosphate (LiFePO₄) batteries, by contrast, have been certified under UL 9540A testing, which
+evaluates thermal runaway and fire propagation, and meet current safety requirements. 
+
+ 5 
+
+ NeoVolta’s products are
+certified under multiple safety and performance standards, including: 
+
+ · UL 9540 and UL 9540A (energy storage system safety
+and thermal runaway testing) 
+
+ · UL 1741SA / SB and IEEE 1547 (inverter and grid
+interconnection) 
+
+ · UL 1973 (battery modules) 
+
+ · FCC Class B (communications compliance) 
+
+ · NFPA 70 National Electrical Code (2023 edition) 
+
+ · California Energy Commission (Rule 21 solar equipment
+list) and Hawaii Electric Source Requirements Document Version 2.0 (Rule 14H interconnection requirements) 
+
+ · NEMA 3R (outdoor enclosure rating) 
+
+ We expect the regulatory environment
+for ESS to remain highly dynamic. Although compliance requires continued investment in engineering and certification, we believe these
+requirements create higher barriers to entry for new competitors and reinforce NeoVolta’s positioning as a compliant and safety-focused
+manufacturer. 
+
+ Manufacturing 
+
+ Historically, we have assembled
+our residential NV14 and NV24 energy storage systems at our facility in Poway, California. These products have been built under a made-to-order
+model, with minimal finished-goods inventory and higher raw-materials inventory relative to projected sales to support delivery timelines. 
+
+ Other NeoVolta products —including
+NVPlus, the NV7600 stand-alone inverter, and newly announced offerings—are manufactured through qualified contract partners under
+NeoVolta specifications. We manage supplier selection, production planning, and quality control, and we perform firmware configuration
+and final acceptance testing as appropriate before shipment. 
+
+ Our new NVWAVE modular battery
+platform developed as a result of our asset acquisition from Neubau Energy in October 2025 involves a dual manufacturing process between
+a contract manufacturer located in Austria which custom manufactures the modules followed by the in-house assembly of the remaining components
+which takes place at our facility in Poway, California. 
+
+ Our manufacturing processes emphasize
+traceability and compliance. For NV14/NV24, we track components from receipt through final build, recording serial numbers, torque settings,
+and required test results prior to packaging. All units are released only after passing defined quality checkpoints. For partner-manufactured
+products, we apply incoming inspection protocols aligned to our specifications and certifications. 
+
+ We source critical components
+from suppliers in the United States and Asia. To mitigate risks from supply chain disruptions, tariffs, or component shortages, we maintain
+buffer stocks of key NV14/NV24 components, pursue multi-sourcing arrangements, and coordinate production schedules with our partners.
+In addition, we are actively working to increase domestic content across our products and to ensure that our supply chain is compliant
+with Foreign Entity of Concern (FEOC) requirements, which will become increasingly important for eligibility under federal incentive programs. 
+
+ 6 
+
+ Employees 
+
+ As of June 30, 2026, we had a
+total of 41 full-time employees. Our Chief Executive Officer oversees overall company strategy, sales, and product development, while
+our Chief Financial Officer manages finance and administration. Our California based staff is primarily focused on manufacturing and quality
+control for our NV14 and NV24 systems, supported by supply chain, technology, sales and marketing personnel. Our Georgia based staff is
+primarily focused on overseeing the construction and providing administrative oversight of NVP’s battery manufacturing facility. 
+
+ We also engage outside consultants
+and contractors for specialized functions, including research and development, regulatory compliance, and market development. From time
+to time, we may enter into specific contracts for non-recurring projects to supplement our workforce. 
+
+ We consider our relationship with
+employees to be good. None of our employees are represented by a labor union, and we have not experienced any work stoppages. 
+
+ Access to Information 
+
+ Our website is at www.neovolta.com.
+We make available, free of charge, on our corporate website, our annual report on Form 10-K, quarterly reports on Form 10-Q, current reports
+on Form 8-K and amendments to those reports filed or furnished pursuant to Section 13(a) or 15(d) of the Securities Exchange Act of 1934,
+as amended (the “Exchange Act”), as soon as reasonably practicable after they are electronically filed with the Securities
+and Exchange Commission (SEC). The SEC maintains an internet site that contains reports, proxy and information statements and other information
+regarding issuers that file electronically with the SEC at www.sec.gov. Information contained on our website does not, and shall not be
+deemed to, constitute part of this Annual Report on Form 10-K. Our reference to the URL for our website is intended to be an inactive
+textual reference only.

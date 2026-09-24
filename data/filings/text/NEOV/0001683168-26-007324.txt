@@ -1,0 +1,699 @@
+NEOVOLTA, INC. 
+
+ NASDAQ: NEOV 
+
+ NeoVolta Reports Fourth Quarter and
+Fiscal Year 2026 Financial Results 
+
+ 58% year-over-year revenue growth to $13.3 million revenue in fiscal
+year 2026 
+
+ U.S. BESS manufacturing facility progressing to production ramp-up 
+
+ SK ON collaboration accelerates capacity expansion with 2027-2031
+U.S. domestic cells supply 
+
+ San Diego, CA – Sep 23, 2026 – NeoVolta
+Inc. (NASDAQ: NEOV) (“NeoVolta” or the “Company”), a U.S.-based energy technology company delivering scalable
+energy storage solutions, today announced financial results for the fourth quarter and fiscal year ended June 30, 2026. 
+
+ Fourth Quarter and Fiscal Year
+2026 Financial Highlights 
+
+ • Fiscal year 2026 revenue increased 58% year-over-year to $13.3 million, compared to $8.4 million in fiscal year 2025, reflecting
+the Company's expansion beyond its historical residential base. 
+
+ • Fourth quarter revenue was approximately $13.5 thousand, compared to $4.8 million in the fourth quarter of fiscal year 2025,
+reflecting a substantial decline in residential and traditional installer-channel sales following federal tax law changes in early calendar
+year 2026. 
+
+ • GAAP net loss of $21.5 million, or $(0.55) per share, for fiscal year 2026, compared to a net loss of $5.0 million, or $(0.15)
+per share, for fiscal year 2025. Fourth quarter GAAP net loss was $11.7 million, compared to $1.6 million in the fourth quarter of fiscal
+year 2025. Fourth quarter GAAP net loss increase was primarily driven by a $3.9 million provision for credit losses and bad debt expenses
+and $1.1 million of residential inventory obsolescence reserve. 
+
+ • Adjusted EBITDA of $(12.8) million for fiscal year 2026, compared
+ to $(2.6) million for fiscal year 2025. Fourth quarter Adjusted EBITDA was $(8.0) million,
+ compared to $(0.7) million in the fourth quarter of fiscal year 2025. This is the first period
+ for which the Company is disclosing Adjusted EBITDA as a supplemental non-GAAP measure. 1 
+
+ • Cash and cash equivalents of $22.2 million as of June 30, 2026, plus $3.2 million of restricted cash, for total cash, restricted
+cash and cash equivalents of $25.4 million, following the Company’s May 2026 public offering. 
+
+ • Fiscal year 2026 marked the completion of the Company’s transformation into a multi-market energy storage platform, anchored
+by the U.S. BESS manufacturing joint venture, NeoVolta Power LLC. 
+
+ 1 Adjusted EBITDA is a non-GAAP
+financial measure. See "Non-GAAP Financial Measures" and the accompanying reconciliation table for further information. 
+
+ 1 
+
+ Business Highlights 
+
+ Fiscal year 2026 was a transformational year for NeoVolta. 
+
+ • Launch of NeoVolta Power, LLC, the Company’s 80%-owned Pendergrass, Georgia utility and C&I scale energy storage manufacturing
+joint venture. 
+
+ • Receipt of a formal opinion confirming Foreign Entity of Concern (FEOC) compliance for the Pendergrass facility, the NVApex 5MWh BESS
+and the NVWave residential product, positioning our products’ eligibility under IRA Section 48E. 
+
+ • Expansion of the Company’s commercial pipeline into utility-scale and C&I markets, including a non-binding letter of intent
+(“LOI”) with Infinite Grid Capital (“IGC”) for approximately 1.1 GWh (representing approximately $200 million
+in potential deployments) of utility-scale battery systems. Pursuing the LOI, in September, NeoVolta Power entered into a binding capacity
+reservation agreement with IGC to provide BESS for North Ontario Edge AI datacenter projects for calendar year 2027. 
+
+ • Appointment of Jing Nealis as Chief Financial Officer, effective May 18, 2026, further strengthening the Company’s executive
+leadership team ahead of the production ramp. 
+
+ • Subsequent to fiscal year-end, on August 31, 2026, NeoVolta Power announced a five-year strategic supply and manufacturing collaboration
+with SK On. The collaboration includes a signed agreement for SK On to supply 9 GWh of U.S.-manufactured LFP battery cells to NeoVolta
+Power from 2027 through 2031, as well as a framework for broader collaboration under which SK On would supply an additional 9 GWh of LFP
+cells and purchase energy storage packs manufactured by NeoVolta Power from 2027 through 2031. Together, the signed agreement and broader
+framework are expected to support up to 18 GWh of combined activity between the companies. 
+
+ Fiscal Year 2027 Key Milestones 
+
+ • Complete Site Acceptance Test and commissioning of the Pendergrass, Georgia facility, with production ramp underway from the second
+quarter of fiscal year 2027. 
+
+ • Conversion of non-binding utility-scale and C&I pipeline into binding orders, including the Infinite Grid Capital letter of intent
+as well as progress toward future order documents contemplated by the broader SK On pack-manufacturing collaboration. 
+
+ • Progress toward a second Pendergrass production line, which could scale site capacity toward 8 GWh of annual BESS production capacity
+in calendar year 2028, supported by the signed SK On cell-supply agreement and the broader pack-manufacturing collaboration framework. 
+
+ • Capital allocation priorities for fiscal year 2027 are focused on funding working capital for the production ramp and investment in
+the second production line. Subsequent to June 30, 2026, the Company entered into a senior secured term loan facility providing $20 million
+(less an original issue discount of $1.0 million) in initial funding with the potential to increase the aggregate loan commitment by up
+to an additional $10 million upon mutual agreement of the Company and participating lenders. The facility complements the Company’s
+broader capital formation strategy to fund the rapid growth in the coming quarters. 
+
+ 2 
+
+ Fiscal year 2026 was the year NeoVolta advanced its transformation
+from a residential battery energy storage company into a multi-market residential, C&I and utility energy storage platform. While
+our fourth quarter results reflect a difficult period for the U.S. residential energy storage market, we believe we have positioned the
+company for significant growth with the Pendergrass facility on track to start production ramp-up in the second quarter of fiscal year
+2027. 
+
+ “More importantly, fiscal 2026 was defined by the progress we
+made at Pendergrass. Our facility is advancing through commissioning and production-ramp activities, and our strategic collaboration with
+SK On supports our long-term capacity-expansion plans through a multi-year U.S.-manufactured LFP cell-supply agreement and broader pack-manufacturing
+collaboration. Combined with the growth of our utility-scale and C&I pipeline, we believe NeoVolta enters fiscal year 2027 with a
+stronger platform to execute our growth strategy,” said Ardes Johnson, Chief Executive Officer of NeoVolta. 
+
+ “Beginning this quarter, we are introducing Adjusted EBITDA as
+a supplemental disclosure to provide investors with greater visibility into our underlying operating performance as our business grows.
+Our balance sheet was strengthened by the completion of our May offering, and subsequent to year-end, we entered into a senior secured
+term loan facility that provides additional capital for working capital and general corporate purposes. As we enter fiscal year 2027,
+our focus is on disciplined execution of the Pendergrass production ramp and converting commercial opportunities into durable growth,”
+said Jing Nealis, Chief Financial Officer of NeoVolta. 
+
+ Conference Call Information
+
+ NeoVolta will host a conference call and webcast on Wednesday, September
+23, 2026, at 5:00 p.m. Eastern Time to discuss its fourth quarter and fiscal year 2026 financial and operating results. Management will
+also discuss recent operational progress and strategic priorities, followed by a question-and-answer session. 
+
+ • Date: Wednesday, September 23, 2026 
+
+ • Time: 5:00 pm ET 
+
+ • Dial-in: +1 (201) 389-0908 
+
+ • Webcast and accompanying slide presentation: Registration
+Link 
+
+ A telephonic replay will be available from 9:00 p.m. Eastern Time on
+September 23, 2026, through Wednesday, October 7, 2026. To access the replay, dial +1 (412) 317-6671 and enter replay PIN 13762483. 
+
+ The webcast replay and accompanying presentation will be available
+on the Investor Relations section of the Company’s website at neovolta.com/investors. 
+
+ About NeoVolta 
+
+ NeoVolta is an innovator in energy storage solutions dedicated to
+advancing reliable, high-performance power infrastructure for residential, commercial, and utility applications. With a focus on scalable
+technology, domestic manufacturing, and strategic partnerships, NeoVolta is positioned to support the accelerating transition toward
+resilient energy systems. 
+
+ For more information, visit www.neovolta.com. 
+
+ 3 
+
+ Cautionary Note Regarding Forward-Looking
+Statements 
+
+ This press release contains forward-looking statements within the meaning
+of Section 27A of the Securities Act of 1933, as amended, and Section 21E of the Securities Exchange Act of 1934, as amended, including
+statements regarding the production ramp and first commercial production at the Company’s Pendergrass, Georgia facility, potential
+development of a second Pendergrass production line and the scaling of annual production capacity, the SK Battery America supply agreement
+and related pack collaboration, expected recovery in residential volumes, conversion of pipeline opportunities into binding orders (including
+the non-binding Infinite Grid Capital letter of intent), the Company’s senior secured term loan facility, and the Company’s
+fiscal year 2027 outlook. These statements are based on current expectations and assumptions that are subject to risks and uncertainties,
+and actual results may differ materially. Factors that could cause actual results to differ include, among others, risks related to the
+Company’s manufacturing ramp and facility commissioning, joint venture execution, customer order conversion, residential market
+conditions, changes in federal tax policy or IRA incentive programs, supply arrangements including the SK Battery America collaboration,
+availability and terms of additional financing, and access to capital, as well as other factors described in the Company’s filings
+with the U.S. Securities and Exchange Commission, including its most recent Annual Report on Form 10-K and Quarterly Reports on Form 10-Q.
+The Company undertakes no obligation to update any forward-looking statements, except as required by law. 
+
+ Non-GAAP Financial Measures 
+
+ To supplement our financial results presented on a basis in conformity
+with generally accepted accounting principles in the United States (“GAAP”), we use the non-GAAP measure: Adjusted EBITDA
+which excludes from our GAAP net loss, interest, taxes, depreciation and amortization, as well as other significant expenses including
+stock-based compensation that we believe are helpful in understanding our past financial performance. Our non-GAAP financial measures
+are not meant to be considered in isolation or as a substitute for comparable GAAP measures and should be read only in conjunction with
+our consolidated financial statements prepared in accordance with GAAP. 
+
+ Management believes that these non-GAAP financial measures reflect
+our ongoing business in a manner that allows for meaningful comparisons and analysis of trends in its business, as they exclude expenses
+and gains not reflective of ongoing operating results or that may be infrequent and/or unusual in nature. We exclude the nonoperating
+credit loss expenses and loss on debt exchanges as these costs were non-operational in nature and they are not indicative of our ongoing
+operational results. We also adjust for the effect of stock-based compensation expenses noting that such expenses will recur in future
+periods. Although stock-based compensation is a key incentive offered to our employees, we continue to evaluate our business performance
+internally excluding stock-based compensation expenses. 
+
+ Management also believes that these non-GAAP financial measures provide
+useful information to investors in understanding and evaluating our operating results and future prospects in the same manner as management
+and in comparing financial results across accounting periods and to those of peer companies. These non-GAAP measures may not be comparable
+to similarly titled measures presented by other companies. In this press release, we provided a reconciliation of non-GAAP Adjusted EBITDA
+to GAAP net loss, the most directly comparable GAAP financial measure. 
+
+ Contacts 
+
+ NEOV Investors 
+
+ Bryan Baritot 
+
+ Alliance Advisors IR 
+
+ ir@neovolta.com 
+
+ NEOV Media 
+
+ Email:
+ press@neovolta.com 
+ Phone: 800-364-5464 
+
+ 4 
+
+ NEOVOLTA INC. 
+
+ Consolidated Balance Sheets 
+
+ June 30, 
+ June 30, 
+
+ 2026 
+ 2025 
+ 
+ Assets 
+
+ Current assets: 
+
+ Cash and cash equivalents 
+ $ 22,201,975 
+ $ 794,836 
+ 
+ Restricted cash 
+ 3,150,000 
+ – 
+ 
+ Accounts receivable, net 
+ 2,945,468 
+ 2,983,841 
+ 
+ Inventory, net 
+ 2,133,153 
+ 2,137,912 
+ 
+ Prepaid expenses and other current assets (including prepaid inventory in amounts of $931,685 and
+ $535,938, respectively) 
+ 2,145,487 
+ 748,044 
+ 
+ Other current assets 
+ 272,280 
+ – 
+ 
+ Total current assets 
+ 32,848,363 
+ 6,664,633 
+
+ Construction in progress 
+ 9,602,302 
+ – 
+ 
+ Property and equipment, net 
+ 323,804 
+ – 
+ 
+ Net property and equipment 
+ 9,926,106 
+ – 
+
+ Intellectual property (net of accumulated amortization of $333,859) 
+ 1,064,641 
+ – 
+
+ Other assets: 
+
+ Lease right-of-use assets, net 
+ 8,082,546 
+ 140,540 
+ 
+ Prepaid service fee under third party platform 
+ 1,631,944 
+ – 
+ 
+ Miscellaneous assets 
+ 84,347 
+ – 
+
+ Total assets 
+ $ 53,637,947 
+ $ 6,805,173 
+
+ Liabilities and Stockholders' Equity 
+
+ Current liabilities: 
+
+ Accounts payable - other 
+ $ 3,590,368 
+ $ 689,216 
+ 
+ Accounts payable - related party 
+ 233,910 
+ – 
+ 
+ Accrued liabilities 
+ 1,038,936 
+ 78,934 
+ 
+ Lease liabilities 
+ 695,269 
+ 140,540 
+ 
+ Short-term notes payable 
+ 1,120,000 
+ 2,603,223 
+ 
+ Total current liabilities 
+ 6,678,483 
+ 3,511,913 
+
+ Payable to line of credit lender 
+ – 
+ 383,538 
+ 
+ Lease liabilities 
+ 7,392,124 
+ – 
+ 
+ Total liabilities 
+ 14,070,607 
+ 3,895,451 
+
+ Commitments and contingencies (Note 7) 
+ – 
+
+ Stockholders' equity: 
+
+ Common stock, $0.001 par value, 100,000,000 shares authorized, 58,308,247 shares and 34,124,873 shares issued and outstanding, respectively 
+ 58,308 
+ 34,125 
+ 
+ Additional paid-in capital 
+ 86,756,877 
+ 28,652,731 
+ 
+ Accumulated deficit 
+ (47,247,845 ) 
+ (25,777,134 ) 
+ 
+ Total stockholders' equity 
+ 39,567,340 
+ 2,909,722 
+
+ Total liabilities and stockholders' equity 
+ $ 53,637,947 
+ $ 6,805,173 
+
+ 5 
+
+ NEOVOLTA INC. 
+
+ Consolidated Statements of Operations 
+
+ Three Months Ended June 30, 
+ Year Ended June 30, 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+
+ Revenues from contracts with customers 
+ $ 13,460 
+ $ 4,750,913 
+ $ 13,332,953 
+ $ 8,426,835 
+ 
+ Cost of goods sold 
+ (1,152,857 ) 
+ (4,175,474 ) 
+ (11,194,753 ) 
+ (6,920,130 ) 
+ 
+ Gross profit 
+ (1,139,398 ) 
+ 575,439 
+ 2,138,199 
+ 1,506,705 
+
+ Operating expenses: 
+
+ General and administrative 
+ 7,974,994 
+ 1,929,423 
+ 18,347,045 
+ 6,065,590 
+ 
+ Research and development 
+ 1,036,449 
+ 78,417 
+ 1,556,043 
+ 157,305 
+ 
+ Depreciation and amortization 
+ 136,537 
+ – 
+ 376,827 
+ – 
+ 
+ Total operating expenses 
+ 9,147,980 
+ 2,007,840 
+ 20,279,915 
+ 6,222,895 
+
+ Loss from operations 
+ (10,287,378 ) 
+ (1,432,401 ) 
+ (18,141,716 ) 
+ (4,716,190 ) 
+
+ Other income (expense): 
+
+ Loss on debt exchanges 
+ – 
+ – 
+ (1,266,030 ) 
+ – 
+ 
+ Interest expense 
+ (22,097 ) 
+ (217,372 ) 
+ (667,741 ) 
+ (320,417 ) 
+ 
+ Nonoperating credit loss and other 
+ (1,430,837 ) 
+ – 
+ (1,532,998 ) 
+ – 
+ 
+ Interest income 
+ 80,125 
+ 139 
+ 137,775 
+ 2,011 
+ 
+ Total other income (expense) 
+ (1,372,809 ) 
+ (217,233 ) 
+ (3,328,994 ) 
+ (318,406 ) 
+
+ Net loss 
+ $ (11,660,188 ) 
+ $ (1,649,634 ) 
+ $ (21,470,711 ) 
+ $ (5,034,596 ) 
+
+ Weighted average shares outstanding - basic and diluted 
+ 47,896,780 
+ 34,124,873 
+ 39,294,032 
+ 33,589,818 
+
+ Net loss per share - basic and diluted 
+ $ (0.24 ) 
+ $ (0.05 ) 
+ $ (0.55 ) 
+ $ (0.15 ) 
+
+ 6 
+
+ NEOVOLTA INC. 
+
+ Consolidated
+Statements of Cash Flows 
+
+ Year Ended June 30, 
+
+ 2026 
+ 2025 
+ 
+ Cash flows from operating activities: 
+
+ Net loss 
+ $ (21,470,711 ) 
+ $ (5,034,596 ) 
+ 
+ Adjustments to reconcile net loss to net cash used in operations: 
+
+ Stock compensation expense 
+ 4,963,440 
+ 2,101,488 
+ 
+ Loss on debt exchanges 
+ 1,266,030 
+ – 
+ 
+ Amortization of ROU asset 
+ 238,261 
+ 80,570 
+ 
+ Depreciation and other amortization expense 
+ 411,550 
+ – 
+ 
+ Provision for expected credit losses/bad debt expense 
+ 4,580,554 
+ (4,253 ) 
+ 
+ Inventory obsolescence reserve 
+ 1,119,013 
+ – 
+ 
+ Changes in assets and liabilities 
+
+ Accounts receivable 
+ (3,005,031 ) 
+ (1,630,876 ) 
+ 
+ Inventory 
+ (834,062 ) 
+ 41,864 
+ 
+ Prepaid expenses and other current assets 
+ (3,205,228 ) 
+ (606,429 ) 
+ 
+ Other long term assets 
+ (84,347 ) 
+ – 
+ 
+ Accounts payable 
+ 498,386 
+ 683,900 
+ 
+ Accrued expenses 
+ 505,735 
+ 23,150 
+ 
+ Other changes, net 
+ (175,160 ) 
+ (80,570 ) 
+ 
+ Net cash flows used in operating activities 
+ (15,191,570 ) 
+ (4,425,752 ) 
+
+ Cash flows from investing activities: 
+
+ Additions to construction in progress 
+ (6,364,051 ) 
+ – 
+ 
+ Additions to other property & equipment 
+ (767,272 ) 
+ – 
+ 
+ Additions to notes receivable 
+ (1,500,000 ) 
+ – 
+ 
+ Net cash flows used in investing activities 
+ (8,631,323 ) 
+ – 
+
+ Cash flows from financing activities: 
+
+ Proceeds of public equity offerings 
+ 35,628,565 
+ – 
+ 
+ Proceeds of private equity offering 
+ 13,000,000 
+ 1,087,000 
+ 
+ Borrowings under lines of credit 
+ 1,370,000 
+ 500,000 
+ 
+ Repayments of lines of credit 
+ (633,538 ) 
+ (116,462 ) 
+ 
+ Borrowings under short-term notes payable 
+ 6,697,612 
+ 5,106,343 
+ 
+ Repayments of short-term notes payable 
+ (7,597,341 ) 
+ (2,503,120 ) 
+ 
+ Prepayment of issuance costs for planned equity offering 
+ (85,266 ) 
+ – 
+ 
+ Proceeds from exercise of common stock warrants 
+ – 
+ 160,400 
+ 
+ Net cash flows from financing activities 
+ 48,380,032 
+ 4,234,161 
+
+ Net increase (decrease) in cash and restricted cash 
+ 24,557,139 
+ (191,591 ) 
+ 
+ Cash, restricted cash and cash equivalents at beginning of period 
+ 794,836 
+ 986,427 
+
+ Cash, restricted cash and cash equivalents at end of period 
+ $ 25,351,975 
+ $ 794,836 
+
+ Supplemental disclosures of cash flow information: 
+
+ Cash paid for interest 
+ $ 863,083 
+ $ 136,580 
+ 
+ Cash paid for income taxes 
+ – 
+ – 
+ 
+ Cash paid for amounts included in operating lease liabilities 
+ 250,017 
+ 93,190 
+ 
+ Supplemental disclosures of financing and investing activities: 
+
+ Issuance of common stock for debt exchanges 
+ $ 2,969,524 
+ $ – 
+ 
+ Addition of assets for common stock 
+ 998,000 
+ – 
+ 
+ Right-of-use assets obtained for operating lease liabilities 
+ 8,184,869 
+ 221,110 
+ 
+ Other equity contribution for services 
+ 568,800 
+ – 
+
+ 7 
+
+ NEOVOLTA INC. 
+
+ GAAP to Non-GAAP Reconciliation of Net Loss to Adjusted EBITDA 
+
+ Three Months Ended June 30, 
+ Year Ended June 30, 
+
+ 2026 
+ 2025 
+ 2026 
+ 2025 
+
+ Net loss 
+ $ (11,660,188 ) 
+ $ (1,649,634 ) 
+ $ (21,470,711 ) 
+ $ (5,034,596 ) 
+ 
+ Interest expense 
+ 22,097 
+ 217,372 
+ 667,741 
+ 320,417 
+ 
+ Interest income 
+ (80,125 ) 
+ (139 ) 
+ (137,775 ) 
+ (2,011 ) 
+ 
+ Depreciation and amortization 
+ 136,537 
+ – 
+ 376,827 
+ – 
+ 
+ Share-based compensation 
+ 2,150,677 
+ 732,904 
+ 4,963,440 
+ 2,101,487 
+ 
+ Loss on debt exchanges 
+ – 
+ – 
+ 1,266,030 
+ – 
+ 
+ Nonoperating credit loss and other 
+ 1,430,837 
+ – 
+ 1,532,998 
+ – 
+ 
+ Adjusted EBITDA 
+ (8,000,164 ) 
+ (699,497 ) 
+ (12,801,449 ) 
+ (2,614,703 ) 
+
+ 8

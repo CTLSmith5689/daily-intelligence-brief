@@ -1,0 +1,354 @@
+Item
+1. Business 
+
+ BUSINESS
+OF ATLASCLEAR HOLDINGS 
+
+ Our
+goal is to build a cutting-edge technology enabled financial services firm that would create a more efficient platform for trading, clearing,
+settlement and banking, with evolving and innovative financial products such as crypto that focus on financial services firms. We are
+a fintech driven business-to-business platform that expects to power innovation in fintech, investing, underwriting and trading . 
+We believe we are positioned to provide a modern, mission-critical suite of solutions to our clients, enabling them to reduce their transactions
+costs and compete more effectively in their businesses. 
+
+ Our
+target client base for our prime banking and prime brokerage services includes financial services firms, generally with annual revenues
+up to $1 billion, including brokerage firms, hedge funds, pension plans, and family offices that are not adequately served by today’s
+larger correspondent clearing firms and banks. The larger clearing firms have raised their minimums to a point where it is difficult
+for this segment of the market to meet the requirements for access to their clearing offerings. Smaller financial services firms are
+thus forced to find alternative solutions to continue to service their client bases. The practice of obtaining these services through
+intermediaries (often referred to as piggy-backing) results in additional fees and a loss of transparency and control for such financial
+services firms. As a result, such financial services firms are ideal clients for the “one stop shop” solutions our integrated
+business model intends to provide. 
+
+ Through
+our 2024 acquisitions of Wilson-Davis (now known as AtlasClearing, Inc. “AtlasClearing”), a correspondent clearing company,
+and Quantum FinTech Acquisition Corporation (“Quantum”), and our anticipated acquisition of Commercial Bancorp, a federal
+reserve member, and our anticipated acquisition of Ark Financial Services, Inc., the holding company of Dawson James, we expect to acquire
+the capabilities to provide specialized clearing and banking services to financial services firms, with an emphasis on global markets
+currently underserviced by larger vendors. Once properly integrated, anticipated synergies between Commercial Bancorp, Ark, Quantum,
+and AtlasClearing are expected to allow for lower cost of capital, higher net interest margins, expanded product development and greater
+credit extension. We cannot assure you that the Commercial Bancorp acquisition, the Ark acquisition or any other acquisition will be
+consummated or that, if consummated, any anticipated synergies or benefits will be realized by the Company. 
+
+ In
+addition, we believe the AtlasClear Platform is cutting-edge, flexible and scalable. Unlike other companies that are beholden to legacy
+technology stacks, that may struggle to keep pace with rapidly evolving client and customer expectations in an ever-increasing digital
+world, we believe our platform is modern, nimble and unencumbered. 
+
+ Our
+team is comprised of experienced fintech innovators - a characteristic that we believe drives our corporate culture. 
+
+ Business
+Opportunity 
+
+ Technology
+has opened up financial services to new users and changed expectations for customers of legacy financial services firms. Both expect
+a modern and frictionless financial services experience that we believe AtlasClear Holdings is well positioned to deliver. 
+
+ Once
+fully integrated, we believe our technology platform and specialized clearing and banking services will be mission-critical to our clients,
+given the complexities of investing infrastructure, the complications around collateral and capital requirements, and the complicated
+regulatory landscape. We expect to benefit as new fintech firms launch and existing firms scale, potentially outpacing legacy financial
+firms in their own categories. 
+
+ 2 
+
+ We
+believe consumer expectations for a one-stop shop for their investing, banking, spending, insurance and borrowing needs is driving the
+convergence of financial services. As a result, financial companies that traditionally operated as single-product specialists (e.g.,
+savings-focused platform, lending-focused platform) are now seeking to integrate trading and investing capabilities into their broader
+offering. Further, we anticipate increased interest from non-financial services firms (e.g., consumer retail firms) in leveraging their
+brand and customer reach to offer financial services as a means to drive incremental revenue and customer engagement. We believe AtlasClear
+Holdings is well positioned to provide the “investing-as-a-service” platform these firms may require to develop such offerings. 
+
+ Our
+Growth Strategy 
+
+ Our
+growth strategy includes: 
+
+ Growing
+our base of clients organically and through channel partners 
+
+ We
+believe that attracting and acquiring new clients will be a key growth driver for our combined business. Looking ahead, our technology
+platforms, combined with the rapidly accelerating demand for cost efficiencies - are expected to drive growth in our prospective
+client base. For new market entrants, we believe the efficiencies of our prospective turnkey solutions, and speed at which we expect
+to be able to bring a client’s offering to market will position us to win new clients. With respect to the traditional wealth advisor
+landscape, we expect to be a beneficiary of clients seeking to transition to a new provider that can offer the digital-focused solutions
+required to compete in the rapidly changing environment. 
+
+ Growing
+our clients’ revenue 
+
+ We
+believe we will succeed when our clients succeed. The more assets, services or transactions that customers direct through our prospective
+platform, the more revenue we and our clients would be able to generate. Through innovation, we also expect to enhance our product offerings
+and add more products, capabilities, and functionality for our clients, which in turn should allow such clients to drive growth in their
+business. We expect to provide the tools to streamline the complex aspects of custody clearing and banking to empower our clients to
+focus on attracting new end customers as well as growing their share of revenue from existing ones. 
+
+ Pursuing
+potential international expansion opportunities 
+
+ While
+we expect our operations will initially be U.S.-focused, we see opportunity to grow our business and total addressable market by expanding
+into international markets. As we assess international opportunities, we believe our core competencies and operational excellence position
+us well to win in new markets, many of which are experiencing secular tailwinds similar to what we are seeing in the U.S. (e.g., growth
+of mobile and digital solutions). 
+
+ Identifying
+and executing strategic acquisitions 
+
+ We
+expect to selectively pursue acquisitions that we believe will create value for our shareholders. We plan to evaluate acquisition opportunities
+based on a number of strategic parameters, including their ability to (i) enhance our product capabilities, (ii) broaden our client reach,
+(iii) drive further scale, (iv) increase our presence in new geographies, and (v) generate attractive financial returns. We also plan
+to weigh the potential benefits from an acquisition against other alternatives, such as building similar capabilities in-house or partnering
+with third parties. 
+
+ Our
+Product Offerings 
+
+ We
+offer clients the flexibility to choose from a variety of pre-built suites that serve a wide range of business models. For example, clients
+who do not wish to build a complete user interface will be able to opt for our white label solutions. Once fully integrated, we expect
+to be a turnkey brokerage solution, offering highly configurable front office functions for launching and running investing applications.
+This offering “extends” beyond our “back” and “middle” office roots into direct customer facing experience.
+We expect that customers that choose our white label solutions will also be able to take advantage of our “middle” and “back”
+office offerings to ensure smooth processes around risk management, profit and loss, and account maintenance. 
+
+ 3 
+
+ Back
+and Middle Office Solutions 
+
+ Our
+full technology stack is expected to automate “back office” and “middle office” processes that were typically
+manual paper-based process, creating a seamless and unified experience for our clients. Typically, new financial services firms or advisors
+would need to individually source multiple middle and back office solutions from multiple vendors. By partnering with us, we believe
+our clients will get a seamless and unified middle and back-office experience that is based on the technology we expect to acquire. 
+
+ We
+offer a range of technical services that we believe will support the mission-critical functions needed to run a modern financial services
+company. We believe this self-service platform will provide clients with the operational online tools they need, including: 
+
+ ● 
+ Trading: 
+ Flexible suite of APIs enabling clients to execute across several major asset classes. 
+
+ ● 
+ Lending :
+ Integrated and automated margin lending and fully paid stock lending program. Previously only available to the largest firms, professional
+ investors, and wealthiest shareholders, we believe AtlasClear Holdings will expand the availability of fully paid stock lending (and
+ its income generating interest). 
+
+ ● 
+ Portfolios: 
+ APIs allowing clients to build portfolio models, assign them to accounts and automate rebalancing trade proposal generation, including
+ straight through processing of order execution and trade allocation to maximize operational efficiency. We believe these are essential
+ tools for financial advisors, as well as robo-advisor platforms for do-it-yourself investors. 
+
+ ● 
+ Accounts: 
+ Everything clients need to open, authenticate, qualify, approve, onboard and maintain accounts including in-line investor verification,
+ applicant verification, risk and compliance management, suitability requirements, paperless enrollments, and account preference configurations. 
+
+ ● 
+ Cash: 
+ APIs to streamline cash movements in every direction, including ACH and wire transactions, recurring scheduled transfers, authorizing
+ and managing bank linkages and more. We believe efficiency and scale are achieved by aggregation and net settlement workflows for
+ real time transfers of cash with banking partners. 
+
+ ● 
+ Transfers: 
+ APIs to streamline, initiate, manage and report on Automated Customer Account Transfer Service account transfers. Provides transparency
+ and controls to enable specific user business requirements. We believe this will be a critical onboarding capability for AtlasClear
+ Holdings clients to bring on high quality customers who hold assets elsewhere. 
+
+ ● 
+ Regulations: 
+ We expect to provide consolidated oversight and services for relevant regulations applicable to brokerage and investment services.
+ These laws, rules, regulations and requirements are ever-changing and include back-end compliance processes and regulatory requirements
+ like Consolidated Audit Trail and Order Audit Trail System reporting, compliance with Reg 606 (Best Execution), trade surveillance
+ and anti-money laundering rules. This is an often-underestimated burden for fintech disruptors. 
+
+ ● 
+ Communications: 
+ Everything that allows clients to manage and distribute end investor communications including electronic delivery of trade confirmations,
+ statements, tax reporting and more. 
+
+ Commercial
+Bancorp Share Purchase Agreement 
+
+ On
+February 5, 2026, the Company entered into a share purchase agreement (the “Purchase Agreement”) with Commercial Bancorp,
+and each of the shareholders of Commercial Bancorp (collectively, the “Sellers”). The Purchase Agreement provides for the
+Company to acquire (the “CB Acquisition”) from the Sellers all of the outstanding shares (the “Shares”) of common
+stock of Commercial Bancorp, which is the owner of all of the outstanding stock of Farmers State Bank, a Wyoming state-chartered member
+bank (the “Bank”), subject to the terms and conditions set forth in the Purchase Agreement. As previously disclosed, the
+Company had previously entered into an agreement and plan of merger, as amended, to acquire Commercial Bancorp, which agreement has expired
+in accordance with its terms. 
+
+ Pursuant
+to the terms of the Purchase Agreement, the Company has agreed to purchase the Shares from the Sellers for consideration consisting of
+a combination of cash and shares of Common Stock, with the total amount of consideration to be determined based on (i) each Seller’s
+election to receive cash, shares of Common Stock, or a combination thereof, (ii) the adjusted book value of the operational portion of
+the equity capital of Commercial Bancorp as of the closing of the CB Acquisition (the “CB Closing”), determined in accordance
+with the provisions of the Purchase Agreement (the “ABV”), (iii) the value of the existing building and land comprising the
+physical location of the Bank (the “Premises”), and (iv) Commercial Bancorp’s net operating loss as reflected on its
+most recent tax return prior to the CB Closing, multiplied by the maximum corporate federal income tax rate in effect as of the date
+of the CB Closing (the “NOL Tax Benefit”). Each Seller may elect (the “Election”) to receive an amount equal
+to any of the following three options: (i) three times such Seller’s pro rata portion of the ABV, plus such Seller’s pro
+rata portion of the value of the Premises and the NOL Tax Benefit, payable one-third in cash and two-thirds in shares of Common Stock;
+(ii) two times such Seller’s pro rata portion of the ABV, plus such Seller’s pro rata portion of the value of the Premises
+and the NOL Tax Benefit, payable entirely in cash; or (iii) three times such Seller’s pro rata portion of the ABV, plus such Seller’s
+pro rata portion of the value of the Premises and the NOL Tax Benefit, payable entirely in shares of Common Stock. The Company has made
+an earnest money deposit payment in the amount of $100,000 to Commercial Bancorp, which deposit will be applied to the cash portion of
+the consideration payable at the CB Closing or, if the CB Closing does not occur under certain circumstances, retained by Commercial
+Bancorp. 
+
+ The
+shares of Common Stock to be issued pursuant to the Purchase Agreement will be valued based on either the closing price of the Common
+Stock on the date of execution of the Purchase Agreement ($0.23), or on the business day immediately preceding the date of the CB Closing,
+at each Seller’s option. The Company agreed to file with the Securities Exchange Commission (the “SEC”) a resale registration
+statement with respect to the shares of Common Stock issuable pursuant to the Purchase Agreement (the “Resale Registration Statement”),
+which was filed on June 8, 2026. 
+
+ The
+obligations of each of the Sellers and the Company under the Purchase Agreement are subject to specified conditions, including, among
+other matters: (i) the receipt of all required regulatory approvals, (ii) the Resale Registration Statement having been declared effective
+by the SEC, such that all shares of Common Stock to be issued pursuant to the Purchase Agreement shall be registered for resale and freely
+tradeable (which occurred on June 17, 2026), (iii) the receipt of certain specified third-party consents, and (iv) the absence of any
+injunctions being entered into or law being adopted that would make the CB Acquisition illegal. 
+
+ 4 
+
+ The
+Purchase Agreement contains customary representations and warranties of Commercial Bancorp and the Bank, the Sellers and the
+Company. It also contains customary covenants, including (i) covenants providing for each of the parties to use reasonable best
+efforts to cause the CB Acquisition to be consummated and to receive all required regulatory approvals, including from the Federal
+Reserve Board and the Wyoming Division of Banking, (ii) covenants providing for Commercial Bancorp and the Bank to carry on their
+respective businesses in the ordinary course of business, and to refrain from taking certain actions, during the period between the execution of the Purchase Agreement and the CB Closing, and (iii) granting the Company observation rights with respect
+to meetings of the boards of directors of Commercial Bancorp and the Bank during the period between the execution of the Purchase
+Agreement and the CB Closing. Commercial Bancorp, the Bank and the Sellers have also agreed not to initiate, solicit, encourage or
+otherwise facilitate the making of any proposal or offer relating to alternate transactions or, engage in any discussions or
+negotiations with respect to alternate transactions. 
+
+ The
+Purchase Agreement contains termination rights for each of the Sellers and the Company, including, without limitation, in the event that
+(i) any governmental entity issues a non-appealable final order denying approval of the CB Acquisition; (ii) the CB Acquisition is not
+consummated within two years of the execution of the Purchase Agreement, subject to extension under certain circumstances; or (iii) the
+other party breaches its representations, warranties or covenants under the Purchase Agreement which would give rise to the failure of
+a closing condition and such breach is not cured within 30-days of receipt of written notice of such breach. 
+
+ Revenue
+Sources 
+
+ We
+generate revenue through transactional and recurring sources. Transactional revenue is reliant upon customer-driven activity that ultimately
+results in fees being paid to us. Examples of these are clearing, execution, banking, confirms, and more. Further, we expect to generate
+recurring revenue streams simply by acting as the custodian of customer assets and customer cash through our anticipated acquisition
+of Commercial Bancorp, and to generate investment banking, underwriting and brokerage revenue through our anticipated acquisition of
+Ark Financial Services, Inc., the holding company of Dawson James. Examples of these are platform minimums, asset-based fees, credit
+and debit balances, securities lending, statements, and account maintenance. Since all revenue generating activities can be tied back
+to the account, we believe the best proxy for future revenue is the number of customer accounts on our platform. 
+
+ AtlasClear
+Holdings Competition 
+
+ We
+believe that through our technology and source code acquisitions discussed herein, we have the capabilities to deliver a complete and
+modern platform that would give our clients the flexibility, speed, risk-management expertise and scale they need to grow. While several
+participants offer a subset of our solutions, we do not believe any single competitor has a comparable modern platform or ability to
+offer a truly frictionless investing, clearing, custody and banking experience, such as we will strive to offer. 
+
+ Custody
+and clearing businesses such as AtlasClearing, which we acquired, and banking businesses such as Commercial Bancorp, which we expect
+to acquire, are scale-driven businesses with high barriers to entry, including expansive overhead and technology costs, complicated capital
+and collateral management requirements, and a complex regulatory and legal environment. We believe that legacy providers will not be
+able to offer our combination of flexibility, speed, execution, and broad asset-class capabilities. 
+
+ AtlasClear
+Holdings is led by a seasoned team of industry executives supported by a purpose-built board of directors. Collectively, our leadership
+team will have over 30 years of combined experience spanning the technology, investing, custody, banking and clearing lifecycles. The
+team has held leadership and operational roles at firms such ICE, Penson Clearing, Southwest Securities, NexTrade, Anderen Bank, Stonex
+and The Chicago Board of Trade, among others. Clearing, custody and banking are highly regulated and complex businesses, and we believe
+that our team’s combined experience, coupled our technological capabilities provide us an advantage over our competitors. 
+
+ Large
+trust banks as well as large financial firms have historically been the providers of clearing and custody services. We believe their
+solutions are more limited, more expensive and less responsive for clients because of their legacy technology, analog processes, outdated
+compliance processes, and less flexible architecture. For clients, this translates to slower account opening and funding, higher embedded
+costs and limited flexibility. 
+
+ In
+contrast to these legacy custodians, we believe that our systems make use of highly virtualized systems operating in a hybrid cloud model
+using cloud infrastructure as well as private data centers for redundancy. 
+
+ ATLASCLEARING 
+
+ AtlasClearing
+is a correspondent securities broker-dealer registered with the SEC, licensed in 50 states District of Columbia, and Puerto Rico, and a member in good standing
+of FINRA. AtlasClearing has operated continuously since it was incorporated as a Utah corporation and obtained its license in December
+1968. Effective August 25, 2026, Wilson-Davis was rebranded as AtlasClearing Inc. References in this Annual Report to “Wilson-Davis”
+or “AtlasClearing” refer to that entity, which now conducts business under the AtlasClearing Inc. name. 
+
+ 5 
+
+ AtlasClearing
+is engaged principally in the over-the-counter, or “OTC,” markets in microcap securities. Microcap securities generally are
+issued by companies with low or “micro” capitalizations, meaning the total market capitalization value of the company’s
+stock is less than $250 million, which includes low-priced securities, or penny stocks, that trade for less than $5.00 per share and
+have a market capitalization of less than $50 million. AtlasClearing also executes transactions in exchange-traded securities. It derives
+its revenue from the liquidation of restricted and control microcap securities; clearing transactions on behalf of an introducing broker-dealer
+on a fully disclosed basis; and trading in equity securities for its own account. It receives limited revenues from fully paid stock
+lending and margin accounts. During its history, AtlasClearing has underwritten at-the-market offerings for publicly traded companies,
+placed private offerings, sold mutual funds, introduced margin accounts cleared by other firms on a fully disclosed basis, and provided
+ancillary financial services. 
+
+ During
+the year ended June 30, 2026, revenues from commissions and related vetting fees accounted for approximately 46% and 7%, of total revenue,
+respectively. During the year ended June 30, 2025, revenues from commissions and related vetting fees accounted for approximately 55%
+and 13%, of total revenue, respectively. During the year ended June 30, 2026 and 2025, 7% and 13% of commissions respectively, were attributable
+to AtlasClearing’s securities liquidations of private placement and open market purchased securities for U.S. customers in Canadian
+traded securities in companies engaged in the legal cannabis industry in Canada and other businesses referred by Canaccord Genuity, a
+global full-service investment banking firm with principal activities in Canada. During the year ended June 30, 2026 and 2025 revenue
+from Stock locate fees accounted for approximately 34% and 3%, respectively. The increase in stock locate fees is due to stock locate
+services being, in effect, an entirely new line of business that the Company implemented and rapidly expanded during the year ended June
+30, 2026. Stock locate fees are fees charged to primarily broker-dealers for the confirmation that borrowable shares are available for
+a proposed short sale. 
+
+ Canaccord
+Genuity serves as an investment banker for the placement of securities eligible for resale after the passage of an applicable holding
+period or other compliance requirements. Canaccord Genuity executes trades for AtlasClearing that are not permitted in the United States.
+AtlasClearing’s arrangement with Canaccord is to facilitate transactions with Canadian exchanges. The customers that are referred
+by Canaccord Genuity under a commission sharing arrangement with AtlasClearing open customer cash accounts with AtlasClearing and deposit
+with the firm their securities that are required to be sold in the Canadian securities markets via an omnibus account that AtlasClearing
+maintains at a Canadian brokerage firm. AtlasClearing completes vetting of proposed sales, deposits securities in the omnibus account,
+and executes the customer orders through the omnibus Canadian account. The transaction thereafter is non-cancelable. 
+
+ AtlasClearing
+had approximately 4,826 and 4,652 active customer accounts as of June 30, 2026 and 2025, respectively. 
+
+ AtlasClearing
+maintains its headquarters in Salt Lake City, Utah. It also has registered representatives who work remotely from California, New York,
+Arizona, Nevada, Oklahoma, and Florida. 
+
+ Securities
+Liquidations 
+
+ AtlasClearing
+sells into the trading markets securities that have been acquired by customers through registration or in reliance on exemptions from
+registration under the Securities Act or corresponding provisions of Canadian provincial securities laws. The liquidation process requires
+depositing the securities in the customer’s account, obtaining detailed information and supporting documentation regarding the
+details of the customer’s acquisition of the securities, reviewing the customer’s information and supporting documents by
+AtlasClearing personnel and outside legal counsel, and if believed appropriate, selling the securities. 
+
+ AtlasClearing
+derives revenues, which it calls vetting fees, from fees charged to customers to deposit the securities, review the material submitted,
+and determine the propriety of the sale as well as commissions on the securities sales. 
+
+ Transactions
+in U.S. traded securities are executed in the OTC or oth

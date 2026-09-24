@@ -1,0 +1,502 @@
+ITEM 1A. RISK FACTORS 
+
+ The
+following risks and uncertainties should be carefully considered in addition to the other information included in this Report. If any
+of the following conditions or other unknown conditions should occur, our business, financial condition or operating results could be
+materially harmed. An investment in our securities is speculative in nature, involves a high degree of risk and should not be made by
+an investor who cannot bear the economic risk of its investment for an indefinite period of time and who cannot afford the loss of its
+entire investment. 
+
+ Risks Related to our Business and Industry 
+
+ Although we have been in business for over eight
+years, we have not yet established a successful and sustainable business model. 
+
+ We formed our corporation in 2018.
+Since formation, we have focused on research, development and certification of our first energy storage system. We began marketing, sales,
+and installations via our certified installers in May 2019 (although no sales were completed in the year ended June 30, 2019). We may
+never achieve commercial success with our energy solutions. We are presently transitioning from being a storage manufacturer into an integrated
+energy solutions leader, therefore, we have limited historical financial data upon which we may base our projected revenue and operating
+expenses. While we are optimistic on the prospects for success in our new business model, we continue to be subject to many of the risks
+inherent in business development, financing, unexpected expenditures, and complications and delays that often occur in a new business.
+Investors should evaluate an investment in us in light of the uncertainties encountered by developing companies in a competitive environment.
+There can be no assurance that our efforts will be successful or that we will ultimately be able to attain profitability. 
+
+ 7 
+
+ We have a history of net losses and we are uncertain
+about our future profitability. 
+
+ We have incurred significant net
+losses since our inception. For the years ended June 30, 2026 and 2025, we have incurred net losses of $21.5 million and $5.0 million,
+respectively. As of June 30, 2026, we had an accumulated deficit of $47.2 million. If our revenue grows more slowly than currently anticipated,
+or if operating expenses are higher than expected, we may be unable to consistently achieve profitability, our financial condition will
+suffer, and the value of our common stock could decline. Even if we are successful increasing our sales, we may incur losses in the foreseeable
+future as we continue to develop and market our products. If sales revenue from any of our current products or any additional products
+that we develop in the future is insufficient, or if our product development is delayed, we may be unable to achieve profitability and,
+in the event we are unable to secure financing for prolonged periods of time, we may need to temporarily cease operations and, possibly,
+shut them down altogether. Furthermore, even if we are able to achieve profitability, we may be unable to sustain or increase such profitability
+on a quarterly or annual basis, which would adversely impact our financial condition and significantly reduce the value of our common
+stock. 
+
+ The anticipated startup of our new utility-scale
+battery manufacturing joint venture in the State of Georgia at the end of our fiscal 2027 first quarter may be subject to significant
+competitive, operational, financial, regulatory, and technological risks. 
+
+ We may encounter intense competition from
+established players with greater resources or brand recognition, and demand volatility or slow adoption of our products could delay
+revenue generation. We may experience supply chain disruptions if key components or services are not yet secured and dependency on
+key personnel for product development, sales, or operations. We may encounter liquidity constraints if the business requires
+significantly higher upfront investment than we are expecting before generating cash flow. We may confront challenges in achieving compliance
+with new or evolving regulations in the target market, such as environmental, safety, or labor compliance risks, and pending
+litigation or claims related to our new products. We may face cybersecurity threats to customer data or proprietary systems
+and rapid technological changes that could render our products obsolete. 
+
+ We expect certain financial benefits as a result
+of federal tax incentives available to our new utility-scale battery manufacturing joint venture. If these expected financial benefits
+vary significantly from our assumptions, our business, financial condition, and results of operations could be adversely affected . 
+
+ We expect our new utility-scale
+battery manufacturing joint venture plant in the State of Georgia to be eligible for the Advanced Manufacturing Tax Credit under Internal
+Revenue Code Section 45X and to enable our customers to claim the Clean Electricity Investment Tax Credit under Internal Revenue Code
+Section 48E, notwithstanding that there are strict federal tax regulations pertaining to these credits which involve any foreign sourcing. 
+
+ We anticipate qualifying for the
+Advanced Manufacturing Tax Credit by virtue of manufacturing our utility-scale batteries in the United States and selling them to unrelated
+purchasers. Such credits may be refundable by the IRS or transferable to a third party for cash and are available from 2023 to 2032, subject
+to phase-down beginning in 2030. Our ability to realize these benefits depends on our ability to satisfy applicable statutory requirements
+or regulatory guidance regarding Section 45X of the IRC. 
+
+ The One Big Beautiful Bill Act
+(“OBBBA”) passed by Congress in July 2025 provides that a qualified facility, energy storage technology or eligible component
+that includes material assistance from a prohibited foreign entity is not eligible for a credit under Section 45X. Material assistance
+is defined as a material assistance cost ratio (“MACR”) that is less than the applicable threshold percentage. 
+
+ Despite the fact that our joint
+venture partner is affiliated with such a foreign entity, we expect to achieve compliance with the OBBBA by relying on IRS Notice 2026-15,
+which offers high-level general rules and an interim safe-harbor approach to calculating the MACR for a project or manufactured component. This
+safe harbor, which is expected to be available to NVP, allows taxpayers to trace to the level of detail of the items listed in the IRS’s
+domestic content safe harbor tables with additional averaging rules to account for procurement and tracing. 
+
+ 8 
+
+ We have made a significant investment of management
+time and other resources in the development of a third-party ownership platform which is designed to provide a new market for our residential
+and commercial energy storage products. If this new platform is not successful in meeting its anticipated objectives, there can be no
+assurance that we will be able to achieve a satisfactory return on our underlying investments. 
+
+ The market for our legacy residential
+and commercial battery storage products has dramatically shifted due to recent federal tax law changes prescribed in the OBBBA. As a result,
+we believe that the most effective path for us to market those products going forward is through a tax-efficient, third-party ownership
+(“TPO”) model. Therefore, we recently entered into a TPO Platform Services Agreement with an experienced, privately-owned
+development company to establish and operate a TPO platform with that company, which is designed to provide a new market for our residential
+and commercial energy storage products. This new platform will be fully functional for the initial processing of customer sales in
+the first quarter of our fiscal year 2027. There can be no assurance that the launch of our TPO platform will be successful in
+meeting our anticipated objectives and in recovering the investments of management time and other resources that we have made. 
+
+ We may experience in the future, delays or other
+complications in the design, manufacture, launch and production ramp of our energy storage products which could harm our brand, business,
+prospects, financial condition and operating results. 
+
+ We may encounter unanticipated
+challenges, such as supply chain or logistics constraints, that lead to delays in producing and ramping our energy storage products. Any
+significant delay or other complication in the production of our products or the development, manufacture, and production ramp of our
+future products, including complications associated with expanding our production capacity and supply chain or obtaining or maintaining
+regulatory approvals, could materially damage our brand, business, prospects, financial condition and operating results. 
+
+ We may be unable to meet our growing energy
+storage production plans and delivery plans, any of which could harm our business and prospects. 
+
+ Our plans call for achieving and
+sustaining significant increases in energy storage systems production and deliveries. Our ability to achieve these plans will depend upon
+a number of factors, including our ability to utilize installed manufacturing capacity, achieve the planned production yield and further
+increase capacity as planned while maintaining our desired quality levels and optimize design and production changes, and our suppliers’
+ability to support our needs. If we are unable to realize our plans, our brand, business, prospects, financial condition and operating
+results could be materially damaged. 
+
+ We are dependent on our two main component vendors
+for our supplies of battery cells, inverters and other raw materials and the inability of these single-source suppliers to deliver necessary
+components of our products according to our schedule and at prices, quality levels and volumes acceptable to us, or our inability to efficiently
+manage these components, could have a material adverse effect on our financial condition and operating results. 
+
+ Our products contain numerous
+purchased parts which we source globally from direct suppliers, the majority of whom are currently single-source suppliers. Any significant
+unanticipated demand would require us to procure additional components in a short amount of time. While we believe that we will be able
+to secure additional or alternate sources of supply for most of our components in a relatively short time frame, there is no assurance
+that we will be able to do so or develop our own replacements for certain highly customized components of our products. In addition, if
+we are required to use alternative suppliers for certain critical components, we may need to have our products go through a re-certification
+process with various regulatory bodies, which process may be lengthy. In such event, we would not be able to sell our products using these
+new components until we received all required certifications. 
+
+ If we encounter unexpected difficulties
+with key suppliers such as our inverter or lithium-iron phosphate cell supplier, and if we are unable to fill these needs from other suppliers,
+we could experience production delays and potential loss of access to important technology and parts for producing, servicing and supporting
+our products. This limited, and in many cases single source, supply chain exposes us to multiple potential sources of delivery failure
+or component shortages for the production of our products. The loss of any single or limited source supplier or the disruption in the
+supply of components from these suppliers could lead to significant product design changes and delays in product deliveries to our customers,
+which could hurt our relationships with our customers and result in negative publicity, damage to our brand and a material and adverse
+effect on our business, prospects, financial condition and operating results. 
+
+ 9 
+
+ We may become subject to further tariff increases
+that would apply to the two main raw material components of our products which are sourced from Asian suppliers. 
+
+ Presently, our two main raw material
+components, batteries and inverters, are imported from different suppliers in China and, until recently, were subject to fairly low tariff
+rates that had been in effect for several years. Beginning in April 2025, the Trump Administration implemented a significant increase
+in tariff rates based on the authority of the International Emergency Economic Powers Act (“IEEPA”) on all goods imported
+from China, although it was temporarily suspended for 90 days in April 2025 and the tariff rate was lowered in November 2025, subject
+to judicial review. In February 2026, the Supreme Court declared the tariffs to be unconstitutional based on the authority of IEEPA, therefore,
+the Administration is considering alternative approaches to implementing tariffs that it believes would be sustained in a judicial review.
+Prior to the tariff escalation in April 2025, we had anticipated the likelihood of facing such a tariff increase and began periodic stockpiling
+our inventory of these two components, which we have continued to pursue in any subsequent periods of tariff abatements or reductions
+since then, in order to reduce the impact of the tariffs. 
+
+ In the event, however, that such
+a mutual trade agreement is not reached between the parties within the next several months and we find it necessary to begin purchasing
+a significant level of our inventory components from China at post-tariff prices, we would be faced with a decision as to whether we should
+attempt to pass along such tariff increases to our customers through higher prices for our products or absorb them internally, or some
+combination of those two alternatives. 
+
+ Changes in our supply chain may result in increased
+cost. If we are unsuccessful in our efforts to control and reduce supplier costs, our operating results will suffer. 
+
+ There is no assurance that our
+suppliers will ultimately be able to meet our cost, quality and volume needs, or do so at the times needed. Furthermore, as the scale
+of our energy storage systems increase, we will need to accurately forecast, purchase, warehouse and transport to our manufacturing facilities
+components at much higher volumes than we have experience with. If we are unable to accurately match the timing and quantities of component
+purchases to our actual needs, or successfully implement automation, inventory management and other systems to accommodate the increased
+complexity in our supply chain, we may incur unexpected production disruption, storage, transportation and write-off costs, which could
+have a material adverse effect on our financial condition and operating results. 
+
+ We are currently selling multiple energy storage
+products and if these products that we sell or install fail to perform as expected, our reputation could be harmed and our ability to
+develop, market and sell our products and services could be harmed. 
+
+ If our energy products were to
+contain defects in design and manufacture that cause them not to perform as expected or that require repair or take longer than expected
+to become enabled or are legally restricted, our ability to develop, market and sell our products and services could be harmed. While
+we intend to perform internal testing on the products we manufacture, as a start-up company we currently have no frame of reference by
+which to evaluate detailed long-term quality, reliability, durability and performance characteristics of our battery packs, inverters,
+and energy storage products. There can be no assurance that we will be able to detect and fix any defects in our products prior to their
+sale to or installation for consumers. Any product defects, delays or legal restrictions on product features, or other failure of our
+products to perform as expected could harm our reputation and result in delivery delays, product recalls, product liability claims, significant
+warranty and other expenses, and could have a material adverse impact on our business, financial condition, operating results and prospects. 
+
+ We depend on a small number of wholesale dealers
+for a significant portion of our revenues to date. 
+
+ Due to our limited operating history,
+we depend on a relatively small number of wholesale dealers and installers in California and other states for our revenue. For the fiscal
+year ended June 30, 2026, our three largest dealers accounted for approximately 39%, 15% and 11% of our total revenues, respectively.
+For the fiscal year ended June 30, 2025, our two largest dealers accounted for approximately 41% and 23% of our total revenues, respectively.
+As of June 30, 2026, our three largest dealers, net of expected credit losses, represented approximately 45%, 31% and 14% of our net accounts
+receivable balance. Our limited customer base and concentration could expose us to the risk of substantial losses if a single dominant
+customer stops purchasing, or significantly reduces orders for, our products. Our ability to maintain close relationships with these top
+customers is essential to the growth and profitability of our business. If we fail to sell our products to one or more of these top customers
+in any particular period, or if a large customer purchases fewer of our products, defers orders or fails to place additional orders with
+us, or if we fail to develop additional major customers, our revenue could decline, and our results of operations could be adversely affected. 
+
+ 10 
+
+ If we fail to scale our business operations
+and otherwise manage future growth and adapt to new conditions effectively as we grow our company, we may not be able to produce, market,
+sell and service our products successfully. 
+
+ Any failure to manage our growth
+effectively could materially and adversely affect our business, prospects, operating results and financial condition. Our future operating
+results depend to a large extent on our ability to manage our expansion and growth successfully. We may not be successful in undertaking
+this expansion if we are unable to control expenses and avoid cost overruns and other unexpected operating costs; adapt our products and
+conduct our operations to meet local requirements; implement the required infrastructure, systems and processes; and find and hire the
+right skills to make our growth successful. 
+
+ If we are unable to achieve our targeted manufacturing
+costs for our energy storage products our financial condition and operating results will suffer. 
+
+ As a relatively new company, we
+have limited historical data that ensures our targeted manufacturing costs will be achievable. While we expect in the future to better
+understand and control our manufacturing costs, there is no guarantee we will be able to achieve sufficient cost savings to reach our
+gross margin and profitability goals. We may also incur substantial costs or cost overruns in utilizing and increasing the production
+capability of our energy storage system facilities. 
+
+ If we are unable to achieve production
+cost targets on our products pursuant to our plans, we may not be able to meet our gross margin and other financial targets. Many of the
+factors that impact on our manufacturing costs are beyond our control, such as potential increases in the costs of our materials and components,
+such as lithium iron phosphate, nickel and other components of our battery cells. If we are unable to continue to control and reduce our
+manufacturing costs, our operating results, business and prospects will be harmed. 
+
+ Increases in costs, disruption of supply or
+shortage of materials, in particular for inverters and lithium iron phosphate cells, could harm our business. 
+
+ We may experience increases in
+the cost or a sustained interruption in the supply or shortage of materials. Any such increase, supply interruption or shortage could
+materially and negatively impact on our business, prospects, financial condition and operating results. We use various materials in our
+business, including inverters and lithium iron phosphate cells, from suppliers. 
+
+ The prices for these materials
+fluctuate, and their available supply may be unstable, depending on market conditions and global demand for these materials, including
+as a result of increased production of energy storage products by our competitors, and could adversely affect our business and operating
+results. For instance, we are exposed to multiple risks relating to inverters and lithium iron phosphate cells. 
+
+ These risks include: 
+
+ · an increase in the cost, or decrease in the available supply, of materials used; 
+
+ · disruption in the supply of cells due to quality issues or recalls by manufacturers; 
+
+ · tariffs on the materials we source in China, which make up a significant amount of the materials we require; 
+
+ · fluctuations in the value of the Chinese Renminbi against the U.S. dollar as our purchases for energy
+storage products are denominated in Chinese Renminbi.; and 
+
+ · potential increases in global shipping costs. 
+
+ Our business is dependent on the
+continued supply of inverters and battery cells for the battery packs used in our energy storage products. Any disruption in the supply
+of inverters or battery cells could disrupt production of our battery packs we require for our energy storage product. Substantial increases
+in the prices for our materials or prices charged to us would increase our operating costs, and could reduce our margins if we cannot
+recoup the increased costs through increased prices. Any attempts to increase prices in response to increased material costs could result
+in cancellations of energy storage orders and therefore materially and adversely affect our brand, image, business, prospects and operating
+results. 
+
+ 11 
+
+ Continued high mortgage interest rates may result
+in a decrease in demand by homeowners for our residential energy storage systems. 
+
+ Sales volume in our homeowner
+channel is partially dependent on the construction of new homes and the sale of existing homes in our residential markets. Many customers
+of our installation partners rely on mortgage loans from banks and other lenders in order to finance a substantial portion of the purchase
+price for their home, including any related improvements. Increased mortgage interest rates may lead to lower demand for new homes and
+a reduced number of homes available for solar origination through our homeowner channel. Additionally, increased interest rates may result
+in fewer secondary home sales, a reduction in the number of customers refinancing their mortgages and uncertainty about the economy. 
+
+ We are currently operating in a period of economic
+uncertainty and capital markets disruption, which has been significantly impacted by geopolitical instability due to the ongoing military
+conflicts between Russia and Ukraine and between the U.S. and Iran. Our business, financial condition and results of operations may be
+materially and adversely affected by any negative impact on the global economy and capital markets resulting from these conflicts or any
+other geopolitical tensions. 
+
+ U.S. and global markets are experiencing
+volatility and disruption following the escalation of geopolitical tensions and the military conflicts between Russia and Ukraine, which
+began in February 2022, and between the U.S. and Iran, which began in February 2026. Although the length and impact of these ongoing military
+conflicts are highly unpredictable, they could lead to further market disruptions, including significant volatility in commodity prices,
+credit and capital markets, as well as supply chain interruptions. We are continuing to monitor the situations in both of these areas
+and globally and assessing any potential impacts on our business. 
+
+ Any of the above mentioned factors
+could affect our business, prospects, financial condition, and operating results. The extent and duration of the military actions, sanctions
+and resulting market disruptions are impossible to predict, but could be substantial. Any such disruptions may also magnify the impact
+of other risks described in this report. 
+
+ We may become subject to product liability claims,
+which could harm our financial condition and liquidity if we are not able to successfully defend or insure against such claims. 
+
+ Although we believe we have designed
+our products for safety, product liability claims, even those without merit, could harm our business, prospects, operating results and
+financial condition. Our risks in this area are particularly pronounced given that we have only recently begun to deliver energy storage
+products. Moreover, a product liability claim could generate substantial negative publicity about our products and business and could
+have a material adverse effect on our brand, business, prospects and operating results. 
+
+ The markets in which we operate are in their
+infancy and highly competitive, and we may not be successful in competing in these industries as the industry further develops. We currently
+face competition from new and established domestic and international competitors and expect to face competition from others in the future,
+including competition from companies with new technology. 
+
+ The worldwide energy storage market
+is in its infancy, and we expect it will become more competitive in the future. We also expect more regulatory burden as customers adopt
+this new technology. There is no assurance that our energy storage systems will be successful in the respective markets in which they
+compete. A significant and growing number of established and new companies, as well as other companies, have entered or are reported to
+have plans to enter the energy storage market. Most of our current and potential competitors have significantly greater financial, technical,
+manufacturing, marketing, sales networks and other resources than we do and may be able to devote greater resources to the design, development,
+manufacturing, distribution, promotion, sale and support of their products. Increased competition could result in lower unit sales, price
+reductions, revenue shortfalls, loss of customers and loss of market share, which could harm our business, prospects, financial condition
+and operating results. The energy storage industry is highly competitive. 
+
+ 12 
+
+ We face competition from other
+manufacturers, developers and installers of energy storage systems, as well as from large utilities. Decreases in the retail prices of
+electricity from utilities or other renewable energy sources could make our products less attractive to customers. Reduction in various
+federal and state rebate and incentive programs could also adversely affect product adoption. 
+
+ Our products and services are subject to substantial
+regulations, which are evolving, and unfavorable changes or failures by us to comply with these regulations could substantially harm our
+business and operating results. 
+
+ As a manufacturer of energy storage
+systems, we are impacted by federal, state and local regulations and policies concerning electricity pricing, the interconnection of electricity
+generation and storage equipment with the electric grid, and the sale of electricity generated by third-party owned systems. For example,
+existing or proposed regulations and policies would permit utilities to limit the amount of electricity generated by our customers with
+their solar energy systems, adjust electricity rate designs such that the price of our products may not be competitive with that of electricity
+from the grid, restrict us and our customers qualifying for government incentives and benefits that apply to renewable energy, and limit
+or eliminate net energy metering. If such regulations and policies remain in effect or are adopted in other jurisdictions, or if other
+regulations and policies that adversely impact the interconnection or use of our energy storage systems are introduced, they could deter
+potential customers from purchasing our energy storage products, which could harm our business, prospects, financial condition and results
+of operations. 
+
+ Our business and operations
+would suffer in the event of third-party computer system failures, cyber-attacks on third-party systems or deficiency in our cyber security. 
+
+ We rely
+on information technology (“IT”) systems, including third-party “cloud based” service providers, to keep financial
+records, maintain product support data, and corporate records, to communicate with staff and external parties and to operate other critical
+functions. This includes critical systems such as email, other communication tools, electronic document repositories and archives. Presently,
+we do not have a formal cyber security policy due to our small size. If any of our third-party information technology providers experience
+security breaches or incidents due to computer viruses, unauthorized access, malware, ransomware, natural disasters, fire, terrorism,
+war, telecommunication failures, electrical failures, cyber-attacks or cyber-intrusions over the internet, then sensitive data, including
+personal information, trade secrets, and confidential business information could be compromised, exposed, or deleted. Similarly, we could
+incur business disruption if our access to the internet is compromised, and we are unable to connect with third-party IT providers. The
+risk of a security breach or disruption, particularly through cyber-attacks or cyber intrusion, including by computer hackers, foreign
+governments and cyber terrorists, has generally increased as the number, intensity and sophistication of attempted attacks and intrusions
+from around the world have increased. To the extent that any disruption or security breach results in a loss of or damage to our data
+or applications, or inappropriate disclosure of confidential or proprietary information, we could incur liability and delay of our product
+development and support efforts. 
+
+ We may need to assert intellectual property-related
+claims or defend ourselves against intellectual property infringement claims, which may be time-consuming and could cause us to incur
+substantial costs. 
+
+ Others, including our competitors,
+may hold or obtain patents, copyrights, trademarks or other proprietary rights that could prevent, limit or interfere with our ability
+to make, use, develop, sell or market our products and services, which could make it more difficult for us to operate our business. From
+time to time, the holders of such intellectual property rights may assert their rights and urge us to take licenses, and/or may bring
+suits alleging infringement or misappropriation of such rights. We may consider the entering into licensing agreements with respect to
+such rights, although no assurance can be given that such licenses can be obtained on acceptable terms or that litigation will not occur,
+and such licenses could significantly increase our operating expenses. In addition, if we are determined to have infringed upon a third
+party’s intellectual property rights, we may be required to cease making, selling or incorporating certain components or intellectual
+property into the goods and services we offer, to pay substantial damages and/or license royalties, to redesign our products and services,
+and/or to establish and maintain alternative branding for our products and services. In the event that we were required to take one or
+more such actions, our business, prospects, operating results and financial condition could be materially adversely affected. In addition,
+any litigation or claims, whether or not valid, could result in substantial costs, negative publicity and diversion of resources and management
+attention. 
+
+ 13 
+
+ In August 2021, we entered into
+an exclusive long term supply agreement with our Asian supplier pertaining to our inverter component. This agreement contains provisions
+that address the ownership and use of intellectual property rights. While we are unaware of any present dispute concerning this agreement
+or our other agreements that concern ownership of or use of intellectual property rights, future disputes may arise concerning this or
+other agreements we have entered into that concern ownership of or use of intellectual property rights. 
+
+ Our business could be negatively impacted if
+we fail to adequately protect our intellectual property rights. 
+
+ We consider our intellectual property
+rights to be important assets, and seek to protect them through a combination of patent, trademark, copyright and trade secret laws, as
+well as licensing and confidentiality agreements. These protections may not be adequate to prevent third parties from using our intellectual
+property without our authorization, breaching any confidentiality agreements with us, copying or reverse engineering our products, or
+developing and marketing products that are substantially equivalent to or superior to our own. The unauthorized use of our intellectual
+property by others could reduce our competitive advantage and harm our business. Not only are intellectual property-related proceedings
+burdensome and costly, but they could span years to resolve and we might not ultimately prevail. We cannot guarantee that any patents,
+issued or pending, will provide us with any competitive advantage or will not be challenged by third parties. Moreover, the expiration
+of our patents may lead to increased competition with respect to certain products. 
+
+ Our industry is subject to technological change,
+and our failure to continue developing new and improved products and to bring these products rapidly to market could have an adverse impact
+on our business. 
+
+ New products, or refinements and
+improvements to our existing products, may have technical failures, delayed introductions, higher than expected production costs or may
+not be well accepted by our customers. If we are not able to anticipate, identify, develop and market high quality products in line with
+technological advancements that respond to changes in customer preferences, demand for our products could decline and our operating results
+could be adversely affected. 
+
+ Public company compliance may make it more difficult
+to attract and retain officers and directors. 
+
+ The Sarbanes-Oxley Act and rules
+subsequently implemented by the SEC have required changes in corporate governance practices of public companies. As a public company,
+we expect that these rules and regulations may make it more difficult and expensive for us to obtain director and officer liability insurance
+in the future and we may be required to accept reduced policy limits and coverage or incur substantially higher costs to obtain the same
+or similar coverage. As a result, it may be more difficult for us to attract and retain qualified persons to serve on our Board of Directors
+or as executive officers. 
+
+ Our ability to use net operating loss carryforwards
+and certain other tax attributes may be limited. 
+
+ As of June 30, 2026, we had significant
+net operating loss carryforwards in the U.S. Utilization of these loss carryforwards assumes that prior to their expiration, we will have
+sufficient taxable income in the U.S. to utilize the carryforwards, and that such usage is not limited based on anti abuse provisions
+or other statutes and laws. Any such limitations on our ability to use our net operating loss carryforwards and other tax assets could
+adversely impact our tax expense, financial condition, results of operations, and cash flows. 
+
+ 14 
+
+ Confidentiality agreements with employees and
+third parties may not prevent unauthorized disclosure of trade secrets and other proprietary information, and our inability to maintain
+the confidentiality of that information, due to unauthorized disclosure or use, or other event, could have a material adverse effect on
+our business. 
+
+ In addition to the protection
+afforded by patents, we seek to rely on trade secret protection and confidentiality agreements to protect proprietary know-how that is
+not patentable or that we elect not to patent, processes for which patents are difficult to enforce, and any other elements of our product
+discovery and development processes that involve proprietary know-how, information, or technology that is not covered by patents. Trade
+secrets, however, may be difficult to protect. We seek to protect our proprietary processes, in part, by entering into confidentiality
+agreements with our employees, consultants, advisors, contractors and collaborators. Although we use reasonable efforts to protect our
+trade secrets, our employees, consultants, advisors, contractors, and collaborators might intentionally or inadvertently disclose our
+trade secret information to competitors. In addition, competitors may otherwise gain access to our trade secrets or independently develop
+substantially equivalent information and techniques. Furthermore, the laws of some foreign countries do not protect proprietary rights
+to the same extent or in the same manner as the laws of the United States. As a result, we may encounter significant problems in protecting
+and defending our intellectual property both in the United States and abroad. If we are unable to prevent unauthorized material disclosure
+of our intellectual property to third parties, or misappropriation of our intellectual property by third parties, we will not be able
+to establish or maintain a competitive advantage in our market, which could materially adversely affect our business, operating results
+and financial condition. 
+
+ We are heavily reliant on the services of both
+Ardes Johnson, our Chief Executive Officer, Jing Nealis, our Chief Financial Officer, and Steve Bond, our Executive Vice President, and
+the departure or loss of any officer could disrupt our business. 
+
+ We depend heavily on the continued
+efforts of Ardes Johnson, our Chief Executive Officer, Jing Nealis, our Chief Financial Officer, and Steve Bond, our Executive Vice President , 
+who are essential to our strategic vision and day-to-day operations and would be difficult to replace. The departure or loss of any of
+these officers, or the inability to timely hire and retain qualified replacements, could negatively impact our ability to manage our business. 
+
+ If we are unable to recruit and retain key management,
+technical and sales personnel, our business would be negatively affected. 
+
+ For our business to be successful,
+we need to attract and retain highly qualified technical, management and sales personnel. The failure to recruit additional key personnel
+when needed with specific qualifications and on acceptable terms or to retain good relationships with our partners might impede our ability
+to continue to develop, commercialize and sell our products. To the extent the demand for skilled personnel exceeds supply, we could experience
+higher labor, recruiting and training costs in order to attract and retain such employees. We face competition for qualified personnel
+from other companies with significantly more resources available to them and thus may not be able to attract the level of personnel needed
+for our business to succeed. 
+
+ Artificial intelligence presents risks and challenges
+that can impact our business, including by posing security risks to our confidential information, proprietary information and personal
+data. 
+
+ Issues in the development and
+use of artificial intelligence, combined with an uncertain regulatory environment, may result in reputational harm, liability, or other
+adverse consequences to our business operations. As with many technological innovations, artificial intelligence presents risks and challenges
+that could impact our business. We may adopt and integrate generative artificial intelligence tools into our systems for specific use
+cases. Our vendors may incorporate generative artificial intelligence tools into their offerings without disclosing this use to us, and
+the providers of these generative artificial intelligence tools may not meet existing or rapidly evolving regulatory or industry standards
+with respect to privacy and data protection and may inhibit our or our vendors’ ability to maintain an adequate level of service
+and experience. If we, our vendors, or our third-party partners experience an actual or perceived breach or privacy or security incident
+because of the use of generative artificial intelligence, we may lose valuable intellectual property and confidential information and
+our reputation and the public perception of the effectiveness of our security measures could be harmed. Further, bad actors around the
+world use increasingly sophisticated methods, including the use of artificial intelligence, to engage in illegal activities involving
+the theft and misuse of personal information, confidential information, and intellectual property. Any of these outcomes could damage
+our reputation, result in the loss of valuable property and information, and adversely impact our business. 
+
+ 15 
+
+ Risks Related to Our Securities 
+
+ Nevada law and provisions in our articles of
+incorporation and bylaws could make a takeover proposal more difficult. 
+
+ We are a Nevada corporation and
+the anti-takeover provisions of the Nevada Revised Statutes may discourage, delay or prevent a change in control by prohibiting us from
+engaging in a business combination with an interested stockholder for a period of three years after the person becomes an interested stockholder,
+even if a change in control would be beneficial to our existing stockholders. In addition, our articles of incorporation and bylaws may
+discourage, delay or prevent a change in our management or control over us that stockholders may consider favorable. Our articles of incorporation
+and bylaws: 
+
+ · authorize the issuance of “blank check” preferred stock that could be issued by our board
+of directors to thwart a takeover attempt; 
+
+ · place restrictiv

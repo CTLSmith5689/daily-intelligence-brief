@@ -1,0 +1,50 @@
+Operating Segment Information 
+ 12 Months Ended 
+ 
+ May 31, 2026 
+ 
+ Segment Reporting [Abstract] 
+
+ Operating Segment Information 
+ Operating Segment Information Cintas’ reportable operating segments are Uniform Rental and Facility Services and First Aid and Safety Services. The Uniform Rental and Facility Services reportable operating segment consists of the rental and servicing of uniforms and other garments including flame resistant clothing, mats, mops and shop towels and other ancillary items. In addition to these rental items, restroom cleaning services and supplies, and the sale of items from our catalogs to our customers on route are included within this reportable operating segment. The First Aid and Safety Services reportable operating segment consists of first aid and safety products and services. The remainder of Cintas’ operating segments, which consists of the Fire Protection Services operating segment and the Uniform Direct Sale operating segment, is included in All Other. Our CODM is the chief executive officer. The CODM is responsible for setting the Company's strategic direction, managing overall operations and is the main point of communications between the Board and key operational personnel within the organization. The CODM evaluates each operating segment's performance primarily based on revenue and operating income, using this information to guide strategic decisions and allocate resources across the Company. The accounting policies of the operating segments are the same as those described in Note 1 entitled Significant Accounting Policies. Information related to the operations of Cintas' reportable operating segments and All Other is set forth below: (In thousands) Uniform Rental and Facility Services First Aid and Safety Services All Other Corporate (1) Total May 31, 2026 Revenue $ 8,621,624 $ 1,391,853 $ 1,251,284 $ — $ 11,264,761 Cost of sales 4,312,097 589,370 655,501 — 5,556,968 Gross margin 4,309,527 802,483 595,783 — 5,707,793 Selling and administrative expenses 2,232,515 449,084 404,546 — 3,086,145 UniFirst transaction expenses — — — 15,136 15,136 Operating income (loss) $ 2,077,012 $ 353,399 $ 191,237 $ (15,136) $ 2,606,512 Depreciation and amortization $ 412,392 $ 72,922 $ 27,532 $ — $ 512,846 Capital expenditures $ 279,432 $ 59,011 $ 56,662 $ — $ 395,105 Total assets $ 8,346,410 $ 939,217 $ 954,495 $ 289,018 $ 10,529,140 May 31, 2025 Revenue $ 7,976,073 $ 1,218,090 $ 1,146,018 $ — $ 10,340,181 Cost of sales 4,040,888 521,480 603,649 — 5,166,017 Gross margin 3,935,185 696,610 542,369 — 5,174,164 Selling and administrative expenses 2,061,795 401,882 350,761 — 2,814,438 Operating income $ 1,873,390 $ 294,728 $ 191,608 $ — $ 2,359,726 Depreciation and amortization $ 385,360 $ 86,286 $ 22,537 $ — $ 494,183 Capital expenditures $ 301,624 $ 55,447 $ 51,813 $ — $ 408,884 Total assets $ 7,993,720 $ 810,188 $ 757,360 $ 263,973 $ 9,825,241 May 31, 2024 Revenue $ 7,465,199 $ 1,067,334 $ 1,064,082 $ — $ 9,596,615 Cost of sales 3,865,071 474,678 570,450 — 4,910,199 Gross margin 3,600,128 592,656 493,632 — 4,686,416 Selling and administrative expenses 1,940,627 353,503 323,653 — 2,617,783 Operating income $ 1,659,501 $ 239,153 $ 169,979 $ — $ 2,068,633 Depreciation and amortization $ 340,426 $ 81,342 $ 20,616 $ — $ 442,384 Capital expenditures $ 261,225 $ 100,025 $ 48,219 $ — $ 409,469 Total assets $ 7,503,043 $ 730,003 $ 593,756 $ 342,015 $ 9,168,817 (1) Corporate operating loss relates to the UniFirst transaction expenses. Corporate assets represent the consolidated cash balance in all periods presented. The following table summarizes a reconciliation of total segment operating income to consolidated net income for the fiscal years ended May 31: (In thousands) 2026 2025 2024 Total segment operating income $ 2,606,512 $ 2,359,726 $ 2,068,633 Interest income (5,107) (5,584) (5,742) Interest expense 106,285 101,108 100,740 Income before income taxes 2,505,334 2,264,202 1,973,635 Income taxes 505,366 451,921 402,043 Net income $ 1,999,968 $ 1,812,281 $ 1,571,592 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for segment reporting. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 7: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 11: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 Reference 12: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 13: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 14: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 16: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 18: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 19: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 20: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 21: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 22: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration
