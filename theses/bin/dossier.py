@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (SLEEVES, THESES, LEDGER, RAW, PAGES, fetch, fetch_site, num, load_panel,
                     read_csv_rows, CONTAMINATED, NEWS_FIX_DATE, security_type,
-                    NON_OPERATING)
+                    NON_OPERATING, news_freshness)
 import screen
 import tensions
 import desks
@@ -1493,6 +1493,67 @@ def memo_inputs(ticker, me, rows, universe, panel_date, fy, qh, docs, events, pr
     return out, caveats
 
 
+NEWS_WEEK_MAX = 8
+_TONE = {-2: "clearly bad", -1: "somewhat bad", 0: "neutral", 1: "somewhat good", 2: "clearly good"}
+
+
+def news_week_block(ticker, latest=None, now=None):
+    """(markdown lines, caveat or None) for "### News this week": the News
+    Desk's tier 1 and 2 headlines for the name (theses/news/latest/, written by
+    theses/NEWS_DESK.md), with its labels and the price-claim check. Optional:
+    a missing or stale pack is one line, never an error."""
+    out = ["", "### News this week", ""]
+    try:
+        pack, labels, why = news_freshness(latest, now)
+    except Exception as exc:  # the news is optional; it never stops a dossier
+        pack, labels, why = None, {}, f"the News Desk pack could not be read ({type(exc).__name__})"
+    if pack is None:
+        out.append(f"No fresh news: {why}. Nothing here is a reason to act.")
+        return out, "no fresh News Desk headlines (theses/news/latest/)"
+    asof = (pack.get("generated_for") or {}).get("asof_et", "")[:16].replace("T", " ")
+    entry = next((n for n in pack.get("names") or [] if str(n.get("ticker") or "").upper() == ticker), None)
+    heads = sorted((h for h in (entry or {}).get("headlines") or [] if h.get("tier") in (1, 2)),
+                   key=lambda h: -(h.get("ts") or 0))
+    off = [h for h in heads if (labels.get(h.get("id")) or {}).get("relevant_to_company") is False]
+    heads = [h for h in heads if h not in off]
+    if not heads:
+        out.append(f"The News Desk pack as of {asof} US Eastern has no tier 1 or 2 headline about {ticker}"
+                   + (" (the name is not in its scope)." if entry is None else "."))
+        return out, None
+    out.append(f"Leads to verify in the filings, never sources. From the News Desk pack as of {asof} US "
+               f"Eastern (`theses/news/latest/`): tier 1 (wires, primary) and tier 2 (established press) "
+               f"only, newest first. The labels are a small model's reading of the title alone. Never "
+               f"state what a headline says as a fact about the business; if a memo relies on one, "
+               f"find it in a filing and cite the filing.")
+    out.append("")
+    for h in heads[:NEWS_WEEK_MAX]:
+        lab = labels.get(h.get("id")) or {}
+        bits = []
+        if lab.get("event_type"):
+            bits.append(f"event {lab['event_type']}")
+        t = lab.get("tone")
+        if isinstance(t, int) and not isinstance(t, bool):
+            bits.append(f"tone {t:+d} ({_TONE.get(t, '')})" if t else "tone 0 (neutral)")
+        pc = h.get("price_claim") or {}
+        if pc.get("status") in ("match", "mismatch") and pc.get("closest"):
+            bits.append(f"price claim {pc['status']}: title says {pc['claimed']:+g}%, stored close "
+                        f"{pc['closest']['move_pct']:+g}% on {pc['closest']['session']}")
+        elif pc.get("status") == "unverifiable":
+            bits.append("price claim unverifiable")
+        flags = [f for f in h.get("flags") or [] if f != "price claim mismatch"]
+        bits += flags
+        title = str(h.get("title") or "").replace("|", "/")
+        out.append(f"- {h.get('date', '')}, tier {h.get('tier')}, {h.get('source', '')}: {title}"
+                   + (f" [{'; '.join(bits)}]" if bits else ""))
+    more = len(heads) - NEWS_WEEK_MAX
+    if more > 0 or off:
+        out.append("")
+        out.append(" ".join(x for x in (
+            f"{more} more in `theses/news/latest/news.json`." if more > 0 else "",
+            f"{len(off)} left out: the News Desk judged them not about {ticker}." if off else "") if x))
+    return out, None
+
+
 def by_quarter_derived(qs, end):
     return any(r["end"] == end and r["derived"] for r in qs)
 
@@ -1652,6 +1713,15 @@ def main():
         read_csv_rows(LEDGER / "events.csv"), read_csv_rows(LEDGER / "predictions.csv"))
     out.extend(memo_lines)
     caveats.extend(memo_caveats)
+    try:
+        news_lines, news_caveat = news_week_block(ticker)
+    except Exception as exc:  # optional input: a bad pack never stops a dossier
+        news_lines = ["", "### News this week", "",
+                      f"No fresh news: the News Desk pack could not be read ({type(exc).__name__})."]
+        news_caveat = "no fresh News Desk headlines (theses/news/latest/)"
+    out.extend(news_lines)
+    if news_caveat:
+        caveats.append(news_caveat)
 
     # --- the factor panel ----------------------------------------------------
     w("")

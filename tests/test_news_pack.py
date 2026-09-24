@@ -1,6 +1,6 @@
-"""The director's news pack and the headline-label check (theses/bin/news_pack.py,
-theses/bin/news_labels_check.py), and where they meet director_inputs.py,
-director_check.py and the research page.
+"""The News Desk's pack and the headline-label check (theses/bin/news_pack.py,
+theses/bin/news_labels_check.py, theses/bin/news_desk_check.py), and where they
+meet director_inputs.py, director_check.py, the dossier and the research page.
 
 Fixtures are in tests/fixtures/news_pack/: a site folder (news/ and prices/, laid
 out like gh-pages) and a panel file with a news_count_7d history. Nothing here
@@ -12,7 +12,7 @@ import json
 import os
 import sys
 import unittest
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -24,6 +24,9 @@ _saved_path = list(sys.path)
 sys.path.insert(0, str(H.REPO / "theses" / "bin"))
 import news_pack as N  # noqa: E402
 import news_labels_check as NL  # noqa: E402
+import news_desk_check as ND  # noqa: E402
+import common as C  # noqa: E402
+import dossier as DOS  # noqa: E402
 import director_check as DC  # noqa: E402
 import director_inputs as DI  # noqa: E402
 sys.path[:] = _saved_path
@@ -243,13 +246,13 @@ class ThePack(unittest.TestCase):
         self.assertTrue(all(tiers[i] <= 2 for i in batch))
         self.assertEqual(len(batch), 10)
 
-    def test_tier_3_only_names_get_a_few_tier_3_labels(self):
+    def test_tier_3_is_never_labelled(self):
         pack = build(scope={"SPAM": ["covered"]})
         spam = next(n for n in pack["names"] if n["ticker"] == "SPAM")
         self.assertTrue(spam["headlines"])
         self.assertTrue(all("tier 3 only" in h["flags"] for h in spam["headlines"]))
         spam_ids = [i for b in pack["label_batches"] for i in b if i.startswith("SPAM-")]
-        self.assertEqual(len(spam_ids), min(N.TIER3_ONLY_LABEL_CAP, len(spam["headlines"])))
+        self.assertEqual(spam_ids, [])
 
     def test_summary_and_files_have_no_dashes(self):
         md = N.summary(self.pack)
@@ -369,21 +372,49 @@ class Labels(unittest.TestCase):
 
 
 class DirectorWiring(unittest.TestCase):
-    def test_change_check_allows_the_news_inputs_only(self):
-        ok = [("M", "theses/director/inputs/news.json"), ("A", "theses/director/inputs/news.md"),
-              ("A", "theses/director/inputs/news_labels.json"), ("A", "theses/director/inputs/2026-09-28.json"),
-              ("A", "theses/director/inputs/2026-09-28.md"), ("A", "theses/director/2026-09-27.md")]
+    def test_the_director_may_not_write_news(self):
+        ok = [("A", "theses/director/inputs/2026-09-28.json"), ("A", "theses/director/inputs/2026-09-28.md"),
+              ("A", "theses/director/2026-09-27.md")]
         self.assertEqual(DC.check_changes(ok, {}.get, {}.get), [])
-        for bad in (("A", "theses/director/inputs/batch-01.json"), ("A", "theses/director/inputs/notes.txt"),
-                    ("D", "theses/director/inputs/news.json")):
+        for bad in (("A", "theses/director/inputs/news.json"), ("A", "theses/director/inputs/news.md"),
+                    ("A", "theses/director/inputs/news_labels.json"), ("A", "theses/director/inputs/batch-01.json"),
+                    ("M", "theses/news/latest/news.json"), ("A", "theses/news/2026-09-27/news.json")):
             self.assertTrue(DC.check_changes([bad], {}.get, {}.get), bad)
 
-    def test_a_news_failure_never_stops_the_inputs(self):
-        with H.temp_dir() as d, mock.patch.object(N, "run", side_effect=RuntimeError("boom")):
-            with contextlib.redirect_stderr(io.StringIO()) as err:
-                got = DI.news_step(date(2026, 9, 28), {}, d, [])
-        self.assertEqual(got, {"error": "RuntimeError: boom"})
-        self.assertIn("plan without headlines", err.getvalue())
+    def test_director_inputs_never_builds_the_news(self):
+        src = (H.REPO / "theses" / "bin" / "director_inputs.py").read_text(encoding="utf-8")
+        self.assertNotIn("import news_pack", src)
+        self.assertNotIn("news_pack.run", src)
+        with H.temp_dir() as d, mock.patch.object(N, "run", side_effect=AssertionError("must not run")):
+            got = DI.news_step(latest=d)
+        self.assertFalse(got["fresh"])
+        self.assertIn("no News Desk pack", got["why"])
+
+    def test_fresh_and_stale_news(self):
+        now = datetime(2026, 9, 27, 16, 0, tzinfo=N.EASTERN)
+        with H.temp_dir() as d:
+            write_latest(d, asof=datetime(2026, 9, 27, 15, 0, tzinfo=N.EASTERN), labels=True)
+            got = DI.news_step(now=now, latest=d)
+            self.assertTrue(got["fresh"])
+            self.assertGreater(got["labels"], 0)
+            self.assertIn("ACME", got["names"])
+            # Friday's 06:00 pack, read on Sunday at 16:00: 58 hours old.
+            write_latest(d, asof=datetime(2026, 9, 25, 6, 0, tzinfo=N.EASTERN), labels=True)
+            stale = DI.news_step(now=now, latest=d)
+        self.assertFalse(stale["fresh"])
+        self.assertIn("stale", stale["why"])
+        self.assertIn("58 hours old", stale["why"])
+
+    def test_labels_for_another_pack_are_not_read(self):
+        now = datetime(2026, 9, 27, 16, 0, tzinfo=N.EASTERN)
+        with H.temp_dir() as d:
+            write_latest(d, asof=datetime(2026, 9, 27, 15, 0, tzinfo=N.EASTERN), labels=True)
+            lab = json.loads((d / "news_labels.json").read_text(encoding="utf-8"))
+            lab["news_asof"] = "2026-09-25T10:00:00+00:00"
+            (d / "news_labels.json").write_text(json.dumps(lab), encoding="utf-8")
+            pack, labels, _ = C.news_freshness(d, now)
+        self.assertIsNotNone(pack)
+        self.assertEqual(labels, {})
 
     def test_the_summary_points_at_the_news(self):
         base = {"generated_for": {"today": "2026-09-27", "week_of": "2026-09-28", "plan_file": "p",
@@ -392,52 +423,78 @@ class DirectorWiring(unittest.TestCase):
                 "holdings_without_memo": [], "candidates_without_memo": [], "earnings_ahead": [],
                 "earnings_window": ["a", "b"], "stale_views": [], "screen": {}, "last_week_memos": [],
                 "last_plan": None, "desk_scorecard": [], "coverage_by_desk": [], "pm_open_questions": []}
-        md = DI.summary(dict(base, news={"error": "RuntimeError: boom"}))
-        self.assertIn("The news pack could not be built", md)
-        md = DI.summary(dict(base, news={"line": "3 names"}))
-        self.assertIn("theses/director/inputs/news.md", md)
+        md = DI.summary(dict(base, news={"path": "theses/news/latest/", "fresh": False,
+                                         "why": "the News Desk pack is stale: 58 hours old"}))
+        self.assertIn("No news this week: the News Desk pack is stale", md)
+        self.assertIn("say so in the plan", md)
+        md = DI.summary(dict(base, news={"path": "theses/news/latest/", "fresh": True, "why": "fresh",
+                                         "line": "3 names"}))
+        self.assertIn("theses/news/latest/news.md", md)
 
     def test_instructions(self):
         text = (H.REPO / "theses" / "DIRECTOR.md").read_text(encoding="utf-8")
-        for needle in ("=== 2. LABEL THE HEADLINES ===", "Haiku", "never browse", "news_labels_check.py --merge",
-                       "Headlines are leads, never facts", "tier and date", "news_pack.py --no-fetch --same-asof",
-                       "=== 10. REPORT ==="):
+        for needle in ("theses/news/latest/", "36 hours", "No news this week", "Never build or label the news",
+                       "Headlines are leads, never facts", "tier and date", "Weigh tier 1 and 2 headlines only",
+                       "price claim mismatch", "never drive an assignment", "=== 9. REPORT ==="):
             self.assertIn(needle, text)
+        for gone in ("LABEL THE HEADLINES", "spawn a helper", "news_labels_check.py --merge", "--same-asof",
+                     "theses/director/inputs/news"):
+            self.assertNotIn(gone, text)
+        desk = (H.REPO / "theses" / "NEWS_DESK.md").read_text(encoding="utf-8")
+        for needle in ("git pull --rebase", "python3 theses/bin/news_pack.py --quiet", "--show-batch N",
+                       "title and source only", "no outside", "Never browse", "relevant_to_company",
+                       "event_type", "tone: a whole number from -2 to 2", "checkable_claim",
+                       "news_labels_check.py --merge /tmp/news_labels", "news_desk_check.py --archive",
+                       "git add theses/news/", "news_desk_check.py --changes", "git push", "14 days",
+                       "at most 40 headlines", "=== 8. REPORT ==="):
+            self.assertIn(needle, desk)
+        for t in NL.EVENT_TYPES:
+            self.assertIn(t, desk)
         prompts = (H.REPO / "theses" / "PROMPTS.md").read_text(encoding="utf-8")
         self.assertIn("A headline in the director's plan is a lead to verify in filings, not a source.", prompts)
+        self.assertIn('"### News this week"', prompts)
+        runbook = (H.REPO / "theses" / "RUNBOOK.md").read_text(encoding="utf-8")
+        self.assertIn("## News Desk", runbook)
+        for needle in ("Haiku 4.5", "duplicate it", "6:00 AM ET", "3:00 PM ET", "Connectors: none",
+                       "theses/routines/news-desk.md"):
+            self.assertIn(needle, runbook)
         for f in ("theses/bin/news_pack.py", "theses/bin/news_labels_check.py", "theses/news_sources.json",
-                  "theses/DIRECTOR.md"):
+                  "theses/DIRECTOR.md", "theses/NEWS_DESK.md", "theses/routines/news-desk.md",
+                  "theses/bin/news_desk_check.py", "theses/news/README.md"):
             t = (H.REPO / f).read_text(encoding="utf-8")
             self.assertNotIn(EM, t, f)
             self.assertNotIn(EN, t, f)
 
     def test_no_model_is_called_from_code(self):
-        for f in ("news_pack.py", "news_labels_check.py"):
+        for f in ("news_pack.py", "news_labels_check.py", "news_desk_check.py"):
             t = (H.REPO / "theses" / "bin" / f).read_text(encoding="utf-8").lower()
             for word in ("anthropic", "api_key", "openai", "import requests"):
                 self.assertNotIn(word, t, f)
 
 
 class ResearchPage(unittest.TestCase):
-    def test_plan_news_for_the_plans_week_only(self):
+    def test_plan_news_from_the_news_desk_while_fresh(self):
         LF = H.LF
         with H.temp_dir() as d:
-            inputs = d / "inputs"
-            inputs.mkdir()
             pack = build()
             acme = next(n for n in pack["names"] if n["ticker"] == "ACME")
             acme["headlines"][0]["title"] = "<script>x</script> Acme"
-            (inputs / "news.json").write_text(json.dumps(pack), encoding="utf-8")
+            (d / "news.json").write_text(json.dumps(pack), encoding="utf-8")
             irrelevant = next(h["id"] for h in acme["headlines"] if h["title"].startswith("Acme names"))
             labels = {h["id"]: {"relevant_to_company": True, "event_type": "noise", "tone": -2,
                                 "checkable_claim": None} for h in acme["headlines"] if h["tier"] <= 2}
             labels[irrelevant]["relevant_to_company"] = False
-            (inputs / "news_labels.json").write_text(json.dumps({"week_of": "2026-09-28", "labels": labels}),
-                                                    encoding="utf-8")
-            with H.patched(LF, DIRECTOR_PLANS=d):
-                news = LF._director_plan_news("2026-09-28")
-                other = LF._director_plan_news("2026-10-05")
-        self.assertEqual(other, {})
+            (d / "news_labels.json").write_text(json.dumps({"week_of": "2026-09-28", "news_asof":
+                                                            pack["generated_for"]["asof"], "labels": labels}),
+                                                encoding="utf-8")
+            with H.patched(LF, NEWS_LATEST=d):
+                news, asof = LF._director_plan_news(ASOF + timedelta(hours=10))
+                other = LF._director_plan_news(ASOF + timedelta(hours=LF.SITE_NEWS_MAX_HOURS + 1))
+            with H.patched(LF, NEWS_LATEST=d / "missing"):
+                missing = LF._director_plan_news(ASOF)
+        self.assertEqual(other, ({}, ""))
+        self.assertEqual(missing, ({}, ""))
+        self.assertEqual(asof, "2026-09-24")
         items = news["ACME"]
         self.assertTrue(all(i["tier"] in (1, 2) for i in items))
         self.assertLessEqual(len(items), LF.DIRECTOR_NEWS_PER_NAME)
@@ -450,6 +507,198 @@ class ResearchPage(unittest.TestCase):
         self.assertIn("News this week", js)
         self.assertIn("esc(n.title)", js)
         self.assertIn("newsBlock", js)
+        self.assertIn("How the news desk works", js)
+        self.assertIn("newsDeskInstructionsHTML(CFG.howNewsDesk)", js)
+
+    def test_news_desk_block(self):
+        LF = H.LF
+        how = LF._news_desk_instructions()
+        self.assertEqual(how["routine"]["schedule"], "Weekdays 06:00 ET and Sundays 15:00 ET")
+        self.assertEqual(how["routinePath"], "theses/routines/news-desk.md")
+        self.assertEqual(how["promptPath"], "theses/NEWS_DESK.md")
+        self.assertIn("news_pack.py", how["prompt"])
+        self.assertIn("NEWS_DESK.md", how["routine"]["html"])
+
+    def test_the_site_and_the_scripts_read_one_folder(self):
+        self.assertEqual(H.LF.NEWS_LATEST.resolve(), C.NEWS_LATEST.resolve())
+        self.assertEqual(N.OUT_DIR, C.NEWS_LATEST)
+        self.assertEqual(NL.NEWS.parent, C.NEWS_LATEST)
+
+
+def write_latest(d, asof, labels=False, pack=None):
+    """A News Desk latest/ folder in d, built from the fixtures, as of asof."""
+    pack = pack or build()
+    pack = json.loads(json.dumps(pack))
+    pack["generated_for"]["asof"] = asof.astimezone(timezone.utc).isoformat(timespec="seconds")
+    pack["generated_for"]["asof_et"] = asof.astimezone(N.EASTERN).isoformat(timespec="minutes")
+    (d / "news.json").write_text(json.dumps(pack), encoding="utf-8")
+    (d / "news.md").write_text(N.summary(pack), encoding="utf-8")
+    if labels:
+        ids = [i for b in pack["label_batches"] for i in b]
+        lab = {i: {"relevant_to_company": True, "event_type": "earnings", "tone": -1, "checkable_claim": None}
+               for i in ids}
+        (d / "news_labels.json").write_text(json.dumps({"week_of": pack["generated_for"]["week_of"],
+                                                        "news_asof": pack["generated_for"]["asof"],
+                                                        "labels": lab}), encoding="utf-8")
+    return pack
+
+
+class NewsDesk(unittest.TestCase):
+    def test_the_week_it_gathers_for(self):
+        self.assertEqual(N.desk_week_of(date(2026, 9, 30)), date(2026, 9, 28))   # a Wednesday
+        self.assertEqual(N.desk_week_of(date(2026, 9, 28)), date(2026, 9, 28))   # a Monday
+        self.assertEqual(N.desk_week_of(date(2026, 9, 27)), date(2026, 9, 28))   # a Sunday
+        self.assertEqual(N.desk_week_of(date(2026, 9, 26)), date(2026, 9, 28))   # a Saturday
+
+    def test_scope_takes_todays_assignments_and_the_plan(self):
+        scope = {"covered": ["ACME"], "held": {}, "candidates": {}, "screen_top": ["NEWCO"],
+                 "today_assigned": ["QUIET"]}
+        got = N.scope_from_inputs({"news_scope": scope}, ["CON", "QUIET"])
+        self.assertEqual(got["QUIET"], ["in this week's plan", "assigned today"])
+        self.assertEqual(got["NEWCO"], ["screen top"])
+        self.assertEqual(got["CON"], ["in this week's plan"])
+
+    def test_today_assigned_reads_the_plan_that_covers_today(self):
+        plan = ("---\nweek_of: 2026-09-28\nassignments:\n"
+                "  - {date: 2026-09-28, ticker: JPM, kind: initiation, desk: financials-realestate, reason: \"a\"}\n"
+                "  - {date: 2026-09-29, ticker: DELL, kind: initiation, desk: technology, reason: \"b\"}\n---\n")
+        with H.temp_dir() as d:
+            (d / "2026-09-27.md").write_text(plan, encoding="utf-8")
+            with mock.patch.object(DC, "PLAN_DIR", d):
+                self.assertEqual(N.today_assigned(date(2026, 9, 29)), ["DELL"])
+                self.assertEqual(N.plan_tickers(date(2026, 9, 28)), ["JPM", "DELL"])
+                self.assertEqual(N.today_assigned(date(2026, 10, 5)), [])
+
+    def test_the_default_output_is_the_news_desk_folder(self):
+        self.assertEqual(N.OUT_DIR, H.REPO / "theses" / "news" / "latest")
+
+    def test_archive_copies_and_prunes(self):
+        with H.temp_dir() as d:
+            latest = d / "latest"
+            latest.mkdir()
+            write_latest(latest, datetime(2026, 9, 28, 6, 0, tzinfo=N.EASTERN), labels=True)
+            for old in ("2026-09-14", "2026-09-15", "2026-09-10"):
+                (d / old).mkdir()
+                (d / old / "news.json").write_text("{}", encoding="utf-8")
+            (d / "notes").mkdir()
+            dest, pruned = ND.archive(latest, d, keep_days=14)
+            self.assertEqual(dest, d / "2026-09-28")
+            self.assertEqual(sorted(p.name for p in dest.iterdir()), sorted(C.NEWS_FILES))
+            self.assertEqual(pruned, ["2026-09-10", "2026-09-14"])
+            self.assertTrue((d / "2026-09-15").is_dir())
+            self.assertTrue((d / "notes").is_dir())
+            with self.assertRaises(FileNotFoundError):
+                ND.archive(d / "empty", d)
+
+    def test_change_check(self):
+        ok = [("M", "theses/news/latest/news.json"), ("M", "theses/news/latest/news.md"),
+              ("A", "theses/news/latest/news_labels.json"), ("A", "theses/news/2026-09-28/news.json"),
+              ("A", "theses/news/2026-09-28/news_labels.json"), ("D", "theses/news/2026-09-14/news.md")]
+        self.assertEqual(ND.check_changes(ok), [])
+        for bad in (("M", "theses/ledger/events.csv"), ("A", "theses/director/2026-09-27.md"),
+                    ("M", "theses/bin/news_pack.py"), ("A", "theses/news/latest/batch-01.json"),
+                    ("A", "theses/news/tmp/news.json"), ("D", "theses/news/latest/news.json"),
+                    ("M", "theses/news/README.md"), ("A", "theses/newsletter.md")):
+            self.assertTrue(ND.check_changes([bad]), bad)
+        fails = ND.check_changes([("M", "theses/ledger/events.csv")])
+        self.assertIn("only theses/news/", fails[0])
+
+    def test_change_check_reads_what_is_staged(self):
+        with mock.patch.object(DC, "git_changes", return_value=([("M", "data/x.csv")], None, None)):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(ND.main(["--changes"]), 1)
+        self.assertIn("[FAIL]", out.getvalue())
+        with mock.patch.object(DC, "git_changes", return_value=([("M", "theses/news/latest/news.md")], None, None)):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(ND.main(["--changes"]), 0)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ND.main([]), 2)
+
+    def test_merge_keeps_labels_of_headlines_still_in_the_pack(self):
+        news = build()
+        batch = news["label_batches"][0]
+        with H.temp_dir() as d:
+            path = d / "news_labels.json"
+            keep = {batch[0]: {"relevant_to_company": False, "event_type": "noise", "tone": 0,
+                               "checkable_claim": None},
+                    "GONE-0000000000": {"relevant_to_company": True, "event_type": "noise", "tone": 0,
+                                        "checkable_claim": None}}
+            path.write_text(json.dumps({"week_of": "2026-09-21", "labels": keep}), encoding="utf-8")
+            with contextlib.redirect_stdout(io.StringIO()):
+                NL.merge(news, d / "none", path)
+            saved = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(saved["news_asof"], news["generated_for"]["asof"])
+        self.assertEqual(list(saved["labels"]), [batch[0]])
+
+
+class DossierNews(unittest.TestCase):
+    NOW = datetime(2026, 9, 29, 7, 0, tzinfo=N.EASTERN)
+
+    def block(self, d, ticker="ACME"):
+        lines, caveat = DOS.news_week_block(ticker, d, self.NOW)
+        return "\n".join(lines), caveat
+
+    def test_present(self):
+        with H.temp_dir() as d:
+            pack = build()
+            # The fixture's one mismatch is tier 3; make a tier 2 claim one too.
+            climbs = by_title(pack, "ACME", "Acme climbs 2%")
+            climbs["price_claim"] = dict(climbs["price_claim"], status="mismatch", claimed=9.0)
+            climbs["flags"] = ["price claim mismatch"]
+            pack = write_latest(d, datetime(2026, 9, 29, 6, 0, tzinfo=N.EASTERN), labels=True, pack=pack)
+            acme = next(n for n in pack["names"] if n["ticker"] == "ACME")
+            text, caveat = self.block(d)
+        self.assertIsNone(caveat)
+        self.assertIn("### News this week", text)
+        self.assertIn("Leads to verify in the filings, never sources", text)
+        items = [l for l in text.splitlines() if l.startswith("- ")]
+        t12 = [h for h in acme["headlines"] if h["tier"] <= 2]
+        self.assertEqual(len(items), min(DOS.NEWS_WEEK_MAX, len(t12)))
+        self.assertTrue(all(", tier 1," in l or ", tier 2," in l for l in items))
+        self.assertIn("event earnings", text)
+        self.assertIn("tone -1 (somewhat bad)", text)
+        self.assertIn("price claim mismatch", text)
+        self.assertNotIn(EM, text)
+        self.assertNotIn(EN, text)
+
+    def test_at_most_eight(self):
+        with H.temp_dir() as d:
+            pack = build()
+            acme = next(n for n in pack["names"] if n["ticker"] == "ACME")
+            first = next(h for h in acme["headlines"] if h["tier"] == 1)
+            acme["headlines"] = [dict(first, id=f"ACME-{i:010d}", ts=first["ts"] + i) for i in range(11)]
+            write_latest(d, datetime(2026, 9, 29, 6, 0, tzinfo=N.EASTERN), pack=pack)
+            text, _ = self.block(d)
+        self.assertEqual(len([l for l in text.splitlines() if l.startswith("- ")]), 8)
+        self.assertIn("3 more in `theses/news/latest/news.json`", text)
+
+    def test_absent(self):
+        with H.temp_dir() as d:
+            text, caveat = self.block(d)
+        body = [l for l in text.splitlines() if l.strip() and not l.startswith("###")]
+        self.assertEqual(len(body), 1)
+        self.assertTrue(body[0].startswith("No fresh news: no News Desk pack"))
+        self.assertTrue(caveat)
+
+    def test_stale(self):
+        with H.temp_dir() as d:
+            write_latest(d, datetime(2026, 9, 25, 6, 0, tzinfo=N.EASTERN), labels=True)
+            text, caveat = self.block(d)
+        body = [l for l in text.splitlines() if l.strip() and not l.startswith("###")]
+        self.assertEqual(len(body), 1)
+        self.assertIn("No fresh news: the News Desk pack is stale", body[0])
+        self.assertTrue(caveat)
+
+    def test_name_not_in_scope(self):
+        with H.temp_dir() as d:
+            write_latest(d, datetime(2026, 9, 29, 6, 0, tzinfo=N.EASTERN))
+            text, caveat = self.block(d, "ZZZZ")
+        self.assertIn("has no tier 1 or 2 headline about ZZZZ (the name is not in its scope).", text)
+        self.assertIsNone(caveat)
+
+    def test_the_dossier_calls_the_block(self):
+        src = (H.REPO / "theses" / "bin" / "dossier.py").read_text(encoding="utf-8")
+        self.assertIn("news_week_block(ticker)", src)
 
 
 if __name__ == "__main__":

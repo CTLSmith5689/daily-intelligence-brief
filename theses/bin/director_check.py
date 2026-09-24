@@ -48,11 +48,11 @@ SECTIONS = ("This week's focus", "Review of last week's memos", "Coverage gaps",
 # Every other change to a playbook or desk file is a proposal in the plan,
 # which the owner applies by hand.
 DIRECTOR_PREFIX = "theses/director/"
-# Under theses/director/inputs/, only what the input scripts write: the week's
-# pack ({WEEK_OF}.json and .md), the news pack (news.json, news.md) and the
-# helpers' headline labels (news_labels.json).
+# Under theses/director/inputs/, only what director_inputs.py writes: the
+# week's pack ({WEEK_OF}.json and .md). The news is the News Desk's, in
+# theses/news/ (theses/NEWS_DESK.md), and the director never writes it.
 INPUTS_PREFIX = "theses/director/inputs/"
-INPUT_FILE = re.compile(r"^theses/director/inputs/(?:\d{4}-\d{2}-\d{2}\.(?:json|md)|news[a-z_]*\.json|news\.md)$")
+INPUT_FILE = re.compile(r"^theses/director/inputs/\d{4}-\d{2}-\d{2}\.(?:json|md)$")
 PLAYBOOK_GLOB = re.compile(r"^theses/desks/sectors/[a-z0-9-]+\.md$")
 LESSONS = "## Lessons"
 LESSON_LINE = re.compile(r"^- \d{4}-\d{2}-\d{2}: \S")
@@ -367,7 +367,7 @@ def check_changes(changes, read_old, read_new):
         status = (status or "?")[0]
         if p.startswith(INPUTS_PREFIX) and not INPUT_FILE.match(p):
             fails.append(f"{p}: theses/director/inputs/ holds only the week's inputs "
-                         f"({{WEEK_OF}}.json and .md, news*.json, news.md)")
+                         f"({{WEEK_OF}}.json and .md); the news is the News Desk's, in theses/news/")
         elif p.startswith(DIRECTOR_PREFIX):
             if status == "D":
                 fails.append(f"{p}: deletes a file under theses/director/; plans are never deleted")

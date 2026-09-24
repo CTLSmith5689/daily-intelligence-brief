@@ -10787,6 +10787,20 @@ def _director_instructions():
             "prompt": _doc_md_to_html(text), "promptPath": _rel(DIRECTOR_MD)}
 
 
+def _news_desk_instructions():
+    """What research.html prints under "How the news desk works"."""
+    routine = _routine_doc(NEWS_DESK_ROUTINE)
+    try:
+        text = NEWS_DESK_MD.read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        text = ""
+    text = re.sub(r"\A\s*#[ \t]+[^\n]*\n", "", text).strip()
+    if not routine and not text:
+        return None
+    return {"routine": routine, "routinePath": _rel(NEWS_DESK_ROUTINE),
+            "prompt": _doc_md_to_html(text), "promptPath": _rel(NEWS_DESK_MD)}
+
+
 def _plan_flow_map(s):
     m = re.fullmatch(r"\{(.*)\}", s.strip())
     if not m:
@@ -10814,28 +10828,49 @@ def _plan_flow_map(s):
 
 DIRECTOR_NEWS_PER_NAME = 5
 _TONE_WORDS = {-2: "very negative", -1: "negative", 0: "neutral", 1: "positive", 2: "very positive"}
+# The News Desk's latest pack (theses/NEWS_DESK.md). The same path as
+# NEWS_LATEST in theses/bin/common.py, which is where it is set; a test holds
+# the two together. The page shows it while it is at most this many hours old:
+# longer than the director's 36, so a quiet weekend does not blank the plan.
+NEWS_LATEST = REPO_ROOT / "theses" / "news" / "latest"
+SITE_NEWS_MAX_HOURS = 96
+NEWS_DESK_MD = REPO_ROOT / "theses" / "NEWS_DESK.md"
+NEWS_DESK_ROUTINE = REPO_ROOT / "theses" / "routines" / "news-desk.md"
 
 
-def _director_plan_news(week_of):
-    """{ticker: [headline]}: the tier 1 and 2 headlines of the director's news
-    pack (theses/director/inputs/news.json, theses/bin/news_pack.py) for the
-    plan's week, newest first, with the helpers' tone label when there is one.
-    A headline a helper judged not about the company is left out. Nothing when
-    the pack is for another week, so an old pack never sits under a new plan."""
-    inputs = DIRECTOR_PLANS / "inputs"
+def _news_desk_pack(now=None):
+    """(pack, labels, as-of datetime) from the News Desk's latest folder, or
+    (None, {}, None) when it is missing or older than SITE_NEWS_MAX_HOURS.
+    Labels count only when they were merged for this same pack."""
     try:
-        pack = json.loads((inputs / "news.json").read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return {}
-    if not week_of or (pack.get("generated_for") or {}).get("week_of") != week_of:
-        return {}
+        pack = json.loads((NEWS_LATEST / "news.json").read_text(encoding="utf-8"))
+        asof = datetime.fromisoformat(pack["generated_for"]["asof"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None, {}, None
+    if asof.tzinfo is None:
+        asof = asof.replace(tzinfo=timezone.utc)
+    now = now or datetime.now(tz=timezone.utc)
+    if (now - asof).total_seconds() > SITE_NEWS_MAX_HOURS * 3600:
+        return None, {}, None
     labels = {}
     try:
-        lab = json.loads((inputs / "news_labels.json").read_text(encoding="utf-8"))
-        if lab.get("week_of") == week_of and isinstance(lab.get("labels"), dict):
+        lab = json.loads((NEWS_LATEST / "news_labels.json").read_text(encoding="utf-8"))
+        if lab.get("news_asof") == pack["generated_for"]["asof"] and isinstance(lab.get("labels"), dict):
             labels = lab["labels"]
     except (OSError, ValueError, AttributeError):
         pass
+    return pack, labels, asof
+
+
+def _director_plan_news(now=None):
+    """({ticker: [headline]}, as-of date): the tier 1 and 2 headlines of the
+    News Desk's latest pack (theses/news/latest/, theses/bin/news_pack.py),
+    newest first, with the News Desk's tone label when there is one. A
+    headline it judged not about the company is left out. Nothing when the
+    pack is missing or stale, so an old pack never sits under a new plan."""
+    pack, labels, asof = _news_desk_pack(now)
+    if pack is None:
+        return {}, ""
     out = {}
     for n in pack.get("names") or []:
         items = []
@@ -10854,7 +10889,7 @@ def _director_plan_news(week_of):
                 break
         if items:
             out[str(n.get("ticker") or "").upper()] = items
-    return out
+    return out, asof.astimezone(EASTERN).date().isoformat()
 
 
 def _director_plan(today=None):
@@ -10893,7 +10928,7 @@ def _director_plan(today=None):
             if a:
                 assignments.append({k: a.get(k, "") for k in ("date", "ticker", "kind", "desk", "reason")})
     titles = {v["desk"]: v["title"] for v in _desk_titles().values()}
-    news = _director_plan_news(week_of)
+    news, news_asof = _director_plan_news()
     for a in assignments:
         a["deskTitle"] = titles.get(a["desk"], a["desk"])
         a["news"] = news.get((a.get("ticker") or "").upper(), [])
@@ -10904,7 +10939,7 @@ def _director_plan(today=None):
             sections.append({"title": h.group(1).strip(),
                              "html": _doc_md_to_html(chunk[h.end():].strip())})
     return {"path": _rel(path), "weekOf": week_of, "assignments": assignments,
-            "sections": sections}
+            "sections": sections, "newsAsof": news_asof if news else ""}
 
 
 def _pm_instructions():
@@ -11289,7 +11324,8 @@ def generate_research(universe, version=None):
     research, record = _ledger_research(universe)
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
                research=research, record=record, howAnalyst=_analyst_instructions(),
-               howDirector=_director_instructions(), directorPlan=_director_plan())
+               howDirector=_director_instructions(), howNewsDesk=_news_desk_instructions(),
+               directorPlan=_director_plan())
     html = render_ledger_page("research", "Research, Apterreon", cfg, version,
                               description="Written views on single companies, each with a target price, a review date and what would prove it wrong.",
                               loading="Loading the theses")

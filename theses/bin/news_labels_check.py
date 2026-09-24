@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Check the headline labels the Research Director's helpers write.
+"""Check the headline labels the News Desk writes.
 
-The director (theses/DIRECTOR.md, step 2) spawns helper agents on the Haiku
-model to label the news pack's headlines. Each helper labels one batch and
-writes it to a file; this script shows a batch, checks and merges the batch
-files, and checks the merged file against news.json. No code here calls a
-model.
+The News Desk routine (theses/NEWS_DESK.md), on the Haiku model, labels the
+news pack's headlines one batch at a time and writes each batch to a file;
+this script shows a batch, checks and merges the batch files, and checks the
+merged file against news.json. Both files are in theses/news/latest/
+(NEWS_LATEST in common.py). No code here calls a model.
 
     python3 theses/bin/news_labels_check.py --show-batch N      # the headlines of batch N
     python3 theses/bin/news_labels_check.py --merge DIR         # check DIR/batch-NN.json, merge the good ones
@@ -22,18 +22,20 @@ A batch file, and news_labels.json's "labels", map a headline id to:
 
 --merge checks each batch file against the ids of its batch in news.json: a
 file must label every id of its batch and nothing else. Good batches are
-written into theses/director/inputs/news_labels.json (added to what is already
-there); failed ones are listed by number, to be labelled again.
+written into theses/news/latest/news_labels.json; failed ones are listed by
+number, to be labelled again. A label already in that file is kept while its
+headline is still in news.json: an id is a hash of the title, the source and
+the time, and a label reads nothing else, so it stays right from one run to
+the next. A good batch overwrites it.
 """
 import json, re, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import THESES
+from common import NEWS_LATEST
 
-INPUTS = THESES / "director" / "inputs"
-NEWS = INPUTS / "news.json"
-LABELS = INPUTS / "news_labels.json"
+NEWS = NEWS_LATEST / "news.json"
+LABELS = NEWS_LATEST / "news_labels.json"
 EVENT_TYPES = ("earnings", "guidance", "m_and_a", "legal_regulatory", "rating_change",
                "management", "product", "macro", "noise")
 KEYS = ("relevant_to_company", "event_type", "tone", "checkable_claim")
@@ -140,14 +142,14 @@ def merge(news, folder, out_path=None):
     known = headlines_by_id(news)
     merged = {}
     if out_path.exists():
-        # Labels already merged this week are kept; last week's file is not.
+        # Labels of headlines still in the pack are kept (the module docstring
+        # says why); the rest are dropped.
         try:
             prev = json.loads(out_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             prev = {}
-        if isinstance(prev, dict) and prev.get("week_of") == g.get("week_of") \
-                and isinstance(prev.get("labels"), dict):
-            merged = {k: v for k, v in prev["labels"].items() if k in known}
+        if isinstance(prev, dict) and isinstance(prev.get("labels"), dict):
+            merged = {k: v for k, v in prev["labels"].items() if k in known and not check_label(k, v)}
     failed = []
     for n in range(1, len(batches) + 1):
         f = Path(folder) / f"batch-{n:02d}.json"
@@ -213,6 +215,10 @@ def main(argv=None):
         wk = news.get("generated_for", {}).get("week_of", "")
         if data.get("week_of") != wk:
             fails.append(f"week_of {data.get('week_of')!r} does not match news.json's {wk!r}")
+        asof = news.get("generated_for", {}).get("asof", "")
+        if data.get("news_asof", asof) != asof:
+            fails.append(f"news_asof {data.get('news_asof')!r} does not match news.json's {asof!r}: "
+                         f"the labels are for an older pack; run --merge again")
         f2, warns = check_labels(data["labels"], news)
         fails += f2
     n = len(data.get("labels") or {}) if isinstance(data, dict) else 0

@@ -62,7 +62,8 @@ over from setting this up and can be deleted in the Scheduled tasks page.
 **The routine prompts are mirrored in the repository, by hand.** The prompt saved
 in each claude.ai routine is copied into a file here: the analyst's in
 `theses/routines/research-agent.md`, the Research Director's in
-`theses/routines/research-director.md`, the PMs' in `portfolio/routines/`
+`theses/routines/research-director.md`, the News Desk's in
+`theses/routines/news-desk.md`, the PMs' in `portfolio/routines/`
 (`style-pm.md`, the Style PM, which runs the six style books and the hedge
 book, and `neural-pm.md`, the Neural PM, which runs the neural book alone and
 is not scheduled yet). The Research and Portfolios pages print these files, with the instructions
@@ -311,6 +312,7 @@ eight seconds. Into each dossier it puts:
 | Sector playbook | `theses/desks/sectors/{sector}.md` | How to read all of the above for this kind of business: the deciding questions, the right valuation measures, the traps, where our data misleads, and the director's dated lessons. Replaced the unverified sector lenses in `theses/lenses/` on 2026-09-24 |
 | Desk | `theses/desks/{desk}.md` | The desk that owns the name, from the `desks` map in `theses/config.json` |
 | Memo blocks | `dossier.py`, for the memo format | "### Key data", "### Guidance", "### Peers", "### Balance sheet and cash flow", "### History", "### Calendar", "### Sizing inputs" and "### Current view", each named in `PROMPTS.md` where a memo section uses it |
+| News this week | `theses/news/latest/`, from the News Desk | Tier 1 and 2 headlines for the name with the News Desk's labels and price-claim flags, at most 8, as leads to verify in filings. One line when the pack is missing or over 36 hours old |
 | Glossary | `theses/GLOSSARY.md` | The one-sentence definitions every memo copies. Not in the dossier: the analyst reads the file |
 | Track record | `ledger/scores.csv` via `hit_rate()` | The agent cannot remember it otherwise |
 | Data caveats | Assembled from what is stale or missing | |
@@ -376,6 +378,50 @@ The five desks (`theses/desks/`) own the names: every sector maps to one desk in
 the `desks` key of `theses/config.json`, so `events.csv` needs no desk column.
 The Research page shows the desk beside each note, the director's routine and
 instructions, and the current week's plan.
+
+The director reads the headlines the News Desk (below) wrote to
+`theses/news/latest/` when that pack is at most 36 hours old, and otherwise plans
+without news and says so in the plan. It never builds or labels news itself, and
+`director_check.py --changes` refuses a commit that touches `theses/news/`.
+
+## News Desk
+
+A third routine, **News Desk**, builds and labels the headlines the director and
+the analyst read. It runs on weekdays at 06:00 ET, before the analyst, and on
+Sundays at 15:00 ET, before the director. Its instructions are
+`theses/NEWS_DESK.md`; its prompt is `theses/routines/news-desk.md`.
+
+Setup, on the Scheduled tasks page:
+
+1. Open the **Research Agent** routine and duplicate it. Name the copy **News Desk**.
+2. Set the model to **Haiku 4.5**. Keep "Skip all approvals", keep "Require this
+   computer" unchecked, and keep the repository attached as a source (it pushes).
+3. Replace the instructions with the prompt from `theses/routines/news-desk.md`
+   (everything after the "---" line).
+4. Triggers: weekdays at 6:00 AM ET, and Sundays at 3:00 PM ET. Two schedules on
+   one routine, or two copies of it with one schedule each.
+5. Connectors: none. Remove any the duplicate carried over.
+6. Run it once by hand and check that it pushed a commit touching only
+   `theses/news/`.
+
+What it does: `theses/bin/news_pack.py` gathers the recent headlines of the
+covered, held and rules-candidate names, this week's plan names, today's
+assignments, the screen's top 15 and the 25 names with the most abnormal
+headline volume, grades each by source tier and checks any price move a title
+claims against the stored closes. The routine labels the tier 1 and 2 headlines
+from the title and source alone, in batches of 40, and
+`theses/bin/news_labels_check.py --merge` checks the labels. It writes
+`theses/news/latest/` (news.json, news.md, news_labels.json) and a dated copy in
+`theses/news/YYYY-MM-DD/`, and deletes dated copies 14 days old or older: all of
+it is derived from the published site, not ledger data.
+`theses/bin/news_desk_check.py --changes` refuses a commit that touches anything
+outside `theses/news/`. Paths and the retention are set in
+`theses/bin/common.py`.
+
+Every reader treats the news as optional. The analyst's dossier shows the name's
+headlines in "### News this week" when the pack is at most 36 hours old, and one
+line saying there is no fresh news otherwise. The analyst's run never waits for
+the News Desk and never fails without it.
 
 ## Why a sector playbook and not retrieval
 

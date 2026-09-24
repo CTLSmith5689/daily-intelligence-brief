@@ -3241,7 +3241,7 @@
       rows + "</tbody></table></div>" : '<p class="ld-empty">No thesis has been written yet.</p>') +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">“To target” is how far the price still has to move, from the last close, to reach the target. When the view takes no side (“' + esc(VIEW.watch) + '” or “' + esc(VIEW["no view"]) + '”), the target is for reference only and the company shows as Watching. Those notes make no call, so they are never checked.</p></section>' +
       directorPlanHTML(CFG.directorPlan) + recordHTML(CFG.record) + analystInstructionsHTML(CFG.howAnalyst) +
-      directorInstructionsHTML(CFG.howDirector) + portfoliosLinkHTML() + "</div>";
+      directorInstructionsHTML(CFG.howDirector) + newsDeskInstructionsHTML(CFG.howNewsDesk) + portfoliosLinkHTML() + "</div>";
     var tb = main.querySelector(".ld-rtab tbody");
     if (tb) tb.addEventListener("click", function (e) {
       if (e.target.closest("a")) return;
@@ -3330,13 +3330,23 @@
       (d.prompt ? docBlock("The full instructions", "From " + repoLink(d.promptPath) + ".", d.prompt) : "") +
       "</section>";
   }
+  /* The News Desk: its routine prompt and theses/NEWS_DESK.md, rendered by the pipeline like the others. */
+  function newsDeskInstructionsHTML(d) {
+    if (!d) return "";
+    var r = d.routine;
+    return '<section class="ld-sec" aria-labelledby="ld-nhow-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-nhow-h">How the news desk works</h2></div>' +
+      '<p class="ld-pm-p">The News Desk is a third scheduled claude.ai routine, on a smaller and cheaper model' + (r && r.schedule ? ", that runs " + esc(r.schedule) : "") + ". It writes no research. A script gathers the recent headlines for the names the archive covers, holds or is looking at, grades each by its source and checks any price move a title claims against the stored closes. The routine then labels each headline from its title alone: whether it is about the company, what kind of event it is, and its tone. The director and the analyst read what it wrote, as leads to check in the filings, never as facts. When it has not run, they go on without news.</p>" +
+      (r ? docBlock("The routine prompt", "From " + repoLink(d.routinePath) + (r.schedule ? ". Runs " + esc(r.schedule) + "." : "."), r.html) : "") +
+      (d.prompt ? docBlock("The full instructions", "From " + repoLink(d.promptPath) + ".", d.prompt) : "") +
+      "</section>";
+  }
   function directorPlanHTML(p) {
     if (!p) return "";
     var rows = (p.assignments || []).map(function (a) {
       return "<tr><td class=\"ld-num\">" + (a.date ? esc(dateMid(a.date)) : "") + '</td><td><a class="ld-tk" href="' + ctx.href("company", a.ticker) + '">' + esc(a.ticker) + "</a></td>" +
         "<td>" + esc(a.kind === "revision" ? "Revision" : a.kind === "initiation" ? "Initiation" : a.kind || "") + "</td><td>" + esc(a.deskTitle || a.desk || "") + "</td><td>" + esc(a.reason || "") + "</td></tr>";
     }).join("");
-    /* The director's news pack, tier 1 and 2 only, per assigned name: leads, not sources. */
+    /* The News Desk's latest pack, tier 1 and 2 only, per assigned name: leads, not sources. */
     var news = (p.assignments || []).filter(function (a) { return a.news && a.news.length; }).map(function (a) {
       return '<h3 class="ld-h3" style="font-size:16px;margin-top:14px">' + esc(a.ticker) + '</h3><ul class="ld-news">' + a.news.map(function (n) {
         var head = /^https:\/\//.test(n.link || "") ? '<a class="h" href="' + esc(n.link) + '" target="_blank" rel="noopener">' + esc(n.title) + "</a>" : '<span class="h">' + esc(n.title) + "</span>";
@@ -3348,7 +3358,7 @@
       }).join("") + "</ul>";
     }).join("");
     var newsBlock = news ? '<details class="ld-det ld-doc"><summary>News this week</summary><div class="ld-notebody ld-docbody">' +
-      '<p class="ld-doc-src">Headlines from wires and established press about each assigned name, from the director’s news pack. A headline is a lead for the analyst to check in the filings, not a source.</p>' + news + "</div></details>" : "";
+      '<p class="ld-doc-src">Headlines from wires and established press about each assigned name, from the News Desk’s latest pack' + (p.newsAsof ? " (" + esc(dateMid(p.newsAsof)) + ")" : "") + ". A headline is a lead for the analyst to check in the filings, not a source.</p>" + news + "</div></details>" : "";
     var secs = p.sections || [];
     var focus = secs.filter(function (s) { return /focus/i.test(s.title); })[0];
     var rest = secs.filter(function (s) { return s !== focus; }).map(function (s) {

@@ -46,6 +46,49 @@ DEAD = {"dims_present", "g", "m", "pct", "q", "scorable", "v"}
 CONTAMINATED = {"news_count_7d", "news_lm_avg", "news_vader_avg", "neglect_score"}
 NEWS_FIX_DATE = "2026-09-12"
 
+# The News Desk's output (theses/NEWS_DESK.md, theses/bin/news_pack.py). The
+# routine writes the latest pack to NEWS_LATEST and a dated copy to
+# NEWS_DIR/{YYYY-MM-DD}/, keeping NEWS_KEEP_DAYS days of dated copies. The
+# director and the dossier read NEWS_LATEST only when its as-of time is at most
+# NEWS_FRESH_HOURS old. Change the paths here and nowhere else (the site's
+# lambda_function.py mirrors NEWS_LATEST, and a test holds the two together).
+NEWS_DIR = THESES / "news"
+NEWS_LATEST = NEWS_DIR / "latest"
+NEWS_FILES = ("news.json", "news.md", "news_labels.json")
+NEWS_KEEP_DAYS = 14
+NEWS_FRESH_HOURS = 36
+
+
+def news_freshness(latest_dir=None, now=None, max_hours=None):
+    """(pack or None, labels dict, why). pack is news.json from the News Desk's
+    latest folder when its as-of time is at most max_hours before now; why says,
+    in one sentence, what was found either way."""
+    import json as _json
+    d = Path(latest_dir or NEWS_LATEST)
+    max_hours = NEWS_FRESH_HOURS if max_hours is None else max_hours
+    now = now or datetime.now(tz=timezone.utc)
+    try:
+        pack = _json.loads((d / "news.json").read_text(encoding="utf-8"))
+        asof = datetime.fromisoformat(pack["generated_for"]["asof"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None, {}, f"no News Desk pack in {d.name}/ (news.json missing or unreadable)"
+    if asof.tzinfo is None:
+        asof = asof.replace(tzinfo=timezone.utc)
+    age = (now - asof).total_seconds() / 3600
+    if age > max_hours or age < -1:
+        return None, {}, (f"the News Desk pack is stale: as of {asof.isoformat(timespec='minutes')}, "
+                          f"{age:.0f} hours old, and only packs up to {max_hours} hours old are read")
+    labels = {}
+    try:
+        lab = _json.loads((d / "news_labels.json").read_text(encoding="utf-8"))
+        if isinstance(lab, dict) and isinstance(lab.get("labels"), dict) \
+                and lab.get("news_asof", pack["generated_for"]["asof"]) == pack["generated_for"]["asof"]:
+            labels = lab["labels"]
+    except (OSError, ValueError):
+        pass
+    return pack, labels, (f"News Desk pack as of {pack['generated_for'].get('asof_et') or asof.isoformat()}, "
+                          f"{age:.0f} hours old, {len(labels)} headline labels")
+
 # What kind of listing a row is, from the same classifier the pipeline runs
 # (security_type.py at the repo root, stdlib only). NON_OPERATING rows are notes,
 # trust certificates, unit listings, closed-end funds and blank-check shells: not

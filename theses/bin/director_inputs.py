@@ -7,7 +7,7 @@ committed files and the latest panel, so any week's plan can be read against
 exactly what the director was shown.
 
     python3 theses/bin/director_inputs.py [--week-of YYYY-MM-DD] [--today YYYY-MM-DD] [--out DIR]
-                                          [--no-news] [--no-fetch]
+                                          [--no-news]
 
 --week-of is the Monday the plan covers (default: the next Monday after today,
 US Eastern). Writes {DIR}/{week_of}.json and {DIR}/{week_of}.md (default DIR is
@@ -25,12 +25,14 @@ The pack holds:
   coverage_by_desk         per desk: covered names against the names the screen can see
   pm_open_questions        questions in the PM's letters of the last 14 days, if any
   slots                    the week's weekdays and the slots each run has
-  news_scope               the names theses/bin/news_pack.py gathers headlines for
-  news                     news_pack.py's totals; the pack itself is news.json and news.md
+  news_scope               the covered, held, candidate and screen names, for the record
+  news                     whether the News Desk's pack in theses/news/latest/ is fresh
 
-After the pack, it runs theses/bin/news_pack.py, which writes news.json and
-news.md beside it. A news failure is reported and never stops the pack: the
-director then plans without headlines.
+It does not build the news. The News Desk routine (theses/NEWS_DESK.md) builds
+and labels it on its own schedule; this only reads theses/news/latest/news.json
+and says whether its as-of time is within NEWS_FRESH_HOURS (common.py). A
+missing or stale pack never stops the inputs: the director then plans without
+headlines and says so.
 """
 import io, json, re, sys
 from contextlib import redirect_stdout
@@ -39,7 +41,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import REPO, THESES, LEDGER, is_operating, load_panel, num, read_csv_rows
+from common import (REPO, THESES, LEDGER, NEWS_LATEST, is_operating, load_panel, news_freshness, num,
+                    read_csv_rows)
 import desks as D
 import director_check as DC
 
@@ -491,12 +494,14 @@ def summary(pack):
                      f"{cov.get(c['desk'], {}).get('gated') or 0} |")
     news = pack.get("news") or {}
     lines += ["", "## News", ""]
-    if news.get("error"):
-        lines.append(f"- The news pack could not be built: {news['error']}. Plan without headlines, and say so.")
+    if news.get("fresh"):
+        lines.append(f"- From the News Desk: `{news['path']}news.md` (read it), `news.json` and "
+                     f"`news_labels.json`. {news['why']}. {news.get('line', '')}".rstrip())
     elif news:
-        lines.append(f"- `theses/director/inputs/news.md` (read it) and `news.json`: {news['line']}.")
+        lines.append(f"- No news this week: {news['why']}. Plan without headlines, and say so in the "
+                     f"plan and in your report.")
     else:
-        lines.append("- Not built on this run.")
+        lines.append("- Not read on this run.")
     lines += ["", "## The PM's open questions", ""]
     if pack["pm_open_questions"]:
         for q in pack["pm_open_questions"]:
@@ -506,22 +511,24 @@ def summary(pack):
     return "\n".join(lines) + "\n"
 
 
-def news_step(week_of, scope, out_dir, rows, fetch=True):
-    """Run news_pack.py. Its failure is recorded, never raised."""
-    import traceback
-    try:
-        import news_pack
-        npk = news_pack.run(week_of, datetime.now(tz=ZoneInfo("UTC")), news_scope=scope,
-                            out_dir=out_dir, fetch=fetch)
-        line = news_pack.headline_line(npk)
-        print(line, file=sys.stderr)
-        return {"path": rel(out_dir / "news.json"), "line": line.split(": ", 1)[1],
-                "totals": npk["totals"], "notes": npk["notes"]}
-    except Exception as exc:
-        traceback.print_exc()
-        print("director_inputs: the news pack FAILED (above). The rest of the pack is written; "
-              "plan without headlines and say so in the report.", file=sys.stderr)
-        return {"error": f"{type(exc).__name__}: {exc}"}
+def news_step(now=None, latest=None):
+    """Whether the News Desk's latest pack is fresh enough to plan from. It
+    reads theses/news/latest/ and never builds or writes news."""
+    pack, labels, why = news_freshness(latest, now)
+    out = {"path": rel(Path(latest or NEWS_LATEST)) + "/", "fresh": pack is not None, "why": why}
+    if pack is not None:
+        t = pack.get("totals") or {}
+        out["asof"] = pack["generated_for"].get("asof", "")
+        out["labels"] = len(labels)
+        out["line"] = (f"{t.get('names_in_scope', 0)} names, tier 1/2/3 headlines {t.get('tier1', 0)}/"
+                       f"{t.get('tier2', 0)}/{t.get('tier3', 0)}, {t.get('price_claims_mismatched', 0)} "
+                       f"price claims that do not match the stored closes.")
+        out["names"] = pack_names(pack)
+    return out
+
+
+def pack_names(pack):
+    return [n.get("ticker") for n in (pack or {}).get("names") or [] if n.get("ticker")]
 
 
 def next_monday(day):
@@ -548,7 +555,7 @@ def main(argv=None):
     pack["generated_for"]["panel_date"] = panel_date
     out_dir.mkdir(parents=True, exist_ok=True)
     if "--no-news" not in args:
-        pack["news"] = news_step(week_of, pack["news_scope"], out_dir, rows, fetch="--no-fetch" not in args)
+        pack["news"] = news_step()
     (out_dir / f"{week_of.isoformat()}.json").write_text(json.dumps(pack, indent=1), encoding="utf-8")
     md = summary(pack)
     (out_dir / f"{week_of.isoformat()}.md").write_text(md, encoding="utf-8")
