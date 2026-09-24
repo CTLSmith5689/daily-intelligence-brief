@@ -132,8 +132,9 @@ usual JSON.
    stop, do no analysis, and report the exact error: the repository is probably
    not attached to the routine as a source.
 
-3. Write and validate the notes and update the manifest: `PROMPTS.md`, "Agent 1:
-   the analyst", steps 2 to 7.
+3. Write and validate the memos and update the manifest: `PROMPTS.md`, "Agent 1:
+   the analyst", steps 2 to 7. From the run of 2026-09-28 each note is a buy-side
+   investment memo (see "The memo format" below).
 
 4. Record each note and push, as `PROMPTS.md` step 8 sets out:
 
@@ -145,12 +146,13 @@ usual JSON.
    ```
 
    `events.py` runs the note checks again and refuses a note that fails one, so
-   the ledger cannot take an unchecked note. Stage `theses/` only. Never
+   the ledger cannot take an unchecked note. `events.py --dry-run` shows the row
+   it would write and writes nothing. Stage `theses/` only. Never
    `git add -A`: `data/`, `docs/` and `state/` belong to the workflow, and a run
    that commits its own scratch copies of them fights the hourly job.
 
-5. Report: tickers, each one's direction and conviction, the commit hash you
-   pushed, and anything skipped and why.
+5. Report: tickers, each one's action, size, direction and conviction, the
+   commit hash you pushed, and anything skipped and why.
 
 If a script fails at any point, do not push. Report the exact traceback and stop,
 leaving the repository as you found it.
@@ -223,6 +225,48 @@ Run one or the other for a given week, never both. Two runs on the same date
 write the same note paths, and ingest refuses a note that already exists with
 different content.
 
+## The memo format
+
+From the analyst run of Monday 2026-09-28 every note is a buy-side investment
+memo: one analyst's memo to the portfolio manager, voice "I". `PROMPTS.md`,
+"Agent 1", is the specification; the reference is the NVIDIA memo drafted on
+2026-09-23, kept as `tests/fixtures/memo/NVDA-2026-09-23-initiation.md` with a
+revision cut from it beside it.
+
+- **Page one** comes before the first heading, under a bold one-line headline:
+  the action (Initiate, Add, Hold, Trim, Exit, Avoid or Short) and the size, the
+  expected return next to the bear-case loss, the thesis in one sentence, why
+  now, the three things that matter most, and a key data table.
+- **Then twelve numbered sections and a glossary**: 1. WHAT IS PRICED IN, 2.
+  WHERE I DISAGREE, 3. THE BUSINESS, 4. INDUSTRY AND PEERS, 5. FINANCIAL
+  HISTORY, 6. FORECAST, 7. VALUATION, 8. CATALYSTS, 9. RISKS AND PRE-MORTEM, 10.
+  MONITORING AND EXIT RULES, 11. WHAT I DON'T KNOW, 12. SOURCES, GLOSSARY. A DCF
+  is allowed, with its discount rate, terminal growth and a reverse DCF.
+- **Initiation or revision.** A ticker with no note gets the full memo (2,000 to
+  5,000 words of prose). A ticker that already has one, in either format, gets a
+  revision: page one, WHAT CHANGED, section 10, the sections that changed,
+  SOURCES and GLOSSARY (300 to 1,500 words). `validate.py` refuses an initiation
+  for a ticker already in `theses/ledger/events.csv`.
+- **Vocabulary.** Real finance terms, each defined once where it first appears
+  in the wording of `theses/GLOSSARY.md`, and listed in the memo's glossary.
+- **Front-matter** adds `format: memo`, `action`, `size_now`, `size_plan`,
+  `expected_return`, `bear_return`, `required_return` and `scenarios`, and sets
+  `horizon_days` to 365. `direction` stays, set from the action, because the
+  ledger scores it.
+- **Checks.** `validate.py` applies the memo checks only to a note that says
+  `format: memo`, including the page-one arithmetic (probabilities, weighted
+  value, expected and bear returns, target). Every earlier note has no `format`
+  field and is checked exactly as before.
+- **Ledger.** `events.csv` gains four columns at the end: `action`, `size_now`,
+  `expected_return`, `bear_return`, blank for older rows. `events.py` adds them
+  itself the first time it records a memo, once, and only if the file can be
+  rewritten byte for byte apart from the new columns. To do it ahead of a run:
+  `python3 theses/bin/events.py --migrate`.
+- **Sizing.** The memo sizes from the dossier's "### Sizing inputs": the
+  portfolio rule weight and half of it, and a bear-case loss of at most 2% of
+  the portfolio. That 2% is a draft the owner has not approved, and the memo
+  says so. Agent 2, the PM, is not switched on yet.
+
 ## What the run is fed
 
 Nothing is passed in. The agent assembles its own inputs by running committed
@@ -246,6 +290,8 @@ eight seconds. Into each dossier it puts:
 | 8-K EX-99.1 | `data/filings/text/` | The latest results announcement, however long ago it was filed |
 | Filtered headlines | `docs/news/{TICKER}.json` | With a kept/total count |
 | Sector lens | `theses/lenses/{sector}.md` | How to read all of the above for this kind of business |
+| Memo blocks | `dossier.py`, for the memo format | "### Key data", "### Guidance", "### Peers", "### Balance sheet and cash flow", "### History", "### Calendar", "### Sizing inputs" and "### Current view", each named in `PROMPTS.md` where a memo section uses it |
+| Glossary | `theses/GLOSSARY.md` | The one-sentence definitions every memo copies. Not in the dossier: the analyst reads the file |
 | Track record | `ledger/scores.csv` via `hit_rate()` | The agent cannot remember it otherwise |
 | Data caveats | Assembled from what is stale or missing | |
 
@@ -276,7 +322,8 @@ theses/bin/dossier.py CF`, where the root holds a `data/` directory.
 
 The dossier also states what is NOT available, because a model that is not told
 what is missing will fill the gap. There are no consensus estimates anywhere in
-this pipeline, no forward guidance as data, no price targets, and no commodity
+this pipeline, no forward guidance as data (the "### Guidance" block quotes it as
+text from the latest results announcement), no price targets, and no commodity
 price series. Unit volumes, selling prices and segment revenue exist only as
 text, where a company's own filings print them, and never as data columns.
 
@@ -317,6 +364,8 @@ Check, in order:
 4. The Research page shows the new names.
 5. `theses/ledger/predictions.csv` gained a row for each note whose direction was
    long, short or avoid, and none for a note that said watch or no view.
+6. `theses/ledger/events.csv` has a row for every memo, with its `action`,
+   `size_now`, `expected_return` and `bear_return` filled in.
 
 ## Failure modes worth knowing
 
@@ -337,6 +386,9 @@ Check, in order:
 - **A run folder without `ingest.json` is never ingested.** The step logs it as
   still being delivered, and flags it once it is two days old. Usually the
   analyst stopped after the preflight: look for `FAILED.md` in the folder.
+- **A memo written as an initiation for a name already covered is refused.**
+  `validate.py` reads `theses/ledger/events.csv`, and `events.py` will not record
+  it. The analyst writes a revision instead.
 - **A conflict under `theses/` aborts the push.** If something else pushes to a
   ledger file while a workflow run is ingesting, the run refuses to resolve the
   conflict rather than commit conflict markers into an append-only file. The job

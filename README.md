@@ -264,7 +264,8 @@ Beta and Sharpe need a benchmark and a risk-free rate. Both are keyless: `^IRX`
 (13-week Treasury bill) and `^GSPC`, fetched through yfinance, which is already a
 dependency, and cached in `docs/prices/_MARKET.json` beside the ticker histories.
 The Treasury publishes the same series as CSV at home.treasury.gov if Yahoo stops
-carrying it.
+carrying it. The same file carries the 10-year Treasury yield (`^TNX`), which no
+factor uses: it is there for the analyst's discount rate, and the dossier prints it.
 
 Volatility and drawdown need only a ticker's own closes and are produced whether
 or not that file exists. Beta and Sharpe are withheld when it is missing rather
@@ -508,7 +509,7 @@ docs/                       # the site. Only briefs/ is tracked in main; the
                             # see "Daily history files" above for the growth plan
   briefs/                   # daily snapshot pages, tracked in main, not regenerable
   news/ prices/             # per-ticker caches, and the fetch state itself
-  prices/_MARKET.json       # risk-free rate (^IRX) and benchmark (^GSPC)
+  prices/_MARKET.json       # risk-free rate (^IRX), 10-year yield (^TNX), benchmark (^GSPC)
 state/                      # caches committed back by the workflow
   stocks_universe.json      # the daily fundamentals snapshot
   news_fetch_log.json       # per-ticker news freshness; see note below

@@ -122,7 +122,9 @@ FUNDAMENTALS_CSV_DIR = DATA_DIR / "fundamentals"
 # full on every commit.
 FILINGS_CSV_DIR = DATA_DIR / "filings"
 FILINGS_TEXT_DIR = FILINGS_CSV_DIR / "text"
-# Reported history, long format, one row per ticker per fiscal period. The panel
+# Reported history, long format, one row per ticker per fiscal period (a second
+# row for a period only fills columns the first left blank; see
+# record_financials, and read the last row for a period). The panel
 # carries five dates and cannot describe a cycle; this carries a decade. MPC's
 # annual series shows EPS of -15.13 in 2020, 28.12 in 2022 and 13.22 now, which
 # is the context a thesis calling something "peak-cycle earnings" actually needs.
@@ -3378,7 +3380,8 @@ PRICES_DIR = DOCS_DIR / "prices"
 
 FIELD_SOURCES = {
     "price_history": "Daily closes and volumes, downloaded in bulk from Yahoo and stored per ticker",
-    "market_series": "13-week Treasury bill (^IRX) and S&P 500 (^GSPC), stored once per run",
+    "market_series": "13-week Treasury bill (^IRX), 10-year Treasury yield (^TNX) and "
+                     "S&P 500 (^GSPC), stored once per run",
     "edgar": "SEC EDGAR XBRL company facts",
     "form4": "SEC EDGAR Form 4 filings",
     "yfinance": "Yahoo Finance quote summary, one request per ticker",
@@ -3865,6 +3868,10 @@ def derive_from_price_history(stocks):
 # swapping the source means rewriting one function.
 MARKET_FILE = "_MARKET.json"
 _RISK_FREE_SYMBOL = "^IRX"       # 13-week T-bill discount rate, quoted in percent
+# The 10-year Treasury yield, quoted in percent like ^IRX. Nothing in the pipeline
+# computes with it: it is stored for the analyst's discount rate, which is set on
+# a long-dated yield rather than on a three-month bill. Keyless, like the others.
+_TEN_YEAR_SYMBOL = "^TNX"
 _BENCHMARK_SYMBOL = "^GSPC"      # S&P 500
 _TRADING_DAYS = 252
 # Enough of a year to annualize honestly. Below this the numbers are noise
@@ -3873,18 +3880,21 @@ _MIN_RISK_OBS = 120
 
 
 def enrich_with_market_series(max_age_hours=24):
-    """Store the risk-free rate and the benchmark beside the ticker histories.
+    """Store the risk-free rate, the 10-year yield and the benchmark beside the
+    ticker histories.
 
-    Two symbols, one file, same 24h cache as the per-ticker prices. Returns True
-    when a usable series is on disk afterwards."""
+    Three symbols, one file, same 24h cache as the per-ticker prices. Returns True
+    when a usable series is on disk afterwards. A cached file without the 10-year
+    series (one written before it was added) is refetched rather than reused."""
     PRICES_DIR.mkdir(parents=True, exist_ok=True)
     path = PRICES_DIR / MARKET_FILE
     if path.exists():
         try:
             cached = json.loads(path.read_text(encoding="utf-8"))
             age = _age_hours_from_iso(cached.get("updated"))
-            if age is not None and age <= max_age_hours and cached.get("risk_free"):
-                print(f"market: risk-free and benchmark are {age:.1f}h old, reusing.")
+            if (age is not None and age <= max_age_hours and cached.get("risk_free")
+                    and cached.get("ten_year")):
+                print(f"market: risk-free, 10-year and benchmark are {age:.1f}h old, reusing.")
                 return True
         except Exception:
             pass
@@ -3917,16 +3927,29 @@ def enrich_with_market_series(max_age_hours=24):
             return []
 
     rf = series(_RISK_FREE_SYMBOL)
+    ten = series(_TEN_YEAR_SYMBOL)
     bench = series(_BENCHMARK_SYMBOL)
     if not rf and not bench:
-        print("market: both series empty, keeping whatever is already on disk.")
+        print("market: risk-free and benchmark both empty, keeping whatever is already on disk.")
         return path.exists()
+    if not ten:
+        # Keep the last stored 10-year series rather than blanking it for a day.
+        # Every point carries its own date, so a reader can see how old it is.
+        try:
+            ten = json.loads(path.read_text(encoding="utf-8")).get("ten_year") or []
+        except Exception:
+            ten = []
+        if ten:
+            print(f"market: {_TEN_YEAR_SYMBOL} fetch empty, keeping the stored series "
+                  f"(last point {ten[-1][0]}).")
     payload = {"updated": datetime.now(timezone.utc).isoformat(),
                "risk_free_symbol": _RISK_FREE_SYMBOL, "risk_free": rf,
+               "ten_year_symbol": _TEN_YEAR_SYMBOL, "ten_year": ten,
                "benchmark_symbol": _BENCHMARK_SYMBOL, "benchmark": bench}
     path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
-    print(f"market: stored {len(rf)} risk-free and {len(bench)} benchmark observations "
-          f"({_RISK_FREE_SYMBOL} latest {rf[-1][1] if rf else 'n/a'}%).")
+    print(f"market: stored {len(rf)} risk-free, {len(ten)} 10-year and {len(bench)} benchmark "
+          f"observations ({_RISK_FREE_SYMBOL} latest {rf[-1][1] if rf else 'n/a'}%, "
+          f"{_TEN_YEAR_SYMBOL} latest {ten[-1][1] if ten else 'n/a'}%).")
     return True
 
 
@@ -5436,7 +5459,13 @@ _FIN_CONCEPTS = {
     "eps_diluted":      ["EarningsPerShareDiluted"],
     "ocf":              ["NetCashProvidedByUsedInOperatingActivities",
                          "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
-    "capex":            ["PaymentsToAcquirePropertyPlantAndEquipment"],
+    # The same tags, in the same order, as the panel's trailing free cash flow
+    # (EDGAR_CONCEPT_FALLBACKS["capex"]), so a year's operating cash flow less
+    # capex here is built the way ttm_fcf is. The first tag alone left capex
+    # blank on all twelve NVDA fiscal years: NVIDIA files its "purchases related
+    # to property and equipment and intangible assets" as
+    # PaymentsToAcquireProductiveAssets, which also counts intangible assets.
+    "capex":            list(EDGAR_CONCEPT_FALLBACKS["capex"]),
     "assets":           ["Assets"],
     "equity":           ["StockholdersEquity"],
     "shares_diluted":   ["WeightedAverageNumberOfDilutedSharesOutstanding"],
@@ -5536,29 +5565,59 @@ def financials_tickers_held():
         return set()
 
 
+_FIN_VALUE_COLUMNS = [c for c in FINANCIAL_COLUMNS
+                      if c not in ("ticker", "cik", "period", "period_end", "collected_at")]
+
+
 def record_financials(rows, observed_at):
-    """Append reported periods not already held. Dedupe on ticker+period+end."""
+    """Append reported periods not already held, and fill blanks in held ones.
+
+    Dedupe is on ticker+period+end. A period already held is appended again only
+    when this fetch has a value for a column the held row left blank, and the
+    new row is the held row with those blanks filled: nothing already recorded
+    changes, so a restatement cannot creep in this way. Readers take the last
+    row for a period (theses/bin/dossier.py reported_history does).
+
+    Without this, a column that a collection fix starts to fill reaches only
+    periods reported after the fix. capex was blank on every NVDA fiscal year
+    for want of a tag, and dedupe alone would have kept those years blank for
+    good. Appending rather than rewriting keeps the file append-only, which is
+    what makes merge=union in .gitattributes safe: a rewrite merged against
+    another run's append keeps both copies of every line."""
     if not rows:
         return 0
     path = FINANCIALS_CSV_DIR / "reported.csv"
-    seen = set()
+    held = {}
     if path.exists():
         try:
             with path.open(encoding="utf-8", newline="") as fh:
                 for r in csv.DictReader(fh):
-                    seen.add((r.get("ticker"), r.get("period"), r.get("period_end")))
+                    key = (r.get("ticker"), r.get("period"), r.get("period_end"))
+                    # A later row for the same period supersedes an earlier one.
+                    held[key] = {**held.get(key, {}),
+                                 **{k: v for k, v in r.items() if k and v not in ("", None)}}
         except Exception as exc:
             print(f"csv: could not read reported.csv for dedupe ({exc}); appending all.")
-    fresh = []
+    fresh, filled = [], 0
     for r in rows:
         key = (r["ticker"], r["period"], r["period_end"])
-        if key in seen:
+        have = held.get(key)
+        if have is None:
+            held[key] = dict(r)
+            fresh.append({**r, "collected_at": observed_at})
             continue
-        seen.add(key)
-        fresh.append({**r, "collected_at": observed_at})
+        gaps = {c: r[c] for c in _FIN_VALUE_COLUMNS
+                if have.get(c) in ("", None) and r.get(c) not in ("", None)}
+        if not gaps:
+            continue
+        merged = {**have, **gaps}
+        held[key] = merged
+        fresh.append({**merged, "collected_at": observed_at})
+        filled += 1
     n = _append_csv(path, FINANCIAL_COLUMNS, fresh)
     if n:
-        print(f"csv: appended {n} reported periods to data/financials/reported.csv.")
+        print(f"csv: appended {n} reported periods to data/financials/reported.csv"
+              + (f", {filled} of them filling blanks in periods already held." if filled else "."))
     return n
 
 

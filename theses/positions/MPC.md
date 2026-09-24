@@ -1,6 +1,6 @@
 # MPC
 
-**no view**, conviction 2/5, target 392.00 (252d) &mdash; as of 2026-09-12
+**no view**, conviction 2/5, target 392.00 (252d), as of 2026-09-12
 
 Current note: [`theses/notes/MPC/2026-09-12-initiation.md`](2026-09-12-initiation.md)
 

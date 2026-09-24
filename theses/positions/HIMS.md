@@ -1,6 +1,6 @@
 # HIMS
 
-**avoid**, conviction 5/5, target 22.00 (168d) &mdash; as of 2026-09-22
+**avoid**, conviction 5/5, target 22.00 (168d), as of 2026-09-22
 
 Current note: [`theses/notes/HIMS/2026-09-22-revision.md`](2026-09-22-revision.md)
 
