@@ -30,6 +30,7 @@ import time
 import random
 import zlib
 from pathlib import Path
+from urllib.parse import quote as _urlquote
 
 # The listing classifier (operating company, SPAC, note, fund) lives in its own
 # stdlib-only module beside this file so theses/bin can import the same rules
@@ -10485,6 +10486,346 @@ PORTFOLIO_DRAFTS = (("PM-agent-draft.md", "The draft instructions for the portfo
 _PORTFOLIO_DETAIL_KEYS = ("trades", "decisions", "holdings", "candidate", "mandateHistory",
                           "unpriced")
 
+# --- the instructions the agents run on ---------------------------------------
+#
+# The claude.ai routines' prompts are mirrored as files (theses/routines/,
+# portfolio/routines/) and the long instructions they point to are one section of
+# theses/PROMPTS.md (the analyst) and of portfolio/PROMPTS.md (the PMs). Research
+# and Portfolios print both, read from the repository
+# at build time, so an edit to a file is on the site after the next run. The
+# files are text anyone with push access can change, so they go through the same
+# escape-first renderer as the notes.
+PROMPTS_MD = REPO_ROOT / "theses" / "PROMPTS.md"
+PM_PROMPTS_MD = REPO_ROOT / "portfolio" / "PROMPTS.md"
+RESEARCH_ROUTINE = REPO_ROOT / "theses" / "routines" / "research-agent.md"
+PORTFOLIO_ROUTINES_DIR = REPO_ROOT / "portfolio" / "routines"
+# (routine file, who it is, the books it runs), in the order the page shows them.
+PM_ROUTINES = (("style-pm.md", "Style PM", "The six style books"),
+               ("hedge-pm.md", "Hedge PM", "The Hedge Fund Strategy Model"),
+               ("neural-pm.md", "Neural PM", "The Neural Model Portfolio"))
+
+
+def _doc_md_to_html(text):
+    """Instruction files as HTML, through the same safe subset as the notes.
+
+    _md_to_html has no headings, code blocks or numbered lists, and the prompts use
+    all three. Those are handled here, escaped, and every other run of lines goes
+    through _md_to_html unchanged. Headings become h5, as in a note's body; fenced
+    and indented code keeps its line breaks and spacing."""
+    if not text:
+        return ""
+    lines = str(text).replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    out, prose = [], []
+    code = None
+    prev_blank = True
+
+    def flush():
+        if prose:
+            out.append(_md_to_html("\n".join(prose)))
+            prose.clear()
+
+    def pre(block):
+        out.append("<pre><code>" + _html.escape("\n".join(block), quote=False)
+                   + "</code></pre>")
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        s = line.strip()
+        if code is not None:
+            if s.startswith("```"):
+                pre(code)
+                code = None
+            else:
+                code.append(line)
+            i += 1
+            continue
+        if s.startswith("```"):
+            flush()
+            code = []
+        elif re.match(r"^#{1,6}\s", s):
+            flush()
+            out.append("<h5>" + _md_inline(_html.escape(s.lstrip("#").strip())) + "</h5>")
+        elif s == "---":
+            flush()
+        elif prev_blank and not prose and line.startswith("    "):
+            # An indented block after a blank line is code, as in markdown.
+            block = []
+            while i < len(lines) and (lines[i].startswith("    ") or not lines[i].strip()):
+                block.append(lines[i][4:])
+                i += 1
+            while block and not block[-1].strip():
+                block.pop()
+            pre(block)
+            prev_blank = True
+            continue
+        elif re.match(r"^\d+\.\s", s):
+            # A numbered item starts its own paragraph; its number stays as typed.
+            flush()
+            prose.append(s)
+        elif not s:
+            flush()
+        else:
+            prose.append(line)
+        prev_blank = not s
+        i += 1
+    if code is not None:
+        pre(code)
+    flush()
+    return "".join(out)
+
+
+def _prompts_section(heading, path=None):
+    """The body of one "## " section of a PROMPTS.md (theses/ unless `path` says
+    otherwise), without its heading, or "" when the file or the section is missing."""
+    try:
+        text = Path(path or PROMPTS_MD).read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    lines = text.replace("\r\n", "\n").split("\n")
+    try:
+        start = next(i for i, l in enumerate(lines) if l.strip() == heading)
+    except StopIteration:
+        return ""
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")),
+               len(lines))
+    return "\n".join(lines[start + 1:end]).strip()
+
+
+def _routine_doc(path):
+    """A mirrored routine prompt: {"schedule", "html"} from a file whose header (a
+    "Schedule:" line) ends at the first "---" line, or None when it is missing."""
+    try:
+        text = Path(path).read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        return None
+    head, sep, body = text.partition("\n---\n")
+    if not sep:
+        head, body = "", text
+    m = re.search(r"^Schedule:\s*(.+)$", head, re.M)
+    return {"schedule": m.group(1).strip() if m else "", "html": _doc_md_to_html(body.strip())}
+
+
+def _rel(path):
+    try:
+        return Path(path).resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return Path(path).name
+
+
+def _analyst_instructions():
+    """What research.html prints under "How the analyst works"."""
+    routine = _routine_doc(RESEARCH_ROUTINE)
+    section = _prompts_section("## Agent 1: the analyst")
+    if not routine and not section:
+        return None
+    return {"routine": routine, "routinePath": _rel(RESEARCH_ROUTINE),
+            "prompt": _doc_md_to_html(section), "promptPath": _rel(PROMPTS_MD),
+            "promptSection": "Agent 1: the analyst"}
+
+
+def _pm_instructions():
+    """What portfolios.html prints under "How the PMs work": one entry per PM
+    routine, and the portfolio/PROMPTS.md section they all follow, rendered once."""
+    pms = []
+    for name, who, books in PM_ROUTINES:
+        path = PORTFOLIO_ROUTINES_DIR / name
+        doc = _routine_doc(path)
+        if doc:
+            pms.append(dict(doc, name=who, books=books, path=_rel(path)))
+    section = _prompts_section("## Agent 2: the PM", PM_PROMPTS_MD)
+    if not pms and not section:
+        return None
+    return {"pms": pms, "prompt": _doc_md_to_html(section), "promptPath": _rel(PM_PROMPTS_MD),
+            "promptSection": "Agent 2: the PM"}
+
+
+# --- the board -------------------------------------------------------------------
+#
+# portfolios.html shows the books as a board: one column per book, one card per
+# holding. It is drawn here from portfolio.engine.site_data, so every figure on it
+# comes from the ledger (trades.csv, written only through portfolio/bin/trade.py)
+# and the stored closes. Nothing on it is typed in by a PM, and a holding with no
+# stored close for the date shows its value as n/a rather than an estimate.
+
+# (group label, book ids), left to right.
+BOARD_GROUPS = (("Style growth", ("lg-growth", "mid-growth", "sm-growth")),
+                ("Style value", ("lg-value", "mid-value", "sm-value")),
+                ("Hedge", ("hedge",)),
+                ("Neural", ("neural",)))
+_MINUS = "−"
+_MID = "\u00b7"
+_MONTHS3 = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _bd_date(s):
+    try:
+        d = datetime.strptime(str(s), "%Y-%m-%d")
+    except ValueError:
+        return _html.escape(str(s or ""))
+    return f"{d.day} {_MONTHS3[d.month - 1]} {d.year}"
+
+
+def _bd_ok(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def _bd_pct(f, dp=1, sign=True):
+    if not _bd_ok(f):
+        return "n/a"
+    x = f * 100
+    body = f"{abs(x):,.{dp}f}%"
+    if not sign:
+        return (_MINUS if x < 0 and round(abs(x), dp) else "") + body
+    return (_MINUS if x < 0 and round(abs(x), dp) else "+") + body
+
+
+def _bd_cls(f):
+    if not _bd_ok(f) or abs(f) < 0.00005:
+        return ""
+    return " ld-up" if f > 0 else " ld-dn"
+
+
+def _bd_usd(v, dp=0):
+    if not _bd_ok(v):
+        return "n/a"
+    return (_MINUS if v < 0 and round(abs(v), dp) else "") + f"${abs(v):,.{dp}f}"
+
+
+def _bd_shares(v):
+    if not _bd_ok(v):
+        return "n/a"
+    v = abs(v)
+    return f"{v:,.0f}" if abs(v - round(v)) < 1e-9 else f"{v:,.2f}"
+
+
+def _bd_kv(label, value, cls=""):
+    return (f'<div class="ld-kb-kv"><dt>{_html.escape(label)}</dt>'
+            f'<dd class="ld-num{cls}">{value}</dd></div>')
+
+
+def _board_card(h, asof, priced=True):
+    e = _html.escape
+    tk = str(h.get("ticker") or "")
+    short = h.get("side") == "short"
+    cls = "ld-kb-card" + (" ld-kb-short" if short else "") + ("" if priced else " ld-kb-nopx")
+    href = "company.html#" + _urlquote(tk, safe="")
+    avg = h.get("avgCost")
+    cost = _bd_usd(h.get("costBasis")) + (
+        f'<span class="ld-kb-sub">{"sold at" if short else "at"} {_bd_usd(avg, 2)}</span>'
+        if _bd_ok(avg) else "")
+    if priced:
+        stats = (_bd_kv("Shares", _bd_shares(h.get("shares")))
+                 + _bd_kv("Cost" if not short else "Proceeds", cost)
+                 + _bd_kv("Value", _bd_usd(h.get("value")))
+                 + _bd_kv("Gain or loss", _bd_pct(h.get("ret")), _bd_cls(h.get("ret")))
+                 + _bd_kv("Day", _bd_pct(h.get("dayChg")), _bd_cls(h.get("dayChg"))))
+        weight = _bd_pct(h.get("weight"), 1, sign=False)
+    else:
+        stats = (_bd_kv("Shares", _bd_shares(h.get("shares")))
+                 + _bd_kv("Cost" if not short else "Proceeds", cost)
+                 + _bd_kv("Value", "n/a") + _bd_kv("Gain or loss", "n/a")
+                 + _bd_kv("Day", "n/a"))
+        weight = "n/a"
+    why = ""
+    if not priced:
+        why = (f'<p class="ld-kb-why">No stored close for {_bd_date(asof)}.</p>'
+               if h.get("why") == "no stored close" else
+               '<p class="ld-kb-why">Stored prices were rebased since it was bought.</p>')
+    memo = h.get("memo") or {}
+    memo_html = (f'<a class="ld-kb-memo" href="{href}/thesis" title="The analyst’s note of '
+                 f'{_bd_date(memo.get("date"))}">Memo</a>') if memo else ""
+    sector = h.get("sector") or "Sector not known"
+    return (f'<article class="{cls}">'
+            f'<div class="ld-kb-ct"><a class="ld-kb-tk" href="{href}">{e(tk)}</a>'
+            + ('<span class="ld-kb-tag">Short</span>' if short else "")
+            + f'<span class="ld-kb-w ld-num" title="Weight">{weight}</span></div>'
+            f'<p class="ld-kb-nm">{e(h.get("name") or tk)}</p>'
+            f'<dl class="ld-kb-stats">{stats}</dl>{why}'
+            f'<div class="ld-kb-cf"><span class="ld-kb-sec">{e(sector)}</span>{memo_html}</div>'
+            "</article>")
+
+
+def _board_column(b, coverage):
+    e = _html.escape
+    bid = str(b.get("id") or "")
+    pm_book = b.get("kind") != "style"
+    bench = str(b.get("benchmarkName") or b.get("benchmark") or "")
+    bench_short = re.sub(r"\s*\(.*\)$", "", bench)
+    kick = {"hedge": "Long and short", "neural": "Free hand"}.get(
+        b.get("kind"), f'{(b.get("size") or "").capitalize()} cap {_MID} '
+                       f'{(b.get("style") or "").capitalize()}')
+    started = bool(b.get("inception"))
+    rows = []
+    if started:
+        nav = b.get("nav")
+        rows.append(_bd_kv("Value", _bd_usd(nav) if _bd_ok(nav) else "n/a (partial)"))
+        rows.append(_bd_kv(f'Return since {_bd_date(b.get("inception"))}',
+                           _bd_pct(b.get("ret"), 2), _bd_cls(b.get("ret"))))
+        rows.append(_bd_kv(bench_short, _bd_pct(b.get("benchRet"), 2), _bd_cls(b.get("benchRet"))))
+        if b.get("cash_benchmark"):
+            rows.append(_bd_kv("Cash (Treasury bills)", _bd_pct(b.get("cashRet"), 2),
+                               _bd_cls(b.get("cashRet"))))
+        rows.append(_bd_kv("Cash", _bd_pct(b.get("cashWeight"), 1, sign=False)))
+        rows.append(_bd_kv("Holdings", f'{int(b.get("holdingsCount") or 0):,}'))
+        if pm_book:
+            rows.append(_bd_kv("Gross, net", f'{_bd_pct(b.get("gross"), 0, sign=False)}, '
+                                             f'{_bd_pct(b.get("net"), 0, sign=False)}'))
+    else:
+        rows.append(_bd_kv("Value", "Not started"))
+    pmd = b.get("lastPmDecision")
+    rows.append(_bd_kv("PM decision", _bd_date(pmd.get("date")) if pmd else "None yet"))
+    partial = ""
+    if started and b.get("partial"):
+        miss = [u.get("ticker") for u in b.get("unpriced") or []]
+        partial = (f'<p class="ld-kb-partial">Partial: no usable close on '
+                   f'{_bd_date(b.get("asof"))} for {e(", ".join(t for t in miss if t))}, so the '
+                   "value is left blank. Weights and cash are shares of what could be priced.</p>")
+    head = (f'<a class="ld-kb-head" href="book.html#{_urlquote(bid, safe="")}">'
+            f'<span class="ld-kicker">{e(kick)}</span>'
+            f'<h3 class="ld-kb-name" id="kb-{e(bid)}">{e(b.get("name") or bid)}</h3>'
+            f'<span class="ld-kb-bench">Against the {e(bench)}</span>'
+            f'<dl class="ld-kb-stats">{"".join(rows)}</dl></a>{partial}')
+    holdings = list(b.get("holdings") or [])
+    unpriced = list(b.get("unpriced") or [])
+    cards = []
+    for side, label in (("long", ""), ("short", "Short positions")):
+        mine = ([_board_card(h, b.get("asof")) for h in holdings if h.get("side") == side]
+                + [_board_card(u, b.get("asof"), priced=False)
+                   for u in unpriced if u.get("side") == side])
+        if mine and label:
+            cards.append(f'<p class="ld-kb-div">{label}</p>')
+        cards.extend(mine)
+    if not started:
+        need = int(((b.get("mandate") or {}).get("holdings_range") or [25])[0])
+        body = ('<div class="ld-kb-empty"><p><b>Waiting for three years of history.</b></p>'
+                f'<p>A company joins this box once its annual reports give three years of '
+                f'figures; {int(coverage.get("with_growth") or 0):,} of '
+                f'{int(coverage.get("sized") or 0):,} companies have them so far. The book starts '
+                f'when its box holds at least {need}.</p></div>')
+    elif not cards:
+        body = ('<div class="ld-kb-empty"><p><b>Holds cash.</b> The PM builds this book on its '
+                "next run.</p></div>")
+    else:
+        body = "".join(cards)
+    return (f'<section class="ld-kb-col{" ld-kb-wait" if not started else ""}" '
+            f'aria-labelledby="kb-{e(bid)}">{head}<div class="ld-kb-cards">{body}</div></section>')
+
+
+def _portfolio_board_html(data):
+    """The Portfolios board as HTML, from portfolio.engine.site_data (the full
+    books, holdings included). Every string from the data is escaped."""
+    books = {b.get("id"): b for b in data.get("books") or []}
+    coverage = data.get("coverage") or {}
+    groups = []
+    for label, ids in BOARD_GROUPS:
+        cols = "".join(_board_column(books[i], coverage) for i in ids if i in books)
+        if cols:
+            groups.append(f'<div class="ld-kb-grp"><p class="ld-kb-gh">{_html.escape(label)}</p>'
+                          f'<div class="ld-kb-cols">{cols}</div></div>')
+    return ('<div class="ld-kb" role="region" aria-label="The books, one column each" '
+            f'tabindex="0"><div class="ld-kb-track">{"".join(groups)}</div></div>')
+
 
 def _portfolio_site_data():
     return PF.site_data(ledger_dir=PORTFOLIO_DIR / "ledger", books_dir=PORTFOLIO_DIR / "books",
@@ -10518,7 +10859,9 @@ def generate_portfolios(universe, version=None):
     cards = dict(data, books=[{k: v for k, v in b.items() if k not in _PORTFOLIO_DETAIL_KEYS}
                               for b in data["books"]])
     html = render_ledger_page("portfolios", "Portfolios, Apterreon",
-                              dict(common, portfolios=cards, drafts=drafts), version,
+                              dict(common, portfolios=cards, drafts=drafts,
+                                   board=_portfolio_board_html(data),
+                                   howPms=_pm_instructions()), version,
                               description="Eight paper model portfolios: six by size and "
                                           "style, a hedge fund strategy and a free hand.",
                               loading="Loading the portfolios")
@@ -10543,7 +10886,7 @@ def generate_research(universe, version=None):
         version = _write_ledger_assets()
     research, record = _ledger_research(universe)
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
-               research=research, record=record)
+               research=research, record=record, howAnalyst=_analyst_instructions())
     html = render_ledger_page("research", "Research, Apterreon", cfg, version,
                               description="Written views on single companies, each with a target price, a review date and what would prove it wrong.",
                               loading="Loading the theses")

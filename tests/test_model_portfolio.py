@@ -714,7 +714,8 @@ class Pages(unittest.TestCase):
         js = (H.REPO / "web" / "ledger.js").read_text(encoding="utf-8")
         for needle in ("function renderPortfolios(main)", "function renderBook(main)",
                        'page === "portfolios"', 'page === "book"', "portfoliosLinkHTML()",
-                       "Returns are price-only", "5 basis points", "Built at the next PM run"):
+                       "Returns are price-only", "5 basis points", "cleanHtml(CFG.board)",
+                       "pmInstructionsHTML(CFG.howPms)", "analystInstructionsHTML(CFG.howAnalyst)"):
             self.assertIn(needle, js)
         self.assertNotIn("portfolioHTML(", js)
         self.assertNotIn(EN_DASH, js)
@@ -722,19 +723,29 @@ class Pages(unittest.TestCase):
 
 class PmPrompt(unittest.TestCase):
 
-    def test_agent_two_is_the_weekly_pm_and_agent_one_is_untouched(self):
-        text = (H.REPO / "theses" / "PROMPTS.md").read_text(encoding="utf-8")
-        a1 = text.index("## Agent 1: the analyst")
-        a2 = text.index("## Agent 2:")
-        pm = text[a2:text.index("\n## ", a2 + 5)]
+    def test_the_pm_prompt_lives_in_portfolio_and_the_analyst_prompt_is_analyst_only(self):
+        text = (H.REPO / "portfolio" / "PROMPTS.md").read_text(encoding="utf-8")
+        a2 = text.index("## Agent 2: the PM")
+        pm = text[a2:]
         for needle in ("portfolio/bin/trade.py", "portfolio/letters/", "--write", "hedge", "neural",
                        "internet", "Monday"):
             self.assertIn(needle, pm)
         self.assertNotIn("construct.py", pm)
-        self.assertNotIn(H.EM_DASH, pm)
-        self.assertNotIn(EN_DASH, pm)
-        self.assertLess(a1, a2)
-
+        self.assertNotIn("## Agent 1", text)
+        for t in (text, (H.REPO / "theses" / "PROMPTS.md").read_text(encoding="utf-8")):
+            self.assertNotIn(H.EM_DASH, t)
+            self.assertNotIn(EN_DASH, t)
+        analyst = (H.REPO / "theses" / "PROMPTS.md").read_text(encoding="utf-8")
+        self.assertIn("## Agent 1: the analyst", analyst)
+        self.assertNotIn("## Agent 2", analyst)
+        self.assertNotIn("Agent 2 below", analyst)
+        self.assertIn("The portfolio managers' instructions are in portfolio/PROMPTS.md.", analyst)
+        for name in ("style-pm.md", "hedge-pm.md", "neural-pm.md"):
+            routine = (H.REPO / "portfolio" / "routines" / name).read_text(encoding="utf-8")
+            self.assertIn("Follow portfolio/PROMPTS.md", routine)
+            self.assertNotIn("theses/PROMPTS.md", routine)
+        research = (H.REPO / "theses" / "routines" / "research-agent.md").read_text(encoding="utf-8")
+        self.assertNotIn("PM section", research)
 
 if __name__ == "__main__":
     unittest.main()
