@@ -62,8 +62,9 @@ prompt names the books you run this session; do not touch the others.
       Neural Model Portfolio. Your own picks with complete freedom: any
       number of names, any weights, shorts, cash.
 
-Each book's limits are in portfolio/books/<id>/mandate.json. Read them every
-run; do not rely on memory of them.
+Each book's limits are its mandate, in portfolio/books/<id>/mandate.json. You
+set them yourself (step 3e); the defaults a book starts with are starting
+points, not policy. Read them every run; do not rely on memory of them.
 
 Each book has a brief: how a manager of that kind of book thinks, what it
 rewards and when it sells. Read the brief for every book you run, every run.
@@ -97,8 +98,8 @@ started, so it is safe every week:
 
   python3 portfolio/bin/seed.py --prices-dir /tmp/site/prices
 
-A style book starts once its box holds enough companies with three years of
-annual figures. Until then it is not yours to build; say so in its letter.
+A style book starts once its size and style group (large-cap growth, for
+example) holds enough companies with three years of annual figures. Until then it is not yours to build; say so in its letter.
 
 === 2. READ ===
 
@@ -128,8 +129,8 @@ the holdings. Trading is optional: churn costs 5 basis points each way, and a
 name within one or two ranks of the cut is not a reason to trade. When you do
 depart from the candidate (keep a name it would sell, skip a name it would buy,
 size differently), give the reason for that name, and size it by step 4. The
-mandate allows only companies in the book's own box, long only, within its position, sector and
-cash limits; it sets no turnover limit. An analyst memo that says Avoid or Exit is a reason to
+mandate allows only companies in the book's own size and style group, long only, within its
+position, sector and cash limits; it sets no turnover limit. An analyst memo that says Avoid or Exit is a reason to
 sell; Initiate or Add may justify a larger position within the limit (step 4).
 
 You may disagree with the analyst, in either direction, in any book: buy or
@@ -144,20 +145,21 @@ company's sector fund.
 
 A style book's mandate has a field max_active_share_vs_rules. Active share
 against the rules is half the sum, over every name and cash, of the gap
-between the book's weight and the rules book's weight. It is null for now,
-which sets no limit. When it is set, trade.py refuses a batch that leaves the
+between the book's weight and the rules book's weight. It starts null, which
+sets no limit; you may set it (step 3e). When it is set, trade.py refuses a batch that leaves the
 book further from the rules than the limit and further than it was; a batch
 that brings the book closer is allowed.
 
 Hedge. Build and run a long and short book from operating companies, as
-portfolio/books/hedge.md describes. Within the mandate's gross and net
-exposure limits and position limits (larger for a long than for a short).
+portfolio/books/hedge.md describes, within the gross and net exposure limits
+and the position limits of its mandate, which you set (step 3e).
 Each short needs a written reason: what you expect to go wrong and what would
 prove you wrong. Build it over several weeks if you prefer; cash is a
 position. It is measured against the S&P 500 and against cash.
 
-Neural. Complete freedom within one limit: gross exposure no more than 200% of
-the book. Use only the repository's data. Write down the idea behind the book
+Neural. Complete freedom within its mandate, which starts with one limit
+(gross exposure no more than 200% of the book) and which you set (step 3e).
+Use only the repository's data. Write down the idea behind the book
 in its first letter, and hold yourself to it or say why you changed it.
 
 For every book:
@@ -166,8 +168,31 @@ For every book:
      because it has fallen. Size and exits follow the reasoning, not the price.
   c. A short is closed with "cover", a long with "sell". Do not flip a
      position through zero in one order.
-  d. Do not change a mandate this run. If you think a limit is wrong, say so
-     in the letter with the change you propose and why.
+  d. Hold every book to the mandate in force. trade.py checks each batch
+     against the mandate in force on the batch's date.
+  e. You set each book's limits. At your first run for a book (the first
+     run after it starts), read the default mandate it started with and
+     decide the limits you want: the range of holdings you aim for, the
+     largest position, the sector cap, the cash band, and so on. Record
+     them with trade.py --mandate (step 5); if you keep every default, say
+     so in the letter, because that is a decision too. After that you may
+     change a limit at any run, with a stated reason: because your view of
+     the book has changed, not to let through one trade that trade.py has
+     just refused.
+
+     What you may set:
+       style books      holdings_range, max_position, sector_cap,
+                        cash_band, max_active_share_vs_rules
+       hedge, neural    gross_max, net_range, max_long_position,
+                        max_short_position, holdings_range_per_side
+     What the owner sets, which trade.py refuses to change: whether a
+     style book is long only, the size and style group it buys from, the
+     neural book's rule of repository data only and no internet, and every
+     book's benchmarks. The limits must also be sane (trade.py refuses a
+     largest position outside 0.5% to 25%, a holdings minimum below 1 or
+     above the maximum, a sector cap outside 10% to 100%, a cash band
+     outside 0% to 100%, or gross exposure above 300%); inside those
+     bounds the choice is yours.
 
 === 4. SIZE ===
 
@@ -264,6 +289,19 @@ Do not work around a refusal. When it passes:
   python3 portfolio/bin/trade.py portfolio/orders/{TODAY}/<book>.json --prices-dir /tmp/site/prices --write
 
 Running the same file again writes nothing, so a retry is safe.
+
+To set or change a book's limits (step 3e), write the fields you are
+setting to portfolio/orders/{TODAY}/<book>-mandate.json, for example
+{"holdings_range": [30, 40], "max_position": 0.06}; the fields you leave out
+stay as they are. Then, before any orders for that book:
+
+  python3 portfolio/bin/trade.py --mandate <book> portfolio/orders/{TODAY}/<book>-mandate.json --date {TRADE_DATE} --reason "Why, in a sentence or two."
+
+and, when the dry run shows the change you meant, the same with --write. It
+applies from {TRADE_DATE}, so that day's orders are checked against it. It
+appends a row to portfolio/ledger/mandates.csv and a mandate_change decision
+with your reason, and updates portfolio/books/<book>/mandate.json. One change
+per book and date; running it again writes nothing.
 
 === 6. WRITE A LETTER FOR EACH BOOK ===
 

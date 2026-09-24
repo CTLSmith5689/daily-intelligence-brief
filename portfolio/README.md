@@ -14,7 +14,7 @@ The code is `engine.py`; the method is printed on the site's Portfolios page and
 |---|---|---|
 | `ledger/trades.csv` | every deposit and trade, with trade_id and lot_id | `bin/seed.py` at inception, then the PM through `bin/trade.py` |
 | `ledger/decisions.csv` | every decision, with a short reason and its author | the same |
-| `ledger/mandates.csv` | every mandate a book has had | `bin/seed.py`; a change is also a `mandate_change` decision |
+| `ledger/mandates.csv` | every mandate a book has had | `bin/seed.py` (the default), then `bin/trade.py --mandate` (the PM's own limits); a change is also a `mandate_change` decision |
 | `books/<id>/mandate.json` | the current mandate (the last mandates.csv row) | the same |
 | `orders/<date>/<book>.json` | the PM's order batches, as given to trade.py | the PM routine |
 | `letters/<date>/<book>.md` | the PM's weekly letter per book | the PM routine |
@@ -40,8 +40,9 @@ Returns are price-only, and every trade pays 5 bps. The daily run only values th
 books and republishes the rules candidate books; it never trades.
 
 `bin/seed.py` is idempotent: a book with a deposit row is never seeded again, and
-a style book whose box is not yet full enough to fill its mandate waits.
-`bin/trade.py` is dry-run by default, checks each batch against the mandate, and
+a style book whose size and style group is not yet full enough to fill its mandate waits.
+`bin/trade.py` is dry-run by default, checks each batch against the mandate in
+force on its date, and
 is idempotent per book, date and order id. `bin/review.py` prints what the PM
 reads. `bin/construct.py` is the earlier sizing rule; nothing runs it now, but
 its rule weight, printed in each dossier, is one input to the PM's sizing

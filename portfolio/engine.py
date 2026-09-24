@@ -155,8 +155,9 @@ PLANNED_BOOKS = [
 LIVE_BOOKS = STYLE_BOOKS + PM_BOOKS
 BOOKS = {b["id"]: b for b in LIVE_BOOKS + PLANNED_BOOKS}
 
-# The first mandate of each book. The PM owns these and may change any of them;
-# a change is a decision with a reason and a new mandates.csv row.
+# The first mandate of each book: where it starts, not policy. The PM sets its own
+# limits (MANDATE_PM_FIELDS, below) with portfolio/bin/trade.py --mandate; each
+# change is a decision with a reason and a new mandates.csv row.
 DEFAULT_STYLE_MANDATE = {
     "holdings_range": [25, 45],
     "max_position": 0.05,
@@ -633,16 +634,16 @@ CLASSIFICATION_RULE = [
     "does not make all of it growth.",
     "The style score is the growth score minus the value score. Within each size, companies "
     "above the median are Growth and the rest are Value, so every company sorted is in "
-    "exactly one box. A company without three years of annual reports in US GAAP (mostly "
+    "exactly one of the six size and style groups (large-cap growth, for example). A company without three years of annual reports in US GAAP (mostly "
     "foreign companies filing international accounts) cannot be scored and is left out.",
 ]
 CANDIDATE_RULE = (
-    "Within its box, each company is ranked by its box score plus half its quality score. The "
-    "box score is the growth score in a Growth book and the value score in a Value book. "
+    "Within its size and style group, each company is ranked by its growth score (for a "
+    "growth portfolio) or its value score (for a value portfolio), plus half its quality score. "
     "Quality is the average z of return on equity, earnings consistency, net debt to EBITDA, "
     "operating margin volatility and the accruals ratio (the last three counted lower is "
     "better), within the same size; a company with fewer than 2 of them counts as average. "
-    "The book holds the top N, where N is the middle of the mandate's holdings range, skipping "
+    "The portfolio holds the top N, where N is the middle of the mandate's holdings range, skipping "
     "a company once its sector is at the mandate's sector cap. Positions are equal weight. A "
     "company the analyst says to avoid, sell or bet against is left out; one the analyst says "
     "to initiate or add to is held at 1.5 times equal weight, up to the largest position the "
@@ -1177,6 +1178,240 @@ def mandate_history(book, ledger_dir=None):
              "mandate": json.loads(r["mandate"])} for r in rows]
 
 
+def mandate_on(book, day, ledger_dir=None, books_dir=None):
+    """The mandate in force at the close of `day`: the last mandates.csv row dated on
+    or before it (rows of one date in file order, so a later change that day wins).
+    Before the first row, the first row; with no rows at all, mandate.json or the
+    default."""
+    hist = sorted(mandate_history(book, ledger_dir), key=lambda m: m["date"])
+    upto = [m for m in hist if m["date"] <= (day or "")]
+    if upto:
+        return upto[-1]["mandate"]
+    if hist:
+        return hist[0]["mandate"]
+    return load_mandate(book, books_dir) or default_mandate(book)
+
+
+# Who sets each field of a mandate. This is the one place the split is written
+# down: trade.py --mandate enforces it, and each portfolio page labels every limit
+# from it. The PM sets its own limits (the defaults above are only where a book
+# starts); the owner sets what a book is. A field in neither list is refused.
+MANDATE_PM_FIELDS = {
+    "style": ("holdings_range", "max_position", "sector_cap", "cash_band",
+              "max_active_share_vs_rules"),
+    "hedge": ("gross_max", "net_range", "max_long_position", "max_short_position",
+              "holdings_range_per_side"),
+    "neural": ("gross_max", "net_range", "max_long_position", "max_short_position",
+               "holdings_range_per_side"),
+}
+MANDATE_OWNER_FIELDS = {
+    # universe: a style book buys only from its own size and style group.
+    # weighting and overweight_factor describe how the rules choose their
+    # portfolio; turnover_budget is for the tax-managed books.
+    "style": ("long_only", "universe", "benchmarks", "turnover_budget", "weighting",
+              "overweight_factor"),
+    "hedge": ("long_only", "universe", "benchmarks"),
+    "neural": ("long_only", "universe", "data", "benchmarks"),
+}
+# Fields the PM may clear (set to null) rather than set.
+MANDATE_OPTIONAL = {
+    "style": ("max_active_share_vs_rules",),
+    "hedge": (),
+    "neural": ("net_range", "max_long_position", "max_short_position", "holdings_range_per_side"),
+}
+# Sanity bounds. They catch a mistyped limit (5 for 0.05, a range written back to
+# front), not policy: inside them the PM decides.
+MANDATE_BOUNDS = {
+    "position": (0.005, 0.25),      # max_position, max_long_position, max_short_position
+    "sector_cap": (0.10, 1.0),
+    "cash_band": (0.0, 1.0),
+    "gross_max": (0.0, 3.0),        # above 0, at most 300%
+    "max_active_share_vs_rules": (0.0, 1.0),
+    "holdings_min": 1,
+}
+
+
+def _is_num(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def _pair(v):
+    return isinstance(v, (list, tuple)) and len(v) == 2 and all(_is_num(x) for x in v)
+
+
+def _mandate_value_errors(key, v, new):
+    """Why the value `v` of field `key` is not a sane limit, or []."""
+    b = MANDATE_BOUNDS
+    if key in ("max_position", "max_long_position", "max_short_position"):
+        lo, hi = b["position"]
+        if not _is_num(v) or not lo - 1e-12 <= v <= hi + 1e-12:
+            return [f"{key} must be a fraction between {lo} and {hi} ({lo:.1%} to {hi:.0%})"]
+    elif key in ("holdings_range", "holdings_range_per_side"):
+        if not _pair(v) or any(int(x) != x for x in v):
+            return [f"{key} must be two whole numbers, [min, max]"]
+        if v[0] < b["holdings_min"] or v[0] > v[1]:
+            return [f"{key}: the minimum must be at least {b['holdings_min']} and no more "
+                    f"than the maximum"]
+    elif key == "sector_cap":
+        lo, hi = b["sector_cap"]
+        if not _is_num(v) or not lo - 1e-12 <= v <= hi + 1e-12:
+            return [f"sector_cap must be a fraction between {lo} and {hi} ({lo:.0%} to {hi:.0%})"]
+    elif key == "cash_band":
+        lo, hi = b["cash_band"]
+        if not _pair(v) or not lo <= v[0] <= v[1] <= hi:
+            return [f"cash_band must be [low, high] with {lo} <= low <= high <= {hi}"]
+    elif key == "gross_max":
+        lo, hi = b["gross_max"]
+        if not _is_num(v) or not lo < v <= hi + 1e-12:
+            return [f"gross_max must be above {lo} and at most {hi} ({hi:.0%})"]
+    elif key == "net_range":
+        g = new.get("gross_max")
+        if not _pair(v) or v[0] > v[1]:
+            return ["net_range must be [low, high] with low <= high"]
+        if _is_num(g) and (v[0] < -g - 1e-12 or v[1] > g + 1e-12):
+            return [f"net_range must lie within minus and plus gross_max ({g})"]
+    elif key == "max_active_share_vs_rules":
+        lo, hi = b["max_active_share_vs_rules"]
+        if not _is_num(v) or not lo <= v <= hi:
+            return [f"max_active_share_vs_rules must be null or between {lo} and {hi}"]
+    return []
+
+
+def _mandate_words(key, v):
+    """A limit's value in words, for the decision's reason."""
+    if v is None:
+        return "no limit"
+    if key in ("holdings_range", "holdings_range_per_side"):
+        return f"{int(v[0])} to {int(v[1])}"
+    if key in ("cash_band", "net_range"):
+        return f"{v[0]:.0%} to {v[1]:.0%}".replace("-", "minus ")
+    return f"{v:.1%}".replace(".0%", "%")
+
+
+MANDATE_LABELS = {
+    "holdings_range": "number of holdings", "holdings_range_per_side": "holdings on each side",
+    "max_position": "largest position", "max_long_position": "largest position owned",
+    "max_short_position": "largest position bet against", "sector_cap": "largest sector",
+    "cash_band": "cash", "gross_max": "gross exposure", "net_range": "net exposure",
+    "max_active_share_vs_rules": "active share against the rules",
+}
+
+
+def plan_mandate(book_id, day, change, reason, ledger_dir=None, books_dir=None, trades=None):
+    """Validate a PM mandate change. Pure: writes nothing.
+
+    `change` is a mandate, whole or in part: the fields it names replace the ones
+    in force on `day`. A field the owner sets may appear only with its current
+    value. Returns {"mandate", "changes", "row", "decision", "already"}; raises
+    OrderError listing every reason it cannot be written. Idempotent per book and
+    date: the decision id is <book>-<date>-mandate, and a second run with the same
+    change reports it as already written."""
+    ledger_dir = Path(ledger_dir or LEDGER_DIR)
+    errs = []
+    book = BOOKS.get(book_id)
+    if not book or book.get("status") != "live":
+        raise OrderError([f"unknown or not live book {book_id!r}"])
+    kind = book["kind"]
+    day = str(day or "")
+    reason = str(reason or "").strip()
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        errs.append(f"date {day!r} is not YYYY-MM-DD")
+    if not reason:
+        errs.append("a reason is required; it goes into decisions.csv")
+    if not isinstance(change, dict) or not change:
+        errs.append("the mandate file must be a JSON object naming the limits to set")
+    if errs:
+        raise OrderError(errs)
+    trades = read_rows(ledger_dir / "trades.csv") if trades is None else trades
+    start = inception(trades, book_id)
+    if not start:
+        raise OrderError([f"{book_id} has not started yet; set its limits at the first run "
+                          f"after it starts"])
+    if day < start:
+        errs.append(f"{day} is before {book_id}'s inception on {start}")
+    decision_id = f"{book_id}-{day}-mandate"
+    hist = mandate_history(book_id, ledger_dir)
+    mine = [m for m in hist if m["decision_id"] == decision_id]
+    base = mine[-1]["mandate"] if mine else mandate_on(book_id, day, ledger_dir, books_dir)
+    pm_fields, owner_fields = MANDATE_PM_FIELDS[kind], MANDATE_OWNER_FIELDS[kind]
+    new = json.loads(json.dumps(base))
+    for key, v in change.items():
+        if key in owner_fields:
+            if v != base.get(key):
+                errs.append(f"{key} is set by the owner, not the PM; it stays "
+                            f"{json.dumps(base.get(key))}")
+        elif key in pm_fields:
+            if v is None and key in MANDATE_OPTIONAL[kind]:
+                new[key] = None
+            elif v is None:
+                errs.append(f"{key} cannot be removed from a {kind} mandate")
+            else:
+                new[key] = v
+        else:
+            errs.append(f"{key} is not a field of a {kind} mandate; the PM may set "
+                        f"{', '.join(pm_fields)}")
+    for key in pm_fields:
+        if key in change and new.get(key) is not None:
+            errs.extend(_mandate_value_errors(key, new[key], new))
+    if errs:
+        raise OrderError(errs)
+    changes = [f"{MANDATE_LABELS[k]} was {_mandate_words(k, base.get(k))}, "
+               f"now {_mandate_words(k, new.get(k))}"
+               for k in pm_fields if k in change and new.get(k) != base.get(k)]
+    if mine:
+        if new == base:
+            return {"mandate": new, "changes": [], "row": None, "decision": None,
+                    "already": True, "warnings": []}
+        raise OrderError([f"a mandate change for {book_id} on {day} is already recorded "
+                          f"({decision_id}); date a further change on a later day"])
+    if not changes:
+        raise OrderError(["the file changes nothing in the mandate in force on " + day])
+    later = [m["date"] for m in hist if m["date"] > day]
+    if later:
+        errs.append(f"{book_id} already has a mandate dated {max(later)}; a change cannot "
+                    f"be dated before it")
+    traded = [t["date"] for t in trades if t.get("book") == book_id and t["date"] > day]
+    if traded:
+        errs.append(f"{book_id} has trades dated after {day} (the last on {max(traded)}), "
+                    f"checked against the mandate then in force; date the change on or "
+                    f"after it")
+    if errs:
+        raise OrderError(errs)
+    warns = []
+    if kind == "style":
+        lo_n, hi_n = new["holdings_range"]
+        if hi_n * new["max_position"] < 1 - new["cash_band"][1] - 1e-9:
+            warns.append(f"{hi_n} holdings at {new['max_position']:.1%} each cannot invest "
+                         f"more than {hi_n * new['max_position']:.0%}, but cash may be at "
+                         f"most {new['cash_band'][1]:.0%}")
+    text = reason.rstrip()
+    if not text.endswith("."):
+        text += "."
+    text += " Changed: " + "; ".join(changes) + "."
+    return {"mandate": new, "changes": changes, "already": False, "warnings": warns,
+            "row": {"date": day, "book": book_id, "decision_id": decision_id,
+                    "mandate": json.dumps(new, sort_keys=True, separators=(",", ":"))},
+            "decision": {"date": day, "book": book_id, "decision_id": decision_id,
+                         "action": "mandate_change", "reason": text, "author": "pm"}}
+
+
+def write_mandate(plan, ledger_dir=None, books_dir=None):
+    """Append a planned mandate change to mandates.csv and decisions.csv, then set
+    mandate.json to the newest mandate. Nothing for a plan already written."""
+    if not plan.get("row"):
+        return 0
+    ledger_dir = Path(ledger_dir or LEDGER_DIR)
+    append_rows(ledger_dir / "mandates.csv", MANDATE_COLUMNS, [plan["row"]])
+    append_rows(ledger_dir / "decisions.csv", DECISION_COLUMNS, [plan["decision"]])
+    bid = plan["row"]["book"]
+    hist = sorted(mandate_history(bid, ledger_dir), key=lambda m: m["date"])
+    p = mandate_path(bid, books_dir)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(hist[-1]["mandate"], indent=2, sort_keys=True) + "\n",
+                 encoding="utf-8")
+    return 1
+
+
 # ---------------------------------------------------------------------------
 # Seeding
 
@@ -1247,7 +1482,7 @@ def seed(ledger_dir=None, books_dir=None, panel_dir=None, prices=None, events=No
     result.update(date=d, books=books, classes=classes)
     for bid, ps in books.items():
         if bid not in ready:
-            result["skipped"][bid] = (f"only {len(ps)} classified companies in the box, fewer "
+            result["skipped"][bid] = (f"only {len(ps)} classified companies in its size and style group, fewer "
                                       f"than the mandate's minimum of "
                                       f"{mandates[bid]['holdings_range'][0]}")
             log(f"seed: {bid} not seeded: {result['skipped'][bid]}.")
@@ -1266,8 +1501,8 @@ def seed(ledger_dir=None, books_dir=None, panel_dir=None, prices=None, events=No
             m_rows.append({"date": on, "book": bid, "decision_id": dec_m,
                            "mandate": json.dumps(mandate, sort_keys=True, separators=(",", ":"))})
             d_rows.append({"date": on, "book": bid, "decision_id": dec_m, "action": "mandate_change",
-                           "reason": f"First mandate: the default for a {b['kind']} book, until "
-                                     f"the PM reviews it.", "author": "rules"})
+                           "reason": f"First mandate: the default for a {b['kind']} portfolio, "
+                                     f"until the PM sets its own.", "author": "rules"})
         seq = 1
         t_rows.append({"trade_id": f"{bid}-{on}-{seq:03d}", "date": on, "book": bid,
                        "ticker": "CASH", "side": "deposit", "shares": INCEPTION_CAPITAL,
@@ -1276,13 +1511,13 @@ def seed(ledger_dir=None, books_dir=None, panel_dir=None, prices=None, events=No
         if b["kind"] != "style":
             d_rows.append({"date": on, "book": bid, "decision_id": dec_i, "action": "inception",
                            "reason": f"Start with ${INCEPTION_CAPITAL:,.0f} of paper cash. The PM "
-                                     f"builds the book at its next weekly run.", "author": "rules"})
+                                     f"builds the portfolio at its next weekly run.", "author": "rules"})
             result["seeded"].append(bid)
             continue
         picks = ready[bid]
         d_rows.append({"date": on, "book": bid, "decision_id": dec_i, "action": "inception",
-                       "reason": f"Start with ${INCEPTION_CAPITAL:,.0f} of paper cash and buy the "
-                                 f"rules candidate book ({len(picks)} companies, equal weight) "
+                       "reason": f"Start with ${INCEPTION_CAPITAL:,.0f} of paper cash and buy what "
+                                 f"the rules choose ({len(picks)} companies, equal weight) "
                                  f"at the close on {_long_date(on)}.", "author": "rules"})
         for p in picks:
             px = prices.close(p["ticker"], on)
@@ -1435,7 +1670,8 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
             if universe == "style_box":
                 box = f"{book['size']}-{book['style']}"
                 if (classes.get(tk) or {}).get("box") != box:
-                    errs.append(f"{where}: not in the {box} box on this panel date")
+                    errs.append(f"{where}: not in the {box} size and style group on this "
+                                f"panel date")
                     continue
             elif universe == "operating":
                 if (rows_by.get(tk) or {}).get("security_type") != "operating":
@@ -1535,18 +1771,20 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
             errs.append("the book cannot be valued after the batch (a holding has no stored close)")
         else:
             check("gross exposure", pre_g, post_v["gross"], mandate["gross_max"])
-        if book["kind"] == "hedge" and post_v["net"] is not None:
+        # The hedge book always has these limits; the neural book has them only if
+        # its PM has set them.
+        if mandate.get("net_range") and post_v["net"] is not None:
             nlo, nhi = mandate["net_range"]
             pre_n = pre_v["net"] or 0.0
             check("net exposure", pre_n, post_v["net"], nhi)
             check("net exposure", pre_n, post_v["net"], nlo, above=False)
-            for t, x in post_w.items():
-                if x > 0:
-                    check(f"{t} long position", max(pre_w.get(t, 0.0), 0.0), x,
-                          mandate["max_long_position"])
-                else:
-                    check(f"{t} short position", abs(min(pre_w.get(t, 0.0), 0.0)), -x,
-                          mandate["max_short_position"])
+        for t, x in post_w.items():
+            if x > 0 and mandate.get("max_long_position") is not None:
+                check(f"{t} long position", max(pre_w.get(t, 0.0), 0.0), x,
+                      mandate["max_long_position"])
+            elif x < 0 and mandate.get("max_short_position") is not None:
+                check(f"{t} short position", abs(min(pre_w.get(t, 0.0), 0.0)), -x,
+                      mandate["max_short_position"])
     if errs:
         raise OrderError(errs)
     have_decisions = {d_["decision_id"] for d_ in decisions}
@@ -1727,5 +1965,8 @@ def site_data(ledger_dir=None, books_dir=None, panel_dir=None, prices=None,
         "classificationRule": CLASSIFICATION_RULE, "candidateRule": CANDIDATE_RULE,
         "boxCounts": counts, "coverage": growth_coverage(classes) if classes else {},
         "books": books, "planned": PLANNED_BOOKS,
+        # Who sets each mandate field, for the "Set by" labels on each book's page.
+        "mandateRules": {"pm": {k: list(v) for k, v in MANDATE_PM_FIELDS.items()},
+                         "owner": {k: list(v) for k, v in MANDATE_OWNER_FIELDS.items()}},
         "benchmarksUpdated": benchmarks.updated if hasattr(benchmarks, "updated") else "",
     }

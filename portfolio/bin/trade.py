@@ -36,6 +36,27 @@ book, gross exposure for the neural book. A batch with any error writes nothing.
 
 Idempotent: the trade id is <book>-<date>-o<order id> and the decision id is
 <book>-<date>-<batch_id>. Running the same file twice writes nothing the second time.
+
+Each batch is checked against the mandate in force on its date: the last row of
+portfolio/ledger/mandates.csv dated on or before it.
+
+The PM sets its own limits. To change a book's mandate:
+
+    python3 portfolio/bin/trade.py --mandate BOOK MANDATE.json --date YYYY-MM-DD
+        --reason "Why, in a sentence or two." [--write]
+
+MANDATE.json names the limits to set, for example
+{"holdings_range": [30, 40], "max_position": 0.06}; the rest stay as they are. The
+PM may set, for a style book: holdings_range, max_position, sector_cap, cash_band,
+max_active_share_vs_rules; for the hedge and neural books: gross_max, net_range,
+max_long_position, max_short_position, holdings_range_per_side. What a book is
+(long only, the size and style group a style book buys from, the neural book's
+data, the benchmarks) is set by the owner and refused. The one list of both is
+MANDATE_PM_FIELDS and MANDATE_OWNER_FIELDS in portfolio/engine.py, with the sanity
+bounds in MANDATE_BOUNDS. The change applies from its date, which may not be
+before the book's last mandate or last trade; it appends a mandates.csv row and a
+mandate_change decision (author pm, with the reason) and updates mandate.json.
+One change per book and date: running the same file again writes nothing.
 """
 import argparse
 import json
@@ -62,7 +83,7 @@ def run(batches, write=False, prices=None, ledger_dir=None, books_dir=None, pane
         panel_day = max((d for d in dates if d <= day), default="")
         _, rows = E.panel_rows(panel_day, panel_dir) if panel_day else ("", [])
         classes = E.classify(rows, history, panel_day) if rows else {}
-        mandate = E.load_mandate(batch.get("book"), books_dir) or E.default_mandate(batch.get("book")) or {}
+        mandate = E.mandate_on(batch.get("book"), day, ledger_dir, books_dir) or {}
         views = E.analyst_views(events, asof=day)
         rules = None
         book = E.BOOKS.get(batch.get("book")) or {}
@@ -95,12 +116,52 @@ def run(batches, write=False, prices=None, ledger_dir=None, books_dir=None, pane
     return plans
 
 
+def run_mandate(book, day, change, reason, write=False, ledger_dir=None, books_dir=None,
+                out=print):
+    """Plan a mandate change and write it when `write` is true. Returns the plan.
+    Raises E.OrderError, before anything is written, when it cannot be made."""
+    plan = E.plan_mandate(book, day, change, reason, ledger_dir=ledger_dir, books_dir=books_dir)
+    if plan["already"]:
+        out(f"{book} {day} mandate: already written; nothing to do.")
+        return plan
+    out(f"{book} {day} mandate change ({plan['decision']['decision_id']}):")
+    for c in plan["changes"]:
+        out(f"  {c}")
+    for w in plan["warnings"]:
+        out(f"  warning: {w}")
+    if write:
+        E.write_mandate(plan, ledger_dir, books_dir)
+        out("trade: wrote the mandate change.")
+    else:
+        out("trade: dry run, nothing written. Add --write to record it.")
+    return plan
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("orders")
+    ap.add_argument("orders", nargs="?", help="an order batch file (not with --mandate)")
+    ap.add_argument("--mandate", nargs=2, metavar=("BOOK", "FILE"),
+                    help="change BOOK's mandate to the limits in FILE (JSON)")
+    ap.add_argument("--date", help="with --mandate: the date it applies from, YYYY-MM-DD")
+    ap.add_argument("--reason", help="with --mandate: why, in a sentence or two")
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--prices-dir", default=None)
     a = ap.parse_args(argv)
+    if a.mandate:
+        if a.orders or not a.date or not a.reason:
+            ap.error("--mandate BOOK FILE needs --date and --reason, and no order file")
+        book, path = a.mandate
+        try:
+            change = json.loads(Path(path).read_text(encoding="utf-8"))
+            run_mandate(book, a.date, change, a.reason, write=a.write)
+        except E.OrderError as exc:
+            print("trade: mandate change refused, nothing written:")
+            for e in exc.errors:
+                print(f"  {e}")
+            return 1
+        return 0
+    if not a.orders:
+        ap.error("give an order file, or --mandate BOOK FILE")
     data = json.loads(Path(a.orders).read_text(encoding="utf-8"))
     batches = data if isinstance(data, list) else [data]
     try:

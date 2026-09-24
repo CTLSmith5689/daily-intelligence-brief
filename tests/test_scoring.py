@@ -574,8 +574,8 @@ class Pages(unittest.TestCase):
         js = (H.REPO / "web" / "ledger.js").read_text(encoding="utf-8")
         for needle in ("function renderScorecard(main)", 'page === "scorecard"', "Too few to read",
                        "bookAttributionHTML(b)", "bookPmHTML(b)", "<b>Excess return</b>",
-                       "<b>Allocation</b>", "<b>Selection</b>", "<b>shadow book</b>", "Proxy error",
-                       ": \"No limit\"]", "Active share vs rules", "pmVsAnalystHTML(SC.pmVsAnalyst)"):
+                       "<b>Allocation</b>", "<b>Selection</b>", "<b>shadow portfolio</b>", "Proxy error",
+                       ": \"No limit\", \"turnover_budget\"]", "Active share vs rules", "pmVsAnalystHTML(SC.pmVsAnalyst)"):
             self.assertIn(needle, js)
         self.assertNotIn(EN_DASH, js)
         self.assertNotIn(H.EM_DASH, js)

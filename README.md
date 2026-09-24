@@ -511,7 +511,7 @@ code under test.
 - `test_scoring.py`: an avoid is scored against its sector fund and never as
   a short, a short as a short, excess against the sector fund, S&P 500 and
   peers; daily marks skip and flag a missing close and are superseded, never
-  filled; the small-sample label; the scores migration; the shadow book, the
+  filled; the small-sample label; the scores migration; the shadow portfolio, the
   per-decision and PM-against-analyst marks and active share, all worked by
   hand; Brinson-Fachler on a hand example summing exactly; hedge long and
   short legs; Carino linking; the override and active-share checks in
@@ -534,7 +534,7 @@ data/                       # the append-only record (the actual product)
   scoring/                  # the analyst's calls: marks.csv (every session) and
                             # scores.csv (at the horizon), theses/bin/score.py
   portfolio/                # nav.csv, and from portfolio/bin/score_pm.py the
-                            # shadow books, decision and disagreement marks,
+                            # shadow portfolios, decision and disagreement marks,
                             # and daily attribution
 docs/                       # the site. Only briefs/ is tracked in main; the
                             # rest lives on gh-pages, restored before each run

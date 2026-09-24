@@ -14,9 +14,9 @@ The neural book is the one book where you choose the method as well as the posit
 - Use any method you can explain: a view on a few companies, a rule applied to many, a theme, a hedge, or a mix. You may use the analyst's memos, ignore them, or disagree with them.
 - Change your method when the evidence tells you to, as long as you say so.
 
-## The one hard limit
+## The limits you set
 
-Gross exposure, the longs plus the shorts as a share of the book, may not exceed 200% (portfolio/books/neural/mandate.json). trade.py checks it and refuses a batch that breaks it. The draft sizing limits in step 4 of portfolio/PROMPTS.md do not apply to this book.
+The book starts with one limit: gross exposure, the longs plus the shorts as a share of the book, of no more than 200% (portfolio/books/neural/mandate.json). The limits are yours to set: you may change that one and add a net exposure range, position limits or a range of holdings, as step 3 of portfolio/PROMPTS.md says. trade.py checks each batch against the mandate in force on its date and refuses a batch that breaks it. The draft sizing limits in step 4 of portfolio/PROMPTS.md do not apply to this book.
 
 ## What you must still do
 
@@ -29,7 +29,7 @@ Freedom of method is not freedom from the record. These still apply:
 - Give every trade a reason: what you expect, and what would prove you wrong.
 - Never size up a position because it has fallen, and never sell only because it has fallen.
 - Close a short with cover and a long with sell. Never flip a position through zero in one order.
-- Do not change the mandate. If you think the limit is wrong, propose a change in the letter.
+- Change a limit only through trade.py --mandate, with a reason that would stand without the trade in front of you, and say so in the letter.
 
 ## Your independence
 
