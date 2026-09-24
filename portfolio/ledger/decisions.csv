@@ -1,0 +1,5 @@
+date,book,decision_id,action,reason,author
+2026-09-23,hedge,hedge-2026-09-23-1,mandate_change,"First mandate: the default for a hedge book, until the PM reviews it.",rules
+2026-09-23,hedge,hedge-2026-09-23-2,inception,"Start with $1,000,000 of paper cash. The PM builds the book at its next weekly run.",rules
+2026-09-23,neural,neural-2026-09-23-1,mandate_change,"First mandate: the default for a neural book, until the PM reviews it.",rules
+2026-09-23,neural,neural-2026-09-23-2,inception,"Start with $1,000,000 of paper cash. The PM builds the book at its next weekly run.",rules

@@ -1,0 +1,19 @@
+{
+  "benchmarks": [
+    "^GSPC",
+    "cash"
+  ],
+  "gross_max": 2.0,
+  "holdings_range_per_side": [
+    20,
+    60
+  ],
+  "long_only": false,
+  "max_long_position": 0.05,
+  "max_short_position": 0.03,
+  "net_range": [
+    -0.2,
+    0.6
+  ],
+  "universe": "operating"
+}

@@ -1,5 +1,45 @@
 # portfolio/
 
+## Model portfolios
+
+Eight paper books, each started with $1,000,000: six style books (large, mid and
+small by Russell rank; growth and value, split at the median of growth minus value)
+measured against their Russell ETFs, and two books the PM builds, `hedge` (long and
+short, against the S&P 500 and cash) and `neural` (a free hand, against the S&P 500).
+Core, tax-managed and momentum books are reserved (`engine.PLANNED_BOOKS`), not built.
+The code is `engine.py`; the method is printed on the site's Portfolios page and in
+`FIELD_METHODS` (style_*, sales_ps_growth_3y, eps_growth_3y, book_*, cash_return).
+
+| File | What it holds | Who writes it |
+|---|---|---|
+| `ledger/trades.csv` | every deposit and trade, with trade_id and lot_id | `bin/seed.py` at inception, then the PM through `bin/trade.py` |
+| `ledger/decisions.csv` | every decision, with a short reason and its author | the same |
+| `ledger/mandates.csv` | every mandate a book has had | `bin/seed.py`; a change is also a `mandate_change` decision |
+| `books/<id>/mandate.json` | the current mandate (the last mandates.csv row) | the same |
+| `orders/<date>/<book>.json` | the PM's order batches, as given to trade.py | the PM routine |
+| `letters/<date>/<book>.md` | the PM's weekly letter per book | the PM routine |
+| `../data/portfolio/nav.csv` | each book's value at each close | the daily run (`record_portfolio_nav`) |
+| `../data/financials/style_history.csv` | three fiscal years per company, from 10-K facts | the daily run's weekly EDGAR pass |
+
+All are append-only with `merge=union`. `engine.append_rows` refuses a file whose
+header differs; a new column goes through `engine.migrate_add_columns`, once, in
+a quiet window. A short is a negative position whose sale proceeds are credited to
+cash; gross and net exposure are computed from both sides. Named lots and FIFO are
+both in the ledger arithmetic.
+
+Prices are the stored close for the exact date (`docs/prices`). A missing close
+leaves the day partial with its NAV blank; nothing is carried from another day.
+Returns are price-only, and every trade pays 5 bps. The daily run only values the
+books and republishes the rules candidate books; it never trades.
+
+`bin/seed.py` is idempotent: a book with a deposit row is never seeded again, and
+a style book whose box is not yet full enough to fill its mandate waits.
+`bin/trade.py` is dry-run by default, checks each batch against the mandate, and
+is idempotent per book, date and order id. `bin/review.py` prints what the PM
+reads. `bin/construct.py` is the earlier sizing rule; nothing uses it now.
+
+## Agent 2 draft (earlier design)
+
 Agent 2. Takes the theses agent 1 wrote and decides how much of the book is
 willing to be wrong about each of them.
 

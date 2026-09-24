@@ -462,9 +462,17 @@ class FreshFetchWithholds(unittest.TestCase):
             self.skipTest("ALIT not in reported.csv")
         s = {"ticker": "ALIT", "security_type": "operating", "ttm_eps_diluted": 34.37,
              "prior_ttm_eps_diluted": -40.78, "eps_basis": "ttm"}
-        with H.patched(LF, fetch_edgar_company_facts=lambda cik: facts), H.quiet():
-            n = LF.enrich_with_edgar([s], {"ALIT": 1809104}, max_workers=1)
+        with H.temp_dir() as tmp:
+            # The same pass records the style books' three-year history; keep it
+            # out of the repository's data/.
+            with H.patched(LF, fetch_edgar_company_facts=lambda cik: facts,
+                           STYLE_HISTORY_CSV=tmp / "style_history.csv"), H.quiet():
+                n = LF.enrich_with_edgar([s], {"ALIT": 1809104}, max_workers=1)
+            hist = LF.PF.load_style_history(tmp / "style_history.csv")
         self.assertEqual(n, 1)
+        # ALIT lost money in its start year, so EPS growth is left blank, not invented.
+        self.assertEqual(hist["ALIT"]["eps_growth_3y"], "")
+        self.assertIn("start EPS not positive", hist["ALIT"]["note"])
         for f in LF._EDGAR_WITHHELD_ON_ABSENCE:
             self.assertNotIn(f, s)
         self.assertLess(s["ttm_net_income"], 0)

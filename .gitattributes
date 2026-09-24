@@ -16,3 +16,6 @@
 # data/financials/reported.csv needs a new file or a quiet window, not a widening.
 data/**/*.csv merge=union
 data/*.csv    merge=union
+# The model portfolios' ledger (trades, decisions, mandates) is append-only in the
+# same way, and portfolio/engine.py refuses to append under a changed header.
+portfolio/ledger/*.csv merge=union
