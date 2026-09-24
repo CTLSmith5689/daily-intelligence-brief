@@ -180,7 +180,7 @@ class DesksAndPlaybooks(unittest.TestCase):
         text = (H.REPO / "theses" / "routines" / "research-director.md").read_text(encoding="utf-8")
         head, sep, body = text.partition("\n---\n")
         self.assertTrue(sep)
-        self.assertRegex(head, r"(?m)^Schedule: Sundays 18:00 ET$")
+        self.assertRegex(head, r"(?m)^Schedule: Sundays 16:00 ET$")
         self.assertIn("theses/DIRECTOR.md", body)
 
 
@@ -514,7 +514,7 @@ class ResearchPage(unittest.TestCase):
     def test_director_block_and_plan(self):
         LF = H.LF
         how = LF._director_instructions()
-        self.assertEqual(how["routine"]["schedule"], "Sundays 18:00 ET")
+        self.assertEqual(how["routine"]["schedule"], "Sundays 16:00 ET")
         self.assertIn("director_inputs.py", how["prompt"])
         with H.temp_dir() as d:
             write_plan(d, plan_text(GOOD, body=BODY.replace("Look at memory", "<script>x</script> Look at memory")))

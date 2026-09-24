@@ -1,6 +1,6 @@
 # Research agent routine
 
-Schedule: Mondays 07:00 ET
+Schedule: Weekdays 07:00 ET
 
 The prompt of the claude.ai routine that runs the analyst, mirrored here so it is versioned and shown on the Research page. The routine does not read this file: when either changes, change the other by hand (theses/RUNBOOK.md).
 

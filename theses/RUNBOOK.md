@@ -350,7 +350,7 @@ text, where a company's own filings print them, and never as data columns.
 
 ## The Research Director
 
-A second routine, **Research Director**, runs on Sundays at 18:00 ET, before the
+A second routine, **Research Director**, runs on Sundays at 16:00 ET, before the
 week's first analyst run. Set it up like the Research Agent (Opus 5, "Skip all
 approvals", "Require this computer" unchecked, the repository attached as a
 source), and paste the prompt from `theses/routines/research-director.md`

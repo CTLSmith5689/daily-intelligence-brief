@@ -1,6 +1,6 @@
 # Research director routine
 
-Schedule: Sundays 18:00 ET
+Schedule: Sundays 16:00 ET
 
 The prompt of the claude.ai routine that runs the Research Director, mirrored here so it is versioned and shown on the Research page. The routine does not read this file: when either changes, change the other by hand (theses/RUNBOOK.md).
 
