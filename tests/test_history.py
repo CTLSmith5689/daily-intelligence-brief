@@ -202,5 +202,60 @@ console.log(JSON.stringify(out));
                 self.assertAlmostEqual(page_z, z, places=3)
 
 
+class HistoryPriceFillAndDayChange(unittest.TestCase):
+    """The price chart's empty days come only from the stored close for that exact
+    date; the day change is withheld on a change_gap row. CF, September 2026."""
+
+    COLS = ["date", "ticker", "name", "price", "change_pct", "pe", "security_type",
+            "price_date", "price_stale", "change_gap"]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp_ctx = H.temp_dir()
+        tmp = cls.tmp_ctx.__enter__()
+        panel, out, prices = tmp / "fundamentals", tmp / "history", tmp / "prices"
+        for p in (panel, out, prices):
+            p.mkdir()
+        base = {"ticker": "CF", "name": "CF Industries", "security_type": "operating"}
+        rows = [
+            dict(base, date="2026-09-17", price=133.82, change_pct=1.39, pe=9.9, price_date="2026-09-17"),
+            dict(base, date="2026-09-18", price=127.7, change_pct=-4.57, pe=9.5, price_date="2026-09-18"),
+            # Stale: the panel withheld every price field and flagged the row.
+            dict(base, date="2026-09-21", price_stale=1, price_date="2026-09-18"),
+            dict(base, date="2026-09-22", price=120.59, change_pct=-2.174089, pe=8.96, price_date=""),
+            dict(base, date="2026-09-23", price=120.64, change_pct=-2.133528, pe=8.96,
+                 price_date="2026-09-23", change_gap=1),
+            # A later date with no CF row and no stored close: stays empty.
+            {"date": "2026-09-24", "ticker": "ZZ", "name": "Other", "price": 5, "security_type": "operating",
+             "price_date": "2026-09-24"},
+        ]
+        rows += [{"date": d, "ticker": "ZZ", "name": "Other", "price": 5, "security_type": "operating",
+                  "price_date": d} for d in ("2026-09-17", "2026-09-18", "2026-09-21", "2026-09-22", "2026-09-23")]
+        write_csv(panel / "2026-09.csv", cls.COLS, rows)
+        H.write_price_file(prices, "CF", ["2026-09-17", "2026-09-18", "2026-09-21", "2026-09-23"],
+                           [133.82, 127.7, 123.27, 120.64])
+        with H.patched(LF, FUNDAMENTALS_CSV_DIR=panel, HISTORY_VIEW_DIR=out, PRICES_DIR=prices), H.quiet():
+            LF.write_history_views([{"ticker": "CF"}, {"ticker": "ZZ"}])
+        cls.view = json.loads((out / "CF.json").read_text(encoding="utf-8"))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp_ctx.__exit__(None, None, None)
+
+    def test_stale_day_is_filled_with_the_stored_close_for_that_date(self):
+        v = self.view
+        self.assertEqual(v["d"][2], "2026-09-21")
+        self.assertIsNone(v["v"]["price"][2])             # the panel value stays withheld
+        self.assertEqual(v["pf"], {"2026-09-21": 123.27})   # 09-24: no stored close, not filled
+
+    def test_other_metrics_stay_blank_on_the_filled_day(self):
+        self.assertIsNone(self.view["v"]["pe"][2])
+
+    def test_day_change_is_withheld_on_gap_and_stale_rows(self):
+        v = self.view
+        self.assertEqual(v["gap"], [4])
+        self.assertEqual(v["c"], [1.39, -4.57, None, -2.1741, None])
+
+
 if __name__ == "__main__":
     unittest.main()
