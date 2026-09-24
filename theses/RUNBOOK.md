@@ -145,7 +145,7 @@ usual JSON.
    python3 theses/bin/events.py theses/notes/{TICKER}/{RUN_DATE}-{kind}.md "<trigger>" "<rationale>"
    git add theses/
    git commit -m "theses({RUN_DATE}): T1, T2"
-   git pull --rebase && git push
+   git pull --rebase origin main && git push origin HEAD:main
    ```
 
    `events.py` runs the note checks again and refuses a note that fails one, so
@@ -218,10 +218,10 @@ record each note and push:
 python3 theses/bin/events.py theses/notes/{TICKER}/{RUN_DATE}-{kind}.md "<trigger>" "<rationale>"
 git add theses/
 git commit -m "theses({RUN_DATE}): T1, T2, T3"
-git pull && git push
+git pull --rebase origin main && git push origin HEAD:main
 ```
 
-`git pull && git push`, not a bare push: a bot commits to this repository every
+`git pull --rebase origin main && git push origin HEAD:main`, not a bare push. A routine session checks out its own branch, so a bare push lands there, not on main (the first News Desk run did exactly that). And a bot commits to this repository every
 hour at :23 and a bare push loses that race whenever one lands in the window.
 
 Run one or the other for a given week, never both. Two runs on the same date

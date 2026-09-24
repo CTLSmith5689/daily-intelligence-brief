@@ -124,7 +124,7 @@ fails, unstage each file it names (git restore --staged PATH) and run it again.
 Never git add -A, and never stage anything else.
 
   git commit -m "news($(TZ=America/New_York date +%F)): News Desk pack"
-  git pull --rebase && git push
+  git pull --rebase origin main && git push origin HEAD:main
 
 If the push is refused, run the last line once more. If it still fails, report
 the exact error.

@@ -226,7 +226,7 @@ too, unless you can say in your report why one stays. Then:
   git add theses/director/ theses/desks/sectors/
   python3 theses/bin/director_check.py --changes
   git commit -m "director({WEEK_OF}): plan"
-  git pull --rebase && git push
+  git pull --rebase origin main && git push origin HEAD:main
 
 The --changes check fails if anything staged is outside theses/director/, or if a
 playbook change is anything but new dated lines at the end of its Lessons
