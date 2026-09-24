@@ -1,0 +1,50 @@
+Segment Reporting 
+ 8 Months Ended 
+ 
+ May 09, 2026 
+ 
+ Segment Reporting 
+
+ Segment Reporting 
+ Note M – Segment Reporting The Company is a leading retailer and distributor of automotive parts and accessories through the Company’s 7,856 stores in the Americas. The Company has a single operating and reportable segment which aligns with how the Company is managed. This single operating segment includes all operations which are designed to enable customers to purchase products seamlessly in stores and from our online platforms. We carry an extensive product line for cars, sport utility vehicles, vans and light duty trucks, including new and remanufactured automotive hard parts, maintenance items, accessories and non-automotive products. The Company’s chief operating decision maker (“CODM”), the Chief Executive Officer, regularly reviews consolidated net income, as well as significant segment expenses included in the table below, to evaluate performance and allocate resources. The CODM also evaluates consolidated actual results versus forecasts, budgets and prior year results. The measure of segment assets is reported as “Total assets” on the Condensed Consolidated Balance Sheets as of May 9, 2026, and August 30, 2025. Expenditures for long-lived segment assets are reported as “Capital expenditures” on the Condensed Consolidated Statements of Cash Flows for the thirty-six weeks ended May 9, 2026, and May 10, 2025. The following table represents significant expenses that are regularly provided to the CODM for the twelve and thirty-six weeks ended May 9, 2026, and May 10, 2025: Twelve Weeks Ended Thirty-Six Weeks Ended May 9, May 10, May 9, May 10, (in thousands) 2026 2025 2026 2025 Auto Parts Segment Net sales $ 4,840,950 $ 4,464,339 $ 13,743,677 $ 12,695,991 Cost of sales, including warehouse and delivery expenses 2,316,376 2,110,816 6,616,431 5,946,010 Gross profit 2,524,574 2,353,523 7,127,246 6,749,981 Less: Compensation expense (1) 972,875 899,440 2,858,295 2,633,277 Rent expense (2) 122,541 111,765 356,884 327,701 Depreciation & amortization 138,216 127,031 407,274 370,948 Advertising expense 25,275 24,708 71,079 74,658 Other segment expenses (3) 341,911 324,405 1,027,333 929,307 Interest expense, net 110,490 111,285 323,929 327,736 Income tax expense 171,775 146,449 441,278 425,057 Consolidated net income $ 641,491 $ 608,440 $ 1,641,174 $ 1,661,297 (1) Compensation expense includes operating, selling, general and administrative expenses for payroll expense, benefits, related taxes, share-based compensation and other employee costs. (2) Rent expense includes rent and variable operating lease components, related to insurance and common area maintenance included in selling, general and administrative expenses. Rent expense related to supply chain is included in cost of sales, including warehouse and delivery expenses. (3) Other segment items include vehicle expense, utilities expense, real estate taxes and insurance expense, service charges and other operating expenses . 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for reporting segments including data and tables. Reportable segments include those that meet any of the following quantitative thresholds a) it's reported revenue, including sales to external customers and intersegment sales or transfers is 10 percent or more of the combined revenue, internal and external, of all operating segments b) the absolute amount of its reported profit or loss is 10 percent or more of the greater, in absolute amount of 1) the combined reported profit of all operating segments that did not report a loss or 2) the combined reported loss of all operating segments that did report a loss c) its assets are 10 percent or more of the combined assets of all operating segments. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 7: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 11: http://fasb.org/us-gaap/role/ref/otherTransitionRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 12: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 13: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 14: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 16: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 18: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 19: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 20: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 21: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 22: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 Reference 25: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration
