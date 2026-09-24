@@ -278,7 +278,9 @@ class Pages(unittest.TestCase):
             self.assertIn(needle, js)
         css = (H.REPO / "web" / "ledger.css").read_text(encoding="utf-8")
         self.assertIn("html .ld-kb{", css)
-        self.assertRegex(css, r"html \.ld-kb\{[^}]*overflow-x:auto")
+        # The board wraps into rows rather than scrolling sideways (owner: it looked cut off).
+        self.assertRegex(css, r"html \.ld-kb-track\{[^}]*flex-wrap:wrap")
+        self.assertNotRegex(css, r"html \.ld-kb\{[^}]*overflow-x:auto")
 
 
 class Instructions(unittest.TestCase):

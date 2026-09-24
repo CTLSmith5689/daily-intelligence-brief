@@ -3478,8 +3478,8 @@
         ["Cash", m.cash_band ? plainPct(m.cash_band[0], 0) + " to " + plainPct(m.cash_band[1], 0) + " of the book" : "n/a"],
         ["Turnover", m.turnover_budget != null ? "Up to " + plainPct(m.turnover_budget, 0) + " of the book a year, counting purchases or sales, whichever is smaller" : "No limit"],
         ["Bets against companies", "Not allowed"],
-        ["Companies it may buy", "Only those in its own box"],
-        ["Weighting", m.weighting === "equal" ? "Equal weight" : String(m.weighting || "")],
+        ["Companies it may buy", "Only companies in its size and style group, for example large-cap growth"],
+        ["Weighting", "Set by the PM, company by company, within the limits above. The rules book it is measured against holds equal weights"],
         ["Active share against the rules", m.max_active_share_vs_rules == null ? "No limit set" : "Up to " + plainPct(m.max_active_share_vs_rules, 0)]
       ];
     } else if (b.kind === "hedge") {
