@@ -7980,7 +7980,7 @@ def get_or_generate_stocks_universe(session_confirmed=False):
 #                  z, filtered from a command bar (stocks.html#q=gm>1 pe<-0.5), with a
 #                  3D factor map of the same screen beside it (stocks.html#view=map)
 #   company.html   company.html#TICKER, one page per listing, thesis included
-#   research.html  an index of theses and the record
+#   research.html  an index of theses, the record, and the draft portfolio manager
 #
 # The Stocks and company pages load stocks-data.json and compute robust z in the
 # browser (web/zengine.js). Nothing on them is hardcoded per security type: the
@@ -9912,14 +9912,275 @@ _VIEW_WORDS = {"long": "Own it", "short": "Bet against it", "avoid": "Stay away"
                "watch": "Keep watching", "no view": "No view"}
 _STATUS_WORDS = {"open": "Open call", "watching": "Watching", "graded": "Checked",
                  "due": "Review overdue"}
+# --- the portfolio section of the research page ---------------------------------
+#
+# The portfolio manager (PM) is agent 2: it would decide how much of the
+# portfolio each of the analyst's views gets. It is not running. Its instructions
+# are a draft in portfolio/drafts/ that the owner has not approved, and the
+# scripts it would need do not exist yet. This section lets the owner read the
+# design on the site before anything is built or switched on.
+#
+# Read-only by construction: it reads portfolio/books/ (written by construct.py,
+# if it has ever run), theses/ledger/events.csv and the two draft files, and
+# decides nothing. The limits and the weekly summary below are the draft's, put
+# into plain words; tests/test_portfolio_section.py checks that the numbers in
+# them appear in the draft.
+PORTFOLIO_DIR = REPO_ROOT / "portfolio"
+PORTFOLIO_DRAFT_LABEL = "Draft, not approved by the owner"
+PORTFOLIO_DRAFTS = (
+    ("instructions", "PM-agent-draft.md", "Read the draft instructions in full"),
+    ("sample", "PM-decision-sample.md", "Read the sample decision in full"),
+)
+# (limit, what it says, how it compares with what exists today)
+PORTFOLIO_DRAFT_LIMITS = (
+    ("Loss in the bear case",
+     "No position may cost the portfolio more than 2% in its bear case, the memo's "
+     "pessimistic scenario. A company whose shares would fall 45% in that scenario "
+     "could therefore make up at most 4.4% of the portfolio.",
+     "New, and the owner's choice"),
+    ("Track record",
+     "Until 10 of the analyst's calls have been checked, no new position starts above "
+     "half the size the sizing rule allows.",
+     "New, and the owner's choice"),
+    ("Largest size",
+     "A position is never larger than the sizing rule allows or than the memo proposes. "
+     "The PM may make it smaller, never larger, and may not scale positions up to use "
+     "spare cash.",
+     "Changed: today the PM may not change sizes at all"),
+    ("Size of each position",
+     "Between 3% and 12% of the portfolio. A purchase that would come out below 3% is "
+     "rejected.",
+     "In the sizing script today"),
+    ("Tests before buying",
+     "The memo's expected return must be higher than the return the memo itself "
+     "requires. The memo must give a dated test that would prove it wrong, and a plan "
+     "for watching the company with numbers that trigger a sale. The question the "
+     "thesis turns on must not be one the memo admits it cannot answer. Conviction "
+     "must be 3 of 5 or more.",
+     "New, except the conviction test"),
+    ("One sector",
+     "No more than 25% of the portfolio in a single sector.",
+     "In the sizing script today"),
+    ("Shares that move together",
+     "Two holdings whose prices have a correlation above 0.50 are flagged as a single "
+     "bet. Correlation measures how closely two prices move together, on a scale from "
+     "minus 1 to 1.",
+     "In the sizing script today; the check on a company before it is bought is new"),
+    ("Cash",
+     "More than 15% of the portfolio in cash is flagged. The PM may not fill it by "
+     "making positions larger.",
+     "In the sizing script today"),
+    ("Small changes",
+     "A position within 2 percentage points of last week's size is left alone, "
+     "because every trade has a cost.",
+     "In the current instructions"),
+    ("Sensitivity to the market",
+     "If the portfolio's beta moves by more than 0.25 in a week, the PM must say why. "
+     "Beta measures how far the portfolio tends to move when the whole market moves "
+     "by 1%.",
+     "In the current instructions"),
+    ("Betting against a company",
+     "Rejected for now, because the sizing script cannot yet hold such a position "
+     "correctly.",
+     "New"),
+    ("Checking its own judgment",
+     "Once 20 of the PM's decisions have been checked, if its own cuts to sizes have "
+     "lost money against the sizing rule, it stops making them until the owner has "
+     "reviewed the record.",
+     "New"),
+)
+PORTFOLIO_DRAFT_MONDAY = (
+    "Read its own record and the analyst's: how many calls have been checked, and "
+    "whether the confident calls have done better than the cautious ones.",
+    "Read every memo written since its last review, starting with the first page, and "
+    "redo the first page's arithmetic. A memo whose arithmetic is wrong goes back to "
+    "the analyst.",
+    "Make one decision on each memo: approve it, reject it, send it back with "
+    "questions, change the size of a holding, confirm a memo that asks for no trade, "
+    "or sell a holding outright.",
+    "Size each purchase at the smallest of four figures: the memo's proposal, the "
+    "sizing rule, the bear-case limit and the track-record limit.",
+    "Check the whole portfolio against the limits above, and record every warning, "
+    "including the ones it decides not to act on.",
+    "Write each decision to a new file, so that every decision can be graded later "
+    "against the analyst's proposed size and the sizing rule, and write a plain "
+    "account of the week's portfolio.",
+)
+PORTFOLIO_DRAFT_BEFORE = (
+    "Two new scripts: one that records each decision, and one that grades them.",
+    "Changes to the sizing script: it must accept a portfolio of fewer than two "
+    "companies (today it stops with an error), check a company's correlation with "
+    "the holdings before it is bought, and carry the two new limits.",
+    "A new memo format from the analyst, with the proposed size, the expected return "
+    "and the bear-case loss on the first page.",
+    "A weekly schedule for the PM, and the owner's approval of the two new limits.",
+)
+PORTFOLIO_SAMPLE_SUMMARY = (
+    "On 23 September 2026 the PM would have made two decisions on the analyst's "
+    "NVIDIA memo. First, it agrees with the memo's advice not to buy yet, and holds "
+    "0%: the memo expects a total return of 11.3% over the next year, below the "
+    "12.0% the memo itself requires.",
+    "Second, it approves a plan to buy 3.7% of the portfolio if NVIDIA's results on "
+    "17 November pass two tests: the company's own forecast of at least $125 billion "
+    "for the quarter ending in January 2027, and customers paying, on average, within "
+    "55 days. The 3.7% is the smallest of four figures: the memo's proposal (3.7%), "
+    "the sizing rule (7.4%), the bear-case limit (4.4%) and the track-record limit "
+    "(3.7%).",
+)
+
+
+def _draft_md_to_html(text):
+    """The draft files as HTML, through the same safe subset as the notes.
+
+    _md_to_html has no headings, code blocks or numbered lists, and the drafts use
+    all three. Those are handled here, escaped, and every other run of lines goes
+    through _md_to_html unchanged. Headings become h5, as in a note's body."""
+    if not text:
+        return ""
+    lines = str(text).replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    out, prose = [], []
+    code = None
+    prev_blank = True
+
+    def flush():
+        if prose:
+            out.append(_md_to_html("\n".join(prose)))
+            prose.clear()
+
+    def pre(block):
+        out.append("<pre><code>" + _html.escape("\n".join(block), quote=False)
+                   + "</code></pre>")
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        s = line.strip()
+        if code is not None:
+            if s.startswith("```"):
+                pre(code)
+                code = None
+            else:
+                code.append(line)
+            i += 1
+            continue
+        if s.startswith("```"):
+            flush()
+            code = []
+        elif re.match(r"^#{1,6}\s", s):
+            flush()
+            out.append("<h5>" + _md_inline(_html.escape(s.lstrip("#").strip())) + "</h5>")
+        elif s == "---":
+            flush()
+        elif prev_blank and not prose and line.startswith("    "):
+            # An indented block after a blank line is code, as in markdown.
+            block = []
+            while i < len(lines) and (lines[i].startswith("    ") or not lines[i].strip()):
+                block.append(lines[i][4:])
+                i += 1
+            while block and not block[-1].strip():
+                block.pop()
+            pre(block)
+            prev_blank = True
+            continue
+        elif re.match(r"^\d+\.\s", s):
+            # A numbered item starts its own paragraph; its number stays as typed.
+            flush()
+            prose.append(s)
+        elif not s:
+            flush()
+        else:
+            prose.append(line)
+        prev_blank = not s
+        i += 1
+    if code is not None:
+        pre(code)
+    flush()
+    return "".join(out)
+
+
+def _portfolio_book():
+    """The newest book construct.py wrote under portfolio/books/, or None."""
+    for path in sorted((PORTFOLIO_DIR / "books").glob("*.json"), reverse=True):
+        try:
+            book = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            print(f"portfolio: could not read {path.name} ({type(exc).__name__}); skipped.")
+            continue
+        if isinstance(book, dict):
+            return book
+    return None
+
+
+def _portfolio_views():
+    """The analyst's current view per ticker, and whether the sizing rule could
+    hold it: the test construct.py applies (long or short, conviction 3 or more)."""
+    path = THESES_DIR / "ledger" / "events.csv"
+    if not path.exists():
+        return []
+    latest = {}
+    with path.open(encoding="utf-8", newline="") as fh:
+        for e in csv.DictReader(fh):
+            if e.get("ticker"):
+                latest[e["ticker"]] = e
+    out = []
+    for t in sorted(latest):
+        e = latest[t]
+        if e.get("kind") == "close":
+            continue
+        direction = (e.get("direction") or "").strip() or "no view"
+        try:
+            conv = int(str(e.get("conviction") or "").strip())
+        except ValueError:
+            conv = None
+        out.append({"ticker": t, "direction": direction, "conviction": conv,
+                    "holdable": direction in ("long", "short") and (conv or 0) >= 3})
+    return out
+
+
+def _ledger_portfolio(n_scored=0):
+    """What the research page's Portfolio section shows. Nothing here decides."""
+    book = _portfolio_book() or {}
+    positions = [{k: p.get(k) for k in ("ticker", "weight", "conviction", "direction",
+                                        "sector", "thesis_id")}
+                 for p in (book.get("positions") or [])
+                 if isinstance(p, dict) and p.get("ticker")]
+    drafts = []
+    for key, name, label in PORTFOLIO_DRAFTS:
+        try:
+            text = (PORTFOLIO_DIR / "drafts" / name).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        drafts.append({"key": key, "label": label, "path": f"portfolio/drafts/{name}",
+                       "html": _draft_md_to_html(text)})
+    return {
+        "draftLabel": PORTFOLIO_DRAFT_LABEL,
+        "book": {"date": book.get("date") or "", "positions": positions,
+                 "cash": book.get("cash")},
+        "views": _portfolio_views(),
+        "scored": n_scored,
+        "limits": [{"name": a, "text": b, "status": c} for a, b, c in PORTFOLIO_DRAFT_LIMITS],
+        "monday": list(PORTFOLIO_DRAFT_MONDAY),
+        "before": list(PORTFOLIO_DRAFT_BEFORE),
+        "sample": list(PORTFOLIO_SAMPLE_SUMMARY),
+        "drafts": drafts,
+    }
+
+
 def generate_research(universe, version=None):
     """Write docs/research.html: every thesis in one table, each row leading to
-    its company page where the full note is, and the record."""
+    its company page where the full note is, the record, and the Portfolio
+    section (read-only: what is held and the PM draft the owner has not approved)."""
     if version is None:
         version = _write_ledger_assets()
     research, record = _ledger_research(universe)
+    try:
+        portfolio = _ledger_portfolio(record.get("graded") or 0)
+    except Exception as exc:
+        # A draft that fails to render must not take the research index with it.
+        print(f"portfolio: section skipped ({type(exc).__name__}: {exc}).")
+        portfolio = None
     cfg = dict(_ledger_common(universe), nonop=sorted(sectype.NON_OPERATING),
-               research=research, record=record)
+               research=research, record=record, portfolio=portfolio)
     html = render_ledger_page("research", "Research, Apterreon", cfg, version,
                               description="Written views on single companies, each with a target price, a review date and what would prove it wrong.",
                               loading="Loading the theses")
