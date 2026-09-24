@@ -3393,7 +3393,11 @@ FIELD_SOURCES = {
     "news": "Google News RSS, one search per ticker",
     "index": "Wikipedia index constituent tables and the NASDAQ Trader directory",
     "benchmark_series": "Russell ETF daily closes (IWY, IWL, IWX, IWP, IWR, IWS, IWO, IWM, IWN, "
-                        "IWF, IWD, IWV) from Yahoo, not adjusted for dividends, stored once per run",
+                        "IWF, IWD, IWV) and the eleven SPDR sector funds (XLK, XLC, XLE, XLB, "
+                        "XLU, XLF, XLRE, XLV, XLY, XLP, XLI) from Yahoo, not adjusted for "
+                        "dividends, stored once per run",
+    "analyst_ledger": "The analyst's calls in theses/ledger/events.csv and the notes they name, "
+                      "priced at the stored daily closes",
     "fundamentals_panel": "The daily fundamentals panel in data/fundamentals",
     "portfolio_ledger": "The model portfolios' trades in portfolio/ledger, valued at the stored daily closes",
 }
@@ -3782,6 +3786,86 @@ FIELD_METHODS = {
         "formula": "close(date) / close(inception) - 1",
         "note": "From the ETF's daily closes, not adjusted for dividends, so it is price-only like "
                 "the books. Blank when either close is not stored.",
+    },
+    # Scoring and attribution (theses/bin/score.py, portfolio/bin/score_pm.py), for
+    # the Scorecard page and each book's page. Written to data/scoring and
+    # data/portfolio by the daily run, never onto panel rows.
+    "call_excess_return": {
+        "label": "Excess return of a call", "units": "fraction", "source": "analyst_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "sign * ((close(end) / close(start) - 1) - (fund(end) / fund(start) - 1)); "
+                   "sign +1 long, -1 short, avoid or exit",
+        "note": "The stock's price return minus its SPDR sector fund's over the same dates, turned "
+                "round for a short, an avoid or an exit. An avoid is right when the stock lags its "
+                "sector; it is never scored as a short. Both returns use stored closes for the exact "
+                "dates, and a missing close leaves it blank. Marked every session, final only at "
+                "the horizon.",
+    },
+    "call_hit_rate": {
+        "label": "Hit rate of calls", "units": "fraction", "source": "analyst_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "count(call_excess_return > 0) / count(scored calls)",
+        "note": "Only calls scored against a sector fund count. A group with fewer than 10 scored "
+                "calls is shown with its count and labelled too few to read.",
+    },
+    "call_brier": {
+        "label": "Scenario calibration (Brier score)", "units": "ratio", "source": "analyst_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "sum over bull, base, bear of (probability - (1 if landed else 0)) ** 2",
+        "note": "A call lands on the case whose return from the note's entry price is nearest the "
+                "stock's actual return at the horizon. 0 is perfect and 2 the worst; giving each "
+                "case one chance in three scores 0.667 whatever happens.",
+    },
+    "pm_value_added": {
+        "label": "PM value added", "units": "fraction", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "book_nav / capital - shadow_nav / capital",
+        "note": "The shadow book holds the rules candidate book, bought as the real book was on its "
+                "first day and rebalanced at the stored close on every date the real book trades, "
+                "paying the same 5 basis points. Style books only.",
+    },
+    "attribution_allocation": {
+        "label": "Allocation", "units": "fraction", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "sum over sectors of (w_s - W_s) * (R_s - R_b)",
+        "note": "Brinson-Fachler, daily, linked over time by Carino's method. W and R come from a "
+                "proxy benchmark we can see inside: the book's own box weighted by market value, or "
+                "for the hedge and free-hand books every operating company weighted by market value.",
+    },
+    "attribution_selection": {
+        "label": "Selection", "units": "fraction", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "sum over sectors of W_s * (r_s - R_s); interaction (w_s - W_s) * (r_s - R_s) apart",
+        "note": "For a book that is short some names the interaction is included in selection, "
+                "because a sector's net weight can be near zero. Allocation, selection, interaction, "
+                "cash drag and trading costs add up exactly to the return against the proxy.",
+    },
+    "cash_drag": {
+        "label": "Cash drag", "units": "fraction", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "cash / nav * (0 - R_b)",
+        "note": "Cash in the ledger earns nothing, so this is what holding it cost, or saved, against "
+                "the proxy benchmark.",
+    },
+    "proxy_error": {
+        "label": "Proxy error", "units": "fraction", "source": "benchmark_series",
+        "refresh": "daily", "asof": "date",
+        "formula": "product(1 + R_b) - product(1 + fund return) over sessions with both",
+        "note": "How far the proxy benchmark's return was from the fund the book is measured against. "
+                "Large when the fund holds companies our panel does not place in the box.",
+    },
+    "book_beta": {
+        "label": "Beta to the S&P 500", "units": "ratio", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "cov(r_book, r_^GSPC) / var(r_^GSPC) over at least 60 paired sessions",
+        "note": "Hedge and free-hand books only. Beta-adjusted excess is the book's compounded return "
+                "minus beta times the S&P 500's over the same sessions.",
+    },
+    "sizing_effect": {
+        "label": "Sizing effect", "units": "fraction", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "product(1 + r_book) - product(1 + r_book - sum_i (w_i - sign_i * gross / N) * r_i)",
+        "note": "The book against equal weights of the same holdings on the same sides, day by day.",
     },
 }
 
@@ -8690,6 +8774,7 @@ LEDGER_DISCLAIMER = ("A personal project. The data is collected automatically an
 _LEDGER_NAV = (("home", "index.html", "Home"), ("today", "today.html", "Today"),
                ("stories", "stories.html", "Stories"), ("stocks", "stocks.html", "Stocks"),
                ("research", "research.html", "Research"),
+               ("scorecard", "scorecard.html", "Scorecard"),
                ("portfolios", "portfolios.html", "Portfolios"))
 
 
@@ -10515,7 +10600,7 @@ PORTFOLIO_DRAFTS = (("PM-agent-draft.md", "The draft instructions for the portfo
                     ("PM-decision-sample.md", "A sample decision on NVIDIA"))
 # What the cards page leaves out of its data; book.html carries everything.
 _PORTFOLIO_DETAIL_KEYS = ("trades", "decisions", "holdings", "candidate", "mandateHistory",
-                          "unpriced")
+                          "unpriced", "scoring")
 
 # --- the instructions the agents run on ---------------------------------------
 #
@@ -10934,6 +11019,13 @@ def _board_column(b, coverage):
         if pm_book:
             rows.append(_bd_kv("Gross, net", f'{_bd_pct(b.get("gross"), 0, sign=False)}, '
                                              f'{_bd_pct(b.get("net"), 0, sign=False)}'))
+        else:
+            shadow = (b.get("scoring") or {}).get("shadow") or {}
+            va, act = shadow.get("valueAdded"), shadow.get("activeShare")
+            rows.append(_bd_kv("PM value added", _bd_pct(va, 2) if _bd_ok(va) else "n/a",
+                               _bd_cls(va)))
+            rows.append(_bd_kv("Active share vs rules",
+                               _bd_pct(act, 1, sign=False) if _bd_ok(act) else "n/a"))
     else:
         rows.append(_bd_kv("Value", "Not started"))
     pmd = b.get("lastPmDecision")
@@ -11011,11 +11103,111 @@ def record_portfolio_nav():
     return n
 
 
+# --- scoring and attribution -----------------------------------------------------
+#
+# The analyst's calls are marked every session and scored at their horizon by
+# theses/bin/score.py; the PM is scored against a rules-only shadow of each style
+# book, and every book's return is attributed, by portfolio/bin/score_pm.py. Both
+# are arithmetic over stored closes, run by the daily run after the NAV, and write
+# append-only files under data/ (the only tree this run commits besides docs/ and
+# state/): data/scoring/scores.csv and marks.csv, and data/portfolio/
+# shadow_trades.csv, shadow_nav.csv, decision_marks.csv and attribution.csv.
+SCORING_DIR = DATA_DIR / "scoring"
+SCORING_SCORES_CSV = SCORING_DIR / "scores.csv"
+SCORING_MARKS_CSV = SCORING_DIR / "marks.csv"
+
+
+def _scoring_modules():
+    """theses/bin/score.py and portfolio/bin/score_pm.py. theses/bin is appended to
+    the path, never prepended: it holds a queue.py."""
+    tb = str(REPO_ROOT / "theses" / "bin")
+    if tb not in _sys.path:
+        _sys.path.append(tb)
+    import score as score_mod
+    from portfolio.bin import score_pm as score_pm_mod
+    return score_mod, score_pm_mod
+
+
+def _scoring_ctx(score_pm_mod):
+    return score_pm_mod.Ctx(ledger_dir=PORTFOLIO_DIR / "ledger", prices=PF.PriceStore(PRICES_DIR),
+                            benchmarks=PF.BenchmarkStore(PRICES_DIR), panel_dir=FUNDAMENTALS_CSV_DIR,
+                            history=STYLE_HISTORY_CSV, events=THESES_DIR / "ledger" / "events.csv",
+                            books_dir=PORTFOLIO_DIR / "books")
+
+
+def run_scoring(today=None):
+    """The daily run's scoring step, after the NAV: marks and final scores for the
+    analyst's calls, then the shadow books, per-decision marks and attribution.
+    Each half is wrapped so a failure in one cannot cost the other."""
+    today = today or datetime.now(EASTERN).date().isoformat()
+    score_mod, score_pm_mod = _scoring_modules()
+    try:
+        score_mod.run_daily(PRICES_DIR, FUNDAMENTALS_CSV_DIR, SCORING_SCORES_CSV, SCORING_MARKS_CSV,
+                            today=today, events=PF.read_rows(THESES_DIR / "ledger" / "events.csv"),
+                            predictions=PF.read_rows(THESES_DIR / "ledger" / "predictions.csv"),
+                            root=THESES_DIR.parent)
+    except Exception as exc:
+        print(f"scoring: analyst calls not scored ({type(exc).__name__}: {exc}).")
+    try:
+        score_pm_mod.run_daily(_scoring_ctx(score_pm_mod), today=today,
+                               data_dir=PORTFOLIO_NAV_CSV.parent)
+    except Exception as exc:
+        print(f"scoring: PM scoring not recorded ({type(exc).__name__}: {exc}).")
+
+
+def _scorecard_data():
+    score_mod, _ = _scoring_modules()
+    calls = score_mod.load_calls(PF.read_rows(THESES_DIR / "ledger" / "events.csv"),
+                                 PF.read_rows(THESES_DIR / "ledger" / "predictions.csv"),
+                                 root=THESES_DIR.parent)
+    panel = score_mod.Panel(FUNDAMENTALS_CSV_DIR)
+    sector_of = {c["call_id"]: score_mod.call_sector(c, panel) for c in calls}
+    out = score_mod.scorecard_data(calls, PF.read_rows(SCORING_SCORES_CSV),
+                                   PF.read_rows(SCORING_MARKS_CSV), sector_of, _NOTE_REPO_URL)
+    # The PM against the analyst: every trade against the analyst's rating, marked
+    # by portfolio/bin/score_pm.py into data/portfolio/disagreements.csv.
+    _, score_pm_mod = _scoring_modules()
+    rows = PF.read_rows(PORTFOLIO_NAV_CSV.parent / "disagreements.csv")
+    out["pmVsAnalyst"] = {"summary": score_pm_mod.disagreement_summary(rows),
+                          "rows": [{k: r.get(k) for k in score_pm_mod.DISAGREEMENT_COLUMNS
+                                    if k != "computed_at"} for r in rows]}
+    return out
+
+
+def _book_scoring():
+    """{book id: summary} for the book pages and the board, or {} on any failure."""
+    try:
+        _, score_pm_mod = _scoring_modules()
+        return score_pm_mod.site_summary(PORTFOLIO_NAV_CSV.parent)
+    except Exception as exc:
+        print(f"portfolios: scoring summary unavailable ({type(exc).__name__}: {exc}).")
+        return {}
+
+
+def generate_scorecard(universe, version=None):
+    """Write docs/scorecard.html: the analyst's calls, open and scored, and the
+    aggregates and calibration, every group with its count."""
+    if version is None:
+        version = _write_ledger_assets()
+    sc = _scorecard_data()
+    html = render_ledger_page("scorecard", "Scorecard, Apterreon",
+                              dict(_ledger_common(universe), scorecard=sc), version,
+                              description="How the analyst's calls have done against their "
+                                          "sector funds, open and scored.",
+                              loading="Loading the scorecard")
+    (DOCS_DIR / "scorecard.html").write_text(html, encoding="utf-8")
+    print(f"scorecard: wrote scorecard.html ({len(sc['open'])} open, {len(sc['scored'])} scored).")
+    return len(sc["open"]) + len(sc["scored"])
+
+
 def generate_portfolios(universe, version=None):
     """Write docs/portfolios.html (the cards) and docs/book.html (one book, by hash)."""
     if version is None:
         version = _write_ledger_assets()
     data = _portfolio_site_data()
+    scoring = _book_scoring()
+    for b in data["books"]:
+        b["scoring"] = scoring.get(b.get("id")) or {}
     drafts = [{"label": label, "path": f"portfolio/drafts/{name}"}
               for name, label in PORTFOLIO_DRAFTS if (PORTFOLIO_DIR / "drafts" / name).exists()]
     common = _ledger_common(universe)
@@ -11117,8 +11309,14 @@ def generate_site(briefs, universe=None):
     except Exception as exc:
         print(f"portfolios: page generation failed ({type(exc).__name__}: {exc}); "
               f"the rest of the site is unaffected.")
+    try:
+        generate_scorecard(universe, version)
+    except Exception as exc:
+        print(f"scorecard: page generation failed ({type(exc).__name__}: {exc}); "
+              f"the rest of the site is unaffected.")
     print("Wrote docs/index.html, today.html, stories.html, stocks.html, company.html, "
-          f"research.html ({n_views} names), portfolios.html, book.html, manifest.json, assets/"
+          f"research.html ({n_views} names), portfolios.html, book.html, scorecard.html, "
+          f"manifest.json, assets/"
           + (f", {n_thesis} thesis views" if n_thesis else "")
           + (f", {n_company} company views" if n_company else "")
           + (f", {n_history} history views" if n_history else "") + ".")
@@ -11405,6 +11603,15 @@ def lambda_handler(event, context):
         record_portfolio_nav()
     except Exception as exc:
         print(f"portfolios: NAV not recorded ({type(exc).__name__}: {exc}); "
+              f"the panel and the site are unaffected.")
+
+    # 5e. Scoring: the analyst's calls marked and, at their horizon, scored; the PM
+    #     against the rules-only shadow books; each book's return attributed. After
+    #     the NAV, before the site, which publishes all of it on this run.
+    try:
+        run_scoring(date_iso)
+    except Exception as exc:
+        print(f"scoring: skipped ({type(exc).__name__}: {exc}); "
               f"the panel and the site are unaffected.")
 
     # 6. Publish the snapshot page and rebuild the site.

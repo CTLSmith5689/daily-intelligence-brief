@@ -88,12 +88,32 @@ BENCHMARK_NAMES = {
     "IWO": "Russell 2000 Growth (iShares IWO)", "IWM": "Russell 2000 (iShares IWM)",
     "IWN": "Russell 2000 Value (iShares IWN)", "IWV": "Russell 3000 (iShares IWV)",
     "^GSPC": "S&P 500",
+    "XLK": "Technology Select Sector SPDR (XLK)",
+    "XLC": "Communication Services Select Sector SPDR (XLC)",
+    "XLE": "Energy Select Sector SPDR (XLE)",
+    "XLB": "Materials Select Sector SPDR (XLB)",
+    "XLU": "Utilities Select Sector SPDR (XLU)",
+    "XLF": "Financial Select Sector SPDR (XLF)",
+    "XLRE": "Real Estate Select Sector SPDR (XLRE)",
+    "XLV": "Health Care Select Sector SPDR (XLV)",
+    "XLY": "Consumer Discretionary Select Sector SPDR (XLY)",
+    "XLP": "Consumer Staples Select Sector SPDR (XLP)",
+    "XLI": "Industrials Select Sector SPDR (XLI)",
+}
+# The sector benchmark for an analyst's call (theses/bin/score.py): the SPDR fund
+# for the company's sector, keyed by the GICS sector names the panel carries.
+SECTOR_ETFS = {
+    "Information Technology": "XLK", "Communication Services": "XLC", "Energy": "XLE",
+    "Materials": "XLB", "Utilities": "XLU", "Financials": "XLF", "Real Estate": "XLRE",
+    "Health Care": "XLV", "Consumer Discretionary": "XLY", "Consumer Staples": "XLP",
+    "Industrials": "XLI",
 }
 # The series the benchmark fetch stores (the S&P 500 is already in _MARKET.json):
 # the six style books' funds, the core funds (IWL, IWR, IWM) for the core books
-# that may come later, and the all-cap IWF, IWD and IWV for the tax books.
+# that may come later, the all-cap IWF, IWD and IWV for the tax books, and the
+# eleven SPDR sector funds the analyst's calls are measured against.
 BENCHMARK_SYMBOLS = ("IWY", "IWL", "IWX", "IWP", "IWR", "IWS", "IWO", "IWM", "IWN",
-                     "IWF", "IWD", "IWV")
+                     "IWF", "IWD", "IWV") + tuple(SECTOR_ETFS.values())
 
 
 def _style_books():
@@ -142,11 +162,17 @@ DEFAULT_STYLE_MANDATE = {
     "max_position": 0.05,
     "sector_cap": 0.40,
     "cash_band": [0.0, 0.05],
-    "turnover_budget": 1.0,
+    # No turnover limit on the style books; only the tax-managed books, when they
+    # come, will carry one.
+    "turnover_budget": None,
     "long_only": True,
     "weighting": "equal",
     "overweight_factor": 1.5,
     "universe": "style_box",
+    # Active share against the rules book (active_share_vs_rules). null sets no
+    # limit; when the PM sets a number, plan_orders refuses a batch that leaves the
+    # book further from the rules than it and further than it was.
+    "max_active_share_vs_rules": None,
 }
 DEFAULT_HEDGE_MANDATE = {
     "long_only": False,
@@ -345,6 +371,11 @@ class BenchmarkStore:
     def close(self, symbol, day):
         self._load()
         return (self._series.get(symbol) or {}).get(day)
+
+    def series(self, symbol):
+        """Every stored close for `symbol`, {date: close}. Empty when not stored."""
+        self._load()
+        return dict(self._series.get(symbol) or {})
 
     def rate(self, day):
         """The 13-week Treasury bill rate stored for exactly `day`, in percent."""
@@ -829,14 +860,17 @@ OVERWEIGHT_ACTIONS = {"initiate", "add"}
 EXCLUDE_DIRECTIONS = {"avoid", "short"}
 
 
-def analyst_views(path=None):
+def analyst_views(path=None, asof=None):
     """{ticker: {"exclude": bool, "overweight": bool, "why": str}} from the newest
     event per ticker. The memo format's `action` column decides when present; the
     older notes carry only a direction, and a direction of avoid or short also
-    keeps a company out of a long-only book."""
+    keeps a company out of a long-only book. With `asof`, only events dated on or
+    before it count, so a past rules book is rebuilt from the views of its day."""
     rows = read_rows(path or EVENTS_CSV)
     latest = {}
     for e in rows:
+        if asof and (e.get("date") or "") > asof:
+            continue
         if e.get("ticker"):
             latest[e["ticker"]] = e
     out = {}
@@ -1308,7 +1342,21 @@ def _exposure(trades, book, day, prices, names):
     return v, w, sectors
 
 
-def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisions=()):
+OVERRIDE_CODE = "override_analyst"
+
+
+def active_share_vs_rules(weights, cash_weight, rules):
+    """0.5 * sum over every name and cash of |w_book - w_rules|. `weights` and
+    `rules` map ticker to a share of value; the rules' cash is what its weights
+    leave. 0 means the book is the rules book; 1 means nothing in common."""
+    rules_cash = 1.0 - sum(rules.values())
+    names = set(weights) | set(rules)
+    return 0.5 * (sum(abs(weights.get(t, 0.0) - rules.get(t, 0.0)) for t in names)
+                  + abs(cash_weight - rules_cash))
+
+
+def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisions=(), views=None,
+                rules=None):
     """Validate and price one PM order batch. Returns a plan with the trade rows and
     the decision row to append; raises OrderError listing every reason it cannot be
     written. Pure: it writes nothing.
@@ -1316,6 +1364,13 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
     batch = {"book", "date", "batch_id", "reason", "action" (default "trade"),
              "orders": [{"id", "ticker", "side", one of "shares" / "weight" / "value",
                          optional "lot_id"}]}
+
+    `views` is analyst_views(asof=date). A buy of a name the analyst rates Avoid,
+    Exit or Short needs the order's "override_reason", which is added to the
+    decision's reason; a buy, sell or short against the analyst's rating is written
+    with reason_code override_analyst. `rules` ({ticker: weight}, the rules
+    candidate for the date) is needed only when the mandate sets
+    max_active_share_vs_rules.
 
     Every fill is at the stored close for `date`; an order without one is refused.
     A limit (position size, sector, gross, net, cash) is refused when the batch
@@ -1358,7 +1413,8 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
     rows_by = {r["ticker"]: r for r in panel_day_rows}
     names = {t: (r.get("sector") or "") for t, r in rows_by.items()}
     pre_v, pre_w, pre_sec = _exposure(trades, bid, day, prices, names)
-    fills, skipped = [], []
+    views = views or {}
+    fills, skipped, overrides = [], [], []
     for o in orders:
         oid, tk, side = str(o["id"]), str(o.get("ticker") or "").upper(), o.get("side")
         tid = f"{bid}-{day}-o{oid}"
@@ -1409,10 +1465,23 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
         if sh <= 0:
             errs.append(f"{where}: comes to no whole share at ${px:,.2f}")
             continue
+        view = views.get(tk) or {}
+        against = ((side == "buy" and view.get("exclude"))
+                   or (side in ("sell", "short") and view.get("overweight")))
+        why = str(o.get("override_reason") or "").strip()
+        if side == "buy" and view.get("exclude") and not why:
+            rated = str(view.get("why") or "analyst: negative").replace("analyst: ", "")
+            errs.append(f"{where}: the analyst rates it {rated}; a buy against that needs an "
+                        f"override_reason saying why")
+            continue
+        if against:
+            rated = str(view.get("why") or "").replace("analyst: ", "")
+            overrides.append(f"{side} {tk}, rated {rated}" + (f": {why}" if why else ""))
         fills.append({"trade_id": tid, "date": day, "book": bid, "ticker": tk, "side": side,
                       "shares": sh, "price": px, "cost": round(sh * px * COST_RATE, 2),
                       "lot_id": tid if side in ("buy", "short") else (o.get("lot_id") or ""),
-                      "reason_code": "pm_order", "decision_id": decision_id})
+                      "reason_code": OVERRIDE_CODE if against else "pm_order",
+                      "decision_id": decision_id})
     if errs:
         raise OrderError(errs)
     post_trades = list(trades) + fills
@@ -1451,6 +1520,15 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
         rlo, rhi = mandate["holdings_range"]
         if not (rlo <= n <= rhi):
             warns.append(f"{n} holdings, outside the mandate's range of {rlo} to {rhi}")
+        cap = mandate.get("max_active_share_vs_rules")
+        if cap is not None:
+            if rules is None:
+                errs.append("the mandate caps active share against the rules, but no rules book "
+                            "was given to measure it")
+            elif pre_v["priced_nav"] > 0 and post_v["priced_nav"] > 0:
+                pre_as = active_share_vs_rules(pre_w, pre_v["cash"] / pre_v["priced_nav"], rules)
+                post_as = active_share_vs_rules(post_w, post_v["cash"] / post_v["priced_nav"], rules)
+                check("active share against the rules", pre_as, post_as, float(cap))
     else:
         pre_g = pre_v["gross"] or 0.0
         if post_v["gross"] is None:
@@ -1472,6 +1550,8 @@ def plan_orders(batch, trades, prices, panel_day_rows, classes, mandate, decisio
     if errs:
         raise OrderError(errs)
     have_decisions = {d_["decision_id"] for d_ in decisions}
+    if overrides:
+        reason = reason.rstrip() + " Against the analyst: " + "; ".join(overrides) + "."
     decision = None if decision_id in have_decisions else {
         "date": day, "book": bid, "decision_id": decision_id, "action": action,
         "reason": reason, "author": "pm"}

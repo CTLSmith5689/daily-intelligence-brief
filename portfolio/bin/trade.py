@@ -18,6 +18,14 @@ side is buy, sell, short or cover. Size each order by exactly one of shares (who
 weight (of the book's value at the date's close) or value (dollars). A decision with
 no trades is {"action": "hold", "orders": []}.
 
+A buy of a name the analyst rates Avoid, Exit or Short (theses/ledger/events.csv,
+the newest memo on or before the date) needs "override_reason" on the order; it is
+added to the decision's reason. Every trade against the analyst's rating (such a
+buy, or a sell or short of a name rated Initiate or Add) is written with
+reason_code override_analyst. A style book whose mandate sets
+max_active_share_vs_rules is refused a batch that leaves it further from the rules
+book than that and further than it was.
+
 Each fill is priced at the stored close for the batch's date (docs/prices, restored
 from gh-pages; point --prices-dir at a copy when running locally). An order with no
 stored close for that date is refused; nothing is priced from another day. Every
@@ -39,7 +47,7 @@ from portfolio import engine as E  # noqa: E402
 
 
 def run(batches, write=False, prices=None, ledger_dir=None, books_dir=None, panel_dir=None,
-        history=None, out=print):
+        history=None, events=None, out=print):
     """Plan every batch, and write them when `write` is true. Returns the plans.
     Raises E.OrderError on the first batch that fails, before anything is written."""
     ledger_dir = Path(ledger_dir or E.LEDGER_DIR)
@@ -55,7 +63,14 @@ def run(batches, write=False, prices=None, ledger_dir=None, books_dir=None, pane
         _, rows = E.panel_rows(panel_day, panel_dir) if panel_day else ("", [])
         classes = E.classify(rows, history, panel_day) if rows else {}
         mandate = E.load_mandate(batch.get("book"), books_dir) or E.default_mandate(batch.get("book")) or {}
-        plan = E.plan_orders(batch, trades, prices, rows, classes, mandate, decisions)
+        views = E.analyst_views(events, asof=day)
+        rules = None
+        book = E.BOOKS.get(batch.get("book")) or {}
+        if book.get("kind") == "style" and mandate.get("max_active_share_vs_rules") is not None:
+            rules = {p["ticker"]: p["weight"] for p in E.rules_candidate(
+                book, classes, mandate, views, eligible=lambda t: prices.close(t, day) is not None)}
+        plan = E.plan_orders(batch, trades, prices, rows, classes, mandate, decisions,
+                             views=views, rules=rules)
         plans.append(plan)
         trades = trades + plan["fills"]
         if plan["decision"]:
