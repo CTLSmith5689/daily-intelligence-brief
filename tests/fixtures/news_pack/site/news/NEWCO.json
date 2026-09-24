@@ -1,0 +1,42 @@
+[
+ {
+  "title": "Newco prices its offering, report 0 - Seeking Alpha",
+  "source": "Seeking Alpha",
+  "link": "https://news.google.com/rss/articles/X31?oc=5",
+  "ts": 1789912800,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "Newco prices its offering, report 1 - Seeking Alpha",
+  "source": "Seeking Alpha",
+  "link": "https://news.google.com/rss/articles/X32?oc=5",
+  "ts": 1789999200,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "Newco prices its offering, report 2 - Seeking Alpha",
+  "source": "Seeking Alpha",
+  "link": "https://news.google.com/rss/articles/X33?oc=5",
+  "ts": 1790085600,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "Newco prices its initial public offering - GlobeNewswire",
+  "source": "GlobeNewswire",
+  "link": "https://news.google.com/rss/articles/X34?oc=5",
+  "ts": 1790078400,
+  "lm": 0.0,
+  "vader": 0.0
+ },
+ {
+  "title": "Newco shares debut on the Nasdaq - Bloomberg",
+  "source": "Bloomberg",
+  "link": "https://news.google.com/rss/articles/X35?oc=5",
+  "ts": 1790107200,
+  "lm": 0.0,
+  "vader": 0.2
+ }
+]

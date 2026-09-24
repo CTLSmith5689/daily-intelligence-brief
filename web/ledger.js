@@ -3336,6 +3336,19 @@
       return "<tr><td class=\"ld-num\">" + (a.date ? esc(dateMid(a.date)) : "") + '</td><td><a class="ld-tk" href="' + ctx.href("company", a.ticker) + '">' + esc(a.ticker) + "</a></td>" +
         "<td>" + esc(a.kind === "revision" ? "Revision" : a.kind === "initiation" ? "Initiation" : a.kind || "") + "</td><td>" + esc(a.deskTitle || a.desk || "") + "</td><td>" + esc(a.reason || "") + "</td></tr>";
     }).join("");
+    /* The director's news pack, tier 1 and 2 only, per assigned name: leads, not sources. */
+    var news = (p.assignments || []).filter(function (a) { return a.news && a.news.length; }).map(function (a) {
+      return '<h3 class="ld-h3" style="font-size:16px;margin-top:14px">' + esc(a.ticker) + '</h3><ul class="ld-news">' + a.news.map(function (n) {
+        var head = /^https:\/\//.test(n.link || "") ? '<a class="h" href="' + esc(n.link) + '" target="_blank" rel="noopener">' + esc(n.title) + "</a>" : '<span class="h">' + esc(n.title) + "</span>";
+        var meta = [esc(n.source), "tier " + esc(n.tier)];
+        if (n.date) meta.push(esc(dateShort(n.date)));
+        if (n.tone) meta.push("tone " + esc(n.tone));
+        if (n.flags && n.flags.length) meta.push(esc(n.flags.join(", ")));
+        return "<li>" + head + '<div class="m"><span class="ld-src">' + meta.join(" " + MID + " ") + "</span></div></li>";
+      }).join("") + "</ul>";
+    }).join("");
+    var newsBlock = news ? '<details class="ld-det ld-doc"><summary>News this week</summary><div class="ld-notebody ld-docbody">' +
+      '<p class="ld-doc-src">Headlines from wires and established press about each assigned name, from the director’s news pack. A headline is a lead for the analyst to check in the filings, not a source.</p>' + news + "</div></details>" : "";
     var secs = p.sections || [];
     var focus = secs.filter(function (s) { return /focus/i.test(s.title); })[0];
     var rest = secs.filter(function (s) { return s !== focus; }).map(function (s) {
@@ -3346,7 +3359,8 @@
       '<p class="ld-pm-p">Written by the Research Director, from ' + repoLink(p.path) + ". Each assignment takes one of the analyst’s slots on its day; the screen fills the others.</p>" +
       (rows ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Day</th><th>Ticker</th><th>Kind</th><th>Desk</th><th>Why</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
         : '<p class="ld-empty">No assignments this week: every slot comes from the screen.</p>') +
-      (focus ? '<div class="ld-notebody ld-docbody">' + cleanHtml(focus.html) + "</div>" : "") +
+      newsBlock +
+      (focus ?'<div class="ld-notebody ld-docbody">' + cleanHtml(focus.html) + "</div>" : "") +
       rest + "</section>";
   }
   function pmInstructionsHTML(d) {

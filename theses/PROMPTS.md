@@ -103,6 +103,7 @@ Sunday) before writing: the focus paragraph for each
 slot's desk, and any rewrite asks in its review of your earlier memos, which apply
 to every memo you write. A slot marked "director" was assigned by the plan, and its
 reason says why. Each dossier carries the name's sector playbook and its desk file.
+A headline in the director's plan is a lead to verify in filings, not a source.
 
 {RUN_DATE} IS NOT TODAY'S DATE AS YOU KNOW IT. Read it out of manifest.json,
 where prepare.py writes it as `run_date`, and use that exact string everywhere

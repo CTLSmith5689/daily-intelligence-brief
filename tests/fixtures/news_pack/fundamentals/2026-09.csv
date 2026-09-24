@@ -1,0 +1,63 @@
+date,ticker,name,sector,security_type,news_count_7d
+2026-09-10,ACME,Acme Corp,Industrials,operating,15
+2026-09-10,LOUD,Loud Corp,Industrials,operating,15
+2026-09-10,SPAM,Spam Inc,Industrials,operating,15
+2026-09-10,QUIET,Quiet Inc,Industrials,operating,15
+2026-09-10,CON,Con Holdings,Industrials,operating,15
+2026-09-10,FUND,Some Income Fund,Industrials,cef,15
+2026-09-11,ACME,Acme Corp,Industrials,operating,15
+2026-09-11,LOUD,Loud Corp,Industrials,operating,15
+2026-09-11,SPAM,Spam Inc,Industrials,operating,15
+2026-09-11,QUIET,Quiet Inc,Industrials,operating,15
+2026-09-11,CON,Con Holdings,Industrials,operating,15
+2026-09-11,FUND,Some Income Fund,Industrials,cef,15
+2026-09-14,ACME,Acme Corp,Industrials,operating,4
+2026-09-14,LOUD,Loud Corp,Industrials,operating,1
+2026-09-14,SPAM,Spam Inc,Industrials,operating,0
+2026-09-14,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-14,CON,Con Holdings,Industrials,operating,1
+2026-09-14,FUND,Some Income Fund,Industrials,cef,0
+2026-09-15,ACME,Acme Corp,Industrials,operating,4
+2026-09-15,LOUD,Loud Corp,Industrials,operating,1
+2026-09-15,SPAM,Spam Inc,Industrials,operating,0
+2026-09-15,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-15,CON,Con Holdings,Industrials,operating,1
+2026-09-15,FUND,Some Income Fund,Industrials,cef,0
+2026-09-16,ACME,Acme Corp,Industrials,operating,5
+2026-09-16,LOUD,Loud Corp,Industrials,operating,1
+2026-09-16,SPAM,Spam Inc,Industrials,operating,0
+2026-09-16,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-16,CON,Con Holdings,Industrials,operating,1
+2026-09-16,FUND,Some Income Fund,Industrials,cef,0
+2026-09-17,ACME,Acme Corp,Industrials,operating,4
+2026-09-17,LOUD,Loud Corp,Industrials,operating,1
+2026-09-17,SPAM,Spam Inc,Industrials,operating,0
+2026-09-17,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-17,CON,Con Holdings,Industrials,operating,1
+2026-09-17,FUND,Some Income Fund,Industrials,cef,0
+2026-09-18,ACME,Acme Corp,Industrials,operating,3
+2026-09-18,LOUD,Loud Corp,Industrials,operating,1
+2026-09-18,SPAM,Spam Inc,Industrials,operating,0
+2026-09-18,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-18,CON,Con Holdings,Industrials,operating,1
+2026-09-18,FUND,Some Income Fund,Industrials,cef,0
+2026-09-21,ACME,Acme Corp,Industrials,operating,4
+2026-09-21,LOUD,Loud Corp,Industrials,operating,1
+2026-09-21,SPAM,Spam Inc,Industrials,operating,0
+2026-09-21,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-21,CON,Con Holdings,Industrials,operating,1
+2026-09-21,FUND,Some Income Fund,Industrials,cef,0
+2026-09-22,ACME,Acme Corp,Industrials,operating,5
+2026-09-22,LOUD,Loud Corp,Industrials,operating,2
+2026-09-22,SPAM,Spam Inc,Industrials,operating,5
+2026-09-22,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-22,NEWCO,Newco Inc,Industrials,operating,5
+2026-09-22,CON,Con Holdings,Industrials,operating,1
+2026-09-22,FUND,Some Income Fund,Industrials,cef,0
+2026-09-23,ACME,Acme Corp,Industrials,operating,6
+2026-09-23,LOUD,Loud Corp,Industrials,operating,3
+2026-09-23,SPAM,Spam Inc,Industrials,operating,9
+2026-09-23,QUIET,Quiet Inc,Industrials,operating,0
+2026-09-23,NEWCO,Newco Inc,Industrials,operating,5
+2026-09-23,CON,Con Holdings,Industrials,operating,1
+2026-09-23,FUND,Some Income Fund,Industrials,cef,0

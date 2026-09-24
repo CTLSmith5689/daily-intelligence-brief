@@ -1,0 +1,74 @@
+[
+ {
+  "title": "SPAM,AAA,BBB0 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X21?oc=5",
+  "ts": 1789876800,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB1 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X22?oc=5",
+  "ts": 1789966800,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB2 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X23?oc=5",
+  "ts": 1790056800,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB3 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X24?oc=5",
+  "ts": 1790146800,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB4 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X25?oc=5",
+  "ts": 1789891200,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB5 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X26?oc=5",
+  "ts": 1789981200,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB6 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X27?oc=5",
+  "ts": 1790071200,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB7 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X28?oc=5",
+  "ts": 1790161200,
+  "lm": null,
+  "vader": 0.0
+ },
+ {
+  "title": "SPAM,AAA,BBB8 | Stock Prices | Quote Comparison - Yahoo! Finance Canada",
+  "source": "Yahoo! Finance Canada",
+  "link": "https://news.google.com/rss/articles/X29?oc=5",
+  "ts": 1789905600,
+  "lm": null,
+  "vader": 0.0
+ }
+]
