@@ -3325,9 +3325,12 @@
         '<p class="ld-doc-src">Runs ' + esc(p.books.charAt(0).toLowerCase() + p.books.slice(1)) + ". Schedule: " + esc(when.charAt(0).toLowerCase() + when.slice(1)) + ". The routine prompt, from " + repoLink(p.path) + ":</p>" +
         cleanHtml(p.html) + "</div></details>";
     }).join("");
+    var briefs = (d.briefs || []).map(function (b) {
+      return docBlock(b.name, "For " + esc(b.books) + ". From " + repoLink(b.path) + ".", b.html);
+    }).join("");
     return '<section class="ld-sec" aria-labelledby="ld-pmhow-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmhow-h">How the PMs work</h2></div>' +
-      '<p class="ld-pm-p">Each PM is a scheduled claude.ai routine with a short prompt that names its books and points to the full PM instructions. A PM trades only through portfolio/bin/trade.py, which checks each order against the book’s limits and writes it to the ledger. The prompts and instructions are printed as they stand in the repository.</p>' +
-      blocks + shared + "</section>";
+      '<p class="ld-pm-p">Two PMs run the books. The Style PM runs the six style books and the hedge book; the Neural PM runs the neural book on its own, so its reasoning does not lean on the others. Each is a scheduled claude.ai routine with a short prompt that points to one shared process, and each book has a brief that says how a manager of that kind of book thinks. The analyst’s memos give no position size: the PM sizes every position. A PM trades only through portfolio/bin/trade.py, which checks each order against the book’s limits and writes it to the ledger. The prompts, the process and the briefs are printed as they stand in the repository.</p>' +
+      blocks + shared + briefs + "</section>";
   }
 
   function boxTableHTML(counts) {

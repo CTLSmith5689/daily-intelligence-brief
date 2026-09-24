@@ -92,8 +92,11 @@ class PassingMemo(MemoCase):
         self.assertEqual(fm["action"], "Avoid")
         self.assertEqual(fm["direction"], "watch")
         self.assertEqual(fm["horizon_days"], "365")
-        for k in ("size_now", "size_plan", "expected_return", "bear_return", "required_return"):
+        for k in ("expected_return", "bear_return", "required_return", "entry_price_below"):
             self.assertIn(k, fm)
+        # Sizing belongs to the PM: the memo carries no portfolio size.
+        for k in ("size_now", "size_plan"):
+            self.assertNotIn(k, fm)
         self.assertEqual(len(fm["scenarios"]), 3)
 
     def test_full_initiation_passes_when_the_ticker_is_not_covered(self):
@@ -189,6 +192,31 @@ class ScenarioArithmetic(MemoCase):
         fails, _ = self.check(self.swap(self.revision, "expected_return: 0.113", "expected_return: 0.109"))
         self.assertEqual(fails_matching(fails, r"expected_return"), [])
 
+    def test_entry_price_below_follows_from_the_scenarios(self):
+        # (253.75 + 1.00) / 1.12 = 227.46 with the stated dividend; 226.56 without.
+        for good in ("227.46", "226.60", "228.40", "225.60"):
+            with self.subTest(good=good):
+                fails, _ = self.check(self.swap(self.revision, "entry_price_below: 227.46",
+                                                f"entry_price_below: {good}"))
+                self.assertEqual(fails_matching(fails, r"entry_price_below"), [])
+        fails, _ = self.check(self.swap(self.revision, "entry_price_below: 227.46", "entry_price_below: 215.00"))
+        self.assertTrue(fails_matching(fails, r"entry_price_below 215 does not follow from the weighted value "
+                                              r"\$253\.75.*\$226\.56 or \$227\.46"), fails)
+        # It moves with the required return: at 10% the price that pays is $231.59.
+        text = self.swap(self.revision, "required_return: 0.120", "required_return: 0.100")
+        fails, _ = self.check(text)
+        self.assertTrue(fails_matching(fails, r"entry_price_below 227\.46 does not follow"), fails)
+        fails, _ = self.check(self.swap(text, "entry_price_below: 227.46", "entry_price_below: 231.59"))
+        self.assertEqual(fails_matching(fails, r"entry_price_below"), [])
+
+    def test_entry_price_below_is_optional(self):
+        for new in ("", "entry_price_below:\n"):
+            with self.subTest(new=new):
+                fails, warns = self.check(self.swap(self.revision, "entry_price_below: 227.46\n", new))
+                self.assertEqual(fails, [])
+        fails, _ = self.check(self.swap(self.revision, "entry_price_below: 227.46", "entry_price_below: soon"))
+        self.assertTrue(fails_matching(fails, r"entry_price_below 'soon'"), fails)
+
     def test_scenarios_must_be_three_named_cases(self):
         text = self.swap(self.revision, "  - {case: bear, value: 125.00, probability: 0.25}\n", "")
         fails, _ = self.check(text)
@@ -225,33 +253,28 @@ class ActionAndDirection(MemoCase):
         fails, _ = self.check(self.swap(self.revision, "action: Avoid", "action: avoid"))
         self.assertEqual(fails, [])
 
-    def test_size_now_is_zero_unless_the_portfolio_holds_it(self):
-        fails, _ = self.check(self.swap(self.revision, "size_now: 0.000", "size_now: 0.037"))
-        self.assertTrue(fails_matching(fails, r"size_now is 0\.037 but the action is Avoid"), fails)
-        text = self.swap(self.revision, "action: Avoid", "action: Hold")
-        text = self.swap(text, "direction: watch", "direction: long")
-        text = self.swap(text, "size_now: 0.000", "size_now: 0.037")
-        text = self.swap(text, "**Avoid for now:", "**Hold for now:")
-        fails, _ = self.check(text)
-        self.assertEqual(fails_matching(fails, r"size_now"), [])
+    def test_a_portfolio_size_is_refused(self):
+        # Sizing belongs to the PM (portfolio/PROMPTS.md, step 4, SIZE).
+        for line in ("size_now: 0.000", "size_now: 0.037", "size_plan: 0.037 after the November report"):
+            with self.subTest(line):
+                text = self.swap(self.revision, "action: Avoid\n", f"action: Avoid\n{line}\n")
+                fails, _ = self.check(text)
+                key = line.split(":")[0]
+                self.assertTrue(fails_matching(fails, rf"{key} is not a memo field\. The PM sizes"), fails)
 
-    def test_size_now_is_a_fraction(self):
-        text = self.swap(self.revision, "action: Avoid", "action: Hold")
-        text = self.swap(text, "direction: watch", "direction: long")
-        fails, _ = self.check(self.swap(text, "size_now: 0.000", "size_now: 3.7"))
-        self.assertTrue(fails_matching(fails, r"size_now 3\.7 is not a fraction"), fails)
+    def test_a_size_on_page_one_warns(self):
+        text = self.swap(self.revision, "which means owning none at $228.87.",
+                         "which means owning none: 0% of the portfolio today.")
+        fails, warns = self.check(text)
+        self.assertEqual(fails, [])
+        self.assertTrue(fails_matching(warns, r"page one gives a size as a percentage of the portfolio"), warns)
 
     def test_memo_fields_are_required(self):
-        for field in ("action", "expected_return", "bear_return", "required_return", "size_plan"):
+        for field in ("action", "expected_return", "bear_return", "required_return"):
             with self.subTest(field):
                 text = re.sub(rf"^{field}:.*\n", "", self.revision, count=1, flags=re.M)
                 fails, _ = self.check(text)
                 self.assertTrue(fails_matching(fails, rf"missing memo field: {field}"), fails)
-
-    def test_size_plan_may_be_blank(self):
-        text = re.sub(r"^size_plan:.*$", "size_plan:", self.revision, count=1, flags=re.M)
-        fails, _ = self.check(text)
-        self.assertEqual(fails, [])
 
     def test_horizon_is_365_days(self):
         fails, _ = self.check(self.swap(self.revision, "horizon_days: 365", "horizon_days: 252"))
@@ -477,7 +500,8 @@ class VocabularyAndSources(MemoCase):
         self.assertTrue([w for w in warns if "definition differs from theses/GLOSSARY.md for Guidance" in w], warns)
 
     def test_en_dash_fails_in_a_memo(self):
-        fails, _ = self.check(self.swap(self.revision, "limits 3% to 12%", "limits 3%" + chr(0x2013) + "12%"))
+        fails, _ = self.check(self.swap(self.revision, "+10.9%, +11.3% with dividends",
+                                        "+10.9%" + chr(0x2013) + "11.3% with dividends"))
         self.assertTrue(fails_matching(fails, r"1 en dash"), fails)
 
     def test_bold_headline_and_labels_allowed_but_bold_endings_are_not(self):
@@ -492,11 +516,10 @@ class VocabularyAndSources(MemoCase):
 class ActFollowsTheNumbers(MemoCase):
     """The ACT rule and rule e are arithmetic, so the checker enforces them."""
 
-    def long_initiation(self, size="0.037"):
+    def long_initiation(self):
         text = self.swap(self.initiation, "action: Avoid", "action: Initiate")
         text = self.swap(text, "direction: watch", "direction: long")
-        text = self.swap(text, "**Avoid for now:", "**Initiate:")
-        return self.swap(text, "size_now: 0.000", f"size_now: {size}")
+        return self.swap(text, "**Avoid for now:", "**Initiate:")
 
     def test_initiate_below_the_required_return_fails(self):
         fails, _ = self.check(self.long_initiation())
@@ -516,10 +539,12 @@ class ActFollowsTheNumbers(MemoCase):
         fails, _ = self.check(text)
         self.assertTrue(fails_matching(fails, r"bear case .* likelier"), fails)
 
-    def test_bear_cost_above_the_draft_limit_warns(self):
-        text = self.swap(self.long_initiation("0.074"), "required_return: 0.120", "required_return: 0.100")
-        _, warns = self.check(text)
-        self.assertTrue(fails_matching(warns, r"draft 2% limit"), warns)
+    def test_no_bear_cost_check_now_the_pm_sizes(self):
+        # The draft 2% bear-case cost cap moved to the PM (portfolio/PROMPTS.md).
+        text = self.swap(self.long_initiation(), "required_return: 0.120", "required_return: 0.100")
+        text = self.swap(text, "entry_price_below: 227.46", "entry_price_below: 231.59")
+        fails, warns = self.check(text)
+        self.assertEqual(fails_matching(fails + warns, r"draft 2%|size"), [])
 
     def test_missing_page_one_labels_and_consensus_sentence_warn(self):
         text = self.swap(self.initiation, "**Thesis.** ", "")
@@ -640,7 +665,7 @@ class LedgerMigration(MemoCase):
         self.assertEqual(last["kind"], "revise")
         self.assertEqual(last["prior_target"], "240.00")
         self.assertEqual((last["action"], last["size_now"], last["expected_return"], last["bear_return"]),
-                         ("Avoid", "0.000", "0.113", "-0.454"))
+                         ("Avoid", "", "0.113", "-0.454"))
         self.assertEqual([rows[0][c] for c in events.MEMO_EVENT_COLUMNS], ["", "", "", ""])
         # Avoid scored as watch makes no gradeable prediction.
         self.assertFalse((self.ledger / "predictions.csv").exists())

@@ -62,8 +62,9 @@ over from setting this up and can be deleted in the Scheduled tasks page.
 **The routine prompts are mirrored in the repository, by hand.** The prompt saved
 in each claude.ai routine is copied into a file here: the analyst's in
 `theses/routines/research-agent.md`, the PMs' in `portfolio/routines/`
-(`style-pm.md`, and `hedge-pm.md` and `neural-pm.md`, which are not scheduled
-yet). The Research and Portfolios pages print these files, with the instructions
+(`style-pm.md`, the Style PM, which runs the six style books and the hedge
+book, and `neural-pm.md`, the Neural PM, which runs the neural book alone and
+is not scheduled yet). The Research and Portfolios pages print these files, with the instructions
 each one follows: `theses/PROMPTS.md` for the analyst, `portfolio/PROMPTS.md` for
 the PMs. Nothing copies them automatically, and a routine never
 reads its file: when you edit a prompt on claude.ai, make the same edit in its
@@ -151,7 +152,7 @@ usual JSON.
    `git add -A`: `data/`, `docs/` and `state/` belong to the workflow, and a run
    that commits its own scratch copies of them fights the hourly job.
 
-5. Report: tickers, each one's action, size, direction and conviction, the
+5. Report: tickers, each one's action, direction and conviction, the
    commit hash you pushed, and anything skipped and why.
 
 If a script fails at any point, do not push. Report the exact traceback and stop,
@@ -238,7 +239,8 @@ reported history and similar companies beside the memo, so the memo argues.
 
 - **Page one** comes before the first heading, under a bold one-line headline
   naming the action (Initiate, Add, Hold, Trim, Exit, Avoid or Short): the
-  action and size, the expected return next to the bear-case loss, the thesis in
+  recommendation and the price below which it is attractive, the expected
+  return next to the bear-case loss, the thesis in
   one sentence, and why now in two or three. Under 250 words, no table.
 - **Then six numbered sections, SOURCES and a glossary**: 1. THE DEBATE (the
   question the value turns on, and what the price requires, in a sentence or
@@ -259,23 +261,29 @@ reported history and similar companies beside the memo, so the memo argues.
 - **Vocabulary.** Real finance terms, each defined once where it first appears
   in the wording of `theses/GLOSSARY.md`, and listed in the memo's glossary,
   which holds only the terms the memo uses.
-- **Front-matter** adds `format: memo`, `action`, `size_now`, `size_plan`,
-  `expected_return`, `bear_return`, `required_return` and `scenarios`, and sets
+- **Front-matter** adds `format: memo`, `action`, `expected_return`,
+  `bear_return`, `required_return`, `scenarios` and, optionally,
+  `entry_price_below`, and sets
   `horizon_days` to 365. `direction` stays, set from the action, because the
   ledger scores it.
 - **Checks.** `validate.py` applies the memo checks only to a note that says
   `format: memo`, including the scenario arithmetic in section 3 and on page
-  one (probabilities, weighted value, expected and bear returns, target). Every earlier note has no `format`
+  one (probabilities, weighted value, expected and bear returns, target, and
+  the entry price within $1 of (weighted value + dividends) / (1 + required
+  return)). A memo with `size_now` or `size_plan` fails. Every earlier note has no `format`
   field and is checked exactly as before.
 - **Ledger.** `events.csv` gains four columns at the end: `action`, `size_now`,
-  `expected_return`, `bear_return`, blank for older rows. `events.py` adds them
+  `expected_return`, `bear_return`, blank for older rows. `size_now` stays for
+  the file's sake and is written blank, because the PM sizes. `events.py` adds them
   itself the first time it records a memo, once, and only if the file can be
   rewritten byte for byte apart from the new columns. To do it ahead of a run:
   `python3 theses/bin/events.py --migrate`.
-- **Sizing.** The memo sizes from the dossier's "### Sizing inputs": the
-  portfolio rule weight and half of it, and a bear-case loss of at most 2% of
-  the portfolio. That 2% is a draft the owner has not approved, and the memo
-  says so. Agent 2, the PM, is not switched on yet.
+- **Sizing belongs to the PM.** The memo gives no size. It gives the view and
+  an entry price derived from its cases. The PM sizes every position, book by
+  book, by `portfolio/PROMPTS.md`, step 4, SIZE, which also holds the two draft
+  limits the owner has not approved (a 2% bear-case cost cap, and half size
+  until 10 of the analyst's calls are scored). The dossier's "### Sizing
+  inputs" block stays, as data for the required return and for the PM.
 
 ## What the run is fed
 
@@ -375,7 +383,7 @@ Check, in order:
 5. `theses/ledger/predictions.csv` gained a row for each note whose direction was
    long, short or avoid, and none for a note that said watch or no view.
 6. `theses/ledger/events.csv` has a row for every memo, with its `action`,
-   `size_now`, `expected_return` and `bear_return` filled in.
+   `expected_return` and `bear_return` filled in and `size_now` blank.
 
 ## Failure modes worth knowing
 

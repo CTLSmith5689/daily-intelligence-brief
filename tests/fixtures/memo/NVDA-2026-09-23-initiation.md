@@ -9,11 +9,10 @@ entry_price: 228.87
 entry_source: close_series 2026-09-22
 slot: watchlist
 action: Avoid
-size_now: 0.000
-size_plan: 0.037 if the report due 2026-11-17 passes both entry tests; 0.074 after the annual report due late February 2027 if cash conversion is 80 percent or more
 expected_return: 0.113
 bear_return: -0.454
 required_return: 0.120
+entry_price_below: 227.46
 scenarios:
   - {case: bull, value: 370.00, probability: 0.25}
   - {case: base, value: 260.00, probability: 0.50}
@@ -49,7 +48,7 @@ next_check: 2026-11-17
 
 From the analyst to the portfolio manager (PM), the person who decides what the portfolio owns and in what size. Written 2026-09-23 from prices and filings as of the close on 2026-09-22.
 
-**Action and size.** I recommend Avoid, which means owning none: 0% of the portfolio today. If the report due on 17 November passes two tests, I would buy 3.7%, half the full size of 7.4% that the portfolio's sizing rule gives NVIDIA.
+**Recommendation.** I recommend Avoid, which means owning none at $228.87. The price becomes attractive below $227.46, where the return I expect equals the 12.0% its risk requires. I would also buy if the 17 November report passes two tests.
 
 **Return and risk.** I expect a return of 11.3% over 12 months, including $1.00 of dividends, against the 12.0% its risk requires. The bear case, the bad outcome I think plausible, loses 45.4%, and I give it one chance in four.
 
@@ -109,12 +108,12 @@ The required return, the annual return a stock must offer to pay for its risk, i
 
 | What I check | Latest | Threshold | Action | Next reading |
 |---|---|---|---|---|
-| Guidance for the January 2027 quarter | $108.0B for October | $125B or more, with DSO at or below 55 days | Initiate at 3.7% | 2026-11-17 |
+| Guidance for the January 2027 quarter | $108.0B for October | $125B or more, with DSO at or below 55 days | Initiate | 2026-11-17 |
 | Guidance for the January 2027 quarter | $108.0B for October | Below $108.0B, a fall from October | Stay out. If owned, Exit | 2026-11-17 |
 | October-quarter revenue | $96.2B for July | Below $105.8B, the bottom of the guided range | Stay out. If owned, Exit | 2026-11-17 |
 | DSO | 60 days | Above 70 days at the FY2027 year end | Stay out. If owned, Exit | Late February 2027 |
-| Second-half cash conversion | 75% (first half) | 80% or more | If owned at half size, Add to 7.4% | Late February 2027 |
-| Share price | $228.87 | $370, the bull value | If owned, Trim to half | Daily |
+| Second-half cash conversion | 75% (first half) | 80% or more | If owned, Add | Late February 2027 |
+| Share price | $228.87 | $370, the bull value | If owned, Trim | Daily |
 
 My view is wrong if NVIDIA grows faster than I assume while its customers pay on time. A falsifier is a specific, dated observation that would show a view is wrong. Mine is guidance of $125 billion or more for the January quarter, with DSO at or below 55 days. Both are due on 17 November, and if both happen I recommend Initiate.
 
@@ -143,8 +142,7 @@ The gaps that could change my recommendation concern customers and the long run.
 | Figure | Value | Source |
 |---|---|---|
 | Last close, date | $228.87, 2026-09-22 | Published `prices/NVDA.json`, last of `closes` |
-| Volatility | 37.8% | calc: standard deviation of 250 daily returns times the square root of 252, as `construct.py` computes it |
-| Full size, half size | 7.4%; 3.7% | `portfolio/bin/construct.py`: 0.028 / volatility, limits 3% to 12% |
+| Entry price | $227.46 | calc: (253.75 + 1.00) / 1.12, the price at which the expected return equals the required return |
 | Expected return | $253.75; +10.9%, +11.3% with dividends | calc: 0.25 x 125 + 0.50 x 260 + 0.25 x 370; (253.75 + 1.00) / 228.87 - 1 |
 | Dividends over 12 months | $1.00 | Release: $0.25 a quarter, payable 2026-10-01 |
 | Required return | 12.0% | calc: CAPM, 4.0% + 1.61 x 5%; Blume beta 0.67 x 1.91 + 0.33 = 1.61; stored `beta_1y`, `prices/_MARKET.json` `risk_free` |

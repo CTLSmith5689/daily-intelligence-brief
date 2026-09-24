@@ -20,8 +20,9 @@ The code is `engine.py`; the method is printed on the site's Portfolios page and
 | `letters/<date>/<book>.md` | the PM's weekly letter per book | the PM routine |
 | `../data/portfolio/nav.csv` | each book's value at each close | the daily run (`record_portfolio_nav`) |
 | `../data/financials/style_history.csv` | three fiscal years per company, from 10-K facts | the daily run's weekly EDGAR pass |
-| `PROMPTS.md` | the PM's instructions, which every PM routine follows | the owner, by commit |
-| `routines/<pm>.md` | each PM routine's claude.ai prompt (style, hedge, neural), mirrored by hand | the owner, by commit (see `theses/RUNBOOK.md`) |
+| `PROMPTS.md` | the PM's process, which every PM routine follows, including how the PM sizes every position and which brief each book reads | the owner, by commit |
+| `books/<style>.md` | the four book briefs: `growth.md`, `value.md`, `hedge.md`, `neural.md` | the owner, by commit |
+| `routines/<pm>.md` | the two PM routines' claude.ai prompts, mirrored by hand: `style-pm.md` (six style books and hedge) and `neural-pm.md` (neural alone) | the owner, by commit (see `theses/RUNBOOK.md`) |
 
 The Portfolios page prints `PROMPTS.md` and the routine files as they stand, and draws its
 board (one column per book, one card per holding) from `ledger/trades.csv` and the stored
@@ -42,7 +43,9 @@ books and republishes the rules candidate books; it never trades.
 a style book whose box is not yet full enough to fill its mandate waits.
 `bin/trade.py` is dry-run by default, checks each batch against the mandate, and
 is idempotent per book, date and order id. `bin/review.py` prints what the PM
-reads. `bin/construct.py` is the earlier sizing rule; nothing uses it now.
+reads. `bin/construct.py` is the earlier sizing rule; nothing runs it now, but
+its rule weight, printed in each dossier, is one input to the PM's sizing
+(`PROMPTS.md`, SIZE), for longs only.
 
 ## Agent 2 draft (earlier design)
 

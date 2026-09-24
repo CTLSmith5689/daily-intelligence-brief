@@ -9,11 +9,10 @@ entry_price: 228.87
 entry_source: close_series 2026-09-22
 slot: watchlist
 action: Avoid
-size_now: 0.000
-size_plan: 0.037 if the report due 2026-11-17 passes both entry tests; 0.074 after the annual report due late February 2027 if cash conversion is 80 percent or more
 expected_return: 0.113
 bear_return: -0.454
 required_return: 0.120
+entry_price_below: 227.46
 scenarios:
   - {case: bull, value: 370.00, probability: 0.25}
   - {case: base, value: 260.00, probability: 0.50}
@@ -46,7 +45,7 @@ next_check: 2026-11-17
 
 From the analyst to the portfolio manager (PM), the person who decides what the portfolio owns and in what size. Written from prices and filings as of the close on 2026-09-22.
 
-**Action and size.** I recommend Avoid, which means owning none: 0% of the portfolio today. If the 17 November report passes two tests, I would buy 3.7%, half the full size of 7.4%.
+**Recommendation.** I recommend Avoid, which means owning none at $228.87. The price becomes attractive below $227.46, where the return I expect equals the 12.0% its risk requires. I would also buy if the 17 November report passes two tests.
 
 **Return and risk.** I expect a return of 11.3% over 12 months, including $1.00 of dividends, against the 12.0% its risk requires. The bear case, the bad outcome I think plausible, loses 45.4%.
 
@@ -60,7 +59,7 @@ This memo replaces the note of 22 September. That note said:
 
 > NVIDIA designs and sells the computers that train and run artificial intelligence programs. It reported profit of $118 billion for the six months to July 2026, and its operations produced $74 billion of cash. I am watching rather than owning it, until two more reports show whether that gap was timing.
 
-I am REPLACING that key claim. The earlier note asked the same question about cash, but it gave no action, no size and no expected return. This memo gives all three, and its price target runs 12 months instead of about 8.
+I am REPLACING that key claim. The earlier note asked the same question about cash, but it gave no action, no entry price and no expected return. This memo gives all three, and its price target runs 12 months instead of about 8.
 
 The earlier note was wrong about one figure and inconsistent about another. It said the stored sales figure was wrong, but the last four quarters add up to exactly that figure. It also mixed profit under US accounting rules with the company's adjusted profit, and I now use the adjusted figures throughout. The target moves from $240 to $255, because the model now runs to the year to January 2029.
 
@@ -90,11 +89,11 @@ P/E, price divided by earnings per share, suits NVIDIA because its earnings are 
 
 | What I check | Latest | Threshold | Action | Next reading |
 |---|---|---|---|---|
-| Guidance for the next quarter | $108.0B for October | $125B or more, with DSO at or below 55 days | Initiate at 3.7% | 2026-11-17 |
+| Guidance for the next quarter | $108.0B for October | $125B or more, with DSO at or below 55 days | Initiate | 2026-11-17 |
 | Guidance for the next quarter | $108.0B for October | Below $108.0B, a fall from October | Stay out. If owned, Exit | 2026-11-17 |
 | Revenue against guidance | $96.2B for July | Below $105.8B, the bottom of the range | Stay out. If owned, Exit | 2026-11-17 |
 | DSO | 60 days | Above 70 days at the FY2027 year end | Stay out. If owned, Exit | Late February 2027 |
-| Share price | $228.87 | $370, the bull value | If owned, Trim to half | Daily |
+| Share price | $228.87 | $370, the bull value | If owned, Trim | Daily |
 
 My view is wrong if the company grows faster than I assume while its customers pay on time. Guidance is management's own published forecast. Days sales outstanding (DSO) is receivables divided by a quarter's revenue, times 91 days. A falsifier, a dated observation that would show a view is wrong, is set by the first row.
 
@@ -105,7 +104,7 @@ A fall in the price alone is never a reason to sell. It starts a review of the c
 | Figure | Value | Source |
 |---|---|---|
 | Last close, date | $228.87, 2026-09-22 | Published `prices/NVDA.json`, last of `closes` |
-| Full size, half size | 7.4%; 3.7% | `portfolio/bin/construct.py`: 0.028 / volatility, limits 3% to 12% |
+| Entry price | $227.46 | calc: (253.75 + 1.00) / 1.12, the price at which the expected return equals the required return |
 | Expected return | $253.75; +10.9%, +11.3% with dividends | calc: 0.25 x 125 + 0.50 x 260 + 0.25 x 370; (253.75 + 1.00) / 228.87 - 1 |
 | Market capitalisation | $5,516B | `market_cap` |
 | Guidance, October 2026 quarter | $108.0B | Earnings release, `data/filings/text/NVDA/0001045810-26-000073.txt`, Outlook |

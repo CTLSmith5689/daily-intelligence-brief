@@ -10499,10 +10499,16 @@ PROMPTS_MD = REPO_ROOT / "theses" / "PROMPTS.md"
 PM_PROMPTS_MD = REPO_ROOT / "portfolio" / "PROMPTS.md"
 RESEARCH_ROUTINE = REPO_ROOT / "theses" / "routines" / "research-agent.md"
 PORTFOLIO_ROUTINES_DIR = REPO_ROOT / "portfolio" / "routines"
+PORTFOLIO_BRIEFS_DIR = REPO_ROOT / "portfolio" / "books"
 # (routine file, who it is, the books it runs), in the order the page shows them.
-PM_ROUTINES = (("style-pm.md", "Style PM", "The six style books"),
-               ("hedge-pm.md", "Hedge PM", "The Hedge Fund Strategy Model"),
-               ("neural-pm.md", "Neural PM", "The Neural Model Portfolio"))
+PM_ROUTINES = (("style-pm.md", "Style PM", "The six style books and the Hedge Fund Strategy Model"),
+               ("neural-pm.md", "Neural PM", "The Neural Model Portfolio, on its own"))
+# (brief file, its name, the books it is for). The mapping itself is written in
+# portfolio/PROMPTS.md; this only orders the page.
+PM_BRIEFS = (("growth.md", "Growth brief", "lg-growth, mid-growth and sm-growth"),
+             ("value.md", "Value brief", "lg-value, mid-value and sm-value"),
+             ("hedge.md", "Hedge brief", "the hedge book"),
+             ("neural.md", "Neural brief", "the neural book"))
 
 
 def _doc_md_to_html(text):
@@ -10626,18 +10632,30 @@ def _analyst_instructions():
 
 def _pm_instructions():
     """What portfolios.html prints under "How the PMs work": one entry per PM
-    routine, and the portfolio/PROMPTS.md section they all follow, rendered once."""
+    routine, the portfolio/PROMPTS.md section they all follow, rendered once, and
+    the book briefs in portfolio/books/."""
     pms = []
     for name, who, books in PM_ROUTINES:
         path = PORTFOLIO_ROUTINES_DIR / name
         doc = _routine_doc(path)
         if doc:
             pms.append(dict(doc, name=who, books=books, path=_rel(path)))
+    briefs = []
+    for name, title, books in PM_BRIEFS:
+        path = PORTFOLIO_BRIEFS_DIR / name
+        try:
+            text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+        except OSError:
+            continue
+        # The file's own "# Title" line is the summary on the page, so it is dropped.
+        text = re.sub(r"\A\s*#[ \t]+[^\n]*\n", "", text)
+        briefs.append({"name": title, "books": books, "path": _rel(path),
+                       "html": _doc_md_to_html(text.strip())})
     section = _prompts_section("## Agent 2: the PM", PM_PROMPTS_MD)
-    if not pms and not section:
+    if not pms and not section and not briefs:
         return None
-    return {"pms": pms, "prompt": _doc_md_to_html(section), "promptPath": _rel(PM_PROMPTS_MD),
-            "promptSection": "Agent 2: the PM"}
+    return {"pms": pms, "briefs": briefs, "prompt": _doc_md_to_html(section),
+            "promptPath": _rel(PM_PROMPTS_MD), "promptSection": "Agent 2: the PM"}
 
 
 # --- the board -------------------------------------------------------------------
