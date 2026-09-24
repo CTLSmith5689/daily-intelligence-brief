@@ -1,0 +1,624 @@
+{
+ "week_of": "2026-09-21",
+ "news_asof": "2026-09-24T19:13:49+00:00",
+ "labels": {
+  "AAPL-2e95e9106d": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Apple planning $1,999 foldable iPhone"
+  },
+  "AAPL-648ad4ed06": {
+   "relevant_to_company": false,
+   "event_type": "macro",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "AAPL-f4cdc2a066": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Apple Pay launches in India next month"
+  },
+  "AGBK-89616a6bc0": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "AGBK-9f6a11874c": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "AGX-29fde2e0f9": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Argan AutOnom warehouses use solar power and heat pumps"
+  },
+  "AGX-3bc1e76882": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "AGX-3e8652477d": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "AGX-5b53cc121b": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": 0,
+   "checkable_claim": "Argan reported record earnings and raised dividend"
+  },
+  "AGX-aa746ae1b0": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "AGX-d8263d3c09": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "BBT-126a2869e3": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "Sean Gray named CEO of Beacon Financial"
+  },
+  "BBT-3090b3753b": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "Beacon Financial names new CEO one year after formation"
+  },
+  "BBT-7cba3f0ee0": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "Sean Gray named Chief Executive of Beacon Financial"
+  },
+  "BBT-7e2b5bd131": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "Sean A. Gray appointed CEO; Paul A. Perrault retiring"
+  },
+  "BBT-bf65530a30": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "New CEO appointed at Beacon Bank, previous CEO retiring"
+  },
+  "BE-0e8ea25778": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "BE-3db80373a9": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Securities class action lawsuit against Bloom Energy with deadline September 28, 2026"
+  },
+  "BE-8ddbe78c4f": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "BE-a4f43fd35c": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "BE-c34570d581": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Bloom Energy launching new power product for AI market"
+  },
+  "BE-c8e71eef73": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Class action lawsuit against Bloom Energy with lead plaintiff deadline September 28, 2026"
+  },
+  "BE-e54f361189": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 2,
+   "checkable_claim": "Bloom Energy stock jumps; US Army awards power leases to Indelible-Bloom Coalition"
+  },
+  "BLDP-02989facf3": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "CART-39c953135b": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": -1,
+   "checkable_claim": null
+  },
+  "CART-595b149b70": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "CART-781ee3a50c": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": -1,
+   "checkable_claim": "Instacart partners with Meta's Muse; Maplebear stock falls"
+  },
+  "CF-d61f7e0d74": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": -1,
+   "checkable_claim": "Trump says fertilizer deal with Belarus in works"
+  },
+  "DCOY-64a05c276a": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "DELL-01b8cf40cc": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": -1,
+   "checkable_claim": null
+  },
+  "DELL-3bedacc5ef": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "DELL-95d2b8e56d": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Dell introduces XPS Googlebook laptop for Gemini"
+  },
+  "DELL-9a52cc62fb": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "DELL-a9d6ca2422": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "DELL-c60b05d832": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": -1,
+   "checkable_claim": "Dell Technologies insider sold $13,979,586 of shares"
+  },
+  "DELL-d82dcbc2ad": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "EHTH-7a86c96024": {
+   "relevant_to_company": false,
+   "event_type": "macro",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "ESE-3fc30cdcce": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "ETRA-a0182bc623": {
+   "relevant_to_company": true,
+   "event_type": "m_and_a",
+   "tone": 1,
+   "checkable_claim": "Electra Therapeutics IPO priced at $350 million"
+  },
+  "GOLD-2fb4116c2f": {
+   "relevant_to_company": false,
+   "event_type": "macro",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "GOLD-8d23e73b6a": {
+   "relevant_to_company": true,
+   "event_type": "rating_change",
+   "tone": 0,
+   "checkable_claim": "Wall Street firm resets gold price target for 2030"
+  },
+  "GSAT-02d40331d9": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": "Globalstar stock up 346%"
+  },
+  "HIMS-003c38fbb3": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Securities class action against Hims with important deadline"
+  },
+  "HIMS-0ad072bf7d": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": -2,
+   "checkable_claim": "Hims & Hers reported negative profit twice"
+  },
+  "HIMS-947a6f83f4": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Securities class action lawsuit deadline November 2, 2026"
+  },
+  "HIMS-9661470f80": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Lawsuit against Hims highlights health data-sharing privacy risks"
+  },
+  "HIMS-96cfd75cbf": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Securities fraud class action filed with November 2, 2026 deadline"
+  },
+  "HIMS-abfef10536": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": null
+  },
+  "HIMS-dfad1a0243": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": null
+  },
+  "HTO-5781321098": {
+   "relevant_to_company": true,
+   "event_type": "m_and_a",
+   "tone": 1,
+   "checkable_claim": "H2O America gets regulatory clearance for Cibolo Valley acquisition"
+  },
+  "HTO-a4ca296dde": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "IMVT-411cfb4761": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": -2,
+   "checkable_claim": "Immunovant ended cutaneous lupus program after phase 2 failure"
+  },
+  "IMVT-918eb8ecf2": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": -2,
+   "checkable_claim": "Immunovant stopped IMVT-1402 development in cutaneous lupus after trial miss"
+  },
+  "IMVT-acbfaa3f5f": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": -2,
+   "checkable_claim": "Immunovant discontinued lupus program after missing primary endpoint; stock at 3-month low"
+  },
+  "IMVT-b2b86404b3": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": -1,
+   "checkable_claim": "Immunovant shares fell 6% after IMVT-1402 study missed primary endpoint"
+  },
+  "JELD-89392b6c48": {
+   "relevant_to_company": true,
+   "event_type": "m_and_a",
+   "tone": 0,
+   "checkable_claim": "Jeld-Wen nearing deal for new money and debt extension"
+  },
+  "JOE-4f98a471bc": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "St. Joe Company planning 3,500 additional homes in Latitude Margaritaville Watersound"
+  },
+  "KALU-b30729d7ff": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "KIDZ-fdb03493a9": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "KIDZ AI secures Open Compute Project membership"
+  },
+  "LNAI-9c3bae6b9f": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Lunai Bioworks expands Parkinson's platform through Tanaist agreement"
+  },
+  "LSTR-fe4d9a3e62": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "MPC-04d151e0b7": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -2,
+   "checkable_claim": "Contractor died at Marathon Petroleum St. Paul Park site"
+  },
+  "MPC-0e8ea25778": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "MPC-1032d062ee": {
+   "relevant_to_company": true,
+   "event_type": "rating_change",
+   "tone": 1,
+   "checkable_claim": "Morgan Stanley sees Marathon Petroleum reaching new highs"
+  },
+  "MPC-dff8904322": {
+   "relevant_to_company": true,
+   "event_type": "rating_change",
+   "tone": 1,
+   "checkable_claim": "UBS says Marathon Petroleum could reach all-time high"
+  },
+  "MRBK-144fca8817": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Investigation of possible fiduciary duty breaches by Meridian officers"
+  },
+  "MU-10654f9318": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 1,
+   "checkable_claim": "Memory demand strengthening for Micron"
+  },
+  "MU-2112d1c179": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "MU-29286e793c": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": "Micron stock up over 260%"
+  },
+  "MU-5de2ee10c1": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": -1,
+   "checkable_claim": "Michael Burry shorted Micron; expects chip down cycle"
+  },
+  "MU-9915294889": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": -1,
+   "checkable_claim": "Michael Burry shorted Micron; memory price warning growing"
+  },
+  "MU-cb6c08533f": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 0,
+   "checkable_claim": "Potential strike at Micron major chip factory"
+  },
+  "NESR-462079c766": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "NESR-7b8bd8f237": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "NESR-f18ff011a3": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "NESR-f4459875ed": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": 1,
+   "checkable_claim": "NESR reported strong earnings beat and Kuwait mega contract"
+  },
+  "NVDA-285509edc2": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "NVDA-2b1cbbdfc2": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "NVDA-973a801302": {
+   "relevant_to_company": true,
+   "event_type": "m_and_a",
+   "tone": 1,
+   "checkable_claim": "Nvidia deal lifts stock"
+  },
+  "NVDA-d2bfb88cc6": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": 1,
+   "checkable_claim": "Nvidia increased dividend significantly"
+  },
+  "NVDA-f686d4065d": {
+   "relevant_to_company": true,
+   "event_type": "rating_change",
+   "tone": 1,
+   "checkable_claim": "Motley Fool gives Nvidia long-term conviction rating"
+  },
+  "PAAI-5aa11e9e8b": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "Paradium.AI signs 10-year strategic platform agreement with Roundtable"
+  },
+  "PAAI-659a7a8ac6": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "PGEN-241a12d6e9": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": 1,
+   "checkable_claim": "Precigen received FDA Platform Technology Designation for AdenoVerse"
+  },
+  "PGEN-f240d9c4c3": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "RNG-3853db746e": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 0,
+   "checkable_claim": "RingCentral released new AI plugins"
+  },
+  "RNG-82947a68bd": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "RingCentral AI driving upsell and customer retention"
+  },
+  "RNG-d6daea877a": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "RNG-ebf617643c": {
+   "relevant_to_company": true,
+   "event_type": "product",
+   "tone": 1,
+   "checkable_claim": "RingCentral new AI plugins reshape competitive moat"
+  },
+  "SFBS-0658f47656": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "SFBS-ff67fd3670": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": 1,
+   "checkable_claim": "ServisFirst Bancshares declares third quarter cash dividend"
+  },
+  "SFIX-6b1670eda8": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": 0,
+   "checkable_claim": "Stitch Fix Q4 2026 earnings announcement"
+  },
+  "SFIX-f762bc85d6": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": -2,
+   "checkable_claim": "Stitch Fix reported Q4 loss and missed revenue estimates"
+  },
+  "SFIX-fab20a3ad6": {
+   "relevant_to_company": true,
+   "event_type": "earnings",
+   "tone": 0,
+   "checkable_claim": "Stitch Fix reporting Q2 results"
+  },
+  "SLDE-205aa7a702": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "STRR-9196c92eb7": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "SVIA-abf254092a": {
+   "relevant_to_company": true,
+   "event_type": "macro",
+   "tone": 0,
+   "checkable_claim": "Silvia Inc begins trading on Nasdaq under ticker SVIA"
+  },
+  "TNC-b56225a295": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "Toro Company adds Tennant CEO to board of directors"
+  },
+  "TNC-c78ea1744f": {
+   "relevant_to_company": false,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "VSXY-280c5365ea": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 0,
+   "checkable_claim": null
+  },
+  "VSXY-4dad21f691": {
+   "relevant_to_company": true,
+   "event_type": "noise",
+   "tone": 1,
+   "checkable_claim": null
+  },
+  "VSXY-cce5854e08": {
+   "relevant_to_company": true,
+   "event_type": "management",
+   "tone": 1,
+   "checkable_claim": "Victoria's Secret CEO Hillary Super conducting rapid turnaround"
+  },
+  "WBUY-aa95632f2a": {
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
+   "tone": -1,
+   "checkable_claim": "Webuy Global received Nasdaq notice over minimum bid price deficiency"
+  }
+ }
+}
