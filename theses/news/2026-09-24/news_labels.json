@@ -1,34 +1,34 @@
 {
  "week_of": "2026-09-21",
- "news_asof": "2026-09-24T19:13:49+00:00",
+ "news_asof": "2026-09-24T19:21:46+00:00",
  "labels": {
   "AAPL-2e95e9106d": {
    "relevant_to_company": true,
-   "event_type": "product",
-   "tone": 1,
-   "checkable_claim": "Apple planning $1,999 foldable iPhone"
+   "event_type": "management",
+   "tone": 0,
+   "checkable_claim": "Apple CEO betting on $1,999 foldable iPhone"
   },
   "AAPL-648ad4ed06": {
    "relevant_to_company": false,
-   "event_type": "macro",
-   "tone": 1,
+   "event_type": "noise",
+   "tone": 0,
    "checkable_claim": null
   },
   "AAPL-f4cdc2a066": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Apple Pay launches in India next month"
+   "checkable_claim": "Apple Pay debuting in India next month"
   },
   "AGBK-89616a6bc0": {
-   "relevant_to_company": false,
-   "event_type": "noise",
+   "relevant_to_company": true,
+   "event_type": "rating_change",
    "tone": 0,
    "checkable_claim": null
   },
   "AGBK-9f6a11874c": {
-   "relevant_to_company": false,
-   "event_type": "noise",
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
    "tone": 0,
    "checkable_claim": null
   },
@@ -36,7 +36,7 @@
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Argan AutOnom warehouses use solar power and heat pumps"
+   "checkable_claim": "Argan AutOnom Warehouses use solar power and heat pumps"
   },
   "AGX-3bc1e76882": {
    "relevant_to_company": false,
@@ -53,20 +53,20 @@
   "AGX-5b53cc121b": {
    "relevant_to_company": true,
    "event_type": "earnings",
-   "tone": 0,
+   "tone": 1,
    "checkable_claim": "Argan reported record earnings and raised dividend"
   },
   "AGX-aa746ae1b0": {
    "relevant_to_company": true,
-   "event_type": "macro",
-   "tone": 0,
-   "checkable_claim": null
+   "event_type": "product",
+   "tone": -1,
+   "checkable_claim": "Argan power boom accompanied by margin pressure"
   },
   "AGX-d8263d3c09": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 0,
-   "checkable_claim": null
+   "checkable_claim": "Argan experiencing margin pressure during industrial expansion"
   },
   "BBT-126a2869e3": {
    "relevant_to_company": true,
@@ -90,13 +90,13 @@
    "relevant_to_company": true,
    "event_type": "management",
    "tone": 0,
-   "checkable_claim": "Sean A. Gray appointed CEO; Paul A. Perrault retiring"
+   "checkable_claim": "Sean Gray appointed CEO, Paul Perrault retiring from Beacon Financial"
   },
   "BBT-bf65530a30": {
    "relevant_to_company": true,
    "event_type": "management",
    "tone": 0,
-   "checkable_claim": "New CEO appointed at Beacon Bank, previous CEO retiring"
+   "checkable_claim": "Beacon Bank appoints new CEO, previous CEO retiring"
   },
   "BE-0e8ea25778": {
    "relevant_to_company": false,
@@ -108,7 +108,7 @@
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Securities class action lawsuit against Bloom Energy with deadline September 28, 2026"
+   "checkable_claim": "Bloom Energy securities class action lawsuit, deadline September 28, 2026"
   },
   "BE-8ddbe78c4f": {
    "relevant_to_company": false,
@@ -126,19 +126,19 @@
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Bloom Energy launching new power product for AI market"
+   "checkable_claim": "Bloom Energy launching power solution for AI boom"
   },
   "BE-c8e71eef73": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Class action lawsuit against Bloom Energy with lead plaintiff deadline September 28, 2026"
+   "checkable_claim": "Class action lawsuit against Bloom Energy, lead plaintiff deadline September 28, 2026"
   },
   "BE-e54f361189": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 2,
-   "checkable_claim": "Bloom Energy stock jumps; US Army awards power leases to Indelible-Bloom Coalition"
+   "checkable_claim": "Bloom Energy stock jumping on S&P 500 inclusion and US Army power lease awards"
   },
   "BLDP-02989facf3": {
    "relevant_to_company": false,
@@ -150,7 +150,7 @@
    "relevant_to_company": true,
    "event_type": "noise",
    "tone": -1,
-   "checkable_claim": null
+   "checkable_claim": "Instacart shares trading lower"
   },
   "CART-595b149b70": {
    "relevant_to_company": false,
@@ -162,16 +162,16 @@
    "relevant_to_company": true,
    "event_type": "product",
    "tone": -1,
-   "checkable_claim": "Instacart partners with Meta's Muse; Maplebear stock falls"
+   "checkable_claim": "Instacart/Maplebear added Meta's Muse as AI partner, stock fell"
   },
   "CF-d61f7e0d74": {
    "relevant_to_company": true,
    "event_type": "macro",
    "tone": -1,
-   "checkable_claim": "Trump says fertilizer deal with Belarus in works"
+   "checkable_claim": "CF Industries stock fell on Belarus fertilizer deal reports"
   },
   "DCOY-64a05c276a": {
-   "relevant_to_company": false,
+   "relevant_to_company": true,
    "event_type": "noise",
    "tone": 0,
    "checkable_claim": null
@@ -180,37 +180,37 @@
    "relevant_to_company": true,
    "event_type": "noise",
    "tone": -1,
-   "checkable_claim": null
+   "checkable_claim": "Dell stock fell Tuesday and underperformed market"
   },
   "DELL-3bedacc5ef": {
    "relevant_to_company": true,
-   "event_type": "noise",
+   "event_type": "rating_change",
    "tone": 1,
-   "checkable_claim": null
+   "checkable_claim": "Dell recommended as part of AI-server portfolio"
   },
   "DELL-95d2b8e56d": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Dell introduces XPS Googlebook laptop for Gemini"
+   "checkable_claim": "Dell introduced XPS Googlebook laptop with Gemini"
   },
   "DELL-9a52cc62fb": {
    "relevant_to_company": true,
-   "event_type": "noise",
+   "event_type": "rating_change",
    "tone": 1,
-   "checkable_claim": null
+   "checkable_claim": "Dell recommended as momentum pick"
   },
   "DELL-a9d6ca2422": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": 1,
-   "checkable_claim": null
+   "checkable_claim": "Dell benefiting from growing AI client base"
   },
   "DELL-c60b05d832": {
    "relevant_to_company": true,
-   "event_type": "management",
+   "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Dell Technologies insider sold $13,979,586 of shares"
+   "checkable_claim": "Dell insider sold $13,979,586 in shares per SEC filing"
   },
   "DELL-d82dcbc2ad": {
    "relevant_to_company": true,
@@ -221,8 +221,8 @@
   "EHTH-7a86c96024": {
    "relevant_to_company": false,
    "event_type": "macro",
-   "tone": 0,
-   "checkable_claim": null
+   "tone": -1,
+   "checkable_claim": "Employer health costs surging"
   },
   "ESE-3fc30cdcce": {
    "relevant_to_company": true,
@@ -240,13 +240,13 @@
    "relevant_to_company": false,
    "event_type": "macro",
    "tone": 0,
-   "checkable_claim": null
+   "checkable_claim": "Gold prices steadying on Iran talks and Fed rate concerns"
   },
   "GOLD-8d23e73b6a": {
    "relevant_to_company": true,
    "event_type": "rating_change",
    "tone": 0,
-   "checkable_claim": "Wall Street firm resets gold price target for 2030"
+   "checkable_claim": "Top Wall Street firm reset gold price target for 2030"
   },
   "GSAT-02d40331d9": {
    "relevant_to_company": true,
@@ -258,31 +258,31 @@
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Securities class action against Hims with important deadline"
+   "checkable_claim": "Securities class action against Hims & Hers Health"
   },
   "HIMS-0ad072bf7d": {
    "relevant_to_company": true,
    "event_type": "earnings",
-   "tone": -2,
-   "checkable_claim": "Hims & Hers reported negative profit twice"
+   "tone": -1,
+   "checkable_claim": "Hims went negative on profit"
   },
   "HIMS-947a6f83f4": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Securities class action lawsuit deadline November 2, 2026"
+   "checkable_claim": "Securities class action against Hims deadline November 2, 2026"
   },
   "HIMS-9661470f80": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Lawsuit against Hims highlights health data-sharing privacy risks"
+   "checkable_claim": "Hims lawsuit involves health data-sharing privacy risks"
   },
   "HIMS-96cfd75cbf": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
-   "tone": -1,
-   "checkable_claim": "Securities fraud class action filed with November 2, 2026 deadline"
+   "tone": -2,
+   "checkable_claim": "Securities fraud class action against Hims, lead plaintiff deadline November 2, 2026"
   },
   "HIMS-abfef10536": {
    "relevant_to_company": true,
@@ -300,10 +300,10 @@
    "relevant_to_company": true,
    "event_type": "m_and_a",
    "tone": 1,
-   "checkable_claim": "H2O America gets regulatory clearance for Cibolo Valley acquisition"
+   "checkable_claim": "H2O America got regulatory clearance for Cibolo Valley acquisition"
   },
   "HTO-a4ca296dde": {
-   "relevant_to_company": false,
+   "relevant_to_company": true,
    "event_type": "noise",
    "tone": 0,
    "checkable_claim": null
@@ -317,20 +317,20 @@
   "IMVT-918eb8ecf2": {
    "relevant_to_company": true,
    "event_type": "product",
-   "tone": -2,
-   "checkable_claim": "Immunovant stopped IMVT-1402 development in cutaneous lupus after trial miss"
+   "tone": -1,
+   "checkable_claim": "Immunovant stopped IMVT-1402 development in cutaneous lupus"
   },
   "IMVT-acbfaa3f5f": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": -2,
-   "checkable_claim": "Immunovant discontinued lupus program after missing primary endpoint; stock at 3-month low"
+   "checkable_claim": "Immunovant discontinued lupus program after failed trial, stock at 3-month lows"
   },
   "IMVT-b2b86404b3": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": -1,
-   "checkable_claim": "Immunovant shares fell 6% after IMVT-1402 study missed primary endpoint"
+   "checkable_claim": "Immunovant shares fell 6% after lupus study missed endpoint"
   },
   "JELD-89392b6c48": {
    "relevant_to_company": true,
@@ -342,28 +342,28 @@
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "St. Joe Company planning 3,500 additional homes in Latitude Margaritaville Watersound"
+   "checkable_claim": "St. Joe Company announcing 3,500 new homes in Watersound community"
   },
   "KALU-b30729d7ff": {
    "relevant_to_company": true,
    "event_type": "noise",
-   "tone": 1,
+   "tone": 0,
    "checkable_claim": null
   },
   "KIDZ-fdb03493a9": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "KIDZ AI secures Open Compute Project membership"
+   "checkable_claim": "KIDZ AI secured Open Compute Project membership"
   },
   "LNAI-9c3bae6b9f": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Lunai Bioworks expands Parkinson's platform through Tanaist agreement"
+   "checkable_claim": "Lunai Bioworks expanded Parkinson's platform through exclusive agreement"
   },
   "LSTR-fe4d9a3e62": {
-   "relevant_to_company": false,
+   "relevant_to_company": true,
    "event_type": "noise",
    "tone": 0,
    "checkable_claim": null
@@ -371,8 +371,8 @@
   "MPC-04d151e0b7": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
-   "tone": -2,
-   "checkable_claim": "Contractor died at Marathon Petroleum St. Paul Park site"
+   "tone": -1,
+   "checkable_claim": "Contractor died at Marathon Petroleum site, police investigating"
   },
   "MPC-0e8ea25778": {
    "relevant_to_company": false,
@@ -384,65 +384,65 @@
    "relevant_to_company": true,
    "event_type": "rating_change",
    "tone": 1,
-   "checkable_claim": "Morgan Stanley sees Marathon Petroleum reaching new highs"
+   "checkable_claim": "Morgan Stanley sees Marathon Petroleum breaking to new highs"
   },
   "MPC-dff8904322": {
    "relevant_to_company": true,
    "event_type": "rating_change",
    "tone": 1,
-   "checkable_claim": "UBS says Marathon Petroleum could reach all-time high"
+   "checkable_claim": "UBS says Marathon Petroleum could smash all-time high"
   },
   "MRBK-144fca8817": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Investigation of possible fiduciary duty breaches by Meridian officers"
+   "checkable_claim": "Investigation into possible fiduciary duty breaches by Meridian officers"
   },
   "MU-10654f9318": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "rating_change",
    "tone": 1,
-   "checkable_claim": "Memory demand strengthening for Micron"
+   "checkable_claim": "Analysts remain bullish on Micron as memory demand strengthens"
   },
   "MU-2112d1c179": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": 0,
-   "checkable_claim": null
+   "checkable_claim": "Micron's memory boom facing new test"
   },
   "MU-29286e793c": {
    "relevant_to_company": true,
    "event_type": "noise",
-   "tone": 1,
+   "tone": 0,
    "checkable_claim": "Micron stock up over 260%"
   },
   "MU-5de2ee10c1": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": -1,
-   "checkable_claim": "Michael Burry shorted Micron; expects chip down cycle"
+   "checkable_claim": "Michael Burry short on Micron, expects chip down cycle"
   },
   "MU-9915294889": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": -1,
-   "checkable_claim": "Michael Burry shorted Micron; memory price warning growing"
+   "checkable_claim": "Michael Burry is short Micron, warning on memory prices"
   },
   "MU-cb6c08533f": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": 0,
-   "checkable_claim": "Potential strike at Micron major chip factory"
+   "checkable_claim": "Potential strike at Micron chip factory"
   },
   "NESR-462079c766": {
    "relevant_to_company": true,
    "event_type": "noise",
    "tone": 0,
-   "checkable_claim": null
+   "checkable_claim": "NESR stock trading at premium valuation"
   },
   "NESR-7b8bd8f237": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": 1,
    "checkable_claim": null
   },
@@ -456,13 +456,13 @@
    "relevant_to_company": true,
    "event_type": "earnings",
    "tone": 1,
-   "checkable_claim": "NESR reported strong earnings beat and Kuwait mega contract"
+   "checkable_claim": "National Energy Services reported earnings beat and Kuwait mega contract"
   },
   "NVDA-285509edc2": {
    "relevant_to_company": true,
    "event_type": "macro",
    "tone": 1,
-   "checkable_claim": null
+   "checkable_claim": "Nvidia showing winning streak amid Trump-Xi meeting and China sales outlook"
   },
   "NVDA-2b1cbbdfc2": {
    "relevant_to_company": true,
@@ -471,32 +471,32 @@
    "checkable_claim": null
   },
   "NVDA-973a801302": {
-   "relevant_to_company": true,
-   "event_type": "m_and_a",
+   "relevant_to_company": false,
+   "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Nvidia deal lifts stock"
+   "checkable_claim": "IonQ CEO says company in exciting era, Nvidia deal lifted stock"
   },
   "NVDA-d2bfb88cc6": {
    "relevant_to_company": true,
    "event_type": "earnings",
    "tone": 1,
-   "checkable_claim": "Nvidia increased dividend significantly"
+   "checkable_claim": "Nvidia announced immense dividend hike"
   },
   "NVDA-f686d4065d": {
    "relevant_to_company": true,
    "event_type": "rating_change",
    "tone": 1,
-   "checkable_claim": "Motley Fool gives Nvidia long-term conviction rating"
+   "checkable_claim": "Motley Fool rates Nvidia as worth buying"
   },
   "PAAI-5aa11e9e8b": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "Paradium.AI signs 10-year strategic platform agreement with Roundtable"
+   "checkable_claim": "Paradium.AI signed 10-year strategic agreement with Roundtable"
   },
   "PAAI-659a7a8ac6": {
-   "relevant_to_company": false,
-   "event_type": "noise",
+   "relevant_to_company": true,
+   "event_type": "earnings",
    "tone": 0,
    "checkable_claim": null
   },
@@ -516,13 +516,13 @@
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 0,
-   "checkable_claim": "RingCentral released new AI plugins"
+   "checkable_claim": "RingCentral announced new AI plugins"
   },
   "RNG-82947a68bd": {
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "RingCentral AI driving upsell and customer retention"
+   "checkable_claim": "RingCentral expects AI to drive upsell and customer retention"
   },
   "RNG-d6daea877a": {
    "relevant_to_company": true,
@@ -534,11 +534,11 @@
    "relevant_to_company": true,
    "event_type": "product",
    "tone": 1,
-   "checkable_claim": "RingCentral new AI plugins reshape competitive moat"
+   "checkable_claim": "RingCentral's new AI plugins could reshape competitive position"
   },
   "SFBS-0658f47656": {
-   "relevant_to_company": false,
-   "event_type": "noise",
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
    "tone": 0,
    "checkable_claim": null
   },
@@ -546,52 +546,52 @@
    "relevant_to_company": true,
    "event_type": "earnings",
    "tone": 1,
-   "checkable_claim": "ServisFirst Bancshares declares third quarter cash dividend"
+   "checkable_claim": "ServisFirst declared third quarter dividend"
   },
   "SFIX-6b1670eda8": {
    "relevant_to_company": true,
    "event_type": "earnings",
    "tone": 0,
-   "checkable_claim": "Stitch Fix Q4 2026 earnings announcement"
+   "checkable_claim": null
   },
   "SFIX-f762bc85d6": {
    "relevant_to_company": true,
    "event_type": "earnings",
-   "tone": -2,
+   "tone": -1,
    "checkable_claim": "Stitch Fix reported Q4 loss and missed revenue estimates"
   },
   "SFIX-fab20a3ad6": {
    "relevant_to_company": true,
    "event_type": "earnings",
    "tone": 0,
-   "checkable_claim": "Stitch Fix reporting Q2 results"
+   "checkable_claim": null
   },
   "SLDE-205aa7a702": {
    "relevant_to_company": true,
    "event_type": "noise",
    "tone": 1,
-   "checkable_claim": null
+   "checkable_claim": "Slide Insurance stock at fresh high"
   },
   "STRR-9196c92eb7": {
-   "relevant_to_company": false,
-   "event_type": "noise",
+   "relevant_to_company": true,
+   "event_type": "legal_regulatory",
    "tone": 0,
    "checkable_claim": null
   },
   "SVIA-abf254092a": {
    "relevant_to_company": true,
-   "event_type": "macro",
+   "event_type": "product",
    "tone": 0,
-   "checkable_claim": "Silvia Inc begins trading on Nasdaq under ticker SVIA"
+   "checkable_claim": "Silvia began trading on Nasdaq under ticker SVIA"
   },
   "TNC-b56225a295": {
    "relevant_to_company": true,
    "event_type": "management",
    "tone": 0,
-   "checkable_claim": "Toro Company adds Tennant CEO to board of directors"
+   "checkable_claim": "Tennant CEO appointed to Toro Company board"
   },
   "TNC-c78ea1744f": {
-   "relevant_to_company": false,
+   "relevant_to_company": true,
    "event_type": "noise",
    "tone": 0,
    "checkable_claim": null
@@ -605,20 +605,20 @@
   "VSXY-4dad21f691": {
    "relevant_to_company": true,
    "event_type": "noise",
-   "tone": 1,
+   "tone": 0,
    "checkable_claim": null
   },
   "VSXY-cce5854e08": {
    "relevant_to_company": true,
    "event_type": "management",
    "tone": 1,
-   "checkable_claim": "Victoria's Secret CEO Hillary Super conducting rapid turnaround"
+   "checkable_claim": "Victoria's Secret CEO Hillary Super driving rapid turnaround"
   },
   "WBUY-aa95632f2a": {
    "relevant_to_company": true,
    "event_type": "legal_regulatory",
    "tone": -1,
-   "checkable_claim": "Webuy Global received Nasdaq notice over minimum bid price deficiency"
+   "checkable_claim": "Webuy Global received Nasdaq notice for minimum bid price deficiency"
   }
  }
 }
