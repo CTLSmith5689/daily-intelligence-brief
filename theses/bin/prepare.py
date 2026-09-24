@@ -11,9 +11,16 @@ Writes theses/runs/{DATE}/ containing a manifest and one dossier per slot, then
 prints what the agent should do next. Costs zero model tokens.
 
     python3 theses/bin/prepare.py [--slots N] [--date YYYY-MM-DD]
+
+If the Research Director has written a plan for this week (theses/director/,
+checked by director_check.py) and it passes, today's assignments take the first
+slots, in the plan's order, and the screen fills the rest. With no plan, a plan
+that fails the check, or no assignment for today, the run is exactly the
+screen's, as it was before the director existed. The manifest's "director" key
+says which of those happened.
 """
 import json, os, subprocess, sys, time
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 # One clock for the whole pipeline. A US equity pipeline has exactly one
@@ -26,6 +33,64 @@ from common import THESES, LEDGER, read_csv_rows, fetch_site
 import screen
 
 BIN = Path(__file__).resolve().parent
+
+
+def director_assignments(run_date, check=None):
+    """({"path": ..., ...}, [assignment, ...]) for this run.
+
+    path is "no_plan", "invalid_plan", "no_assignments_today" or "director".
+    Only the last returns assignments. Nothing here may stop a run: any error
+    reading or checking the plan is an invalid plan, and the screen runs alone."""
+    # Found without importing anything new, so a run with no plan touches no
+    # code the run did not touch before the director existed.
+    try:
+        day = date.fromisoformat(str(run_date))
+    except ValueError:
+        return {"path": "no_plan", "plan": "",
+                "note": f"Run date {run_date!r} is not a date; no plan was looked for."}, []
+    sunday = day - timedelta(days=day.weekday() + 1)
+    plan_path = THESES / "director" / f"{sunday.isoformat()}.md"
+    rel = f"theses/director/{plan_path.name}"
+    if not plan_path.exists():
+        return {"path": "no_plan", "plan": rel,
+                "note": "No director plan for this week; every slot comes from the screen."}, []
+    try:
+        import director_check as DC
+        fails, warns, plan = (check or DC.check_plan)(plan_path)
+    except Exception as exc:          # a broken plan must never break the run
+        fails, warns, plan = [f"director_check raised {type(exc).__name__}: {exc}"], [], None
+    if fails:
+        return {"path": "invalid_plan", "plan": rel, "fails": fails[:20],
+                "note": "The plan failed director_check.py and was ignored; every slot "
+                        "comes from the screen."}, []
+    today = [a for a in (plan or {}).get("assignments", []) if a.get("date") == day.isoformat()]
+    if not today:
+        return {"path": "no_assignments_today", "plan": rel, "warnings": warns[:20],
+                "note": "The plan passed but assigns nothing today; every slot comes from "
+                        "the screen."}, []
+    return {"path": "director", "plan": rel, "warnings": warns[:20],
+            "assigned": [a["ticker"] for a in today]}, today
+
+
+def merge_slots(assigned, screened, total, per_sector=1):
+    """The director's names first, in order, then the screen's, up to `total`.
+
+    A screen name is skipped when the director already took it, and, while
+    there are others to choose from, when the director took its sector: the
+    screen's own one-name-per-sector rule, applied across both."""
+    out = [{"ticker": a["ticker"], "slot": "director", "reason": a["reason"],
+            "kind": a["kind"], "desk": a["desk"], "sector": a["sector"],
+            "price": a.get("price")} for a in assigned[:total]]
+    taken = {s["ticker"] for s in out}
+    sectors = {s["sector"] for s in out if s["sector"]}
+    rest = [s for s in screened if s.get("ticker") not in taken]
+    first = [s for s in rest if not (per_sector <= 1 and s.get("sector") in sectors)]
+    second = [s for s in rest if s not in first]
+    for s in first + second:
+        if len(out) >= total:
+            break
+        out.append(s)
+    return out
 
 
 def hit_rate():
@@ -94,6 +159,14 @@ def main():
     if slots:
         env["THESES_SLOTS"] = str(slots)
 
+    director, assigned = director_assignments(run_date)
+    print(f"prepare: director path {director['path']} ({director['plan']})", file=sys.stderr)
+    total = slots or screen.CFG["slots_per_run"]
+    if assigned:
+        # Ask the screen for enough names to fill around the director's, so a
+        # screen name dropped for a shared sector still leaves one to take.
+        env["THESES_SLOTS"] = str(total + len(assigned))
+
     t0 = time.time()
     print(f"prepare: screening for {run_date} ...", file=sys.stderr)
     out = subprocess.run([sys.executable, str(BIN / "screen.py")],
@@ -102,6 +175,9 @@ def main():
         print(f"prepare: screen failed\n{out.stderr}", file=sys.stderr)
         return 1
     plan = json.loads(out.stdout)
+    if assigned:
+        plan["slots"] = merge_slots(assigned, plan.get("slots", []), total,
+                                    screen.CFG.get("max_per_sector_per_run", 1))
 
     run_dir = THESES / "runs" / run_date
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -130,6 +206,7 @@ def main():
         "open_predictions": plan.get("open_predictions", 0),
         "slots": built,
         "dossier_failed": failed,
+        "director": director,
         "elapsed_s": round(time.time() - t0, 1),
     }
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")

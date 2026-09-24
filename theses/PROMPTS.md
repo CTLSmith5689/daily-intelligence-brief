@@ -97,6 +97,13 @@ dossier per slot. Read manifest.json FIRST, then read every dossier in full.
 Then read theses/GLOSSARY.md: it holds the definition of every finance term you
 will use, and you copy from it (step 2, VOCABULARY).
 
+If the manifest's "director" key has a path of "director" or "no_assignments_today",
+read the plan it names (theses/director/, written by the Research Director on
+Sunday) before writing: the focus paragraph for each
+slot's desk, and any rewrite asks in its review of your earlier memos, which apply
+to every memo you write. A slot marked "director" was assigned by the plan, and its
+reason says why. Each dossier carries the name's sector playbook and its desk file.
+
 {RUN_DATE} IS NOT TODAY'S DATE AS YOU KNOW IT. Read it out of manifest.json,
 where prepare.py writes it as `run_date`, and use that exact string everywhere
 below: the runs/ directory, the note filename, and the Drive run folder. It is the US

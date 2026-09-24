@@ -17,6 +17,7 @@ from common import (SLEEVES, THESES, LEDGER, RAW, PAGES, fetch, fetch_site, num,
                     NON_OPERATING)
 import screen
 import tensions
+import desks
 
 MAX_FILING_CHARS = 34000      # ~8.5K tokens; the largest single block here
 MAX_NEWS = 10
@@ -27,7 +28,7 @@ STALENESS = [("prices_updated", 4, "price and every return derived from it"),
              ("insider_updated", 14, "insider buy/sell signal")]
 
 
-# --- sector lens ------------------------------------------------------------
+# --- sector playbook and desk ------------------------------------------------
 #
 # A refiner, a bank and a SaaS company do not answer the same questions, and
 # several fields in the panel mean different things or nothing at all depending
@@ -36,8 +37,11 @@ STALENESS = [("prices_updated", 4, "price and every return derived from it"),
 # cheap. Without this the agent applies one template to every name.
 #
 # Keyed on GICS sector, which is a column on every row, so this is a dictionary
-# lookup and not a retrieval problem. There is nothing to embed and nothing that
-# can come back wrong: either the file exists for that sector or it does not.
+# lookup and not a retrieval problem. Since 2026-09-24 the dossier carries the
+# sector's playbook (theses/desks/sectors/) and the owning desk's file
+# (theses/desks/), both in desks.py. The older sector lenses in theses/lenses/
+# are no longer injected: only about a third of their claims survived a fact
+# check. Their _fields.json, whose claims were each checked, is still read.
 LENSES = THESES / "lenses"
 
 
@@ -100,20 +104,6 @@ def mdna_excerpt(text, path):
     return parts, (f"Showing {shown:,} of {len(text):,} characters. The whole discussion is "
                    f"in the checkout at `data/filings/{path}`. Read it if the thesis turns "
                    f"on a product line, a cost or a plan these excerpts leave out.")
-
-
-def sector_lens(sector):
-    """The lens body for a sector, or "" when none is written."""
-    if not sector:
-        return ""
-    slug = re.sub(r"[^a-z0-9]+", "-", sector.lower()).strip("-")
-    path = LENSES / f"{slug}.md"
-    if not path.exists():
-        return ""
-    try:
-        return path.read_text(encoding="utf-8").strip()
-    except Exception:
-        return ""
 
 
 def sector_field_warnings(sector):
@@ -1591,7 +1581,9 @@ def main():
           "somewhere outside this dossier.")
 
     # --- how to read this kind of business ------------------------------------
-    lens = sector_lens(me.get("sector"))
+    playbook = desks.playbook_text(me.get("sector"))
+    desk = desks.desk_for(me.get("sector"))
+    desk_body = desks.desk_text(desk)
     warns = sector_field_warnings(me.get("sector"))
     if warns:
         w("")
@@ -1607,11 +1599,25 @@ def main():
         for x in warns:
             w(f"| `{x.get('field','')}` | {x.get('severity','')} | {x.get('why','')} "
               f"| {x.get('instead','') or '—'} |")
-    if lens:
+    if playbook:
         w("")
         w("## How to read a company in this sector")
         w("")
-        w(lens)
+        w(f"From the sector playbook, `theses/desks/sectors/{desks.sector_slug(me.get('sector'))}.md`. "
+          "Every claim in it about our data was checked against the panel when it was written.")
+        w("")
+        # Two levels down, so the playbook's own headings sit under this one.
+        w(re.sub(r"^(#{1,4})(\s)", r"##\1\2", playbook, flags=re.M))
+    if desk_body:
+        w("")
+        w(f"## The desk that owns this name: {desks.desk_title(desk)}")
+        w("")
+        w(f"From `theses/desks/{desk}.md`. If this week's plan in `theses/director/` has a focus "
+          "note for this desk, read it before writing.")
+        w("")
+        # The heading above already names the desk, so its own title line goes.
+        desk_body = re.sub(r"\A#[ \t]+[^\n]*\n+", "", desk_body)
+        w(re.sub(r"^(#{1,4})(\s)", r"##\1\2", desk_body, flags=re.M))
 
     # --- freshness, because every number below inherits it --------------------
     w("")

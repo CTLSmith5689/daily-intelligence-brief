@@ -262,7 +262,7 @@ class Pages(unittest.TestCase):
         self.assertEqual(cfg["research.html"]["howAnalyst"]["promptPath"], "theses/PROMPTS.md")
         self.assertNotIn("Agent 1: the analyst", how["prompt"])
         research = cfg["research.html"]["howAnalyst"]
-        self.assertEqual(research["routine"]["schedule"], "Mondays 07:00 ET")
+        self.assertEqual(research["routine"]["schedule"], "Weekdays 07:00 ET")
         self.assertIn("Apterreon weekly analyst run.", research["routine"]["html"])
         self.assertNotIn("Schedule:", research["routine"]["html"], "the file header is not the prompt")
         self.assertIn("<pre><code>You are the analyst for Apterreon", research["prompt"])

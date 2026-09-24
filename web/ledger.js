@@ -3223,6 +3223,7 @@
       var toT = isFinite(n.t) && isFinite(n.l) ? (n.t / n.l - 1) * 100 : NaN;
       return '<tr data-t="' + esc(r.ticker) + '"><td><a class="ld-tk" href="' + ctx.href("company", r.ticker) + '/thesis">' + esc(r.ticker) + "</a></td>" +
         "<td>" + esc(r.name || "") + "</td>" +
+        '<td class="ld-muted">' + esc(r.deskTitle || "") + "</td>" +
         '<td><span class="ld-view' + (v.open ? " open" : "") + '">' + esc(v.label) + '</span><div class="ref">' + esc(STATUS_WORD[r.status] || v.status) + "</div></td>" +
         '<td><span class="ld-conv" aria-hidden="true">' + [1, 2, 3, 4, 5].map(function (k) { return '<i class="' + (k <= conv ? "on" : "") + '"></i>'; }).join("") + '</span><span class="ld-num">' + conv + " of 5</span></td>" +
         '<td class="r ld-num">' + money(n.e) + "</td>" +
@@ -3236,10 +3237,11 @@
       '<div class="ld-head"><div><div class="ld-kicker"><b>Research</b> ' + MID + " " + plural(calls.length, "thesis", "theses") + (closeDates.length ? " " + MID + " prices of " + esc(andList(closeDates.map(dateShort))) : "") + "</div>" +
       '<h1 class="ld-h1">Research</h1><p class="ld-deck">Each thesis is a written view on one company, with a target price, a date to review it, and what would prove it wrong. The full thesis is on the company’s page, beside the price and the figures it draws on.</p></div></div>' +
       '<section class="ld-sec" aria-labelledby="ld-ri-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-ri-h">Every thesis</h2><span class="ld-kicker">Open calls first</span></div>' +
-      (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>View</th><th>Conviction</th><th class="r">Written at</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written on</th></tr></thead><tbody>' +
+      (calls.length ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Ticker</th><th>Company</th><th>Desk</th><th>View</th><th>Conviction</th><th class="r">Written at</th><th class="r">Last close</th><th class="r">Target</th><th class="r">To target</th><th>Review by</th><th>Written on</th></tr></thead><tbody>' +
       rows + "</tbody></table></div>" : '<p class="ld-empty">No thesis has been written yet.</p>') +
       '<p class="ld-muted" style="font-size:13.5px;margin:12px 0 0;max-width:90ch">“To target” is how far the price still has to move, from the last close, to reach the target. When the view takes no side (“' + esc(VIEW.watch) + '” or “' + esc(VIEW["no view"]) + '”), the target is for reference only and the company shows as Watching. Those notes make no call, so they are never checked.</p></section>' +
-      recordHTML(CFG.record) + analystInstructionsHTML(CFG.howAnalyst) + portfoliosLinkHTML() + "</div>";
+      directorPlanHTML(CFG.directorPlan) + recordHTML(CFG.record) + analystInstructionsHTML(CFG.howAnalyst) +
+      directorInstructionsHTML(CFG.howDirector) + portfoliosLinkHTML() + "</div>";
     var tb = main.querySelector(".ld-rtab tbody");
     if (tb) tb.addEventListener("click", function (e) {
       if (e.target.closest("a")) return;
@@ -3315,6 +3317,37 @@
       (r ? docBlock("The routine prompt", "From " + repoLink(d.routinePath) + (r.schedule ? ". Runs " + esc(r.schedule) + "." : "."), r.html) : "") +
       (d.prompt ? docBlock("The full instructions", "From " + repoLink(d.promptPath) + ", the section “" + esc(d.promptSection) + "”.", d.prompt) : "") +
       "</section>";
+  }
+  /* The Research Director: its routine prompt and theses/DIRECTOR.md, rendered by the pipeline like the
+     analyst's, and the current week's plan (theses/director/). Every string from the plan is escaped here;
+     its sections arrive as HTML the pipeline built from escaped text, and pass through cleanHtml. */
+  function directorInstructionsHTML(d) {
+    if (!d) return "";
+    var r = d.routine;
+    return '<section class="ld-sec" aria-labelledby="ld-dhow-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-dhow-h">How the director works</h2></div>' +
+      '<p class="ld-pm-p">The Research Director is a second scheduled claude.ai routine' + (r && r.schedule ? " that runs " + esc(r.schedule) : "") + ". It writes no research. It grades the analyst’s memos from the week before, and writes a plan for the week ahead: which companies the analyst covers on which day, and what each of the five desks should look for. The analyst’s run takes each day’s assignments first and fills the rest from the screen. A plan that fails its checks is ignored, and the screen runs alone.</p>" +
+      (r ? docBlock("The routine prompt", "From " + repoLink(d.routinePath) + (r.schedule ? ". Runs " + esc(r.schedule) + "." : "."), r.html) : "") +
+      (d.prompt ? docBlock("The full instructions", "From " + repoLink(d.promptPath) + ".", d.prompt) : "") +
+      "</section>";
+  }
+  function directorPlanHTML(p) {
+    if (!p) return "";
+    var rows = (p.assignments || []).map(function (a) {
+      return "<tr><td class=\"ld-num\">" + (a.date ? esc(dateMid(a.date)) : "") + '</td><td><a class="ld-tk" href="' + ctx.href("company", a.ticker) + '">' + esc(a.ticker) + "</a></td>" +
+        "<td>" + esc(a.kind === "revision" ? "Revision" : a.kind === "initiation" ? "Initiation" : a.kind || "") + "</td><td>" + esc(a.deskTitle || a.desk || "") + "</td><td>" + esc(a.reason || "") + "</td></tr>";
+    }).join("");
+    var secs = p.sections || [];
+    var focus = secs.filter(function (s) { return /focus/i.test(s.title); })[0];
+    var rest = secs.filter(function (s) { return s !== focus; }).map(function (s) {
+      return docBlock(s.title, "", s.html);
+    }).join("");
+    return '<section class="ld-sec" aria-labelledby="ld-plan-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-plan-h">This week’s plan</h2>' +
+      (p.weekOf ? '<span class="ld-kicker">Week of ' + esc(dateMid(p.weekOf)) + "</span>" : "") + "</div>" +
+      '<p class="ld-pm-p">Written by the Research Director, from ' + repoLink(p.path) + ". Each assignment takes one of the analyst’s slots on its day; the screen fills the others.</p>" +
+      (rows ? '<div class="ld-tbl-wrap"><table class="ld-rtab"><thead><tr><th>Day</th><th>Ticker</th><th>Kind</th><th>Desk</th><th>Why</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
+        : '<p class="ld-empty">No assignments this week: every slot comes from the screen.</p>') +
+      (focus ? '<div class="ld-notebody ld-docbody">' + cleanHtml(focus.html) + "</div>" : "") +
+      rest + "</section>";
   }
   function pmInstructionsHTML(d) {
     if (!d) return "";
