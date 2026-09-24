@@ -724,7 +724,7 @@ Then commit and push:
 
   git add theses/
   git commit -m "theses({RUN_DATE}): T1, T2"
-  git pull --rebase && git push
+  git pull --rebase origin main && git push origin HEAD:main
 
 `git pull --rebase` first, never a bare push: a bot commits to this repository
 every hour and a bare push loses that race whenever one lands in the window. If

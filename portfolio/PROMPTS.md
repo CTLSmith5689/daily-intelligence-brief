@@ -286,7 +286,7 @@ en dashes: use commas, colons, parentheses or two sentences.
 
   git add portfolio/orders portfolio/letters portfolio/ledger portfolio/books
   git commit -m "pm({TODAY}): <n> trades across <m> books"
-  git pull --rebase && git push
+  git pull --rebase origin main && git push origin HEAD:main
 
 Pull before pushing: a bot commits to this repository every hour. If the
 rebase stops on a conflict in portfolio/ledger/, do not resolve it by hand.
