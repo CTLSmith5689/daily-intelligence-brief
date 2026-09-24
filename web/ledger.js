@@ -49,7 +49,7 @@
 
   var PAGE_FILE = { home: "index.html", today: "today.html", stories: "stories.html", stocks: "stocks.html",
                     research: "research.html", company: "company.html", portfolios: "portfolios.html",
-                    book: "book.html" };
+                    book: "book.html", scorecard: "scorecard.html" };
   function makeCtx() {
     var zCache = {}, rowMap = null;
     return {
@@ -3452,10 +3452,11 @@
         ["Largest position", plainPct(m.max_position, 0) + " of the book"],
         ["Largest sector", plainPct(m.sector_cap, 0) + " of the book"],
         ["Cash", m.cash_band ? plainPct(m.cash_band[0], 0) + " to " + plainPct(m.cash_band[1], 0) + " of the book" : "n/a"],
-        ["Turnover", m.turnover_budget != null ? "Up to " + plainPct(m.turnover_budget, 0) + " of the book a year, counting purchases or sales, whichever is smaller" : "n/a"],
+        ["Turnover", m.turnover_budget != null ? "Up to " + plainPct(m.turnover_budget, 0) + " of the book a year, counting purchases or sales, whichever is smaller" : "No limit"],
         ["Bets against companies", "Not allowed"],
         ["Companies it may buy", "Only those in its own box"],
-        ["Weighting", m.weighting === "equal" ? "Equal weight" : String(m.weighting || "")]
+        ["Weighting", m.weighting === "equal" ? "Equal weight" : String(m.weighting || "")],
+        ["Active share against the rules", m.max_active_share_vs_rules == null ? "No limit set" : "Up to " + plainPct(m.max_active_share_vs_rules, 0)]
       ];
     } else if (b.kind === "hedge") {
       items = [
@@ -3546,6 +3547,7 @@
       '<h1 class="ld-h1">' + esc(b.name) + '</h1><p class="ld-deck">' + deck + "</p></div></div>" +
       stats + priceNote() +
       '<section class="ld-sec" aria-labelledby="ld-bk-perf"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-perf">Return since inception</h2><span class="ld-kicker">Book, solid; benchmark, dashed</span></div><div class="ld-chart" id="ld-pm-chart"></div></section>' +
+      bookPmHTML(b) + bookAttributionHTML(b) +
       '<section class="ld-sec" aria-labelledby="ld-bk-hold"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-hold">Holdings</h2><span class="ld-kicker">' + plural(b.holdingsCount || 0, "company", "companies") + ", largest first</span></div>" + holdSec + "</section>" +
       (sectors ? '<section class="ld-sec" aria-labelledby="ld-bk-sec"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-sec">Sector mix</h2>' + (showSide ? '<span class="ld-kicker">Companies owned</span>' : "") + '</div><div class="ld-pm-bars">' + sectors + "</div></section>" : "") +
       (isStyle(b) ? candidateHTML(b, b.holdings || []) : "") +
@@ -3586,6 +3588,216 @@
     t.scrollIntoView({ block: "start" });
     var h = document.getElementById("ld-th-h");
     h.tabIndex = -1; h.focus({ preventScroll: true });
+  }
+
+  /* ---------------------------------------------------------------- scorecard */
+  /* scorecard.html: the analyst's calls, marked every session and scored at their horizon
+     (theses/bin/score.py), with the aggregates and the calibration. CFG.scorecard is plain data;
+     every string from it is escaped here. A group with fewer than SC.minGroup scored calls is
+     labelled too few to read, and its count is always shown. */
+
+  var SC = CFG.scorecard || {};
+  function scPct(f, dp) { return pctTxt(f, dp == null ? 1 : dp); }
+  /* The date a call was written, linking to its memo in the repository. */
+  function scMemo(path, day) {
+    var d = esc(dateMid(day));
+    return path && SC.repoUrl ? '<a class="ld-inl" href="' + esc(SC.repoUrl + path) + '" target="_blank" rel="noopener" title="Read the memo">' + d + "</a>" : d;
+  }
+  function scTicker(t) { return '<a class="ld-tk" href="' + ctx.href("company", t) + '/thesis">' + esc(t) + "</a>"; }
+  function tooFewTxt(g) { return g.tooFew ? '<span class="ld-sc-few">Too few to read</span>' : ""; }
+  function groupTable(title, id, rows, firstCol) {
+    var body = (rows || []).map(function (g) {
+      var mute = g.tooFew ? " ld-muted" : "";
+      return "<tr><td>" + esc(g.name) + '</td><td class="r ld-num">' + int(g.n || 0) + '</td><td class="r ld-num">' + int(g.open || 0) +
+        '</td><td class="r ld-num' + mute + '">' + (g.hitRate == null ? "n/a" : plainPct(g.hitRate, 0)) +
+        '</td><td class="r ld-num' + mute + '">' + scPct(g.meanExcess) + '</td><td class="r ld-num' + mute + '">' + scPct(g.medianExcess) +
+        "</td><td>" + tooFewTxt(g) + "</td></tr>";
+    }).join("") || '<tr><td colspan="7" class="ld-muted">No calls yet.</td></tr>';
+    return '<section class="ld-sec" aria-labelledby="' + id + '"><div class="ld-sec-h"><h2 class="ld-h2" id="' + id + '">' + esc(title) + "</h2></div>" +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>' + esc(firstCol) + '</th><th class="r">Scored</th><th class="r">Open</th><th class="r">Hit rate</th><th class="r">Average excess</th><th class="r">Median excess</th><th></th></tr></thead><tbody>' +
+      body + "</tbody></table></div></section>";
+  }
+  function convVerdict(rows) {
+    var by = {};
+    (rows || []).forEach(function (g) { by[g.name] = g; });
+    var a = by["5"] || { n: 0 }, b = by["3"] || { n: 0 };
+    if (a.n >= SC.minGroup && b.n >= SC.minGroup) {
+      return "Calls at conviction 5 beat their sector funds by " + scPct(a.medianExcess) + " at the median, against " + scPct(b.medianExcess) + " for conviction 3.";
+    }
+    return "Not yet known whether conviction 5 beats conviction 3: 5 has " + plural(a.n, "scored call", "scored calls") + " and 3 has " + int(b.n) + ", and each needs " + int(SC.minGroup) + ".";
+  }
+
+  function renderScorecard(main) {
+    var open = (SC.open || []).slice().sort(function (a, b) { return a.written < b.written ? 1 : a.written > b.written ? -1 : a.ticker < b.ticker ? -1 : 1; });
+    var scored = SC.scored || [];
+    var ov = SC.overall || { n: 0 };
+    var first = open.map(function (c) { return c.horizonEnd; }).filter(Boolean).sort()[0];
+    var tiles = [
+      ["Open calls", int(SC.openCount || 0), "Marked at every close"],
+      ["Scored calls", int(ov.n || 0), ov.n ? "At their horizon" : (first ? "First due " + dateMid(first) : "None due yet")],
+      ["Hit rate", ov.n ? plainPct(ov.hitRate, 0) : "n/a", ov.tooFew ? "Too few to read (" + int(ov.n || 0) + " of " + int(SC.minGroup) + ")" : "Beat the sector fund"],
+      ["Median excess return", ov.n ? scPct(ov.medianExcess) : "n/a", ov.tooFew ? "Too few to read" : "Against the sector fund", ov.n ? pctCls(ov.medianExcess) : ""]
+    ];
+    var stats = '<div class="ld-stats ld-pm-stats">' + tiles.map(function (t) {
+      return '<div class="ld-stat" style="display:block"><div class="ld-kicker">' + esc(t[0]) + '</div><div class="v ld-num ' + (t[3] || "") + '">' + esc(t[1]) + '</div><div class="d">' + esc(t[2]) + "</div></div>";
+    }).join("") + "</div>";
+    var openNotes = [];
+    var openRows = open.map(function (c) {
+      var crossed = c.crossed ? esc(c.crossed) : (c.thresholds ? "None crossed" : '<span class="ld-muted">None on price</span>');
+      var sub = [];
+      if (c.supersededBy) sub.push("A later memo followed; this call is still scored on its own date.");
+      if (c.flags) sub.push((c.lastFlagDate ? dateMid(c.lastFlagDate) + ": " : "") + c.flags + ".");
+      if (sub.length) openNotes.push("<li><b>" + esc(c.ticker) + ", " + esc(dateMid(c.written)) + "</b>: " + esc(sub.join(" ")) + "</li>");
+      return "<tr><td>" + scTicker(c.ticker) + '</td><td class="ld-num">' + scMemo(c.note, c.written) + "</td><td>" + esc(c.action) +
+        '</td><td class="r ld-num">' + esc(c.conviction || "") + "</td><td>" + esc(c.desk || "Not known") + '</td><td class="ld-num">' + esc(c.etf || "None") +
+        '</td><td class="r ld-num">' + (c.days == null ? "n/a" : int(c.days)) + '</td><td class="r ld-num ' + pctCls(c.ret) + '">' + scPct(c.ret) +
+        '</td><td class="r ld-num ' + pctCls(c.excessSector) + '">' + scPct(c.excessSector) + '</td><td class="r ld-num ' + pctCls(c.excessSpx) + '">' + scPct(c.excessSpx) +
+        '</td><td class="r ld-num">' + (c.progress == null ? "n/a" : plainPct(c.progress, 0)) + '</td><td class="ld-pm-wrap">' + crossed +
+        "</td></tr>";
+    }).join("");
+    var scoredRows = scored.map(function (r) {
+      return "<tr><td>" + scTicker(r.ticker) + '</td><td class="ld-num">' + scMemo(r.note_path, r.written_on) + "</td><td>" + esc(r.action || r.stance) +
+        '</td><td class="r ld-num">' + esc(r.conviction || "") + "</td><td>" + esc(r.desk || "") + '</td><td class="ld-num">' + esc(r.exit_date ? dateMid(r.exit_date) : "") +
+        '</td><td class="r ld-num">' + scPct(+r.stock_return) + '</td><td class="r ld-num ' + pctCls(+r.rel_sector) + '">' + (r.rel_sector === "" || r.rel_sector == null ? "n/a" : scPct(+r.rel_sector)) +
+        "</td><td>" + esc(r.hit === "yes" ? "Hit" : r.hit === "no" ? "Miss" : r.outcome || "") + '</td><td class="ld-pm-wrap">' + esc(r.note || "") + "</td></tr>";
+    }).join("");
+    var cal = SC.calibration || { n: 0, cases: [] };
+    var calRows = (cal.cases || []).map(function (c) {
+      return "<tr><td>" + esc(cap1(c.case)) + '</td><td class="r ld-num">' + (c.stated == null ? "n/a" : plainPct(c.stated, 0)) + '</td><td class="r ld-num">' + int(c.landed || 0) +
+        '</td><td class="r ld-num">' + (c.share == null ? "n/a" : plainPct(c.share, 0)) + "</td></tr>";
+    }).join("");
+    var notScored = SC.notScored || [];
+    var deskList = (SC.desks || []).map(function (d) {
+      return "<li><b>" + esc(d.name) + "</b>: " + esc(andList((d.sectors || []).map(function (s) { return s + " (" + ((SC.sectorEtfs || {})[s] || "no fund") + ")"; }))) + "</li>";
+    }).join("");
+    main.innerHTML = '<div class="ld-wrap">' +
+      '<div class="ld-head"><div><div class="ld-kicker"><b>Scorecard</b> ' + MID + " " + plural(SC.openCount || 0, "open call", "open calls") + " " + MID + " " + plural(ov.n || 0, "scored call", "scored calls") + "</div>" +
+      '<h1 class="ld-h1">Scorecard</h1><p class="ld-deck">How the analyst’s calls have done. Each call is measured from the closing price its memo was written at, against the fund that holds the company’s sector. It is marked at every close and scored once, when its horizon ends.</p></div></div>' +
+      stats +
+      '<p class="ld-pm-p"><b>Excess return</b> is the stock’s return minus its sector fund’s over the same days. For a call to avoid a stock, to sell it or to bet against it, the sign is turned round, so the call did well when the stock lagged its sector. An avoid is a decision not to own, so it has no profit or loss of its own, only that comparison. A call counts as a hit when its excess return at the horizon is above zero.</p>' +
+      '<p class="ld-note">Returns are price-only: dividends are not counted. Every figure is worked out from the stored close for the exact date. When a close is missing, that day is skipped and flagged, never estimated.</p>' +
+      '<section class="ld-sec" aria-labelledby="ld-sc-open"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-sc-open">Open calls</h2><span class="ld-kicker">Newest first ' + MID + " marked at the last close</span></div>" +
+      (openRows ? '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Ticker</th><th>Written</th><th>Call</th><th class="r">Conviction</th><th>Desk</th><th>Fund</th><th class="r">Days</th><th class="r">Stock</th><th class="r">Vs sector</th><th class="r">Vs S&amp;P 500</th><th class="r">To target</th><th>Price tests</th></tr></thead><tbody>' + openRows + "</tbody></table></div>" +
+        (openNotes.length ? '<ul class="ld-pm-list ld-sc-notes">' + openNotes.join("") + "</ul>" : "")
+        : '<p class="ld-empty">No open calls.</p>') +
+      '<p class="ld-muted ld-pm-p">Each date links to the memo. “Stock” is the share price’s change since the memo’s close. “To target” is how much of the way from that close to the memo’s target price the stock has come. Price tests are the rows of a memo’s monitoring table that name a share price. The other rows (guidance, margins, what customers owe) need a filing and a reader, so they are not checked here.</p></section>' +
+      '<section class="ld-sec" aria-labelledby="ld-sc-done"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-sc-done">Scored calls</h2></div>' +
+      (scoredRows ? '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Ticker</th><th>Written</th><th>Call</th><th class="r">Conviction</th><th>Desk</th><th>Scored at</th><th class="r">Stock</th><th class="r">Excess</th><th>Result</th><th>Note</th></tr></thead><tbody>' + scoredRows + "</tbody></table></div>"
+        : '<p class="ld-empty">No call has reached its horizon yet.' + (first ? " The first comes due on " + esc(dateMid(first)) + "." : "") + "</p>") + "</section>" +
+      groupTable("By desk", "ld-sc-desk", SC.byDesk, "Desk") +
+      groupTable("By conviction", "ld-sc-conv", SC.byConviction, "Conviction") +
+      '<p class="ld-pm-p">' + esc(convVerdict(SC.byConviction)) + "</p>" +
+      groupTable("By action", "ld-sc-act", SC.byAction, "Action") +
+      groupTable("Initiation or revision", "ld-sc-stage", SC.byStage, "Memo") +
+      '<section class="ld-sec" aria-labelledby="ld-sc-cal"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-sc-cal">Calibration</h2><span class="ld-kicker">' + plural(cal.n || 0, "call", "calls") + " with three cases</span></div>" +
+      '<p class="ld-pm-p">Each memo gives its bull, base and bear cases a probability. When a call is scored, it lands on the case whose return is nearest what the stock did. The Brier score adds up, over the three cases, the square of the probability given minus 1 for the case it landed on and minus 0 for the others. 0 is perfect. Giving each case one chance in three scores 0.67 whatever happens, so a forecaster worth listening to scores below that.</p>' +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Case</th><th class="r">Probability given</th><th class="r">Landed</th><th class="r">Share landed</th></tr></thead><tbody>' + calRows + "</tbody></table></div>" +
+      '<p class="ld-pm-p">' + (cal.n ? "Average Brier score " + num(cal.meanBrier, 2) + " over " + plural(cal.n, "call", "calls") + ", against " + num(cal.uniformBrier, 2) + " for one chance in three each." + (cal.tooFew ? " Too few to read." : "") : "No call with three cases has been scored yet.") + "</p></section>" +
+      '<section class="ld-sec" aria-labelledby="ld-sc-how"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-sc-how">How calls are scored</h2></div>' +
+      '<p class="ld-pm-p">A memo that recommends buying, adding, holding or trimming is scored as owning the stock. A short is scored as a bet against it, whose profit is the stock’s fall. An avoid, and an exit from the exit memo’s date, are right when the stock does worse than its sector fund. A note that only watches, or takes no view, is not scored for direction' + (notScored.length ? " (" + plural(notScored.length, "note", "notes") + " so far)" : "") + ".</p>" +
+      '<p class="ld-pm-p">Every call is scored on its own dates, even after a later memo on the same company, so a view cannot be softened after the fact. The result is also compared with the S&amp;P 500 and with the median of up to 12 companies in the same industry. A result within 3% of the sector fund either way counts as flat.</p>' +
+      '<p class="ld-pm-p">Each desk covers these sectors, measured against these funds:</p><ul class="ld-pm-list">' + deskList + "</ul></section>" +
+      pmVsAnalystHTML(SC.pmVsAnalyst) +
+      "</div>";
+  }
+
+  /* The PM may trade against the analyst's rating; each such trade is marked at 1, 3 and 6 months and at
+     the analyst's horizon against the company's sector fund (portfolio/bin/score_pm.py). */
+  function pmVsAnalystHTML(d) {
+    d = d || { summary: [], rows: [] };
+    var body = (d.summary || []).map(function (g) {
+      var mute = g.tooFew ? " ld-muted" : "";
+      return "<tr><td>" + esc(g.name) + '</td><td class="r ld-num">' + int(g.n || 0) + '</td><td class="r ld-num' + mute + '">' + (g.winRate == null ? "n/a" : plainPct(g.winRate, 0)) +
+        '</td><td class="r ld-num' + mute + '">' + scPct(g.meanExcess) + "</td><td>" + tooFewTxt(g) + "</td></tr>";
+    }).join("");
+    var rows = (d.rows || []).map(function (r) {
+      return '<tr><td class="ld-num">' + esc(dateMid(r.date)) + "</td><td>" + scTicker(r.ticker) + "</td><td>" + esc(r.book) + "</td><td>" + esc(SIDE_WORD[r.pm_side] || r.pm_side) +
+        "</td><td>" + esc(r.analyst_rating || "") + "</td><td>" + esc(r.horizon === "analyst" ? "Analyst’s horizon" : r.horizon) + '</td><td class="r ld-num ' + pctCls(+r.pm_excess) + '">' + scPct(+r.pm_excess) +
+        "</td><td>" + esc(r.pm_right === "yes" ? "The PM" : "The analyst") + "</td></tr>";
+    }).join("");
+    return '<section class="ld-sec" aria-labelledby="ld-sc-pva"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-sc-pva">The PM against the analyst</h2></div>' +
+      '<p class="ld-pm-p">The PM may trade against the analyst: buy a company the analyst says to avoid, exit or bet against, or sell or bet against one the analyst says to buy. A buy against the analyst needs a written reason. Each such trade is marked 1, 3 and 6 months later and when the analyst’s own call ends, by the company’s return against its sector fund, turned round when the PM sold. The PM was right when that figure is above zero, and the analyst when it is below.</p>' +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>After</th><th class="r">Marked</th><th class="r">PM right</th><th class="r">Average PM excess</th><th></th></tr></thead><tbody>' + body + "</tbody></table></div>" +
+      (rows ? '<details class="ld-det"><summary>Every mark (' + int((d.rows || []).length) + ')</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Traded</th><th>Ticker</th><th>Book</th><th>PM</th><th>Analyst</th><th>After</th><th class="r">PM excess</th><th>Right</th></tr></thead><tbody>' + rows + "</tbody></table></div></details>"
+        : '<p class="ld-pm-p ld-muted">The PM has not yet traded against the analyst, or no such trade has reached its first mark.</p>') + "</section>";
+  }
+
+  /* ---------------------------------------------------------------- book scoring */
+  /* The attribution panel and the PM-against-the-rules panel on book.html, from
+     portfolio/bin/score_pm.py's stored files (b.scoring). */
+
+  function attrRow(label, v, note) {
+    return "<tr><td>" + esc(label) + '</td><td class="r ld-num ' + pctCls(v) + '">' + pctTxt(v) + '</td><td class="ld-pm-wrap ld-muted">' + esc(note || "") + "</td></tr>";
+  }
+  function bookAttributionHTML(b) {
+    var a = b.scoring || {};
+    var head = '<section class="ld-sec" aria-labelledby="ld-bk-attr"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-attr">What explains the return</h2><span class="ld-kicker">Against a benchmark we can see inside</span></div>';
+    var skipped = (a.skipped || []).map(function (s) { return esc(dateMid(s.date)) + " (" + esc(s.why) + ")"; });
+    var skipNote = skipped.length ? '<p class="ld-pm-warn">Skipped, because a close was missing: ' + skipped.join("; ") + ".</p>" : "";
+    var proxy = '<p class="ld-pm-p">We cannot download the fund’s holdings, so the benchmark here is a stand-in whose contents we know: ' + esc(a.proxy || "") + ". The gap between that stand-in and the fund itself is shown as proxy error.</p>";
+    if (!a.days) {
+      return head + proxy + '<p class="ld-empty">The explanation starts once the book has been held from one close to the next.</p>' + skipNote + "</section>";
+    }
+    var style = isStyle(b);
+    var rows = attrRow("Allocation", a.allocation, "More or less money than the benchmark in each sector") +
+      attrRow("Selection", a.selection, a.folded ? "Picking within sectors, including the overlap, because the book bets against some companies" : "Picking companies within each sector") +
+      (a.folded ? "" : attrRow("Interaction", a.interaction, "The overlap of the two")) +
+      attrRow("Cash drag", a.cash_drag, "Cash earns nothing here, against the benchmark’s return") +
+      attrRow("Trading costs", a.costs, "5 basis points on every trade") +
+      '<tr class="ld-sc-tot"><td><b>Return against the stand-in</b></td><td class="r ld-num ' + pctCls(a.active) + '"><b>' + pctTxt(a.active) + '</b></td><td class="ld-pm-wrap ld-muted">Book ' + esc(pctTxt(a.bookReturn)) + ", stand-in " + esc(pctTxt(a.proxyReturn)) + "</td></tr>" +
+      (a.proxyError != null ? attrRow("Proxy error", a.proxyError, "Stand-in minus " + benchShort(b) + ", over " + plural(a.proxyErrorDays, "session", "sessions")) : attrRow("Proxy error", null, "The fund’s closes are not stored for these days yet")) +
+      attrRow("Sizing", a.sizing, "The book against equal weights of the same holdings");
+    var secs = (a.bySector || []).map(function (s) {
+      return "<tr><td>" + esc(s[0]) + '</td><td class="r ld-num">' + plainPct(s[4]) + '</td><td class="r ld-num">' + plainPct(s[5]) + '</td><td class="r ld-num ' + pctCls(s[1]) + '">' + pctTxt(s[1]) +
+        '</td><td class="r ld-num ' + pctCls(s[2]) + '">' + pctTxt(s[2]) + "</td>" + (a.folded ? "" : '<td class="r ld-num ' + pctCls(s[3]) + '">' + pctTxt(s[3]) + "</td>") + "</tr>";
+    }).join("");
+    var legs = "";
+    if (!style) {
+      var ex = a.exposure || [], lastEx = ex.length ? ex[ex.length - 1] : null;
+      legs = '<h3 class="ld-h3">Owned and bet against</h3><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><tbody>' +
+        attrRow("Companies owned (the long side)", a.longLeg, "Their share of the book’s return") +
+        attrRow("Bets against companies (the short side)", a.shortLeg, "Gains when those prices fall") +
+        attrRow("Trading costs", a.legCosts, "") + "</tbody></table></div>" +
+        (lastEx ? '<p class="ld-pm-p">At the close on ' + esc(dateMid(lastEx[0])) + ", gross exposure (owned plus bet against) was " + plainPct(lastEx[1], 0) + " of the book and net exposure (owned minus bet against) " + plainPct(lastEx[2], 0) + "." +
+          (ex.length > 1 ? " Over " + plural(ex.length, "session", "sessions") + " gross ranged from " + plainPct(Math.min.apply(null, ex.map(function (x) { return x[1]; })), 0) + " to " + plainPct(Math.max.apply(null, ex.map(function (x) { return x[1]; })), 0) + "." : "") + "</p>" : "") +
+        '<p class="ld-pm-p">' + (a.beta != null
+          ? "Beta to the S&amp;P 500, how much the book tends to move when the index moves 1%, is " + num(a.beta, 2) + " over " + plural(a.betaObs, "session", "sessions") + ". Taking out that much of the index’s " + esc(pctTxt(a.spxReturn)) + " leaves " + esc(pctTxt(a.betaAdjusted)) + "."
+          : "Beta to the S&amp;P 500 needs at least 60 sessions of returns; there " + (a.betaObs === 1 ? "is 1" : "are " + int(a.betaObs || 0)) + " so far.") + "</p>";
+    }
+    return head +
+      '<p class="ld-pm-p">From the close on ' + esc(dateMid(a.from)) + " to the close on " + esc(dateMid(a.to)) + ", over " + plural(a.days, "session", "sessions") + ". <b>Allocation</b> is the part of the difference from the benchmark that came from putting more or less money than the benchmark into each sector. <b>Selection</b> is the part that came from choosing companies that did better or worse than the benchmark’s companies in the same sector." + (a.folded ? "" : " Interaction is where the two overlap: more money in a sector where the choices also did well.") + " The parts add up to the difference exactly; each day’s parts are linked over time by Carino’s method, which scales them so they still add up after compounding.</p>" +
+      proxy +
+      '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><tbody>' + rows + "</tbody></table></div>" +
+      (secs ? '<details class="ld-det"><summary>By sector</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Sector</th><th class="r">Book weight</th><th class="r">Stand-in weight</th><th class="r">Allocation</th><th class="r">Selection</th>' + (a.folded ? "" : '<th class="r">Interaction</th>') + "</tr></thead><tbody>" + secs + "</tbody></table></div><p class=\"ld-muted ld-pm-p\">Weights are at the latest close counted.</p></details>" : "") +
+      legs + skipNote + "</section>";
+  }
+  function bookPmHTML(b) {
+    var a = b.scoring || {};
+    var style = isStyle(b);
+    var decs = (a.decisions || []).map(function (d) {
+      return '<tr><td class="ld-num">' + esc(dateMid(d.date)) + "</td><td>" + esc(d.horizon === "1m" ? "1 month" : d.horizon === "3m" ? "3 months" : "6 months") + '</td><td class="ld-num">' + esc(dateMid(d.mark_date)) +
+        "</td><td>" + esc(String(d.names || "").split(";").join(", ")) + '</td><td class="r ld-num">' + pctTxt(+d.did_return) + '</td><td class="r ld-num">' + pctTxt(+d.rules_return) +
+        '</td><td class="r ld-num ' + pctCls(+d.value_added) + '">' + pctTxt(+d.value_added) + "</td></tr>";
+    }).join("");
+    var decTable = decs ? '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Decision</th><th>After</th><th>Marked</th><th>Companies</th><th class="r">What it did</th><th class="r">' + (style ? "The rules" : "Not trading") + '</th><th class="r">Value added</th></tr></thead><tbody>' + decs + "</tbody></table></div>"
+      : '<p class="ld-pm-p ld-muted">No PM decision has been marked yet. Each decision that ' + (style ? "departs from the rules" : "trades") + " is marked 1, 3 and 6 months after it, for the companies it traded.</p>";
+    if (!style) {
+      return '<section class="ld-sec" aria-labelledby="ld-bk-pm"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-pm">The PM’s decisions</h2></div>' +
+        '<p class="ld-pm-p">This book has no rules to compare with, so it is measured against the S&amp;P 500 and against cash, above, and each decision against not trading at all: what the companies it traded did, weighted as the decision left them, against what they would have done at the weights before it.</p>' + decTable + "</section>";
+    }
+    var sh = a.shadow;
+    var body = sh
+      ? '<div class="ld-stats ld-pm-stats">' +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">PM value added</div><div class="v ld-num ' + pctCls(sh.valueAdded) + '">' + esc(pctTxt(sh.valueAdded)) + '</div><div class="d">Since ' + esc(dateMid(b.inception)) + "</div></div>" +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Book</div><div class="v ld-num ' + pctCls(sh.bookReturn) + '">' + esc(pctTxt(sh.bookReturn)) + '</div><div class="d">To ' + esc(dateMid(sh.date)) + "</div></div>" +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Shadow book</div><div class="v ld-num ' + pctCls(sh.shadowReturn) + '">' + esc(pctTxt(sh.shadowReturn)) + '</div><div class="d">Rules only</div></div>' +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Last session</div><div class="v ld-num ' + pctCls(sh.valueAddedDay) + '">' + esc(pctTxt(sh.valueAddedDay)) + '</div><div class="d">Value added that day</div></div>' +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Active share vs rules</div><div class="v ld-num">' + esc(plainPct(sh.activeShare, 1)) + '</div><div class="d">' + (b.mandate && b.mandate.max_active_share_vs_rules != null ? "Limit " + esc(plainPct(b.mandate.max_active_share_vs_rules, 0)) : "No limit set") + "</div></div></div>" +
+        '<p class="ld-pm-p">Active share against the rules is how much of the book differs from the shadow book: half the sum, over every company and cash, of the gap between the two weights. 0% is the rules book exactly; 100% has nothing in common with it.</p>'
+      : '<p class="ld-empty">The shadow book starts with the book.</p>';
+    return '<section class="ld-sec" aria-labelledby="ld-bk-pm"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-pm">The PM against the rules</h2></div>' +
+      '<p class="ld-pm-p">A <b>shadow book</b> is a copy of this book that the rules alone run. It was bought as this book was on its first day. After that it trades to the rules’ choice on every day the PM trades, at the same closing prices and the same costs. The difference between the two returns is what the PM’s decisions have added or taken away.</p>' +
+      body + '<h3 class="ld-h3">Decisions that departed from the rules</h3>' + decTable + "</section>";
   }
 
   /* ---------------------------------------------------------------- boot */
@@ -3632,6 +3844,7 @@
     else if (page === "stories") renderStories(main);
     else if (page === "research") renderResearch(main);
     else if (page === "portfolios") renderPortfolios(main);
+    else if (page === "scorecard") renderScorecard(main);
     else if (page === "book") {
       renderBook(main);
       listen(window, "hashchange", function () { redrawers = []; renderBook(main); window.scrollTo(0, 0); });

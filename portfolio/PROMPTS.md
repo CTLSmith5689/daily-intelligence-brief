@@ -128,9 +128,26 @@ the holdings. Trading is optional: churn costs 5 basis points each way, and a
 name within one or two ranks of the cut is not a reason to trade. When you do
 depart from the candidate (keep a name it would sell, skip a name it would buy,
 size differently), give the reason for that name, and size it by step 4. The
-mandate allows only companies in the book's own box, long only, within its position, sector, cash
-and turnover limits. An analyst memo that says Avoid or Exit is a reason to
+mandate allows only companies in the book's own box, long only, within its position, sector and
+cash limits; it sets no turnover limit. An analyst memo that says Avoid or Exit is a reason to
 sell; Initiate or Add may justify a larger position within the limit (step 4).
+
+You may disagree with the analyst, in either direction, in any book: buy or
+keep a name the analyst rates Avoid, Exit or Short, or sell, short or pass on
+a name rated Initiate or Add. When you do, say why. A buy against a negative
+rating needs an "override_reason" on the order itself (step 5), one or two
+sentences on what you see that the memo does not; trade.py refuses the order
+without it. Every trade against the analyst's rating is tagged
+override_analyst in trades.csv, and the Scorecard marks each one at 1, 3 and 6
+months and at the analyst's horizon: who was right, measured against the
+company's sector fund.
+
+A style book's mandate has a field max_active_share_vs_rules. Active share
+against the rules is half the sum, over every name and cash, of the gap
+between the book's weight and the rules book's weight. It is null for now,
+which sets no limit. When it is set, trade.py refuses a batch that leaves the
+book further from the rules than the limit and further than it was; a batch
+that brings the book closer is allowed.
 
 Hedge. Build and run a long and short book from operating companies, as
 portfolio/books/hedge.md describes. Within the mandate's gross and net
@@ -228,7 +245,10 @@ portfolio/orders/{TODAY}/<book>.json:
    ]}
 
 side is buy, sell, short or cover. Size each order with exactly one of weight
-(of the book's value at that close), value (dollars) or shares. For a decision
+(of the book's value at that close), value (dollars) or shares. A buy of a
+name the analyst rates Avoid, Exit or Short also carries
+"override_reason": "why I disagree with the memo"; it is added to the
+decision's reason in decisions.csv. For a decision
 with no trades use "action": "hold" and "orders": []. Order ids must be unique
 within a book and date.
 
