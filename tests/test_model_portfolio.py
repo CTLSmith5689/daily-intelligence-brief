@@ -24,7 +24,8 @@ DAY = "2026-09-23"
 PANEL_COLS = ["date", "ticker", "name", "sector", "security_type", "price", "volume",
               "market_cap", "pe", "price_book", "fcf_yield", "ttm_eps_diluted",
               "revenue_growth_yoy", "eps_growth_yoy", "revenue_acceleration", "roe_ttm",
-              "earnings_consistency", "net_debt_ebitda", "op_margin_stability", "accruals_ratio"]
+              "earnings_consistency", "net_debt_ebitda", "op_margin_stability", "accruals_ratio",
+              "eps_basis"]
 SECTORS = ["Energy", "Industrials", "Financials", "Health Care", "Utilities"]
 
 
@@ -47,6 +48,8 @@ def synthetic_rows(n=300, day=DAY):
                  "market_cap": 5e12})
     rows.append(dict(rows[5], ticker="THIN", name="Thin Co", revenue_growth_yoy="",
                      eps_growth_yoy="", market_cap=rows[5]["market_cap"] * 0.999))
+    rows.append(dict(rows[6], ticker="ADRX", name="Example Ltd American Depositary Shares"))
+    rows.append(dict(rows[7], ticker="FGN", name="Foreign Filer Co", eps_basis="annual"))
     return rows
 
 
@@ -68,6 +71,19 @@ def write_prices(prices_dir, closes_by_ticker):
         H.write_price_file(prices_dir, t, [d for d, _ in closes], [c for _, c in closes])
 
 
+# The synthetic panel has about 300 companies, so the tests rank them into smaller
+# boxes; the production cuts (200, 1,000, 3,000) are checked on their own.
+REAL_SIZE_RANKS = E.SIZE_RANKS
+
+
+def setUpModule():
+    E.SIZE_RANKS = (("large", 60), ("mid", 150), ("small", 280))
+
+
+def tearDownModule():
+    E.SIZE_RANKS = REAL_SIZE_RANKS
+
+
 class Classification(unittest.TestCase):
 
     def test_robust_z_matches_the_page_engine(self):
@@ -80,24 +96,56 @@ class Classification(unittest.TestCase):
         self.assertEqual(z[9], 5.0, "clipped at +5")
         self.assertIsNone(E.robust_z({1: 1.0, 2: 2.0}, min_n=5)[1])
 
-    def test_size_buckets_follow_cumulative_cap(self):
+    def test_the_production_cuts_are_russell_ranks(self):
+        self.assertEqual(REAL_SIZE_RANKS, (("large", 200), ("mid", 1000), ("small", 3000)))
+        self.assertEqual(E.STYLE_BENCHMARK[("large", "core")], "IWL")
+        self.assertEqual(E.STYLE_BENCHMARK[("small", "growth")], "IWO")
+        self.assertEqual(E.BOOKS["tax-core"]["benchmark"], "IWV")
+        for sym in set(E.STYLE_BENCHMARK.values()) | {"IWF", "IWD", "IWV"}:
+            self.assertIn(sym, E.BENCHMARK_SYMBOLS)
+
+    def test_size_buckets_follow_cap_rank(self):
         rows = synthetic_rows()
         c = E.classify(rows)
         self.assertEqual(c["NOTE"]["why"], "not an operating company")
         self.assertIsNone(c["NOTE"]["size"])
         self.assertEqual(c["T000B"]["share_class_of"], "T000")
-        # Independent recomputation of the rule, share-class twin and note excluded.
+        for t, why in (("ADRX", "depositary"), ("FGN", "20-F")):
+            self.assertIsNone(c[t]["size"])
+            self.assertIn(why, c[t]["why"])
+        # Independent recomputation: rank among operating rows, twin and foreign rows out.
         caps = sorted(((float(r["market_cap"]), r["ticker"]) for r in rows
-                       if r["security_type"] == "operating" and r["ticker"] != "T000B"),
+                       if r["security_type"] == "operating"
+                       and r["ticker"] not in ("T000B", "ADRX", "FGN")),
                       key=lambda x: (-x[0], x[1]))
-        total, before, want = sum(x for x, _ in caps), 0.0, {}
-        for cap, t in caps:
-            share = before / total
-            want[t] = "large" if share < .7 else "mid" if share < .9 else "small" if share < .98 else "micro"
-            before += cap
+        want = {}
+        for rank, (cap, t) in enumerate(caps, 1):
+            want[t] = "large" if rank <= 60 else "mid" if rank <= 150 else "small" if rank <= 280 else "micro"
         for t, size in want.items():
             self.assertEqual(c[t]["size"], size, t)
         self.assertEqual({v for v in want.values()}, {"large", "mid", "small", "micro"})
+
+    def test_style_inputs_are_sector_neutral(self):
+        rows = synthetic_rows()
+        # Every Energy company's revenue has doubled: a sector boom, not growth.
+        def lift(r):
+            if r.get("sector") != "Energy":
+                return r
+            r = dict(r)
+            for k, up in (("revenue_growth_yoy", 1.0), ("eps_growth_yoy", 2.0),
+                          ("revenue_acceleration", 1.0)):
+                if r.get(k) not in ("", None):
+                    r[k] = float(r[k]) + up
+            return r
+        boom = [lift(r) for r in rows]
+        a, b = E.classify(rows), E.classify(boom)
+        for t, info in a.items():
+            if info["growth"] is not None and info["size"] == "large":
+                self.assertAlmostEqual(info["growth"], b[t]["growth"], msg=t)
+        growth = [i for i in b.values() if i["box"] == "large-growth"]
+        energy = sum(1 for i in growth if i["sector"] == "Energy")
+        self.assertLess(energy, len(growth) / 2)
+
 
     def test_style_terciles_and_the_two_input_rule(self):
         c = E.classify(synthetic_rows())
@@ -257,7 +305,7 @@ class Nav(unittest.TestCase):
             self.assertEqual(E.record_nav(trades, [DAY], E.PriceStore(tmp), bench, nav, now="x"), 1)
             self.assertEqual(E.record_nav(trades, [DAY], E.PriceStore(tmp), bench, nav, now="y"), 0)
             (tmp / E.BENCHMARKS_FILE).write_text(json.dumps(
-                {"updated": "z", "series": {"IWB": {"closes": [[DAY, 300.5]]}}}))
+                {"updated": "z", "series": {"IWL": {"closes": [[DAY, 300.5]]}}}))
             self.assertEqual(E.record_nav(trades, [DAY], E.PriceStore(tmp), E.BenchmarkStore(tmp), nav, now="z"), 1)
             self.assertEqual(E.record_nav(trades, [DAY], E.PriceStore(tmp), E.BenchmarkStore(tmp), nav, now="w"), 0)
             rows = E.read_rows(nav)
@@ -344,7 +392,7 @@ class Benchmarks(unittest.TestCase):
             calls.append(kw)
             return Frame()
         fake.download = download
-        series = {s: [["2026-09-22", 100.0 + i], [DAY, 101.0 + i]]
+        series = {s: [["2026-09-22", 100.0], [DAY, 101.0 + i]]
                   for i, s in enumerate(E.BENCHMARK_SYMBOLS)}
         with H.temp_dir() as tmp:
             (tmp / E.BENCHMARKS_FILE).write_text(json.dumps({"updated": "2020-01-01T00:00:00+00:00", "series": {
@@ -355,8 +403,8 @@ class Benchmarks(unittest.TestCase):
                 n = LF.enrich_with_benchmark_series()
                 again = LF.enrich_with_benchmark_series()
             data = json.loads((tmp / E.BENCHMARKS_FILE).read_text())
-        self.assertEqual(n, 10)
-        self.assertEqual(again, 10)
+        self.assertEqual(n, len(E.BENCHMARK_SYMBOLS))
+        self.assertEqual(again, len(E.BENCHMARK_SYMBOLS))
         self.assertEqual(len(calls), 1, "the second call reuses the 24h cache")
         self.assertIs(calls[0]["auto_adjust"], False)
         self.assertEqual(set(data["series"]), set(E.BENCHMARK_SYMBOLS))

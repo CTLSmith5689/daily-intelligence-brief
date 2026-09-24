@@ -315,7 +315,7 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 | `style_box` | text | `size + (growth if style_score in top third, value if bottom third, else core)` | fundamentals_panel | changes every trading day |
 | `style_growth_score` | ratio | `mean(z(revenue_growth_yoy), z(eps_growth_yoy), z(revenue_acceleration)), at least 2 of 3` | fundamentals_panel | changes every trading day |
 | `style_quality_score` | ratio | `mean(z(roe_ttm), z(earnings_consistency), -z(net_debt_ebitda), -z(op_margin_stability), -z(accruals_ratio)), at least 2 of 5` | fundamentals_panel | changes every trading day |
-| `style_size` | text | `large if cap ranked above it < 70% of total, mid < 90%, small < 98%, else micro` | fundamentals_panel | changes every trading day |
+| `style_size` | text | `rank by market_cap: 1 to 200 large, 201 to 1000 mid, 1001 to 3000 small, else micro` | fundamentals_panel | changes every trading day |
 | `style_value_score` | ratio | `mean(z(1 / pe), z(1 / price_book), z(fcf_yield)), at least 2 of 3` | fundamentals_panel | changes every trading day |
 | `volatility_1y` | fraction | `stdev(daily returns) * sqrt(252)` | price_history | changes every trading day |
 | `volume` | shares | `volumes[-1]` | price_history | changes every trading day |

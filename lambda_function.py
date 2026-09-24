@@ -3391,8 +3391,8 @@ FIELD_SOURCES = {
     "yfinance": "Yahoo Finance quote summary, one request per ticker",
     "news": "Google News RSS, one search per ticker",
     "index": "Wikipedia index constituent tables and the NASDAQ Trader directory",
-    "benchmark_series": "Russell ETF daily closes (IWF, IWB, IWD, IWP, IWR, IWS, IWO, IWM, IWN, "
-                        "IWV) from Yahoo, not adjusted for dividends, stored once per run",
+    "benchmark_series": "Russell ETF daily closes (IWY, IWL, IWX, IWP, IWR, IWS, IWO, IWM, IWN, "
+                        "IWF, IWD, IWV) from Yahoo, not adjusted for dividends, stored once per run",
     "fundamentals_panel": "The daily fundamentals panel in data/fundamentals",
     "portfolio_ledger": "The model portfolios' trades in portfolio/ledger, valued at the stored daily closes",
 }
@@ -3690,24 +3690,27 @@ FIELD_METHODS = {
     "style_size": {
         "label": "Size", "units": "text", "source": "fundamentals_panel",
         "refresh": "daily", "asof": "date",
-        "formula": "large if cap ranked above it < 70% of total, mid < 90%, small < 98%, else micro",
-        "note": "Operating companies sorted by market cap, largest first. The companies that make "
-                "up the first 70% of the total are large, the next 20% mid, the next 8% small, and "
-                "the last 2% micro, which the style books leave out. Share classes of one company "
-                "reporting the same market cap count once. Loosely follows Morningstar's method.",
+        "formula": "rank by market_cap: 1 to 200 large, 201 to 1000 mid, 1001 to 3000 small, else micro",
+        "note": "Operating companies ranked by market cap, as the Russell indexes are: the Top "
+                "200, the Midcap (201 to 1,000) and the 2000 (1,001 to 3,000). Depositary shares "
+                "and annual-only foreign filers (20-F, 40-F) are left out; foreign issuers filing "
+                "IFRS statements carry no marker in the panel and stay in. Share classes of one "
+                "company reporting the same market cap count once.",
     },
     "style_value_score": {
         "label": "Value score", "units": "ratio", "source": "fundamentals_panel",
         "refresh": "daily", "asof": "date",
         "formula": "mean(z(1 / pe), z(1 / price_book), z(fcf_yield)), at least 2 of 3",
-        "note": "Robust z-scores within the company's size. Earnings yield is diluted EPS over "
+        "note": "Robust z-scores within the company's size and sector (size alone when the sector "
+                "has fewer than 10 companies). Earnings yield is diluted EPS over "
                 "price where P/E is blank. The panel has no dividend yield, so none is used.",
     },
     "style_growth_score": {
         "label": "Growth score", "units": "ratio", "source": "fundamentals_panel",
         "refresh": "daily", "asof": "date",
         "formula": "mean(z(revenue_growth_yoy), z(eps_growth_yoy), z(revenue_acceleration)), at least 2 of 3",
-        "note": "Robust z-scores within the company's size.",
+        "note": "Robust z-scores within the company's size and sector (size alone when the sector "
+                "has fewer than 10 companies), so a sector-wide boom does not read as growth.",
     },
     "style_quality_score": {
         "label": "Quality score", "units": "ratio", "source": "fundamentals_panel",
@@ -4119,8 +4122,8 @@ def _benchmark_closes(frame, symbol):
 
 
 def enrich_with_benchmark_series(max_age_hours=24):
-    """Store the model portfolios' benchmarks: the nine Russell style ETFs and the
-    Russell 3000 ETF (portfolio.engine.BENCHMARK_SYMBOLS), in docs/prices/_BENCHMARKS.json.
+    """Store the model portfolios' benchmarks: the nine Russell style ETFs and the tax
+    books' all-cap ones (portfolio.engine.BENCHMARK_SYMBOLS), in docs/prices/_BENCHMARKS.json.
 
     Keyless, through yfinance like the market series, with the same 24h cache. The
     closes are NOT adjusted for dividends (auto_adjust=False), because the books'

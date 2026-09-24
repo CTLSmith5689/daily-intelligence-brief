@@ -75,20 +75,24 @@ BASIS_BREAK = 0.20
 SIZES = (("large", "lg", "Large Cap"), ("mid", "mid", "Mid Cap"), ("small", "sm", "Small Cap"))
 STYLES = (("growth", "Growth"), ("core", "Core"), ("value", "Value"))
 STYLE_BENCHMARK = {
-    ("large", "growth"): "IWF", ("large", "core"): "IWB", ("large", "value"): "IWD",
+    ("large", "growth"): "IWY", ("large", "core"): "IWL", ("large", "value"): "IWX",
     ("mid", "growth"): "IWP", ("mid", "core"): "IWR", ("mid", "value"): "IWS",
     ("small", "growth"): "IWO", ("small", "core"): "IWM", ("small", "value"): "IWN",
 }
 BENCHMARK_NAMES = {
-    "IWF": "Russell 1000 Growth (iShares IWF)", "IWB": "Russell 1000 (iShares IWB)",
+    "IWY": "Russell Top 200 Growth (iShares IWY)", "IWL": "Russell Top 200 (iShares IWL)",
+    "IWX": "Russell Top 200 Value (iShares IWX)",
+    "IWF": "Russell 1000 Growth (iShares IWF)",
     "IWD": "Russell 1000 Value (iShares IWD)", "IWP": "Russell Midcap Growth (iShares IWP)",
     "IWR": "Russell Midcap (iShares IWR)", "IWS": "Russell Midcap Value (iShares IWS)",
     "IWO": "Russell 2000 Growth (iShares IWO)", "IWM": "Russell 2000 (iShares IWM)",
     "IWN": "Russell 2000 Value (iShares IWN)", "IWV": "Russell 3000 (iShares IWV)",
     "^GSPC": "S&P 500",
 }
-# The ten series the benchmark fetch stores (the S&P 500 is already in _MARKET.json).
-BENCHMARK_SYMBOLS = ("IWF", "IWB", "IWD", "IWP", "IWR", "IWS", "IWO", "IWM", "IWN", "IWV")
+# The series the benchmark fetch stores (the S&P 500 is already in _MARKET.json):
+# the nine style books' funds, and the tax books' all-cap IWF, IWD and IWV.
+BENCHMARK_SYMBOLS = ("IWY", "IWL", "IWX", "IWP", "IWR", "IWS", "IWO", "IWM", "IWN",
+                     "IWF", "IWD", "IWV")
 
 
 def _style_books():
@@ -414,7 +418,14 @@ def robust_z(values_by_key, min_n=20, clip=5.0):
 # ---------------------------------------------------------------------------
 # Style classification
 
-SIZE_CUTS = (("large", 0.70), ("mid", 0.90), ("small", 0.98))   # cumulative share of cap
+# Russell-style size by rank of market cap: Top 200, Midcap (201 to 1000), 2000 (1001 to 3000).
+SIZE_RANKS = (("large", 200), ("mid", 1000), ("small", 3000))
+MIN_SECTOR_COHORT = 10
+# A listing the repository can reliably tell is a foreign issuer's: a depositary share by
+# name (the same pattern the pipeline's P/E code uses), or a filer whose EPS basis is
+# "annual", which the pipeline sets only for a 20-F or 40-F filer with no quarterly XBRL.
+# Foreign issuers filing IFRS statements carry no marker in the panel and stay in.
+_DEPOSITARY_NAME = re.compile(r"depositar|depositor|\bADRs?\b|\bADS(?![-\w])", re.I)
 SHARE_CLASS_CAP_TOL = 0.10
 MIN_INPUTS = 2
 MIN_COHORT = 20
@@ -427,11 +438,15 @@ QUALITY_INPUTS = (("roe_ttm", 1), ("earnings_consistency", 1), ("net_debt_ebitda
                   ("op_margin_stability", -1), ("accruals_ratio", -1))
 
 CLASSIFICATION_RULE = (
-    "Operating companies only. Share classes of one company that report the same market cap "
-    "(within 10%) count once, as the most traded class. Sorted by market cap: the companies "
-    "making up the first 70% of the total are large, the next 20% mid, the next 8% small, and "
-    "the last 2% (micro caps) are left out. Within each size, every input below is turned into "
-    "a robust z-score against that size's companies. Value is the average z of earnings yield "
+    "Operating companies only, leaving out depositary shares (ADRs) and foreign "
+    "companies that file annual reports only (forms 20-F and 40-F). Share classes of one "
+    "company that report the same market cap (within 10%) count once, as the most traded "
+    "class. Ranked by market cap, as the Russell indexes are: the largest 200 are large (the "
+    "Russell Top 200), ranks 201 to 1,000 are mid (the Russell Midcap), ranks 1,001 to 3,000 "
+    "are small (the Russell 2000), and the rest (micro caps) are left out. Every input below "
+    "is turned into a robust z-score against the companies of the same size and sector, or of "
+    "the same size where the sector has fewer than 10, so a sector-wide boom in revenue does "
+    "not read as growth. Value is the average z of earnings yield "
     "(1 / P/E, or diluted EPS / price where P/E is blank), book yield (1 / price-to-book) and "
     "FCF yield. Growth is the average z of revenue growth, EPS growth and revenue acceleration. "
     "Each needs at least 2 of its 3 inputs. Style is growth minus value: the top third is "
@@ -488,12 +503,41 @@ def _mean_of(zs):
     return sum(got) / len(got) if len(got) >= MIN_INPUTS else None
 
 
+def _foreign_marker(r):
+    if _DEPOSITARY_NAME.search(r.get("name") or ""):
+        return "a depositary share (ADR)"
+    if (r.get("eps_basis") or "") == "annual":
+        return "a foreign issuer filing annual reports only (20-F or 40-F)"
+    return None
+
+
+def _sector_z(inputs, sectors, key):
+    """Robust z of one input within sector, inside a size bucket. A sector with fewer
+    than MIN_SECTOR_COHORT companies, or too few values for this input, falls back to
+    the whole size bucket."""
+    whole = robust_z({t: v[key] for t, v in inputs.items()}, MIN_COHORT)
+    by = {}
+    for t in inputs:
+        by.setdefault(sectors[t] or "Unclassified", []).append(t)
+    out = {}
+    for sec, ts in by.items():
+        zz = (robust_z({t: inputs[t][key] for t in ts}, MIN_SECTOR_COHORT)
+              if len(ts) >= MIN_SECTOR_COHORT else {t: None for t in ts})
+        for t in ts:
+            if inputs[t][key] is None:
+                out[t] = None
+            else:
+                out[t] = zz[t] if zz[t] is not None else whole[t]
+    return out
+
+
 def classify(rows):
     """Size bucket and style for every operating row of one panel date.
 
     Returns {ticker: info}. info always has size (large/mid/small/micro/None),
     style (growth/core/value/None), box ("large-growth" and so on, or None) and,
-    when unclassified, a short `why`. The scores are robust z within the size."""
+    when unclassified, a short `why`. Value and growth inputs are robust z within
+    size and sector (size alone for a small sector); quality is within size."""
     out = {}
     op = []
     for r in rows:
@@ -510,6 +554,11 @@ def classify(rows):
             continue
         if not cap or cap <= 0:
             info["why"] = "no market cap"
+            continue
+        foreign = _foreign_marker(r)
+        if foreign:
+            info["why"] = foreign
+            info["foreign"] = True
             continue
         op.append(r)
 
@@ -536,24 +585,22 @@ def classify(rows):
         counted.extend(primaries)
 
     counted.sort(key=lambda r: (-_num(r["market_cap"]), r["ticker"]))
-    total = sum(_num(r["market_cap"]) for r in counted)
-    before = 0.0
     buckets = {"large": [], "mid": [], "small": []}
-    for r in counted:
-        share = before / total if total else 1.0
-        size = next((name for name, cut in SIZE_CUTS if share < cut), "micro")
-        before += _num(r["market_cap"])
+    for rank, r in enumerate(counted, 1):
+        size = next((name for name, last in SIZE_RANKS if rank <= last), "micro")
         out[r["ticker"]]["size"] = size
+        out[r["ticker"]]["cap_rank"] = rank
         if size == "micro":
-            out[r["ticker"]]["why"] = "micro cap (the last 2% of market cap)"
+            out[r["ticker"]]["why"] = "micro cap (ranked below 3,000 by market cap)"
         else:
             buckets[size].append(r)
 
     for size, rs in buckets.items():
         inputs = {r["ticker"]: _inputs(r) for r in rs}
+        sectors = {r["ticker"]: r.get("sector") or "" for r in rs}
         z = {}
         for key in VALUE_INPUTS + GROWTH_INPUTS:
-            z[key] = robust_z({t: v[key] for t, v in inputs.items()}, MIN_COHORT)
+            z[key] = _sector_z(inputs, sectors, key)
         for key, sign in QUALITY_INPUTS:
             zz = robust_z({t: v[key] for t, v in inputs.items()}, MIN_COHORT)
             z[key] = {t: (None if x is None else sign * x) for t, x in zz.items()}

@@ -3328,7 +3328,7 @@
       '<p class="ld-pm-p">' + esc(PM.classificationRule || "") + "</p>" +
       '<p class="ld-pm-p">A robust z-score says how far a figure sits from the middle of the group: the median, measured in units of the typical spread around it, and capped at 5 either way so a single extreme figure cannot stretch the scale.</p>' +
       '<p class="ld-pm-p">Companies in each box on ' + (PM.asof ? esc(dateMid(PM.asof)) : "the latest date") + ":</p>" + boxTableHTML(counts) +
-      '<p class="ld-pm-p ld-muted">Left out: ' + int(counts.micro || 0) + " micro caps, and " + int(counts.unclassified || 0) + " listings that are not operating companies, have no market cap, repeat another share class, or have too few inputs for a score.</p></section>" +
+      '<p class="ld-pm-p ld-muted">Left out: ' + int(counts.micro || 0) + " micro caps, and " + int(counts.unclassified || 0) + " listings that are not operating companies, are depositary shares or foreign companies filing annual reports only, have no market cap, repeat another share class, or have too few inputs for a score.</p></section>" +
       '<section class="ld-sec" aria-labelledby="ld-pmr-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmr-h">How the rules choose a book</h2></div>' +
       '<p class="ld-pm-p">' + esc(PM.candidateRule || "") + "</p>" +
       '<p class="ld-pm-p">The rules run again after every close and their choice is shown on each book’s page beside what the book holds. They do not trade. Each book was bought from the rules on its first day; after that, only the PM trades.</p></section>' +
