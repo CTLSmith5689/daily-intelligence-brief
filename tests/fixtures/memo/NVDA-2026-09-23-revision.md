@@ -42,46 +42,17 @@ next_check: 2026-11-17
 
 # NVIDIA Corporation (NVDA): investment memo, revision
 
-**Recommendation: Avoid for now. Size today: 0% of the portfolio. Planned: 3.7% if the 17 November report passes two tests, then 7.4% after the February annual report.**
+**Avoid for now: $228.87 already pays for my base case.**
 
 From the analyst to the portfolio manager (PM), the person who decides what the portfolio owns and in what size. Written from prices and filings as of the close on 2026-09-22.
 
-**Expected return and bear loss.** The bull, base and bear cases are the good, middle and bad outcomes I think plausible, each built from stated assumptions. The probability-weighted value multiplies each case's value by its probability and adds the results. The expected return is that value's percentage gain on the last close, plus the dividends expected over the year. The required return is the annual return a stock must offer to pay for its risk, and for NVIDIA I put it at 12.0%.
+**Action and size.** I recommend Avoid, which means owning none: 0% of the portfolio today. If the 17 November report passes two tests, I would buy 3.7%, half the full size of 7.4%.
 
-| Case | Probability | Value in 12 months | Return from $228.87 | What has to happen |
-|---|---|---|---|---|
-| Bull | 25% | $370 | +61.7% | Revenue grows 43% in FY2028 and 21% in FY2029, with gross margin near 74% |
-| Base | 50% | $260 | +13.6% | Revenue grows 30% in FY2028 and 12% in FY2029, with gross margin easing to 72% |
-| Bear | 25% | $125 | -45.4% | Growth slows to 5% in FY2028, then revenue falls 24% in FY2029, a repeat of FY2023 |
-| Probability-weighted | | $253.75 | +10.9%; +11.3% with $1.00 of dividends | |
-| Required return | | | +12.0% | |
+**Return and risk.** I expect a return of 11.3% over 12 months, including $1.00 of dividends, against the 12.0% its risk requires. The bear case, the bad outcome I think plausible, loses 45.4%.
 
-The price target, my estimate of what the shares will be worth in 12 months, is $255. It is the weighted value rounded to the nearest $5.
+**Thesis.** NVIDIA's next year of earnings is well supported, but the price needs about as much growth as I forecast, so I would wait for two tests before buying.
 
-**Why this size.** Volatility measures how widely a stock's daily price changes vary, stated as a yearly figure. NVIDIA's was 37.8% over the past year. The portfolio's sizing rule gives NVIDIA a full size of 7.4%. I recommend 0% today, because the expected return of 11.3% is 0.7 percentage points below the 12.0% required. One outcome in four loses 45%. If the November report passes both tests, I would buy half the full size, 3.7%, so that the bear case costs the portfolio 1.7% rather than 3.4%.
-
-**Thesis.** An investment thesis is the short argument for why a stock is mispriced, or why it is not. NVIDIA's next year of earnings is well supported, but $228.87 already pays for my base case, so I would wait for two reports before buying.
-
-**Why now.** The reports that settle the open questions are due within five months: the October-quarter report on 17 November and the annual report in late February. Setting the rules for buying and selling now means the decision rests on the tests, not on how the price reacts to each report.
-
-**The three things that matter most.**
-
-1. *Growth into FY2028.* Guidance, management's own published forecast, calls for October-quarter revenue of $108.0 billion. The first test is January-quarter guidance of $125 billion or more.
-2. *Profit turning into cash.* Cash conversion, the share of profit that arrives as cash from operations, was 75% in the first half of FY2027. Days sales outstanding (DSO), receivables divided by a quarter's revenue times 91 days, rose from 51 to 60. The second test is DSO at or below 55 days in October.
-3. *Customer financing.* Three direct customers provided 44% of first-half revenue, and NVIDIA has guaranteed up to $105 billion of payments on a campus leased to one AI company.
-
-**Key data.**
-
-| Measure | Value | What it means |
-|---|---|---|
-| Market capitalisation | $5,516 billion | The share price times the number of shares |
-| Enterprise value | $5,493 billion | Market capitalisation plus debt minus cash |
-| Net cash | $23.2 billion | Cash minus debt |
-| P/E, past 12 months | 28.9 | Price divided by earnings per share (EPS) |
-| EV/EBITDA, past 12 months | 27.3 | Enterprise value divided by earnings before interest, taxes, depreciation and amortisation |
-| FCF yield, past 12 months | 2.3% | Free cash flow divided by market capitalisation |
-| Beta, past year | 1.91 | How much the stock tends to move for each 1% move in the market |
-| Consensus estimates | Not available | The average of other analysts' forecasts |
+**Why now.** The October-quarter report on 17 November will show both tests. The annual report in late February will show whether cash has caught up with profit.
 
 ## WHAT CHANGED
 
@@ -91,46 +62,55 @@ This memo replaces the note of 22 September. That note said:
 
 I am REPLACING that key claim. The earlier note asked the same question about cash, but it gave no action, no size and no expected return. This memo gives all three, and its price target runs 12 months instead of about 8.
 
-Three facts changed. First, the earlier note said the stored sales figure was wrong. It is right: the last four quarters add up to exactly the stored figure. Second, the earlier note added profit per share under US accounting rules for the first half to adjusted figures for the second. I now use the company's adjusted figures throughout. Third, the target moves from $240 to $255, because the model now runs to FY2029.
+The earlier note was wrong about one figure and inconsistent about another. It said the stored sales figure was wrong, but the last four quarters add up to exactly that figure. It also mixed profit under US accounting rules with the company's adjusted profit, and I now use the adjusted figures throughout. The target moves from $240 to $255, because the model now runs to the year to January 2029.
 
-## 2. WHERE I DISAGREE
+## 2. MY VIEW
 
-Variant perception is where my forecast differs from what the price requires, together with a checkable reason the price has not yet moved. On the next 12 months I have none. The price requires FY2028 Data Center growth of 30.2% and I forecast 32%. My expected return is 0.7 points below the required return, a gap inside the error of my own inputs.
+### The next year is well supported, and the price already needs it.
 
-The January-quarter guidance is the one number due soon that could separate my view from the price. At $125 billion it would exceed the rise in my bull case. I would then move 10 points of probability from the bear case to the bull case, and the expected return would be 24.2%. The price cannot already reflect that guidance, because it will not exist until 17 November.
+My forecast and the price agree on the next 12 months. The price requires Data Center growth of 30.2% in the year to January 2028, and I forecast 32%. Variant perception, where my forecast differs from what the price requires with a checkable reason the price has not yet moved, is therefore absent. The expected return sits 0.7 percentage points below the required return, a gap inside the error of my own inputs.
 
-## 10. MONITORING AND EXIT RULES
+### The January-quarter forecast is the one number that could change that.
 
-A monitoring plan lists what I check each quarter and the threshold that changes my recommendation. Each figure comes from NVIDIA's own filings.
+The company's forecast for the January quarter, due on 17 November, could separate my view from the price. At $125 billion it would exceed the rise in my bull case, the good outcome I think plausible. The price cannot yet reflect it, because it does not exist until the report.
 
-| What I check | Latest | My base case | Threshold | Action | Next reading |
-|---|---|---|---|---|---|
-| Guidance for the next quarter | $108.0B for October | $118.8B for January | $125B or more, with DSO at or below 55 days | Initiate at 3.7% | 2026-11-17 |
-| Guidance for the next quarter | $108.0B for October | $118.8B for January | Below $108.0B, a fall from October | Stay out. If owned, Exit | 2026-11-17 |
-| Revenue against guidance | $96.2B for July | $108.0B for October | Below $105.8B, the bottom of the range | Stay out. If owned, Exit | 2026-11-17 |
-| DSO | 60 days | Not modelled | Above 70 days at the FY2027 year end | Stay out. If owned, Exit | Late February 2027 |
-| Share price | $228.87 | $260 in 12 months | $370, the bull value | If owned, Trim to half | Daily |
+## 3. WHAT IT IS WORTH
 
-**Exit rules.** An exit rule is a condition, stated before buying, under which I would sell or cut a holding. If the portfolio owns NVIDIA, these apply without a new argument:
+| Case | Probability | Value in 12 months | Return from $228.87 | The one driver |
+|---|---|---|---|---|
+| Bull | 25% | $370 | +61.7% | Revenue grows 43% in the year to January 2028, at 25 times earnings |
+| Base | 50% | $260 | +13.6% | Revenue grows 30% in the year to January 2028, at today's 21 times |
+| Bear | 25% | $125 | -45.4% | A repeat of the year to January 2023, a year later, at 18 times |
+| Probability-weighted | | $253.75 | +10.9%; +11.3% with $1.00 of dividends | |
+| Required return | | | +12.0% | |
 
-1. Exit on any of the three Exit thresholds in the table.
-2. Trim to half at $370, unless a new memo has raised the case values.
-3. A fall in the price alone starts a review of the case values. It is never by itself a reason to sell or to buy more.
+P/E, price divided by earnings per share, suits NVIDIA because its earnings are large and positive. The probability-weighted value, each case's value multiplied by its probability with the results added, is $253.75. My price target is that value rounded to the nearest $5.
 
-**The falsifier.** A falsifier is a specific, dated observation that would show a view is wrong. Mine is January-quarter guidance of $125 billion or more with DSO at or below 55 days, both reported on 17 November 2026. If both happen, Avoid was wrong and I recommend Initiate.
+## 4. WHAT WOULD PROVE ME WRONG
 
-## 12. SOURCES
+| What I check | Latest | Threshold | Action | Next reading |
+|---|---|---|---|---|
+| Guidance for the next quarter | $108.0B for October | $125B or more, with DSO at or below 55 days | Initiate at 3.7% | 2026-11-17 |
+| Guidance for the next quarter | $108.0B for October | Below $108.0B, a fall from October | Stay out. If owned, Exit | 2026-11-17 |
+| Revenue against guidance | $96.2B for July | Below $105.8B, the bottom of the range | Stay out. If owned, Exit | 2026-11-17 |
+| DSO | 60 days | Above 70 days at the FY2027 year end | Stay out. If owned, Exit | Late February 2027 |
+| Share price | $228.87 | $370, the bull value | If owned, Trim to half | Daily |
+
+My view is wrong if the company grows faster than I assume while its customers pay on time. Guidance is management's own published forecast. Days sales outstanding (DSO) is receivables divided by a quarter's revenue, times 91 days. A falsifier, a dated observation that would show a view is wrong, is set by the first row.
+
+A fall in the price alone is never a reason to sell. It starts a review of the case values.
+
+## SOURCES
 
 | Figure | Value | Source |
 |---|---|---|
 | Last close, date | $228.87, 2026-09-22 | Published `prices/NVDA.json`, last of `closes` |
-| Volatility | 37.8% | `volatility_1y`; calc: standard deviation of 250 daily returns times the square root of 252 |
 | Full size, half size | 7.4%; 3.7% | `portfolio/bin/construct.py`: 0.028 / volatility, limits 3% to 12% |
 | Expected return | $253.75; +10.9%, +11.3% with dividends | calc: 0.25 x 125 + 0.50 x 260 + 0.25 x 370; (253.75 + 1.00) / 228.87 - 1 |
 | Market capitalisation | $5,516B | `market_cap` |
-| P/E | 28.9 | calc: 228.87 / `ttm_eps_diluted` 7.91 |
 | Guidance, October 2026 quarter | $108.0B | Earnings release, `data/filings/text/NVDA/0001045810-26-000073.txt`, Outlook |
 | DSO | 51 and 60 days | calc: receivables / quarter revenue x 91, from the release balance sheet |
+| What the price needs | Data Center growth 30.2% | calc: base model solved for NTM EPS of $12.16 at 21 times |
 
 ## GLOSSARY
 
@@ -138,27 +118,12 @@ A monitoring plan lists what I check each quarter and the threshold that changes
 |---|---|
 | Base case | The middle outcome the analyst thinks plausible, built from stated assumptions. |
 | Bear case | The bad outcome the analyst thinks plausible, built from stated assumptions. |
-| Beta | How much a stock tends to move for each 1% move in the market. |
 | Bull case | The good outcome the analyst thinks plausible, built from stated assumptions. |
-| Cash conversion | The share of profit that arrives as cash from operations. |
-| Consensus estimates | The average of other analysts' forecasts. |
 | Days sales outstanding (DSO) | Receivables divided by a quarter's revenue, times 91 days. |
 | Earnings per share (EPS) | The profit attributable to each share. |
-| EBITDA | Earnings before interest, taxes, depreciation and amortisation. |
-| Enterprise value (EV) | Market capitalisation plus debt minus cash, roughly the price of the whole business free of its financing. |
-| EV/EBITDA | Enterprise value divided by EBITDA. |
-| Exit rule | A condition, stated before buying, under which the analyst would sell or cut a holding. |
 | Expected return | The percentage gain from the last close to the probability-weighted value, plus any dividends expected over the same 12 months. |
 | Falsifier | A specific, dated observation that would show a view is wrong. |
-| FCF yield | Free cash flow divided by market capitalisation. |
-| Fiscal year (FY) | The twelve months a company's accounts cover. |
-| Free cash flow (FCF) | The cash left after running the business and paying for equipment. |
-| Gross margin | Revenue minus the cost of revenue, as a share of revenue. |
 | Guidance | Management's own published forecast. |
-| Investment thesis | The short argument for why a stock is mispriced, or why it is not. |
-| Market capitalisation | The share price times the number of shares, the market value of all the equity. |
-| Monitoring plan | The figures the analyst checks each quarter, with the threshold that would change the recommendation. |
-| Net cash | Cash minus debt. |
 | P/E | Price divided by earnings per share. |
 | Percentage point | The unit of difference between two percentages. |
 | Portfolio manager (PM) | The person who decides what the portfolio owns and in what size. |
@@ -166,4 +131,3 @@ A monitoring plan lists what I check each quarter and the threshold that changes
 | Probability-weighted value | Each case's value multiplied by its probability, with the results added. |
 | Required return | The annual return a stock must offer to pay for its risk. |
 | Variant perception | Where the analyst's forecast differs from what the price requires, with a checkable reason the price has not yet moved. |
-| Volatility | How widely a stock's daily price changes vary, stated as a yearly figure. |

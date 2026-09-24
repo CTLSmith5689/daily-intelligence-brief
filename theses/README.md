@@ -17,7 +17,7 @@ the arrangement the README's "no LLM, and no AI API key" note anticipated.
 | `config.json` | slot counts, gates, cooldowns |
 | `watchlist.txt` | hand-edited. One ticker per line, `#` comments. Skips the ranking, not the gate: a watchlist name is offered only if it passes the universe gate and is off cooldown |
 | `bin/` | deterministic Python. The screen, the dossier builder, the scorer. Zero model tokens |
-| `notes/{TICKER}/{DATE}-{kind}.md` | the thesis: YAML front-matter, Markdown body. From the run of 2026-09-28 a buy-side investment memo (`format: memo`): page one, twelve numbered sections and a glossary, as an initiation for a new name or a short revision for a covered one. Earlier notes are in the older plain format and are never edited |
+| `notes/{TICKER}/{DATE}-{kind}.md` | the thesis: YAML front-matter, Markdown body. From the run of 2026-09-28 a buy-side investment memo (`format: memo`): page one, six numbered sections built around two or three arguments, SOURCES and a glossary, as an initiation for a new name or a short revision for a covered one. Earlier notes are in the older plain format and are never edited |
 | `GLOSSARY.md` | the one-sentence definition of every finance term a memo uses. Memos copy it word for word; the analyst does not edit it |
 | `PROMPTS.md`, `RUNBOOK.md` | the analyst's instructions, and how the scheduled run is set up. The portfolio managers' instructions are in `portfolio/PROMPTS.md` |
 | `routines/research-agent.md` | the claude.ai routine's prompt, mirrored by hand (RUNBOOK.md) and printed on the Research page |

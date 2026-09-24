@@ -228,34 +228,44 @@ different content.
 ## The memo format
 
 From the analyst run of Monday 2026-09-28 every note is a buy-side investment
-memo: one analyst's memo to the portfolio manager, voice "I". `PROMPTS.md`,
-"Agent 1", is the specification; the reference is the NVIDIA memo drafted on
-2026-09-23, kept as `tests/fixtures/memo/NVDA-2026-09-23-initiation.md` with a
-revision cut from it beside it.
+memo: one analyst's argument to the portfolio manager, voice "I". `PROMPTS.md`,
+"Agent 1", is the specification; the reference is the NVIDIA memo kept as
+`tests/fixtures/memo/NVDA-2026-09-23-initiation.md`, with a revision beside it.
+The format was redesigned on 2026-09-24, before any memo was written, because
+the first design (twelve sections, 3,500 to 4,500 words) produced data sheets
+that restated the dossier. The company page on the site shows the key data,
+reported history and similar companies beside the memo, so the memo argues.
 
-- **Page one** comes before the first heading, under a bold one-line headline:
-  the action (Initiate, Add, Hold, Trim, Exit, Avoid or Short) and the size, the
-  expected return next to the bear-case loss, the thesis in one sentence, why
-  now, the three things that matter most, and a key data table.
-- **Then twelve numbered sections and a glossary**: 1. WHAT IS PRICED IN, 2.
-  WHERE I DISAGREE, 3. THE BUSINESS, 4. INDUSTRY AND PEERS, 5. FINANCIAL
-  HISTORY, 6. FORECAST, 7. VALUATION, 8. CATALYSTS, 9. RISKS AND PRE-MORTEM, 10.
-  MONITORING AND EXIT RULES, 11. WHAT I DON'T KNOW, 12. SOURCES, GLOSSARY. A DCF
-  is allowed, with its discount rate, terminal growth and a reverse DCF.
-- **Initiation or revision.** A ticker with no note gets the full memo (2,000 to
-  5,000 words of prose). A ticker that already has one, in either format, gets a
-  revision: page one, WHAT CHANGED, section 10, the sections that changed,
-  SOURCES and GLOSSARY (300 to 1,500 words). `validate.py` refuses an initiation
-  for a ticker already in `theses/ledger/events.csv`.
+- **Page one** comes before the first heading, under a bold one-line headline
+  naming the action (Initiate, Add, Hold, Trim, Exit, Avoid or Short): the
+  action and size, the expected return next to the bear-case loss, the thesis in
+  one sentence, and why now in two or three. Under 250 words, no table.
+- **Then six numbered sections, SOURCES and a glossary**: 1. THE DEBATE (the
+  question the value turns on, and what the price requires, in a sentence or
+  two), 2. MY VIEW (two or three arguments, each a claim, its evidence and why
+  the price has not moved), 3. WHAT IT IS WORTH (the bull, base and bear table
+  and a short paragraph on method), 4. WHAT WOULD PROVE ME WRONG (the monitoring
+  table with at least one Exit or Cut row), 5. RISKS (at most three), 6. WHAT I
+  DO NOT KNOW (short), SOURCES, GLOSSARY.
+- **Argument, not data.** Every paragraph opens with a claim; at most four
+  figures a paragraph (warn at five or six, fail above six); tables only in
+  sections 3 and 4, SOURCES and GLOSSARY; no key data, peer or history tables.
+- **Initiation or revision.** A ticker with no note gets the full memo (1,200 to
+  2,000 words of prose; fails outside 900 to 2,400). A ticker that already has
+  one, in either format, gets a revision: page one, WHAT CHANGED, sections 3 and
+  4, the other sections that changed, SOURCES and GLOSSARY (300 to 800 words;
+  fails outside 200 to 1,000). `validate.py` refuses an initiation for a ticker
+  already in `theses/ledger/events.csv`.
 - **Vocabulary.** Real finance terms, each defined once where it first appears
-  in the wording of `theses/GLOSSARY.md`, and listed in the memo's glossary.
+  in the wording of `theses/GLOSSARY.md`, and listed in the memo's glossary,
+  which holds only the terms the memo uses.
 - **Front-matter** adds `format: memo`, `action`, `size_now`, `size_plan`,
   `expected_return`, `bear_return`, `required_return` and `scenarios`, and sets
   `horizon_days` to 365. `direction` stays, set from the action, because the
   ledger scores it.
 - **Checks.** `validate.py` applies the memo checks only to a note that says
-  `format: memo`, including the page-one arithmetic (probabilities, weighted
-  value, expected and bear returns, target). Every earlier note has no `format`
+  `format: memo`, including the scenario arithmetic in section 3 and on page
+  one (probabilities, weighted value, expected and bear returns, target). Every earlier note has no `format`
   field and is checked exactly as before.
 - **Ledger.** `events.csv` gains four columns at the end: `action`, `size_now`,
   `expected_return`, `bear_return`, blank for older rows. `events.py` adds them

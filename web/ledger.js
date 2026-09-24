@@ -2596,7 +2596,7 @@
       '<div class="ld-co-top"><section aria-labelledby="ld-ch-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-ch-h">Price history</h2><span class="ld-kicker">' + esc(chartNote || "None available") + "</span></div>" +
       (pts.length ? '<div class="ld-chart" id="ld-chart"></div>' : '<p class="ld-note">We have no price history to chart for ' + esc(tk) + "." + (S.price[i] != null ? " The only close we have is " + money(S.price[i]) + (pdate ? ", on " + dateMid(pdate) : "") + "." : "") + "</p>") +
       '</section><section aria-labelledby="ld-gl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-gl-h">At a glance</h2><span class="ld-vs">' + (sec ? "Scores within " + esc(sec) : "No sector to compare with") + "</span></div>" + facts + "</section></div>" +
-      thesisSection(tk, r) +
+      thesisSection(tk, r, i) +
       '<div class="ld-co-pair"><section class="ld-sec" id="ld-where" aria-labelledby="ld-wh-h"></section>' +
       '<section class="ld-sec" id="ld-hist" aria-labelledby="ld-hi-h"></section>' +
       '<div class="ld-two"><section class="ld-sec" aria-labelledby="ld-np-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-np-h">Most similar companies</h2></div>' +
@@ -3140,9 +3140,27 @@
   function todayISO() { return ASOF || new Date().toISOString().slice(0, 10); }
 
 
+  /* The figures a memo argues from, beside it. A memo is written as an argument and leaves the data to this
+     page, so the latest values the site already holds for the company are listed under it, with a pointer to
+     the reported history, the sector comparison and the most similar companies further down. */
+  var REF_KEYS = ["market_cap", "pe", "ev_ebitda", "fcf_yield", "net_debt_ebitda", "revenue_growth_yoy",
+                  "operating_margin", "gross_margin", "beta_1y", "volatility_1y"];
+  function referenceData(tk, i) {
+    if (i == null || i < 0) return "";
+    var rows = REF_KEYS.filter(function (k) { return A.vals[k] && metric(k); }).map(function (k) {
+      var v = valueOf(i, k);
+      return '<li><span class="k">' + esc(metric(k).label) + '</span><span class="v">' + esc(v.blank ? v.why : v.txt) + "</span></li>";
+    }).join("");
+    if (!rows) return "";
+    return '<details class="ld-det"><summary>Reference data</summary><div class="ld-rblock">' +
+      '<ul class="ld-facts">' + rows + "</ul>" +
+      '<p class="ld-muted" style="font-size:13px;margin:10px 0 0">The latest figures we hold for ' + esc(tk) + ", which may be newer than the memo. The reported history, how each figure compares with the sector, and the most similar companies are further down this page.</p>" +
+      "</div></details>";
+  }
+
   /* The full thesis, placed on the company page. r is docs/thesis/TICKER.json: the current view's scalars at
      the top, every note newest first in notes[], and last_close. Earlier notes stay readable below. */
-  function thesisSection(tk, r) {
+  function thesisSection(tk, r, i) {
     if (!r) return '<p class="ld-nothesis" id="ld-thesis">There is no investment thesis for ' + esc(tk) + " yet.</p>";
     var v = viewOf(r), n = callNums(r), note = r.notes && r.notes[0] || {};
     var conv = parseInt(r.conviction, 10) || 0;
@@ -3185,6 +3203,7 @@
       "<div>" + facts + (hist ? '<div class="ld-rblock"><h4>History of the call</h4><ul class="ld-hist-l">' + hist + "</ul></div>" : "") + "</div></div>" +
       ((r.data_caveats || []).length ? '<details class="ld-det"><summary>What the data cannot tell us (' + plural(r.data_caveats.length, "caveat", "caveats") + ")</summary><div class=\"ld-rblock\"><ul>" + r.data_caveats.map(function (c) { return "<li>" + esc(dashFree(c)) + "</li>"; }).join("") + "</ul></div></details>" : "") +
       (secs ? '<details class="ld-det"><summary>Read the full note (' + plural((note.sections || []).length, "section", "sections") + ")</summary><div class=\"ld-notebody\">" + secs + "</div></details>" : "") +
+      referenceData(tk, i) +
       older +
       (src ? '<p class="ld-muted" style="font-size:13px;margin:12px 0 0">' + (r.note_count > 1 ? r.note_count + " notes on " + esc(tk) + " so far. " : "") + "Read the" + src + " in the project's repository.</p>" : "") +
       "</section>";

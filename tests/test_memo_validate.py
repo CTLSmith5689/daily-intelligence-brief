@@ -1,8 +1,9 @@
 """The buy-side memo format (format: memo) in theses/bin/validate.py and events.py.
 
-The fixtures in tests/fixtures/memo/ are the reference NVIDIA memo drafted on
-2026-09-23: once as the full initiation, and once cut down to the revision the
-analyst would write now that NVIDIA already has a note. Every test that needs
+The fixtures in tests/fixtures/memo/ are the reference NVIDIA memo, drafted on
+2026-09-23 and rewritten on 2026-09-24 as an argument-first memo from the same
+figures: once as the full initiation, and once as the revision the analyst would
+write now that NVIDIA already has a note. Every test that needs
 the ledger gets a temporary one; nothing here reads or writes theses/ledger/.
 """
 import contextlib
@@ -131,7 +132,8 @@ class InitiationWhenCovered(MemoCase):
         self.assertEqual(fails, [])
 
 
-class PageOneArithmetic(MemoCase):
+class ScenarioArithmetic(MemoCase):
+    """Section 3's scenario table and page one's returns against the front-matter."""
 
     CASES = [
         ("probabilities do not sum to 1",
@@ -140,10 +142,10 @@ class PageOneArithmetic(MemoCase):
         ("stated weighted value is off by more than $0.50",
          [("| Probability-weighted | | $253.75", "| Probability-weighted | | $254.50")],
          r"weighted value of \$254\.50, but the three cases give \$253\.75"),
-        ("a case value on page one disagrees with the front-matter",
+        ("a case value in section 3 disagrees with the front-matter",
          [("| Bull | 25% | $370 |", "| Bull | 25% | $380 |")],
          r"gives the bull case \$380\.00; scenarios in the front-matter say \$370\.00"),
-        ("a case probability on page one disagrees with the front-matter",
+        ("a case probability in section 3 disagrees with the front-matter",
          [("| Bear | 25% | $125 |", "| Bear | 30% | $125 |")],
          r"bear case a probability of 30%"),
         ("expected_return does not follow from the weighted value",
@@ -155,9 +157,15 @@ class PageOneArithmetic(MemoCase):
         ("target_price more than $5 from the weighted value",
          [("target_price: 255.00", "target_price: 259.00")],
          r"target_price 259 is more than \$5 from the probability-weighted value \$253\.75"),
-        ("no probability-weighted row on page one",
+        ("no probability-weighted row in section 3",
          [("| Probability-weighted | | $253.75 | +10.9%; +11.3% with $1.00 of dividends | |\n", "")],
-         r"page one does not show the probability-weighted value"),
+         r"3\. WHAT IT IS WORTH does not show the probability-weighted value"),
+        ("page one leaves out the expected return",
+         [("I expect a return of 11.3% over 12 months", "I expect a modest return over 12 months")],
+         r"page one does not show the expected return as a percentage \(11\.3%\)"),
+        ("page one leaves out the bear-case loss",
+         [("loses 45.4%", "loses heavily")],
+         r"page one does not show the bear-case loss as a percentage \(45\.4%\)"),
     ]
 
     def test_each_arithmetic_failure(self):
@@ -223,6 +231,7 @@ class ActionAndDirection(MemoCase):
         text = self.swap(self.revision, "action: Avoid", "action: Hold")
         text = self.swap(text, "direction: watch", "direction: long")
         text = self.swap(text, "size_now: 0.000", "size_now: 0.037")
+        text = self.swap(text, "**Avoid for now:", "**Hold for now:")
         fails, _ = self.check(text)
         self.assertEqual(fails_matching(fails, r"size_now"), [])
 
@@ -256,63 +265,72 @@ class ActionAndDirection(MemoCase):
 class RevisionShape(MemoCase):
 
     def test_revision_length_band(self):
-        filler = ("I checked the same figure again in the quarterly report and it had not changed. " * 60)
-        long_text = self.swap(self.revision, "Three facts changed.", filler + "\n\nThree facts changed.")
-        fails, _ = self.check(long_text)
-        self.assertTrue(fails_matching(fails, r"the revision is [\d,]+ words of prose.*300 to 1,500"), fails)
+        anchor = "The earlier note was wrong about one figure"
+        filler = ("I checked the same figure again in the quarterly report and it had not changed. " * 30)
+        text = self.swap(self.revision, anchor, filler + "\n\n" + anchor)
+        fails, warns = self.check(text)
+        self.assertEqual(fails_matching(fails, r"words of prose"), [])
+        self.assertTrue(fails_matching(warns, r"the revision is [\d,]+ words of prose.*Aim for 300 to 800"), warns)
+        text = self.swap(self.revision, anchor, filler * 2 + "\n\n" + anchor)
+        fails, _ = self.check(text)
+        self.assertTrue(fails_matching(fails, r"the revision is [\d,]+ words of prose.*outside 200 to 1,000"), fails)
 
-        # Page one alone, with WHAT CHANGED, section 10 and SOURCES cut to their tables.
-        short = re.sub(r"\n(?![|#>\n])(?!\*\*Recommendation)[^\n]+", "", self.revision.split("---\n", 2)[2])
-        short_text = self.revision.split("---\n", 2)[0] + "---\n" + self.revision.split("---\n", 2)[1] + "---\n" + short
-        fails, _ = self.check(short_text)
-        self.assertTrue(fails_matching(fails, r"the revision is [\d,]+ words of prose.*300 to 1,500"), fails)
+        # Page one's headline, the tables and the quote alone: far too short.
+        short = re.sub(r"\n(?![|#>\n])(?!\*\*Avoid)[^\n]+", "", self.revision.split("---\n", 2)[2])
+        parts = self.revision.split("---\n", 2)
+        fails, _ = self.check(parts[0] + "---\n" + parts[1] + "---\n" + short)
+        self.assertTrue(fails_matching(fails, r"the revision is [\d,]+ words of prose.*outside 200 to 1,000"), fails)
 
     def test_the_same_text_as_an_initiation_is_held_to_the_initiation_band(self):
         (self.ledger / "events.csv").write_text(OLD_HEADER + "\n", encoding="utf-8")
         fails, _ = self.check(self.swap(self.revision, "kind: revision", "kind: initiation"))
-        self.assertTrue(fails_matching(fails, r"the initiation is [\d,]+ words of prose.*2,000 to 5,000"), fails)
-        self.assertTrue(fails_matching(fails, r"missing the heading: ## 1\. WHAT IS PRICED IN"), fails)
+        self.assertTrue(fails_matching(fails, r"the initiation is [\d,]+ words of prose.*1,200 to 2,000"), fails)
+        self.assertTrue(fails_matching(fails, r"missing the heading: ## 1\. THE DEBATE"), fails)
         self.assertTrue(fails_matching(fails, r"heading\(s\) not in the memo format: WHAT CHANGED"), fails)
 
-    def test_revision_needs_what_changed_and_section_10(self):
-        fails, _ = self.check(self.swap(self.revision, "## WHAT CHANGED", "## WHAT IS NEW"))
-        self.assertTrue(fails_matching(fails, r"missing the heading: ## WHAT CHANGED"), fails)
-        fails, _ = self.check(self.swap(self.revision, "## 10. MONITORING AND EXIT RULES",
-                                        "## MONITORING"))
-        self.assertTrue(fails_matching(fails, r"missing the heading: ## 10\. MONITORING AND EXIT RULES"), fails)
+    def test_revision_needs_what_changed_and_sections_3_and_4(self):
+        for old in ("## WHAT CHANGED", "## 3. WHAT IT IS WORTH", "## 4. WHAT WOULD PROVE ME WRONG"):
+            with self.subTest(old):
+                fails, _ = self.check(self.swap(self.revision, old, "## SOMETHING ELSE"))
+                self.assertTrue(fails_matching(fails, "missing the heading: " + re.escape(old)), fails)
 
     def test_revision_section_order(self):
         text = self.revision
-        sec2 = text[text.index("## 2. WHERE I DISAGREE"):text.index("## 10. MONITORING")]
-        text = text.replace(sec2, "")
-        # Section 10 straight after WHAT CHANGED, then 2: allowed.
-        ten_first = text.replace("## 12. SOURCES", sec2 + "## 12. SOURCES")
-        fails, _ = self.check(ten_first)
+        i2, i3, i4, isrc = (text.index(h) for h in ("## 2. MY VIEW", "## 3. WHAT IT IS WORTH",
+                                                    "## 4. WHAT WOULD PROVE", "## SOURCES"))
+        sec2, sec3, sec4 = text[i2:i3], text[i3:i4], text[i4:isrc]
+        def order(middle):
+            return text[:i2] + middle + text[isrc:]
+        # Section 4 straight after WHAT CHANGED, then 2 and 3: allowed.
+        fails, _ = self.check(order(sec4 + sec2 + sec3))
         self.assertEqual(fails_matching(fails, r"out of order"), [])
-        # 2 after 10 once another section sits in front of 10: not allowed.
-        wrong = ten_first.replace("## 10. MONITORING", "## 8. CATALYSTS\n\nNo dates moved.\n\n## 10. MONITORING")
-        wrong = wrong.replace("## 12. SOURCES", "## 9. RISKS AND PRE-MORTEM\n\nNone changed.\n\n## 12. SOURCES")
-        fails, _ = self.check(wrong)
+        # 3 before 2: not allowed.
+        fails, _ = self.check(order(sec3 + sec2 + sec4))
         self.assertTrue(fails_matching(fails, r"numbered sections are out of order"), fails)
 
     def test_page_one_has_no_heading(self):
-        fails, _ = self.check(self.swap(self.revision, "\n**Recommendation:", "\n## Page one\n\n**Recommendation:"))
+        fails, _ = self.check(self.swap(self.revision, "\n**Avoid for now:", "\n## Page one\n\n**Avoid for now:"))
         self.assertTrue(fails_matching(fails, r"heading\(s\) not in the memo format: PAGE ONE"), fails)
 
-    def test_page_one_needs_the_bold_headline(self):
-        fails, _ = self.check(self.swap(
-            self.revision,
-            "**Recommendation: Avoid for now. Size today: 0% of the portfolio. Planned: 3.7% if the 17 "
-            "November report passes two tests, then 7.4% after the February annual report.**",
-            "Recommendation: Avoid for now."))
+    def test_page_one_needs_the_bold_headline_naming_the_action(self):
+        fails, _ = self.check(self.swap(self.revision, "**Avoid for now: $228.87 already pays for my base case.**",
+                                        "Avoid for now."))
         self.assertTrue(fails_matching(fails, r"page one must open with a bold one-line headline"), fails)
+        fails, _ = self.check(self.swap(self.revision, "**Avoid for now: $228.87 already pays for my base case.**",
+                                        "**Not yet: $228.87 already pays for my base case.**"))
+        self.assertTrue(fails_matching(fails, r"headline does not name the action, Avoid"), fails)
+
+    def test_page_one_is_short(self):
+        extra = " ".join(["Each report this year has shown the same pattern of rising sales and slower payments."] * 25)
+        fails, _ = self.check(self.swap(self.revision, "**Why now.** ", "**Why now.** " + extra + " "))
+        self.assertTrue(fails_matching(fails, r"page one is \d+ words\. Keep it under 250"), fails)
 
 
 class MonitoringTable(MemoCase):
 
     def test_needs_an_exit_or_cut_row_with_threshold_and_date(self):
         fails, _ = self.check(self.swap(self.revision, "Stay out. If owned, Exit", "Stay out", count=3))
-        self.assertTrue(fails_matching(fails, r"needs a table with Threshold and Action columns"), fails)
+        self.assertTrue(fails_matching(fails, r"WHAT WOULD PROVE ME WRONG needs a table with Threshold and Action"), fails)
 
     def test_cut_counts_and_a_month_and_year_is_a_date(self):
         text = self.swap(self.revision, "Stay out. If owned, Exit", "Stay out", count=3)
@@ -326,7 +344,100 @@ class MonitoringTable(MemoCase):
         text = self.swap(text, "| Above 70 days at the FY2027 year end | Stay out |",
                          "| Much higher | Exit |")
         fails, _ = self.check(text)
-        self.assertTrue(fails_matching(fails, r"MONITORING AND EXIT RULES needs"), fails)
+        self.assertTrue(fails_matching(fails, r"WHAT WOULD PROVE ME WRONG needs"), fails)
+
+
+class ArgumentNotData(MemoCase):
+    """The rules that keep a memo an argument: where tables may stand, how many
+    figures a paragraph carries, how a paragraph opens, and the section limits."""
+
+    PARA = "My view is wrong if the company grows faster than I assume while its customers pay on time."
+
+    def test_tables_only_in_sections_3_and_4_sources_and_glossary(self):
+        table = "\n\n| Measure | Value |\n|---|---|\n| P/E | 28.9 |\n\n"
+        for where, anchor in (("page one", "**Thesis.**"), ("WHAT CHANGED", "The earlier note was wrong"),
+                              ("2. MY VIEW", "My forecast and the price agree")):
+            with self.subTest(where):
+                fails, _ = self.check(self.swap(self.revision, anchor, table + anchor))
+                self.assertTrue(fails_matching(fails, r"table\(s\) in " + re.escape(where)), fails)
+
+    def test_history_and_peer_tables_fail_even_where_tables_are_allowed(self):
+        years = "\n\n| Measure | FY2024 | FY2025 | FY2026 |\n|---|---|---|---|\n| Revenue | 60.9 | 130.5 | 215.9 |\n"
+        fails, _ = self.check(self.swap(self.revision, "\n\nP/E, price divided", years + "\nP/E, price divided"))
+        self.assertTrue(fails_matching(fails, r"table of years"), fails)
+        peers = "\n\n| Company | P/E |\n|---|---|\n| Micron | 24.8 |\n"
+        fails, _ = self.check(self.swap(self.revision, "\n\n" + self.PARA, peers + "\n" + self.PARA))
+        self.assertTrue(fails_matching(fails, r"peer table"), fails)
+
+    def test_figures_in_a_paragraph(self):
+        five = " Sales were $96.2 billion, $108.0 billion, $118.8 billion, $125 billion and $105.8 billion."
+        _, warns = self.check(self.swap(self.revision, self.PARA, self.PARA + five))
+        self.assertTrue(fails_matching(warns, r"1 paragraph\(s\) with more than 4 figures, e\.g\. 5 figures"), warns)
+        seven = five + " Margins were 75.0% and 72.4%."
+        fails, _ = self.check(self.swap(self.revision, self.PARA, self.PARA + seven))
+        self.assertTrue(fails_matching(fails, r"1 paragraph\(s\) with more than 6 figures, e\.g\. 7 figures"), fails)
+
+    def test_what_the_figure_count_leaves_out(self):
+        text = ("In section 3, the report of 2026-11-17 and the report of 17 November 2026 cover FY2028 "
+                "and the 12 months to January 2028, when revenue grew 30% to $527.8 billion (10-K).")
+        self.assertEqual(validate._figure_count(text), 2)
+
+    def test_a_list_item_counts_as_a_paragraph(self):
+        item = "- Revenue was $1, $2, $3, $4, $5, $6 and $7 billion in the seven quarters I hold.\n"
+        fails, _ = self.check(self.swap(self.revision, "## SOURCES", item + "\n## SOURCES"))
+        self.assertTrue(fails_matching(fails, r"more than 6 figures"), fails)
+
+    def test_paragraph_openers(self):
+        fails, _ = self.check(self.swap(self.revision, self.PARA, "30.2% is the growth the price requires. " + self.PARA))
+        self.assertTrue(fails_matching(fails, r"1 paragraph\(s\) open with a number"), fails)
+        _, warns = self.check(self.swap(self.revision, self.PARA, "As noted above, my view could be wrong."))
+        self.assertTrue(fails_matching(warns, r"open by pointing back"), warns)
+        _, warns = self.check(self.swap(self.revision, self.PARA + " ", ""))
+        self.assertTrue(fails_matching(warns, r"open with a definition, e\.g\. \"Guidance is"), warns)
+
+    def test_page_one_return_paragraph_may_open_with_figures(self):
+        fails, warns = validate.check(REVISION)
+        self.assertEqual(fails_matching(fails + warns, r"open with"), [])
+
+    def test_my_view_needs_arguments(self):
+        text = re.sub(r"^### .*\n\n", "", self.revision, flags=re.M)
+        fails, _ = self.check(text)
+        self.assertTrue(fails_matching(fails, r"2\. MY VIEW has no argument"), fails)
+        text = self.swap(self.revision, "### The January-quarter forecast is the one number that could change that.\n\n", "")
+        _, warns = self.check(text)
+        self.assertTrue(fails_matching(warns, r"2\. MY VIEW has 1 argument"), warns)
+
+    def test_a_sub_heading_may_not_copy_an_input_block(self):
+        fails, _ = self.check(self.swap(self.revision, "### The next year is well supported, and the price already needs it.",
+                                        "### Key data"))
+        self.assertTrue(fails_matching(fails, r"the sub-heading 'Key data' copies a block"), fails)
+
+    def test_at_most_three_risks(self):
+        (self.ledger / "events.csv").write_text(OLD_HEADER + "\n", encoding="utf-8")
+        fourth = ("4. **Competition.** Customers with their own chip designs could buy fewer of NVIDIA's. "
+                  "The first sign would be a fall in Data Center revenue from one quarter to the next.\n")
+        fails, _ = self.check(self.swap(self.initiation, "\n## 6. WHAT I DO NOT KNOW", fourth + "\n## 6. WHAT I DO NOT KNOW"))
+        self.assertTrue(fails_matching(fails, r"5\. RISKS lists 4 risks"), fails)
+
+    def test_initiation_length_bands(self):
+        (self.ledger / "events.csv").write_text(OLD_HEADER + "\n", encoding="utf-8")
+        filler = "\n\nI read the quarterly report again and found nothing that changes this view of the company.\n"
+        anchor = "\n## 5. RISKS"
+        _, warns = self.check(self.swap(self.initiation, anchor, filler * 50 + anchor))
+        self.assertTrue(fails_matching(warns, r"the initiation is [\d,]+ words of prose.*Aim for 1,200 to 2,000"), warns)
+        fails, _ = self.check(self.swap(self.initiation, anchor, filler * 80 + anchor))
+        self.assertTrue(fails_matching(fails, r"the initiation is [\d,]+ words of prose.*outside 900 to 2,400"), fails)
+
+    def test_glossary_lists_only_terms_the_memo_uses(self):
+        row = "| Beta | How much a stock tends to move for each 1% move in the market. |\n"
+        _, warns = self.check(self.swap(self.revision, "| Bull case |", row + "| Bull case |"))
+        self.assertTrue(fails_matching(warns, r"GLOSSARY lists term\(s\) the memo does not use: Beta"), warns)
+
+    def test_term_used_matches_plurals_abbreviations_and_split_terms(self):
+        self.assertTrue(validate._term_used("Bull case", "the bull, base and bear cases"))
+        self.assertTrue(validate._term_used("Days sales outstanding (DSO)", "DSO rose to 60"))
+        self.assertTrue(validate._term_used("Segment", "It reports two segments."))
+        self.assertFalse(validate._term_used("Beta", "the alphabet"))
 
 
 class VocabularyAndSources(MemoCase):
@@ -346,25 +457,24 @@ class VocabularyAndSources(MemoCase):
 
     def test_code_formatting_only_in_sources(self):
         # The fixture's SOURCES table formats file and field names as code and passes.
-        sources = self.revision.split("## 12. SOURCES", 1)[1].split("## GLOSSARY", 1)[0]
+        sources = self.revision.split("## SOURCES", 1)[1].split("## GLOSSARY", 1)[0]
         self.assertIn("`market_cap`", sources)
-        text = self.swap(self.revision, "NVIDIA's was 37.8% over the past year.",
-                         "NVIDIA's `volatility_1y` was 37.8% over the past year.")
+        text = self.swap(self.revision, "The expected return sits 0.7 percentage points",
+                         "The `expected_return` sits 0.7 percentage points")
         fails, _ = self.check(text)
         self.assertTrue(fails_matching(fails, r"body: 1 code-formatted name"), fails)
 
     def test_file_names_only_in_sources(self):
-        text = self.swap(self.revision, "Each figure comes from NVIDIA's own filings.",
-                         "Each figure comes from reported.csv.")
+        text = self.swap(self.revision, "Written from prices and filings", "Written from reported.csv and filings")
         fails, _ = self.check(text)
         self.assertTrue(fails_matching(fails, r"file name"), fails)
 
     def test_glossary_definitions_are_the_canonical_ones(self):
-        text = self.swap(self.revision, "| Beta | How much a stock tends to move for each 1% move in the market. |",
-                         "| Beta | Sensitivity to the market. |")
+        text = self.swap(self.revision, "| Guidance | Management's own published forecast. |",
+                         "| Guidance | The company's outlook. |")
         fails, warns = self.check(text)
         self.assertEqual(fails, [])
-        self.assertTrue([w for w in warns if "definition differs from theses/GLOSSARY.md for Beta" in w], warns)
+        self.assertTrue([w for w in warns if "definition differs from theses/GLOSSARY.md for Guidance" in w], warns)
 
     def test_en_dash_fails_in_a_memo(self):
         fails, _ = self.check(self.swap(self.revision, "limits 3% to 12%", "limits 3%" + chr(0x2013) + "12%"))
@@ -373,8 +483,8 @@ class VocabularyAndSources(MemoCase):
     def test_bold_headline_and_labels_allowed_but_bold_endings_are_not(self):
         fails, _ = validate.check(REVISION)
         self.assertEqual(fails_matching(fails, r"bolded line"), [])
-        text = self.swap(self.revision, "It is the weighted value rounded to the nearest $5.",
-                         "It is the weighted value rounded to the nearest $5. **That is the number I am graded on.**")
+        text = self.swap(self.revision, "My price target is that value rounded to the nearest $5.",
+                         "My price target is that value rounded to the nearest $5. **That is the number I am graded on.**")
         fails, _ = self.check(text)
         self.assertTrue(fails_matching(fails, r"paragraph ends on a bolded line"), fails)
 
@@ -385,6 +495,7 @@ class ActFollowsTheNumbers(MemoCase):
     def long_initiation(self, size="0.037"):
         text = self.swap(self.initiation, "action: Avoid", "action: Initiate")
         text = self.swap(text, "direction: watch", "direction: long")
+        text = self.swap(text, "**Avoid for now:", "**Initiate:")
         return self.swap(text, "size_now: 0.000", f"size_now: {size}")
 
     def test_initiate_below_the_required_return_fails(self):
@@ -411,10 +522,11 @@ class ActFollowsTheNumbers(MemoCase):
         self.assertTrue(fails_matching(warns, r"draft 2% limit"), warns)
 
     def test_missing_page_one_labels_and_consensus_sentence_warn(self):
-        text = self.swap(self.initiation, "**Why this size.** ", "")
-        text = self.swap(text, "- **Consensus.** No analyst forecasts are stored and I have no paid source.\n", "")
+        text = self.swap(self.initiation, "**Thesis.** ", "")
+        text = self.swap(text, "\n- No analyst forecasts are available, so I cannot say whether my figures sit "
+                               "above or below what other analysts expect.", "")
         _, warns = self.check(text)
-        self.assertTrue(fails_matching(warns, r"Why this size"), warns)
+        self.assertTrue(fails_matching(warns, r"no bold 'Thesis\.' paragraph"), warns)
         self.assertTrue(fails_matching(warns, r"no analyst forecasts"), warns)
 
 
@@ -453,8 +565,8 @@ class CanonicalGlossary(unittest.TestCase):
 
     def test_it_parses_and_covers_the_reference_memo(self):
         self.assertGreaterEqual(len(self.canon), 80)
-        fixture = validate._load_glossary(INITIATION.read_text(encoding="utf-8").split("## Glossary", 1)[1])
-        self.assertGreaterEqual(len(fixture), 80)
+        fixture = validate._load_glossary(INITIATION.read_text(encoding="utf-8").split("## GLOSSARY", 1)[1])
+        self.assertGreaterEqual(len(fixture), 15)
         for key, (term, dfn) in fixture.items():
             with self.subTest(term=term):
                 self.assertIn(key, self.canon)
