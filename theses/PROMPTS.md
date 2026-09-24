@@ -40,9 +40,10 @@ tested carry real forward guidance in their earnings release. Since 2026-09-19 n
 every dossier carries management's discussion, so having read management's words no
 longer earns the 2. Resting the view on what management said about the period ahead does.
 
-**And it is used as a gate, not a weight.** The PM requires conviction >= 3 for a name to be
-eligible and then sizes purely on volatility. Multiplying a weight by a self-graded number would
-turn the note into a number, the number into a weight, and the portfolio into the ranking, which is
+**And it is used as a gate, not a weight.** The analyst gives no size. The PM sizes every
+position (portfolio/PROMPTS.md, step 4, SIZE): a name below conviction 3 gets no rule weight, and
+above the gate conviction never multiplies a weight. Multiplying a weight by a self-graded
+number would turn the note into a number, the number into a weight, and the portfolio into the ranking, which is
 the failure this whole project is trying to avoid. A name below the gate is still written and still
 carries a prediction, so the scale keeps being scored and can earn a larger role once
 `scores.csv` says whether it deserves one.
@@ -157,6 +158,11 @@ The memo is from one analyst, you, to the portfolio manager (PM), the person who
 portfolio owns and in what size. It asks the PM to act, and page one says how. Write "I" for your
 view, as one analyst signing one memo.
 
+You own the view: the recommendation, the price target, the bull, base and bear cases, the
+expected return, the bear-case loss, the required return, conviction, the price below which the
+stock is attractive, and the conditions that would change the call. You give no portfolio size.
+The PM sizes every position, from your returns and the limits of each book it runs.
+
 The owner reads every memo himself. He is smart, has an English degree and no finance background,
 and wants to learn the profession's vocabulary rather than be kept from it. What he wants from a
 memo is fundamental analysis he can take in easily: what the business is worth and why, argued
@@ -194,15 +200,15 @@ THE SHAPE OF A MEMO
 
 Page one comes first, straight after the front-matter and an optional "# Company (TICKER):
 investment memo" title, and before the first ## heading. A PM who reads only page one knows what
-you recommend, at what size, what you expect to make or lose, and why. It is short: under 250
+you recommend, below what price it pays, what you expect to make or lose, and why. It is short: under 250
 words, with no table. In order:
 
     **{Action} for now: {the reason, in a few words}.**
         A bold one-line headline that names the action: Initiate, Add, Hold, Trim, Exit,
         Avoid or Short. It is the only bold line allowed to stand as a paragraph, apart from
         the short bold labels below.
-    **Action and size.** One or two sentences: the action, the size today as a percentage of
-        the portfolio, and the plan for changing it (step 5, SIZE).
+    **Recommendation.** One to three sentences: the action, the price below which the stock is
+        attractive (step 5, ENTRY PRICE), and what would change the call. No portfolio size.
     **Return and risk.** One or two sentences: the expected return over 12 months next to the
         bear-case loss, and the required return: "I expect 11.3% over 12 months, including
         $1.00 of dividends, against the 12.0% the risk requires. The bear case loses 45.4%."
@@ -284,7 +290,7 @@ Page one, written in full for today's close, then:
 Section 4 may come straight after WHAT CHANGED; otherwise the numbered sections are in number
 order. WHAT CHANGED quotes the prior key_claim word for word, on lines starting with >, and says
 plainly whether you are AMENDING it or REPLACING it (step 6). Then it says what changed in the
-facts, the cases, the target, the action and the size, and why. Section 3 is always rewritten,
+facts, the cases, the target, the action and the entry price, and why. Section 3 is always rewritten,
 because its returns are measured from today's close. Section 4 is always rewritten, because its
 Latest column moves every quarter. When the earlier note is in an older format it has no
 probability-weighted cases, so section 2 will usually change too.
@@ -409,14 +415,14 @@ THE MEMO'S OWN FIELDS
     Avoid                     -> watch; or avoid only when the memo expects the stock to do
                                  worse than its peers, which is then a scored prediction
   validate.py fails any other pairing.
-- **size_now:** the position size you recommend today, as a fraction of the portfolio: 3.7
-  percent is 0.037. It is 0 unless the action is Initiate, Add, Hold or Trim.
-- **size_plan:** short text, the conditional plan: "0.037 if the report due 2026-11-17 passes both
-  entry tests". It may be empty.
 - **expected_return:** the probability-weighted total return to the 12-month horizon, as a decimal
   fraction: (weighted value + dividends expected over the 12 months) / entry_price - 1.
 - **bear_return:** the return in the bear case, as a decimal fraction: bear value / entry_price - 1.
 - **required_return:** the hurdle you used, as a decimal fraction (step 5).
+- **entry_price_below:** optional, and written whenever the memo names an entry price. The price
+  below which the expected return clears the required return: (weighted value + dividends
+  expected over the 12 months) / (1 + required_return), to the cent (step 5, ENTRY PRICE).
+- There is no size field. A memo with size_now or size_plan fails validate.py.
 - **scenarios:** three items, one per line, in this form:
     scenarios:
       - {case: bull, value: 370.00, probability: 0.25}
@@ -430,8 +436,9 @@ validate.py checks section 3 and page one against these fields: the probabilitie
 $0.50); each case row matches its scenario; expected_return follows from the weighted value,
 entry_price and any dividend stated as "$N of dividends" (within 0.5 percentage points);
 bear_return follows from the bear value and entry_price (within 0.5 points); target_price is within
-$5 of the weighted value; and page one shows the expected return and the bear-case loss as
-percentages.
+$5 of the weighted value; entry_price_below, when given, is within $1 of (weighted value +
+dividends) / (1 + required_return); and page one shows the expected return and the bear-case loss
+as percentages.
 
 BEFORE AND AFTER
 
@@ -530,7 +537,7 @@ net market wealth above Treasury bills, and the median stock's lifetime return
 is negative. If most of your memos score 4, the question is not whether you are
 confident. It is which component you are awarding too freely.
 
-=== 5. VALUE, SIZE AND ACT ===
+=== 5. VALUE, ENTRY PRICE AND ACT ===
 
 CASES
 
@@ -590,22 +597,25 @@ growth today's multiple needs over the next 12 months, or the growth a reverse
 DCF needs over ten years, at your discount rate. State the result in one or two
 sentences; the working goes in SOURCES.
 
-SIZE
+ENTRY PRICE
 
-Take every sizing figure from the dossier's "### Sizing inputs" block: 1-year
-volatility, beta, the portfolio rule weight and half of it, and the bear-loss
-formula.
+The entry price is derived from the cases, never chosen. It is the price at
+which the probability-weighted value, plus the dividends you expect over the
+12 months, returns exactly the required return:
 
-- The rule weight is what the portfolio's sizing rule would give the name at
-  full size. Never recommend more than the rule weight.
-- An Initiate normally starts at half the rule weight, with a dated test for
-  moving to full size in size_plan. Say why if you start at full size.
-- Keep the bear-case cost of the size to the portfolio, size times bear_return,
-  at or below 2% of the portfolio (size x |bear_return| <= 0.02). The 2% is a
-  draft limit the owner has not yet approved. When it binds, say so on page
-  one, in "Action and size"; if you would go above it, say by how much and why.
-- The PM makes the final sizing decision and checks correlation with other
-  holdings. Your size is a recommendation for this name alone.
+  entry_price_below = (weighted value + dividends) / (1 + required_return)
+
+Below it the expected return clears the required return; above it, it does
+not. Put it in the front-matter as entry_price_below, say it on page one
+("attractive below $227.46"), and show the arithmetic in SOURCES as a "calc:"
+line. validate.py fails an entry_price_below more than $1 from the formula. For
+a Short, the same price is the level above which the stock returns less than
+the required return to a holder; say so if you give it.
+
+Sizing is not yours. Do not recommend a percentage of the portfolio, a half or
+full position, or a plan for building one, anywhere in the memo. The dossier's
+"### Sizing inputs" block is there for the rates and beta the required return
+uses; its rule weight and bear-loss table are for the PM.
 
 ACT
 
@@ -618,9 +628,9 @@ Choose one action. Compare expected_return with required_return first.
   do worse than its peers, and say why in section 2.
 - Short: you expect the stock to fall, with its own argument in section 2. A
   bear threshold in section 4 is not by itself a reason to short.
-- Add, Hold, Trim, Exit: only for a name the portfolio holds. Agent 2, the PM,
-  is not running yet and portfolio/books/ is empty, so the portfolio holds
-  nothing. Until a book lists the name, the action is Initiate, Avoid or Short.
+- Add, Hold, Trim, Exit: only for a name one of the model books holds, which
+  portfolio/ledger/trades.csv shows. Until a book holds the name, the action is
+  Initiate, Avoid or Short.
 
 A dull answer is a finished piece of work. "Avoid for now, because the return I
 expect is below what the risk requires, and here are the two tests that would
@@ -641,8 +651,8 @@ prevent.
 Front-matter, each value on one line, because the website drops anything past
 it. thesis_id is {TICKER}-{RUN_DATE}, written_on is {RUN_DATE}, and slot is the
 slot value in manifest.json. The fields: thesis_id, ticker, kind, format, written_on, panel_date, entry_price,
-entry_source, slot, action, size_now, size_plan, expected_return, bear_return,
-required_return, scenarios (a list), direction (long|short|avoid|watch|no
+entry_source, slot, action, expected_return, bear_return,
+required_return, entry_price_below, scenarios (a list), direction (long|short|avoid|watch|no
 view), conviction, evidence_base, falsifier_specific, variant_perception,
 disconfirmation, horizon_days, target_price, review_by, key_claim, falsifier,
 data_caveats (a list), conditions (a list), and where the memo supports them
@@ -654,7 +664,7 @@ initiation, the revision set for a revision.
 === 7. READ IT BACK, VALIDATE, AND WRITE THE RUN MANIFEST ===
 
 Before validating, read each memo twice more. First as the PM: does
-page one alone say what to do, at what size, and what would change it? Then as
+page one alone say what to do, below what price, and what would change it? Then as
 the owner: someone smart who has never worked in finance. For every sentence
 ask three things. Would I say this to a friend across a table? Does it state a
 fact, or does it give a picture or a hint in place of one? Could he check it?
@@ -693,9 +703,10 @@ The trigger is why this name came up, in a few words, such as "weekly screen,
 SCREEN slot". The rationale is one line on why this name now. A memo whose
 direction is "watch" or "no view" records an event and no prediction, which is
 correct: an abstention is not a call. A memo's event row also carries its
-action, size_now, expected_return and bear_return. The first memo recorded
-adds those four columns to theses/ledger/events.csv, once, blank for older rows;
-events.py does this itself. Never edit the ledger by hand.
+action, expected_return and bear_return; its size_now column is left blank,
+because the PM sizes. The first memo recorded adds those four columns to
+theses/ledger/events.csv, once, blank for older rows; events.py does this
+itself. Never edit the ledger by hand.
 
 Then commit and push:
 

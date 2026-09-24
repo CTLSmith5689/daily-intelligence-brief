@@ -730,7 +730,11 @@ class PmPrompt(unittest.TestCase):
         for needle in ("portfolio/bin/trade.py", "portfolio/letters/", "--write", "hedge", "neural",
                        "internet", "Monday"):
             self.assertIn(needle, pm)
-        self.assertNotIn("construct.py", pm)
+        # The PM reads construct.py's rule weight from the dossier; it never runs the script.
+        self.assertNotIn("python3 portfolio/bin/construct.py", pm)
+        for needle in ("=== 4. SIZE ===", "draft", "unapproved", "portfolio/books/growth.md",
+                       "portfolio/books/value.md", "portfolio/books/hedge.md", "portfolio/books/neural.md"):
+            self.assertIn(needle, pm)
         self.assertNotIn("## Agent 1", text)
         for t in (text, (H.REPO / "theses" / "PROMPTS.md").read_text(encoding="utf-8")):
             self.assertNotIn(H.EM_DASH, t)
@@ -740,7 +744,7 @@ class PmPrompt(unittest.TestCase):
         self.assertNotIn("## Agent 2", analyst)
         self.assertNotIn("Agent 2 below", analyst)
         self.assertIn("The portfolio managers' instructions are in portfolio/PROMPTS.md.", analyst)
-        for name in ("style-pm.md", "hedge-pm.md", "neural-pm.md"):
+        for name in ("style-pm.md", "neural-pm.md"):
             routine = (H.REPO / "portfolio" / "routines" / name).read_text(encoding="utf-8")
             self.assertIn("Follow portfolio/PROMPTS.md", routine)
             self.assertNotIn("theses/PROMPTS.md", routine)

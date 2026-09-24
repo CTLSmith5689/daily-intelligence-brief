@@ -34,6 +34,8 @@ OLD_EVENT_COLUMNS = ["event_id", "date", "ticker", "kind", "thesis_id", "note_pa
                      "claim_changed", "trigger", "rationale"]
 # Added for the buy-side memo (format: memo), at the end so every older column
 # keeps its position. Blank for older notes and for every row written before.
+# size_now stays for the file's sake but is written blank: since 2026-09-24 the
+# PM sizes every position and a memo carries no size (portfolio/PROMPTS.md).
 MEMO_EVENT_COLUMNS = ["action", "size_now", "expected_return", "bear_return"]
 EVENT_COLUMNS = OLD_EVENT_COLUMNS + MEMO_EVENT_COLUMNS
 KIND_ORDER = {"initiation": "initiate", "update": "reaffirm",
@@ -80,13 +82,13 @@ def event_from_note(path, trigger="", rationale=""):
                       and prior.get("conviction") == s("conviction"))
         claim_changed = "yes" if (kind == "revise" and same_shape) else ""
 
-    # The memo's own call: what it asks the PM to do, at what size, and the two
-    # returns page one sets side by side. Blank for the older plain note.
+    # The memo's own call: its recommendation and the two returns page one sets
+    # side by side. Blank for the older plain note. size_now is always blank.
     memo = {c: "" for c in MEMO_EVENT_COLUMNS}
     if s("format").lower() == "memo":
         a = s("action")
         memo = {"action": next((x for x in validate.MEMO_ACTIONS if x.lower() == a.lower()), a),
-                "size_now": s("size_now"), "expected_return": s("expected_return"),
+                "size_now": "", "expected_return": s("expected_return"),
                 "bear_return": s("bear_return")}
 
     n = len(history(t)) + 1
@@ -257,8 +259,8 @@ def render_position(ticker):
     out += [f"**{d}**, conviction {c}/5, target {cur.get('target_price','?')} "
             f"({cur.get('horizon_days','?')}d), as of {cur.get('date','?')}", ""]
     if cur.get("action"):
-        out += [f"Memo action: **{cur['action']}**, size now {cur.get('size_now') or '0'}, expected "
-                f"return {cur.get('expected_return','?')}, bear return {cur.get('bear_return','?')}.", ""]
+        out += [f"Memo action: **{cur['action']}**, expected return {cur.get('expected_return','?')}, "
+                f"bear return {cur.get('bear_return','?')}.", ""]
     out += [f"Current note: [`{cur.get('note_path','')}`]({Path(cur.get('note_path','')).name})", ""]
     if any(e.get("claim_changed") == "yes" for e in h):
         out += ["> **This thesis has been revised with the direction and conviction unchanged "

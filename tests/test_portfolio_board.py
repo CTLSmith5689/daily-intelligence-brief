@@ -244,10 +244,19 @@ class Pages(unittest.TestCase):
         # The board is data inside the script, so it cannot close the script tag.
         self.assertNotIn("<article", pages["portfolios.html"].split("window.APT_PAGE")[1].split("</script>")[0])
         how = cfg["portfolios.html"]["howPms"]
-        self.assertEqual([p["name"] for p in how["pms"]], ["Style PM", "Hedge PM", "Neural PM"])
-        self.assertEqual([p["schedule"] for p in how["pms"]],
-                         ["Mondays 12:00 ET", "not scheduled yet", "not scheduled yet"])
+        self.assertEqual([p["name"] for p in how["pms"]], ["Style PM", "Neural PM"])
+        self.assertEqual([p["schedule"] for p in how["pms"]], ["Mondays 12:00 ET", "not scheduled yet"])
         self.assertIn("ONLY the six style books", how["pms"][0]["html"])
+        self.assertIn("and the hedge book", how["pms"][0]["html"])
+        self.assertIn("ONLY the neural book", how["pms"][1]["html"])
+        self.assertEqual([b["name"] for b in how["briefs"]],
+                         ["Growth brief", "Value brief", "Hedge brief", "Neural brief"])
+        self.assertEqual([b["path"] for b in how["briefs"]],
+                         ["portfolio/books/growth.md", "portfolio/books/value.md",
+                          "portfolio/books/hedge.md", "portfolio/books/neural.md"])
+        self.assertIn("Margin of safety", how["briefs"][1]["html"])
+        self.assertNotIn("Value brief</h5>", how["briefs"][1]["html"], "the file title is the summary")
+        self.assertIn("=== 4. SIZE ===", how["prompt"])
         self.assertIn("<pre><code>You are the portfolio manager (PM)", how["prompt"])
         self.assertEqual(how["promptPath"], "portfolio/PROMPTS.md")
         self.assertEqual(cfg["research.html"]["howAnalyst"]["promptPath"], "theses/PROMPTS.md")
@@ -277,14 +286,17 @@ class Instructions(unittest.TestCase):
     def test_routine_files_are_in_the_repository_and_marked(self):
         style = (H.REPO / "portfolio" / "routines" / "style-pm.md").read_text(encoding="utf-8")
         self.assertIn("Schedule: Mondays 12:00 ET", style)
-        for name in ("hedge-pm.md", "neural-pm.md"):
-            text = (H.REPO / "portfolio" / "routines" / name).read_text(encoding="utf-8")
-            head = text.split("\n---\n")[0]
-            self.assertIn("Schedule: not scheduled yet", head)
-            self.assertIn("It is not scheduled yet", head)
+        routines = sorted(p.name for p in (H.REPO / "portfolio" / "routines").glob("*.md"))
+        self.assertEqual(routines, ["neural-pm.md", "style-pm.md"])
+        neural = (H.REPO / "portfolio" / "routines" / "neural-pm.md").read_text(encoding="utf-8")
+        head = neural.split("\n---\n")[0]
+        self.assertIn("Schedule: not scheduled yet", head)
+        self.assertIn("It is not scheduled yet", head)
+        for name, text, brief in (("style-pm.md", style, "portfolio/books/hedge.md"),
+                                  ("neural-pm.md", neural, "portfolio/books/neural.md")):
             body = text.split("\n---\n", 1)[1]
             for needle in ("Follow portfolio/PROMPTS.md", "Never use the internet", "portfolio/bin/trade.py",
-                           "Stage only portfolio/", "never git add -A"):
+                           "Stage only portfolio/", "never git add -A", brief):
                 self.assertIn(needle, body, name)
         research = (H.REPO / "theses" / "routines" / "research-agent.md").read_text(encoding="utf-8")
         self.assertIn('"## Agent 1: the analyst"', research)

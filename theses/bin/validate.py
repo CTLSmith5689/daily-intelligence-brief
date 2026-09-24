@@ -107,19 +107,21 @@ MEMO_RESTATE = re.compile(r"(?:as (?:noted|mentioned|shown|discussed|described|e
                           r"|above|before)\b|to (?:recap|summari[sz]e|restate|repeat)\b|in (?:summary|short|sum)\b"
                           r"|recall\b|again,|to sum up\b)", re.I)
 MEMO_HORIZON = 365
-MEMO_FM = ["action", "size_now", "size_plan", "expected_return", "bear_return",
-           "required_return", "scenarios"]
-MEMO_BLANK_OK = {"size_plan"}
+MEMO_FM = ["action", "expected_return", "bear_return", "required_return", "scenarios"]
+MEMO_BLANK_OK = set()
+# Sizing belongs to the PM (portfolio/PROMPTS.md, step 4, SIZE). A memo gives the view
+# and the price at which it pays; a portfolio size in it is refused.
+MEMO_SIZE_FIELDS = ("size_now", "size_plan")
 # The seven actions, and the direction each one is scored as. Avoid is "watch",
 # or "avoid" only when the memo expects the stock to do worse than its peers.
 MEMO_ACTIONS = {"Initiate": {"long"}, "Add": {"long"}, "Hold": {"long"}, "Trim": {"long"},
                 "Exit": {"watch"}, "Avoid": {"watch", "avoid"}, "Short": {"short"}}
-MEMO_HOLDING = {"Initiate", "Add", "Hold", "Trim"}
 SCENARIO_CASES = ("bull", "base", "bear")
 # Page-one arithmetic tolerances.
 PROB_TOL, VALUE_TOL, RETURN_TOL, TARGET_TOL = 0.005, 0.50, 0.005, 5.0
-# The draft bear-loss limit in PROMPTS.md step 5, SIZE: size x |bear_return|.
-BEAR_COST_CAP = 0.02
+# entry_price_below, the price at which the expected return equals the required
+# return, may differ from (weighted value + dividends) / (1 + required_return) by this much.
+ENTRY_TOL = 1.0
 GLOSSARY_FILE = THESES / "GLOSSARY.md"
 _DATE_WORDS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b"
                          r"|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}\b")
@@ -1252,7 +1254,7 @@ def covered_elsewhere(path, fm):
 
 def _memo(path, text, fm, body, kind, F, W):
     """The buy-side investment memo (format: memo)."""
-    _fm_lines(text, fm, F, W, extra=("size_plan",))
+    _fm_lines(text, fm, F, W)
     shape = "initiation" if kind == "initiation" else "revision"
 
     # ---- front-matter
@@ -1273,17 +1275,10 @@ def _memo(path, text, fm, body, kind, F, W):
           f"Hold and Trim are long; Short is short; Exit is watch; Avoid is watch, or avoid only "
           f"when the memo expects the stock to do worse than its peers.")
 
-    size_now = _num_fm(fm, "size_now", F, "the position size today as a fraction of the portfolio, "
-                       "such as 0.037 for 3.7 percent, or 0") if "size_now" in fm else None
-    if size_now is not None:
-        if not 0 <= size_now <= 1:
-            F(f"size_now {size_now:g} is not a fraction of the portfolio between 0 and 1. 3.7 percent "
-              f"is written 0.037.")
-        elif action and action not in MEMO_HOLDING and size_now != 0:
-            F(f"size_now is {size_now:g} but the action is {action}. Only Initiate, Add, Hold and Trim "
-              f"carry a size; for {action} it is 0.")
-        elif action in ("Initiate", "Add") and size_now == 0:
-            W(f"action is {action} with size_now 0. Give the size you recommend buying to.")
+    for k in MEMO_SIZE_FIELDS:
+        if k in fm:
+            F(f"{k} is not a memo field. The PM sizes every position; the memo gives the view, the "
+              f"returns and entry_price_below. Remove {k}.")
 
     er = _num_fm(fm, "expected_return", F, "a decimal fraction, such as 0.113 for 11.3 percent") \
         if "expected_return" in fm else None
@@ -1291,6 +1286,11 @@ def _memo(path, text, fm, body, kind, F, W):
         if "bear_return" in fm else None
     rr = _num_fm(fm, "required_return", F, "a decimal fraction, such as 0.12 for 12 percent") \
         if "required_return" in fm else None
+    below = _num_fm(fm, "entry_price_below", F, "a price, such as 227.46") \
+        if fm.get("entry_price_below") not in (None, "") else None
+    if below is not None and below <= 0:
+        F(f"entry_price_below {below:g} is not a positive price.")
+        below = None
     for key, x, lo, hi in (("expected_return", er, -1, 5), ("bear_return", br, -1, 5),
                            ("required_return", rr, 0, 1)):
         if x is not None and not lo <= x <= hi:
@@ -1325,10 +1325,6 @@ def _memo(path, text, fm, body, kind, F, W):
     if scen and action in ("Initiate", "Add") and scen["bear"][1] > scen["bull"][1] + PROB_TOL:
         F(f"action is {action}, but the bear case ({scen['bear'][1]:g}) is likelier than the bull case "
           f"({scen['bull'][1]:g}). With the bear case likelier the action is not Initiate or Add.")
-    if size_now and br is not None and size_now * abs(br) > BEAR_COST_CAP + 1e-9:
-        W(f"size_now {size_now:g} x bear_return {br:g} costs {size_now * abs(br):.1%} of the portfolio "
-          f"in the bear case, above the draft {BEAR_COST_CAP:.0%} limit. Say by how much and why in "
-          f"'Why this size', or size down to {BEAR_COST_CAP / abs(br):.3f}.")
 
     # ---- structure
     heads = [(hm.start(), hm.end(), _head_name(hm.group(1))) for hm in HEADING.finditer(body)]
@@ -1348,7 +1344,7 @@ def _memo(path, text, fm, body, kind, F, W):
     headline = paras[0] if paras and re.fullmatch(r"\*\*[^*]+\*\*", paras[0]) else None
     if not paras:
         F("page one is missing. Before the first ## heading, write the headline naming the action, the "
-          "action and size, the expected return next to the bear-case loss, the thesis and why now.")
+          "recommendation, the expected return next to the bear-case loss, the thesis and why now.")
     elif headline is None:
         F(f"page one must open with a bold one-line headline naming the action, such as "
           f"'**Avoid for now: the price already pays for my base case.**'. Found {paras[0][:60]!r}.")
@@ -1357,16 +1353,17 @@ def _memo(path, text, fm, body, kind, F, W):
     if paras:
         for label, rx in (("Thesis", r"\*\*(?:the )?(?:investment )?thesis\b"), ("Why now", r"\*\*why now\b")):
             if not re.search(rx, p1, re.I):
-                W(f"page one has no bold '{label}.' paragraph. Page one gives the action and size, the "
+                W(f"page one has no bold '{label}.' paragraph. Page one gives the recommendation, the "
                   f"expected return next to the bear-case loss, the thesis in one sentence and why now.")
-        if not re.search(r"\d(?:\.\d+)?% of the portfolio", p1):
-            W("page one does not give the size as a percentage of the portfolio, such as '0% of the "
-              "portfolio'.")
+        if re.search(r"\d(?:\.\d+)?% of the portfolio", p1):
+            W("page one gives a size as a percentage of the portfolio. The PM sizes every position; "
+              "page one gives the recommendation, the returns and the price at which it pays.")
         _memo_page_one(p1, headline, F, W)
 
     scen_table = sections.get(MEMO_WORTH, "")
     if scen:
-        _memo_arithmetic(fm, scen, er, br, scen_table, p1, MEMO_WORTH in sections, F, W)
+        _memo_arithmetic(fm, scen, er, br, scen_table, p1, MEMO_WORTH in sections, F, W,
+                         rr=rr, below=below)
 
     # ---- the sections
     if MEMO_DEBATE in sections and not re.search(r"\b(?:needs?|requires?|required)\b", sections[MEMO_DEBATE], re.I):
@@ -1551,7 +1548,7 @@ def _memo_page_one(p1, headline, F, W):
     n = _words("\n".join(prose))
     warn_at, fail_at = MEMO_PAGE_ONE
     if n > fail_at:
-        F(f"page one is {n} words. Keep it under {warn_at}: the action and size, the expected return next "
+        F(f"page one is {n} words. Keep it under {warn_at}: the recommendation, the expected return next "
           f"to the bear-case loss, the thesis in one sentence and why now in two or three.")
     elif n > warn_at:
         W(f"page one is {n} words. Keep it under {warn_at}.")
@@ -1591,9 +1588,9 @@ def _memo_paragraphs(prose, headline, gloss, F, W):
         is_list = bool(re.match(r"(?:[-+]|\*(?!\*)|\d+\.)\s", b))
         for item in items:
             text = " ".join(re.sub(r"^\s*(?:[-*+]|\d+\.)\s+", "", item).split())
-            # Page one's return and size paragraphs are figures by design; they
-            # are held to the figure limit but not to the claim opener.
-            numeric_label = re.match(r"\*\*(?:action and size|return and risk)\b", text, re.I)
+            # Page one's recommendation and return paragraphs are figures by design;
+            # they are held to the figure limit but not to the claim opener.
+            numeric_label = re.match(r"\*\*(?:recommendation|return and risk)\b", text, re.I)
             text = re.sub(r"^\*\*[^*]+\*\*\s*", "", text)  # a bold label ("**Why now.**")
             text = re.sub(r"^\*[^*]+\*\s*", "", text)      # an italic label
             if not text:
@@ -1674,7 +1671,7 @@ def _memo_risks(sec, F, W):
           f"would hurt and one on what I would see first.")
 
 
-def _memo_arithmetic(fm, scen, er, br, table_text, p1, has_table_section, F, W):
+def _memo_arithmetic(fm, scen, er, br, table_text, p1, has_table_section, F, W, rr=None, below=None):
     """The scenarios in section 3 and the returns on page one must agree with each
     other and with the front-matter."""
     total = sum(p for _, p in scen.values())
@@ -1738,6 +1735,18 @@ def _memo_arithmetic(fm, scen, er, br, table_text, p1, has_table_section, F, W):
         if br is not None and abs(br - (bear / entry - 1)) > RETURN_TOL:
             F(f"bear_return {br:g} does not follow from the bear value ${bear:,.2f} and entry_price "
               f"{entry:g} ({bear / entry - 1:.3f}).")
+    else:
+        divs = [0.0]
+    # The entry price is derived, never chosen: the price at which the
+    # probability-weighted value, plus any dividend stated, returns exactly the
+    # required return. Below it the expected return clears the hurdle.
+    if below is not None and rr is not None:
+        implied = [(weighted + dv) / (1 + rr) for dv in divs]
+        if all(abs(below - x) > ENTRY_TOL for x in implied):
+            show = " or ".join(f"${x:,.2f}" for x in implied)
+            F(f"entry_price_below {below:g} does not follow from the weighted value ${weighted:,.2f}, any "
+              f"dividend stated and required_return {rr:g}: (weighted value + dividends) / "
+              f"(1 + required_return) is {show}.")
     try:
         target = float(_fm_text(fm.get("target_price")))
     except ValueError:

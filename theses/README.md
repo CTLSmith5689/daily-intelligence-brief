@@ -21,7 +21,7 @@ the arrangement the README's "no LLM, and no AI API key" note anticipated.
 | `GLOSSARY.md` | the one-sentence definition of every finance term a memo uses. Memos copy it word for word; the analyst does not edit it |
 | `PROMPTS.md`, `RUNBOOK.md` | the analyst's instructions, and how the scheduled run is set up. The portfolio managers' instructions are in `portfolio/PROMPTS.md` |
 | `routines/research-agent.md` | the claude.ai routine's prompt, mirrored by hand (RUNBOOK.md) and printed on the Research page |
-| `ledger/events.csv` | **append-only.** One row per note: initiate, revise, reaffirm or close, with the direction, conviction and target. Memo rows also carry `action`, `size_now`, `expected_return` and `bear_return`, the last four columns, blank for older rows |
+| `ledger/events.csv` | **append-only.** One row per note: initiate, revise, reaffirm or close, with the direction, conviction and target. Memo rows also carry `action`, `size_now`, `expected_return` and `bear_return`, the last four columns, blank for older rows; `size_now` is blank on memo rows too, because the PM sizes |
 | `ledger/predictions.csv` | **append-only, never rewritten** |
 | `ledger/scores.csv` | **append-only.** Outcomes, joined on `prediction_id` |
 | *(coverage)* | not a file. Folded from `events.csv` by `screen.coverage_from_events()`, so it cannot drift from the notes |
