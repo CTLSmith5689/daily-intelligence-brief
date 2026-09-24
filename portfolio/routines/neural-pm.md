@@ -14,7 +14,7 @@ Apterreon weekly Neural PM run. Unattended: do not ask questions.
 4. Never use the internet. Everything you need is in the repository and its gh-pages branch.
 5. Write every trade through portfolio/bin/trade.py (dry run first, then --write). Stage only portfolio/ (never git add -A), commit, and push to main.
 
-The book starts in cash and has one limit: gross exposure of no more than 200% of its value (portfolio/books/neural/mandate.json). In its first letter, write down the idea behind the book, and in every letter after, hold yourself to it or say why you changed it.
+The book starts in cash with one limit: gross exposure of no more than 200% of its value (portfolio/books/neural/mandate.json). The limits are yours to set, as portfolio/PROMPTS.md says. In its first letter, write down the idea behind the book, and in every letter after, hold yourself to it or say why you changed it.
 
 Report back:
 - the neural book's trades (or "held"), and the one-line reason;

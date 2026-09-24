@@ -129,7 +129,7 @@ class Board(unittest.TestCase):
         self.assertNotIn("<article", style)
         self.assertIn('class="ld-kb-col ld-kb-wait"', self.html)
         neural = self.cols["neural"]
-        self.assertIn("<b>Holds cash.</b> The PM builds this book on its next run.", neural)
+        self.assertIn("<b>Holds cash.</b> The PM builds this portfolio on its next run.", neural)
         self.assertIn("$1,000,000", neural)
         self.assertRegex(neural, r"<dt>Cash</dt><dd[^>]*>100\.0%</dd>")
         self.assertRegex(neural, r"<dt>PM decision</dt><dd[^>]*>None yet</dd>")

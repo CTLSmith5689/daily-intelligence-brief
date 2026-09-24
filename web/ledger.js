@@ -1087,7 +1087,7 @@
     return '<div class="ld-help" id="ld-help" role="dialog" aria-modal="false" aria-labelledby="ld-help-h">' +
       '<button type="button" class="ld-btn x" data-close aria-label="Close help">Close</button>' +
       '<h2 id="ld-help-h">How to write filters</h2>' +
-      "<p>Type filters into the box, separated by spaces. A company must pass all of them (a repeated sector or index filter allows any of those named), and a company with no figure for a filtered metric is left out. " +
+      "<p>Type filters into the filter field, separated by spaces. A company must pass all of them (a repeated sector or index filter allows any of those named), and a company with no figure for a filtered metric is left out. " +
       "A plain number is a z-score: how far a figure sits from the median of the " + int(cohortN()) + " operating companies (as of " + dateMid(ASOF) + "), in units of the usual spread, " + SIGMA + ". " +
       "The median and spread are measured so that a few extreme companies do not distort them, and z-scores are capped at " + String.fromCharCode(177) + "5.</p>" +
       "<dl><dt><code>gm&gt;1</code></dt><dd>gross margin z-score at or above +1" + SIGMA + " (<code>&gt;=</code> means the same)</dd>" +
@@ -1103,12 +1103,12 @@
       "<dt><code>-lp -bdc -trust</code></dt><dd>hide partnerships, business development companies or royalty trusts, which are shown with a tag unless you hide them</dd>" +
       "<dt><code>scope:sector</code></dt><dd>z-scores against each company's own sector (sectors of 20 or more companies)</dd>" +
       "<dt><code>apple</code></dt><dd>any other word matches the start of a ticker or any part of a name</dd></dl>" +
-      "<h3>Keys</h3><dl><dt><kbd>/</kbd></dt><dd>go to the filter box</dd><dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>move the cursor down or up a row</dd>" +
+      "<h3>Keys</h3><dl><dt><kbd>/</kbd></dt><dd>go to the filter field</dd><dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>move the cursor down or up a row</dd>" +
       "<dt><kbd>Enter</kbd></dt><dd>open the company at the cursor</dd><dt><kbd>s</kbd></dt><dd>switch between comparing with all companies and with each sector</dd>" +
       "<dt><kbd>z</kbd></dt><dd>show figures or z-scores in the cells</dd><dt><kbd>m</kbd></dt><dd>show the next 150 rows</dd>" +
       "<dt><kbd>b</kbd></dt><dd>filter for companies within " + String.fromCharCode(177) + "0.5" + SIGMA + " of the cursor row on the sorted column (or shift-click a cell)</dd>" +
       "<dt><kbd>" + String.fromCharCode(8592, 8593, 8594, 8595) + "</kbd></dt><dd>turn the map, when it has focus; <kbd>Esc</kbd> there clears the selected companies</dd>" +
-      "<dt><kbd>Esc</kbd></dt><dd>leave the filter box, or close this help</dd><dt><kbd>?</kbd></dt><dd>open or close this help</dd></dl>" +
+      "<dt><kbd>Esc</kbd></dt><dd>leave the filter field, or close this help</dd><dt><kbd>?</kbd></dt><dd>open or close this help</dd></dl>" +
       "<h3>Colour</h3><p>Cells are tinted by z-score: slate below the median, ochre above, plain near zero. The tint shows position, not quality: for P/E a high z-score means expensive.</p>" +
       '<h2 style="margin-top:18px">Metric names</h2><p>Hover over a name to see how it is worked out.</p>' + groups + "</div>";
   }
@@ -3270,7 +3270,7 @@
   /* Research ends with a pointer to the model portfolios, which have their own pages. */
   function portfoliosLinkHTML() {
     return '<section class="ld-sec" aria-labelledby="ld-pfl-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pfl-h">Model portfolios</h2></div>' +
-      '<p class="ld-pm-p">Eight paper portfolios: six that each hold one size and style of company, a hedge fund strategy, and a book where the portfolio manager has a free hand. ' +
+      '<p class="ld-pm-p">Eight paper portfolios: six that each hold one size and style of company, a hedge fund strategy, and one where the portfolio manager has a free hand. ' +
       '<a class="ld-inl" href="' + ctx.href("portfolios") + '">See the portfolios</a>.</p></section>';
   }
 
@@ -3295,7 +3295,7 @@
   function isStyle(b) { return b.kind === "style"; }
 
   function priceNote() {
-    return '<p class="ld-note">Returns are price-only: dividends are not counted, in the books or in the benchmarks. Every trade costs 5 basis points of its value (a basis point is one hundredth of a percent, so 5 is 0.05%). ' +
+    return '<p class="ld-note">Returns are price-only: dividends are not counted, in the portfolios or in the benchmarks. Every trade costs 5 basis points of its value (a basis point is one hundredth of a percent, so 5 is 0.05%). ' +
       "A holding is valued at the stored close for that day only. When a close is missing, the day is marked partial and its value is left blank rather than estimated.</p>";
   }
 
@@ -3375,7 +3375,7 @@
   }
   function pmInstructionsHTML(d) {
     if (!d) return "";
-    var shared = d.prompt ? docBlock("The instructions every PM follows", "From " + repoLink(d.promptPath) + ", the section “" + esc(d.promptSection) + "”. Each routine follows it for its own books only.", d.prompt) : "";
+    var shared = d.prompt ? docBlock("The instructions every PM follows", "From " + repoLink(d.promptPath) + ", the section “" + esc(d.promptSection) + "”. Each routine follows it for its own portfolios only.", d.prompt) : "";
     var blocks = (d.pms || []).map(function (p) {
       var when = p.schedule || "Not scheduled yet";
       return '<details class="ld-det ld-doc"><summary>' + esc(p.name) + " " + MID + " " + esc(when) + '</summary><div class="ld-notebody ld-docbody">' +
@@ -3386,7 +3386,7 @@
       return docBlock(b.name, "For " + esc(b.books) + ". From " + repoLink(b.path) + ".", b.html);
     }).join("");
     return '<section class="ld-sec" aria-labelledby="ld-pmhow-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmhow-h">How the PMs work</h2></div>' +
-      '<p class="ld-pm-p">Two PMs run the books. The Style PM runs the six style books and the hedge book; the Neural PM runs the neural book on its own, so its reasoning does not lean on the others. Each is a scheduled claude.ai routine with a short prompt that points to one shared process, and each book has a brief that says how a manager of that kind of book thinks. The analyst’s memos give no position size: the PM sizes every position. A PM trades only through portfolio/bin/trade.py, which checks each order against the book’s limits and writes it to the ledger. The prompts, the process and the briefs are printed as they stand in the repository.</p>' +
+      '<p class="ld-pm-p">Two PMs run the portfolios. The Style PM runs the six style portfolios and the hedge fund strategy; the Neural PM runs the Neural Model Portfolio on its own, so its reasoning does not lean on the others. Each is a scheduled claude.ai routine with a short prompt that points to one shared process, and each portfolio has a brief that says how its kind of manager thinks. The analyst’s memos give no position size: the PM sizes every position. Each PM also sets its own limits for each portfolio it runs, within bounds that only catch mistakes, and records every change with its reason. A PM trades only through portfolio/bin/trade.py, which checks each order against the portfolio’s limits on that day and writes it to the ledger. The prompts, the process and the briefs are printed as they stand in the repository.</p>' +
       blocks + shared + briefs + "</section>";
   }
 
@@ -3410,30 +3410,30 @@
       return "<li>" + (CFG.repoUrl ? '<a class="ld-inl" href="' + esc(CFG.repoUrl + d.path) + '" target="_blank" rel="noopener">' + esc(d.label) + "</a>" : esc(d.label)) + "</li>";
     }).join("");
     main.innerHTML = '<div class="ld-wrap">' +
-      '<div class="ld-head"><div><div class="ld-kicker"><b>Portfolios</b> ' + MID + " " + plural(live, "book started", "books started") + (PM.asof ? " " + MID + " as of the close on " + esc(dateMid(PM.asof)) : "") + "</div>" +
-      '<h1 class="ld-h1">Model portfolios</h1><p class="ld-deck">Eight paper portfolios, each started with $' + int(PM.capital || 1000000) + " of pretend cash. Six hold one size and style of company, are chosen by written rules and reviewed by the portfolio manager (PM), and are measured against the matching Russell index fund. The other two are the PM’s own: a hedge fund strategy that bets on some companies and against others, and a book where the PM has a free hand.</p></div></div>" +
+      '<div class="ld-head"><div><div class="ld-kicker"><b>Portfolios</b> ' + MID + " " + plural(live, "portfolio started", "portfolios started") + (PM.asof ? " " + MID + " as of the close on " + esc(dateMid(PM.asof)) : "") + "</div>" +
+      '<h1 class="ld-h1">Model portfolios</h1><p class="ld-deck">Eight paper portfolios, each started with $' + int(PM.capital || 1000000) + " of pretend cash. Six hold one size and style of company, are chosen by written rules and reviewed by the portfolio manager (PM), and are measured against the matching Russell index fund. The other two are the PM’s own: a hedge fund strategy that bets on some companies and against others, and one where the PM has a free hand.</p></div></div>" +
       priceNote() +
-      '<section class="ld-sec" aria-labelledby="ld-pm-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pm-h">The books</h2><span class="ld-kicker">One column per book, one card per holding</span></div>' +
-      '<p class="ld-pm-p">Each column is one book: its value, its return against its benchmark, and a card for each company it holds. The PMs trade only through the ledger, and every figure here is worked out from that ledger and the stored closing prices. Open a book from its heading, or a company from its card. A bet against a company (a short position) has a red edge.</p>' +
+      '<section class="ld-sec" aria-labelledby="ld-pm-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pm-h">The portfolios</h2><span class="ld-kicker">One column per portfolio, one card per holding</span></div>' +
+      '<p class="ld-pm-p">Each column is one portfolio: its value, its return against its benchmark, and a card for each company it holds. The PMs trade only through the ledger, and every figure here is worked out from that ledger and the stored closing prices. Open a portfolio from its heading, or a company from its card. A bet against a company (a short position) has a red edge.</p>' +
       (CFG.board ? cleanHtml(CFG.board) : '<p class="ld-empty">The board could not be built on this run.</p>') +
-      '<p class="ld-pm-p ld-muted">The hedge fund strategy may hold up to 200% of its value in positions, counting bets against companies at their size, and must keep its net position (what it owns minus what it has bet against) between minus 20% and plus 60% of its value. It is also compared with what its cash would have earned in Treasury bills. The free hand book may do anything short of positions worth more than twice its value, and works only from the data in this project, with no internet.</p></section>' +
-      '<section class="ld-sec" aria-labelledby="ld-pmc-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmc-h">How companies are sorted into the six boxes</h2></div>' + rule +
+      pmLimitsNote(books) + "</section>" +
+      '<section class="ld-sec" aria-labelledby="ld-pmc-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmc-h">How companies are sorted into six size and style groups</h2></div>' + rule +
       '<p class="ld-pm-p">A robust z-score says how far a figure sits from the middle of the group: the median, measured in units of the typical spread around it, and capped at 5 either way so a single extreme figure cannot stretch the scale.</p>' +
-      '<p class="ld-pm-p">Companies in each box on ' + (PM.asof ? esc(dateMid(PM.asof)) : "the latest date") + ":</p>" + boxTableHTML(counts) +
+      '<p class="ld-pm-p">Companies in each group on ' + (PM.asof ? esc(dateMid(PM.asof)) : "the latest date") + ":</p>" + boxTableHTML(counts) +
       '<p class="ld-pm-p ld-muted">' + int(cov.with_growth || 0) + " of the " + int(cov.sized || 0) + " companies ranked by size have a three-year growth figure so far. The figures are read from each company’s annual reports as the weekly pass over SEC filings reaches it. Left out altogether: " + int(counts.micro || 0) + " micro caps, and " + int(counts.unclassified || 0) + " listings that are not operating companies, are depositary shares or foreign filers, have no market cap, repeat another share class, or have no three-year history yet.</p></section>" +
-      '<section class="ld-sec" aria-labelledby="ld-pmr-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmr-h">How the rules choose a book</h2></div>' +
+      '<section class="ld-sec" aria-labelledby="ld-pmr-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmr-h">How the rules choose a portfolio</h2></div>' +
       '<p class="ld-pm-p">' + esc(PM.candidateRule || "") + "</p>" +
-      '<p class="ld-pm-p">The rules run again after every close and their choice is shown on each book’s page beside what the book holds. They do not trade. Each style book is bought from the rules on its first day; after that, only the PM trades, and it says why whenever it departs from the rules.</p></section>' +
+      '<p class="ld-pm-p">The rules run again after every close and their choice is shown on each portfolio’s page beside what it holds. They do not trade. Each style portfolio is bought from the rules on its first day; after that, only the PM trades, and it says why whenever it departs from the rules.</p></section>' +
       pmInstructionsHTML(CFG.howPms) +
-      (planned.length ? '<section class="ld-sec" aria-labelledby="ld-pmp-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmp-h">Still to come</h2></div><p class="ld-pm-p">Core books for each size (the middle between growth and value), tax-managed books and a momentum book are planned but not built: ' + esc(andList(planned)) + ".</p></section>" : "") +
-      (drafts ? '<details class="ld-det"><summary>Earlier draft</summary><p class="ld-pm-p">Before these books existed, the plan was a single portfolio built from the analyst’s notes. The draft is kept in the repository.</p><ul class="ld-pm-list">' + drafts + "</ul></details>" : "") +
+      (planned.length ? '<section class="ld-sec" aria-labelledby="ld-pmp-h"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-pmp-h">Still to come</h2></div><p class="ld-pm-p">Core portfolios for each size (the middle between growth and value), tax-managed portfolios and a momentum portfolio are planned but not built: ' + esc(andList(planned)) + ".</p></section>" : "") +
+      (drafts ? '<details class="ld-det"><summary>Earlier draft</summary><p class="ld-pm-p">Before these existed, the plan was a single portfolio built from the analyst’s notes. The draft is kept in the repository.</p><ul class="ld-pm-list">' + drafts + "</ul></details>" : "") +
       "</div>";
   }
 
   function navChart(host, b) {
     var pts = (b.series || []).filter(function (p) { return p.nav != null && p.capital; });
     if (pts.length < 2) {
-      host.innerHTML = '<p class="ld-muted ld-pm-p">The chart starts once two closes have been recorded for this book.' + ((b.series || []).length ? " So far: " + plural(pts.length, "complete day", "complete days") + "." : "") + "</p>";
+      host.innerHTML = '<p class="ld-muted ld-pm-p">The chart starts once two closes have been recorded for this portfolio.' + ((b.series || []).length ? " So far: " + plural(pts.length, "complete day", "complete days") + "." : "") + "</p>";
       return;
     }
     var b0 = null;
@@ -3467,40 +3467,74 @@
     redrawers.push(draw);
   }
 
+  /* Who sets each limit: portfolio.engine.MANDATE_PM_FIELDS and MANDATE_OWNER_FIELDS, the one place the
+     split is written down. A row's field in the PM's list is set by the PM; anything else by the owner. */
+  function setBy(b, field) {
+    var pm = ((PM.mandateRules || {}).pm || {})[b.kind] || [];
+    return field && pm.indexOf(field) >= 0 ? "pm" : "owner";
+  }
+  function rangeTxt(r, unit) { return r ? r[0] + " to " + r[1] + (unit || "") : "n/a"; }
+  function signedPctWords(f) { return (f < 0 ? "minus " : f > 0 ? "plus " : "") + plainPct(Math.abs(f), 0); }
   function mandateHTML(m, b) {
     if (!m) return "";
-    var items;
+    var items, group = SIZE_WORD[b.size] ? b.size + "-cap " + b.style : "";
     if (isStyle(b)) {
       items = [
-        ["Number of holdings", m.holdings_range ? m.holdings_range[0] + " to " + m.holdings_range[1] : "n/a"],
-        ["Largest position", plainPct(m.max_position, 0) + " of the book"],
-        ["Largest sector", plainPct(m.sector_cap, 0) + " of the book"],
-        ["Cash", m.cash_band ? plainPct(m.cash_band[0], 0) + " to " + plainPct(m.cash_band[1], 0) + " of the book" : "n/a"],
-        ["Turnover", m.turnover_budget != null ? "Up to " + plainPct(m.turnover_budget, 0) + " of the book a year, counting purchases or sales, whichever is smaller" : "No limit"],
-        ["Bets against companies", "Not allowed"],
-        ["Companies it may buy", "Only companies in its size and style group, for example large-cap growth"],
-        ["Weighting", "Set by the PM, company by company, within the limits above. The rules book it is measured against holds equal weights"],
-        ["Active share against the rules", m.max_active_share_vs_rules == null ? "No limit set" : "Up to " + plainPct(m.max_active_share_vs_rules, 0)]
-      ];
-    } else if (b.kind === "hedge") {
-      items = [
-        ["Bets against companies", "Allowed"],
-        ["Gross exposure", "Up to " + plainPct(m.gross_max, 0) + " of the book: what it owns plus the size of what it has bet against"],
-        ["Net exposure", m.net_range ? "Between " + (m.net_range[0] < 0 ? "minus " : "") + plainPct(Math.abs(m.net_range[0]), 0) + " and plus " + plainPct(m.net_range[1], 0) + ": what it owns minus what it has bet against" : "n/a"],
-        ["Largest position", plainPct(m.max_long_position, 0) + " owned, " + plainPct(m.max_short_position, 0) + " bet against"],
-        ["Number of holdings", m.holdings_range_per_side ? m.holdings_range_per_side[0] + " to " + m.holdings_range_per_side[1] + " on each side" : "n/a"],
-        ["Companies it may trade", "Operating companies in the panel"],
-        ["Measured against", "The S&P 500, and cash in Treasury bills"]
+        ["Number of holdings", rangeTxt(m.holdings_range), "holdings_range"],
+        ["Largest position", plainPct(m.max_position, 1).replace(".0%", "%") + " of the portfolio’s value", "max_position"],
+        ["Largest sector", plainPct(m.sector_cap, 0) + " of the portfolio’s value", "sector_cap"],
+        ["Cash", m.cash_band ? plainPct(m.cash_band[0], 0) + " to " + plainPct(m.cash_band[1], 0) + " of its value" : "n/a", "cash_band"],
+        ["Active share against the rules", m.max_active_share_vs_rules == null ? "No limit set" : "Up to " + plainPct(m.max_active_share_vs_rules, 0), "max_active_share_vs_rules"],
+        ["Weighting", "Chosen by the PM, company by company, within the limits above. The rules’ portfolio it is compared with holds equal weights", "pm"],
+        ["Companies it may buy", "Only its own size and style group" + (group ? ": " + group + " companies" : ""), "universe"],
+        ["Bets against companies", "Not allowed", "long_only"],
+        ["Turnover", m.turnover_budget != null ? "Up to " + plainPct(m.turnover_budget, 0) + " of its value a year, counting purchases or sales, whichever is smaller" : "No limit", "turnover_budget"],
+        ["Measured against", b.benchmarkName || b.benchmark || "n/a", "benchmarks"]
       ];
     } else {
       items = [
-        ["Freedom", "Any number of companies, any weights, bets against companies and cash"],
-        ["Gross exposure", "Up to " + plainPct(m.gross_max, 0) + " of the book"],
-        ["Data", "Only what is in this project; no internet"],
-        ["Measured against", "The S&P 500"]
+        ["Gross exposure", "Up to " + plainPct(m.gross_max, 0) + " of its value: what it owns plus the size of what it has bet against", "gross_max"]
       ];
+      if (m.net_range) items.push(["Net exposure", "Between " + signedPctWords(m.net_range[0]) + " and " + signedPctWords(m.net_range[1]) + ": what it owns minus what it has bet against", "net_range"]);
+      if (m.max_long_position != null || m.max_short_position != null) items.push(["Largest position", (m.max_long_position != null ? plainPct(m.max_long_position, 1).replace(".0%", "%") + " owned" : "No limit owned") + ", " + (m.max_short_position != null ? plainPct(m.max_short_position, 1).replace(".0%", "%") + " bet against" : "no limit bet against"), "max_long_position"]);
+      if (m.holdings_range_per_side) items.push(["Number of holdings", rangeTxt(m.holdings_range_per_side, " on each side"), "holdings_range_per_side"]);
+      if (b.kind === "hedge") {
+        items.push(["Bets against companies", "Allowed", "long_only"],
+          ["Companies it may trade", "Operating companies in the panel", "universe"],
+          ["Measured against", "The S&P 500, and cash in Treasury bills", "benchmarks"]);
+      } else {
+        items.push(["Freedom", "Any number of companies, any weights, bets against companies and cash", "long_only"],
+          ["Data", "Only what is in this project; no internet", "data"],
+          ["Measured against", "The S&P 500", "benchmarks"]);
+      }
     }
-    return '<ul class="ld-pflim">' + items.map(function (x) { return '<li><span class="n">' + esc(x[0]) + '</span><span class="t">' + esc(x[1]) + "</span></li>"; }).join("") + "</ul>";
+    items.forEach(function (x) { x[3] = x[2] === "pm" ? "pm" : setBy(b, x[2]); });
+    items = items.filter(function (x) { return x[3] === "pm"; }).concat(items.filter(function (x) { return x[3] !== "pm"; }));
+    return '<ul class="ld-pflim">' + items.map(function (x) {
+      var who = x[3] === "pm" ? "Set by the PM" : "Set by the owner";
+      return '<li><span class="n">' + esc(x[0]) + '</span><span class="t">' + esc(x[1]) + '</span><span class="s">' + who + "</span></li>";
+    }).join("") + "</ul>";
+  }
+  function mandateSecHTML(b) {
+    return '<section class="ld-sec" aria-labelledby="ld-bk-man"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-man">Mandate</h2><span class="ld-kicker">The limits and who sets them</span></div>' +
+      '<p class="ld-pm-p">The PM sets its own limits. It starts from the defaults shown when the portfolio began and may change any of them later with a stated reason, recorded as a decision. What the portfolio is (what it may buy, whether it may bet against companies, what it is measured against) is set by the owner. A change applies from its date: every trade is checked against the limits in force on the day it was made.</p>' +
+      mandateHTML(b.mandate, b) + "</section>";
+  }
+  /* The PM books' current limits in words, for the Portfolios page. */
+  function pmLimitsNote(books) {
+    var hedge = null, neural = null;
+    books.forEach(function (x) { if (x.kind === "hedge") hedge = x.mandate; if (x.kind === "neural") neural = x.mandate; });
+    var out = [];
+    if (hedge && hedge.gross_max != null) {
+      out.push("The hedge fund strategy may hold up to " + plainPct(hedge.gross_max, 0) + " of its value in positions, counting bets against companies at their size" +
+        (hedge.net_range ? ", and must keep its net position (what it owns minus what it has bet against) between " + signedPctWords(hedge.net_range[0]) + " and " + signedPctWords(hedge.net_range[1]) + " of its value" : "") +
+        ". It is also compared with what its cash would have earned in Treasury bills.");
+    }
+    if (neural && neural.gross_max != null) {
+      out.push("The free-hand portfolio may do anything short of positions worth more than " + plainPct(neural.gross_max, 0) + " of its value, and works only from the data in this project, with no internet.");
+    }
+    out.push("The PM sets these limits, and those of every portfolio, and may change them with a stated reason; each portfolio’s page shows the limits in force.");
+    return '<p class="ld-pm-p ld-muted">' + out.join(" ") + "</p>";
   }
 
   function renderBook(main) {
@@ -3509,7 +3543,7 @@
     var b = null;
     books.forEach(function (x) { if (x.id === id) b = x; });
     if (!b) {
-      main.innerHTML = '<div class="ld-wrap"><div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b></div><h1 class="ld-h1">Choose a book</h1></div></div>' +
+      main.innerHTML = '<div class="ld-wrap"><div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b></div><h1 class="ld-h1">Choose a portfolio</h1></div></div>' +
         '<ul class="ld-pm-list">' + books.map(function (x) { return '<li><a class="ld-inl" href="' + bookHref(x.id) + '">' + esc(x.name) + "</a></li>"; }).join("") + "</ul></div>";
       return;
     }
@@ -3525,9 +3559,9 @@
       deck = "The PM’s free hand: any companies, any weights, bets against companies or cash, using only the data in this project. Measured against the S&P 500.";
     }
     if (!b.inception) {
-      main.innerHTML = '<div class="ld-wrap">' + back + '<div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b></div><h1 class="ld-h1">' + esc(b.name) + '</h1><p class="ld-deck">' + deck + " It has not started yet: it starts when its box holds enough companies with three years of annual figures.</p></div></div>" +
+      main.innerHTML = '<div class="ld-wrap">' + back + '<div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b></div><h1 class="ld-h1">' + esc(b.name) + '</h1><p class="ld-deck">' + deck + " It has not started yet: it starts when its size and style group holds enough companies with three years of annual figures.</p></div></div>" +
         (isStyle(b) ? candidateHTML(b, []) : "") +
-        '<section class="ld-sec" aria-labelledby="ld-bk-man"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-man">Mandate</h2><span class="ld-kicker">Set by the PM</span></div>' + mandateHTML(b.mandate, b) + "</section></div>";
+        mandateSecHTML(b) + "</div>";
       return;
     }
     var cashW = b.cash != null && b.pricedNav ? b.cash / b.pricedNav : null;
@@ -3562,23 +3596,22 @@
         '</td><td class="r ld-num">' + (cash ? "" : int(+t.shares)) + '</td><td class="r ld-num">' + (cash ? "" : money(+t.price)) + '</td><td class="r ld-num">' + usd0(+t.shares * +t.price) + '</td><td class="r ld-num">' + (cash ? "" : money(+t.cost)) + "</td></tr>";
     }).join("");
     var holdSec = inCash(b)
-      ? '<p class="ld-empty">All in cash. The PM builds this book at its next weekly run.</p>'
+      ? '<p class="ld-empty">All in cash. The PM builds this portfolio at its next weekly run.</p>'
       : (hold ? '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Ticker</th><th>Company</th><th>Sector</th>' + (showSide ? "<th>Side</th>" : "") + '<th class="r">Shares</th><th class="r">' + (showSide ? "Price in" : "Bought at") + '</th><th class="r">Close</th><th class="r">Value</th><th class="r">Weight</th><th class="r">Return</th></tr></thead><tbody>' + hold + "</tbody></table></div>" : '<p class="ld-empty">No holdings valued on this date.</p>') +
         (unpriced.length ? '<p class="ld-pm-warn">Not valued on ' + esc(dateMid(b.asof)) + ": " + unpriced.join(", ") + ".</p>" : "") +
-        '<p class="ld-muted ld-pm-p">' + (showSide ? "“Price in” is the average price at which a position was bought or, for a bet against a company, sold short. A bet against a company shows a negative value and gains when the price falls. " : "“Bought at” is the average price paid per share, before the trading cost. ") + "Weight is the share of the book’s value on " + esc(dateMid(b.asof)) + ".</p>";
+        '<p class="ld-muted ld-pm-p">' + (showSide ? "“Price in” is the average price at which a position was bought or, for a bet against a company, sold short. A bet against a company shows a negative value and gains when the price falls. " : "“Bought at” is the average price paid per share, before the trading cost. ") + "Weight is the share of the portfolio’s value on " + esc(dateMid(b.asof)) + ".</p>";
     main.innerHTML = '<div class="ld-wrap">' + back +
       '<div class="ld-head"><div><div class="ld-kicker"><b>Model portfolio</b> ' + MID + " started " + esc(dateMid(b.inception)) + " with $" + int(b.capital || 0) + "</div>" +
       '<h1 class="ld-h1">' + esc(b.name) + '</h1><p class="ld-deck">' + deck + "</p></div></div>" +
       stats + priceNote() +
-      '<section class="ld-sec" aria-labelledby="ld-bk-perf"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-perf">Return since inception</h2><span class="ld-kicker">Book, solid; benchmark, dashed</span></div><div class="ld-chart" id="ld-pm-chart"></div></section>' +
+      '<section class="ld-sec" aria-labelledby="ld-bk-perf"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-perf">Return since inception</h2><span class="ld-kicker">Portfolio, solid; benchmark, dashed</span></div><div class="ld-chart" id="ld-pm-chart"></div></section>' +
       bookPmHTML(b) + bookAttributionHTML(b) +
       '<section class="ld-sec" aria-labelledby="ld-bk-hold"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-hold">Holdings</h2><span class="ld-kicker">' + plural(b.holdingsCount || 0, "company", "companies") + ", largest first</span></div>" + holdSec + "</section>" +
       (sectors ? '<section class="ld-sec" aria-labelledby="ld-bk-sec"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-sec">Sector mix</h2>' + (showSide ? '<span class="ld-kicker">Companies owned</span>' : "") + '</div><div class="ld-pm-bars">' + sectors + "</div></section>" : "") +
       (isStyle(b) ? candidateHTML(b, b.holdings || []) : "") +
       '<section class="ld-sec" aria-labelledby="ld-bk-dec"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-dec">Decisions</h2><span class="ld-kicker">Newest first</span></div>' +
       '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Date</th><th>Decision</th><th>Reason</th><th>By</th></tr></thead><tbody>' + decisions + "</tbody></table></div></section>" +
-      '<section class="ld-sec" aria-labelledby="ld-bk-man"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-man">Mandate</h2><span class="ld-kicker">Set by the PM</span></div>' +
-      '<p class="ld-pm-p">The limits the book is run within. The PM may change them, and every change is recorded as a decision with its reason.</p>' + mandateHTML(b.mandate, b) + "</section>" +
+      mandateSecHTML(b) +
       '<details class="ld-det"><summary>Every trade (' + int((b.trades || []).length) + ")</summary>" +
       '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Date</th><th>Trade</th><th>Ticker</th><th class="r">Shares</th><th class="r">Price</th><th class="r">Amount</th><th class="r">Cost</th></tr></thead><tbody>' + trades + "</tbody></table></div>" +
       '<p class="ld-muted ld-pm-p">Each price is the stored close for the trade’s date.</p></details>' +
@@ -3596,13 +3629,13 @@
     }).join("");
     var adds = b.candidateAdds || [], drops = b.candidateDrops || [];
     var cmp = b.inception ? (adds.length || drops.length
-      ? "Compared with what the book holds, the rules would buy " + (adds.length ? plural(adds.length, "company", "companies") + " (" + esc(adds.slice(0, 12).join(", ")) + (adds.length > 12 ? " and more" : "") + ")" : "nothing") +
+      ? "Compared with what the portfolio holds, the rules would buy " + (adds.length ? plural(adds.length, "company", "companies") + " (" + esc(adds.slice(0, 12).join(", ")) + (adds.length > 12 ? " and more" : "") + ")" : "nothing") +
         " and sell " + (drops.length ? plural(drops.length, "company", "companies") + " (" + esc(drops.slice(0, 12).join(", ")) + (drops.length > 12 ? " and more" : "") + ")" : "nothing") + ". Only the PM decides whether to trade."
-      : "The rules would hold exactly what the book holds.") : "";
+      : "The rules would hold exactly what the portfolio holds.") : "";
     return '<section class="ld-sec" aria-labelledby="ld-bk-cand"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-cand">What the rules would hold today</h2><span class="ld-kicker">From the panel of ' + esc(b.candidateAsof ? dateMid(b.candidateAsof) : "n/a") + "</span></div>" +
-      '<p class="ld-pm-p">' + plural(b.boxCount || 0, "company is", "companies are") + " in this box. The rules take the top " + int(b.targetCount || 0) + ", the middle of the mandate’s holdings range. " + cmp + "</p>" +
-      (rows ? '<details class="ld-det"><summary>The rules book (' + int(cand.length) + ')</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th class="r">Rank</th><th>Ticker</th><th>Company</th><th>Sector</th><th class="r">Score</th><th class="r">Weight</th><th>Held</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
-        '<p class="ld-muted ld-pm-p">The score is the box score plus half the quality score, both in robust z-scores within the company’s size.</p></details>' : "") +
+      '<p class="ld-pm-p">' + plural(b.boxCount || 0, "company is", "companies are") + " in this size and style group. The rules take the top " + int(b.targetCount || 0) + ", the middle of the mandate’s holdings range. " + cmp + "</p>" +
+      (rows ? '<details class="ld-det"><summary>The rules’ portfolio (' + int(cand.length) + ')</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th class="r">Rank</th><th>Ticker</th><th>Company</th><th>Sector</th><th class="r">Score</th><th class="r">Weight</th><th>Held</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+        '<p class="ld-muted ld-pm-p">The score is the ' + (b.style === "value" ? "value" : "growth") + " score plus half the quality score, both in robust z-scores within the company’s size.</p></details>" : "") +
       "</section>";
   }
   function zShort2(z) { return z == null || !isFinite(z) ? "n/a" : signed(z, 2); }
@@ -3742,7 +3775,7 @@
     return '<section class="ld-sec" aria-labelledby="ld-sc-pva"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-sc-pva">The PM against the analyst</h2></div>' +
       '<p class="ld-pm-p">The PM may trade against the analyst: buy a company the analyst says to avoid, exit or bet against, or sell or bet against one the analyst says to buy. A buy against the analyst needs a written reason. Each such trade is marked 1, 3 and 6 months later and when the analyst’s own call ends, by the company’s return against its sector fund, turned round when the PM sold. The PM was right when that figure is above zero, and the analyst when it is below.</p>' +
       '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>After</th><th class="r">Marked</th><th class="r">PM right</th><th class="r">Average PM excess</th><th></th></tr></thead><tbody>' + body + "</tbody></table></div>" +
-      (rows ? '<details class="ld-det"><summary>Every mark (' + int((d.rows || []).length) + ')</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Traded</th><th>Ticker</th><th>Book</th><th>PM</th><th>Analyst</th><th>After</th><th class="r">PM excess</th><th>Right</th></tr></thead><tbody>' + rows + "</tbody></table></div></details>"
+      (rows ? '<details class="ld-det"><summary>Every mark (' + int((d.rows || []).length) + ')</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Traded</th><th>Ticker</th><th>Portfolio</th><th>PM</th><th>Analyst</th><th>After</th><th class="r">PM excess</th><th>Right</th></tr></thead><tbody>' + rows + "</tbody></table></div></details>"
         : '<p class="ld-pm-p ld-muted">The PM has not yet traded against the analyst, or no such trade has reached its first mark.</p>') + "</section>";
   }
 
@@ -3760,17 +3793,17 @@
     var skipNote = skipped.length ? '<p class="ld-pm-warn">Skipped, because a close was missing: ' + skipped.join("; ") + ".</p>" : "";
     var proxy = '<p class="ld-pm-p">We cannot download the fund’s holdings, so the benchmark here is a stand-in whose contents we know: ' + esc(a.proxy || "") + ". The gap between that stand-in and the fund itself is shown as proxy error.</p>";
     if (!a.days) {
-      return head + proxy + '<p class="ld-empty">The explanation starts once the book has been held from one close to the next.</p>' + skipNote + "</section>";
+      return head + proxy + '<p class="ld-empty">The explanation starts once the portfolio has been held from one close to the next.</p>' + skipNote + "</section>";
     }
     var style = isStyle(b);
     var rows = attrRow("Allocation", a.allocation, "More or less money than the benchmark in each sector") +
-      attrRow("Selection", a.selection, a.folded ? "Picking within sectors, including the overlap, because the book bets against some companies" : "Picking companies within each sector") +
+      attrRow("Selection", a.selection, a.folded ? "Picking within sectors, including the overlap, because the portfolio bets against some companies" : "Picking companies within each sector") +
       (a.folded ? "" : attrRow("Interaction", a.interaction, "The overlap of the two")) +
       attrRow("Cash drag", a.cash_drag, "Cash earns nothing here, against the benchmark’s return") +
       attrRow("Trading costs", a.costs, "5 basis points on every trade") +
-      '<tr class="ld-sc-tot"><td><b>Return against the stand-in</b></td><td class="r ld-num ' + pctCls(a.active) + '"><b>' + pctTxt(a.active) + '</b></td><td class="ld-pm-wrap ld-muted">Book ' + esc(pctTxt(a.bookReturn)) + ", stand-in " + esc(pctTxt(a.proxyReturn)) + "</td></tr>" +
+      '<tr class="ld-sc-tot"><td><b>Return against the stand-in</b></td><td class="r ld-num ' + pctCls(a.active) + '"><b>' + pctTxt(a.active) + '</b></td><td class="ld-pm-wrap ld-muted">Portfolio ' + esc(pctTxt(a.bookReturn)) + ", stand-in " + esc(pctTxt(a.proxyReturn)) + "</td></tr>" +
       (a.proxyError != null ? attrRow("Proxy error", a.proxyError, "Stand-in minus " + benchShort(b) + ", over " + plural(a.proxyErrorDays, "session", "sessions")) : attrRow("Proxy error", null, "The fund’s closes are not stored for these days yet")) +
-      attrRow("Sizing", a.sizing, "The book against equal weights of the same holdings");
+      attrRow("Sizing", a.sizing, "The portfolio against equal weights of the same holdings");
     var secs = (a.bySector || []).map(function (s) {
       return "<tr><td>" + esc(s[0]) + '</td><td class="r ld-num">' + plainPct(s[4]) + '</td><td class="r ld-num">' + plainPct(s[5]) + '</td><td class="r ld-num ' + pctCls(s[1]) + '">' + pctTxt(s[1]) +
         '</td><td class="r ld-num ' + pctCls(s[2]) + '">' + pctTxt(s[2]) + "</td>" + (a.folded ? "" : '<td class="r ld-num ' + pctCls(s[3]) + '">' + pctTxt(s[3]) + "</td>") + "</tr>";
@@ -3779,20 +3812,20 @@
     if (!style) {
       var ex = a.exposure || [], lastEx = ex.length ? ex[ex.length - 1] : null;
       legs = '<h3 class="ld-h3">Owned and bet against</h3><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><tbody>' +
-        attrRow("Companies owned (the long side)", a.longLeg, "Their share of the book’s return") +
+        attrRow("Companies owned (the long side)", a.longLeg, "Their share of the portfolio’s return") +
         attrRow("Bets against companies (the short side)", a.shortLeg, "Gains when those prices fall") +
         attrRow("Trading costs", a.legCosts, "") + "</tbody></table></div>" +
-        (lastEx ? '<p class="ld-pm-p">At the close on ' + esc(dateMid(lastEx[0])) + ", gross exposure (owned plus bet against) was " + plainPct(lastEx[1], 0) + " of the book and net exposure (owned minus bet against) " + plainPct(lastEx[2], 0) + "." +
+        (lastEx ? '<p class="ld-pm-p">At the close on ' + esc(dateMid(lastEx[0])) + ", gross exposure (owned plus bet against) was " + plainPct(lastEx[1], 0) + " of its value and net exposure (owned minus bet against) " + plainPct(lastEx[2], 0) + "." +
           (ex.length > 1 ? " Over " + plural(ex.length, "session", "sessions") + " gross ranged from " + plainPct(Math.min.apply(null, ex.map(function (x) { return x[1]; })), 0) + " to " + plainPct(Math.max.apply(null, ex.map(function (x) { return x[1]; })), 0) + "." : "") + "</p>" : "") +
         '<p class="ld-pm-p">' + (a.beta != null
-          ? "Beta to the S&amp;P 500, how much the book tends to move when the index moves 1%, is " + num(a.beta, 2) + " over " + plural(a.betaObs, "session", "sessions") + ". Taking out that much of the index’s " + esc(pctTxt(a.spxReturn)) + " leaves " + esc(pctTxt(a.betaAdjusted)) + "."
+          ? "Beta to the S&amp;P 500, how much the portfolio tends to move when the index moves 1%, is " + num(a.beta, 2) + " over " + plural(a.betaObs, "session", "sessions") + ". Taking out that much of the index’s " + esc(pctTxt(a.spxReturn)) + " leaves " + esc(pctTxt(a.betaAdjusted)) + "."
           : "Beta to the S&amp;P 500 needs at least 60 sessions of returns; there " + (a.betaObs === 1 ? "is 1" : "are " + int(a.betaObs || 0)) + " so far.") + "</p>";
     }
     return head +
       '<p class="ld-pm-p">From the close on ' + esc(dateMid(a.from)) + " to the close on " + esc(dateMid(a.to)) + ", over " + plural(a.days, "session", "sessions") + ". <b>Allocation</b> is the part of the difference from the benchmark that came from putting more or less money than the benchmark into each sector. <b>Selection</b> is the part that came from choosing companies that did better or worse than the benchmark’s companies in the same sector." + (a.folded ? "" : " Interaction is where the two overlap: more money in a sector where the choices also did well.") + " The parts add up to the difference exactly; each day’s parts are linked over time by Carino’s method, which scales them so they still add up after compounding.</p>" +
       proxy +
       '<div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><tbody>' + rows + "</tbody></table></div>" +
-      (secs ? '<details class="ld-det"><summary>By sector</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Sector</th><th class="r">Book weight</th><th class="r">Stand-in weight</th><th class="r">Allocation</th><th class="r">Selection</th>' + (a.folded ? "" : '<th class="r">Interaction</th>') + "</tr></thead><tbody>" + secs + "</tbody></table></div><p class=\"ld-muted ld-pm-p\">Weights are at the latest close counted.</p></details>" : "") +
+      (secs ? '<details class="ld-det"><summary>By sector</summary><div class="ld-tbl-wrap"><table class="ld-rtab ld-pm-tab"><thead><tr><th>Sector</th><th class="r">Portfolio weight</th><th class="r">Stand-in weight</th><th class="r">Allocation</th><th class="r">Selection</th>' + (a.folded ? "" : '<th class="r">Interaction</th>') + "</tr></thead><tbody>" + secs + "</tbody></table></div><p class=\"ld-muted ld-pm-p\">Weights are at the latest close counted.</p></details>" : "") +
       legs + skipNote + "</section>";
   }
   function bookPmHTML(b) {
@@ -3807,20 +3840,20 @@
       : '<p class="ld-pm-p ld-muted">No PM decision has been marked yet. Each decision that ' + (style ? "departs from the rules" : "trades") + " is marked 1, 3 and 6 months after it, for the companies it traded.</p>";
     if (!style) {
       return '<section class="ld-sec" aria-labelledby="ld-bk-pm"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-pm">The PM’s decisions</h2></div>' +
-        '<p class="ld-pm-p">This book has no rules to compare with, so it is measured against the S&amp;P 500 and against cash, above, and each decision against not trading at all: what the companies it traded did, weighted as the decision left them, against what they would have done at the weights before it.</p>' + decTable + "</section>";
+        '<p class="ld-pm-p">This portfolio has no rules to compare with, so it is measured against the S&amp;P 500 and against cash, above, and each decision against not trading at all: what the companies it traded did, weighted as the decision left them, against what they would have done at the weights before it.</p>' + decTable + "</section>";
     }
     var sh = a.shadow;
     var body = sh
       ? '<div class="ld-stats ld-pm-stats">' +
         '<div class="ld-stat" style="display:block"><div class="ld-kicker">PM value added</div><div class="v ld-num ' + pctCls(sh.valueAdded) + '">' + esc(pctTxt(sh.valueAdded)) + '</div><div class="d">Since ' + esc(dateMid(b.inception)) + "</div></div>" +
-        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Book</div><div class="v ld-num ' + pctCls(sh.bookReturn) + '">' + esc(pctTxt(sh.bookReturn)) + '</div><div class="d">To ' + esc(dateMid(sh.date)) + "</div></div>" +
-        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Shadow book</div><div class="v ld-num ' + pctCls(sh.shadowReturn) + '">' + esc(pctTxt(sh.shadowReturn)) + '</div><div class="d">Rules only</div></div>' +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Portfolio</div><div class="v ld-num ' + pctCls(sh.bookReturn) + '">' + esc(pctTxt(sh.bookReturn)) + '</div><div class="d">To ' + esc(dateMid(sh.date)) + "</div></div>" +
+        '<div class="ld-stat" style="display:block"><div class="ld-kicker">Shadow portfolio</div><div class="v ld-num ' + pctCls(sh.shadowReturn) + '">' + esc(pctTxt(sh.shadowReturn)) + '</div><div class="d">Rules only</div></div>' +
         '<div class="ld-stat" style="display:block"><div class="ld-kicker">Last session</div><div class="v ld-num ' + pctCls(sh.valueAddedDay) + '">' + esc(pctTxt(sh.valueAddedDay)) + '</div><div class="d">Value added that day</div></div>' +
         '<div class="ld-stat" style="display:block"><div class="ld-kicker">Active share vs rules</div><div class="v ld-num">' + esc(plainPct(sh.activeShare, 1)) + '</div><div class="d">' + (b.mandate && b.mandate.max_active_share_vs_rules != null ? "Limit " + esc(plainPct(b.mandate.max_active_share_vs_rules, 0)) : "No limit set") + "</div></div></div>" +
-        '<p class="ld-pm-p">Active share against the rules is how much of the book differs from the shadow book: half the sum, over every company and cash, of the gap between the two weights. 0% is the rules book exactly; 100% has nothing in common with it.</p>'
-      : '<p class="ld-empty">The shadow book starts with the book.</p>';
+        '<p class="ld-pm-p">Active share against the rules is how much of the portfolio differs from the shadow portfolio: half the sum, over every company and cash, of the gap between the two weights. 0% is the rules’ portfolio exactly; 100% has nothing in common with it.</p>'
+      : '<p class="ld-empty">The shadow portfolio starts when the portfolio does.</p>';
     return '<section class="ld-sec" aria-labelledby="ld-bk-pm"><div class="ld-sec-h"><h2 class="ld-h2" id="ld-bk-pm">The PM against the rules</h2></div>' +
-      '<p class="ld-pm-p">A <b>shadow book</b> is a copy of this book that the rules alone run. It was bought as this book was on its first day. After that it trades to the rules’ choice on every day the PM trades, at the same closing prices and the same costs. The difference between the two returns is what the PM’s decisions have added or taken away.</p>' +
+      '<p class="ld-pm-p">A <b>shadow portfolio</b> is a copy of this one that the rules alone run. It was bought as this portfolio was on its first day. After that it trades to the rules’ choice on every day the PM trades, at the same closing prices and the same costs. The difference between the two returns is what the PM’s decisions have added or taken away.</p>' +
       body + '<h3 class="ld-h3">Decisions that departed from the rules</h3>' + decTable + "</section>";
   }
 

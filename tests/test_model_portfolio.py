@@ -556,7 +556,7 @@ class Orders(unittest.TestCase):
         c = E.classify(self.rows, synthetic_history(self.rows), DAY)
         outside = next(t for t, i in c.items() if i["box"] == "mid-growth")
         self.refused(self.batch([{"id": "1", "ticker": outside, "side": "buy", "shares": 1}],
-                                book="lg-value"), "box")
+                                book="lg-value"), "size and style group")
 
     def test_neural_gross_limit(self):
         orders = [{"id": str(i), "ticker": f"T{100 + i}", "side": "buy", "weight": 0.2} for i in range(5)]
@@ -565,6 +565,130 @@ class Orders(unittest.TestCase):
         self.refused(self.batch(orders, book="neural"), "gross exposure")
         ok = self.batch(orders[:5] + orders[5:9], book="neural")
         self.assertEqual(len(self.run_batch(ok)[0]["fills"]), 9)
+
+    # The PM sets its own limits: trade.py --mandate.
+
+    def mandate(self, book, day, change, reason="Test reason.", write=False):
+        return TRADE.run_mandate(book, day, change, reason, write=write,
+                                 ledger_dir=self.tmp / "ledger", books_dir=self.tmp / "books",
+                                 out=lambda *a: None)
+
+    def mandate_refused(self, book, day, change, needle, reason="Test reason."):
+        with self.assertRaises(E.OrderError) as cm:
+            self.mandate(book, day, change, reason)
+        self.assertTrue(any(needle in e for e in cm.exception.errors), cm.exception.errors)
+
+    def test_mandate_change_dry_run_then_write(self):
+        led = self.tmp / "ledger"
+        before = {n: (led / n).read_bytes() for n in ("mandates.csv", "decisions.csv")}
+        plan = self.mandate("lg-growth", "2026-09-24", {"holdings_range": [30, 40],
+                                                         "max_position": 0.06})
+        self.assertEqual(plan["mandate"]["holdings_range"], [30, 40])
+        self.assertEqual({n: (led / n).read_bytes() for n in before}, before, "dry run")
+        self.mandate("lg-growth", "2026-09-24", {"holdings_range": [30, 40], "max_position": 0.06},
+                     reason="A tighter portfolio.", write=True)
+        for n, old in before.items():
+            self.assertTrue((led / n).read_bytes().startswith(old), f"{n} is append-only")
+        rows = [r for r in E.read_rows(led / "mandates.csv") if r["book"] == "lg-growth"]
+        self.assertEqual(len(rows), 2)
+        new = json.loads(rows[-1]["mandate"])
+        self.assertEqual((new["holdings_range"], new["max_position"]), ([30, 40], 0.06))
+        self.assertEqual(new["sector_cap"], E.DEFAULT_STYLE_MANDATE["sector_cap"], "the rest stay")
+        self.assertTrue(new["long_only"])
+        dec = [d for d in E.read_rows(led / "decisions.csv")
+               if d["decision_id"] == "lg-growth-2026-09-24-mandate"]
+        self.assertEqual([(d["action"], d["author"]) for d in dec], [("mandate_change", "pm")])
+        self.assertTrue(dec[0]["reason"].startswith("A tighter portfolio. Changed: "))
+        self.assertIn("largest position was 5%, now 6%", dec[0]["reason"])
+        self.assertEqual(E.load_mandate("lg-growth", self.tmp / "books"), new)
+        self.assertEqual(E.mandate_on("lg-growth", "2026-09-23", led)["max_position"], 0.05)
+        self.assertEqual(E.mandate_on("lg-growth", "2026-09-25", led)["max_position"], 0.06)
+
+    def test_mandate_refuses_what_the_owner_sets(self):
+        self.mandate_refused("lg-growth", "2026-09-24", {"long_only": False}, "set by the owner")
+        self.mandate_refused("sm-value", "2026-09-24", {"universe": "operating"}, "set by the owner")
+        self.mandate_refused("neural", "2026-09-24", {"data": "the internet"}, "set by the owner")
+        self.mandate_refused("hedge", "2026-09-24", {"benchmarks": ["^GSPC"]}, "set by the owner")
+        self.mandate_refused("hedge", "2026-09-24", {"max_position": 0.05}, "not a field")
+        # An owner's field repeated at its current value is not a change and passes.
+        plan = self.mandate("lg-growth", "2026-09-24", {"long_only": True, "sector_cap": 0.3})
+        self.assertEqual(len(plan["changes"]), 1)
+
+    def test_mandate_sanity_bounds(self):
+        for book, change, needle in (
+                ("lg-growth", {"max_position": 5}, "max_position"),
+                ("lg-growth", {"max_position": 0.004}, "max_position"),
+                ("lg-growth", {"holdings_range": [0, 10]}, "holdings_range"),
+                ("lg-growth", {"holdings_range": [40, 30]}, "holdings_range"),
+                ("lg-growth", {"holdings_range": [25.5, 30]}, "whole numbers"),
+                ("lg-growth", {"sector_cap": 0.05}, "sector_cap"),
+                ("lg-growth", {"cash_band": [0.1, 0.05]}, "cash_band"),
+                ("lg-growth", {"cash_band": [0, 1.5]}, "cash_band"),
+                ("lg-growth", {"max_active_share_vs_rules": 2}, "max_active_share"),
+                ("lg-growth", {"max_position": None}, "cannot be removed"),
+                ("hedge", {"gross_max": 3.5}, "gross_max"),
+                ("hedge", {"net_range": [0.5, -0.5]}, "net_range"),
+                ("hedge", {"max_short_position": 0.3}, "max_short_position")):
+            self.mandate_refused(book, "2026-09-24", change, needle)
+        self.mandate_refused("lg-growth", "2026-09-24", {"sector_cap": 0.3}, "reason", reason=" ")
+        self.mandate_refused("lg-growth", "2026-09-24", {"sector_cap": 0.4}, "changes nothing")
+        self.mandate_refused("lg-growth", "2026-09-22", {"sector_cap": 0.3}, "before")
+        # Inside the bounds, the PM decides, however far from the defaults.
+        self.mandate("hedge", "2026-09-24", {"gross_max": 3.0, "net_range": [-1, 1],
+                                             "max_long_position": 0.25})
+        self.mandate("neural", "2026-09-24", {"max_long_position": 0.1, "net_range": None})
+
+    def test_mandate_change_is_idempotent_per_book_and_date(self):
+        led = self.tmp / "ledger"
+        self.mandate("hedge", "2026-09-24", {"max_long_position": 0.08}, write=True)
+        snap = {p.name: p.read_bytes() for p in led.iterdir()}
+        again = self.mandate("hedge", "2026-09-24", {"max_long_position": 0.08}, write=True)
+        self.assertTrue(again["already"])
+        self.assertEqual(snap, {p.name: p.read_bytes() for p in led.iterdir()})
+        self.mandate_refused("hedge", "2026-09-24", {"max_long_position": 0.09}, "already recorded")
+        self.mandate_refused("hedge", "2026-09-23", {"max_long_position": 0.09}, "a change cannot")
+        self.mandate("hedge", "2026-09-25", {"max_long_position": 0.09})
+
+    def test_each_batch_is_checked_against_the_mandate_on_its_date(self):
+        buy = [{"id": "1", "ticker": "T100", "side": "buy", "weight": 0.07}]
+        self.refused(self.batch(buy, day="2026-09-24"), "long position")
+        self.mandate("hedge", "2026-09-25", {"max_long_position": 0.08}, write=True)
+        # Before the change's date the old 5% limit holds; from it, the new 8%.
+        self.refused(self.batch(buy, day="2026-09-24"), "long position")
+        self.assertEqual(len(self.run_batch(self.batch(buy, day="2026-09-25"))[0]["fills"]), 1)
+        # A trade written after a date fixes the mandate for it: no change dated before it.
+        self.run_batch(self.batch(buy, day="2026-09-25"), write=True)
+        self.mandate_refused("hedge", "2026-09-24", {"max_long_position": 0.06}, "trades dated after")
+
+    def test_who_sets_each_field_is_written_once_and_shown(self):
+        for kind in ("style", "hedge", "neural"):
+            pm, owner = set(E.MANDATE_PM_FIELDS[kind]), set(E.MANDATE_OWNER_FIELDS[kind])
+            self.assertFalse(pm & owner, kind)
+            self.assertLessEqual(set(E.default_mandate({"style": "lg-growth"}.get(kind, kind))),
+                                 pm | owner, kind)
+        self.assertIn("long_only", E.MANDATE_OWNER_FIELDS["style"])
+        self.assertIn("universe", E.MANDATE_OWNER_FIELDS["style"])
+        self.assertIn("data", E.MANDATE_OWNER_FIELDS["neural"])
+        with H.quiet():
+            data = E.site_data(ledger_dir=self.tmp / "ledger", books_dir=self.tmp / "books",
+                               panel_dir=self.tmp / "panel", prices=E.PriceStore(self.tmp / "prices"),
+                               nav_csv=self.tmp / "nav.csv", events=self.tmp / "none.csv",
+                               history=self.tmp / "history.csv")
+        self.assertEqual(data["mandateRules"]["pm"]["style"], list(E.MANDATE_PM_FIELDS["style"]))
+        js = (H.REPO / "web" / "ledger.js").read_text(encoding="utf-8")
+        for needle in ('"Set by the PM"', '"Set by the owner"', "PM.mandateRules"):
+            self.assertIn(needle, js)
+
+    def test_mandate_cli(self):
+        path = self.tmp / "m.json"
+        path.write_text(json.dumps({"sector_cap": 0.3}))
+        with mock.patch.object(E, "LEDGER_DIR", self.tmp / "ledger"), \
+                mock.patch.object(E, "BOOKS_DIR", self.tmp / "books"), H.quiet():
+            self.assertEqual(TRADE.main(["--mandate", "lg-value", str(path), "--date", "2026-09-24",
+                                         "--reason", "Test."]), 0)
+            path.write_text(json.dumps({"long_only": False}))
+            self.assertEqual(TRADE.main(["--mandate", "lg-value", str(path), "--date", "2026-09-24",
+                                         "--reason", "Test."]), 1)
 
 
 class LedgerFiles(unittest.TestCase):

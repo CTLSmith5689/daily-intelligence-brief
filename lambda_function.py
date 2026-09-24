@@ -3744,13 +3744,13 @@ FIELD_METHODS = {
         "formula": "mean(z(roe_ttm), z(earnings_consistency), -z(net_debt_ebitda), "
                    "-z(op_margin_stability), -z(accruals_ratio)), at least 2 of 5",
         "note": "Robust z-scores within the company's size. Used only to rank companies inside a "
-                "style box; a company with fewer than 2 inputs counts as average.",
+                "size and style group; a company with fewer than 2 inputs counts as average.",
     },
     "style_box": {
-        "label": "Style box", "units": "text", "source": "fundamentals_panel",
+        "label": "Size and style group", "units": "text", "source": "fundamentals_panel",
         "refresh": "daily", "asof": "date",
         "formula": "size + (growth if growth_score - value_score is above the size median, else value)",
-        "note": "Every company with a score is in exactly one box; ties at the median go to value. "
+        "note": "Every company with a score is in exactly one group; ties at the median go to value. "
                 "A company without a three-year annual history is not placed.",
     },
     "book_nav": {
@@ -3771,7 +3771,7 @@ FIELD_METHODS = {
         "label": "Cash return since inception", "units": "fraction", "source": "market_series",
         "refresh": "daily", "asof": "date",
         "formula": "product(1 + irx(session) / 100 / 252) - 1 over sessions after inception",
-        "note": "What the book's starting cash would have earned in 13-week Treasury bills. Blank "
+        "note": "What the portfolio's starting cash would have earned in 13-week Treasury bills. Blank "
                 "when any session's rate is not stored.",
     },
     "book_return": {
@@ -3785,7 +3785,7 @@ FIELD_METHODS = {
         "source": "benchmark_series", "refresh": "daily", "asof": "date",
         "formula": "close(date) / close(inception) - 1",
         "note": "From the ETF's daily closes, not adjusted for dividends, so it is price-only like "
-                "the books. Blank when either close is not stored.",
+                "the portfolios. Blank when either close is not stored.",
     },
     # Scoring and attribution (theses/bin/score.py, portfolio/bin/score_pm.py), for
     # the Scorecard page and each book's page. Written to data/scoring and
@@ -3820,23 +3820,24 @@ FIELD_METHODS = {
         "label": "PM value added", "units": "fraction", "source": "portfolio_ledger",
         "refresh": "daily", "asof": "date",
         "formula": "book_nav / capital - shadow_nav / capital",
-        "note": "The shadow book holds the rules candidate book, bought as the real book was on its "
-                "first day and rebalanced at the stored close on every date the real book trades, "
-                "paying the same 5 basis points. Style books only.",
+        "note": "The shadow portfolio holds what the rules would choose, bought as the real "
+                "portfolio was on its first day and rebalanced at the stored close on every date "
+                "the real one trades, paying the same 5 basis points. Style portfolios only.",
     },
     "attribution_allocation": {
         "label": "Allocation", "units": "fraction", "source": "portfolio_ledger",
         "refresh": "daily", "asof": "date",
         "formula": "sum over sectors of (w_s - W_s) * (R_s - R_b)",
         "note": "Brinson-Fachler, daily, linked over time by Carino's method. W and R come from a "
-                "proxy benchmark we can see inside: the book's own box weighted by market value, or "
-                "for the hedge and free-hand books every operating company weighted by market value.",
+                "proxy benchmark we can see inside: the portfolio's own size and style group "
+                "weighted by market value, or for the hedge and free-hand portfolios every "
+                "operating company weighted by market value.",
     },
     "attribution_selection": {
         "label": "Selection", "units": "fraction", "source": "portfolio_ledger",
         "refresh": "daily", "asof": "date",
         "formula": "sum over sectors of W_s * (r_s - R_s); interaction (w_s - W_s) * (r_s - R_s) apart",
-        "note": "For a book that is short some names the interaction is included in selection, "
+        "note": "For a portfolio that is short some names the interaction is included in selection, "
                 "because a sector's net weight can be near zero. Allocation, selection, interaction, "
                 "cash drag and trading costs add up exactly to the return against the proxy.",
     },
@@ -3851,21 +3852,21 @@ FIELD_METHODS = {
         "label": "Proxy error", "units": "fraction", "source": "benchmark_series",
         "refresh": "daily", "asof": "date",
         "formula": "product(1 + R_b) - product(1 + fund return) over sessions with both",
-        "note": "How far the proxy benchmark's return was from the fund the book is measured against. "
-                "Large when the fund holds companies our panel does not place in the box.",
+        "note": "How far the proxy benchmark's return was from the fund the portfolio is measured "
+                "against. Large when the fund holds companies our panel does not place in the group.",
     },
     "book_beta": {
         "label": "Beta to the S&P 500", "units": "ratio", "source": "portfolio_ledger",
         "refresh": "daily", "asof": "date",
         "formula": "cov(r_book, r_^GSPC) / var(r_^GSPC) over at least 60 paired sessions",
-        "note": "Hedge and free-hand books only. Beta-adjusted excess is the book's compounded return "
+        "note": "Hedge and free-hand portfolios only. Beta-adjusted excess is the compounded return "
                 "minus beta times the S&P 500's over the same sessions.",
     },
     "sizing_effect": {
         "label": "Sizing effect", "units": "fraction", "source": "portfolio_ledger",
         "refresh": "daily", "asof": "date",
         "formula": "product(1 + r_book) - product(1 + r_book - sum_i (w_i - sign_i * gross / N) * r_i)",
-        "note": "The book against equal weights of the same holdings on the same sides, day by day.",
+        "note": "The portfolio against equal weights of the same holdings on the same sides, day by day.",
     },
 }
 
@@ -10617,14 +10618,14 @@ RESEARCH_ROUTINE = REPO_ROOT / "theses" / "routines" / "research-agent.md"
 PORTFOLIO_ROUTINES_DIR = REPO_ROOT / "portfolio" / "routines"
 PORTFOLIO_BRIEFS_DIR = REPO_ROOT / "portfolio" / "books"
 # (routine file, who it is, the books it runs), in the order the page shows them.
-PM_ROUTINES = (("style-pm.md", "Style PM", "The six style books and the Hedge Fund Strategy Model"),
+PM_ROUTINES = (("style-pm.md", "Style PM", "The six style portfolios and the Hedge Fund Strategy Model"),
                ("neural-pm.md", "Neural PM", "The Neural Model Portfolio, on its own"))
 # (brief file, its name, the books it is for). The mapping itself is written in
 # portfolio/PROMPTS.md; this only orders the page.
 PM_BRIEFS = (("growth.md", "Growth brief", "lg-growth, mid-growth and sm-growth"),
              ("value.md", "Value brief", "lg-value, mid-value and sm-value"),
-             ("hedge.md", "Hedge brief", "the hedge book"),
-             ("neural.md", "Neural brief", "the neural book"))
+             ("hedge.md", "Hedge brief", "the Hedge Fund Strategy Model"),
+             ("neural.md", "Neural brief", "the Neural Model Portfolio"))
 
 
 def _doc_md_to_html(text):
@@ -11136,12 +11137,12 @@ def _board_column(b, coverage):
     if not started:
         need = int(((b.get("mandate") or {}).get("holdings_range") or [25])[0])
         body = ('<div class="ld-kb-empty"><p><b>Waiting for three years of history.</b></p>'
-                f'<p>A company joins this box once its annual reports give three years of '
-                f'figures; {int(coverage.get("with_growth") or 0):,} of '
-                f'{int(coverage.get("sized") or 0):,} companies have them so far. The book starts '
-                f'when its box holds at least {need}.</p></div>')
+                f'<p>A company joins its size and style group once its annual reports give three '
+                f'years of figures; {int(coverage.get("with_growth") or 0):,} of '
+                f'{int(coverage.get("sized") or 0):,} companies have them so far. The portfolio '
+                f'starts when its group holds at least {need}.</p></div>')
     elif not cards:
-        body = ('<div class="ld-kb-empty"><p><b>Holds cash.</b> The PM builds this book on its '
+        body = ('<div class="ld-kb-empty"><p><b>Holds cash.</b> The PM builds this portfolio on its '
                 "next run.</p></div>")
     else:
         body = "".join(cards)
@@ -11160,7 +11161,7 @@ def _portfolio_board_html(data):
         if cols:
             groups.append(f'<div class="ld-kb-grp"><p class="ld-kb-gh">{_html.escape(label)}</p>'
                           f'<div class="ld-kb-cols">{cols}</div></div>')
-    return ('<div class="ld-kb" role="region" aria-label="The books, one column each" '
+    return ('<div class="ld-kb" role="region" aria-label="The portfolios, one column each" '
             f'tabindex="0"><div class="ld-kb-track">{"".join(groups)}</div></div>')
 
 
@@ -11306,7 +11307,7 @@ def generate_portfolios(universe, version=None):
     html = render_ledger_page("book", "Model portfolio, Apterreon",
                               dict(common, portfolios=data), version,
                               description="One model portfolio: holdings, trades, decisions and "
-                                          "the rules book to compare it with.",
+                                          "what the rules would hold instead.",
                               loading="Loading the portfolio")
     (DOCS_DIR / "book.html").write_text(html, encoding="utf-8")
     live = sum(1 for b in data["books"] if b.get("inception"))

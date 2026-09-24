@@ -15,10 +15,11 @@ Apterreon weekly Style PM run. Unattended: do not ask questions.
 5. Never use the internet. Everything you need is in the repository and its gh-pages branch.
 6. Write every trade through portfolio/bin/trade.py (dry run first, then --write). Stage only portfolio/ (never git add -A), commit, and push to main.
 
-If a style book has not started yet because its box lacks three years of history, that is expected this early. Run seed.py as the instructions say, and write that book's letter saying it is waiting. The hedge book starts in cash; build it over as many weeks as you think right.
+If a style book has not started yet because its size and style group lacks three years of history, that is expected this early. Run seed.py as the instructions say, and write that book's letter saying it is waiting. The hedge book starts in cash; build it over as many weeks as you think right.
 
 Report back:
 - for each style book and the hedge book: started or waiting, trades made (or "held"), and the one-line reason; for hedge, its gross and net exposure after the trades;
+- the limits you set or changed for any book (trade.py --mandate), and why;
 - any position where a draft sizing limit bound, and by how much;
 - the commit hash you pushed;
 - anything you skipped, and why;

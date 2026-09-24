@@ -117,7 +117,7 @@ DEPART_TOL = 0.005
 HORIZONS = (("1m", 30), ("3m", 91), ("6m", 182))
 MIN_BETA_OBS = 60
 PROXY_TEXT = {
-    "style": "every company in the book's own box, weighted by market value",
+    "style": "every company in the portfolio's own size and style group, weighted by market value",
     "market": "every operating company in the panel, weighted by market value, standing in "
               "for the S&P 500",
 }
@@ -185,10 +185,7 @@ class Ctx:
         return self._classes[pd]
 
     def mandate(self, book, day):
-        hist = [m for m in E.mandate_history(book, self.ledger_dir) if m["date"] <= day]
-        if hist:
-            return hist[-1]["mandate"]
-        return E.load_mandate(book, self.books_dir) or E.default_mandate(book)
+        return E.mandate_on(book, day, self.ledger_dir, self.books_dir)
 
     def sessions(self, start, end=None):
         return [d for d in self.dates if d >= start and (end is None or d <= end)]
