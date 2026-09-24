@@ -92,7 +92,7 @@
   function num0(v) { return typeof v === "number" && isFinite(v) ? v : null; }
   function buildData(rows) {
     var cols = { ticker: [], name: [], full_name: [], sector: [], sub: [], index: [], kind: [], price: [], chg: [],
-                 price_date: [], earn: [], score: [], g: [], v: [], q: [], mom: [], ndim: [], status: [], mcap_raw: [] };
+                 price_date: [], chg_gap: [], earn: [], score: [], g: [], v: [], q: [], mom: [], ndim: [], status: [], mcap_raw: [] };
     var vals = {};
     CFG.metrics.forEach(function (m) { vals[m.key] = []; });
     var kinds = {};
@@ -107,7 +107,8 @@
       cols.index.push(r.index || "");
       cols.kind.push(kind);
       cols.price.push(num0(r.price));
-      cols.chg.push(num0(r.change_pct));
+      cols.chg.push(r.change_gap ? null : num0(r.change_pct));
+      cols.chg_gap.push(r.change_gap ? 1 : 0);
       cols.price_date.push(r.price_date || "");
       cols.earn.push(r.earnings_date || "");
       var dims = [r.g, r.v, r.q, r.m].filter(function (d) { return typeof d === "number" && isFinite(d); });
@@ -1750,7 +1751,7 @@
 
   function rowHTML(r, i, cols, res) {
     var tag = kindTag(S.kind[i]);
-    var capBlank = na(i, "market_cap"), chgBlank = false;
+    var capBlank = na(i, "market_cap"), chgBlank = !!S.chg_gap[i];
     var s = '<tr data-r="' + r + '" data-i="' + i + '" class="' + (r === gst.cursor ? "cur" : "") + '">' +
       '<td class="sl tkc"><a class="ld-gtk" href="' + ctx.href("company", S.ticker[i]) + '">' + esc(S.ticker[i]) + "</a>" + tag + "</td>" +
       '<td class="nm" title="' + esc(S.name[i]) + '">' + esc(S.name[i]) + "</td>" +
@@ -2557,7 +2558,7 @@
       (S.full_name[i] && S.full_name[i] !== S.name[i] ? '<div class="ld-muted" style="font-size:13px;margin-top:6px">Listed as ' + esc(S.full_name[i]) + "</div>" : "") +
       "</div>" +
       '<div class="ld-px"><div class="ld-kicker">' + (S.price[i] == null ? "No recent close" : closeLabel(pdate)) + '</div><div class="p" style="margin-top:6px">' + money(S.price[i]) + "</div>" +
-      '<div class="c ' + chgCls(chg) + '">' + chgTxt(chg) + " on the day</div>" +
+      (S.chg_gap[i] ? '<div class="c">Day change not available: the previous session’s close is missing</div>' : '<div class="c ' + chgCls(chg) + '">' + chgTxt(chg) + " on the day</div>") +
       '<div class="cap">' + esc(capTxt) + "</div></div></div>";
 
     // chart: every stored daily close
@@ -2755,7 +2756,10 @@
   }
 
   /* One series on the panel's calendar: from the listing's first day to the panel's last, a date missing
-     from the listing's file is a gap like any withheld value. why[j]: "" | "stale" | "na" | "none". */
+     from the listing's file is a gap like any withheld value. why[j]: "" | "stale" | "na" | "none".
+     For price only, an empty day with a close stored for that exact date (H.pf, write_history_views) is drawn
+     with that close and marked fill[j] = 1. Nothing is interpolated: a day with no stored close stays a gap.
+     chg[j] is the day's change on the price series, gap[j] = 1 where the panel flagged it change_gap. */
   function histSeries(H, U, k, mode) {
     var dates = U ? U.d : H.d, pos = {};
     H.d.forEach(function (d, j) { pos[d] = j; });
@@ -2766,14 +2770,20 @@
     var naSet = {};
     if (na === 1) H.d.forEach(function (d, j) { naSet[j] = 1; });
     else (na || []).forEach(function (j) { naSet[j] = 1; });
-    var out = { k: k, mode: mode, d: [], v: [], x: [], why: [] };
+    var isPx = k === "price", pf = isPx && H.pf || {}, gapSet = {};
+    (H.gap || []).forEach(function (j) { gapSet[j] = 1; });
+    var out = { k: k, mode: mode, d: [], v: [], x: [], why: [], fill: [], chg: [], gap: [] };
     for (var ui = start; ui < dates.length; ui++) {
       var d = dates[ui], j = pos[d], v = j == null || !raw ? null : raw[j];
-      var why = "";
+      var why = "", filled = 0;
       if (v == null || !isFinite(v)) {
         v = null;
-        why = j == null ? "none" : naSet[j] ? "na" : stale[j] && (k === "price" || STALE_KEYS[k]) ? "stale" : "none";
+        why = j == null ? "none" : naSet[j] ? "na" : stale[j] && (isPx || STALE_KEYS[k]) ? "stale" : "none";
+        if (why !== "na" && pf[d] != null && isFinite(pf[d])) { v = +pf[d]; filled = 1; }
       }
+      out.fill.push(filled);
+      out.chg.push(isPx && j != null && H.c && H.c[j] != null ? H.c[j] : null);
+      out.gap.push(isPx && j != null && gapSet[j] ? 1 : 0);
       var shown = v;
       if (mode === "z" && v != null) {
         shown = histZ(k, v, U, U ? ui : -1);
@@ -2789,6 +2799,7 @@
    "return_52w", "high52w_proximity", "rel_strength_sp500", "volatility_1y", "beta_1y", "sharpe_1y",
    "max_drawdown_1y"].forEach(function (k) { STALE_KEYS[k] = 1; });
   var HIST_WHY = { stale: "price out of date that day", na: "does not apply", none: "not recorded", noz: "no z-score that day" };
+  var HIST_FILL = "close from the stored price history";
 
   function histPath(ser, X, Y, lo, n) {
     var d = "", run = 0, dots = [];
@@ -2836,6 +2847,10 @@
     }
     var p = histPath(ser, X, Y, lo, n);
     var dots = p.dots.map(function (jj) { return '<circle class="pt" r="2.6" cx="' + X(jj - lo).toFixed(1) + '" cy="' + Y(ser.v[jj]).toFixed(1) + '"/>'; }).join("");
+    // A day drawn from the stored close rather than the panel row: an open ring, so it reads as different.
+    for (j = lo; j < lo + n; j++) {
+      if (ser.fill[j] && ser.v[j] != null) dots += '<circle class="pf" r="3.2" cx="' + X(j - lo).toFixed(1) + '" cy="' + Y(ser.v[j]).toFixed(1) + '"/>';
+    }
     var li = lo + n - 1; while (li >= lo && ser.v[li] == null) li--;
     var label = name + (zmode ? " z-score" : "") + ", " + dateMid(ser.d[lo]) + " to " + dateMid(ser.d[lo + n - 1]);
     host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" height="' + H + '" role="img" aria-label="' + esc(label) + '">' +
@@ -2854,8 +2869,12 @@
       var x = X(jj), v = ser.v[lo + jj];
       xh.setAttribute("x1", x); xh.setAttribute("x2", x); xh.style.display = "";
       if (v != null) { xd.setAttribute("cx", x); xd.setAttribute("cy", Y(v)); xd.style.display = ""; } else xd.style.display = "none";
-      tip.textContent = histRead(ser, lo + jj);
-      tip.style.left = Math.max(90, Math.min(r.width - 90, x * r.width / W)) + "px";
+      var tt = histRead(ser, lo + jj);
+      tip.textContent = tt;
+      // A long reading (a filled day, a day change) wraps, and is kept inside the chart by its measured width.
+      tip.classList.toggle("wide", tt.length > 34);
+      var half = Math.min(r.width / 2, Math.max(90, tip.offsetWidth / 2));
+      tip.style.left = Math.max(half, Math.min(r.width - half, x * r.width / W)) + "px";
       tip.style.top = ((v != null ? Y(v) : pt + ih / 2) * r.height / H) + "px";
       tip.style.opacity = "1";
       setHistRead(histRead(ser, lo + jj));
@@ -2869,9 +2888,12 @@
   function histRead(ser, j) {
     var head = dateShort3(ser.d[j]) + "  ";
     var raw = ser.x[j];
+    if (ser.fill[j]) return head + histFmt(ser.k, ser.v[j]) + ", " + HIST_FILL + " for " + dateMid(ser.d[j]);
     if (raw == null) return head + HIST_WHY[ser.why[j]];
     var z = ser.mode === "z" ? ser.v[j] : NaN;
-    return head + histFmt(ser.k, raw) + (ser.mode === "z" ? "  z-score " + (z == null ? "n/a" : zTxt(z)) : "");
+    var day = "";
+    if (ser.k === "price") day = ser.gap[j] ? ", day change not available" : ser.chg[j] != null ? ", " + chgTxt(ser.chg[j]) + " on the day" : "";
+    return head + histFmt(ser.k, raw) + day + (ser.mode === "z" ? "  z-score " + (z == null ? "n/a" : zTxt(z)) : "");
   }
   function setHistRead(t) { var el = document.getElementById("ld-hread"); if (el) el.textContent = t; }
 
@@ -2951,8 +2973,9 @@
         '<button type="button" data-hr="0" aria-pressed="' + !cst.hrange + '">All</button>' : "";
       var chart = host.querySelector("#ld-hchart"), foot = host.querySelector("#ld-hfoot");
       var have = ser.v.filter(function (v) { return v != null; }).length;
-      var cnt = { stale: 0, na: 0, none: 0, noz: 0 };
-      ser.why.forEach(function (w) { if (w) cnt[w]++; });
+      var cnt = { stale: 0, na: 0, none: 0, noz: 0 }, nFill = 0;
+      ser.why.forEach(function (w, j) { if (ser.fill[j]) nFill++; else if (w) cnt[w]++; });
+      var nGap = ser.gap.filter(function (g) { return g; }).length;
       if (!have) {
         chart.innerHTML = '<p class="ld-note">' + esc(histLabel(k)) + (cnt.na === ser.v.length ? " " + esc(naWhy(kind)) + "." : " has no figure on any day.") + "</p>";
         setHistRead("");
@@ -2966,6 +2989,8 @@
       if (cnt.none) bits.push(dayN(cnt.none) + " not recorded");
       if (cnt.noz) bits.push(dayN(cnt.noz) + " without a z-score");
       foot.textContent = have ? have + " of " + dayN(ser.v.length) + " " + (have === 1 ? "has" : "have") + " a figure" + (bits.length ? ". Missing: " + bits.join(", ") : "") + "." +
+        (nFill ? " Open rings mark " + dayN(nFill) + " when our daily record had an out-of-date price; the close shown is the one stored for that date in the price history." : "") +
+        (nGap ? " The change on the day is not available for " + dayN(nGap) + ", because the stored prices were missing the session before." : "") +
         (mode === "z" ? " Z-scores are measured from the median of each day's companies and capped at " + String.fromCharCode(177) + "5" + SIGMA + (metric(k) && metric(k).transform === "log10" ? "; this one is worked out on a log scale" : "") + "." : "") : "";
       var sm = host.querySelector("#ld-hsm");
       sm.innerHTML = HIST_DEFAULT.map(function (key) {

@@ -548,6 +548,8 @@ html .ld-hread{font:500 12.5px/1.4 var(--mono);color:var(--ink);margin-top:14px;
 html .ld-hchart .gap{fill:var(--sunk)}
 html .ld-hchart .zl{stroke:var(--ink2);stroke-width:1}
 html .ld-hchart .pt{fill:var(--ink)}
+html .ld-hchart .pf{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}
+html .ld-hchart .ld-tip.wide{white-space:normal;width:max-content;max-width:min(240px,100%)}
 html .ld-hfoot{font-size:13px;margin:10px 0 0}
 html .ld-hsm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 24px;margin-top:22px}
 @media (max-width:900px){html .ld-hsm{grid-template-columns:repeat(2,minmax(0,1fr))}}

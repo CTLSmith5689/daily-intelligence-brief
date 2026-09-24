@@ -497,6 +497,8 @@ def _panel_rows_for_session(stocks, session):
         if r.get("price") is not None and pdate and str(pdate) < session:
             for f in _PANEL_PRICE_FIELDS:
                 r.pop(f, None)
+            # Says why change_pct is blank, and change_pct is gone anyway.
+            r.pop("change_gap", None)
             r["price_stale"] = 1
         out.append(r)
     return out
@@ -3418,6 +3420,11 @@ FIELD_STATUS = {
     "not_applicable": "Does not apply to this kind of security. A note, a fund or a "
                       "blank-check shell has no business of its own, and any figure "
                       "here would describe its issuer or its placeholder instead.",
+    # Stamped by derive_from_price_history on change_pct when the stored series
+    # skips a session, which is when change_gap is set.
+    "gap": "The previous session's close is missing from the stored prices, so the "
+           "change on the day cannot be worked out. It is left blank rather than "
+           "estimated.",
 }
 
 FIELD_METHODS = {
@@ -3457,7 +3464,21 @@ FIELD_METHODS = {
         "formula": "(closes[-1] / closes[-2] - 1) * 100",
         "note": "Close-to-close, one session. Stored in percent, not as a "
                 "fraction, which is why it is the one percentage field not "
-                "scaled by 100 for display.",
+                "scaled by 100 for display. Blank, with change_gap set, when "
+                "the stored series skips a session between its last two closes.",
+    },
+    "change_gap": {
+        "label": "Missing Session Flag", "units": "flag", "source": "price_history",
+        "refresh": "daily", "asof": "prices_updated",
+        "formula": "1 if a session falls between dates[-2] and dates[-1] else blank",
+        "note": "Set when the stored series has no close for the session before "
+                "its last one, so change_pct is left blank rather than computed "
+                "across two sessions. A session is a date the benchmark or at "
+                "least 0.5% of stored series have a bar for. Also back-filled on "
+                "2026-09-23, where the download had dropped 2026-09-22 and "
+                "change_pct was recorded as a two-day move; those rows keep "
+                "their original values, so filter on this column before using "
+                "change_pct on that date.",
     },
     "return_1m": {
         "label": "1-Month Return", "units": "fraction", "source": "price_history",
@@ -3700,6 +3721,39 @@ def _nearest_on_or_before(levels_sorted, levels, day):
     return levels[levels_sorted[lo - 1]] if lo else None
 
 
+# A date counts as a session when the benchmark has a bar on it or at least this
+# share of stored series do. Exchange holidays are not in any calendar here
+# (_last_expected_session), and on every holiday in the published year no series
+# had a bar at all, while the day Yahoo dropped (2026-09-22) was still in 385 of
+# 5,497 files. The floor stops one mis-dated bar from turning a holiday into a
+# session, which would blank the next day's change for the whole universe.
+_SESSION_MIN_SHARE = 0.005
+
+
+def _session_calendar(date_lists, bench_dates=()):
+    """The set of dates the market traded, as far as the stored series show.
+
+    Pure, so it is testable. `date_lists` is one list of bar dates per series.
+    A weekday that no series has a bar for (a holiday) is not a session. The
+    evidence is the data itself, the same test _panel_gate applies to decide a
+    day was a holiday."""
+    counts = collections.Counter()
+    n = 0
+    for dates in date_lists:
+        n += 1
+        counts.update(set(dates))
+    floor = max(1, math.ceil(n * _SESSION_MIN_SHARE))
+    out = {d for d, c in counts.items() if c >= floor}
+    out.update(bench_dates)
+    return out
+
+
+def _follows_previous_session(prev_date, date, sessions):
+    """True when prev_date is the session immediately before date: no session in
+    `sessions` falls strictly between them. Dates are YYYY-MM-DD strings."""
+    return not any(prev_date < s < date for s in sessions)
+
+
 def derive_from_price_history(stocks):
     """Everything the stored daily series can answer, without a network call.
 
@@ -3727,13 +3781,25 @@ def derive_from_price_history(stocks):
     levels = _benchmark_levels()
     levels_sorted = sorted(levels)
 
-    counts = collections.Counter()
-    missing = short = stale = 0
+    # Every series first, because whether two bars are consecutive sessions is
+    # a question about the market, which one series cannot answer.
+    blobs = []
     for s in stocks:
+        try:
+            blobs.append(json.loads((PRICES_DIR / _news_filename(s["ticker"]))
+                                    .read_text(encoding="utf-8")))
+        except Exception:
+            blobs.append(None)
+    sessions = _session_calendar(
+        ([str(c[0]) for c in (b.get("closes") or []) if isinstance(c, list) and c]
+         for b in blobs if isinstance(b, dict)),
+        levels_sorted)
+
+    counts = collections.Counter()
+    missing = short = stale = gaps = 0
+    for s, blob in zip(stocks, blobs):
         status = s.get("status") or {}
         try:
-            blob = json.loads((PRICES_DIR / _news_filename(s["ticker"]))
-                              .read_text(encoding="utf-8"))
             closes = blob.get("closes") or []
         except Exception:
             missing += 1
@@ -3769,7 +3835,18 @@ def derive_from_price_history(stocks):
         s["price_date"] = dates[-1]
         counts["price"] += 1
 
-        if px[-2] > 0:
+        # A day's change only from two consecutive sessions. On 2026-09-23 most
+        # series came back without 09-22, and closes[-2] was the 09-21 close, so
+        # a two-day move was published as one day's. When a session is missing
+        # the change is left blank and flagged: never estimated.
+        s.pop("change_gap", None)
+        if not _follows_previous_session(dates[-2], dates[-1], sessions):
+            s.pop("change_pct", None)
+            s["change_gap"] = 1
+            status["change_pct"] = "gap"
+            s["status"] = status
+            gaps += 1
+        elif px[-2] > 0:
             # Percent, not a fraction. This is the one percentage field stored
             # in percent, which is why it is absent from the client's PCT_FIELDS.
             chg = (px[-1] / px[-2] - 1) * 100
@@ -3846,7 +3923,8 @@ def derive_from_price_history(stocks):
 
     print(f"price-derived: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items()))
           + f" of {len(stocks)} tickers "
-          f"({missing} no history, {short} too short, {stale} stale).")
+          f"({missing} no history, {short} too short, {stale} stale; {gaps} with no day change "
+          f"because the previous session is missing from the series).")
     return counts["price"]
 
 
@@ -4331,6 +4409,87 @@ def _price_file_last_date(data):
     return None
 
 
+# A stored bar is kept only when the stored and fresh series agree on the bars
+# either side of it, to this relative tolerance. Yahoo's closes are adjusted for
+# dividends and splits after the fact, so after an ex-date the whole earlier
+# history moves. A bar kept from before the adjustment would sit on a different
+# basis from its neighbours (after a 2:1 split, at twice the price), and the
+# chart and every return would show a move that never happened.
+_PRICE_MERGE_BASIS_TOL = 5e-4
+
+
+def _merge_price_series(closes, volumes, stored):
+    """Fresh closes and volumes, plus the stored bars the fresh download lacks.
+
+    Returns (closes, volumes, kept). Pure, so it is testable.
+
+    The price pass downloads a year and used to replace the file with it. On
+    2026-09-23 Yahoo's response left out the 2026-09-22 bar for 4,869 of 5,254
+    tickers, so a day we already held was deleted, and the next change_pct was a
+    two-day move published as one (CF: -2.13% against a real +0.04%).
+
+    Only bars Yahoo actually returned on an earlier fetch are kept, with the
+    close and volume exactly as stored. Nothing is computed to fill a missing
+    bar. A stored bar is kept when its date is inside the fresh window (between
+    the fresh first and last dates), absent from the fresh series, and the
+    nearest date both series share on each side (one side, when the bar is the
+    last stored one) carries the same close in both (see
+    _PRICE_MERGE_BASIS_TOL). Bars before the fresh window are dropped as they
+    always were, so the file stays about a year long. volumes stays aligned with
+    closes by index; a kept bar takes its stored volume or None."""
+    if not closes or not isinstance(stored, dict):
+        return closes, volumes, 0
+    old = stored.get("closes") or []
+    old_vol = stored.get("volumes")
+    if not isinstance(old_vol, list) or len(old_vol) != len(old):
+        old_vol = [None] * len(old)
+    fresh = {}
+    for c in closes:
+        fresh[c[0]] = c[1]
+    first, last = closes[0][0], closes[-1][0]
+    stored_px = {}
+    for o in old:
+        try:
+            stored_px[str(o[0])] = float(o[1])
+        except (TypeError, ValueError, IndexError):
+            continue
+    shared = sorted(d for d in fresh if d in stored_px)
+
+    def agrees(d):
+        a, b = fresh[d], stored_px[d]
+        return b > 0 and abs(a / b - 1) <= _PRICE_MERGE_BASIS_TOL
+
+    extra = []
+    for k, o in enumerate(old):
+        try:
+            d, px = str(o[0]), float(o[1])
+        except (TypeError, ValueError, IndexError):
+            continue
+        if d in fresh or not (first < d < last) or not (0 < px < 1e6):
+            continue
+        lo = hi = None
+        for s in shared:
+            if s < d:
+                lo = s
+            elif s > d:
+                hi = s
+                break
+        # Both neighbours when there are two. The incident's bar had only one:
+        # 09-22 was the last stored bar and 09-23 arrived with this download.
+        sides = [x for x in (lo, hi) if x is not None]
+        if not sides or not all(agrees(x) for x in sides):
+            continue
+        v = old_vol[k]
+        extra.append((d, o[1], v if isinstance(v, int) and v >= 0 else None))
+    if not extra:
+        return closes, volumes, 0
+    vols = volumes if isinstance(volumes, list) and len(volumes) == len(closes) \
+        else [None] * len(closes)
+    merged = [(c[0], c[1], vols[i]) for i, c in enumerate(closes)] + extra
+    merged.sort(key=lambda x: x[0])
+    return [[d, p] for d, p, _ in merged], [v for _, _, v in merged], len(extra)
+
+
 def _last_expected_session(now=None):
     """The most recent date a US close should exist for, as YYYY-MM-DD.
 
@@ -4396,6 +4555,7 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200, session_confirm
     # Yahoo uses '-' for class shares (BRK-B); Wikipedia uses '.' (BRK.B). Translate.
     sym_map = {s["ticker"].replace(".", "-"): s["ticker"] for s in todo}
     yf_syms = list(sym_map.keys())
+    kept = {}                            # ticker -> stored bars kept by the merge
 
     def download(syms):
         """One bulk pass over `syms`. Returns {ticker: date of its last bar} for
@@ -4466,6 +4626,22 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200, session_confirm
                     if not closes:
                         continue
                     ticker = sym_map[yf_sym]
+                    path = PRICES_DIR / _news_filename(ticker)
+                    # Merge with the file on disk rather than replace it, so a
+                    # bar Yahoo left out of this response but returned before
+                    # is not lost (_merge_price_series). The file on disk, not
+                    # `stored`, so a retry round also keeps what the first
+                    # round of this run wrote.
+                    try:
+                        on_disk = json.loads(path.read_text(encoding="utf-8")) \
+                            if path.exists() else None
+                    except Exception:
+                        on_disk = None
+                    closes, volumes, n_kept = _merge_price_series(closes, volumes, on_disk)
+                    if n_kept:
+                        kept[ticker] = n_kept
+                    else:
+                        kept.pop(ticker, None)
                     # "updated" records when we asked, not when the vendor last
                     # had something new. That is why _price_file_needs_fetch
                     # reads the last bar's date as well, and why the panel
@@ -4479,7 +4655,7 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200, session_confirm
                     # an old file rather than a ticker Yahoo reports no volume for.
                     if any(v is not None for v in volumes):
                         payload["volumes"] = volumes
-                    (PRICES_DIR / _news_filename(ticker)).write_text(
+                    path.write_text(
                         json.dumps(payload, separators=(",", ":")), encoding="utf-8"
                     )
                     last_bar[ticker] = closes[-1][0]
@@ -4514,6 +4690,11 @@ def enrich_with_prices(stocks, max_age_hours=24, batch_size=200, session_confirm
     print(f"prices: wrote {fetched}/{len(todo)} ticker files in {elapsed:.1f}s "
           f"({skipped} cached < {max_age_hours}h); {behind} still end before "
           f"{expected_close} (session {'confirmed' if confirmed else 'unconfirmed'}).")
+    if kept:
+        # Per ticker, the last round's count: a retry that merged again
+        # replaces the first round's number rather than adding to it.
+        print(f"prices: kept {sum(kept.values())} stored bars in {len(kept)} files that the "
+              f"download left out (Yahoo returned them on an earlier fetch).")
     return fetched
 
 
@@ -9489,7 +9670,9 @@ def write_company_views(stocks=None):
 #
 #   docs/history/TICKER.json   one per ticker in the current universe that has a
 #                              panel row: {"t", "d": [dates], "v": {key: [values]},
-#                              "stale": [date indices], "na": {key: 1 | [indices]}}
+#                              "stale": [date indices], "na": {key: 1 | [indices]},
+#                              "c": [change_pct], "gap": [date indices],
+#                              "pf": {date: close}}
 #   docs/history/_universe.json {"d": [dates], "n": [operating rows],
 #                              "m": {key: {"c": [centre], "s": [scale], "n": [count],
 #                              "sd": [indices using mean and sd]}}}
@@ -9498,6 +9681,16 @@ def write_company_views(stocks=None):
 # price-derived field on a row flagged price_stale (or whose price_date is older
 # than its own date), and every field apply_security_types marks not_applicable
 # for the row's security_type. A withheld value is null, so the page draws a gap.
+#
+# "c" is the panel's change_pct per date, null where the row is stale or flagged
+# change_gap; "gap" lists the change_gap rows, so the page can say the day's
+# change is unavailable rather than merely unrecorded.
+#
+# "pf" fills the price chart only. For a panel date from the ticker's first row
+# on where the view has no price (a stale row, or no row), it holds the close
+# stored for that exact date in docs/prices/TICKER.json, as the vendor reported
+# it. A date without a stored close is left out: nothing is interpolated or
+# carried forward, and no other metric is filled.
 #
 # The universe stats are web/zengine.js's, per date: operating listings only
 # (security_type not in NON_OPERATING), log10 for market_cap and volume, centre
@@ -9546,6 +9739,7 @@ def _read_history_panel(paths):
             j_date, j_tk = col.get("date"), col.get("ticker")
             j_type, j_stale = col.get("security_type"), col.get("price_stale")
             j_pd, j_price = col.get("price_date"), col.get("price")
+            j_chg, j_gap = col.get("change_pct"), col.get("change_gap")
             if j_date is None or j_tk is None:
                 continue
             width = len(header)
@@ -9582,7 +9776,19 @@ def _read_history_panel(paths):
                 na = _history_na(cat, vals) if cat in _NA_ALWAYS or cat in _NA_IF_ZERO else ()
                 for k in na:
                     vals.pop(k, None)
-                by_date[date].append((tk, cat, stale, vals, na))
+                # The day's change: withheld on a stale row like every price
+                # field, and on a change_gap row, whose recorded figure spans two
+                # sessions (the 2026-09-23 rows keep it, flagged, in the panel).
+                gap = j_gap is not None and row[j_gap] not in ("", "0", "0.0")
+                chg = None
+                if not stale and not gap and j_chg is not None and row[j_chg] != "":
+                    try:
+                        chg = float(row[j_chg])
+                    except ValueError:
+                        chg = None
+                    if chg is not None and not math.isfinite(chg):
+                        chg = None
+                by_date[date].append((tk, cat, stale, vals, na, chg, gap))
     return by_date
 
 
@@ -9624,6 +9830,40 @@ def _history_universe(by_date, dates):
     return out
 
 
+def _history_price_fill(tk, dates, idx, prices, na_idx):
+    """{date: close} for the price chart's empty days, from the stored series.
+
+    `dates` is the panel calendar, `idx` the indices of the ticker's rows in it,
+    `prices` the view's price per row (None where withheld). A day qualifies when
+    it is on the calendar from the ticker's first row to the last date, has no
+    price in the view, price applies to the row, and the stored series holds a
+    close for that exact date. The close is copied as stored; a day without one
+    stays empty. Only the price chart reads this: P/E and every other metric
+    stay blank on those days."""
+    if not idx:
+        return {}
+    have = {}
+    for j, di in enumerate(idx):
+        if prices is not None and prices[j] is not None:
+            have[di] = True
+    empty = [di for di in range(idx[0], len(dates)) if di not in have and di not in na_idx]
+    if not empty:
+        return {}
+    try:
+        blob = json.loads((PRICES_DIR / _news_filename(tk)).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    stored = {}
+    for pair in blob.get("closes") or []:
+        try:
+            v = float(pair[1])
+        except (TypeError, ValueError, IndexError):
+            continue
+        if math.isfinite(v) and v > 0:
+            stored[str(pair[0])] = v
+    return {dates[di]: _hist_round(stored[dates[di]], 6) for di in empty if dates[di] in stored}
+
+
 def write_history_views(stocks=None):
     """docs/history/TICKER.json for every ticker in the current universe that the
     panel has rows for, and docs/history/_universe.json. Returns files written.
@@ -9649,7 +9889,7 @@ def write_history_views(stocks=None):
                 per_tk[r[0]].append((di, r))
 
     HISTORY_VIEW_DIR.mkdir(parents=True, exist_ok=True)
-    written, keep, total = 0, {HISTORY_UNIVERSE_FILE}, 0
+    written, keep, total, filled = 0, {HISTORY_UNIVERSE_FILE}, 0, 0
     for tk in sorted(per_tk):
         seq = per_tk[tk]
         seq.sort(key=lambda x: x[0])
@@ -9677,6 +9917,17 @@ def write_history_views(stocks=None):
                 na[k] = 1 if len(hits) == len(idx) else hits
         if na:
             view["na"] = na
+        chg = [dedup[di][5] for di in idx]
+        if any(v is not None for v in chg):
+            view["c"] = [None if v is None else _hist_round(v, 5) for v in chg]
+        gap = [j for j, di in enumerate(idx) if dedup[di][6]]
+        if gap:
+            view["gap"] = gap
+        fill = _history_price_fill(tk, dates, idx, view["v"].get("price"),
+                                   {di for di in idx if "price" in dedup[di][4]})
+        if fill:
+            view["pf"] = fill
+            filled += len(fill)
         name = _news_filename(tk)
         body = json.dumps(view, separators=(",", ":"), allow_nan=False)
         (HISTORY_VIEW_DIR / name).write_text(body, encoding="utf-8")
@@ -9695,7 +9946,8 @@ def write_history_views(stocks=None):
             removed += 1
     print(f"history: wrote {written} ticker files and {HISTORY_UNIVERSE_FILE} to docs/history/ "
           f"({len(dates)} panel dates, {dates[0]} to {dates[-1]}; {total / 1024 / 1024:.1f} MB; "
-          f"{time.time() - t0:.1f}s" + (f"; {removed} stale files removed" if removed else "") + ").")
+          f"{time.time() - t0:.1f}s" + (f"; {removed} stale files removed" if removed else "")
+          + f"; {filled} price-chart days drawn from stored closes).")
     return written
 
 

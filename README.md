@@ -285,6 +285,7 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 | Field | Units | Formula | Source | Changes |
 |---|---|---|---|---|
 | `beta_1y` | ratio | `cov(r_stock, r_index) / var(r_index)` | market_series | changes every trading day |
+| `change_gap` | flag | `1 if a session falls between dates[-2] and dates[-1] else blank` | price_history | changes every trading day |
 | `change_pct` | percent | `(closes[-1] / closes[-2] - 1) * 100` | price_history | changes every trading day |
 | `eps_basis` | text | `ttm, annual or basic` | edgar | changes only when the company files |
 | `eps_growth_yoy` | fraction | `ttm_diluted_eps / prior_ttm_diluted_eps - 1` | edgar | changes only when the company files |
@@ -320,7 +321,8 @@ Notes where the choice matters:
 - **`roe_ttm`** — Net income over the last four quarters divided by the average of shareholders' equity now and a year ago, not the year-end balance, because equity changes through the year.
 - **`fcf_yield`** — Free cash flow (cash from operations minus capital spending, over the last four quarters) divided by market cap. Capital spending is shown as a positive outflow in the cash flow statement, so its size is subtracted. This deliberately differs from the data vendor's free cash flow, which implies about $16bn for Microsoft against roughly $70bn of actual free cash flow; ours is rebuilt from the filed statements.
 - **`revenue_growth_yoy`** — Revenue over the last four quarters against the four quarters before them, the smoother and more usual measure for a screen. The data vendor's revenue growth compares a single quarter with the same quarter a year earlier, so the two agree only when growth is steady.
-- **`change_pct`** — Close-to-close, one session. Stored in percent, not as a fraction, which is why it is the one percentage field not scaled by 100 for display.
+- **`change_pct`** — Close-to-close, one session. Stored in percent, not as a fraction, which is why it is the one percentage field not scaled by 100 for display. Blank, with change_gap set, when the stored series skips a session between its last two closes.
+- **`change_gap`** - Set when the stored series has no close for the session before its last one, so change_pct is left blank rather than computed across two sessions. A session is a date the benchmark or at least 0.5% of stored series have a bar for. Also back-filled on 2026-09-23, where the download had dropped 2026-09-22 and change_pct was recorded as a two-day move; those rows keep their original values, so filter on this column before using change_pct on that date.
 - **`return_12_2`** — The price change over the twelve months ending one month ago, the momentum measure from Jegadeesh and Titman's research. The latest month is left out on purpose, because that is where short-term moves tend to reverse. Needs at least 200 trading days of prices.
 - **`rel_strength_sp500`** — The stock's 52-week return minus the S&P 500's over the same trading days, the usual way to build it. It is a difference, not a ratio and not a regression; beta is the regression.
 - **`sharpe_1y`** — Return for the risk taken: the average daily return above the 13-week Treasury bill rate, divided by how much that return varies, scaled up to a yearly figure. Left blank when the Treasury rate is missing, rather than assuming a zero rate, which would inflate every Sharpe ratio by roughly the level of short-term interest rates.
@@ -389,6 +391,7 @@ when there is something to say:
 | `vendor_value` | Taken from the market-data vendor, because the filings carry no earnings per share we can use for this company. Not built from the same inputs as the filing-derived figures beside it. |
 | `source_error` | The source was reachable but the fetch or parse failed. |
 | `not_applicable` | Does not apply to this kind of security. A note, a fund or a blank-check shell has no business of its own, and any figure here would describe its issuer or its placeholder instead. |
+| `gap` | The previous session's close is missing from the stored prices, so the change on the day cannot be worked out. It is left blank rather than estimated. |
 
 ## Schedules (UTC)
 
