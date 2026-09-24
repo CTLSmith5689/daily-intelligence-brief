@@ -11,8 +11,8 @@ with at 3am by a model that would rather ship something.
 Exit code 0 = all pass. 1 = at least one FAIL. Warnings never fail the run.
 
 Two formats. A note whose front-matter says `format: memo` is the buy-side
-investment memo (page one, twelve numbered sections, a glossary) and gets the
-memo checks in _memo(). A note with no `format`, or `format: note`, is the
+investment memo (page one, six numbered sections, SOURCES and a glossary) and
+gets the memo checks in _memo(). A note with no `format`, or `format: note`, is the
 older plain note and gets exactly the checks it always had.
 """
 import math, re, sys
@@ -63,21 +63,49 @@ PROSE_ONE_PART = (220, 800, 1100, 700)
 PROSE_TWO_PART = (700, 1800, 2300, 1500)
 
 # ---------------------------------------------------------------- memo format
-# The buy-side investment memo: one analyst's note to the portfolio manager,
-# switched on for the analyst run of 2026-09-28. Page one comes before the first
+# The buy-side investment memo: one analyst's argument to the portfolio manager,
+# switched on for the analyst run of 2026-09-28. It is built around an argument,
+# not a data sheet: the site shows the company's figures beside the memo, so the
+# memo spends its words on what the figures mean. Page one comes before the first
 # heading, under a bold one-line headline. Then these sections, in this order.
-# An initiation carries all of them; a revision carries WHAT CHANGED, section 10,
+# An initiation carries all of them. A revision carries WHAT CHANGED, section 3
+# (its returns are measured from today's close, so it always changes), section 4,
 # any other numbered section that changed, then SOURCES and GLOSSARY.
-MEMO_SECTIONS = ["1. WHAT IS PRICED IN", "2. WHERE I DISAGREE", "3. THE BUSINESS",
-                 "4. INDUSTRY AND PEERS", "5. FINANCIAL HISTORY", "6. FORECAST", "7. VALUATION",
-                 "8. CATALYSTS", "9. RISKS AND PRE-MORTEM", "10. MONITORING AND EXIT RULES",
-                 "11. WHAT I DON'T KNOW", "12. SOURCES", "GLOSSARY"]
+MEMO_SECTIONS = ["1. THE DEBATE", "2. MY VIEW", "3. WHAT IT IS WORTH", "4. WHAT WOULD PROVE ME WRONG",
+                 "5. RISKS", "6. WHAT I DO NOT KNOW", "SOURCES", "GLOSSARY"]
 MEMO_CHANGED = "WHAT CHANGED"
-MEMO_MONITOR = "10. MONITORING AND EXIT RULES"
-MEMO_SOURCES = "12. SOURCES"
+MEMO_DEBATE = "1. THE DEBATE"
+MEMO_VIEW = "2. MY VIEW"
+MEMO_WORTH = "3. WHAT IT IS WORTH"
+MEMO_MONITOR = "4. WHAT WOULD PROVE ME WRONG"
+MEMO_RISKS = "5. RISKS"
+MEMO_UNKNOWN = "6. WHAT I DO NOT KNOW"
+MEMO_SOURCES = "SOURCES"
 MEMO_GLOSSARY = "GLOSSARY"
-# Words of prose, not counting tables, headings, SOURCES or GLOSSARY.
-MEMO_LENGTH = {"initiation": (2000, 5000), "revision": (300, 1500)}
+# The only places a table may stand: the scenarios, the monitoring table, the
+# sources and the glossary. A table anywhere else is the memo turning back into a
+# data sheet (the first DELL draft carried fourteen besides SOURCES and GLOSSARY).
+MEMO_TABLE_SECTIONS = (MEMO_WORTH, MEMO_MONITOR, MEMO_SOURCES, MEMO_GLOSSARY)
+# Words of prose, not counting tables, headings, SOURCES or GLOSSARY:
+# (fail below, warn below, warn above, fail above).
+MEMO_LENGTH = {"initiation": (900, 1200, 2000, 2400), "revision": (200, 300, 800, 1000)}
+# Figures in one prose paragraph or list item: up to the first number passes,
+# above it warns, above the second fails. Counted by _figure_count.
+MEMO_FIGURES = (4, 6)
+# Page one is short: (warn above, fail above) words.
+MEMO_PAGE_ONE = (250, 400)
+MEMO_MAX_ARGUMENTS = 3
+MEMO_MAX_RISKS = 3
+MEMO_UNKNOWN_WORDS = 200
+# Sub-headings named after a block of the analyst's input. A memo that reuses one
+# is copying the input across instead of arguing from it.
+MEMO_INPUT_BLOCKS = re.compile(r"(?:key data|peers|peer comparison|(?:financial |reported )?history"
+                               r"|balance sheet and cash flow|calendar|sizing inputs|guidance|segments?"
+                               r"|catalysts|forecast)", re.I)
+# A paragraph that opens by pointing back instead of making a claim. WARN.
+MEMO_RESTATE = re.compile(r"(?:as (?:noted|mentioned|shown|discussed|described|explained|set out|stated|said"
+                          r"|above|before)\b|to (?:recap|summari[sz]e|restate|repeat)\b|in (?:summary|short|sum)\b"
+                          r"|recall\b|again,|to sum up\b)", re.I)
 MEMO_HORIZON = 365
 MEMO_FM = ["action", "size_now", "size_plan", "expected_return", "bear_return",
            "required_return", "scenarios"]
@@ -902,7 +930,7 @@ def _new_fields(fm, worth, F, W, memo=None):
             F(f"if_wrong_price {shown!r} is not a price. Write a plain positive number such as 94.00, "
               f"or leave the field out.")
         else:
-            _wrong_price(iwp, d, fm, worth, W, "page one" if memo is not None else SECTIONS[3])
+            _wrong_price(iwp, d, fm, worth, W, MEMO_WORTH if memo is not None else SECTIONS[3])
 
     if "next_check" in fm:
         v = fm["next_check"]
@@ -1285,7 +1313,7 @@ def _memo(path, text, fm, body, kind, F, W):
             last = prior[-1]
             F(f"kind is initiation, but the ledger already has {len(prior)} event(s) for "
               f"{_fm_text(fm.get('ticker'))}, the latest {last.get('date', '?')} from "
-              f"{last.get('note_path', '?')}. Write a revision: page one, WHAT CHANGED, section 10 "
+              f"{last.get('note_path', '?')}. Write a revision: page one, WHAT CHANGED, sections 3 and 4 "
               f"and the sections that changed.")
 
     scen = _scenarios(fm, F) if "scenarios" in fm else None
@@ -1311,39 +1339,65 @@ def _memo(path, text, fm, body, kind, F, W):
     _memo_headings(names, shape, body, F)
     page1 = body[:heads[0][0]] if heads else body
 
+    # ---- tables: only the scenarios, the monitoring table, SOURCES and GLOSSARY
+    _memo_tables(page1, heads, body, sections, F, W)
+
     # ---- page one
     p1 = re.sub(r"\A\s*#[ \t]+[^\n]*\n", "", page1)
     paras = [" ".join(b.split()) for b in re.split(r"\n\s*\n", p1) if b.strip()]
     headline = paras[0] if paras and re.fullmatch(r"\*\*[^*]+\*\*", paras[0]) else None
     if not paras:
-        F("page one is missing. Before the first ## heading, write the headline, the action and "
-          "size, the expected return next to the bear loss, the thesis, why now, the three things "
-          "that matter most and the key data table.")
+        F("page one is missing. Before the first ## heading, write the headline naming the action, the "
+          "action and size, the expected return next to the bear-case loss, the thesis and why now.")
     elif headline is None:
-        F(f"page one must open with a bold one-line headline giving the action and size, such as "
-          f"'**Recommendation: Avoid for now. Size today: 0% of the portfolio.**'. Found "
-          f"{paras[0][:60]!r}.")
+        F(f"page one must open with a bold one-line headline naming the action, such as "
+          f"'**Avoid for now: the price already pays for my base case.**'. Found {paras[0][:60]!r}.")
     elif action and action.lower() not in headline.lower():
-        W(f"the page-one headline does not name the action, {action}.")
-    for label, rx in (("Expected return and bear loss", r"\*\*expected return and bear loss\b"),
-                      ("Why this size", r"\*\*why this size\b"),
-                      ("Thesis", r"\*\*(?:the )?(?:investment )?thesis\b"), ("Why now", r"\*\*why now\b"),
-                      ("The three things that matter most", r"\*\*the three things\b"),
-                      ("Key data", r"\*\*key data\b")):
-        if paras and not re.search(rx, p1, re.I):
-            W(f"page one has no bold '{label}.' paragraph. Page one must stand alone: action and size, "
-              f"expected return and bear loss, thesis, why now, the three things that matter most, "
-              f"key data.")
-    if scen:
-        _memo_arithmetic(fm, scen, er, br, p1, F, W)
+        F(f"the page-one headline does not name the action, {action}.")
+    if paras:
+        for label, rx in (("Thesis", r"\*\*(?:the )?(?:investment )?thesis\b"), ("Why now", r"\*\*why now\b")):
+            if not re.search(rx, p1, re.I):
+                W(f"page one has no bold '{label}.' paragraph. Page one gives the action and size, the "
+                  f"expected return next to the bear-case loss, the thesis in one sentence and why now.")
+        if not re.search(r"\d(?:\.\d+)?% of the portfolio", p1):
+            W("page one does not give the size as a percentage of the portfolio, such as '0% of the "
+              "portfolio'.")
+        _memo_page_one(p1, headline, F, W)
 
-    # ---- section 10
+    scen_table = sections.get(MEMO_WORTH, "")
+    if scen:
+        _memo_arithmetic(fm, scen, er, br, scen_table, p1, MEMO_WORTH in sections, F, W)
+
+    # ---- the sections
+    if MEMO_DEBATE in sections and not re.search(r"\b(?:needs?|requires?|required)\b", sections[MEMO_DEBATE], re.I):
+        W(f"{MEMO_DEBATE} does not say what the price needs. State in one or two sentences the growth "
+          f"or profit today's price requires (a reverse DCF or the growth implied by the multiple).")
+    if MEMO_VIEW in sections:
+        args = [m.group(1) for m in re.finditer(r"^###[ \t]+(.+?)[ \t]*#*[ \t]*$", sections[MEMO_VIEW], re.M)]
+        if not args:
+            F(f"{MEMO_VIEW} has no argument. Give each argument its own ### sub-heading stating the claim, "
+              f"then the evidence, then why the price has not already moved.")
+        elif not 2 <= len(args) <= MEMO_MAX_ARGUMENTS:
+            W(f"{MEMO_VIEW} has {len(args)} argument(s). Make two or three, each one a claim with its "
+              f"evidence.")
     if MEMO_MONITOR in sections:
         _memo_monitor(sections[MEMO_MONITOR], F)
-    unknown = "11. WHAT I DON'T KNOW"
-    if unknown in sections and not re.search(r"no analyst forecasts", sections[unknown], re.I):
-        W(f"{unknown} does not say that no analyst forecasts are available. PROMPTS.md asks for that "
-          f"sentence in every memo.")
+    if MEMO_RISKS in sections:
+        _memo_risks(sections[MEMO_RISKS], F, W)
+    if MEMO_UNKNOWN in sections:
+        unk = sections[MEMO_UNKNOWN]
+        if not re.search(r"no analyst forecasts", unk, re.I):
+            W(f"{MEMO_UNKNOWN} does not say that no analyst forecasts are available. PROMPTS.md asks for "
+              f"that sentence in every memo.")
+        n = _words("\n".join(l for l in ANY_HEADING.sub("", unk).splitlines() if not l.strip().startswith("|")))
+        if n > MEMO_UNKNOWN_WORDS:
+            W(f"{MEMO_UNKNOWN} is {n} words. Keep it to the gaps that could change the recommendation, "
+              f"within {MEMO_UNKNOWN_WORDS} words.")
+    for name, sec in sections.items():
+        for sm in re.finditer(r"^###[ \t]+(.+?)[ \t]*#*[ \t]*$", sec, re.M):
+            if MEMO_INPUT_BLOCKS.fullmatch(_head_name(sm.group(1)).rstrip(".")):
+                F(f"{name}: the sub-heading '{sm.group(1).strip()}' copies a block of the research input "
+                  f"into the memo. The site shows that data beside the memo; argue from it instead.")
 
     # ---- SOURCES and GLOSSARY
     if MEMO_SOURCES in sections:
@@ -1392,10 +1446,24 @@ def _memo(path, text, fm, body, kind, F, W):
               "Quote only the prior key claim.")
 
     words = _words("\n".join(l for l in prose.splitlines() if not l.strip().startswith("|")))
-    lo, hi = MEMO_LENGTH[shape]
-    if not lo <= words <= hi:
+    f_lo, w_lo, w_hi, f_hi = MEMO_LENGTH[shape]
+    rev = "a revision" if shape == "revision" else "an initiation"
+    if not f_lo <= words <= f_hi:
         F(f"the {shape} is {words:,} words of prose, not counting tables, {MEMO_SOURCES} or "
-          f"{MEMO_GLOSSARY}. A memo {shape} runs {lo:,} to {hi:,}.")
+          f"{MEMO_GLOSSARY}. Write {rev} in {w_lo:,} to {w_hi:,} words; outside {f_lo:,} to {f_hi:,} it fails.")
+    elif not w_lo <= words <= w_hi:
+        W(f"the {shape} is {words:,} words of prose, not counting tables, {MEMO_SOURCES} or "
+          f"{MEMO_GLOSSARY}. Aim for {w_lo:,} to {w_hi:,}.")
+
+    _memo_paragraphs(prose, headline, gloss, F, W)
+    if gloss:
+        used_in = "\n".join([prose] + [_fm_text(fm.get(k)) for k in ("key_claim", "falsifier", "add_if")]
+                            + [_fm_text(x) for k in ("data_caveats", "conditions")
+                               for x in (fm.get(k) if isinstance(fm.get(k), list) else [])])
+        unused = [t for t, _ in gloss.values() if not _term_used(t, used_in)]
+        if unused:
+            W(f"{MEMO_GLOSSARY} lists term(s) the memo does not use: {', '.join(unused[:8])}. List only the "
+              f"terms the memo uses.")
 
     _style(prose, "body", F, W, body=True, memo=ctx)
     kc = _fm_text(fm.get("key_claim"))
@@ -1405,7 +1473,7 @@ def _memo(path, text, fm, body, kind, F, W):
         _standalone(_fm_text(fm["falsifier"]), "falsifier", F, W, ctx)
     for cv in (fm.get("data_caveats") if isinstance(fm.get("data_caveats"), list) else []):
         _standalone(_fm_text(cv), "data_caveats", F, W, ctx)
-    _new_fields(fm, page1, F, W, ctx)
+    _new_fields(fm, page1 + "\n" + scen_table, F, W, ctx)
 
 
 def _memo_headings(names, shape, body, F):
@@ -1416,7 +1484,7 @@ def _memo_headings(names, shape, body, F):
     if shape == "initiation":
         required = MEMO_SECTIONS
     else:
-        required = [MEMO_CHANGED, MEMO_MONITOR, MEMO_SOURCES, MEMO_GLOSSARY]
+        required = [MEMO_CHANGED, MEMO_WORTH, MEMO_MONITOR, MEMO_SOURCES, MEMO_GLOSSARY]
     for s in required:
         if s not in names and wrong_level.get(s):
             F(f"the heading {s} starts with {wrong_level[s]} # signs. Start it with exactly two, "
@@ -1437,21 +1505,178 @@ def _memo_headings(names, shape, body, F):
             F("sections are out of order. Use: " + " / ".join(MEMO_SECTIONS))
         return
     # A revision: WHAT CHANGED first; SOURCES and GLOSSARY last; the numbered
-    # sections between them in number order, except that section 10 may come
+    # sections between them in number order, except that section 4 may come
     # straight after WHAT CHANGED.
     if known and known[0] != MEMO_CHANGED and MEMO_CHANGED in known:
         F(f"{MEMO_CHANGED} must be the first section of a revision.")
     if known[-2:] != [MEMO_SOURCES, MEMO_GLOSSARY] and MEMO_SOURCES in known and MEMO_GLOSSARY in known:
         F(f"a revision ends with {MEMO_SOURCES} and then {MEMO_GLOSSARY}.")
-    middle = [numbered.index(n) for n in known if n in numbered and n != MEMO_SOURCES]
+    middle = [numbered.index(n) for n in known if n in numbered]
     rest = middle[1:] if middle and numbered[middle[0]] == MEMO_MONITOR else middle
     if rest != sorted(rest):
-        F("a revision's numbered sections are out of order. After WHAT CHANGED and section 10, put "
-          "the other sections that changed in number order.")
+        F(f"a revision's numbered sections are out of order. After {MEMO_CHANGED}, put the numbered "
+          f"sections in number order; section 4 may come first.")
 
 
-def _memo_arithmetic(fm, scen, er, br, p1, F, W):
-    """Page one's numbers must agree with each other and with the front-matter."""
+def _memo_tables(page1, heads, body, sections, F, W):
+    """Tables stand only in section 3, section 4, SOURCES and GLOSSARY. The
+    analyst's input carries key data, peer and history tables, and copying them
+    across is what turned the first memos into data sheets."""
+    parts = [("page one", page1)] + [
+        (name, body[end:heads[i + 1][0] if i + 1 < len(heads) else len(body)])
+        for i, (start, end, name) in enumerate(heads)]
+    bad = [name for name, text in parts if name not in MEMO_TABLE_SECTIONS and _table_rows(text)]
+    if bad:
+        F(f"table(s) in {', '.join(bad[:4])}. A memo has tables only in {MEMO_WORTH} (the scenarios), "
+          f"{MEMO_MONITOR} (the monitoring table), {MEMO_SOURCES} and {MEMO_GLOSSARY}. Say in a sentence "
+          f"what the figures show, and leave the data to the site.")
+    for name in (MEMO_WORTH, MEMO_MONITOR):
+        tables = _table_rows(sections.get(name, ""))
+        if len(tables) > 1:
+            W(f"{name} has {len(tables)} tables. It holds one: "
+              + ("the bull, base and bear cases." if name == MEMO_WORTH else "the monitoring table."))
+        for t in tables:
+            header = " | ".join(_plain_cell(c) for c in t[0]).lower()
+            if len(re.findall(r"\bfy\s?\d{2,4}\b|\b20\d\d\b", header)) >= 3:
+                F(f"{name} has a table of years ({header[:60]!r}). History tables stay out of the memo; "
+                  f"say what the record shows in a sentence.")
+            elif re.match(r"(?:company|peer|ticker)\b", header) or "market cap" in header:
+                F(f"{name} has a peer table ({header[:60]!r}). Peer tables stay out of the memo; say what "
+                  f"the comparison shows in a sentence.")
+
+
+def _memo_page_one(p1, headline, F, W):
+    blocks = [" ".join(b.split()) for b in re.split(r"\n\s*\n", p1) if b.strip()]
+    prose = [b for b in blocks if b != headline and not b.startswith("|")]
+    n = _words("\n".join(prose))
+    warn_at, fail_at = MEMO_PAGE_ONE
+    if n > fail_at:
+        F(f"page one is {n} words. Keep it under {warn_at}: the action and size, the expected return next "
+          f"to the bear-case loss, the thesis in one sentence and why now in two or three.")
+    elif n > warn_at:
+        W(f"page one is {n} words. Keep it under {warn_at}.")
+    for b in prose:
+        m = re.match(r"\*\*(thesis|why now)\.?\*\*\.?\s*(.*)", b, re.I)
+        if not m:
+            continue
+        k, s = m.group(1).lower(), _sentences(m.group(2))
+        if k == "thesis" and len(s) > 1:
+            W(f"page one: the thesis is {len(s)} sentences. State it in one.")
+        if k == "why now" and len(s) > 3:
+            W(f"page one: why now is {len(s)} sentences. Use two or three.")
+
+
+def _figure_count(text):
+    """The figures in a paragraph a reader has to hold in mind: amounts, percentages,
+    multiples and plain numbers. Left out, as _numbers_in leaves them out: dates,
+    years, fiscal-year labels (FY2028), form codes, and spans of time ("12 months").
+    Also left out here: section numbers ("section 3") and argument numbers."""
+    t = re.sub(r"(?i)\b(?:sections?|arguments?|steps?)\s+\d+(?:\s*(?:,|and|or|to)\s*\d+)*", " ", text)
+    return len(_numbers_in(t))
+
+
+def _memo_paragraphs(prose, headline, gloss, F, W):
+    """Every prose paragraph opens with a claim, and uses figures as evidence."""
+    lo_cap, hi_cap = MEMO_FIGURES
+    over_fail, over_warn, num_open, fig_open, restate, define = [], [], [], [], [], []
+    terms = sorted((t for t, _ in gloss.values()), key=len, reverse=True)
+    for block in re.split(r"\n\s*\n", prose):
+        b = block.strip()
+        if not b or b.startswith(("|", ">", "#")):
+            continue
+        joined = " ".join(b.split())
+        if joined == headline or re.fullmatch(r"\*\*[^*]+\*\*", joined):
+            continue
+        items = re.split(r"\n(?=\s*(?:[-*+]|\d+\.)\s)", b)
+        is_list = bool(re.match(r"(?:[-+]|\*(?!\*)|\d+\.)\s", b))
+        for item in items:
+            text = " ".join(re.sub(r"^\s*(?:[-*+]|\d+\.)\s+", "", item).split())
+            # Page one's return and size paragraphs are figures by design; they
+            # are held to the figure limit but not to the claim opener.
+            numeric_label = re.match(r"\*\*(?:action and size|return and risk)\b", text, re.I)
+            text = re.sub(r"^\*\*[^*]+\*\*\s*", "", text)  # a bold label ("**Why now.**")
+            text = re.sub(r"^\*[^*]+\*\s*", "", text)      # an italic label
+            if not text:
+                continue
+            n = _figure_count(text)
+            where = f"{n} figures in {' '.join(text.split()[:8])!r}..."
+            if n > hi_cap:
+                over_fail.append(where)
+            elif n > lo_cap:
+                over_warn.append(where)
+            if is_list or numeric_label:
+                continue
+            first = (_sentences(text) or [text])[0]
+            if re.match(r"[\"“(]*[+\-−]?\$?\d", first):
+                num_open.append(first[:60])
+            elif _figure_count(first) >= 3:
+                fig_open.append(first[:60])
+            if MEMO_RESTATE.match(first):
+                restate.append(first[:60])
+            low = first.lower()
+            for t in terms:
+                name = re.sub(r"\s*\([^)]*\)", "", t).lower()
+                if re.match(rf"(?:an? |the )?{re.escape(name)}\b[^.]{{0,20}}\b(?:is|are|means)\b", low):
+                    define.append(first[:60])
+                    break
+    if over_fail:
+        F(f"{len(over_fail)} paragraph(s) with more than {hi_cap} figures, e.g. {over_fail[0]} Figures are "
+          f"evidence for a claim: keep to {lo_cap} or fewer a paragraph and leave the rest to the site.")
+    if over_warn:
+        W(f"{len(over_warn)} paragraph(s) with more than {lo_cap} figures, e.g. {over_warn[0]} Keep the "
+          f"figures that prove the paragraph's claim.")
+    if num_open:
+        F(f"{len(num_open)} paragraph(s) open with a number, e.g. {num_open[0]!r}. Open each paragraph with "
+          f"the claim, then give the figure as evidence.")
+    if fig_open:
+        W(f"{len(fig_open)} paragraph(s) open with a sentence of figures, e.g. {fig_open[0]!r}. Open with the "
+          f"claim the figures support.")
+    if restate:
+        W(f"{len(restate)} paragraph(s) open by pointing back, e.g. {restate[0]!r}. Open with a new claim.")
+    if define:
+        W(f"{len(define)} paragraph(s) open with a definition, e.g. {define[0]!r}. Open with the claim and "
+          f"define the term in a clause where it is used.")
+
+
+def _term_used(term, text):
+    """Whether a GLOSSARY term appears in the memo: its name (plural allowed, and a
+    shared last word allowed to come later, as in "bull, base and bear cases") or
+    the abbreviation in its brackets."""
+    abbr = re.findall(r"\(([^)]+)\)", term)
+    name = re.sub(r"\s*\([^)]*\)", "", term).strip()
+    for a in abbr:
+        if re.search(rf"(?<![\w-]){re.escape(a)}(?![\w-])", text):
+            return True
+    words = name.split()
+    if not words:
+        return False
+    if len(words) == 1:
+        pat = rf"(?<![\w-]){re.escape(name)}(?:s|es)?(?![\w-])"
+    else:
+        pat = (rf"(?<![\w-]){re.escape(' '.join(words[:-1]))}(?:s|es)?\b[\w ,]{{0,30}}?"
+               rf"\b{re.escape(words[-1])}(?:s|es)?(?![\w-])")
+    return bool(re.search(pat, text, re.I))
+
+
+def _memo_risks(sec, F, W):
+    """At most three risks, each a mechanism and the first thing I would see."""
+    body = "\n".join(l for l in ANY_HEADING.sub("", sec).splitlines() if not l.strip().startswith("|"))
+    items = [m.group(1) for m in re.finditer(r"^\s*(?:[-*+]|\d+\.)\s+(.+(?:\n(?!\s*(?:[-*+]|\d+\.)\s)(?!\s*\n).+)*)",
+                                             body, re.M)]
+    if not items:
+        items = [b for b in re.split(r"\n\s*\n", body) if b.strip()]
+    if len(items) > MEMO_MAX_RISKS:
+        F(f"{MEMO_RISKS} lists {len(items)} risks. Name at most {MEMO_MAX_RISKS}, the ones that could "
+          f"change the recommendation.")
+    long = [i for i in items if len(_sentences(re.sub(r"^\s*\*\*[^*]+\*\*\s*", "", i))) > 3]
+    if long:
+        W(f"{MEMO_RISKS}: {len(long)} risk(s) run past three sentences. Give each one sentence on how it "
+          f"would hurt and one on what I would see first.")
+
+
+def _memo_arithmetic(fm, scen, er, br, table_text, p1, has_table_section, F, W):
+    """The scenarios in section 3 and the returns on page one must agree with each
+    other and with the front-matter."""
     total = sum(p for _, p in scen.values())
     if abs(total - 1) > PROB_TOL:
         F(f"scenario probabilities sum to {total:.3f}, not 1.")
@@ -1460,9 +1685,9 @@ def _memo_arithmetic(fm, scen, er, br, p1, F, W):
     if not bear <= base <= bull:
         W(f"scenario values are not in order: bear {bear:g}, base {base:g}, bull {bull:g}.")
 
-    # The page-one table: a row per case and a probability-weighted row.
+    # Section 3's table: a row per case and a probability-weighted row.
     rows, stated = {}, None
-    for table in _table_rows(p1):
+    for table in _table_rows(table_text):
         header = [h.lower() for h in table[0]]
         vi, pi = _col(header, "value"), _col(header, "probab")
         for row in table[1:]:
@@ -1478,23 +1703,23 @@ def _memo_arithmetic(fm, scen, er, br, p1, F, W):
                 pct = re.search(r"(\d+(?:\.\d+)?)\s?%", pcell)
                 if case and dollars:
                     rows[case] = (dollars[0], float(pct.group(1)) / 100 if pct else None)
-    if stated is None:
-        F("page one does not show the probability-weighted value. Give a table with a row for each "
-          "case (value and probability) and a 'Probability-weighted' row.")
-    elif abs(stated - weighted) > VALUE_TOL:
-        F(f"page one gives a probability-weighted value of ${stated:,.2f}, but the three cases give "
+    if has_table_section and stated is None:
+        F(f"{MEMO_WORTH} does not show the probability-weighted value. Give a table with a row for each "
+          f"case (value, probability and its one driver) and a 'Probability-weighted' row.")
+    elif stated is not None and abs(stated - weighted) > VALUE_TOL:
+        F(f"{MEMO_WORTH} gives a probability-weighted value of ${stated:,.2f}, but the three cases give "
           f"${weighted:,.2f} (the sum of probability times value).")
     for c in SCENARIO_CASES:
         if c not in rows:
             if stated is not None:
-                F(f"page one's scenario table has no {c.title()} row with a dollar value.")
+                F(f"{MEMO_WORTH}'s scenario table has no {c.title()} row with a dollar value.")
             continue
         v, p = rows[c]
         if abs(v - scen[c][0]) > VALUE_TOL:
-            F(f"page one gives the {c} case ${v:,.2f}; scenarios in the front-matter say "
+            F(f"{MEMO_WORTH} gives the {c} case ${v:,.2f}; scenarios in the front-matter say "
               f"${scen[c][0]:,.2f}.")
         if p is not None and abs(p - scen[c][1]) > PROB_TOL:
-            F(f"page one gives the {c} case a probability of {p:.0%}; scenarios in the front-matter "
+            F(f"{MEMO_WORTH} gives the {c} case a probability of {p:.0%}; scenarios in the front-matter "
               f"say {scen[c][1]:g}.")
 
     try:
@@ -1503,13 +1728,13 @@ def _memo_arithmetic(fm, scen, er, br, p1, F, W):
         entry = None
     if entry and entry > 0:
         divs = [0.0] + [float(x) for x in re.findall(
-            r"\$(\d+(?:\.\d+)?)(?: a share)? (?:of|in) dividends?\b", p1, re.I)]
+            r"\$(\d+(?:\.\d+)?)(?: a share)? (?:of|in) dividends?\b", p1 + "\n" + table_text, re.I)]
         if er is not None:
             implied = [(weighted + dv) / entry - 1 for dv in divs]
             if all(abs(er - x) > RETURN_TOL for x in implied):
                 show = " or ".join(f"{x:.3f}" for x in implied)
                 F(f"expected_return {er:g} does not follow from the weighted value ${weighted:,.2f}, "
-                  f"entry_price {entry:g} and any dividend stated on page one ({show}).")
+                  f"entry_price {entry:g} and any dividend stated on page one or in {MEMO_WORTH} ({show}).")
         if br is not None and abs(br - (bear / entry - 1)) > RETURN_TOL:
             F(f"bear_return {br:g} does not follow from the bear value ${bear:,.2f} and entry_price "
               f"{entry:g} ({bear / entry - 1:.3f}).")
@@ -1523,13 +1748,14 @@ def _memo_arithmetic(fm, scen, er, br, p1, F, W):
 
     # The expected return and the bear loss sit side by side on page one.
     pcts = {round(abs(v), 1) for (v, u), _ in _numbers_in(p1) if u in ("%",)}
-    for key, x in (("expected return", er), ("bear loss", br)):
-        if x is not None and not any(abs(abs(x) * 100 - p) <= 0.051 for p in pcts):
-            W(f"page one does not show the {key} as a percentage ({abs(x) * 100:.1f}%).")
+    for key, x in (("expected return", er), ("bear-case loss", br)):
+        if x is not None and not any(abs(abs(x) * 100 - p) <= RETURN_TOL * 100 + 1e-6 for p in pcts):
+            F(f"page one does not show the {key} as a percentage ({abs(x) * 100:.1f}%). Page one puts the "
+              f"expected return next to the bear-case loss.")
 
 
 def _memo_monitor(sec, F):
-    """Section 10 needs a rule that ends the position: an Exit or Cut row with a
+    """Section 4 needs a rule that ends the position: an Exit or Cut row with a
     number to watch and the date it will be known."""
     for table in _table_rows(sec):
         header = [h.lower() for h in table[0]]
