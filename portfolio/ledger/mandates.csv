@@ -1,10 +1,3 @@
 date,book,decision_id,mandate
-2026-09-23,lg-growth,lg-growth-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,lg-core,lg-core-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,lg-value,lg-value-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,mid-growth,mid-growth-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,mid-core,mid-core-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,mid-value,mid-value-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,sm-growth,sm-growth-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,sm-core,sm-core-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
-2026-09-23,sm-value,sm-value-2026-09-23-1,"{""cash_band"":[0.0,0.05],""holdings_range"":[25,45],""long_only"":true,""max_position"":0.05,""overweight_factor"":1.5,""sector_cap"":0.4,""turnover_budget"":1.0,""weighting"":""equal""}"
+2026-09-23,hedge,hedge-2026-09-23-1,"{""benchmarks"":[""^GSPC"",""cash""],""gross_max"":2.0,""holdings_range_per_side"":[20,60],""long_only"":false,""max_long_position"":0.05,""max_short_position"":0.03,""net_range"":[-0.2,0.6],""universe"":""operating""}"
+2026-09-23,neural,neural-2026-09-23-1,"{""benchmarks"":[""^GSPC""],""data"":""repository only, no internet"",""gross_max"":2.0,""long_only"":false,""universe"":""stored_close""}"

@@ -3697,20 +3697,41 @@ FIELD_METHODS = {
                 "IFRS statements carry no marker in the panel and stay in. Share classes of one "
                 "company reporting the same market cap count once.",
     },
+    "sales_ps_growth_3y": {
+        "label": "Sales per share growth (3y)", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "((revenue / diluted_shares)[FY] / (revenue / diluted_shares)[FY-3]) ** (1/3) - 1",
+        "note": "From annual 10-K facts only, each year's revenue over the same year's weighted "
+                "diluted share count. Blank across a change in the share count of 1.8 times or "
+                "more between consecutive years (a split or a merger), and when either revenue "
+                "is not positive. Stored in data/financials/style_history.csv.",
+    },
+    "eps_growth_3y": {
+        "label": "EPS growth (3y)", "units": "fraction", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "((net_income / diluted_shares)[FY] / (net_income / diluted_shares)[FY-3]) ** (1/3) - 1",
+        "note": "EPS is rebuilt as net income over the weighted diluted share count of the same "
+                "year, never from per-share figures, so a split cannot distort it. Blank when "
+                "either year's earnings were zero or negative, since a growth rate from a loss "
+                "is not defined.",
+    },
     "style_value_score": {
         "label": "Value score", "units": "ratio", "source": "fundamentals_panel",
         "refresh": "daily", "asof": "date",
-        "formula": "mean(z(1 / pe), z(1 / price_book), z(fcf_yield)), at least 2 of 3",
+        "formula": "mean(z(1 / price_book), z(1 / pe), z(revenue / market_cap), "
+                   "z(operating_cash_flow / market_cap)), at least 2 of 4",
         "note": "Robust z-scores within the company's size and sector (size alone when the sector "
-                "has fewer than 10 companies). Earnings yield is diluted EPS over "
-                "price where P/E is blank. The panel has no dividend yield, so none is used.",
+                "has fewer than 10 companies). Earnings yield is diluted EPS over price where P/E "
+                "is blank. Revenue is the trailing four quarters; operating cash flow is the "
+                "latest fiscal year from style_history.csv.",
     },
     "style_growth_score": {
-        "label": "Growth score", "units": "ratio", "source": "fundamentals_panel",
-        "refresh": "daily", "asof": "date",
-        "formula": "mean(z(revenue_growth_yoy), z(eps_growth_yoy), z(revenue_acceleration)), at least 2 of 3",
+        "label": "Growth score", "units": "ratio", "source": "edgar",
+        "refresh": "quarterly", "asof": "fiscal_period_end",
+        "formula": "mean(z(sales_ps_growth_3y), z(eps_growth_3y)), at least 1 of 2",
         "note": "Robust z-scores within the company's size and sector (size alone when the sector "
-                "has fewer than 10 companies), so a sector-wide boom does not read as growth.",
+                "has fewer than 10 companies), so a sector-wide boom does not read as growth. No "
+                "price momentum.",
     },
     "style_quality_score": {
         "label": "Quality score", "units": "ratio", "source": "fundamentals_panel",
@@ -3723,8 +3744,9 @@ FIELD_METHODS = {
     "style_box": {
         "label": "Style box", "units": "text", "source": "fundamentals_panel",
         "refresh": "daily", "asof": "date",
-        "formula": "size + (growth if style_score in top third, value if bottom third, else core)",
-        "note": "style_score is the growth score minus the value score, ranked within the size.",
+        "formula": "size + (growth if growth_score - value_score is above the size median, else value)",
+        "note": "Every company with a score is in exactly one box; ties at the median go to value. "
+                "A company without a three-year annual history is not placed.",
     },
     "book_nav": {
         "label": "Net asset value", "units": "USD", "source": "portfolio_ledger",
@@ -3733,6 +3755,19 @@ FIELD_METHODS = {
         "note": "A holding with no stored close for the date is not valued from any other day: "
                 "the day is marked partial and its value is left blank. Price-only: dividends "
                 "are not counted. Every trade pays 5 basis points of its value.",
+    },
+    "book_exposure": {
+        "label": "Gross and net exposure", "units": "fraction", "source": "portfolio_ledger",
+        "refresh": "daily", "asof": "date",
+        "formula": "gross = (long_value + |short_value|) / nav; net = (long_value - |short_value|) / nav",
+        "note": "A short position is valued as a negative holding and its sale proceeds sit in cash.",
+    },
+    "cash_return": {
+        "label": "Cash return since inception", "units": "fraction", "source": "market_series",
+        "refresh": "daily", "asof": "date",
+        "formula": "product(1 + irx(session) / 100 / 252) - 1 over sessions after inception",
+        "note": "What the book's starting cash would have earned in 13-week Treasury bills. Blank "
+                "when any session's rate is not stored.",
     },
     "book_return": {
         "label": "Return since inception", "units": "fraction", "source": "portfolio_ledger",
@@ -4122,8 +4157,8 @@ def _benchmark_closes(frame, symbol):
 
 
 def enrich_with_benchmark_series(max_age_hours=24):
-    """Store the model portfolios' benchmarks: the nine Russell style ETFs and the tax
-    books' all-cap ones (portfolio.engine.BENCHMARK_SYMBOLS), in docs/prices/_BENCHMARKS.json.
+    """Store the model portfolios' benchmarks: the six style books' Russell ETFs, the core and
+    tax books' ones (portfolio.engine.BENCHMARK_SYMBOLS), in docs/prices/_BENCHMARKS.json.
 
     Keyless, through yfinance like the market series, with the same 24h cache. The
     closes are NOT adjusted for dividends (auto_adjust=False), because the books'
@@ -5817,8 +5852,11 @@ _FIN_ANNUAL = (350, 380, 12)
 _FIN_QUARTERLY = (80, 100, 20)
 
 
-def _fin_series(facts, metric, lo, hi):
+def _fin_series(facts, metric, lo, hi, forms=None):
     """One metric as {period_end: (value, tag)}.
+
+    `forms`, when given, is a tuple of form-type prefixes a fact must come from
+    ("10-K" matches 10-K, 10-K/A and 10-KT).
 
     Earlier tags in the list win outright and a later tag only fills a period the
     earlier one left empty, so revenue spanning the ASC 606 tag change keeps its
@@ -5834,6 +5872,8 @@ def _fin_series(facts, metric, lo, hi):
             for f in rows:
                 end, val, filed = f.get("end"), f.get("val"), f.get("filed", "")
                 if end is None or val is None:
+                    continue
+                if forms and not str(f.get("form") or "").startswith(forms):
                     continue
                 if metric in _FIN_FLOW:
                     start = f.get("start")
@@ -5959,6 +5999,90 @@ def record_financials(rows, observed_at):
     if n:
         print(f"csv: appended {n} reported periods to data/financials/reported.csv"
               + (f", {filled} of them filling blanks in periods already held." if filled else "."))
+    return n
+
+
+# ── Multi-year history for the style books ───────────────────────────────────
+#
+# The style books score growth over three fiscal years, which needs four annual
+# periods for every company, not only the reading-pack names reported.csv
+# carries. enrich_with_edgar already holds each company's companyfacts in hand,
+# so the periods are read from there at no extra request and the result goes to
+# its own append-only file, data/financials/style_history.csv (one row per company
+# per latest fiscal year). A separate file rather than new panel columns: the
+# panel's header must not widen while runs append to it concurrently.
+STYLE_HISTORY_CSV = FINANCIALS_CSV_DIR / "style_history.csv"
+_STYLE_HISTORY_METRICS = ("revenue", "net_income", "shares_diluted", "ocf")
+
+
+def _annual_10k_periods(facts):
+    """Annual periods (350 to 380 days) from 10-K facts only: [{period_end, revenue,
+    net_income, shares_diluted, ocf}], oldest first. A 20-F or 40-F filer's facts
+    are not used."""
+    usg = (facts or {}).get("us-gaap") or {}
+    per = {}
+    for metric in _STYLE_HISTORY_METRICS:
+        for end, (val, _tag) in _fin_series(usg, metric, _FIN_ANNUAL[0], _FIN_ANNUAL[1],
+                                            forms=("10-K",)).items():
+            per.setdefault(end, {})[metric] = val
+    return [{"period_end": e, **per[e]} for e in sorted(per)]
+
+
+def _annual_form(facts):
+    """The form type of the latest annual revenue fact under any form, so a 20-F or
+    40-F filer can be told apart from a 10-K filer. "" when there is none."""
+    usg = (facts or {}).get("us-gaap") or {}
+    best = ("", "", "")
+    for tag in _FIN_CONCEPTS["revenue"]:
+        for rows in ((usg.get(tag) or {}).get("units") or {}).values():
+            for f in rows:
+                start, end = f.get("start"), f.get("end")
+                if not start or not end or f.get("val") is None:
+                    continue
+                try:
+                    days = (datetime.strptime(end, "%Y-%m-%d")
+                            - datetime.strptime(start, "%Y-%m-%d")).days
+                except ValueError:
+                    continue
+                if _FIN_ANNUAL[0] <= days <= _FIN_ANNUAL[1]:
+                    key = (end, f.get("filed") or "", str(f.get("form") or ""))
+                    if key > best:
+                        best = key
+    return best[2]
+
+
+def compute_style_history(facts, ticker, cik):
+    """One style_history.csv row for a company, or None when it has no annual
+    10-K period at all. The arithmetic is portfolio.engine.style_growth."""
+    periods = _annual_10k_periods(facts)
+    form = _annual_form(facts)
+    if not periods and not form:
+        return None
+    g = PF.style_growth(periods)
+    if not periods:
+        g["note"] = "no annual 10-K periods"
+    return {"ticker": ticker, "cik": int(cik), "annual_form": form, **g}
+
+
+def record_style_history(rows, observed_at):
+    """Append each company's row unless the last row held for it is identical.
+    Readers take the last row per ticker (portfolio.engine.load_style_history)."""
+    if not rows:
+        return 0
+    held = {}
+    for r in PF.read_rows(STYLE_HISTORY_CSV):
+        held[r.get("ticker")] = r
+    fresh = []
+    for r in rows:
+        cell = {k: PF._cell(r.get(k)) for k in PF.STYLE_HISTORY_COLUMNS if k != "collected_at"}
+        have = held.get(r["ticker"])
+        if have and all((have.get(k) or "") == v for k, v in cell.items()):
+            continue
+        fresh.append({**cell, "collected_at": observed_at})
+        held[r["ticker"]] = {**cell}
+    n = PF.append_rows(STYLE_HISTORY_CSV, PF.STYLE_HISTORY_COLUMNS, fresh)
+    if n:
+        print(f"csv: appended {n} rows to data/financials/style_history.csv.")
     return n
 
 
@@ -7553,10 +7677,17 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
         benford = compute_benford(facts)
         if benford:
             out["benford"] = benford
-        return sym, out
+        # Three fiscal years of history for the style books, same facts again.
+        try:
+            hist = compute_style_history(facts, sym, cik)
+        except Exception as exc:
+            print(f"style history: {sym} skipped ({type(exc).__name__}: {exc}).")
+            hist = None
+        return sym, (out, hist)
 
     enriched = 0
     budget_hit = False
+    histories = []
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [ex.submit(process, item) for item in matched]
@@ -7570,7 +7701,10 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
                     pending.cancel()
             if f.cancelled():
                 continue
-            sym, factors = f.result()
+            sym, result = f.result()
+            factors, hist = result if isinstance(result, tuple) else (result, None)
+            if hist:
+                histories.append(hist)
             if not factors:
                 continue
             s = by_ticker.get(sym)
@@ -7586,6 +7720,10 @@ def enrich_with_edgar(stocks, ticker_cik_map, max_workers=8):
                 s["edgar_updated"] = today_str
                 enriched += 1
     elapsed = time.time() - t0
+    try:
+        record_style_history(histories, datetime.now(EASTERN).isoformat(timespec="seconds"))
+    except Exception as exc:
+        print(f"style history: not recorded ({type(exc).__name__}: {exc}).")
     print(f"EDGAR enrichment: enriched {enriched}/{len(matched)} matched tickers "
           f"({len(by_ticker) - len(matched)} no CIK match) in {elapsed:.1f}s.")
     if budget_hit:
@@ -10352,7 +10490,7 @@ def _portfolio_site_data():
     return PF.site_data(ledger_dir=PORTFOLIO_DIR / "ledger", books_dir=PORTFOLIO_DIR / "books",
                         panel_dir=FUNDAMENTALS_CSV_DIR, prices=PF.PriceStore(PRICES_DIR),
                         benchmarks=PF.BenchmarkStore(PRICES_DIR), nav_csv=PORTFOLIO_NAV_CSV,
-                        events=THESES_DIR / "ledger" / "events.csv")
+                        events=THESES_DIR / "ledger" / "events.csv", history=STYLE_HISTORY_CSV)
 
 
 def record_portfolio_nav():
@@ -10381,8 +10519,8 @@ def generate_portfolios(universe, version=None):
                               for b in data["books"]])
     html = render_ledger_page("portfolios", "Portfolios, Apterreon",
                               dict(common, portfolios=cards, drafts=drafts), version,
-                              description="Nine paper model portfolios, one for each size and "
-                                          "style, each measured against its Russell benchmark.",
+                              description="Eight paper model portfolios: six by size and "
+                                          "style, a hedge fund strategy and a free hand.",
                               loading="Loading the portfolios")
     (DOCS_DIR / "portfolios.html").write_text(html, encoding="utf-8")
     html = render_ledger_page("book", "Model portfolio, Apterreon",
@@ -10393,7 +10531,7 @@ def generate_portfolios(universe, version=None):
     (DOCS_DIR / "book.html").write_text(html, encoding="utf-8")
     live = sum(1 for b in data["books"] if b.get("inception"))
     print(f"portfolios: wrote portfolios.html and book.html ({live} incepted of "
-          f"{len(data['books'])} style books, panel {data['asof'] or 'none'}).")
+          f"{len(data['books'])} books, panel {data['asof'] or 'none'}).")
     return live
 
 

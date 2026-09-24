@@ -1,19 +1,5 @@
 date,book,decision_id,action,reason,author
-2026-09-23,lg-growth,lg-growth-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,lg-growth,lg-growth-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,lg-core,lg-core-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,lg-core,lg-core-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,lg-value,lg-value-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,lg-value,lg-value-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,mid-growth,mid-growth-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,mid-growth,mid-growth-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,mid-core,mid-core-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,mid-core,mid-core-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,mid-value,mid-value-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,mid-value,mid-value-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,sm-growth,sm-growth-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,sm-growth,sm-growth-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,sm-core,sm-core-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,sm-core,sm-core-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
-2026-09-23,sm-value,sm-value-2026-09-23-1,mandate_change,"First mandate: the default for a style book, until the PM reviews it.",rules
-2026-09-23,sm-value,sm-value-2026-09-23-2,inception,"Start with $1,000,000 of paper cash and buy the rules candidate book (35 companies, equal weight) at the close on 23 September 2026.",rules
+2026-09-23,hedge,hedge-2026-09-23-1,mandate_change,"First mandate: the default for a hedge book, until the PM reviews it.",rules
+2026-09-23,hedge,hedge-2026-09-23-2,inception,"Start with $1,000,000 of paper cash. The PM builds the book at its next weekly run.",rules
+2026-09-23,neural,neural-2026-09-23-1,mandate_change,"First mandate: the default for a neural book, until the PM reviews it.",rules
+2026-09-23,neural,neural-2026-09-23-2,inception,"Start with $1,000,000 of paper cash. The PM builds the book at its next weekly run.",rules

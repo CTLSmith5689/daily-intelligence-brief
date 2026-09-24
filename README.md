@@ -286,11 +286,14 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 |---|---|---|---|---|
 | `benchmark_return` | fraction | `close(date) / close(inception) - 1` | benchmark_series | changes every trading day |
 | `beta_1y` | ratio | `cov(r_stock, r_index) / var(r_index)` | market_series | changes every trading day |
+| `book_exposure` | fraction | `gross = (long_value + |short_value|) / nav; net = (long_value - |short_value|) / nav` | portfolio_ledger | changes every trading day |
 | `book_nav` | USD | `cash + sum(shares * stored close on that date)` | portfolio_ledger | changes every trading day |
 | `book_return` | fraction | `book_nav / capital - 1` | portfolio_ledger | changes every trading day |
+| `cash_return` | fraction | `product(1 + irx(session) / 100 / 252) - 1 over sessions after inception` | market_series | changes every trading day |
 | `change_gap` | flag | `1 if a session falls between dates[-2] and dates[-1] else blank` | price_history | changes every trading day |
 | `change_pct` | percent | `(closes[-1] / closes[-2] - 1) * 100` | price_history | changes every trading day |
 | `eps_basis` | text | `ttm, annual or basic` | edgar | changes only when the company files |
+| `eps_growth_3y` | fraction | `((net_income / diluted_shares)[FY] / (net_income / diluted_shares)[FY-3]) ** (1/3) - 1` | edgar | changes only when the company files |
 | `eps_growth_yoy` | fraction | `ttm_diluted_eps / prior_ttm_diluted_eps - 1` | edgar | changes only when the company files |
 | `fcf_yield` | fraction | `(ttm_operating_cash_flow - ttm_capex) / market_cap` | edgar | changes only when the company files |
 | `gross_margin` | fraction | `ttm_gross_profit / ttm_revenue` | edgar | changes only when the company files |
@@ -309,14 +312,15 @@ shown on each metric (Stocks help, company page) and the code cannot disagree.
 | `return_52w` | fraction | `closes[-1] / closes[-253] - 1` | price_history | changes every trading day |
 | `revenue_growth_yoy` | fraction | `ttm_revenue / prior_ttm_revenue - 1` | edgar | changes only when the company files |
 | `roe_ttm` | fraction | `ttm_net_income / mean(equity_now, equity_a_year_ago)` | edgar | changes only when the company files |
+| `sales_ps_growth_3y` | fraction | `((revenue / diluted_shares)[FY] / (revenue / diluted_shares)[FY-3]) ** (1/3) - 1` | edgar | changes only when the company files |
 | `sector` | text | `normalize_sector(yahoo.sector)` | yfinance | rarely changes; carried forward until it does |
 | `security_type` | text | `security_type.classify_row(name, index, sub_industry, EDGAR footprint)` | index | rarely changes; carried forward until it does |
 | `sharpe_1y` | ratio | `mean(r - rf) / stdev(r - rf) * sqrt(252)` | market_series | changes every trading day |
-| `style_box` | text | `size + (growth if style_score in top third, value if bottom third, else core)` | fundamentals_panel | changes every trading day |
-| `style_growth_score` | ratio | `mean(z(revenue_growth_yoy), z(eps_growth_yoy), z(revenue_acceleration)), at least 2 of 3` | fundamentals_panel | changes every trading day |
+| `style_box` | text | `size + (growth if growth_score - value_score is above the size median, else value)` | fundamentals_panel | changes every trading day |
+| `style_growth_score` | ratio | `mean(z(sales_ps_growth_3y), z(eps_growth_3y)), at least 1 of 2` | edgar | changes only when the company files |
 | `style_quality_score` | ratio | `mean(z(roe_ttm), z(earnings_consistency), -z(net_debt_ebitda), -z(op_margin_stability), -z(accruals_ratio)), at least 2 of 5` | fundamentals_panel | changes every trading day |
 | `style_size` | text | `rank by market_cap: 1 to 200 large, 201 to 1000 mid, 1001 to 3000 small, else micro` | fundamentals_panel | changes every trading day |
-| `style_value_score` | ratio | `mean(z(1 / pe), z(1 / price_book), z(fcf_yield)), at least 2 of 3` | fundamentals_panel | changes every trading day |
+| `style_value_score` | ratio | `mean(z(1 / price_book), z(1 / pe), z(revenue / market_cap), z(operating_cash_flow / market_cap)), at least 2 of 4` | fundamentals_panel | changes every trading day |
 | `volatility_1y` | fraction | `stdev(daily returns) * sqrt(252)` | price_history | changes every trading day |
 | `volume` | shares | `volumes[-1]` | price_history | changes every trading day |
 | `volume_trend` | fraction | `mean(volumes[-10:]) / mean(volumes[-63:]) - 1` | price_history | changes every trading day |

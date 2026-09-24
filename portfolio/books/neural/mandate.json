@@ -1,0 +1,9 @@
+{
+  "benchmarks": [
+    "^GSPC"
+  ],
+  "data": "repository only, no internet",
+  "gross_max": 2.0,
+  "long_only": false,
+  "universe": "stored_close"
+}

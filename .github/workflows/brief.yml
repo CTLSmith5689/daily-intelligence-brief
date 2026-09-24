@@ -31,6 +31,8 @@ on:
     branches: [main]
     paths:
       - 'theses/**'
+      # The PM routine pushes orders, letters and ledger rows under portfolio/.
+      - 'portfolio/**'
   workflow_dispatch:
     inputs:
       mode:
