@@ -1,0 +1,203 @@
+ITEM 1 – BUSINESS 
+ 
+ Cautionary Statement Regarding Forward-Looking Statements 
+ 
+ The business and activities of Trio-Tech International, a California corporation (the “ Company ”), discussed in this Annual Report on Form 10-K (the “ Annual Report ”) and in other past and future reports and announcements by the Company may contain forward-looking statements within the meaning of Section 27A of the Securities Act of 1933, as amended, and Section 21E of the Securities Exchange Act of 1934, as amended (the “ Exchange Act ”), and assumptions regarding future activities and results of operations of the Company. In light of the “safe harbor” provisions of the Private Securities Litigation Reform Act of 1995, the following factors, among others, could cause actual results to differ materially from those reflected in any forward-looking statements made by or on behalf of the Company: 
+
+ ● 
+ market acceptance of Company’s products and services; 
+
+ ● 
+ changing business conditions or technologies and volatility in the semiconductor industry, which could affect demand for the Company’s products and services; 
+
+ ● 
+ the impact of competition; 
+
+ ● 
+ problems with technology, product development schedules or delivery schedules; 
+
+ ● 
+ changes in military or commercial testing specifications which could affect the market for the Company’s products and services; 
+
+ ● 
+ difficulties in profitably integrating acquired businesses, if any, into the Company; 
+
+ ● 
+ risks associated with conducting business internationally and particularly in Asia, including currency fluctuations and devaluation, currency restrictions, local laws and restrictions and possible social, political and economic instability; 
+
+ ● 
+ credit risks in the Chinese real estate industry; 
+
+ ● 
+ changes in macroeconomic conditions and credit market conditions; and 
+
+ ● 
+ other economic, financial and regulatory factors beyond the Company’s control. 
+
+ In some cases, you can identify forward-looking statements by the use of terminology such as “may,” “will,” “expects,” “plans,” “anticipates,” “estimates,” “potential,” “believes,” “can impact,” “continue,” or the negative thereof or other comparable terminology. 
+ 
+ Unless otherwise required by law, the Company undertakes no obligation to update forward-looking statements to reflect subsequent events, changed circumstances, or the occurrence of unanticipated events. You are cautioned not to place undue reliance on such forward-looking statements. 
+ 
+ General 
+ 
+ Trio-Tech International was incorporated in 1958 under the laws of the State of California. As used herein, the term “Trio-Tech,” “TTI,” the “Company,” “we,” “us” or the “Registrant” includes Trio-Tech International and its subsidiaries unless the context otherwise indicates. The mailing address and executive offices are located at Block 1008 Toa Payoh North, Unit 03-09 Singapore 318996, Singapore, and the telephone number is (65) 6265-3300. 
+ 
+ We make available through our website, free of charge, our Annual Reports on Form 10-K, Quarterly Reports on Form 10-Q, Current Reports on Form 8-K, proxy statements and any amendments to those reports or statements filed or furnished pursuant to Section 13(a) or 15(d) of the Exchange Act, as soon as reasonably practicable after they are electronically filed with or furnished to the Securities and Exchange Commission (the “ SEC ”). The SEC also maintains an internet site at www.sec.gov that contains such reports and statements that have been filed electronically with the SEC by the Company. Additional information about Trio-Tech is available on our website at www.triotech.com. 
+ 
+ The Company has traditionally been a provider of reliability test equipment and services to the semiconductor and other industries. Our customers rely on us to verify that their semiconductor components meet or exceed the rigorous reliability standards demanded for automotive electronics, industrial electronics, computing and data storage, consumer electronics, and communication markets. We act as a global one-stop solution for our customers by designing and building reliability test solutions and offering comprehensive testing services. The Company also develops and manufactures an extensive range of equipment used in the manufacturing processes of semiconductors and various other industries. 
+ 
+ During the fiscal year ended June 30, 2026 (“ Fiscal 2026 ”), the Company operated its business in two segments: Semiconductor Back-end Solutions and Industrial Electronics. Geographically, the Company operates in the United States (“ U.S. ”), Singapore, Malaysia, Thailand and China. While the semiconductor industry is and will remain a major market for the Company, an important component of our strategy is to reduce our historic concentration on this industry. We organize our operating business based on the markets that we serve. Beginning in Fiscal 2025, we report our financial performance based on our new segments, Semiconductor Backend Solutions and Industrial Electronics. For information relating to revenue, profit and loss and total assets for each of the segments, see Note 19 - Business Segments contained in the consolidated financial statements included in this Annual Report. 
+
+ 1
+
+ Table of Contents 
+
+ Company History – Certain Highlights for the Five Fiscal Years Ended June 30, 2026 
+
+ 2022 
+ 
+ Trio-Tech (Jiangsu) Co. Ltd was established. (Jan 2022) 
+
+ 2023 
+ 
+ Trio-Tech (Jiangsu) Co. Ltd certified to ISO 9001:2015 standards. (Jun 2023) 
+
+ 2024 
+ 
+ Trio-Tech (Tianjin) Co. Ltd. recertified to ISO 9001:2015 standards. (Mar 2024) Trio-Tech (Tianjin) Co. Ltd. recertified to ISO 14001:2015 standards. (Mar 2024) Trio-Tech (Tianjin) Co. Ltd. recertified to ISO 45001:2018 standards. (Mar 2024) 
+
+ 2025 
+ 
+ Trio-Tech International Pte. Ltd. (Singapore) recertified to ISO 9001:2015 standards. (Sep 2024) Trio-Tech International Pte. Ltd. (Singapore) recertified to ISO 14001:2015 standards. (Sep 2024) Trio-Tech (Malaysia) Sdn. Bhd. recertified to ISO 9001:2015 standards. (Sep 2024) Trio-Tech (Malaysia) Sdn. Bhd. recertified to ISO 14001:2015 standards. (Sep 2024) Trio-Tech (Bangkok) Co. Ltd. recertified to ISO 9001:2015 standards. (Sep 2024) 
+
+ 2026 
+ 
+ Trio-Tech (SIP) Co., Ltd certified to ISO 9001:2015 standard (Jul 2025) Trio-Tech International Pte Ltd (Singapore) recertified to ISO 17025:2017 standard (Feb 2026) Trio-Tech International Pte Ltd (Singapore) certified to ISO 13485:2016 standard (Mar 2026) 
+
+ Overall Business Strategies 
+ 
+ Our core business is in the semiconductor industry, encompassing the manufacturing of equipment, provision of testing services and distribution of test and other semiconductor equipment and electronic components. The “Semiconductor Back-end Solutions” (“ SBS ”) segment comprises of our core semiconductor back-end manufacturing and testing operations that serve the semiconductor industry. Our value-added distribution business, along with our services and equipment manufacturing operations that serve various industries comprises our “Industrial Electronics” (“ IE ”) segment. Revenue from the SBS and IE segments accounted fo r 99.9% of our total revenue for the years ended June 30, 2026 and 2025, respectively. The semiconductor industry has experienced periods of rapid growth, but has also experienced downturns, often in connection with, or in anticipation of, maturing product cycles of both semiconductor companies’ and their customers’ products and decline in general economic conditions. To reduce our risks associated with sole industry focus and customer concentration, we continue to put effort into expanding our line of businesses. Management periodically evaluates the ongoing contributions of each of its business segments to its current and future revenue and prospects. 
+
+ 2
+
+ Table of Contents 
+
+ To achieve our strategic plan, we believe that we must pursue and win new business in the following areas: 
+ 
+ • Primary markets – Capturing additional market share within our primary markets by offering superior products and services to address the needs of our major customers. 
+ 
+ • Growing markets – Expanding our geographic reach in areas of the world with significant growth potential. 
+ 
+ • New markets – Developing new products and technologies that serve wholly new markets. 
+ 
+ • Complementary strategic relationships – Through complementary acquisitions or similar arrangements, we believe we can expand our markets and strengthen our competitive position. As part of our growth strategy, the Company continues to selectively assess opportunities to develop strategic relationships, including acquisitions, investments and joint development projects with key partners and other businesses. 
+ 
+ Business Segments 
+ 
+ We report our financial performance based on our two segments, Semiconductor Back-end Solutions (“ SBS ”) and Industrial Electronics (“ IE ”). 
+ 
+ Semiconductor Back-end Solutions (SBS) 
+ 
+ The SBS segment of the Company designs and manufactures an extensive range of burn-in and reliability test equipment used in the “back-end” manufacturing processes of semiconductors. Our equipment includes burn-in systems, burn-in boards and related equipment that is used in the testing of structural integrity of integrated circuits. We also act as an extended development team of Integrated Device Manufacturers (“ IDMs ”) and Fabless semiconductor companies in the testing process with our expert technical skills, especially in the New Product Introduction (“ NPI ”) process. We provide comprehensive electrical, environmental, and burn-in testing services to semiconductor manufacturers in our testing laboratories in Asia. Our customers include both manufacturers and end users of semiconductor and electronic components who look at us when they decide to outsource their testing process. We also support the asset-light strategy of our customers by setting up test facilities and providing component level, package level and system level testing services with expert technology that improves the productivity of our customers. The independent tests are performed to industry and customer specific standards. 
+
+ 3
+
+ Table of Contents 
+
+ Industrial Electronics (IE) 
+ 
+ The IE segment of the Company includes the design, manufacture and distribution of an extensive range of test, processes and other equipment used in the manufacturing processes of customers in various industries in the consumer and industrial market. Our equipment includes environmental chambers, leak detectors, autoclaves, centrifuges, dynamic testers, Highly Accelerated Stress Test ( “HAST” ) testers, temperature-controlled chucks, and more. This segment also provides preventive maintenance, calibration services, repair services and upgrading and refurbishment services for temperature, humidity and pressurization equipment. In addition to marketing our proprietary products, we distribute mechanical, electrical and electronic products made by manufacturers around the world. The products include environmental chambers, mechanical shock and vibration testers, specialized equipment for aerospace applications and more. We offer an extensive range of components, including connectors, cables, camera modules, LCD displays, and touch screen panels. Leveraging our engineering and integration expertise, we customize and optimize these solutions to meet the unique requirements of each customer, delivering enhanced performance, reliability, and value. We also support our customers with their extended research and development arm in product design, leveraging the expert skills of our component engineers and design engineers. 
+ 
+ Others 
+ 
+ Company has real estate investments made in ChongQing, China. When identifying reportable segments, management evaluates the contribution of each segment to our overall business strategy and whether the segment reported provides meaningful information to users about the Company’s performance and prospects. Revenue from the real-estate investment has been below 1% of total revenue in the past five fiscal years due to the negative real-estate environment in China. Effective in Fiscal 2025, management therefore concluded that the real-estate segment is not integral to the Company’s operations and does not intend to allocate any additional resources to this segment. As a result, this segment ceased to be a reportable segment and has been presented under the Others segment. 
+
+ Product Research and Development 
+ 
+ We focus our research and development activities on improving and enhancing both product design and process technology. We conduct product and system research and development activities for our products in the U.S. and Singapore. Research and development expense was $397 and $384 for the years ended June 30, 2026 and 2025, respectively. 
+ 
+ Marketing, Distribution and Services 
+ 
+ We market our products and services worldwide, directly and through independent sales representatives and our own marketing team. We have approximately five independent sales representatives operating in the U.S. and another twenty-two in foreign countries. All sales representatives represented the SBS and IE segments for products and services produced and provided by our facilities in different locations. 
+ 
+ Customer Concentration 
+ 
+ During the years ended June 30, 2026 and 2025, combined sales of equipment and services to our three largest customers accounted for approximately 57.6% and 41.0%, respectively, of our total net revenue. Of those sales, one major U.S.-based customer, served through our SBS segment, accounted for $24,222 (38.7%) and $1,285 (3.5%) for the years ended June 30, 2026 and 2025, respectively. The increase was primarily attributable to new service business associated with the customer's geographic sourcing realignment, which expanded demand for the Company's services. In addition, one customer of our IE segment accounted for approximately $6,494 (10.4%) and $6,139 (16.8%) of the Company's consolidated revenue for the year ended June 30, 2026 and 2025, respectively. 
+ 
+ As of June 30, 2026 and 2025, trade account receivables from our three largest customers accounted for approximately 38.6% and 48.9%, respectively, of our total trade account receivables. Within these balance, $3,012 (22.2%) and $485 (4.5%) of our total trade account receivables were from one major customer for the years ended June 30, 2026 and 2025, respectively. We regularly assess the creditworthiness of our customers and evaluate the adequacy of the allowance for expected credit losses. 
+ 
+ Backlog 
+ 
+ The following table sets forth the Company’s backlog as of June 30, 2026 and 2025: 
+
+ For the Year Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ Semiconductor Back-end Solutions backlog 
+ 
+ $ 
+ 19,773 
+
+ $ 
+ 6,695 
+
+ Industrial Electronics backlog 
+
+ 4,399 
+
+ 4,335 
+
+ 24,172 
+
+ 11,030 
+
+ Based on our past experience, we do not anticipate any significant cancellations or renegotiation of sales. The purchase orders for the SBS and IE businesses generally require delivery within 12 months from the date of the purchase order and certain costs are incurred before delivery. In the event of the cancellation of a confirmed purchase order, we require our customers to reimburse us for all costs incurred. We do not anticipate any difficulties in meeting delivery schedules. 
+ 
+ For testing services in the SBS segment, purchase orders are generally received during the course of delivery. Accordingly, testing services backlog of approximately $9,054 represents a soft backlog based on management's estimate of customer demand for the next three months, using customer forecasts and other demand indications rather than firm purchase orders. As such, the backlog is not a binding commitment and may not be indicative of future revenue ultimately recognized. 
+
+ 4
+
+ Table of Contents 
+
+ Materials and Supplies 
+ 
+ Our products are designed by our engineers and are assembled and tested at our facilities in the U.S., China and Singapore. We purchase all parts and certain components from outside vendors for assembly purposes. We have no written contracts with any of our key suppliers. As these parts and components are available from a variety of sources, we believe that the loss of any one of our suppliers would not have a material adverse effect on our results of operations taken as a whole. 
+ 
+ Competition 
+ 
+ Our ability to compete is dependent on our ability to develop, introduce and sell new products, or enhanced versions of existing products, on a timely basis and at competitive prices, while reducing our costs. 
+ 
+ Semiconductor Back-end Solutions (SBS) 
+ 
+ Our SBS testing services operate in a competitive landscape, with numerous laboratories in our regions offering similar capabilities. The intense competition has accelerated industry consolidation, particularly in Asia, thinning the field of competitors. While the presence of semiconductor manufacturers' competitors poses risks to our revenue, we believe that our established reputation, decades of expertise, and deep customer relationships will continue to secure our market position. 
+ 
+ The principal competitive factors in the SBS manufacturing processes of burn-in and reliability test equipment include product performance, reliability, service and technical support, product improvements, price, established relationships with customers and product familiarity. We have been in business for more than 60 years which has helped us to establish and nurture long-term relationships with customers. 
+ 
+ Industrial Electronics (IE) 
+ 
+ Our IE segment includes the design, manufacture and distribution of an extensive range of test, process and other equipment used in the manufacturing processes of customers in various industries in the consumer and industrial market. We offer an extensive range of components, including connectors, cables, camera modules, LCD displays, and touch screen panels. Leveraging our engineering and integration expertise, we customize and optimize these solutions to meet the unique requirements of each customer, delivering enhanced performance, reliability, and value. We also support our customers as their extended research and development arm in product design, leveraging the expert skills of our component engineers and design engineers. 
+ 
+ While the equipment and component market remains highly competitive, our integrated approach combines standard product offerings with value-added services such as customization and technical support. This combination allows us to meet specialized customer needs more comprehensively, creating modest but sustainable differentiation in our target markets, supporting consistent revenue generation while strengthening our position in key customer segments. 
+ 
+ Patents 
+ 
+ During the years ended June 30, 2026 and 2025, we did not register any patents within the U.S. 
+ 
+ It is typical in the semiconductor industry to receive notices from time to time, alleging infringement of patents or other intellectual property rights of others. We do not believe that we infringe on the intellectual property rights of any others. However, should any claims be brought against us, the cost of litigating such claims and any damage could materially and adversely affect our business, financial condition, and results of operations. 
+ 
+ Employees 
+ 
+ As of June 30, 2026, we had approximat ely 943 full-time employees and 3 part-time employees. Geographically, approximately 5 full-time employees were located in the U.S. and approximately 938 full-time employees in Asia. None of our employees are represented by a labor union. 
+ 
+ There were approximately 894 employees in the SBS segment, 30 employees in the IE segment and 19 employees in general administration, logistics, real estate and others as of June 30, 2026. 
+ 
+ As of June 30, 2025, we had approximately 614 full-time employees and 4 part-time employees. Geographically, approximately 5 full-time employees were located in the U.S. and approximately 609 full-time employees in Asia. None of our employees are represented by a labor union. 
+ 
+ There were approximately 559 employees in the SBS segment, 31 employees in the IE segment, and 24 employees in general administration, logistics, real estate and others as of June 30, 2025. 
+
+ 5
+
+ Table of Contents
