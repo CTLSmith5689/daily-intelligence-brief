@@ -1,0 +1,1284 @@
+LIQUIDITY SERVICES ANNOUNCES THIRD QUARTER FISCAL YEAR 2026 FINANCIAL RESULTS Share Expansion, Platform Efficiencies and Strong Buyer Participation Drive Profitable Growth Bethesda, MD - August 6, 2026 - Liquidity Services (NASDAQ:LQDT; www.liquidityservices.com), the leading global provider of e-commerce marketplaces and software solutions powering the circular economy, today announced its financial results for its fiscal quarter ended June 30, 2026, as compared to the corresponding prior year quarter: • Gross Merchandise Volume (GMV) of $453.0 million, up 10%, and Revenue of $129.6 million, up 8% • GAAP Net Income of $10.4 million, up 41%, and GAAP Diluted Earnings Per Share (EPS) of $0.32, up 39% • Non-GAAP Adjusted EBITDA of $22.0 million, up 30%, and Non-GAAP Adjusted Diluted EPS of $0.45, up 32% • Cash balances of $231.1 million 1 with zero financial debt “Our third quarter results demonstrate the resounding success of our RISE strategy to drive value for buyers and sellers across the entire Circular Economy as we march closer to our $2 Billion annual GMV target. We are unlocking new efficiencies for our customers and internal operations through the smart use of machine learning, artificial intelligence and software which has translated to higher recovery, sales volume and market share. During Q3, our marketplaces drove continued growth in seller adoption and buyer liquidity resulting in a 17% increase in the number of completed transactions, expanded margins and strong free cash flow. Our expanding multi-channel buyer base across the retail, industrial and public sector verticals supports stronger recovery and scalable, asset light growth. Our strong performance reflects the payoff from our ongoing investment in innovation, service and scale and we are well positioned for continued growth in all economic climates,” said Bill Angrick, CEO of Liquidity Services. Third Quarter Financial Highlights GMV for the fiscal third quarter of 2026 was $453.0 million, setting a new quarterly record and a 10% increase from $413.0 million in the third fiscal quarter of 2025. • GMV in our RSCG segment increased 19% and set a new quarterly record, led by growth in consignment programs that leveraged asset-light, sell-in-place marketplace solutions and direct-to-consumer channels, while purchase programs increased modestly. • GMV in our GovDeals segment increased 9%, and set a new quarterly record, reflecting continued marketplace adoption, seller acquisition and service expansion. • GMV in our CAG segment decreased 1%, reflecting variability in project timing and regional activity levels. • Consignment sales represented 83% of consolidated GMV for the third fiscal quarter of 2026. Revenue for the third quarter of 2026 was $129.6 million, an 8% increase from $119.9 million in the third fiscal quarter of 2025. • Revenue in our RSCG segment increased 8% and set a new quarterly record, reflecting higher volumes and a favorable product mix. GMV growth outpaced revenue growth from the higher consignment mix, while channel optimization and improved recovery from an expanded buyer base also contributed to a 30% increase in segment direct profit, setting a new quarterly record. • Revenue in our GovDeals segment increased 7%, and segment direct profit increased 9%, each setting a new quarterly record. • Revenue in our CAG segment increased 18% and segment direct profit increased 13%, due to improved take-rates on multinational projects. • Revenue in our Machinio & Software Solutions segments increased 4% and segment direct profit increased 3%, reflecting modest subscription growth and pricing, while Machinio continues to expand its System offering in the marine dealer category and our Software Solutions business invests in expanding its Auction.io platform software-as-a-services business. Our marketplace platform business continued to demonstrate its scalability during the quarter, as growth in asset-light solutions, improved transaction margins, and disciplined execution drove strong operating leverage across the business. • GAAP Net Income of $10.4 million, or $0.32 per share, for the fiscal third quarter of 2026, an increase from $7.4 million, or $0.23 per share, for the same quarter last year. The percentage increase in GAAP Net Income exceeded Non-GAAP Adjusted Net Income as the fiscal third quarter of 2025 was impacted by business realignment expenses that did not recur. • Non-GAAP Adjusted Net Income for the fiscal third quarter of 2026 was $14.6 million, or $0.45 per share, an increase from $11.1 million, or $0.34 per share, for the same quarter last year. • Non-GAAP Adjusted EBITDA for the fiscal third quarter of 2026 was $22.0 million, a $5.0 million increase from $17.0 million in the same quarter last year, reflecting improved transaction margins, favorable business mix, and operating leverage generated through our marketplace platform. 1 Includes $219.8 million of Cash and cash equivalents and $11.3 million of Short-term investments. 
+
+ Third Quarter Segment Financial Results We present operating results for our three reportable segments: GovDeals, RSCG, and CAG. Our separate Machinio and Software Solutions operating segments, which do not individually meet the quantitative thresholds to be reportable segments, are combined and presented together as Machinio & Software Solutions for segment reporting purposes. For further information on our reportable segments, see Note 14, Segment Information , to our quarterly report on Form 10-Q for the period ended June 30, 2026. Segment direct profit is calculated as total revenue less cost of goods sold (excluding depreciation and amortization). Our segment results are as follows (unaudited, dollars in thousands): 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ GovDeals: 
+
+ GMV 
+ $ 
+ 273,989 
+
+ $ 
+ 252,291 
+
+ $ 
+ 714,585 
+
+ $ 
+ 667,761 
+
+ Total revenue 
+ $ 
+ 25,524 
+
+ $ 
+ 23,966 
+
+ $ 
+ 69,082 
+
+ $ 
+ 63,725 
+
+ Segment direct profit 
+ $ 
+ 24,163 
+
+ $ 
+ 22,160 
+
+ $ 
+ 65,221 
+
+ $ 
+ 58,688 
+
+ % of Total revenue 
+ 
+ 95 
+ % 
+
+ 92 
+ % 
+
+ 94 
+ % 
+
+ 92 
+ % 
+
+ RSCG: 
+
+ GMV 
+ $ 
+ 121,552 
+
+ $ 
+ 102,556 
+
+ $ 
+ 348,113 
+
+ $ 
+ 315,170 
+
+ Total revenue 
+ $ 
+ 87,820 
+
+ $ 
+ 81,544 
+
+ $ 
+ 253,040 
+
+ $ 
+ 251,917 
+
+ Segment direct profit 
+ $ 
+ 25,157 
+
+ $ 
+ 19,371 
+
+ $ 
+ 67,983 
+
+ $ 
+ 54,434 
+
+ % of Total revenue 
+ 
+ 29 
+ % 
+
+ 24 
+ % 
+
+ 27 
+ % 
+
+ 22 
+ % 
+
+ CAG: 
+
+ GMV 
+ $ 
+ 57,472 
+
+ $ 
+ 58,160 
+
+ $ 
+ 178,139 
+
+ $ 
+ 183,509 
+
+ Total revenue 
+ $ 
+ 10,794 
+
+ $ 
+ 9,161 
+
+ $ 
+ 33,054 
+
+ $ 
+ 28,604 
+
+ Segment direct profit 
+ $ 
+ 9,560 
+
+ $ 
+ 8,460 
+
+ $ 
+ 28,593 
+
+ $ 
+ 25,909 
+
+ % of Total revenue 
+ 
+ 89 
+ % 
+
+ 92 
+ % 
+
+ 87 
+ % 
+
+ 91 
+ % 
+
+ Machinio & Software Solutions: 
+
+ Total revenue 
+ $ 
+ 5,440 
+
+ $ 
+ 5,221 
+
+ $ 
+ 16,354 
+
+ $ 
+ 14,386 
+
+ Segment direct profit 
+ $ 
+ 4,956 
+
+ $ 
+ 4,790 
+
+ $ 
+ 14,943 
+
+ $ 
+ 13,380 
+
+ % of Total revenue 
+ 
+ 91 
+ % 
+
+ 92 
+ % 
+
+ 91 
+ % 
+
+ 93 
+ % 
+
+ Consolidated: 
+
+ GMV 
+ $ 
+ 453,013 
+
+ $ 
+ 413,007 
+
+ $ 
+ 1,240,837 
+
+ $ 
+ 1,166,440 
+
+ Total revenue 
+ $ 
+ 129,578 
+
+ $ 
+ 119,875 
+
+ $ 
+ 371,530 
+
+ $ 
+ 358,581 
+
+ 2 
+
+ Third Quarter Operational Metrics • Registered Buyers — At the end of Q3-FY26, registered buyers, defined as the aggregate number of persons or entities who have registered on one of our marketplaces, totaled approximately 6.4 million, representing a 9% increase over the approximately 5.9 million registered buyers at the end of Q3-FY25. • Auction Participants — Auction participants, defined as registered buyers who have bid in an auction during the period (a registered buyer who bids in more than one auction is counted as an auction participant in each auction in which he or she bids), was approximately 1,046,000 in Q3-FY26, a 5% decrease from approximately 1,098,000 auction participants in Q3-FY25. • Completed Transactions — Completed transactions, defined as the number of auctions in a given period, were approximately 334,000 in Q3-FY26, a 17% increase from the approximately 286,000 completed transactions in Q3-FY25. 
+ 3 
+
+ Fourth Quarter Business Outlook For the fiscal fourth quarter of 2026 we expect continued strong profitability, led by our Retail Supply Chain Group (RSCG) and GovDeals. GovDeals is expected to remain a major contributor to consolidated profitability, supported by continued marketplace adoption and seller activity. In Retail, expanded channel placement, current backlog, product mix and higher demand during the fiscal fourth quarter are expected to support continuing strong direct profit performance, with operating leverage, despite anticipating sequentially lower GMV and revenue. Our Capital Assets Group (CAG) has a strong pipeline of international project-based work and continued momentum in its North American heavy equipment category that are expected to result in a strong sequential performance subject to the typical variability in project timing and regional mix, while Machinio and Software Solutions are expected to continue to contribute growth through subscription and software-enabled services. On a consolidated basis, consignment GMV for the fiscal fourth quarter is expected in the mid-eighties as a percentage of total GMV. Consolidated revenue as a percentage of GMV is expected to be in the mid-twenties, and total segment direct profit as a percentage of consolidated revenue is expected to be in the mid-fifty percent range as a result of the expected changes in mix resulting in improved direct profit margin. These ratios can vary based on our overall business mix, including asset categories, in any given period. Our Q4-FY26 guidance is as follows: 
+
+ $ in millions, except per share data 
+ Q4-FY26 Guidance 
+
+ GMV 
+ $415 to $455 
+
+ GAAP Net Income 
+ $10.0 to $13.0 
+
+ Non-GAAP Adjusted EBITDA 
+ $22.0 to $25.0 
+
+ GAAP Diluted EPS 
+ $0.30 to $0.39 
+
+ Non-GAAP Adjusted Diluted EPS 
+ $0.41 to $0.50 
+ 
+ Our Business Outlook includes forward-looking statements which reflect the following trends and assumptions for Q4-FY26 as compared to the prior year's period, as well as the other risks and uncertainties set forth in the Company’s Annual Report on Form 10-K for the year ended September 30, 2025, and our subsequent quarterly reports on Form 10-Q: Potential Impacts to GMV, Revenue, Segment Direct Profits, and ratios calculated using these metrics • fluctuations in the mix of purchase and consignment transactions. Generally, when the mix of purchase transactions increases, or when the commercial terms or pricing associated with such transactions change, revenue as a percent of GMV increases, while segment direct profit as a percentage of revenue decreases. When the mix of consignment transactions increases, or when associated economics change, revenue as a percent of GMV decreases, while segment direct profit as a percentage of revenue increases; • variability in the inventory product mix handled by our RSCG segment, including changes in asset availability, sourcing, and market pricing, which can cause a change in revenues and/or segment direct profit as a percentage of revenue; • real estate transactions in our GovDeals segment can be subject to significant variability due to changes that include postponements or cancellations of scheduled or expected auction events and the value of properties to be included in the auction event; • continued variability in project size and timing within our CAG segment, including variability driven by changes in economic and/or geopolitical conditions, which can impact revenues and segment direct profit; • continued growth and expansion resulting from the continuing acceleration of broader market adoption of the digital economy, particularly in our GovDeals and RSCG seller accounts and programs, including the execution by RSCG on its business plans for expanded direct-to-consumer sales; • changes in economic, political, or international trading conditions could cause variability in our operating results by impacting the priorities or financial stability of our sellers, current or prospective buyers or their end-customers; Potential Impacts to Operating Expenses • continued R&D spending to support delivering software solutions and enhancing our omni-channel behavioral marketing, analytics, and buyer/seller payment optimization; • spending in business development activities to capture market opportunities, targeting efficient payback periods; • variability in the volumes and service locations of products handled by our RSCG segment, which can cause the capacity and related operating expense requirements for inventory logistics and storage to fluctuate; 
+ 4 
+
+ Potential Impacts to GAAP Net Income and Diluted EPS and Non-GAAP Adjusted Net Income and Adjusted Diluted EPS • year-over-year, we expect that cash paid for income taxes will increase in FY26 as our US federal net operating loss carryforward became fully utilized during FY25. Our FY26 annual effective tax rate (ETR) is expected to range from approximately 30% to 34%, with the rate for the fiscal fourth quarter of 2026 in the low-to-mid thirties. This range excludes any potential impacts from any legislative changes, and excludes potential impacts that have limited visibility and can be highly variable, such as the discrete effects of stock compensation due to participant stock option exercise activity or changes in our stock price. • our diluted weighted average number of shares outstanding is expected to be approximately 33.0 million. As of June 30, 2026, we had $15.0 million in remaining authorization to repurchase shares of our common stock. 
+ 5 
+
+ Reconciliation of GAAP to Non-GAAP Measures Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA . Non-GAAP EBITDA is a supplemental non-GAAP financial measure and is equal to Net Income plus interest and other income, net; provision for income taxes; and depreciation and amortization. Our definition of Non-GAAP Adjusted EBITDA differs from Non-GAAP EBITDA because we further adjust Non-GAAP EBITDA for stock compensation expense, acquisition costs such as transaction expenses, business realignment expenses, litigation settlement expenses that are not expected to recur, and goodwill, long-lived and other non-current asset impairment. A reconciliation of Net Income to Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA is as follows (dollars in thousands): 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Net income 
+ 
+ $ 
+ 10,426 
+
+ $ 
+ 7,410 
+
+ $ 
+ 25,437 
+
+ $ 
+ 20,271 
+
+ Interest and other income, net 1 
+
+ (1,411 
+ ) 
+
+ (1,127 
+ ) 
+
+ (3,711 
+ ) 
+
+ (3,231 
+ ) 
+
+ Provision for income taxes 
+
+ 5,072 
+
+ 3,885 
+
+ 11,250 
+
+ 6,920 
+
+ Depreciation and amortization 
+
+ 2,683 
+
+ 2,657 
+
+ 7,906 
+
+ 7,741 
+
+ Non-GAAP EBITDA 
+ 
+ $ 
+ 16,770 
+
+ $ 
+ 12,825 
+
+ $ 
+ 40,882 
+
+ $ 
+ 31,701 
+
+ Stock compensation expense 
+
+ 5,272 
+
+ 3,512 
+
+ 15,796 
+
+ 9,522 
+
+ Acquisition-related costs 2 
+
+ 4 
+
+ 50 
+
+ 116 
+
+ 286 
+
+ Business realignment expenses 3 
+
+ — 
+
+ 618 
+
+ — 
+
+ 777 
+
+ Non-GAAP Adjusted EBITDA 
+ 
+ $ 
+ 22,046 
+
+ $ 
+ 17,005 
+
+ $ 
+ 56,794 
+
+ $ 
+ 42,286 
+
+ 1 Interest and other income, net, per the Condensed Consolidated Statements of Operations, excludes the non-service components of net periodic pension cost (benefit). 2 Acquisition-related costs are included in Other operating expenses, net on the Condensed Consolidated Statements of Operations. 3 Business realignment expense, included as a component of Other operating expenses, net, on the Condensed Consolidated Statement of Operations, includes the amounts accounted for as exit costs under ASC 420, Exit or Disposal Cost Obligations, and the related impacts of business realignment actions subject to other accounting guidance. 
+ 6 
+
+ Non-GAAP Adjusted Net Income and Non-GAAP Adjusted Basic and Diluted Earnings Per Share. Non-GAAP Adjusted Net Income is a supplemental non-GAAP financial measure and is equal to Net Income plus stock compensation expense, amortization of intangible assets, acquisition related costs such as transaction expenses and changes in earn-out estimates, business realignment expenses, litigation settlement expenses that are not expected to reoccur, goodwill, long-lived and other non-current asset impairments, and the estimated impact of income taxes on these non-GAAP adjustments as well as non-recurring tax adjustments. Non-GAAP Adjusted Basic and Diluted Earnings Per Share are determined using Non-GAAP Adjusted Net Income. For Q3-FY26 and Q3-FY25, the tax rates used to estimate the impact of income taxes on the non-GAAP adjustments was 30.7% and 25.4%, respectively, based upon the GAAP effective tax rates for each year-to-date period. A reconciliation of Net Income to Non-GAAP Adjusted Net Income and Non-GAAP Adjusted Basic and Diluted Earnings Per Share is as follows (dollars in thousands, except per share data): 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Net income 
+ 
+ $ 
+ 10,426 
+
+ $ 
+ 7,410 
+
+ $ 
+ 25,437 
+
+ $ 
+ 20,271 
+
+ Stock compensation expense 
+
+ 5,272 
+
+ 3,512 
+
+ 15,796 
+
+ 9,522 
+
+ Intangible asset amortization 
+
+ 783 
+
+ 828 
+
+ 2,349 
+
+ 2,453 
+
+ Acquisition-related costs 1 
+
+ 4 
+
+ 50 
+
+ 116 
+
+ 286 
+
+ Business realignment expenses 2 
+
+ — 
+
+ 618 
+
+ — 
+
+ 777 
+
+ Income tax impact on the adjustment items 
+
+ (1,860 
+ ) 
+
+ (1,272 
+ ) 
+
+ (5,606 
+ ) 
+
+ (3,311 
+ ) 
+
+ Non-GAAP Adjusted net income 
+ 
+ $ 
+ 14,625 
+
+ $ 
+ 11,146 
+
+ $ 
+ 38,092 
+
+ $ 
+ 29,998 
+
+ Non-GAAP Adjusted basic earnings per common share 
+ 
+ $ 
+ 0.47 
+
+ $ 
+ 0.36 
+
+ $ 
+ 1.23 
+
+ $ 
+ 0.97 
+
+ Non-GAAP Adjusted diluted earnings per common share 
+ 
+ $ 
+ 0.45 
+
+ $ 
+ 0.34 
+
+ $ 
+ 1.17 
+
+ $ 
+ 0.93 
+
+ Basic weighted average shares outstanding 
+
+ 31,240,396 
+
+ 31,157,183 
+
+ 30,976,586 
+
+ 30,935,882 
+
+ Diluted weighted average shares outstanding 
+
+ 32,851,019 
+
+ 32,497,238 
+
+ 32,476,795 
+
+ 32,404,183 
+
+ 1 Acquisition-related costs are included in Other operating expenses, net on the Condensed Consolidated Statement of Operations. 2 Business realignment expense, included as a component of Other operating expenses, net, on the Condensed Consolidated Statement of Operations, includes the amounts accounted for as exit costs under ASC 420, Exit or Disposal Cost Obligations, and the related impacts of business realignment actions subject to other accounting guidance. 
+ 7 
+
+ Conference Call Details The Company will host a conference call to discuss these results at 10:30 a.m. Eastern Time today. Investors and other interested parties may access the teleconference by registering here to receive the dial-in number and unique conference pin. A live listen-only webcast of the conference call will be provided on the Company's investor relations website at https://investors.liquidityservices.com. An archive of the webcast will be available on the Company's website until August 6, 2027. The replay will be available starting at 1:30 p.m. Eastern Time on the day of the call. Non-GAAP Measures To supplement our consolidated financial statements presented in accordance with generally accepted accounting principles (GAAP), we use certain non-GAAP measures of certain components of financial performance. These non-GAAP measures include earnings before interest, taxes, depreciation and amortization (EBITDA), Adjusted EBITDA, Adjusted Net Income (Loss) and Adjusted Diluted Earnings (Loss) per Share. These non-GAAP measures are provided to enhance investors’ overall understanding of our current financial performance and prospects for the future. We use EBITDA and Adjusted EBITDA: (a) as measurements of operating performance because they assist us in comparing our operating performance on a consistent basis as they do not reflect the impact of items not directly resulting from our core operations; (b) for planning purposes, including the preparation of our internal annual operating budget; (c) to allocate resources to enhance the financial performance of our business; (d) to evaluate the effectiveness of our operational strategies; and (e) to evaluate our capacity to fund capital expenditures and expand our business. Adjusted Diluted Earnings (Loss) per Share is the result of our Adjusted Net Income (Loss) and diluted shares outstanding. We prepare Non-GAAP Adjusted EBITDA by eliminating from Non-GAAP EBITDA the impact of items that we do not consider indicative of our core operating performance. You are encouraged to evaluate these adjustments and the reasons we consider them appropriate for supplemental analysis. As an analytical tool, Non-GAAP Adjusted EBITDA is subject to all of the limitations applicable to Non-GAAP EBITDA. Our presentation of Non-GAAP Adjusted EBITDA should not be construed as an implication that our future results will be unaffected by unusual or non-recurring items. We believe these non-GAAP measures provide useful information to both management and investors by excluding certain expenses that may not be indicative of our core operating measures. In addition, because we have historically reported certain non-GAAP measures to investors, we believe the inclusion of non-GAAP measures provides consistency in our financial reporting. These measures should be considered in addition to financial information prepared in accordance with GAAP, but should not be considered a substitute for, or superior to, GAAP results. A reconciliation of all historical non-GAAP measures included in this press release, to the most directly comparable GAAP measures, may be found in the financial tables included in this press release. We do not quantitatively reconcile our guidance ranges for our non-GAAP measures to their most comparable GAAP measures in the Business Outlook section of this press release. The guidance ranges for our GAAP and non-GAAP financial measures reflect our assessment of potential sources of variability in our financial results and are informed by our evaluation of multiple scenarios, many of which have interactive effects across several financial statement line items. Providing guidance for individual reconciling items between our non-GAAP financial measures and the comparable GAAP measures would imply a degree of precision and certainty in those reconciling items that is not a consistent reflection of our scenario-based process to prepare our guidance ranges. To the extent that a material change affecting the individual reconciling items between the Company’s forward-looking non-GAAP and comparable GAAP financial measures is anticipated, the Company has provided qualitative commentary in the Business Outlook section of this press release for your consideration. However, as the impact of such factors cannot be predicted with a reasonable degree of certainty or precision, a quantitative reconciliation is not available without unreasonable effort. Supplemental Operating Data To supplement our consolidated financial statements presented in accordance with GAAP, we use certain supplemental operating data as a measure of certain components of operating performance. GMV is the total sales value of all transactions for which we earned compensation upon their completion through our marketplaces or other channels during a given period of time. We review GMV because it provides a measure of the volume of goods being sold in our marketplaces and thus the activity of those marketplaces. GMV and our other supplemental operating data, including registered buyers, auction participants and completed transactions, also provide a means to evaluate the effectiveness of investments that we have made and continue to make in the areas of seller and buyer support, value-added services, product development, sales and marketing and operations. Therefore, we believe this supplemental operating data provides useful information to both management and investors. In addition, because we have historically reported certain supplemental operating data to investors, we believe the inclusion of this supplemental operating data provides consistency in our financial reporting. This data should be considered in addition to financial information prepared in accordance with GAAP, but should not be considered a substitute for, or superior to, GAAP results. 
+ 8 
+
+ Forward-Looking Statements This document contains forward-looking statements made pursuant to the Private Securities Litigation Reform Act of 1995. These statements are only predictions. The outcome of the events described in these forward-looking statements is subject to known and unknown risks, uncertainties and other factors that may cause our actual results, levels of activity, performance or achievements to differ materially from any future results, levels of activity, performance or achievements expressed or implied by these forward-looking statements. These statements include, but are not limited to, statements regarding the Company’s business outlook; expected future results; expected future effective tax rates; and trends and assumptions about future periods. You can identify forward-looking statements by terminology such as “may,” “will,” “should,” “could,” “would,” “expects,” “intends,” “plans,” “anticipates,” “believes,” “estimates,” “predicts,” “potential,” “continues” or the negative of these terms or other comparable terminology. Our business is subject to a number of risks and uncertainties, and our past performance is no guarantee of our performance in future periods. Although we believe that the expectations reflected in the forward-looking statements are reasonable, we cannot guarantee future results, levels of activity, performance or achievements. There are several risks and uncertainties that could cause our actual results to differ materially from the forward-looking statements in this document. Important factors that could cause our actual results to differ materially from those expressed as forward-looking statements are set forth in our filings with the SEC from time to time, and include, among others: our ability to source sufficient assets from sellers to attract and retain active professional buyers; our need to successfully react to the increasing importance of mobile commerce and the increasing environmental and social impact aspects of e-commerce in an increasingly competitive environment for our business, including not only risks of disintermediation of our e-commerce services by our competitors but also by our buyers and sellers; the performance of our continuing initiatives; disruptions in our vendor contracts with Amazon.com, Inc., under which we acquire a significant portion of our purchased inventory; our ability to timely upgrade and develop our information technology systems, infrastructure and digital marketing and customer service capabilities at reasonable cost and scale while complying with applicable data privacy and security laws and maintaining site stability and performance to allow our operations to grow in both size and scope; our ability to attract, retain and develop the skilled employees that we need to support our business; competitive pressures from different industries affecting our ability to attract and retain buyers and sellers; retail clients investing in their warehouse operations capacity to handle higher volumes of online returns, resulting in retailers sending the Company a reduced volume of returns merchandise or sending us a product mix lower in value due to the removal of high value returns; system interruptions, a lack of control over third parties software, and dependence on third parties for marketing technology, that could affect our websites or our transaction systems and impair the services we provide to our sellers and buyers; our ability to maintain the privacy and security of personal and business information amidst multiplying threat landscapes and in compliance with privacy and data protection regulations globally; the operations of customers, project size and timing of auctions, operating costs, seasonality of our business and general economic conditions; the numerous factors that influence the supply of and demand for used merchandise, equipment and surplus assets, and cause volatility in our stock price; our ability to integrate acquired companies, and execute on anticipated business plans such as the efforts underway with local and state governments to advance legislation that allows for online auctions for foreclosed and tax foreclosed real estate; costs of developing and maintaining our international operations; political, business, economic and other conditions in local, regional and global sectors; the continuing impacts of geopolitical events, including armed conflicts in Ukraine, the conflict between the United States, Israel, and Iran and related geopolitical instability; and impacts from escalating interest rates and inflation on our operations; the supply of, demand for or market values of surplus assets, such as shortages in supply of used vehicles; the numerous government regulations of e-commerce and other services, competition, and restrictive governmental actions, including any failure or perceived failure by us, or third parties with which we do business, to comply with applicable data privacy and security laws, and regulations that are applicable to our auction business; and other risks and uncertainties set forth in the Company’s Annual Report on Form 10-K for the year ended September 30, 2025, and our subsequent quarterly reports, all of which is available on the SEC and Company websites. There may be other factors of which we are currently unaware or which we deem immaterial that may cause our actual results to differ materially from the forward-looking statements. All forward-looking statements attributable to us or persons acting on our behalf apply only as of the date of this document and are expressly qualified in their entirety by the cautionary statements included in this document. Except as may be required by law, we undertake no obligation to publicly update or revise any forward-looking statement to reflect events or circumstances occurring after the date of this document or to reflect the occurrence of unanticipated events. 
+ 9 
+
+ About Liquidity Services Liquidity Services (NASDAQ:LQDT) is the leading global provider of e-commerce marketplaces and software solutions powering the circular economy with over $15 billion in completed transactions to more than six million qualified buyers and 15,000 corporate and government sellers worldwide. The company supports its clients' sustainability efforts by helping them extend the life of assets, prevent unnecessary waste and carbon emissions, and reduce the number of products headed to landfills. Contact: Investor Relations InvestorRelations@LiquidityServices.com 
+ 10 
+
+ Liquidity Services and Subsidiaries Unaudited Condensed Consolidated Balance Sheets (Dollars in Thousands, Except Par Value) 
+
+ June 30, 2026 
+
+ September 30, 2025 
+
+ (Unaudited) 
+
+ Assets 
+
+ Current assets: 
+
+ Cash and cash equivalents 
+ 
+ $ 
+ 219,751 
+
+ $ 
+ 174,607 
+
+ Short-term investments 
+
+ 11,348 
+
+ 11,212 
+
+ Accounts receivable, net of allowance for doubtful accounts of $657 and $777 
+
+ 12,470 
+
+ 11,176 
+
+ Inventory, net 
+
+ 15,539 
+
+ 14,180 
+
+ Prepaid taxes and tax refund receivable 
+
+ 1,212 
+
+ 1,757 
+
+ Prepaid expenses and other current assets 
+
+ 11,180 
+
+ 11,857 
+
+ Total current assets 
+
+ 271,500 
+
+ 224,789 
+
+ Property and equipment, net 
+
+ 18,773 
+
+ 18,259 
+
+ Operating lease assets 
+
+ 11,624 
+
+ 11,499 
+
+ Intangible assets, net 
+
+ 11,022 
+
+ 13,340 
+
+ Goodwill 
+
+ 102,794 
+
+ 102,875 
+
+ Deferred tax assets 
+
+ 536 
+
+ 567 
+
+ Other assets 
+
+ 3,843 
+
+ 3,772 
+
+ Total assets 
+ 
+ $ 
+ 420,092 
+
+ $ 
+ 375,101 
+
+ Liabilities and stockholders’ equity 
+
+ Current liabilities: 
+
+ Accounts payable 
+ 
+ $ 
+ 60,636 
+
+ $ 
+ 61,454 
+
+ Accrued expenses and other current liabilities 
+
+ 29,597 
+
+ 30,575 
+
+ Current portion of operating lease liabilities 
+
+ 4,502 
+
+ 5,071 
+
+ Deferred revenue 
+
+ 4,849 
+
+ 5,093 
+
+ Payables to sellers 
+
+ 72,244 
+
+ 59,432 
+
+ Total current liabilities 
+
+ 171,828 
+
+ 161,625 
+
+ Operating lease liabilities 
+
+ 9,093 
+
+ 8,723 
+
+ Other long-term liabilities 
+
+ 3,319 
+
+ 1,511 
+
+ Total liabilities 
+
+ 184,240 
+
+ 171,859 
+
+ Commitments and contingencies (Note 13) 
+
+ Stockholders’ equity: 
+
+ Common stock, $0.001 par value; 120,000,000 shares authorized; 38,025,125 shares issued and outstanding at June 30, 2026; 37,317,175 shares issued and outstanding at September 30, 2025 
+
+ 38 
+
+ 37 
+
+ Additional paid-in capital 
+
+ 295,026 
+
+ 285,721 
+
+ Treasury stock, at cost; 6,701,268 shares at June 30, 2026, and 6,640,580 shares at September 30, 2025 
+
+ (111,635 
+ ) 
+
+ (110,002 
+ ) 
+
+ Accumulated other comprehensive loss 
+
+ (11,140 
+ ) 
+
+ (10,640 
+ ) 
+
+ Retained earnings 
+
+ 63,563 
+
+ 38,126 
+
+ Total stockholders’ equity 
+
+ 235,852 
+
+ 203,242 
+
+ Total liabilities and stockholders’ equity 
+ 
+ $ 
+ 420,092 
+
+ $ 
+ 375,101 
+
+ 11 
+
+ Liquidity Services and Subsidiaries Unaudited Condensed Consolidated Statements of Operations (Dollars in Thousands, Except Per Share Data) 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Purchase revenues 
+ 
+ $ 
+ 81,838 
+
+ $ 
+ 76,517 
+
+ $ 
+ 237,042 
+
+ $ 
+ 237,159 
+
+ Consignment and other fee revenues 
+
+ 47,740 
+
+ 43,358 
+
+ $ 
+ 134,488 
+
+ 121,422 
+
+ Total revenue 
+
+ 129,578 
+
+ 119,875 
+
+ 371,530 
+
+ 358,581 
+
+ Costs and expenses from operations: 
+
+ Cost of goods sold (excludes depreciation and amortization) 
+
+ 65,742 
+
+ 65,110 
+
+ 194,790 
+
+ 206,220 
+
+ Technology and operations 
+
+ 19,252 
+
+ 17,275 
+
+ 55,869 
+
+ 51,565 
+
+ Sales and marketing 
+
+ 17,618 
+
+ 15,694 
+
+ 50,750 
+
+ 44,278 
+
+ General and administrative 
+
+ 10,141 
+
+ 8,221 
+
+ 28,978 
+
+ 23,596 
+
+ Depreciation and amortization 
+
+ 2,683 
+
+ 2,657 
+
+ 7,906 
+
+ 7,741 
+
+ Other operating expenses 
+
+ 4 
+
+ 700 
+
+ 108 
+
+ 1,073 
+
+ Total costs and expenses 
+
+ 115,440 
+
+ 109,657 
+
+ 338,401 
+
+ 334,473 
+
+ Income from operations 
+
+ 14,138 
+
+ 10,218 
+
+ 33,129 
+
+ 24,108 
+
+ Interest and other income, net 
+
+ (1,360 
+ ) 
+
+ (1,077 
+ ) 
+
+ (3,558 
+ ) 
+
+ (3,083 
+ ) 
+
+ Income before provision for income taxes 
+
+ 15,498 
+
+ 11,295 
+
+ 36,687 
+
+ 27,191 
+
+ Provision for income taxes 
+
+ 5,072 
+
+ 3,885 
+
+ 11,250 
+
+ 6,920 
+
+ Net income 
+ 
+ $ 
+ 10,426 
+
+ $ 
+ 7,410 
+
+ $ 
+ 25,437 
+
+ $ 
+ 20,271 
+
+ Basic income per common share 
+ 
+ $ 
+ 0.33 
+
+ $ 
+ 0.24 
+
+ $ 
+ 0.82 
+
+ $ 
+ 0.66 
+
+ Diluted income per common share 
+ 
+ $ 
+ 0.32 
+
+ $ 
+ 0.23 
+
+ $ 
+ 0.78 
+
+ $ 
+ 0.63 
+
+ Basic weighted average shares outstanding 
+
+ 31,240,396 
+
+ 31,157,183 
+
+ 30,976,586 
+
+ 30,935,882 
+
+ Diluted weighted average shares outstanding 
+
+ 32,851,019 
+
+ 32,497,238 
+
+ 32,476,795 
+
+ 32,404,183 
+
+ 12 
+
+ Liquidity Services and Subsidiaries Unaudited Condensed Consolidated Statements of Cash Flows (Dollars in Thousands) 
+
+ Nine Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ Operating activities 
+
+ Net income 
+ 
+ $ 
+ 25,437 
+
+ $ 
+ 20,271 
+
+ Adjustments to reconcile net income to net cash provided by operating activities: 
+
+ Depreciation and amortization 
+
+ 7,906 
+
+ 7,741 
+
+ Stock compensation expense 
+
+ 15,796 
+
+ 9,522 
+
+ Inventory adjustment to net realizable value 
+
+ 123 
+
+ 32 
+
+ Provision for doubtful accounts 
+
+ 267 
+
+ 199 
+
+ Deferred tax expense 
+
+ 1,887 
+
+ 1,872 
+
+ Impairment of long-lived and other non-current assets 
+
+ — 
+
+ 459 
+
+ Gain on disposal of property and equipment 
+
+ (2 
+ ) 
+
+ (19 
+ ) 
+
+ Changes in operating assets and liabilities: 
+
+ Accounts receivable 
+
+ (1,330 
+ ) 
+
+ (8,599 
+ ) 
+
+ Inventory 
+
+ (2,883 
+ ) 
+
+ 2,124 
+
+ Prepaid taxes and tax refund receivable 
+
+ 545 
+
+ (1,881 
+ ) 
+
+ Prepaid expenses and other assets 
+
+ 469 
+
+ 885 
+
+ Operating lease assets and liabilities 
+
+ (371 
+ ) 
+
+ (283 
+ ) 
+
+ Accounts payable 
+
+ 610 
+
+ (1,787 
+ ) 
+
+ Accrued expenses and other current liabilities 
+
+ (930 
+ ) 
+
+ (2,733 
+ ) 
+
+ Deferred revenue 
+
+ (244 
+ ) 
+
+ (62 
+ ) 
+
+ Payables to sellers 
+
+ 12,912 
+
+ 1,027 
+
+ Other liabilities 
+
+ (1 
+ ) 
+
+ — 
+
+ Net cash provided by operating activities 
+
+ 60,191 
+
+ 28,768 
+
+ Investing activities 
+
+ Cash paid for business acquisitions, net of cash acquired 
+
+ — 
+
+ (6,500 
+ ) 
+
+ Purchases of property and equipment, including capitalized software 
+
+ (6,178 
+ ) 
+
+ (5,784 
+ ) 
+
+ Purchase of short-term investments 
+
+ (8,791 
+ ) 
+
+ (16,217 
+ ) 
+
+ Maturities of short-term investments 
+
+ 8,309 
+
+ 7,417 
+
+ Other investing activities, net 
+
+ 111 
+
+ 203 
+
+ Net cash used in investing activities 
+
+ (6,549 
+ ) 
+
+ (20,881 
+ ) 
+
+ Financing activities 
+
+ Common stock repurchases 
+
+ (1,513 
+ ) 
+
+ (79 
+ ) 
+
+ Taxes paid associated with net settlement of stock compensation awards 
+
+ (7,985 
+ ) 
+
+ (5,106 
+ ) 
+
+ Payments of the principal portion of finance lease liabilities 
+
+ (82 
+ ) 
+
+ (75 
+ ) 
+
+ Proceeds from exercise of stock options, net of tax 
+
+ 1,106 
+
+ 192 
+
+ Net cash used in financing activities 
+
+ (8,474 
+ ) 
+
+ (5,068 
+ ) 
+
+ Effect of exchange rate differences on cash and cash equivalents 
+
+ (24 
+ ) 
+
+ (440 
+ ) 
+
+ Net increase (decrease) in cash and cash equivalents 
+
+ 45,144 
+
+ 2,379 
+
+ Cash and cash equivalents at beginning of period 
+
+ 174,607 
+
+ 153,226 
+
+ Cash and cash equivalents at end of period 
+ 
+ $ 
+ 219,751 
+
+ $ 
+ 155,605 
+
+ Supplemental disclosure of cash flow information 
+
+ Cash paid for income taxes, net 
+ 
+ $ 
+ 8,890 
+
+ $ 
+ 6,960 
+
+ Non-cash: Common stock surrendered in the exercise of stock options 
+
+ 121 
+
+ 47 
+
+ Non-cash: Acquisition consideration paid in common stock 
+
+ — 
+
+ 945 
+
+ 13

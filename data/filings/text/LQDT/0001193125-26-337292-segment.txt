@@ -1,0 +1,413 @@
+Segment Information 
+ 9 Months Ended 
+ 
+ Jun. 30, 2026 
+ 
+ Segment Reporting [Abstract] 
+
+ Segment Information 
+ 14. Segment Information The Company has five operating segments and three reportable segments under which we conduct business: GovDeals, Retail Supply Chain Group (RSCG), and Capital Assets Group (CAG). Our separate Machinio and Software Solutions operating segments, which do not individually meet the quantitative thresholds to be reportable segments, are combined and presented together as Machinio & Software Solutions for segment reporting purposes. • GovDeals . The GovDeals reportable segment provides solutions that enable government entities including city, county, state and federal agencies located in the United States and Canada and related commercial businesses to sell surplus property and real estate assets through its GovDeals, Bid4Assets and Sierra marketplaces; see Note 3 - Acquisitions . • RSCG . The RSCG reportable segment consists of marketplaces that enable corporations located in the United States and Canada to sell excess, returned, and overstocked consumer goods. RSCG also offers a suite of services that includes returns management, asset recovery, and e-commerce solutions. This segment uses multiple selling channels across our network of marketplaces and others to optimize the best combination of velocity, volume, and value. This segment primarily conducts its business-to-business sales on its Liquidation.com marketplace and through Direct Sales, and managed direct-to-consumer sales across a network of online sale channels, including Retail Rush, AllSurplus Deals, Secondipity and other online marketplaces. • CAG . The CAG reportable segment enables commercial businesses to sell surplus assets on our AllSurplus and GovDeals marketplace, specializing in asset categories such as heavy equipment, industrial manufacturing, oil and gas, biopharma, fast-moving consumer goods and electronics. CAG also offers a suite of services that includes surplus management, asset valuation, asset sales and marketing. CAG clients benefit from its global base of buyers and sellers, enabling the sale and redeployment of assets wherever they generate the best value and highest use across the world. • Machinio & Software Solutions . The Machinio operating segment operates the Machinio marketplace, a global search engine platform for listing equipment for sale in the construction, machine tool, processing, transportation, printing, agriculture, and laboratory/medical sectors, and the Machinio System platform that provides equipment sellers with a suite of software tools including website hosting, email marketing, and inventory management, to support and enable equipment sellers’ online business. The Software Solutions operating segment separately serves as the Company's private-label auction and software-as-a-service (SaaS) arm, offering scalable auction platform services to entrepreneurs and businesses. Decisions concerning the allocation of the Company’s resources are made by the Company’s Chief Operating Decision Maker (CODM), which is the Company's Chief Executive Officer , with oversight by the Board of Directors. The Company reports reportable segment information based on the internal performance measures used by the CODM to assess the performance of each operating segment in a given period. In connection with that assessment, the CODM uses segment direct profit to evaluate the performance of each segment. Segment direct profit is calculated as total revenue less cost of goods sold (excludes depreciation and amortization). The following table sets forth certain financial information for the Company's reportable se gments: 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ (in thousands) 
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ GovDeals: 
+
+ Purchase revenue 
+ 
+ $ 
+ 176 
+
+ $ 
+ 120 
+
+ $ 
+ 178 
+
+ $ 
+ 684 
+
+ Consignment and other fee revenues 
+
+ 25,348 
+
+ 23,846 
+
+ 68,904 
+
+ 63,041 
+
+ Total revenue 
+
+ 25,524 
+
+ 23,966 
+
+ 69,082 
+
+ 63,725 
+
+ Cost of goods sold (excludes depreciation and amortization) 
+
+ 1,361 
+
+ 1,806 
+
+ 3,861 
+
+ 5,037 
+
+ Segment direct profit 
+ 
+ $ 
+ 24,163 
+
+ $ 
+ 22,160 
+
+ $ 
+ 65,221 
+
+ $ 
+ 58,688 
+
+ RSCG: 
+
+ Purchase revenue 
+ $ 
+ 80,365 
+
+ $ 
+ 75,269 
+
+ $ 
+ 230,320 
+
+ $ 
+ 232,405 
+
+ Consignment and other fee revenues 
+ 
+ 7,455 
+
+ 6,275 
+
+ 22,720 
+
+ 19,512 
+
+ Total revenue 
+ 
+ 87,820 
+
+ 81,544 
+
+ 253,040 
+
+ 251,917 
+
+ Cost of goods sold (excludes depreciation and amortization) 
+
+ 62,663 
+
+ 62,173 
+
+ 185,057 
+
+ 197,483 
+
+ Segment direct profit 
+ $ 
+ 25,157 
+
+ $ 
+ 19,371 
+
+ $ 
+ 67,983 
+
+ $ 
+ 54,434 
+
+ CAG: 
+
+ Purchase revenue 
+ $ 
+ 1,296 
+
+ $ 
+ 1,128 
+
+ $ 
+ 6,544 
+
+ $ 
+ 4,070 
+
+ Consignment and other fee revenues 
+ 
+ 9,498 
+
+ 8,033 
+
+ 26,510 
+
+ 24,533 
+
+ Total revenue 
+ 
+ 10,794 
+
+ 9,161 
+
+ 33,054 
+
+ 28,604 
+
+ Cost of goods sold (excludes depreciation and amortization) 
+
+ 1,234 
+
+ 701 
+
+ 4,461 
+
+ 2,695 
+
+ Segment direct profit 
+ $ 
+ 9,560 
+
+ $ 
+ 8,460 
+
+ $ 
+ 28,593 
+
+ $ 
+ 25,909 
+
+ Machinio & Software Solutions: 
+
+ Purchase revenue 
+ $ 
+ — 
+
+ $ 
+ — 
+
+ $ 
+ — 
+
+ $ 
+ — 
+
+ Consignment and other fee revenues 
+ 
+ 5,440 
+
+ 5,221 
+
+ 16,354 
+
+ 14,386 
+
+ Total revenue 
+ 
+ 5,440 
+
+ 5,221 
+
+ 16,354 
+
+ 14,386 
+
+ Cost of goods sold (excludes depreciation and amortization) 
+
+ 484 
+
+ 431 
+
+ 1,411 
+
+ 1,006 
+
+ Segment direct profit 
+ $ 
+ 4,956 
+
+ $ 
+ 4,790 
+
+ $ 
+ 14,943 
+
+ $ 
+ 13,380 
+
+ Total segment direct profit 
+ $ 
+ 63,836 
+
+ $ 
+ 54,781 
+
+ $ 
+ 176,740 
+
+ $ 
+ 152,411 
+
+ Corporate expenses, including elimination adjustments 
+ 
+ $ 
+ — 
+
+ $ 
+ ( 17 
+ ) 
+ 
+ $ 
+ — 
+
+ $ 
+ ( 51 
+ ) 
+
+ Consolidated direct profit 
+ $ 
+ 63,836 
+
+ $ 
+ 54,764 
+
+ $ 
+ 176,740 
+
+ $ 
+ 152,360 
+
+ The following table reconciles segment direct profit used in the reportable segments to the Company's consolidated results: 
+
+ ﻿ 
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ (in thousands) 
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Reconciliation: 
+
+ ﻿ 
+
+ ﻿ 
+
+ Total segment direct profit 
+ $ 
+ 63,836 
+
+ $ 
+ 54,764 
+
+ $ 
+ 176,740 
+
+ $ 
+ 152,360 
+
+ Other costs and expenses from operations (1) 
+ $ 
+ 49,694 
+
+ 43,846 
+
+ 143,503 
+
+ 127,180 
+
+ Interest and other income, net 
+ $ 
+ ( 1,356 
+ ) 
+
+ ( 377 
+ ) 
+
+ ( 3,450 
+ ) 
+
+ ( 2,011 
+ ) 
+
+ Income before provision for income taxes 
+ $ 
+ 15,498 
+
+ $ 
+ 11,295 
+
+ $ 
+ 36,687 
+
+ $ 
+ 27,191 
+
+ (1) Other costs and expenses from operations is defined as Total costs and expenses from operations per the Condensed Consolidated Statements of Operations, less Cost of goods sold (which is included in the calculation of Segment direct profit). The percent of our revenues that came from transactions conducted outside of the United States for the three months ended June 30, 2026 and 2025, was 9.7 % and 8.6 % respectively. The percent of our revenues that came from transactions conducted outside of the United States for the nine months ended June 30, 2026 and 2025 was 10.1 % and 9.0 %, respectively. 
+
+ X 
+ 
+ - References No definition available. 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingAbstract 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ xbrli:stringItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration 
+
+ X 
+ 
+ - Definition The entire disclosure for segment reporting. 
+ + References Reference 1: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 40 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-40 Reference 2: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 42 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-42 Reference 3: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 34 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-34 Reference 4: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (f) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 5: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (ee) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 6: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 31 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-31 Reference 7: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26C -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26C Reference 8: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26B -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26B Reference 9: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 22 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-22 Reference 10: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 15 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-15 Reference 11: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 41 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-41 Reference 12: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (b) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 13: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 21 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-21 Reference 14: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 32 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-32 Reference 15: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 48 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-48 Reference 16: http://www.xbrl.org/2003/role/disclosureRef -Topic 270 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 1 -Subparagraph (i) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482964/270-10-50-1 Reference 17: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 18: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (c) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 19: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 20: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (a) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 21: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 54 -Subparagraph (e) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-54 Reference 22: http://www.xbrl.org/2003/role/exampleRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 55 -Paragraph 47 -Subparagraph (d) -Publisher FASB -URI https://asc.fasb.org/1943274/2147482785/280-10-55-47 Reference 23: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -Name Accounting Standards Codification -Publisher FASB -URI https://asc.fasb.org/280/tableOfContent Reference 24: http://www.xbrl.org/2003/role/disclosureRef -Topic 280 -SubTopic 10 -Name Accounting Standards Codification -Section 50 -Paragraph 26 -Publisher FASB -URI https://asc.fasb.org/1943274/2147482810/280-10-50-26 
+ + Details 
+ 
+ Name: 
+ us-gaap_SegmentReportingDisclosureTextBlock 
+
+ Namespace Prefix: 
+ us-gaap_ 
+
+ Data Type: 
+ dtr-types:textBlockItemType 
+
+ Balance Type: 
+ na 
+
+ Period Type: 
+ duration

@@ -1,0 +1,790 @@
+Item 2. Management’s Discussion and Analysis of F inancial Condition and Results of Operations FORWARD-LOOKING STATEMENTS This document contains forward-looking statements. These statements are only predictions. The outcome of the events described in these forward-looking statements is subject to known and unknown risks, uncertainties and other factors that may cause our actual results, levels of activity, performance, or achievements to differ materially from any future results, levels of activity, performance or achievements expressed or implied by these forward-looking statements. These risks and other factors include but are not limited to the factors set forth in our Annual Report on Form 10-K for the fiscal year ended September 30, 2025, and Part II Item 1A of this Quarterly Report on Form 10-Q, and subsequent filings with the Securities and Exchange Commission (SEC). You can identify forward-looking statements by terminology such as “may,” “will,” “should,” “could,” “would,” “expects,” “intends,” “plans,” “anticipates,” “believes,” “estimates,” “predicts,” “potential,” “continues” or the negative of these terms or other comparable terminology. Although we believe that the expectations reflected in the forward-looking statements are reasonable, we cannot guarantee future results, levels of activity, performance, or achievements. There may be other factors of which we are currently unaware or deem immaterial that may cause our actual results to differ materially from the forward-looking statements. All forward-looking statements attributable to us or persons acting on our behalf apply only as of the date of this document and are expressly qualified in their entirety by the cautionary statements included in this document. Except as may be required by law, we undertake no obligation to publicly update or revise any forward-looking statement to reflect events or circumstances occurring after the date of this document or to reflect the occurrence of unanticipated events. The following discussion should be read in conjunction with our unaudited condensed consolidated financial statements and related notes and the information contained elsewhere in this document. Overview About us. Liquidity Services is the leading global provider of e-commerce marketplaces and software solutions powering the circular economy. We create a better future for organizations, individuals, and the planet by using technology to capture and unleash the intrinsic value of surplus. We connect millions of buyers and thousands of sellers through our leading e-commerce auction marketplaces, search engines, asset management and auction software, and related services. Our comprehensive solutions enable the transparent, efficient, sustainable recovery of value from excess items owned by business and government sellers. Our business delivers value to shareholders by unleashing the intrinsic value of surplus through our online marketplace platforms. These platforms ignite and enable a self-reinforcing cycle of value creation where buyers and sellers attract one another in greater numbers. The result of this cycle is a continuous flow of goods that becomes increasingly valuable as more participants join the platforms, thereby creating positive network effects that benefit sellers, buyers, and shareholders. Incorporated in Delaware as Liquidation.com in November 1999, Liquidity Services has over 25 years of industry experience. Reportable Segments The Company has five operating segments and three reportable segments under which we conduct business: GovDeals, Retail Supply Chain Group (RSCG), and Capital Assets Group (CAG). Our separate Machinio and Software Solutions operating segments, which do not individually meet the quantitative thresholds to be reportable segments, are combined and presented together as Machinio & Software Solutions for segment reporting purposes. Further information and operating results of our reportable segments can be found in Note 14 - Segment Information . • GovDeals . The GovDeals reportable segment provides solutions that enable government entities including city, county, state and federal agencies located in the United States and Canada and related commercial businesses to sell surplus property and real estate assets through its GovDeals, Bid4Assets and Sierra marketplaces; see Note 3 - Acquisitions . • RSCG . The RSCG reportable segment consists of marketplaces that enable corporations located in the United States and Canada to sell excess, returned, and overstocked consumer goods. RSCG also offers a suite of services that includes returns management, asset recovery, and e-commerce solutions. This segment uses multiple selling channels across our network of marketplaces and others to optimize the best combination of velocity, volume, and value. This segment primarily conducts its business-to-business sales on its Liquidation.com marketplace and through Direct Sales, and managed direct-to-consumer sales across a network of online sale channels, including Retail Rush, AllSurplus Deals, Secondipity and other online marketplaces. • CAG . The CAG reportable segment enables commercial businesses to sell surplus assets on our AllSurplus and GovDeals marketplace, specializing in asset categories such as heavy equipment, industrial manufacturing, oil and gas, biopharma, fast-moving consumer goods and electronics. CAG also offers a suite of services that includes surplus management, asset valuation, asset sales and marketing. CAG clients benefit from its global base of buyers and sellers, enabling the sale and redeployment of assets wherever they generate the best value and highest use across the world. 
+ 19 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ • Machinio & Software Solutions . The Machinio operating segment operates the Machinio marketplace, a global search engine platform for listing equipment for sale in the construction, machine tool, processing, transportation, printing, agriculture, and laboratory/medical sectors, and the Machinio System platform that provides equipment sellers with a suite of software tools including website hosting, email marketing, and inventory management, to support and enable equipment sellers’ online business. The Software Solutions operating segment separately serves as the Company's private-label auction and software-as-a-service (SaaS) arm, offering scalable auction platform services to entrepreneurs and businesses. Macroeconomic Conditions Tariffs and other trade barriers . A number of countries have implemented, or are actively considering, measures affecting cross-border trade. Such actions may impact both our buyers and sellers as well as the availability of assets to list on our marketplaces. Ongoing developments related to the timing, scope and application of tariffs, including changes in tariff rates, the range of affected goods, and the countries subject to such measures, remain fluid and subject to rapid and unpredictable change. Tariffs imposed by the U.S., as well as retaliatory tariffs by other countries on U.S. exports, could adversely affect international commerce and our business. Supply chain challenges and consumer sentiment . The supply of used vehicles available for sale on our marketplaces may be impacted by ongoing tariffs implemented, or actively being considered, by the U.S., as well as the slowing adoption of electric vehicles as a replacement to internal combustion vehicle fleets. Further, used car market price indices continue to experience heightened volatility. In addition, general consumer behavior can be turbulent, and changes in consumer sentiment can cause fluctuation in the mix, volumes, and demand for the products we receive. Change in these conditions or other challenges that may emerge in other key asset categories can impact our financial performance. Effects of inflation and heightened interest rates . Inflation in both the U.S. and internationally has weighed on the global economy, increasing prices for energy, shipping, and labor, among other areas of the macroeconomic environment. These events have caused a rise in borrowing costs as well, partly driven by actions taken by central banks to curb rising inflation, which has impacted buyer qualification and transaction timelines. Currently, the Company is unable to predict the likelihood, magnitude, and timing of inflationary risk to our business, if any. As a marketplace operator, the GMV, revenues and costs of revenues that result from our primarily auction-based sales may be influenced by macroeconomic factors, including but not limited to inflation, the impacts of which may vary across each of our individual asset classes. International armed and geopolitical conflicts . The global financial markets have experienced volatility subsequent to the invasion of Ukraine by Russia in February 2022, a conflict which remains ongoing, as well as the ongoing conflict in and adjacent to Israel and Iran, and instability in Venezuela. Escalating tensions involving Iran have also contributed to volatility in global energy markets, including increases in oil prices, which in turn have placed upward pressure on transportation, logistics, and other operating costs and contributed to broader inflationary effects. Additionally, the Russia-Ukraine conflict resulted in numerous countries, including the United States, imposing significant new sanctions and export controls against Russia, Russian banks, and certain Russian individuals. These sanctions and export controls and international responses to the ongoing conflict in and adjacent to Israel and Iran, have further heightened global supply chain disruptions, increased energy and commodity price volatility, and impacted the international trade and financial markets. For the three and nine months ended June 30, 2026 and 2025, the Company's total revenues directly associated with Russia, Ukraine, Israel, Iran, and Venezuela were not material to our consolidated financial results individually nor collectively. We will continue monitoring these armed and geopolitical conflicts around the world and any potential future impacts on our business. Industry Trends We believe there are several industry trends positively impacting the long-term growth of our business including: • the increase in volume of returned merchandise handled both online and in stores as online and omni-channel retail grow as a percentage of overall retail sales; • the increase in government regulations and the need for corporations to have sustainability solutions with verifiable recycling and remarketing of surplus assets; • the increase in outsourcing surplus disposition and end-of-life assets by corporations and government entities as they focus on reducing costs, improving transparency, compliance and working capital, and increasingly prefer service providers with proven track records, innovative scalable solutions and the ability to make a strategic impact in the reverse supply chain; • an increase in buyer demand for surplus merchandise as consumers aspire to make more environmentally conscious decisions, while also seeking greater value through purchasing less expensive goods, both of which could impact our long-term growth; • the increase in demand from sellers and buyers to transact in an online solution ensuring assets are sold for fair market value; and • in the long-term we expect innovation in the retail supply chain will increase the pace of product obsolescence and, therefore, increase the supply of surplus assets. 
+ 20 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Our Marketplace Transactions We believe our marketplaces benefit over time from greater scale and adoption by our users creating a continuous flow of goods benefiting our buyers and sellers. As of June 30, 2026, we had 6.4 million registered buyers in our marketplaces. We had access to millions of additional end-users through a range of external consumer marketplaces. Aggregating this level of buyer demand and market data enables us to generate a continuous flow of goods from corporate and government sellers, which in turn attracts more buyers. During the twelve months ended June 30, 2026, the approximate number of registered buyers increased from 5.9 million to 6.4 million, or approximately 9%. As buyers continue to discover and use our e-commerce marketplaces as an effective method to source assets, we believe our solutions become a more attractive sales channel for corporate and government agency sellers. We believe this self-reinforcing cycle results in greater transaction volume and enhances the value of our marketplaces. Revenues Substantially all of our revenue is earned through the following transaction models: Purchase model . Under our purchase transaction model, we recognize revenue within the Purchase revenues line-item on the Consolidated Statements of Operations from the resale of inventory that we purchased from sellers. We consider these sellers to be our vendors. We pay our sellers either a fixed amount or a portion of the net or gross proceeds received from our completed sales based on the value we receive from the sale, in some cases, after deducting a required return to us that we have negotiated with the seller. Because we are the principal in purchase transaction model sales, we recognize as revenue the sale price paid by the buyer upon completion of a transaction. The proceeds paid by buyers also include transaction fees, referred to as buyer premiums. Consignment model—fee revenue . Under our consignment transaction model, we enable our sellers to sell goods they own in our marketplaces, and we charge them a commission fee based on the gross or net proceeds received from such sales. The revenue from our consignment transaction model is recognized upon auction close or upon collection of auction proceeds, depending upon the settlement service level selected by the seller. Revenue under the consignment model is recorded within the Consignment and other fee revenues line-item on the Consolidated Statements of Operations. Because we are the agent in consignment model sales, our commission fee revenue, which we refer to as seller commissions, represents a percentage of the sales price the buyer pays upon completion of a transaction. We vary the percentage amount of the seller commission depending on the various value-added services we provide to the seller to facilitate the transaction. For example, we generally increase the percentage amount of the commission if we take possession, handle, ship, or provide enhanced product information for the merchandise. In most cases we collect the seller commission by deducting the appropriate amount from the sales proceeds prior to the distribution to the seller after completion of the transaction. In addition to seller commissions, we also collect buyer premiums. Other — fee revenue . We also earn non-consignment fee revenue from our Machinio and Software Solution subscription services, auction listing service fees for foreclosed real estate at our GovDeals segment (payable regardless of whether or not an auction is completed), as well as other services including asset valuation, product handling, and storage fees. Non-consignment fee revenue is recorded within the Consignment and other fee revenues line-item on the Consolidated Statements of Operations. Transaction Model Mix . Most of our transactions are conducted under the consignment model, which represented 83.1% and 81.7% of our consolidated GMV for the three and nine months ended June 30, 2026, respectively, and 82.5% and 80.9% of our consolidated GMV for the three and nine months ended June 30, 2025, respectively. However, only the consignment fee, representing a small portion of the consignment GMV, is recognized as revenue, causing consignment revenues to account for 30.9% and 30.1% of our total revenues for the three and nine months ended June 30, 2026, respectively, and 30.0% and 28.1% of our total revenues for the three and nine months ended June 30, 2025, respectively. Purchase model transactions are a smaller proportion of our consolidated GMV, representing 16.9% and 18.3% of our consolidated GMV for the three and nine months ended June 30, 2026, respectively, and 17.5% and 19.1% of our consolidated GMV for the three and nine months ended June 30, 2025, respectively. However, all of the GMV associated with the purchase model transaction is generally able to be recognized as revenue, causing purchase revenues to account for 63.2% and 63.8% of our total revenues for the three and nine months ended June 30, 2026, respectively, and 63.8% and 66.1% of our total revenues for the three and nine months ended June 30, 2025, respectively. In assessing buyer concentration risk, we consider a number of quantitative factors, which can include the buyer's proportionate share of our consolidated GMV, revenues and direct profit, including any impacts based upon the transaction model mix they purchase. We also consider qualitative factors, such as the level of differentiation in the products sold and whether there are alterative buyers accessible in the market, among other relevant factors. For the three and nine months ended June 30, 2026 and 2025, we were not dependent on any single buyer in a manner material to our business. The Company has multiple vendor contracts with Amazon.com, Inc. under which it acquires and sells commercial merchandise. While purchase model transactions account for less than 20% of our total GMV, the cost of inventory for purchase model transactions is the most significant component of our consolidated Costs of goods sold. $11.1 million and $10.1 million of inventory purchased under such contracts with Amazon.com, Inc. is included in our Inventory balances on our Condensed Consolidated Balance Sheets as of June 30, 2026 and September 30, 2025, respectively. The Company's vendor contracts with respect to sourcing or consigning merchandise for our RSCG segment generally reflect the concentration dynamics inherent to the retail industry. 
+ 21 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Other fee revenues accounted for 6.0% and 6.2% of our total revenues for three and nine months ended June 30, 2026, respectively, and 6.2% and 5.8% of our total revenues for the three and nine months ended June 30, 2025, respectively. Key Business Metrics Our management periodically reviews certain key business metrics for operational planning purposes and to evaluate the effectiveness of our operational strategies, allocation of resources, and our capacity to fund capital expenditures and expand our business. These key business metrics include: Gross merchandise volume (GMV) . GMV is the total sales value of all transactions for which we earned compensation upon their completion through our marketplaces or other channels during a given period of time. We review GMV because it provides a measure of the volume of goods being sold in our marketplaces and thus the activity of those marketplaces. GMV also provides a means to evaluate the effectiveness of investments that we have made and continue to make, including in the areas of buyer and seller support, value-added services, product development, sales and marketing, and operations. Our GMV for the three and nine months ended June 30, 2026, was $453.0 million and $1.2 billion, respectively, increasing from the three and nine months ended June 30, 2025 by $40.0 million, or 9.7%, and $74.4 million, or 6.4%, respectively. Total registered buyers. We grow our buyer base through a combination of internal and external marketing, as well as other promotional efforts. An individual or company becomes a registered buyer by completing our online registration process for our marketplaces. During registration, we collect personal and business information, including name, company name, address, email, phone number, taxation information, and intended use of our marketplaces. Each prospective buyer must accept our User Agreement (Terms and Conditions) to proceed. Upon completion of registration, each buyer’s information is automatically screened against global restricted party lists maintained by government regulatory agencies. If the screening flags a buyer, our Customer Support team manually reviews the registration, typically within 24 hours, and the registration is either approved, denied, or subject to further identity verification. Only buyers who pass this vetting process are activated and permitted to bid on our marketplaces. We also conduct ongoing screening of active buyers to ensure continued compliance. Total registered buyers , as of a given date, represent the aggregate number of persons or entities who have registered on one of our marketplaces. We use this metric to evaluate how well our marketing and promotional efforts are performing. Total registered buyers exclude duplicate registrations, buyers who are suspended from utilizing our marketplaces and buyers who have voluntarily removed themselves from our registration database. In addition, if we become aware of registered buyers that are no longer in business, we remove them from our database. As of June 30, 2026 and 2025, we had 6.4 million and 5.9 million registered buyers, respectively. Total auction participants . For each auction we manage, the number of auction participants represents the total number of registered buyers who have bid one or more times in that auction. As a result, a registered buyer who bids, or participates, in more than one auction is counted as an auction participant in each auction in which he or she participates. Thus, total auction participants for a given period is the sum of the auction participants in each auction conducted during that period. We use this metric to allow us to compare our online auction marketplaces to our competitors, including other online auction sites and traditional on-site auctioneers. In addition, we measure total auction participants on a periodic basis to evaluate the activity level of our base of registered buyers and to measure the performance of our marketing and promotional efforts. During the three months ended June 30, 2026 and 2025, 1,046,000 and 1,098,000 participants participated in auctions on our marketplaces, respectively. During the nine months ended June 30, 2026 and 2025, 3,014,000 and 3,040,000 participants participated in auctions on our marketplaces, respectively. Completed transactions . Completed transactions represent the number of auctions in a given period from which we have recorded revenue. Similar to GMV, we believe that completed transactions is a key business metric because it provides an additional measurement of the volume of activity flowing through our marketplaces. During the three months ended June 30, 2026 and 2025, we completed 334,000 and 286,000 transactions, respectively. During the nine months ended June 30, 2026 and 2025, we completed 878,000 and 797,000 transactions, respectively. Critical Accounting Policies and Estimates The Company's critical accounting policies and estimates are described in our Annual Report on Form 10-K for the year ended September 30, 2025, and in Note 2 — Summary of Significant Accounting Policies to the condensed consolidated financial statements. Valuation of goodwill . Goodwill is allocated to our reporting units. The Company's reporting units are GovDeals, CAG, RSCG, Machinio and Software Solutions. Only the GovDeals, CAG, Machinio and Software Solutions reporting units have goodwill balances. The Company's Software Solutions reporting unit was acquired during fiscal 2025 and has a goodwill balance of $5.1 million. As a recently acquired business, this reporting unit has limited post-acquisition valuation history. Accordingly, its goodwill impairment analyses may be particularly sensitive to changes in key valuation assumptions, including revenue growth rates, operating margins, and discount rates. 
+ 22 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Components of Revenue and Expenses Revenue. Refer to the discussion in the Our revenue section above, and to Note 2 — Summary of Significant Accounting Policies in our Annual Report on Form 10-K for the year ended September 30, 2025, for discussion of the Company's related accounting policies. Cost of goods sold (excludes depreciation and amortization). Refer to the discussion in Note 2 — Summary of Significant Accounting Policies in our Annual Report on Form 10-K for the year ended September 30, 2025, for discussion of the Company's Costs of goods sold and related accounting policies. Technology and operations. Technology expenses primarily consist of the cost of technical staff (including stock compensation), third-party services, licenses, and infrastructure, all as required to develop, configure, deploy, maintain, and secure our marketplace platforms, business operational systems, and facilities. Technology expenses are net of the required capitalization of costs associated with enhancing our marketplace platforms and other software development activities. Depreciation and amortization of capitalized software development costs, purchased software, acquired developed software intangible assets, and computer hardware are included within Depreciation and amortization in the accompanying Condensed Consolidated Statements of Operations. Technology expenses are presented separately from Costs of goods sold (excluding depreciation and amortization) in the Condensed Consolidated Statements of Operations, as these expenses provide for the general availability of our marketplace platforms and other business operational systems and are not attributable to specific revenue generating transaction activity occurring on our marketplaces. Because our marketplaces and support systems require frequent upgrades and enhancements to maintain viability, we have determined that the useful life for certain internally developed software is less than one year. As a result, we expense those costs as incurred. However, where we determine that the useful life of the internally developed software will be greater than one year, we capitalize development costs in accordance with ASC 350-40, Internal-use software. As such, we are capitalizing certain development costs associated with our marketplaces and support systems, as well as other software development activities. Operations expenses consist primarily of costs to operate our network of warehouses, including shipping logistics, inventory management, refurbishment, and administrative functions; costs to enhance our online auctions listings and provide customer support; and costs associated with field support and preparation and transfer of goods from sellers to buyers. Operations expenses include both internal and external labor costs, as well as other third-party charges. These costs are expensed as incurred. Sales and marketing . Sales and marketing expenses include the cost of our sales and marketing personnel as well as the cost of lead generation, marketing and promotional activities, including buyer and seller acquisition, as well as general brand marketing. These activities include online marketing campaigns, such as paid search advertising and geofencing campaigns, as well as offline marketing efforts, trade shows, and marketing analytics. General and administrative . General and administrative expenses include all corporate and administrative functions that support our operations and provide an infrastructure to facilitate our future growth. These expenses are generally more fixed in nature than our other operating expenses and do not vary as significantly in response to the volume of merchandise sold through our marketplaces. Depreciation and amortization . Depreciation and amortization consist of depreciation of property and equipment, amortization of internally developed software, and amortization of intangible assets. Other operating expenses, net . Other operating expenses, net includes acquisition-related costs, impairment of long-lived and other assets, impacts of lease terminations, as well as business realignment expenses, including those associated with restructuring initiatives and the exit of certain business operations. Interest and other income, net . Interest and other income, net consists of interest income on interest-bearing checking accounts, money market funds, interest and unused commitment fees in connection with the Company's Credit Agreement, the components of net periodic pension cost (benefit) other than the service component and impacts of foreign currency fluctuations. Income taxes . Income taxes include current and deferred income tax expense for the U.S. federal, state, and foreign jurisdictions. Results of Operations The following table sets forth, for the periods indicated, our consolidated operating results: 
+ 23 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+
+ Three months ended June 30, 
+
+ Change 
+
+ Nine Months Ended June 30, 
+
+ Change 
+
+ (dollars in thousands) 
+ 
+ 2026 
+
+ 2025 
+
+ $ 
+
+ % 
+
+ 2026 
+
+ 2025 
+
+ $ 
+
+ % 
+
+ Purchase revenues 
+ 
+ $ 
+ 81,838 
+
+ $ 
+ 76,517 
+
+ $ 
+ 5,321 
+
+ 7.0 
+ % 
+ 
+ $ 
+ 237,042 
+
+ $ 
+ 237,159 
+
+ $ 
+ (117 
+ ) 
+
+ (0.0 
+ )% 
+
+ Consignment and other fee revenues 
+
+ 47,740 
+
+ 43,358 
+
+ 4,382 
+
+ 10.1 
+ % 
+
+ 134,488 
+
+ 121,422 
+
+ 13,066 
+
+ 10.8 
+ % 
+
+ Total revenue 
+
+ 129,578 
+
+ 119,875 
+
+ 9,703 
+
+ 8.1 
+ % 
+
+ 371,530 
+
+ 358,581 
+
+ 12,949 
+
+ 3.6 
+ % 
+
+ Costs and expenses from operations: 
+
+ Cost of goods sold (excludes depreciation and amortization) 
+
+ 65,742 
+
+ 65,110 
+
+ 632 
+
+ 1.0 
+ % 
+
+ 194,790 
+
+ 206,220 
+
+ (11,430 
+ ) 
+
+ (5.5 
+ )% 
+
+ Technology and operations 
+
+ 19,252 
+
+ 17,275 
+
+ 1,977 
+
+ 11.4 
+ % 
+
+ 55,869 
+
+ 51,565 
+
+ 4,304 
+
+ 8.3 
+ % 
+
+ Sales and marketing 
+
+ 17,618 
+
+ 15,694 
+
+ 1,924 
+
+ 12.3 
+ % 
+
+ 50,750 
+
+ 44,278 
+
+ 6,472 
+
+ 14.6 
+ % 
+
+ General and administrative 
+
+ 10,141 
+
+ 8,221 
+
+ 1,920 
+
+ 23.4 
+ % 
+
+ 28,978 
+
+ 23,596 
+
+ 5,382 
+
+ 22.8 
+ % 
+
+ Depreciation and amortization 
+
+ 2,683 
+
+ 2,657 
+
+ 26 
+
+ 1.0 
+ % 
+
+ 7,906 
+
+ 7,741 
+
+ 165 
+
+ 2.1 
+ % 
+
+ Other operating expenses 
+
+ 4 
+
+ 700 
+
+ (696 
+ ) 
+
+ (99.4 
+ )% 
+
+ 108 
+
+ 1,073 
+
+ (965 
+ ) 
+
+ (89.9 
+ )% 
+
+ Total costs and expenses 
+
+ 115,440 
+
+ 109,657 
+
+ 5,783 
+
+ 5.3 
+ % 
+
+ 338,401 
+
+ 334,473 
+
+ 3,928 
+
+ 1.2 
+ % 
+
+ Income from operations 
+
+ 14,138 
+
+ 10,218 
+
+ 3,920 
+
+ 38.4 
+ % 
+
+ 33,129 
+
+ 24,108 
+
+ 9,021 
+
+ 37.4 
+ % 
+
+ Interest and other income, net 
+
+ (1,360 
+ ) 
+
+ (1,077 
+ ) 
+
+ (283 
+ ) 
+
+ 26.3 
+ % 
+
+ (3,558 
+ ) 
+
+ (3,083 
+ ) 
+
+ (475 
+ ) 
+
+ 15.4 
+ % 
+
+ Income before provision for income taxes 
+
+ 15,498 
+
+ 11,295 
+
+ 4,203 
+
+ 37.2 
+ % 
+
+ 36,687 
+
+ 27,191 
+
+ 9,496 
+
+ 34.9 
+ % 
+
+ Provision for income taxes 
+
+ 5,072 
+
+ 3,885 
+
+ 1,187 
+
+ 30.5 
+ % 
+
+ 11,250 
+
+ 6,920 
+
+ 4,330 
+
+ 62.6 
+ % 
+
+ Net income 
+ 
+ $ 
+ 10,426 
+
+ $ 
+ 7,410 
+
+ $ 
+ 3,016 
+
+ 40.7 
+ % 
+ 
+ $ 
+ 25,437 
+
+ $ 
+ 20,271 
+
+ $ 
+ 5,166 
+
+ 25.5 
+ % 
+ 
+ NM = not meaningful The following table presents reportable segment GMV, revenue, segment direct profit (calculated as total revenue less cost of goods sold (excluding depreciation and amortization)), and segment direct profit as a percentage of total revenue for the periods indicated: 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ (dollars in thousands) 
+ 
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ GovDeals: 
+
+ GMV 
+ 
+ $ 
+ 273,989 
+
+ $ 
+ 252,291 
+
+ $ 
+ 714,585 
+
+ $ 
+ 667,761 
+
+ Total revenue 
+ 
+ $ 
+ 25,524 
+
+ $ 
+ 23,966 
+
+ $ 
+ 69,082 
+
+ $ 
+ 63,725 
+
+ Segment direct profit 
+ 
+ $ 
+ 24,163 
+
+ $ 
+ 22,160 
+
+ $ 
+ 65,221 
+
+ $ 
+ 58,688 
+
+ Segment direct profit as a percentage of total revenue 
+
+ 94.7 
+ % 
+
+ 92.5 
+ % 
+
+ 94.4 
+ % 
+
+ 92.1 
+ % 
+
+ RSCG: 
+
+ GMV 
+ 
+ $ 
+ 121,552 
+
+ $ 
+ 102,556 
+
+ $ 
+ 348,113 
+
+ $ 
+ 315,170 
+
+ Total revenue 
+ 
+ $ 
+ 87,820 
+
+ $ 
+ 81,544 
+
+ $ 
+ 253,040 
+
+ $ 
+ 251,917 
+
+ Segment direct profit 
+ 
+ $ 
+ 25,157 
+
+ $ 
+ 19,371 
+
+ $ 
+ 67,983 
+
+ $ 
+ 54,434 
+
+ Segment direct profit as a percentage of total revenue 
+
+ 28.6 
+ % 
+
+ 23.8 
+ % 
+
+ 26.9 
+ % 
+
+ 21.6 
+ % 
+
+ CAG: 
+
+ GMV 
+ 
+ $ 
+ 57,472 
+
+ $ 
+ 58,160 
+
+ $ 
+ 178,139 
+
+ $ 
+ 183,509 
+
+ Total revenue 
+ 
+ $ 
+ 10,794 
+
+ $ 
+ 9,161 
+
+ $ 
+ 33,054 
+
+ $ 
+ 28,604 
+
+ Segment direct profit 
+ 
+ $ 
+ 9,560 
+
+ $ 
+ 8,460 
+
+ $ 
+ 28,593 
+
+ $ 
+ 25,909 
+
+ Segment direct profit as a percentage of total revenue 
+
+ 88.6 
+ % 
+
+ 92.4 
+ % 
+
+ 86.5 
+ % 
+
+ 90.6 
+ % 
+
+ Machinio & Software Solutions: 
+
+ GMV 
+ 
+ — 
+
+ — 
+
+ — 
+
+ — 
+
+ Total revenue 
+ 
+ $ 
+ 5,440 
+
+ $ 
+ 5,221 
+
+ $ 
+ 16,354 
+
+ $ 
+ 14,386 
+
+ Segment direct profit 
+ 
+ $ 
+ 4,956 
+
+ $ 
+ 4,790 
+
+ $ 
+ 14,943 
+
+ $ 
+ 13,380 
+
+ Segment direct profit as a percentage of total revenue 
+
+ 91.1 
+ % 
+
+ 91.7 
+ % 
+
+ 91.4 
+ % 
+
+ 93.0 
+ % 
+
+ Consolidated: 
+
+ GMV 
+ 
+ $ 
+ 453,013 
+
+ $ 
+ 413,007 
+
+ $ 
+ 1,240,837 
+
+ $ 
+ 1,166,440 
+
+ Total revenue 
+ 
+ $ 
+ 129,578 
+
+ $ 
+ 119,875 
+
+ $ 
+ 371,530 
+
+ $ 
+ 358,581 
+
+ 24 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Three Months Ended June 30, 2026, Compared to the Three Months Ended June 30, 2025 Segment Results GovDeals . Total revenues from our GovDeals reportable segment increased 6.5%, or $1.6 million, due to a $21.7 million, or 8.6%, increase in GMV, driven by continued marketplace adoption, new seller acquisition and service expansion. Revenue grew at a lower rate than GMV due to an increase in transaction mix of the lower take-rate real estate category. Segment direct profit increased by $2.0 million, or 9.0%, and Segment direct profit as a percentage of total revenue increased from 92.5% to 94.7%, due to lower transaction processing fees. RSCG. Revenue from our RSCG reportable segment increased by $6.3 million, or 7.7%, reflecting that the $19.0 million, or 18.5%, increase in GMV was primarily driven by consignment transactions in our asset-light, sell-in-place marketplace solutions and managed direct-to-consumer channels, while there was a modest increase in our purchase programs. Segment direct profit increased by $5.8 million, or 29.9%, and Segment direct profit as a percentage of total revenue increased from 23.8% to 28.7%, driven by improved recovery on selected purchase-model flows, robust buyer demand, channel optimization, and lower transaction processing fees. CAG . Revenue in our CAG reportable segment increased by $1.6 million, or 17.8%, as a slight decrease in GMV of $0.7 million, or 1.2%, driven by variability in project timing and regional activity levels, was more than offset by a favorable transaction mix of complex, multinational industrial projects that command a higher take-rate. As there are inherent variations in the mix of assets sourced and sold by the CAG segment in any given period, Segment direct profit as a percentage of total revenue decreased from 92.4% to 88.6%. As a result of the increase in revenues, Segment direct profit increased by $1.1 million, or 13.0%. Global supply chains may experience heightened disruptions due to international tensions and other factors which could limit the volume of assets made available for sale in any period. Machinio & Software Solutions . Revenue from our Machinio & Software Solutions reportable segment increased 4.2%, or $0.2 million, due to modest subscription growth and pricing, and expansion of our Machinio System offering to marine dealers. As a result of the increase in revenues, segment direct profit increased 3.5%, or $0.2 million. Segment direct profit as a percentage of total revenue remained relatively consistent between the periods. Consolidated Results Total revenues . Total consolidated revenue increased $9.7 million, or 8.1%. Refer to the Segment Results above for discussion of the increase in revenue. Cost of goods sold (excludes depreciation and amortization) . Cost of goods sold increased $0.6 million, primarily due to a modest increase in our purchase programs at our RSCG reportable segment, partially offset by lower transaction processing fees. Refer to the Segment Results above for discussion of changes in Segment direct profit as a percentage of total revenue. Technology and operations expenses . Technology and operations expenses increased $2.0 million, or 11.4% ($1.7 million, or 10.4%, after the effect of a $0.2 million increase in stock compensation primarily from variable stock awards tied to financial performance targets), driven by continued investment in our proprietary marketplace platform technology and costs associated with multinational industrial projects at our CAG reportable segment. Sales and marketing expenses . Sales and marketing expenses increased $1.9 million, or 12.3% ($1.4 million, or 10.1%, after the effect of a $0.5 million increase in stock compensation primarily from variable stock awards tied to financial performance targets), driven by continued market share expansion and multi-channel buyer participation initiatives. General and administrative expenses . General and administrative expenses increased $1.9 million, or 23.4% ($0.8 million, or 13.4%, after the effect of a $1.1 million increase in stock compensation primarily from variable stock awards tied to financial performance targets), primarily due to changes in expected attainment of certain variable compensation targets. Depreciation and amortization . Depreciation and amortization expense was consistent between the three months ended June 30, 2026, and 2025. Other operating expenses, net . Other operating expenses, net decreased $0.7 million due to business restructuring expenses incurred at our RSCG reportable segment during the three months ended June 30, 2025. Provision for income taxes . Provision for income taxes increased $1.2 million due to higher pre-tax income, a decrease in tax benefits from stock compensation and other nondeductible expenses. 
+ 25 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Nine Months Ended June 30, 2026, Compared to the Nine Months Ended June 30, 2025 Segment Results GovDeal s. Total revenues from our GovDeals reportable segment increased 8.4%, or $5.4 million, due to a $46.8 million, or 7.0%, increase in GMV driven by continued marketplace adoption, new seller acquisition and service expansion. Revenue grew at a higher rate than GMV due to the expansion of service offerings to higher-volume sellers. Segment direct profit increased by $6.5 million, or 11.1%, and Segment direct profit as a percentage of total revenue increased from 92.1% to 94.4%, due to lower transaction processing fees. RSCG . Revenue from our RSCG reportable segment increased by $1.1 million, or 0.4%, reflecting that the $32.9 million, or 10.5% increase in GMV was driven by consignment transactions in our asset-light, sell-in-place marketplace solutions and managed direct-to-consumer channels, partially offset by a slight decline in our purchase programs. Segment direct profit increased by $13.5 million, or 24.9%, and Segment direct profit as a percentage of total revenue increased from 21.6% to 26.9%, driven by strong multi-channel consignment buyer participation, robust buyer demand, channel optimization, and lower transaction processing fees. CAG. Revenue from our CAG reportable segment increased by $4.5 million, or 15.6%, as a decrease in GMV of $5.4 million, or 2.9%, driven by variability in project timing and regional activity levels, was more than offset by increased heavy equipment consignment transaction activity and a favorable transaction mix of complex, multinational industrial projects that command a higher take-rate. As there are inherent variations in the mix of assets sourced and sold by the CAG segment in any given period, Segment direct profit as a percentage of total revenue decreased from 90.6% to 86.5%. As a result of the increase in revenues, Segment direct profit increased by $2.7 million, or 10.4%. Global supply chains may experience heightened disruptions due to international tensions and other factors, which could limit the volume of assets made available for sale in any period. Machinio & Software Solutions . Revenue in our Machinio & Software Solutions businesses increased 13.7%, or $2.0 million, due to modest subscription growth and pricing and expansion of our Machinio System offering to marine dealers. As a result of these increases in revenues, segment direct profit increased 11.7%, or $1.6 million. Segment direct profit as a percentage of total revenue decreased from 93.0% to 91.4% due to the Auction Software acquisition. Consolidated Results Total revenues . Total consolidated revenue increased $12.9 million, or 3.6%. Refer to the Segment Results above for discussion of the increase in revenue. Cost of goods sold (excludes depreciation and amortization). Cost of goods sold decreased $11.4 million, primarily due to improved margins from robust buyer demand optimized through our multi-channel approach in our RSCG reportable segment, as well as lower transaction processing fees, during the nine months ended June 30, 2026. Refer to the Segment Results above for discussion of changes in Segment direct profit as a percentage of total revenue. Technology and operations expenses. Technology and operations expenses increased $4.3 million, or 8.3%, ($3.4 million, or 6.8%, after the effect of a $0.9 million increase in stock compensation primarily from variable stock awards tied to financial performance targets), driven by continued investment in our proprietary marketplace platform technology and costs associated with multinational industrial projects at our CAG reportable segment, partially offset by a streamlining of operational costs including warehouse consolidation efforts in our RSCG reportable segment. Sales and marketing expenses. Sales and marketing expenses increased $6.5 million, or 14.6%, ($4.6 million, or 11.0%, after the effect of a $1.9 million increase in stock compensation primarily from variable stock awards tied to financial performance targets), driven by continued market share expansion and multi-channel buyer participation initiatives. General and administrative expenses. General and administrative expenses increased $5.4 million, or 22.8%, ($1.9 million, or 10.3%, after the effect of a $3.5 million increase in stock compensation primarily from variable stock awards tied to financial performance targets), primarily due to changes in expected attainment of certain variable compensation targets. Depreciation and amortization . Depreciation and amortization expense was consistent between the nine months ended June 30, 2026 and 2025. Other operating expenses, net . Other operating expenses, net decreased $1.0 million, as the nine months ended June 30, 2025, included business restructuring expenses incurred at our RSCG reportable segment and transactions costs associated with the acquisition of Auction Software; see Note 3 - Acquisition . Provision for income taxes . Provision for income taxes increased $4.3 million due to higher pre-tax income, a decrease in tax benefits from stock compensation and other nondeductible expenses. 
+ 26 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Non-GAAP Financial Measures Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA . Non-GAAP EBITDA is a supplemental non-GAAP financial measure and is equal to Net income plus Interest and other (income) expense, net excluding the non-service components of net periodic pension cost (benefit); Provision for income taxes; and Depreciation and amortization. Interest and other (income) expense, net, can include non-operating gains and losses, such as from foreign currency fluctuations. Our definition of Non-GAAP Adjusted EBITDA differs from Non-GAAP EBITDA because we further adjust Non-GAAP EBITDA for stock-based compensation expense, acquisition costs such as transaction expenses and changes in earn out estimates, business realignment expenses, litigation settlement expenses that are not expected to reoccur, and goodwill, long-lived and other non-current asset impairment. We believe Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA are useful to an investor in evaluating our performance for the following reasons: • Depreciation and amortization expense primarily relates to property and equipment and the amortization of intangible assets. These expenses are non-cash charges that have fluctuated significantly in the past. As a result, we believe that adding back these non-cash charges is useful in evaluating the operating performance of our business on a consistent basis from year-to-year. • As a result of varying federal and state income tax rates, we believe that presenting a financial measure that adjusts for provision for income taxes is useful to investors when evaluating the operating performance of our business on a consistent basis from year to year. • The authoritative guidance for stock-based compensation requires all share-based payments to employees, including grants of employee stock options, restricted stock and stock appreciation rights to be recognized in the income statement based on their estimated fair values over the requisite vesting period. We believe adjusting for this stock-based compensation expense is useful to investors when evaluating the operating performance of our business on a consistent basis from year to year. • The authoritative guidance related to business combinations requires the initial recognition of contingent consideration at fair value based upon information known or knowable as of the acquisition date, with subsequent changes in fair value recorded through the Condensed Consolidated Statements of Operations and disallows the capitalization of transaction costs. We believe adjusting for these acquisition related expenses is useful to investors when evaluating the operating performance of our business on a consistent basis from year-to-year. • We believe adjusting for litigation settlement expenses that are not expected to reoccur is useful to investors when evaluating the operating performance of our business on a consistent basis from year-to-year. • We believe adjusting for business realignment expense is useful to investors when evaluating the operating performance of our business on a consistent basis from year-to-year, as these expenses are outside our ordinary course of business. • We believe isolating non-cash charges, such as amortization and depreciation, and other items, such as impairment costs incurred outside our ordinary course of business, provides additional information about our cost structure, and, over time, helps track our performance. • We believe Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA are important indicators of our operational strength and the performance of our business because they provide a link between profitability and operating cash flow. • We also believe that analysts and investors use Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA as supplemental measures to evaluate the overall operating performance of companies in our industry. Our management uses Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA: • as measurements of operating performance because they assist us in comparing our operating performance on a consistent basis as they remove the impact of items not directly resulting from our core operations; • for planning purposes, including the preparation of our internal annual operating budget; • to allocate resources to enhance the financial performance of our business; • to evaluate the effectiveness of our operational strategies; and • to evaluate our capacity to fund capital expenditures and expand our business. Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA as calculated by us are not necessarily comparable to similarly titled measures used by other companies. In addition, Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA: (a) do not represent net income or cash flows from operating activities as defined by GAAP; (b) are not necessarily indicative of cash available to fund our cash flow needs; and (c) should not be considered as alternatives to net income, income from operations, cash provided by (used in) operating activities, or our other financial information as determined under GAAP. 
+ 27 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ We prepare Non-GAAP Adjusted EBITDA by eliminating from Non-GAAP EBITDA the impact of items that we do not consider indicative of our core operating performance. You are encouraged to evaluate these adjustments and the reasons we consider them appropriate for supplemental analysis. As an analytical tool, Non-GAAP Adjusted EBITDA is subject to all of the limitations applicable to Non-GAAP EBITDA. Our presentation of Non-GAAP Adjusted EBITDA should not be construed as an implication that our future results will be unaffected by unusual or non-recurring items. The table below reconciles Net income to Non-GAAP EBITDA and Non-GAAP Adjusted EBITDA for the periods presented. 
+
+ Three Months Ended June 30, 
+
+ Nine Months Ended June 30, 
+
+ 2026 
+
+ 2025 
+
+ 2026 
+
+ 2025 
+
+ Net income 
+ 
+ $ 
+ 10,426 
+
+ $ 
+ 7,410 
+
+ $ 
+ 25,437 
+
+ $ 
+ 20,271 
+
+ Interest and other income, net 1 
+
+ (1,411 
+ ) 
+
+ (1,127 
+ ) 
+
+ (3,711 
+ ) 
+
+ (3,231 
+ ) 
+
+ Provision for income taxes 
+
+ 5,072 
+
+ 3,885 
+
+ 11,250 
+
+ 6,920 
+
+ Depreciation and amortization 
+
+ 2,683 
+
+ 2,657 
+
+ 7,906 
+
+ 7,741 
+
+ Non-GAAP EBITDA 
+ 
+ $ 
+ 16,770 
+
+ $ 
+ 12,825 
+
+ $ 
+ 40,882 
+
+ $ 
+ 31,701 
+
+ Stock compensation expense 
+
+ 5,272 
+
+ 3,512 
+
+ 15,796 
+
+ 9,522 
+
+ Acquisition-related costs 2 
+
+ 4 
+
+ 50 
+
+ 116 
+
+ 286 
+
+ Business realignment expenses 3 
+
+ — 
+
+ 618 
+
+ — 
+
+ 777 
+
+ Non-GAAP Adjusted EBITDA 
+ 
+ $ 
+ 22,046 
+
+ $ 
+ 17,005 
+
+ $ 
+ 56,794 
+
+ $ 
+ 42,286 
+
+ 1 Interest and other income, net, per the Condensed Consolidated Statements of Operations, excludes the non-service components of net periodic pension cost (benefit). 2 Acquisition-related costs are included in Other operating expenses, net on the Condensed Consolidated Statements of Operations. 3 Business realignment expense, included as a component of Other operating expenses, net, on the Condensed Consolidated Statement of Operations, includes the amounts accounted for as exit costs under ASC 420, Exit or Disposal Cost Obligations, and the related impacts of business realignment actions subject to other accounting guidance. Liquidity and Capital Resources Our operational cash needs primarily relate to working capital, including staffing costs, technology expenses, leases of real estate, and equipment used in our operations, and capital used for inventory purchases, which we have funded through existing cash balances and cash generated from operations. The Company has not paid a dividend historically, nor do we have any intention to do so in the foreseeable future. From time to time, we may use our capital resources for other activities, such as contract start-up costs, joint ventures, share repurchases and acquisitions. As of June 30, 2026, we had $219.8 million in Cash and cash equivalents and $11.3 million in Short-term investments, which we believe is sufficient to meet the Company’s anticipated cash needs for at least one year from the date of these financial statements. The Company accepts multiple forms of payment including payment cards, bank transfers, and other merchant account providers. Generally, we require receipt of payment prior to shipment or buyer-arranged pick-up at the point of sale, which minimizes our collection risk on those transactions. However, for a limited number of financially qualified buyers, which can include re-sellers, we may from time-to-time extend credit for certain large purchases with negotiated payment periods. Credit terms commonly require payment to be made within 30 days, but where commercial terms or market conditions warrant these payment terms may be extended for up to six months. As a result, our consolidated accounts receivable balances are typically a small component of our overall financial position but may, at times, be concentrated among a limited, small number of such buyers. Collection risk from and credit exposure to these financially qualified buyers is regularly reviewed by management and adjusted as needed. We intend to indefinitely reinvest the earnings of our foreign subsidiaries outside the United States. As a result, we did not record a provision for deferred U.S. tax expense on the $9.9 million of undistributed foreign earnings as of June 30, 2026. A total of $28.5 million of cash and cash equivalents and short-term investments was held out of the U.S. as of June 30, 2026. These amounts are not currently considered in our evaluation of near-term liquidity needs in the U.S. due to the potential for adverse tax consequences upon repatriation. Capital Expenditures Our capital expenditures consist primarily of capitalized software, warehouse equipment, computers and purchased software, office equipment, furniture and fixtures, and leasehold improvements. The timing and volume of such capital expenditures in the future will be affected by the addition of new sellers or buyers or expansion of existing seller or buyer relationships. We intend to fund those expenditures primarily from our existing cash balances and operating cash flows. Our capital expenditures for the nine months ended June 30, 2026 and 2025, were $6.2 million and $5.8 million, respectively. This increase was primarily driven by the timing of enhancements to our platforms and marketplaces. As of June 30, 2026, we had no significant outstanding commitments for capital expenditures. 
+ 28 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Our future capital requirements will depend on many factors including our rate of revenue growth, the timing and extent of spending to support development efforts, the expansion of sales and marketing activities, the development and deployment of new marketplaces, the introduction of new value-added services and the costs to expand our network of warehouses. We may seek to enter agreements with respect to potential investments in, or acquisitions of, complementary businesses, products or technologies, which could also require us to seek additional equity or debt financing. The sale of additional equity securities or convertible debt securities would result in additional dilution to our stockholders. Additional debt would result in increased interest expense and could result in covenants that would restrict our operations. There is no assurance that such financing, if required, will be available in amounts or on terms acceptable to us, if at all. Credit Agreement The Company maintains a $35.0 million revolving credit facility with Wells Fargo Bank, National Association (the Credit Agreement). During the three months ended June 30, 2026, the Credit Agreement was amended to extend the maturity date by 12 months to March 31, 2028 (the Fourth Amendment). No other changes, including regarding the borrowing terms or capacities, were made to the Credit Agreement. The Company may draw upon the Credit Agreement for general corporate purposes. Repayments of any borrowings under the Credit Agreement shall become available for redraw at any time by the Company. The interest rate on borrowings under the Credit Agreement is a variable rate per annum equal to the Daily Simple Secured Overnight Financing Rate (SOFR) in effect plus a margin ranging from 1.25% to 1.75%. Interest is payable monthly. During the three and nine months ended June 30, 2026, the Company did not make any draws under the Line of Credit, had no outstanding borrowings under the Line of Credit and had $11.3 million of standby letters of credit outstanding. The amount of standby letters of credit are reserved against the Line of Credit and are not available for borrowing, resulting in $23.7 million of remaining borrowing capacity under the Line of Credit as of June 30, 2026. The obligations under the Credit Agreement are unconditionally guaranteed by us and each of our existing and subsequently acquired or organized domestic subsidiaries and secured on a first priority basis by a security interest (subject to permitted liens) in substantially all assets owned by us, and each of our other domestic subsidiaries, subject to limited exceptions. The Credit Agreement contains certain financial and non-financial restrictive covenants including, among others, the requirement to maintain a minimum level of earnings before interest, income taxes, depreciation and amortization (EBITDA). The Credit Agreement contains a number of affirmative and restrictive covenants including limitations on mergers, consolidations and dissolutions, investments and acquisitions, indebtedness and liens, and dividends and other restricted payments. As of June 30, 2026, the Company was in full compliance with the terms and conditions of the Credit Agreement. Other Uses of Capital Resources Marketplace and Support System Innovations . We regularly invest in new solutions and enhancements to our marketplace platforms, including capabilities and tools for product recommendations, behavioral marketing, analytics, payment optimization, and leveraging advanced digital capabilities such as artificial intelligence (AI) and machine learning. Auction Software Acquisition . On January 31, 2025, the Company acquired Auction Software, a private-label marketplace and SaaS solutions provider. Auction Software results are reported within our Machinio & Software Solutions reportable segment. See Note 3 - Acquisitions for more information regarding this transaction. Share Repurchases . From time to time, we have been authorized to repurchase issued and outstanding shares of our common stock under a share repurchase program approved by our Board of Directors. Share repurchases may be made through open market purchases, privately negotiated transactions or otherwise, at times and in such amounts as management deems appropriate. The timing and actual number of shares repurchased will depend on a variety of factors including price, corporate and regulatory requirements and other market conditions. The repurchase program may be discontinued or suspended at any time and will be funded using our available cash. As of September 30, 2025, the Company had $1.5 million of remaining authorization to repurchase shares through December 31, 2026. On November 17, 2025, the Company's Board of Directors authorized the repurchase of up to an additional $15.0 million of the Company's outstanding shares of common stock through December 31, 2027. The Company made no repurchases during the three months ended June 30, 2026. The Company repurchased 56,676 shares for $1.5 million during the nine months ended June 30, 2026. As of June 30, 2026, the Company had $15.0 million of remaining authorization to repurchase shares through December 31, 2027. Off-Balance Sheet Arrangements . We do not have any transactions, agreements or other contractual arrangements that could be considered material off-balance sheet arrangements. 
+ 29 
+ 
+ Liquidity Services, Inc. and Subsidiaries Notes to the Unaudited Condensed Consolidated Financial Statements - (Continued) 
+ Changes in Cash Flows: Nine Months Ended June 30, 2026, Compared to the Nine Months Ended June 30, 2025 Net cash provided by operating activities was $60.2 million and $28.8 million for the nine months ended June 30, 2026 and 2025, respectively. The $31.4 million increase in cash provided by operating activities between periods was primarily attributable to an $11.3 million increase in Net income as adjusted for non-cash items, an $11.9 million increase in cash inflows associated with our Payables to Sellers due to higher buyer collection activity at the end of the current period in our GovDeals segment as there is inherent variability in the timing of payments processed across periods, and a $7.3 million increase in cash inflows associated with Accounts receivable driven by a reduction of RSCG purchase transactions conducted with buyer credit terms in the current year. Our working capital accounts are subject to natural variations depending on the rate of change of our transaction volumes, the timing of cash receipts and payments, and variations in our transaction volumes related to settlements between our buyers and sellers. RSCG's purchase program volume changes may cause operating cash flows from Accounts receivable, Accounts payable and Inventory to fluctuate. As GovDeals real estate sales with settlement services increase, operating cash flow fluctuations from Accounts payable and Payables to sellers may become more variable. The amount of cash received and settled will be substantially higher than our take-rate on such transactions, and the timing of auction events, cash collection period, and payment of settlements relative to period end dates can potentially drive substantial cash movements to the extent the timing of such activities cross fiscal periods. Our US income tax payments increased $1.9 million during the nine months ended June 30, 2026, due to higher pre-tax income. There have been no other significant changes to the working capital requirements for the Company. Net cash used in investing activities was $6.5 million and $20.9 million for the nine months ended June 30, 2026 and 2025, respectively. The $14.4 million decrease in cash used in investing activities was primarily driven by a $7.4 million decrease in the Company's purchase of short-term investments during nine months ended June 30, 2026, due to timing differences in the maturity and reinvestment dates of our short-term investments, and a $6.5 million decrease in acquisitions net of cash acquired driven by the prior year acquisition of Auction Software during the nine months ended June 30, 2025; see Note 3 - Acquisitions . Net cash used in financing activities was $8.5 million and $5.1 million for the nine months ended June 30, 2026 and 2025, respectively. The $3.4 million increase in cash used in financing activities was primarily driven by a $2.9 million increase in taxes paid associated with the net settlement of stock compensation awards as a result of increased vesting of shares in the current period. 
+ 30
